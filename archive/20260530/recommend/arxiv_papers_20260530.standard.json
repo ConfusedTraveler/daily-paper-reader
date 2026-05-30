@@ -1,0 +1,128 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-30T20:43:10.381496+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.27490v1",
+      "source": "arxiv",
+      "title": "Tree Search With Predictions",
+      "abstract": "``Algorithms with predictions'', or ``learning-augmented algorithms'', has proved to be an extremely useful paradigm for combining machine learning with traditional algorithms. One of the textbook settings for this is searching a sorted array. Without a prediction, classical binary search takes $O(\\log n)$ queries, while with a prediction we can use ``doubling binary search'' to find the target key using $O(\\log η)$ queries, where $η$ is the error of the prediction measured as the absolute value of the difference between the true location and the predicted location. Since an array is just a path graph, in this paper we ask whether similar bounds can be achieved for search on even slightly more general graphs: trees. We show first that the high-level answer is ``no'': there is no search algorithm that uses $O(\\log η)$ queries, where $η$ is now the graph distance between the predicted location and the true location. However, as our main result, we show that such bounds can be achieved on trees which are ``path-like'' in that they have low \\emph{pathwidth}. In particular, we prove that there is a search algorithm which uses at most $O(k \\log η)$ queries, where $k$ is the pathwidth of the tree. We also prove a lower bound showing that our algorithm has existentially optimal query complexity. Finally, we show experimentally, on real-life inputs, that our algorithm has query complexity which is notably better than the simple non-prediction-based algorithm.",
+      "authors": [
+        "Michael Dinitz",
+        "Bob Dong"
+      ],
+      "primary_category": "cs.DS",
+      "categories": [
+        "cs.DS"
+      ],
+      "published": "2026-05-26T16:19:48+00:00",
+      "link": "https://arxiv.org/pdf/2605.27490v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "learning-augmented algorithms with prediction error bounds",
+      "llm_evidence_cn": "带预测误差界的算法预测理论",
+      "llm_evidence": "带预测误差界的算法预测理论",
+      "canonical_evidence": "带预测误差界的算法预测理论",
+      "llm_tldr_en": "Studies search in trees with predictions, proving fundamental limits on query complexity relative to prediction error, analogous to predictability limits.",
+      "llm_tldr_cn": "该文研究带预测的树搜索问题，证明了对任意搜索算法，查询复杂度下界为Ω(log n)与预测误差η无关，否定了类似线性搜索的可预测性推广。这一结果为树结构中的预测极限提供了理论刻画，尽管场景不同于时间序列，但其理论界限思路与可预测性极限需求高度契合。",
+      "llm_tldr": "该文研究带预测的树搜索问题，证明了对任意搜索算法，查询复杂度下界为Ω(log n)与预测误差η无关，否定了类似线性搜索的可预测性推广。这一结果为树结构中的预测极限提供了理论刻画，尽管场景不同于时间序列，但其理论界限思路与可预测性极限需求高度契合。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.23115v1",
+      "source": "arxiv",
+      "title": "Robust OT-Guided Generative Residual Domain Adaptation for Bike-Sharing Demand Prediction under Temporal Domain Shift",
+      "abstract": "Bike-sharing models trained on historical station-hour data may degrade when deployed in later years because travel patterns change over time. This paper studies March Citi Bike demand prediction from 2021 to 2026 as a temporal domain adaptation problem and proposes Gen-ROTDA, a robust optimal transport-guided residual domain adaptation framework. The method fits a target-domain station-time anchor with a small labeled target subset, transfers residual rather than raw demand, applies a deterministic label-preserving residual feature generator, and trims high-cost transport matches before training the final residual predictor. Experiments compare Gen-ROTDA with anchor-only, source-only, target-only, fine-tuning, MMD adaptation, Sinkhorn OTDA, ROTDA, and Gen-OTDA. Gen-ROTDA achieves the lowest MAE on the main 2025 to 2026 task and is the best OT-family method on average across multi-year tasks, although fine-tuning and MMD adaptation remain strong overall baselines. Under abnormal target-unlabeled records, Gen-ROTDA is much more stable than non-robust OT variants, suggesting that robust transport is useful for noisy temporal transfer in bike-sharing demand prediction.",
+      "authors": [
+        "Yiming Ma"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-05-22T00:29:14+00:00",
+      "link": "https://arxiv.org/pdf/2605.23115v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "bike-sharing demand prediction as human mobility time series",
+      "llm_evidence_cn": "共享单车需求预测作为人类移动性时间序列",
+      "llm_evidence": "共享单车需求预测作为人类移动性时间序列",
+      "canonical_evidence": "共享单车需求预测作为人类移动性时间序列",
+      "llm_tldr_en": "Gen-ROTDA uses optimal transport and residual domain adaptation for bike-sharing demand prediction under temporal shift.",
+      "llm_tldr_cn": "共享单车模型因出行模式变化而性能下降。本文提出Gen-ROTDA，一种鲁棒最优传输引导的残差域自适应框架，针对时间域偏移问题。该方法利用小部分目标域标签拟合锚点，转移残差而非原始需求，并修剪高成本运输匹配。实验基于Citi Bike数据，显示Gen-ROTDA在跨年预测中优于多种基线方法，有效提升了移动性预测的鲁棒性。",
+      "llm_tldr": "共享单车模型因出行模式变化而性能下降。本文提出Gen-ROTDA，一种鲁棒最优传输引导的残差域自适应框架，针对时间域偏移问题。该方法利用小部分目标域标签拟合锚点，转移残差而非原始需求，并修剪高成本运输匹配。实验基于Citi Bike数据，显示Gen-ROTDA在跨年预测中优于多种基线方法，有效提升了移动性预测的鲁棒性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.29968v1",
+      "source": "arxiv",
+      "title": "Data-Driven Crowd Dynamics using Kinetic Theory and Ensemble-based Data Assimilation",
+      "abstract": "Understanding pedestrian dynamics is critical for mitigating crowd-related risks and improving public safety. In this work, we propose a data-driven mesoscopic modeling framework that combines the kinetic theory of active particles with data assimilation techniques. The framework uses an ensemble Kalman filter to sequentially estimate the time-dependent spatial distribution of pedestrians and model parameters by fusing observations with the mesoscopic forward model state. Through a series of twin experiments, we show that the panic factor -- a key behavioral parameter -- is identifiable within this framework. We also evaluate the robustness of the approach by assimilating synthetic observations generated by an agent-based model (ABM). This setup introduces structural model error because the ABM is governed by microscopic rules that differ fundamentally from the mesoscopic kinetic equations. Despite this discrepancy, the ensemble Kalman filter, through the observation-based innovation term, successfully drives the kinetic model to track the observed pedestrian density while simultaneously recovering the panic factor. In this framework, observations act as a physical constraint on the evolution of the kinetic model. Crowd-dynamics models, including ABMs and kinetic models, often rely on phenomenological terms to describe social interactions, with parameters that are highly uncertain. Our findings indicate that in such systems, free-running simulations inevitably may diverge from the true state, whereas an online data-driven approach effectively constrains the system's trajectory to its underlying dynamical manifold.",
+      "authors": [
+        "Santiago Rosa",
+        "Manuel Pulido",
+        "Orlando Billoni",
+        "Juan Martín Guerrieri",
+        "Juan Pablo Agnelli"
+      ],
+      "primary_category": "physics.soc-ph",
+      "categories": [
+        "physics.soc-ph"
+      ],
+      "published": "2026-05-28T14:07:18+00:00",
+      "link": "https://arxiv.org/pdf/2605.29968v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "crowd dynamics modeling and pedestrian prediction",
+      "llm_evidence_cn": "人群动力学建模与行人预测",
+      "llm_evidence": "人群动力学建模与行人预测",
+      "canonical_evidence": "人群动力学建模与行人预测",
+      "llm_tldr_en": "Data-driven crowd dynamics combining kinetic theory and ensemble Kalman filter for pedestrian state estimation.",
+      "llm_tldr_cn": "理解行人动力学对于公共安全至关重要。本文提出数据驱动介观建模框架，结合动力学理论与集成卡尔曼滤波，顺序估计行人空间分布和模型参数。通过孪生实验，证实了恐慌因子等关键参数的可辨识性。该方法利用ABM模拟数据进行验证，为人类移动性预测提供了新颖的建模途径，有助于分析移动性可预测性的基本局限。",
+      "llm_tldr": "理解行人动力学对于公共安全至关重要。本文提出数据驱动介观建模框架，结合动力学理论与集成卡尔曼滤波，顺序估计行人空间分布和模型参数。通过孪生实验，证实了恐慌因子等关键参数的可辨识性。该方法利用ABM模拟数据进行验证，为人类移动性预测提供了新颖的建模途径，有助于分析移动性可预测性的基本局限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of human mobility",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
