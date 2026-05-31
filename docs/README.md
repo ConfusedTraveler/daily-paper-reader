@@ -6,32 +6,39 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-30
-- 运行时间：2026-05-30 20:44:41 UTC
+- 最新运行日期：2026-05-31
+- 运行时间：2026-05-31 20:40:03 UTC
 - 运行状态：成功
-- 本次总论文数：3
+- 本次总论文数：6
 - 精读区：0
-- 速读区：3
+- 速读区：6
 
 ### 今日简报（AI）
-今日速读3篇论文，聚焦预测与群体动力学方向。  
-最值得关注《Tree Search With Predictions》与《Data-Driven Crowd Dynamics》，前者探究预测辅助搜索，后者结合动理学与数据同化建模。  
-建议普通读者优先阅读这两篇7.0分论文，了解预测算法与人流动态预测的新思路。
-- 详情：[/202605/30/README](/202605/30/README)
+今日速读6篇论文，聚焦统计压缩、时间序列生成与传感器演化网络三大方向；其中《Target-Oriented Statistical Compression》与《Universal Time Series Generation》分别以反鞅监控和神经控制微分方程给出新思路，适合优先翻阅；建议普通读者重点关注时间序列生成与交通预测扩展方法，对实际应用启发较大。
+- 详情：[/202605/31/README](/202605/31/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Tree Search With Predictions](/202605/30/2605.27490v1-tree-search-with-predictions)  
+1. [Target-Oriented Statistical Compression: Sufficiency, Reverse Martingales, and Sequential Monitoring](/202605/31/2605.26568v1-target-oriented-statistical-compression-sufficiency-reverse-martingales-and-sequential-monitoring)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：带预测误差界的算法预测理论
-2. [Data-Driven Crowd Dynamics using Kinetic Theory and Ensemble-based Data Assimilation](/202605/30/2605.29968v1-data-driven-crowd-dynamics-using-kinetic-theory-and-ensemble-based-data-assimilation)  
+   evidence：面向目标压缩的统一视角，通过信息论与可预测性极限相关
+2. [Universal Time Series Generation with Neural Controlled Differential Equations](/202605/31/2605.28507v1-universal-time-series-generation-with-neural-controlled-differential-equations)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：人群动力学建模与行人预测
-3. [Robust OT-Guided Generative Residual Domain Adaptation for Bike-Sharing Demand Prediction under Temporal Domain Shift](/202605/30/2605.23115v1-robust-ot-guided-generative-residual-domain-adaptation-for-bike-sharing-demand-prediction-under-temporal-domain-shift)  
+   evidence：时间序列生成器的理论通用性
+3. [From XXLTraffic to EvoXXLTraffic: Scaling Traffic Forecasting to Sensor-Evolving Networks](/202605/31/2605.29768v1-from-xxltraffic-to-evoxxltraffic-scaling-traffic-forecasting-to-sensor-evolving-networks)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：人类移动性交通预测
+4. [ADMFormer: An Adaptive-Decomposition Transformer with Time-Varying Masked Spatial Attention for Traffic Forecasting](/202605/31/2605.25543v1-admformer-an-adaptive-decomposition-transformer-with-time-varying-masked-spatial-attention-for-traffic-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：共享单车需求预测作为人类移动性时间序列
+   evidence：时间序列预测中的自适应分解方法
+5. [LENS: A Staged Design for Interaction Granularityin Sequential CTR Prediction](/202605/31/2605.25583v1-lens-a-staged-design-for-interaction-granularityin-sequential-ctr-prediction)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：序列点击率预测方法
+6. [A Pedestrian-Vehicle Interaction Benchmark and Annotation Framework for Unstructured Scenes via Uncalibrated Cameras](/202605/31/2605.25947v1-a-pedestrian-vehicle-interaction-benchmark-and-annotation-framework-for-unstructured-scenes-via-uncalibrated-cameras)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：行人-车辆交互数据集用于移动性
 
 
 <div class="dpr-home-promo-card">
