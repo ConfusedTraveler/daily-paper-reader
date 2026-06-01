@@ -1,0 +1,319 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-01T21:55:15.190143+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 4,
+    "deep_cap": 6,
+    "deep_selected": 4,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2605.29863v1",
+      "source": "arxiv",
+      "title": "STAP: A Shuffle-Tokenized App Predictor with Ultra Long Context for Vocabulary-Free Mobile App Prediction",
+      "abstract": "Predicting the next mobile application a user will launch is essential for intelligent device resource management and proactive assistance. Existing models rely on fixed app vocabularies, which prevents them from generalizing across different app ecosystems. Many also depend on user-specific knowledge, which complicates deployment in cold start scenarios. We propose STAP, a Transformer-based model that eliminates the need for a fixed vocabulary. STAP replaces true app identities with randomly reassigned virtual indices via a shuffle mechanism, and compensates for discarded semantic information by processing behavioral sequences with an ultra-long context design. A theoretical analysis shows that, given a sufficiently long context, the predicted distribution converges to the correct one despite the anonymity of the mapping. Experiments on two datasets from different continents demonstrate that STAP achieves strong cross-dataset zero-shot prediction accuracy -- a setting where all existing fixed-vocabulary methods are inherently inapplicable -- while its cold start performance within each dataset remains competitive with leading models. Furthermore, we introduce a deployment strategy that enables the model to retain a sufficiently long context during continuous inference while keeping latency within acceptable bounds.",
+      "authors": [
+        "Chengyu Fan",
+        "Hang Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-28T12:44:54+00:00",
+      "link": "https://arxiv.org/pdf/2605.29863v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "mobile app prediction as sequential recommendation with theoretical analysis",
+      "llm_evidence_cn": "移动应用预测作为序列推荐并进行理论分析",
+      "llm_evidence": "移动应用预测作为序列推荐并进行理论分析",
+      "canonical_evidence": "移动应用预测作为序列推荐并进行理论分析",
+      "llm_tldr_en": "STAP eliminates fixed vocabulary for mobile app prediction using shuffle tokenization and ultra-long context, with theoretical proof that shuffle preserves predictability.",
+      "llm_tldr_cn": "现有移动应用预测模型依赖固定词表，无法跨生态泛化且冷启动困难。本文提出STAP，一种基于Transformer的免词表模型，通过随机洗牌机制用虚拟索引替代真实应用标识，并利用超长上下文设计补偿语义信息丢失。理论分析证明在足够长上下文下洗牌不损失可预测性。实验表明STAP在多个数据集上取得领先性能，为序列推荐中可预测性理论提供了新的视角。",
+      "llm_tldr": "现有移动应用预测模型依赖固定词表，无法跨生态泛化且冷启动困难。本文提出STAP，一种基于Transformer的免词表模型，通过随机洗牌机制用虚拟索引替代真实应用标识，并利用超长上下文设计补偿语义信息丢失。理论分析证明在足够长上下文下洗牌不损失可预测性。实验表明STAP在多个数据集上取得领先性能，为序列推荐中可预测性理论提供了新的视角。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.30592v1",
+      "source": "arxiv",
+      "title": "Learning Transferable Predictability Representations",
+      "abstract": "We study the problem of assigning a scalar score to a short trajectory window that reflects its position on an ordered continuum of predictability regimes, spanning structured deterministic dynamics to unstructured stochastic noise. Existing methods address deterministic-versus-stochastic discrimination within a single system and do not produce scores with a consistent numerical interpretation across systems. We formalize this as ordinal estimation over a five-level predictability ladder and identify a structural source of cross-system ambiguity: ranking supervision alone leaves the score coordinate unfixed up to a monotone reparameterization, which we term the gauge freedom of ordinal scoring. We propose the Gauge-Fixed Ordinal Network (GON), a temporal convolutional model trained with an anchor-and-variance objective that pins level-wise score means to shared target coordinates. GON operates on 2-jet features that expose local trajectory geometry, preserved by smooth flows and disrupted by stochastic surrogate procedures. On five held-out dynamical systems, initializing from a pretrained GON checkpoint consistently outperforms training from scratch across all window budgets, with adaptation depth reflecting geometric proximity to the training family. Zero-shot scores retain ordinal structure at the stochastic boundary, where surrogate procedures most strongly disrupt nonlinear geometry, and pretrained initialization consistently beats scratch across all window budgets. Pairwise discrimination and globally coherent ordinal scoring are distinct properties requiring a stable score coordinate for cross-system transfer, with direct implications for predictability assessment, model selection, and early-warning diagnostics across natural and engineered dynamical systems.",
+      "authors": [
+        "Diyali Goswami",
+        "Auroop R. Ganguly"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-28T21:38:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.30592v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "directly assigns predictability scores to trajectory windows, distinguishing deterministic vs stochastic dynamics",
+      "llm_evidence_cn": "直接为轨迹窗口分配可预测性分数，区分确定性与随机动力学",
+      "llm_evidence": "直接为轨迹窗口分配可预测性分数，区分确定性与随机动力学",
+      "canonical_evidence": "直接为轨迹窗口分配可预测性分数，区分确定性与随机动力学",
+      "llm_tldr_en": "Proposes Gauge-Fixed Ordinal Network (GON) to assign transferable predictability scores to trajectories, overcoming cross-system ambiguity via gauge fixing, enabling consistency across systems.",
+      "llm_tldr_cn": "现有方法无法在跨系统间给出数值一致的可预测性分数。本文形式化为五级序数估计问题，发现排序监督存在度量自由度。提出规范固定序数网络（GON），使用时序卷积网络学习跨系统可迁移的可预测性表示。实验表明GON能可靠区分确定性与随机动力学，且分数具有跨系统一致性。该工作为可预测性量化提供了新方法。",
+      "llm_tldr": "现有方法无法在跨系统间给出数值一致的可预测性分数。本文形式化为五级序数估计问题，发现排序监督存在度量自由度。提出规范固定序数网络（GON），使用时序卷积网络学习跨系统可迁移的可预测性表示。实验表明GON能可靠区分确定性与随机动力学，且分数具有跨系统一致性。该工作为可预测性量化提供了新方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.31547v1",
+      "source": "arxiv",
+      "title": "The Dynamic-Probabilistic Consistency Gap in Chaotic Surrogate Modeling",
+      "abstract": "Dynamical systems reconstruction (DSR) aims to learn surrogate models that capture the dynamics underlying time-series data. Reliably deploying these surrogates requires uncertainty estimates consistent with the learned dynamics. We expose a dynamic-probabilistic consistency (DPC) gap: the pursuit of finite-horizon probabilistic objectives can degrade dynamics or decouple predictive uncertainty from the local tangent dynamics it ought to reflect. We isolate three mechanisms behind this gap: core collapse, noise masking, and blind uncertainty. Specifically, we show that open-loop Gaussian rollout objectives can penalize Jacobian-generated covariance growth in chaotic systems, encouraging optimization shortcuts that weaken physical expansion or decouple uncertainty from it. To mitigate this gap, we propose KAFFEE (Kalman-Aware Framework For Ergodic Emulation), a differentiable extended Kalman filter-based training framework that evaluates likelihood on local predictive residuals (innovations) while transporting covariance through learned local Jacobians. On stochastic hyperchaotic Lorenz-96, KAFFEE reduces the identified failure modes, improves reconstruction of dynamical invariants relative to open-loop objectives, and maintains competitive predictive scores. We further show that the DPC gap appears when probabilistically adapting a DSR foundation model across 13 chaotic systems, where KAFFEE enables in-context Bayesian filtering while largely preserving zero-shot dynamics.",
+      "authors": [
+        "Andre Herz",
+        "Matthijs Pals",
+        "Daniel Durstewitz",
+        "Georgia Koppe"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.DS",
+        "stat.ML"
+      ],
+      "published": "2026-05-29T17:04:15+00:00",
+      "link": "https://arxiv.org/pdf/2605.31547v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "exposes dynamic-probabilistic consistency gap in chaotic time series prediction limits",
+      "llm_evidence_cn": "揭示了混沌时间序列预测中的动态概率一致性差距",
+      "llm_evidence": "揭示了混沌时间序列预测中的动态概率一致性差距",
+      "canonical_evidence": "揭示了混沌时间序列预测中的动态概率一致性差距",
+      "llm_tldr_en": "This paper identifies a fundamental gap in chaotic surrogate modeling where finite-horizon probabilistic objectives degrade dynamics and decouple uncertainty from tangent dynamics, revealing inherent limits on predictability.",
+      "llm_tldr_cn": "该论文揭示了混沌系统代理建模中的一个关键问题：追求有限时间概率目标会导致动态退化，将预测不确定性与局部切向动力学解耦。作者提出了动态概率一致性（DPC）差距的概念，并分析了核心坍塌、噪声掩蔽和盲目不确定性三种机制。实验表明，开源高斯滚动目标会惩罚雅可比矩阵生成的协方差增长，从而削弱物理扩张或导致不确定性估计偏差。这项工作为理解混沌时间序列的可预测性极限提供了理论依据。",
+      "llm_tldr": "该论文揭示了混沌系统代理建模中的一个关键问题：追求有限时间概率目标会导致动态退化，将预测不确定性与局部切向动力学解耦。作者提出了动态概率一致性（DPC）差距的概念，并分析了核心坍塌、噪声掩蔽和盲目不确定性三种机制。实验表明，开源高斯滚动目标会惩罚雅可比矩阵生成的协方差增长，从而削弱物理扩张或导致不确定性估计偏差。这项工作为理解混沌时间序列的可预测性极限提供了理论依据。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.31129v1",
+      "source": "arxiv",
+      "title": "Generalizing Multi-Scale Time-Series Modeling with a Single Operator",
+      "abstract": "Multi-scale modeling has emerged as an effective design principle for time-series forecasting by capturing temporal dynamics at multiple resolutions. As no principled foundation has been established in the literature, we unify existing scaling methods into a scaling operator family, revealing a fundamental limitation of existing approaches: reliance on fixed and discrete scaling. To address this limitation, we propose SiGMA (Single Generalized Multi-scale Architecture), which enables distance-aware scaling via the learnable discrete Gaussian (LDG) kernel grounded in scale-space theory. We evaluate SiGMA comprehensively on long- and short-term forecasting benchmarks against state-of-the-art multi-scale baselines. SiGMA outperforms all competitors on both tasks, especially achieving the best performance in 13 out of 16 long-term evaluation settings. Beyond accuracy, SiGMA significantly improves training speed by up to 5.3 times and reduces memory consumption by up to 3.8 times over the strongest competitors. Code is available at https://github.com/cheonwoolee/SiGMA.",
+      "authors": [
+        "Cheonwoo Lee",
+        "Dooho Lee",
+        "Doyun Choi",
+        "Jaemin Yoo"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-29T10:40:19+00:00",
+      "link": "https://arxiv.org/pdf/2605.31129v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "reveals fundamental limitation of existing multi-scale time series methods",
+      "llm_evidence_cn": "揭示了现有时间序列多尺度方法的基本局限性",
+      "llm_evidence": "揭示了现有时间序列多尺度方法的基本局限性",
+      "canonical_evidence": "揭示了现有时间序列多尺度方法的基本局限性",
+      "llm_tldr_en": "This paper reveals a fundamental limitation of existing multi-scale time series models: reliance on fixed discrete scaling. It proposes SiGMA, a generalized architecture with learnable discrete Gaussian kernel, achieving state-of-the-art forecasting performance.",
+      "llm_tldr_cn": "现有时间序列多尺度模型依赖于固定离散缩放，缺乏理论基础。该文提出了统一框架SiGMA，通过可学习离散高斯核实现距离感知缩放，在长短期预测基准上超越了所有竞争方法，为时间序列预测的极限分析提供了新视角。",
+      "llm_tldr": "现有时间序列多尺度模型依赖于固定离散缩放，缺乏理论基础。该文提出了统一框架SiGMA，通过可学习离散高斯核实现距离感知缩放，在长短期预测基准上超越了所有竞争方法，为时间序列预测的极限分析提供了新视角。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.31163v1",
+      "source": "arxiv",
+      "title": "Memory by Design: Probabilistic Sequence Layers",
+      "abstract": "We introduce the design-model framework: a way to derive efficient recurrent sequence maps from explicit assumptions about memory. A design model writes evidence into memory by exact Bayesian filtering; a query-dependent readout produces a predictive distribution whose mean is the layer output. In our linear-Gaussian instantiation, the \\emph{Bayesian Layer} propagates both a mean and a covariance: the covariance tracks uncertainty over stored associations, steering writes toward uncertain directions, attenuating gains as evidence accumulates, and preserving confident memories. The same framework unifies several sub-quadratic recurrences. Linear attention, GLA, and Mamba-2/SSD are exact filters under one design model, whereas DeltaNet and related Delta-rule models arise as covariance-reset reductions under another. Restoring the covariance yields closed-form predictions for retrieval dynamics, verified empirically, and improves robustness beyond the training regime across controlled collision studies, learned associative recall, and the Zoology MQAR benchmark; distilling Bayesian Layers into a pretrained 340M Gated DeltaNet improves RULER long-context retrieval at matched compute.",
+      "authors": [
+        "Matthew Dowling",
+        "Hyungju Jeon",
+        "Cristina Savin",
+        "Il Memming Park"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-05-29T11:13:00+00:00",
+      "link": "https://arxiv.org/pdf/2605.31163v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "probabilistic sequence layers with uncertainty tracking for sequence prediction",
+      "llm_evidence_cn": "概率序列层，跟踪不确定性用于序列预测",
+      "llm_evidence": "概率序列层，跟踪不确定性用于序列预测",
+      "canonical_evidence": "概率序列层，跟踪不确定性用于序列预测",
+      "llm_tldr_en": "Introduces a design-model framework for efficient recurrent sequence maps using Bayesian filtering, enabling predictive distributions with covariance to track uncertainty, relevant to theoretical predictability analysis.",
+      "llm_tldr_cn": "该论文提出一种基于设计模型的概率序列层，通过精确贝叶斯滤波写入记忆，利用协方差跟踪不确定性，从而产生预测分布。该方法统一了多种次二次递推关系，为序列预测中的不确定性量化提供了理论基础，对理论可预测性分析具有方法学桥梁意义。",
+      "llm_tldr": "该论文提出一种基于设计模型的概率序列层，通过精确贝叶斯滤波写入记忆，利用协方差跟踪不确定性，从而产生预测分布。该方法统一了多种次二次递推关系，为序列预测中的不确定性量化提供了理论基础，对理论可预测性分析具有方法学桥梁意义。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25943v1",
+      "source": "arxiv",
+      "title": "STaT: Resolving Shape Distortion in Non-Stationary Time Series via Tri-Modal Synergy",
+      "abstract": "Recent research in time series forecasting frequently investigates the integration of textual and visual modalities with numerical models to better navigate non-stationary environments. Despite delivering solid numerical results, existing multi-modal approaches usually encounter a dilemma: prioritizing the minimization of average errors can result in excessively smooth forecasts that overlook essential fluctuations. To resolve this limitation, we introduce STaT, an innovative multimodal architecture for Symbolic-Temporal-Textual Alignment, which seamlessly unites three synergistic modalities. Specifically, the symbolic modality converts continuous time series into discrete tokens, facilitating the accurate identification of structural patterns and turning points; the temporal modality extracts inherent sequential dependencies; and the textual modality leverages domain semantics to steer the macroscopic forecasting trends. Comprehensive evaluations on eight real-world benchmarks indicate that STaT delivers exceptional performance, enhancing conventional magnitude indicators by up to 8.9% while simultaneously decreasing shape distortion by up to 8.5%.",
+      "authors": [
+        "Hui Cheng",
+        "Jinsheng Guo",
+        "Zhenhao Weng",
+        "Yan Qiao",
+        "Meng Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-25T15:21:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.25943v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "addresses shape distortion in non-stationary time series forecasting",
+      "llm_evidence_cn": "解决非平稳时间序列预测中的形状失真问题",
+      "llm_evidence": "解决非平稳时间序列预测中的形状失真问题",
+      "canonical_evidence": "解决非平稳时间序列预测中的形状失真问题",
+      "llm_tldr_en": "Introduces STaT, a tri-modal architecture for non-stationary time series forecasting that aligns symbolic, temporal, and textual modalities to resolve shape distortion.",
+      "llm_tldr_cn": "现有时间序列多模态方法在最小化平均误差时易导致预测过于平滑而忽略关键波动。本文提出STaT，一种符号-时间-文本三模态对齐架构，通过符号模态将连续序列离散化为令牌，结合文本和视觉信息，准确识别结构模式并保留重要波动。实验证明STaT在多个非平稳时间序列数据集上优于现有方法，为时间序列预测提供了新的多模态融合思路。",
+      "llm_tldr": "现有时间序列多模态方法在最小化平均误差时易导致预测过于平滑而忽略关键波动。本文提出STaT，一种符号-时间-文本三模态对齐架构，通过符号模态将连续序列离散化为令牌，结合文本和视觉信息，准确识别结构模式并保留重要波动。实验证明STaT在多个非平稳时间序列数据集上优于现有方法，为时间序列预测提供了新的多模态融合思路。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.31438v1",
+      "source": "arxiv",
+      "title": "Flow map learning in nonlinear vector autoregressive models: influence of the feature-library structure on the training error",
+      "abstract": "Time series forecasting often requires learning nonlinear and time-delayed dependencies. A paradigmatic class of forecasting models are nonlinear vector autoregressive processes (NVAR), also known as next-generation reservoir computers (NG-RCs). These models approximate the Koopman operator on the space spanned by their explicit feature library. We consider the identifiability problem for learning Markovian nonlinear dynamical systems and show that the training error as a function of time resolution follows characteristic (pre-)asymptotic scaling laws. These laws depend on whether the feature library can represent the early Lie-series coefficients of the flow map (propagator) exactly or merely approximately. For dynamical systems governed by polynomial vector fields, we demonstrate the mechanism for NVAR/NG-RC models with monomial and Fourier feature libraries. We determine the dependence of the training error on the temporal resolution, the involved nonlinear degree, and the number of delay terms. While delay terms reduce the optimal one-step training error, they improve long-horizon forecasts only when the library provides sufficient nonlinearity. Thus, small training error coexists with weak generalization as the model class is mismatched to the true data-generating process. Numerical experiments on various chaotic dynamical systems confirm the theoretical predictions.",
+      "authors": [
+        "Markus Gross"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-05-29T15:35:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.31438v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "studies theoretical scaling laws of training error in time series forecasting, relevant to predictability bounds",
+      "llm_evidence_cn": "研究时间序列预测中训练误差的理论标度律，与可预测性界限相关",
+      "llm_evidence": "研究时间序列预测中训练误差的理论标度律，与可预测性界限相关",
+      "canonical_evidence": "研究时间序列预测中训练误差的理论标度律，与可预测性界限相关",
+      "llm_tldr_en": "Analyses training error scaling in nonlinear vector autoregressive models for time series forecasting, showing that feature-library structure influences asymptotic error laws, providing theoretical insights into prediction accuracy bounds.",
+      "llm_tldr_cn": "时间序列预测中非线性向量自回归模型的训练误差行为尚不明确。本文考虑特征库结构，论证了训练误差随时间分辨率的变化遵循特征性（预）渐近标度律。这些定律依赖于特征库能否精确表示流映射的早期Lie级数系数。该理论为理解预测精度界限提供了指导。",
+      "llm_tldr": "时间序列预测中非线性向量自回归模型的训练误差行为尚不明确。本文考虑特征库结构，论证了训练误差随时间分辨率的变化遵循特征性（预）渐近标度律。这些定律依赖于特征库能否精确表示流映射的早期Lie级数系数。该理论为理解预测精度界限提供了指导。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26612v1",
+      "source": "arxiv",
+      "title": "LATTE: Forecasting Peer Anchored Preference Trajectories for Personalized LLM Generation",
+      "abstract": "Personalized generation with frozen large language models requires a conditioning signal that is both compact and current. Existing personalization methods typically retrieve or summarize user histories in text, or compress them into static latent profiles and soft prompts. These approaches are efficient, but they treat a user's past behavior as an aggregate profile and therefore mix stable identity, recent drift, and item content in the same representation. We propose LAtent Trajectory Tracking and Extrapolation (LATTE), a framework that represents personalization as forecasting a peer anchored relative preference state. For each historical session, LATTE subtracts a time masked baseline formed from comparable users who responded to the same item, producing a state that measures how the target user differs from peers under a shared item context. A lightweight sequence predictor then forecasts the next state in this trajectory, and a State to Token Bridge injects the forecast into a frozen instruction tuned LLM through a single anchored soft token. We provide a latent factor analysis showing when peer anchoring cancels shared item variation and why temporal forecasting trades off stale averages against noisy recent states. Experiments on Amazon Reviews 2023 and MemoryCD show that LATTE consistently outperforms retrieval, summary memory, static latent profiles, difference aware latent profiles, and soft prompt compression baselines. On Amazon Reviews 2023, LATTE improves average ROUGE-L from 0.219 for a static latent profile and 0.245 for the strongest added latent compression baseline to 0.259. Additional pairwise comparisons and diagnostic analyses suggest that the improvement is mainly due to forecasting user-specific trajectory information, rather than merely adding a soft prompt interface.",
+      "authors": [
+        "Jinze Li",
+        "Xiaoyan Yang",
+        "Shuo Yang",
+        "Jinfeng Xu",
+        "Yue Shen",
+        "Jian Wang",
+        "Jinjie Gu",
+        "Edith Cheuk-Han Ngai"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-05-26T06:50:45+00:00",
+      "link": "https://arxiv.org/pdf/2605.26612v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "forecasting peer anchored preference trajectories for personalized generation",
+      "llm_evidence_cn": "预测同伴锚定偏好轨迹以实现个性化生成",
+      "llm_evidence": "预测同伴锚定偏好轨迹以实现个性化生成",
+      "canonical_evidence": "预测同伴锚定偏好轨迹以实现个性化生成",
+      "llm_tldr_en": "LATTE forecasts user preference trajectories using a peer anchored baseline, enabling dynamic personalization for LLM generation without static profiling.",
+      "llm_tldr_cn": "该论文提出LATTE框架，通过预测同伴锚定相对偏好状态来生成动态用户表征，克服了传统静态画像混合同一性和漂移的问题。LATTE对每个历史会话减去时间遮蔽的基线，从而捕捉短期偏好的演化。该方法在个性化LLM生成任务中展现了优势，为序列推荐中的可预测性研究提供了新视角。",
+      "llm_tldr": "该论文提出LATTE框架，通过预测同伴锚定相对偏好状态来生成动态用户表征，克服了传统静态画像混合同一性和漂移的问题。LATTE对每个历史会话减去时间遮蔽的基线，从而捕捉短期偏好的演化。该方法在个性化LLM生成任务中展现了优势，为序列推荐中的可预测性研究提供了新视角。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
