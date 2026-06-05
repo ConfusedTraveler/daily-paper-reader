@@ -6,41 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-04
-- 运行时间：2026-06-04 20:51:28 UTC
+- 最新运行日期：2026-06-05
+- 运行时间：2026-06-05 20:57:14 UTC
 - 运行状态：成功
-- 本次总论文数：7
+- 本次总论文数：6
 - 精读区：1
-- 速读区：6
+- 速读区：5
 
 ### 今日简报（AI）
-今天日报收录7篇论文，精读1篇（LLM驱动智能体实现高效证据推理的移动预测，8/10），速读6篇（含旧金山湾区模拟移动数据集、多智能体共形预测、极端天气预报不确定性量化等）。最值得关注的是LLM智能体在移动预测中的证据推理能力，以及多智能体共形预测的个性化统计有效性。建议优先阅读精读论文，后续可结合SF-LIFE数据集验证移动预测模型。
-- 详情：[/202606/04/README](/202606/04/README)
+1) 今日精读1篇高分论文《Expectations vs. Realities: The Cost of MSE-Optimal Forecasting Under Conditional Uncertainty》（9.0/10），并速读3篇时间序列分析新工具。  
+2) 最值得关注的是精读论文揭示的"条件不确定性下MSE最优预测的实际代价"，以及速读中的稀疏树聚合回归方法（Sparse Tree-Based Aggregation）。  
+3) 建议先精读这篇高分论文，理解理论预测与现实成本之间的落差，再结合稀疏树聚合等实用方法优化时间序列建模。
+- 详情：[/202606/05/README](/202606/05/README)
 
 ### 精读区论文标签
-1. [Towards Efficient and Evidence-grounded Mobility Prediction with LLM-Driven Agent](/202606/04/2606.05130v1-towards-efficient-and-evidence-grounded-mobility-prediction-with-llm-driven-agent)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：基于LLM驱动的智能体进行个体移动性预测
+1. [Expectations vs. Realities: The Cost of MSE-Optimal Forecasting Under Conditional Uncertainty](/202606/05/2606.04342v1-expectations-vs-realities-the-cost-of-mse-optimal-forecasting-under-conditional-uncertainty)  
+   标签：评分：9.0/10、query:pred-limit
+   evidence：条件不确定性下预测准确性的理论界限
 
 ### 速读区论文标签
-1. [SF-LIFE: A Large-Scale Simulated Movement Dataset for the San Francisco Bay Area](/202606/04/2606.00430v1-sf-life-a-large-scale-simulated-movement-dataset-for-the-san-francisco-bay-area)  
+1. [Entropic and algebraic transcript-based tools in time series analysis](/202606/05/2605.29780v1-entropic-and-algebraic-transcript-based-tools-in-time-series-analysis)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：大规模模拟人类移动数据集，支持可预测性极限研究
-2. [Multi-Agent Conformal Prediction with Personalized Statistical Validity](/202606/04/2606.00717v1-multi-agent-conformal-prediction-with-personalized-statistical-validity)  
+   evidence：用于时间序列分析的熵与代数工具，与理论可预测性相关
+2. [Sparse Tree-Based Aggregation for Time Series Regressions](/202606/05/2606.03665v1-sparse-tree-based-aggregation-for-time-series-regressions)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：通过共形预测提供预测精度的理论界限
-3. [Scalable Uncertainty Quantification for Extreme Weather Forecasting via Empirical Neural Tangent Kernels](/202606/04/2606.02886v2-scalable-uncertainty-quantification-for-extreme-weather-forecasting-via-empirical-neural-tangent-kernels)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：时间序列预测的不确定性量化与理论分析
-4. [ProbRes: Volatility Learning for Probabilistic Time-Series Forecasting](/202606/04/2606.02117v1-probres-volatility-learning-for-probabilistic-time-series-forecasting)  
+   evidence：为时间序列回归提供新的误差界
+3. [Feature to Dynamics: Feature-space to Autoregression strategy for Zero-shot Time Series Forecasting](/202606/05/2606.01289v1-feature-to-dynamics-feature-space-to-autoregression-strategy-for-zero-shot-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：结合波动率学习的概率预测，量化不确定性，与可预测性相关
-5. [Scalable Uncertainty Quantification for Extreme Weather Forecasting via Empirical Neural Tangent Kernels](/202606/04/2606.02886v1-scalable-uncertainty-quantification-for-extreme-weather-forecasting-via-empirical-neural-tangent-kernels)  
+   evidence：零样本时间序列预测，特征到自回归转换
+4. [BAHSD: Bridging the Long-tail Gap via Adaptive Distillation in Black-box Sequential Recommendation](/202606/05/2606.03091v2-bahsd-bridging-the-long-tail-gap-via-adaptive-distillation-in-black-box-sequential-recommendation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：预测不确定性理论界限
-6. [Metric-Aware Hybrid Forecasting for the CTF4Science Lorenz Challenge](/202606/04/2606.04191v1-metric-aware-hybrid-forecasting-for-the-ctf4science-lorenz-challenge)  
+   evidence：处理黑盒序列推荐中的长尾分布，与可预测性极限相关
+5. [Adaptive Sequential Change Detection using Mixtures of Predictive Distributions](/202606/05/2606.05072v1-adaptive-sequential-change-detection-using-mixtures-of-predictive-distributions)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：洛伦兹系统时间序列预测方法
+   evidence：自适应序列变化检测具有理论最优性，与时间序列可预测性极限相关
 
 
 <div class="dpr-home-promo-card">
