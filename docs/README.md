@@ -6,40 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-05
-- 运行时间：2026-06-05 20:57:14 UTC
+- 最新运行日期：2026-06-06
+- 运行时间：2026-06-06 21:17:12 UTC
 - 运行状态：成功
-- 本次总论文数：6
+- 本次总论文数：7
 - 精读区：1
-- 速读区：5
+- 速读区：6
 
 ### 今日简报（AI）
-1) 今日精读1篇高分论文《Expectations vs. Realities: The Cost of MSE-Optimal Forecasting Under Conditional Uncertainty》（9.0/10），并速读3篇时间序列分析新工具。  
-2) 最值得关注的是精读论文揭示的"条件不确定性下MSE最优预测的实际代价"，以及速读中的稀疏树聚合回归方法（Sparse Tree-Based Aggregation）。  
-3) 建议先精读这篇高分论文，理解理论预测与现实成本之间的落差，再结合稀疏树聚合等实用方法优化时间序列建模。
-- 详情：[/202606/05/README](/202606/05/README)
+今日处理7篇论文，精读1篇、速读6篇，重点聚焦预测与人类移动性分析。最值得关注的是精读的《Prediction Under Imperfect Compression》（8.0/10），以及速读中人类移动网络分析与负荷数据推断的两篇（7.0/10）。建议优先阅读精读论文以理解近似MDL理论，再浏览速读中高评分文章拓展交叉视角。
+- 详情：[/202606/06/README](/202606/06/README)
 
 ### 精读区论文标签
-1. [Expectations vs. Realities: The Cost of MSE-Optimal Forecasting Under Conditional Uncertainty](/202606/05/2606.04342v1-expectations-vs-realities-the-cost-of-mse-optimal-forecasting-under-conditional-uncertainty)  
-   标签：评分：9.0/10、query:pred-limit
-   evidence：条件不确定性下预测准确性的理论界限
+1. [Prediction Under Imperfect Compression: A Theory of Approximate MDL](/202606/06/2606.04834v1-prediction-under-imperfect-compression-a-theory-of-approximate-mdl)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：近似压缩下预测的理论分析，涉及可预测性极限
 
 ### 速读区论文标签
-1. [Entropic and algebraic transcript-based tools in time series analysis](/202606/05/2605.29780v1-entropic-and-algebraic-transcript-based-tools-in-time-series-analysis)  
+1. [Higher-order Network Analysis of Human Mobility Data](/202606/06/2606.00733v1-higher-order-network-analysis-of-human-mobility-data)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：用于时间序列分析的熵与代数工具，与理论可预测性相关
-2. [Sparse Tree-Based Aggregation for Time Series Regressions](/202606/05/2606.03665v1-sparse-tree-based-aggregation-for-time-series-regressions)  
+   evidence：高阶网络分析框架用于比较观测和模拟的人类移动数据，与移动模式预测相关。
+2. [The Impact of Temporal Granularity on Socio-Demographic Inference from Household Load Profiles](/202606/06/2606.03358v1-the-impact-of-temporal-granularity-on-socio-demographic-inference-from-household-load-profiles)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：为时间序列回归提供新的误差界
-3. [Feature to Dynamics: Feature-space to Autoregression strategy for Zero-shot Time Series Forecasting](/202606/05/2606.01289v1-feature-to-dynamics-feature-space-to-autoregression-strategy-for-zero-shot-time-series-forecasting)  
+   evidence：分析时间粒度对家庭属性可预测性的影响
+3. [MobEvolve: An Agentic Self-Evolving Heuristic System for Interpretable Human Mobility Generation](/202606/06/2606.01640v1-mobevolve-an-agentic-self-evolving-heuristic-system-for-interpretable-human-mobility-generation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：零样本时间序列预测，特征到自回归转换
-4. [BAHSD: Bridging the Long-tail Gap via Adaptive Distillation in Black-box Sequential Recommendation](/202606/05/2606.03091v2-bahsd-bridging-the-long-tail-gap-via-adaptive-distillation-in-black-box-sequential-recommendation)  
+   evidence：人类移动性生成，与预测模式相关
+4. [Enhancing the Socioeconomic Understanding of Foundation Models with Urban Mobility](/202606/06/2606.01745v1-enhancing-the-socioeconomic-understanding-of-foundation-models-with-urban-mobility)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：处理黑盒序列推荐中的长尾分布，与可预测性极限相关
-5. [Adaptive Sequential Change Detection using Mixtures of Predictive Distributions](/202606/05/2606.05072v1-adaptive-sequential-change-detection-using-mixtures-of-predictive-distributions)  
+   evidence：利用城市移动网络增强预测
+5. [Physically-Constrained Mamba-SDE for Remaining Useful Life Prediction under Irregular Observations](/202606/06/2606.01894v1-physically-constrained-mamba-sde-for-remaining-useful-life-prediction-under-irregular-observations)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：自适应序列变化检测具有理论最优性，与时间序列可预测性极限相关
+   evidence：不规则观测下的时间序列预测
+6. [Signed Dual Attention: Capturing Signed Dependencies in Time Series Forecasting](/202606/06/2606.04833v1-signed-dual-attention-capturing-signed-dependencies-in-time-series-forecasting)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：时间序列预测方法，捕捉正负依赖
 
 
 <div class="dpr-home-promo-card">

@@ -1,0 +1,1870 @@
+Title: Prediction Under Imperfect Compression: A Theory of Approximate MDL
+
+URL Source: https://arxiv.org/pdf/2606.04834v1
+
+Published Time: Thu, 04 Jun 2026 01:04:05 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Prediction Under Imperfect Compression: A Theory of Approximate MDL 
+
+Qian Li Shenzhen Research Institute of Big Data 
+
+liqian.ict@gmail.com 
+
+Xinyu Mao University of Southern California 
+
+xinyumao.tcs@gmail.com 
+
+Shang-Hua Teng University of Southern California 
+
+shanghua@usc.edu 
+
+Guangxu Yang University of Southern California 
+
+guangxuy@usc.edu 
+
+June 4, 2026 
+
+Abstract 
+
+Minimum Description Length (MDL) formalizes the principle of Occam’s razor by optimizing the total description length: L(model ) + L(data | model ). For sequential prediction, the MDL method repeatedly selects a model with a minimum objective score of the observed prefix for the next step prediction. Classical MDL prediction theory shows that exact optimization of the MDL objective indeed provides a strong compression guarantee that supports reliable prediction. However, practical machine learning usually can only find models by approximately optimizing the objective function. To bridge this gap, this paper addresses the following fundamental question: Under what forms of approximation and regularization does approximate MDL still guarantee reliable sequential prediction? This work offers a principled characterization. We prove that for any approximation with additive slack C of the more general form of the balanced MDL objective: λ · L( model ) + L( data | model ), the cumulative expected squared prediction error is finite for all λ ≥ 1. The case λ > 1 is proved by an affinity-telescoping argument, while the boundary case λ = 1 is proved by a likelihood-ratio stopping argument based on exact static MDL bounds. Our results establish that classical MDL regularization remains robust to any fixed additive optimization error. Furthermore, we establish that our characterization of the approximate MDL framework is sharp: When 0 < λ < 1, overfits can happen to incur infinite cumulative expected error in the universal class of estimable measures, and hence a strong form of model-complexity regularization is necessary. In addition, model selection may fail in every regularized regime λ > 0, under multiplicative approximation, and thus, additive approximation is both sufficient and essential. 
+
+# 1 Introduction 
+
+The Minimum Description Length (MDL) principle formalizes Occam’s razor by selecting models that give short descriptions of both the model and the observed data in the model (Rissanen, 1978, 1998; Grünwald, 2007). MDL has become a central framework connecting model selection, universal coding, and prediction (Grünwald, 2007; Vitányi and Li, 2000). In sequential prediction, the principle takes a particularly natural form: after observing a history x<t , the learner selects a model ν that balances between complexity of the model and its efficiency for explaining the observed prefix, and then uses the conditional distribution ν(· | x<t ) to predict the next symbol. 1
+
+> arXiv:2606.04834v1 [cs.LG] 3 Jun 2026
+
+In its natural form, the MDL objective is L( model ) + L(data | model ), where L() is a length function for measuring the complexity of descriptions. More general objectives with a regularization parameter of form λ · L(model ) + L(data | model ) are also commonly considered. Under exact optimization, the MDL framework is now well understood. In the realizable setting over countable model classes, Poland and Hutter (2005) analyzed discrete MDL for online prediction and established almost-sure convergence together with finite bounds on the quadratic, Hellinger, and Kullback– Leibler losses. Hutter (2009) further showed that, for any countable model class containing the true measure, the model selected by discrete MDL eventually makes essentially the same predictions as the true environment in total variation. More recently, Milovanov (2024) provided a rigorous proof that a universal predictor based on exact MDL guarantees a finite cumulative prediction error along any single infinite Martin-Löf random sequence when the regularization parameter is large. Taken together, these works formalize the exact-optimization guarantee underlying MDL prediction: Perfect compression based on exact MDL minimization yields reliable sequential prediction. Despite these theoretical guarantees, exact optimization is often unrealistic in modern machine learning. In practice, finding the best-compressing model corresponds to solving a model-selection or training problem, where computational constraints often force us to settle for approximate solutions. This widening gap between ideal theory and computational reality presents a fundamental challenge. For example, Minsky (2010) insightfully highlighted both the appeal of algorithmic probability and the need for practical approximations: 
+
+It seems to me that the most important discovery since Gödel was the discovery by Chaitin, Solomonoff, and Kolmogorov of the concept called Algorithmic Probability... it is a beautiful theory... but it’s got one problem, that is, that you cannot actually calculate what this theory predicts because it is too hard, it requires an infinite amount of work. However, it should be possible to make practical approximations... that would make better predictions than anything we have today. 
+
+Minsky’s call for practical approximations, combined with the computational intractability of exact MDL, naturally leads to the central question of this paper: 
+
+Under what forms of approximation and regularization does approximate optimization of the MDL objective still lead to reliable sequential prediction? 
+
+Formally, we consider the realizable sequential prediction framework over a finite alphabet X
+
+and a countable class M of probability measures on X ∞. Following exact MDL prediction theory, we equip M with positive weights (wν )ν∈M satisfying ∑ 
+
+> ν∈M
+
+wν ≤ 1, and write Kw(ν) := − log 2 wν .Given a history x<t , we assign model ν the regularized MDL score 
+
+Lλ,w (ν; x<t ) := λK w(ν) + log 2 ν(x<t )−1,
+
+where λ > 0 is the parameter that controls the strength of the regularization. At time t = 1 , 2, · · · ,the predictor selects a model ˜νt whose score is approximately minimal, either up to an additive slack 
+
+C [additive approximation ] or up to a multiplicative factor (1 + ε) [multiplicative approximation ], and then predicts xt with ˜νt(· | x<t ). Our goal is to characterize whether and for what λ value the approximate MDL framework still preserves the classical guaranties from-compression-to-prediction. 
+
+1.1 Our contributions 
+
+We answer this fundamental question by identifying a sharp regularization threshold for additive approximation as well as establishing a separation between additively-approximate MDL and 2multiplicatively-approximate MDL. Formal proofs are given in Section 3, Section 4, and the Appendix. First, we show that additive approximation is fundamentally reliable, provided λ ≥ 1.
+
+Theorem 1.1 (Additive Approx-MDL with Strong Regularization) . Let M be a countable class of probability measures on X ∞, equipped with positive weights (wν )ν∈M satisfying ∑ 
+
+> ν∈M
+
+wν ≤ 1. Let 
+
+μ ∈ M be the true environment. Fix C ≥ 0. If λ ≥ 1, then every additive-C Approx-MDL predictor 
+
+ρ has finite cumulative expected squared prediction error. More precisely, 
+
+> ∑
+> t≥1
+
+Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+≤ 16 KPH λ 2C/λ w−1 
+
+> μ
+
+,
+
+Here KPH is the constant in the exact static MDL quadratic-loss bound of (Poland and Hutter, 2005); with the normalization used in that bound, one may take KPH = 21 .
+
+We also show that the dependence in Theorem 1.1 is essentially worst-case sharp. 
+
+Proposition 1.1 (Near-sharpness of the additive positive bound) . There exists an absolute constant 
+
+c > 0 such that the following holds. For any λ ≥ 1, C ≥ 0, and w ∈ (0 , 1) , there exist a finite binary model class M, weights satisfying ∑ 
+
+> ν∈M
+
+wν ≤ 1, a true environment μ ∈ M with wμ = w, and a valid additive-C Approx-MDL predictor ρ such that 
+
+> ∑
+> t≥1
+
+Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+≥ cλ 
+
+> (
+
+2C/λ (w−1 
+
+> μ
+
+− 1) − 1
+
+> )
+> +
+
+,
+
+where z+ := max {z, 0}.
+
+The proof of Proposition 1.1 is given in Appendix A. This general bound in Theorem 1.1 immediately yields a guarantee for universal sequence prediction. By specializing to the universal model class and complexity-based priors, we show that the single-step prediction error must vanish over time. 
+
+Corollary 1.1 (Universal induction under additive Approx-MDL) . Consider the universal prediction setting where M is the class of all estimable probability measures and wν = 2 −K(ν) (where K(ν) is the Kolmogorov complexity of ν, see Definition 2.5). If the true environment μ ∈ M is estimable and 
+
+λ ≥ 1, then any valid additive-C Approx-MDL predictor successfully achieves universal induction. That is, its expected single-step squared prediction error converges to zero as t → ∞ .
+
+The proof of Corollary 1.1 is given in Appendix A. Complementing this positive predictability result, we prove that λ = 1 is the sharp threshold for sequential prediction, by proving that when 
+
+0 < λ < 1, simply satisfying the additive Approx-MDL criterion is not sufficient for universal induction because the feasible approximation permits pathological pointwise overfitting to the prefixes data. 
+
+Theorem 1.2 (Additive Approx-MDL fails for universal induction when λ ∈ (0 , 1) ). Consider the universal prediction setting where M is the class of all estimable probability measures and 
+
+wν = 2 −K(ν). For every λ ∈ (0 , 1) , there exists an estimable true environment μ ∈ M , a finite constant C < ∞, and a valid additive-C Approx-MDL predictor ρ such that 
+
+> ∑
+> t≥1
+
+Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+= + ∞.
+
+3While additive approximations are reliable above this threshold, the next result demonstrates a strict separation by showing that multiplicative approximation does not provide a uniform guarantee over all valid selectors, even in regimes where additive approximation is safe. 
+
+Theorem 1.3 (Multiplicative Approx-MDL fails for universal induction) . Consider the universal prediction setting where M is the class of all estimable probability measures and wν = 2 −K(ν).For every λ > 0 and every ε > 0, there exists an estimable true environment μ ∈ M and a valid multiplicative-(1 + ε) Approx-MDL predictor ρ such that 
+
+> ∑
+> t≥1
+
+Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+= + ∞.
+
+The key distinction is that additive and multiplicative approximations create very different effective slack. An additive slack C remains fixed as the observed prefix grows, and can be absorbed by strengthening the complexity penalty to λ ≥ 1. In contrast, a multiplicative slack permits an additive error of order ε OPT λ(x1: n), which typically grows linearly with n in stochastic environments. This growing tolerance can keep systematically wrong models admissible indefinitely. Below, we summarize the prediction guaranties for universal induction (i.e., when M is the class of all estimable probability measures and wν = 2 −K(ν)): while additive approximation achieves finite error when the λ ≥ 1, multiplicative approximation yields infinite error for any λ > 0.Table 1: Summary of prediction guarantees provided by the MDL criterion in the universal estimable class. A positive guarantee means that every selector satisfying the criterion has a finite cumulative expected squared error. A counterexample means that the criterion admits at least one valid selector with infinite cumulative error. 
+
+Setting / Approximation Regularization strength ( λ) Cumulative Error 
+
+Exact (Poland and Hutter, 2005) λ = 1 (Standard) Finite Exact (Milovanov, 2024) λ > 2 Finite Additive Approximation (Theorem 1.1) λ ≥ 1 Finite Additive Approximation (Theorem 1.2) 0 < λ < 1 +∞
+
+Multiplicative Approximation (Theorem 1.3) λ > 0 +∞
+
+Related work. Our work is most directly related to the literature on exact MDL prediction. Poland and Hutter (2005) analyze discrete MDL predictors for online prediction, while Hutter (2009) proves for any countable class of models, the distributions selected by MDL asymptotically predict the true measure in the class in total variation distance. Our positive theorem (Theorem 1.1) can be viewed as a robustness extension of this exact-selection line to additive approximate minimization. Among existing results, the closest technical precursor is Milovanov’s best-explanation predictor (Milovanov, 2024): there, exact minimization of a complexity-regularized log-loss objective with a strictly large regularization parameter already yields finite cumulative squared error. Our first theorem (Theorem 1.1) shows that this positive phenomenon persists under additive approximation, while our later lower bounds (Theorem 1.3) show that this robustness is specific to additive approximation and does not extend as a uniform guarantee over all valid selectors with multiplicative approximation. A second relevant line is algorithmic statistics and best-explanation modeling. Two-part de-scriptions have long been used to formalize individual explanations through sufficient statistics and structure functions (Vitányi and Li, 2000; Gács et al., 2001; Vereshchagin and Vitányi, 2004). This 4viewpoint is especially relevant for our negative results: when the regularization parameter is small, an approximate MDL selector can explain the observed prefix by encoding the sample itself into the model description, which corresponds to a form of memorization or pointwise overfitting. Closely related in spirit is Hutter’s analysis of monotone-complexity prediction (Hutter, 2003), which showed that universal deterministic or one-part MDL can succeed in deterministic estimable environments yet fail in probabilistic environments. Our additive counterexample for 0 < λ < 1 (Theorem 1.2) exhibits a similar overfitting mechanism inside an approximate two-part MDL. A third line concerns approximation and surrogate MDL objectives. Adriaans and Vitányi (2009) showed that along a sequence of shorter approximate two-part MDL codes, the corresponding models need not improve monotonically in goodness of fit. Conceptually, our results may be viewed as a sequential-prediction analogue of this warning: approximate improvement in description length is not, by itself, enough to guarantee reliable prediction. Grünwald and de Rooij (2005) study prequential maximum-likelihood codes and related universal coding criteria under misspecification. Their setting differs from ours: we keep the MDL objective itself fixed and vary only the optimization accuracy, measured either additively or multiplicatively at each prediction step. Finally, MDL-style reasoning also appears in modern machine learning through description-length regularization, neural-network compression, and prequential coding (Hinton and van Camp, 1993; Blier and Ollivier, 2018; Bornschein et al., 2023; Delétang et al., 2024). These works provide motivation for studying approximate compression-based selection, but they do not address the selector-level robustness question analyzed here. 
+
+# 2 Preliminaries 
+
+Sequence prediction and the cumulative expected squared prediction error. Let X be a finite alphabet. For n ≥ 0, let X n denote the set of strings of length n over X , with X 0 consisting of the empty string. Let X ∗ := ⋃ 
+
+> n≥0
+
+X n be the set of all finite strings over X . For x ∈ X ∗, let ℓ(x)
+
+denote its length, i.e. the unique integer n ≥ 0 such that x ∈ X n. If ℓ(x) = n ≥ 1, we write 
+
+x = x1 . . . x n, x1: n = x, x<t := x1 . . . x t−1 (1 ≤ t ≤ n + 1) .
+
+All logarithms are base 2.A probability measure ν on X ∞ is understood as a probability measure on the product σ-algebra generated by cylinder sets. For x ∈ X ∗, define the cylinder 
+
+[x] := {ω ∈ X ∞ : ω1: ℓ(x) = x},
+
+and abbreviate ν([ x]) by ν(x). For the empty string, the corresponding cylinder is X ∞, and hence its prefix probability is 1. The induced prefix probabilities satisfy the consistency condition 
+
+ν(x) = ∑
+
+> a∈X
+
+ν(xa ) for all x ∈ X ∗.
+
+Whenever ν(x) > 0, define the conditional probability 
+
+ν(a | x) := ν(xa )
+
+ν(x) .
+
+The sequence prediction problem is the following. An unknown underlying mechanism μ generates an infinite sequence 
+
+X1: ∞ = X1X2 · · · ∼ μ. 
+
+5Having observed the past data 
+
+x<n := x1x2 · · · xn−1,
+
+the task is to predict the next symbol xn. More precisely, the goal is to estimate the conditional distribution 
+
+μ(· | x<n ),
+
+or equivalently, the probabilities 
+
+μ(a | x<n ) := μ(x<n a)
+
+μ(x<n ) , a ∈ X ,
+
+whenever μ(x<n ) > 0.In this paper, the general positive result only assumes that the true measure belongs to the countable model class under consideration. In universal induction setting, we consider μ is an estimable measure, defined below in Definition 2.4. A sequential predictor ρ = ( ρt)t≥1 assigns, at each time t and after seeing the history x<t , a probability distribution 
+
+ρt(· | x<t )
+
+over X . Its predictivity performance under the true measure μ is measured by the cumulative expected squared prediction error 
+
+S∞(μ, ρ ) := ∑
+
+> t≥1
+
+Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+,
+
+where all expectations and probabilities are taken with respect to μ. Let 
+
+et(μ, ρ ) := Eμ
+
+> [ ∑
+> a∈X
+> (
+
+μ(a | X<t ) − ρt(a | X<t )
+
+> )2]
+
+.
+
+If S∞(μ, ρ ) < ∞, then et(μ, ρ ) → 0. We say that ρ learns μ in expected squared one-step error if 
+
+et(μ, ρ ) → 0, and that ρ learns a class C if it learns every μ ∈ C .
+
+Universal monotone Turing machine and Kolmogorov complexity. Definition 2.1 (Monotone Turing machine) . A monotone Turing machine is a Turing machine with a one-way read-only input tape, a one-way write-only output tape, and several two-way work tapes. The input and output heads never move to the left, and symbols once written on the output tape are never erased. Thus extending the input can only extend the output. To ensure that our complexity measures are objective and machine-independent up to an additive constant, we fix a universal monotone Turing machine for the remainder of this paper. 
+
+Definition 2.2 (Universal monotone Turing machine) . A program for U is written as 
+
+⟨T ⟩p, 
+
+where T is a monotone Turing machine, p is the binary input to T , and ⟨T ⟩ is a prefix-free encoding of T . On input ⟨T ⟩p, the machine U simulates T on input p:
+
+U (⟨T ⟩p) = T (p).
+
+Equivalently, for every monotone Turing machine T , there exists a prefix-free code ⟨T ⟩ such that U
+
+simulates T with an additive overhead of ℓ(⟨T ⟩) in program length. 6With the universal machine U established, we can now formally define the algorithmic complexity of finite strings. 
+
+Definition 2.3 (Monotone Kolmogorov complexity) . Fix a universal monotone Turing machine U .For a finite string x, the monotone Kolmogorov complexity of x with respect to U is 
+
+Km(x) := min {| p| : U (p) = x∗} ,
+
+where U (p) = x∗ means that the output of U (p) has x as a prefix. Beyond individual data strings, our analysis involves learning and predicting from underlying distributions. Therefore, we must extend the concept of complexity to quantify the data-generating mechanisms themselves. For the universal induction results, we work over the binary alphabet; any finite alphabet can be encoded into binary strings with only constant-overhead changes in the relevant complexities. 
+
+Definition 2.4 (Estimable measure) . A probability measure μ on {0, 1}∞ is called estimable if there exists a Turing machine which, given x ∈ { 0, 1}∗ and a precision parameter r ∈ N, outputs a rational number q such that 
+
+|q − μ(x)| ≤ 2−r.
+
+Equivalently, the cylinder probabilities μ(x), x ∈ { 0, 1}∗, are uniformly computable to arbitrary precision. The next lemma gives the equivalent generative form of estimability. 
+
+Lemma 2.1 ((Li and Vitányi, 2008, Theorem 4.5.2)) . A measure μ is estimable if and only if there exists a monotone Turing machine T which takes an infinite sequence of i.i.d. fair coin flips as input and outputs a binary sequence distributed according to μ.
+
+Definition 2.5 (Kolmogorov complexity of an estimable measure) . For an estimable measure μ,let KU (μ) denote the length of the shortest description ⟨T ⟩ of a monotone Turing machine T , on the reference machine U , that generates μ in the sense of Lemma 2.1. When U is clear from the context, we omit the subscript and write K(μ). 1
+
+The following standard coding inequality bounds the monotone complexity of a string using any estimable measure, which will be central to our subsequent analysis. 
+
+Lemma 2.2 ((Hutter, 2003, Theorem 5(i))) . There exists a universal constant c such that for every estimable measure ν and every x ∈ { 0, 1}∗,
+
+Km(x) ≤ K(ν) − log 2 ν(x) + c. (1)                   
+
+> 1Equivalently, one may define KcU(μ)as the length of the shortest program that computes the cylinder probabilities
+> μ(x)uniformly to arbitrary precision. For estimable measures, the generating and computing definitions are equivalent up to an additive constant depending only on the reference machine: KU(μ) = KcU(μ)±O(1) . Here KUis defined via a machine that generates μ, while KcUis defined via a program that computes μ. All results in this paper are unchanged under this O(1) difference.
+
+7Model priors and MDL. Let M be an arbitrary countable class of probability measures on 
+
+X ∞. We equip M with positive prior weights (wν )ν∈M satisfying 
+
+> ∑
+> ν∈M
+
+wν ≤ 1.
+
+In the universal induction setting, we take M to be the class of all estimable probability measures. For finite alphabets other than binary, this is understood after fixing a binary coding of the alphabet. The complexity prior is defined by 
+
+wν := 2 −K(ν).
+
+Because K(ν) is induced by prefix-free descriptions, the weights wν = 2 −K(ν) satisfy Kraft’s inequality, ∑
+
+> ν∈M
+
+wν ≤ 1,
+
+after choosing one shortest description for each distinct measure. Alternatively, for a general enumeration (νi)i≥1 of M, other typical choices of priors, see for example (Grünwald, 2007), include geometric weights wνi = 2 −i and polynomial weights such as wνi = 6 /(π2i2).Each prior weight wν induces a description length, or complexity, given by 
+
+Kw(ν) := − log 2 wν .
+
+Note that the special choice wν = 2 −K(ν) recovers the usual code-length formulation, yielding 
+
+Kw(ν) = K(ν). For a finite observation string x, the standard two-part description length of x
+
+under model ν and prior w is defined as 
+
+Lw(ν; x) := Kw(ν) − log 2 ν(x),
+
+with the convention that − log 2 ν(x) = ∞ if ν(x) = 0 .To accommodate varying degrees of regularization, for a parameter λ > 0, we define the MDL objective 
+
+Lλ,w (ν; x) := λK w(ν) − log 2 ν(x) = − log 2
+
+> (
+
+wλν ν(x)).
+
+When λ = 1 , an exact minimizer of L1,w (·; x) is precisely the MDL estimator of (Poland and Hutter, 2005, eq. (10) and Definition 3), namely a maximizer of wν ν(x).For each x ∈ X ∗, let 
+
+ˆνλx ∈ arg min 
+
+> ν∈M
+
+Lλ,w (ν; x) = arg max 
+
+> ν∈M
+
+wλν ν(x)
+
+denote an arbitrary exact minimizer, with ties broken arbitrarily. Because M is countable and  
+
+> ∑
+> ν
+
+wν ≤ 1, for λ > 0, the maximum is attained. Indeed, let 
+
+s = sup 
+
+> ν∈M
+
+wλν ν(x).
+
+If s = 0 , all models assign zero probability to x; in this degenerate case we define ˆνλx arbitrarily. This case is irrelevant in the realizable positive theorem, since on μ-typical histories s > 0, and it is also irrelevant in the universal lower bounds because deterministic extensions give positive mass to every finite prefix. If s > 0, then any model with wλν ν(x) ≥ s/ 2 must satisfy 
+
+wν ≥ (s/ 2) 1/λ .
+
+8Since ∑ 
+
+> ν
+
+wν ≤ 1, there are only finitely many such models, and the supremum over this finite set is a maximum. Hence, for every fixed x and λ > 0, the supremum of wλν ν(x) is attained, guaranteeing that exact minimizers exist. Finally, the corresponding MDL predictor is given by 
+
+ρλt (a | x<t ) := ˆ νλx<t (a | x<t ).
+
+On histories outside the support of the selected model, the conditional distribution may be defined arbitrarily; under the realizability assumption and on μ-typical histories, this ambiguity does not affect the results. The following elementary technical lemma bounds the squared loss in terms of an affinity gap and plays a key role in the proof of our positive results. It follows from the Pinsker-type inequality for Csiszár f -divergences, see for example (Gilardoni, 2010, Corollary 9). For completeness, a full proof is provided in the appendix. 
+
+Lemma 2.3 (Affinity gap controls squared loss) . For any α ∈ (0 , 1) and any distributions p, q on 
+
+X ,
+
+> ∑
+> a∈X
+
+(pa − qa)2 ≤ 2
+
+α(1 − α)
+
+> (
+
+1 − ∑
+
+> a∈X
+
+p1−αa qαa
+
+> )
+
+.
+
+# 3 Reliable prediction: MDL under additive approximation 
+
+This section studies additive approximation to the MDL objective Lλ,w . The positive result is stated for an arbitrary countable class M of probability measures on X ∞. For the lower bound, we specialize to the universal prediction setting in which M is the class of all estimable probability measures and wν = 2 −K(ν).
+
+Definition 3.1 (Additive Approx-MDL) . Fix λ > 0 and C ≥ 0. Given a history x<t , an additive Approx-MDL selector chooses a model νt ∈ M such that 
+
+Lλ,w (νt; x<t ) ≤ min  
+
+> ν∈M
+
+Lλ,w (ν; x<t ) + C. (2) Equivalently, 
+
+wλνt νt(x<t ) ≥ 2−C max 
+
+> ν∈M
+
+{wλν ν(x<t )}. (3) The corresponding predictor is 
+
+ρt(· | x<t ) := νt(· | x<t ).
+
+If νt(x<t ) = 0 , we define ρt(· | x<t ) arbitrarily; on μ-typical histories in the realizable setting of our positive theorem, the approximation condition implies νt(x<t ) > 0.
+
+3.1 When λ ≥ 1: finite cumulative error 
+
+Proof idea of Theorem 1.1. The additive-C condition turns model selection into likelihood-ratio threshold events. Indeed, whenever ν is selected, 
+
+ν(X<t )
+
+μ(X<t ) ≥ 2−C 
+
+> (
+
+wμ
+
+wν
+
+> )λ
+
+.
+
+For each fixed pair (μ, ν ), Appendix A gives two ways to control the loss on such threshold events: an affinity-telescoping bound of order c−α for 0 < α < 1, and a critical likelihood-ratio stopping 9bound of order c−1 based on the exact static MDL result of Poland and Hutter (2005). Taking the better of the two pairwise bounds and interpolating over the weight ratio wν /w μ gives 
+
+S∞(μ, ρ ) ≤ 16 KPH λ 2C/λ w−1 
+
+> μ
+
+,
+
+with the explicit constant stated in Theorem 1.1. The full proof is in Appendix A. 
+
+3.2 When 0 < λ < 1: pointwise overfitting and infinite cumulative error 
+
+The positive result above shows that the classical boundary λ = 1 is still safe under additive approximation. The lower bound begins only below this boundary. Throughout this subsection we work in the universal prediction setting: M is the class of all estimable probability measures on 
+
+{0, 1}∞, and wν = 2 −K(ν). We write 
+
+Lλ(ν; x) := λK (ν) + log 2 ν(x)−1
+
+and 
+
+OPT λ(x) := min  
+
+> ν∈M
+
+Lλ(ν; x).
+
+Lemma 3.1 (Pointwise overfitting under weak regularization) . Fix λ ∈ (0 , 1) . There exists a constant Cλ < ∞, depending only on λ and the reference machines, such that for every finite string 
+
+x ∈ { 0, 1}∗, there exists a deterministic estimable measure νx ∈ M satisfying νx(x) = 1 and 
+
+Lλ(νx; x) ≤ OPT λ(x) + Cλ.
+
+Moreover, there exists a constant cλ < ∞ such that for all x ∈ { 0, 1}∗,
+
+OPT λ(x) ≥ λK m(x) − cλ.
+
+Proof idea of Theorem 1.2. Lemma 3.1 shows that when 0 < λ < 1, a deterministic measure that extends the observed prefix can remain within a constant additive slack of the optimum. Taking the true environment to be the fair coin, an Approx-MDL selector can choose such deterministic overfitting measures at every history. Its next-step prediction is then deterministic at every history, while the true conditional distribution remains (1 /2, 1/2) , giving constant squared loss. Full details are in Appendix A. 
+
+# 4 MDL under multiplicative approximation is not a universal predictor 
+
+In this section, we transition from additive approximations to multiplicative approximations. We analyze this within the framework of universal sequence prediction, where M is the class of all estimable probability measures and the weights are given by the canonical choice wν = 2 −K(ν). The objective thus becomes 
+
+Lλ(ν; x) := λK (ν) + log 2 ν(x)−1.
+
+Definition 4.1 (Multiplicative Approx-MDL) . Fix λ ≥ 0 and ε ≥ 0. Given a history x<t , a multiplicative Approx-MDL selector chooses an estimable model νt ∈ M such that 
+
+Lλ(νt; x<t ) ≤ (1 + ε) min  
+
+> ν∈M
+
+Lλ(ν; x<t ). (4) The corresponding predictor is 
+
+ρt(· | x<t ) := νt(· | x<t ).
+
+10 Lemma 4.1 (Universal MDL rarely beats the truth by much) . Let λ ≥ 1 and define 
+
+OPT λ(x) := min  
+
+> ν∈M
+
+Lλ(ν; x).
+
+If data is generated by any estimable true environment μ ∈ M , then for every n ∈ N and every 
+
+c > 0,
+
+Pr 
+
+> X1: n∼μ
+> [
+
+OPT λ(X1: n) < log 2 μ(X1: n)−1 − c
+
+> ]
+
+≤ 2−c.
+
+Equivalently, with probability at least 1 − 2−c,
+
+OPT λ(X1: n) ≥ log 2 μ(X1: n)−1 − c. 
+
+Proof idea of Theorem 1.3. The proof separates two regimes. When 0 < λ < 1, the additive overfitting construction becomes multiplicatively admissible because the optimal score diverges in probability along fair-coin sequences, so a constant additive slack is eventually absorbed by the multiplicative tolerance. When λ ≥ 1, a slightly biased rational Bernoulli model remains within the multiplicative tolerance with constant probability because the allowed additive slack grows linearly with the optimal score. In each case, the expected one-step squared error is bounded away from zero infinitely many times. The full proof is given in Appendix B. 
+
+# 5 Conclusion 
+
+We studied whether approximate minimization of the MDL objective preserves the classical compression–prediction connection in realizable sequential prediction. The results show that the answer depends sharply on both the form of approximation and the regularization strength. Fixed additive approximation is prediction-safe at and above the classical boundary λ = 1 : every valid additive-C selector has finite cumulative expected squared error. This boundary is sharp in a worst-case selector sense, since for every 0 < λ < 1 the additive Approx-MDL criterion admits pathological selectors that overfit individual prefixes. In contrast, multiplicative approximation does not provide a uniform prediction guarantee over all valid selectors for any λ > 0. Thus approximate compression remains predictive only when the optimization error is controlled in the right scale. 
+
+# References 
+
+Pieter Adriaans and Paul M. B. Vitányi. Approximation of the two-part MDL code. IEEE Transactions on Information Theory , 55(1):444–457, 2009. doi: 10.1109/TIT.2008.2008152. Léonard Blier and Yann Ollivier. The description length of deep learning models. In Advances in Neural Information Processing Systems 31 , pages 2220–2230, 2018. Jörg Bornschein, Yazhe Li, and Marcus Hutter. Sequential learning of neural networks for prequential MDL. In The Eleventh International Conference on Learning Representations , 2023. Grégoire Delétang, Anian Ruoss, Paul-Ambroise Duquenne, Elliot Catt, Tim Genewein, Christopher Mattern, Jordi Grau-Moya, Li Kevin Wenliang, Matthew Aitchison, Laurent Orseau, Marcus Hutter, and Joel Veness. Language modeling is compression. In The Twelfth International Conference on Learning Representations , 2024. 11 Péter Gács, John T. Tromp, and Paul M. B. Vitányi. Algorithmic statistics. IEEE Transactions on Information Theory , 47(6):2443–2463, 2001. doi: 10.1109/18.945257. Gustavo L Gilardoni. On pinsker’s and vajda’s type inequalities for csiszár’s f -divergences. IEEE Transactions on Information Theory , 56(11):5377–5386, 2010. Peter D. Grünwald. The Minimum Description Length Principle . MIT Press, Cambridge, MA, 2007. ISBN 9780262529631. Peter D. Grünwald and Steven de Rooij. Asymptotic log-loss of prequential maximum likelihood codes. In Learning Theory: 18th Annual Conference on Learning Theory, COLT 2005 , volume 3559 of Lecture Notes in Computer Science , pages 652–667. Springer, 2005. doi: 10.1007/11503415_44. Geoffrey E. Hinton and Drew van Camp. Keeping the neural networks simple by minimizing the description length of the weights. In Proceedings of the Sixth Annual Conference on Computational Learning Theory , pages 5–13, 1993. doi: 10.1145/168304.168306. Marcus Hutter. Sequence prediction based on monotone complexity. In Learning Theory and Kernel Machines , volume 2777 of Lecture Notes in Computer Science , pages 506–521. Springer, 2003. doi: 10.1007/978-3-540-45167-9_37. Marcus Hutter. Discrete MDL predicts in total variation. In Advances in Neural Information Processing Systems 22 , pages 817–825, 2009. Ming Li and Paul Vitányi. An introduction to Kolmogorov complexity and its applications , volume 3. Springer, 2008. Alexey Milovanov. Prediction and MDL for infinite sequences. Theory of Computing Systems , 68 (5):1124–1137, 2024. doi: 10.1007/s00224-024-10180-0. Marvin Minsky. Remarks in panel discussion: The Limits of Understanding. World Science Festival, New York City, June 2010. URL https://www.worldsciencefestival.com/videos/ the-limits-of-understanding/ . Video. Accessed: 2026-05-02. Jan Poland and Marcus Hutter. Asymptotics of discrete MDL for online prediction. IEEE Transactions on Information Theory , 51(11):3780–3795, 2005. doi: 10.1109/TIT.2005.856956. Jorma Rissanen. Modeling by shortest data description. Automatica , 14(5):465–471, 1978. doi: 10.1016/0005-1098(78)90005-5. Jorma Rissanen. Stochastic complexity in statistical inquiry , volume 15. World scientific, 1998. Nikolai K. Vereshchagin and Paul M. B. Vitányi. Kolmogorov’s structure functions and model selection. IEEE Transactions on Information Theory , 50(12):3265–3290, 2004. doi: 10.1109/TIT. 2004.838346. Paul M. B. Vitányi and Ming Li. Minimum description length induction, bayesianism, and kolmogorov complexity. IEEE Transactions on Information Theory , 46(2):446–464, 2000. doi: 10.1109/18.825807. 12 A Full proofs for additive Approx-MDL 
+
+Proof of Lemma 2.3. Fix α ∈ (0 , 1) . We first prove the following scalar inequality: for every 
+
+x, y ∈ [0 , 1] ,
+
+(1 − α)x + αy − x1−αyα ≥ α(1 − α)2 (x − y)2. (5) If x = y = 0 , the claim is immediate. Otherwise set 
+
+M := max {x, y } ∈ (0 , 1] , x = M a, y = M b. 
+
+Then a, b ∈ [0 , 1] and max {a, b } = 1 . Moreover, 
+
+(1 − α)x + αy − x1−αyα = M
+
+(
+
+(1 − α)a + αb − a1−αbα)
+
+,
+
+and α(1 − α)2 (x − y)2 = α(1 − α)2 M 2(a − b)2
+
+.Since M ≤ 1, we have M 2 ≤ M . Hence, it is enough to prove 
+
+(1 − α)a + αb − a1−αbα ≥ α(1 − α)2 (a − b)2 (6) under the normalization max {a, b } = 1 .By symmetry, it suffices to consider the case b = 1 . Indeed, the case a = 1 follows from the case 
+
+b = 1 after swapping a and b and replacing α by 1 − α. Thus let b = 1 and write a = s ∈ [0 , 1] .Define 
+
+g(s) := (1 − α)s + α − s1−α − α(1 − α)2 (1 − s)2.
+
+We claim that g(s) ≥ 0 for all s ∈ [0 , 1] . Clearly, g(1) = 0 .For s ∈ (0 , 1] , a direct computation gives 
+
+g′(s) = (1 − α) − (1 − α)s−α + α(1 − α)(1 − s),
+
+and hence g′(1) = 0 .Furthermore, 
+
+g′′ (s) = α(1 − α)(s−α−1 − 1) ≥ 0, s ∈ (0 , 1] ,
+
+because s ≤ 1. Therefore g′ is nondecreasing on (0 , 1] . Since g′(1) = 0 , it follows that g′(s) ≤ 0 for all s ∈ (0 , 1] . Hence g is nonincreasing on [0 , 1] , and so 
+
+g(s) ≥ g(1) = 0 , s ∈ [0 , 1] .
+
+This proves (6), and therefore also (5). Now apply (5) with x = pa and y = qa for each a ∈ X . Summing over a ∈ X yields 
+
+∑
+
+> a∈X
+
+(
+
+(1 − α)pa + αq a − p1−αa qαa
+
+)
+
+≥ α(1 − α)2
+
+∑
+
+> a∈X
+
+(pa − qa)2.
+
+Since p and q are probability distributions, 
+
+∑
+
+> a∈X
+
+((1 − α)pa + αq a
+
+) = (1 − α) ∑
+
+> a
+
+pa + α ∑
+
+> a
+
+qa = 1 .
+
+13 As a result, the left-hand side is equal to 
+
+1 − ∑
+
+> a∈X
+
+p1−αa qαa .
+
+Thus, 
+
+1 − ∑
+
+> a∈X
+
+p1−αa qαa ≥ α(1 − α)2
+
+∑
+
+> a∈X
+
+(pa − qa)2,
+
+as desired. 
+
+Lemma A.1 (Power threshold-loss bound) . Let X be finite or countable. Let P and Q be probability measures on X ∞. For t ≥ 1, write P<t and Q<t for the marginals on X t−1, and define 
+
+Lt(x<t ) := Q<t (x<t )
+
+P<t (x<t )
+
+whenever P<t (x<t ) > 0, with an arbitrary value, say 0, on P<t -null histories. Let X ∼ P . Then, for every α ∈ (0 , 1) and every c > 0,
+
+EX∼P
+
+∑
+
+> t≥1
+
+1{Lt ≥ c} ∑
+
+> a∈X
+
+(P (a | X<t ) − Q(a | X<t ))2 ≤ 2
+
+α(1 − α) c−α.
+
+Proof. Fix α ∈ (0 , 1) and set Rt := Lαt . On histories with P<t (X<t ) = 0 , define the conditional distributions arbitrarily; these histories have no effect under P .For a fixed history X<t , write 
+
+pa := P (a | X<t ), qa := Q(a | X<t ).
+
+Define 
+
+dαt (P, Q ) := 1 − ∑
+
+> a∈X
+
+p1−αa qαa .
+
+We use the convention that 01−αqα = 0 for q ≥ 0.On the event pXt > 0, the likelihood ratio updates as Lt+1 = Lt qXt
+
+> pXt
+
+. Therefore, 
+
+Rt+1 = Rt
+
+( qXt
+
+pXt
+
+)α
+
+.
+
+Taking conditional expectation under P given X<t gives 
+
+EP [Rt+1 | X<t ] = Rt
+
+∑
+
+> a:pa>0
+
+pa
+
+( qa
+
+pa
+
+)α
+
+= Rt
+
+∑
+
+> a:pa>0
+
+p1−αa qαa
+
+= Rt
+
+∑
+
+> a∈X
+
+p1−αa qαa
+
+= Rt
+
+(1 − dαt (P, Q )).
+
+Hence 
+
+EP [Rt − Rt+1 | X<t ] = Rtdαt (P, Q ).
+
+14 Taking expectations yields 
+
+EP [Rtdαt (P, Q )] = EP [Rt − Rt+1 ].
+
+Now sum this identity from t = 1 to T . Since Rt ≥ 0,
+
+> T
+
+∑
+
+> t=1
+
+EP [Rtdαt (P, Q )] = 
+
+> T
+
+∑
+
+> t=1
+
+EP [Rt − Rt+1 ]= EP [R1] − EP [RT +1 ]
+
+≤ EP [R1].
+
+Because X<1 is the empty history, L1 = 1 and therefore R1 = 1 . Thus, 
+
+> T
+
+∑
+
+> t=1
+
+EP [Rtdαt (P, Q )] ≤ 1.
+
+Letting T → ∞ and using monotone convergence gives 
+
+∑
+
+> t≥1
+
+EP [Rtdαt (P, Q )] ≤ 1.
+
+Next, on the event {Lt ≥ c},
+
+1{Lt ≥ c} ≤ c−αLαt = c−αRt.
+
+By Lemma 2.3, for every history X<t ,
+
+∑
+
+> a∈X
+
+(pa − qa)2 ≤ 2
+
+α(1 − α) dαt (P, Q ).
+
+Therefore, 
+
+EP
+
+∑
+
+> t≥1
+
+1{Lt ≥ c} ∑
+
+> a∈X
+
+(P (a | X<t ) − Q(a | X<t ))2
+
+≤ 2
+
+α(1 − α) EP
+
+∑
+
+> t≥1
+
+1{Lt ≥ c}dαt (P, Q )
+
+≤ 2
+
+α(1 − α) c−α ∑
+
+> t≥1
+
+EP [Rtdαt (P, Q )] 
+
+≤ 2
+
+α(1 − α) c−α.
+
+This proves the lemma. 
+
+Lemma A.2 (Thresholded likelihood-ratio loss) . Let P and Q be probability measures on X ∞, and define 
+
+Lt := Q(X<t )
+
+P (X<t ) ,
+
+with X ∼ P and Lt = 0 on P -null histories. There exists a universal constant KPH < ∞ such that, for every c > 0,
+
+EX∼P
+
+∑
+
+> t≥1
+
+1{Lt ≥ c} ∑
+
+> a∈X
+
+(P (a | X<t ) − Q(a | X<t ))2 ≤ 2KPH 
+
+c .
+
+Using the static-MDL quadratic-loss bound of (Poland and Hutter, 2005, Corollary 14), one may take KPH = 21 .
+
+15 Proof. Let τ := inf {t ≥ 1 : Lt ≥ c} be the first threshold-crossing time. If τ = ∞, the thresholded loss is zero. Condition on {τ < ∞} and on X<τ = x. Let P x and Qx be the conditional continuation measures after history x. For a future string y,
+
+Qx(y)
+
+P x(y) = Q(xy )/Q (x)
+
+P (xy )/P (x) = Lτ +ℓ(y)
+
+Lτ
+
+.
+
+Therefore the rule that uses Q exactly when Lτ +ℓ(y) ≥ c is equivalent to exact static MDL on the two-model class {P x, Q x} with unnormalized weights 
+
+¯wP = 1 , ¯wQ = Lτ
+
+c .
+
+Indeed, this static MDL rule selects Qx exactly when 
+
+¯wQQx(y) ≥ ¯wP P x(y),
+
+which is equivalent to Lτ +ℓ(y) ≥ c.By the exact static-MDL quadratic-loss bound of (Poland and Hutter, 2005, Corollary 14), the conditional expected cumulative squared loss of this two-model static MDL predictor is at most 
+
+KPH 
+
+(
+
+1 + Lτ
+
+c
+
+)
+
+,
+
+because the normalized weight of the true model P x is 11+ Lτ /c .It remains to average over the stopping event. With the convention Lt = 0 on P -null histories, 
+
+(Lt)t≥1 is a nonnegative P -supermartingale with L1 = 1 . Optional stopping applied to Lτ ∧n, followed by Fatou’s lemma, gives 
+
+EP [Lτ · 1{τ < ∞} ] ≤ EP [lim inf  
+
+> n→∞
+
+Lτ ∧n · 1{τ < ∞} ] ≤ lim inf  
+
+> n→∞
+
+EP [Lτ ∧n · 1{τ < ∞} ] ≤ 1.
+
+Moreover, since Lτ ≥ c on {τ < ∞} , PP (τ < ∞) ≤ 1 
+
+> c
+
+. Hence 
+
+EP
+
+∑
+
+> t≥1
+
+1{Lt ≥ c} ∑
+
+> a∈X
+
+(P (a | X<t ) − Q(a | X<t ))2 ≤ KPH 
+
+(
+
+PP (τ < ∞) + EP [Lτ · 1{τ < ∞} ]
+
+c
+
+)
+
+≤ 2KPH 
+
+c .
+
+Proof of Theorem 1.1. For each ν ∈ M , define 
+
+Lνt := ν(X<t )
+
+μ(X<t ) , cν := 2 −C
+
+( wμ
+
+wν
+
+)λ
+
+.
+
+By (3), on the event {νt = ν},
+
+wλν ν(X<t ) ≥ 2−C wλμμ(X<t ),
+
+and hence Lνt ≥ cν . Therefore 
+
+S∞(μ, ρ ) ≤ ∑
+
+> ν∈M
+
+Eμ
+
+∑
+
+> t≥1
+
+1{Lνt ≥ cν } ∑
+
+> a∈X
+
+(μ(a | X<t ) − ν(a | X<t ))2. (7) 16 This is the common threshold template for all λ ≥ 1.We combine the two pairwise threshold estimates directly. Fix 0 < p < 1 and set 
+
+α := pλ , rν := wν
+
+wμ
+
+.
+
+By Lemmas A.1 and A.2, 
+
+Eμ
+
+∑
+
+> t≥1
+
+1{Lνt ≥ cν } ∑
+
+> a∈X
+
+(μ(a | X<t ) − ν(a | X<t ))2 ≤ min {Aprpν , Br λν },
+
+where 
+
+Ap := 2λ2
+
+p(λ − p) 2pC/λ , B := 2 KPH 2C .
+
+For 0 < p < 1 ≤ λ, the elementary interpolation inequality 
+
+min {Aprp, Br λ} ≤ A 
+
+> λ−1
+> λ−p
+> p
+
+B 1−pλ−p r (r > 0) 
+
+holds. Indeed, the left-hand side divided by r is bounded by the value at the crossing point of Aprp
+
+and Br λ. Hence 
+
+S∞(μ, ρ ) ≤ 2C/λ 
+
+( 2λ2
+
+p(λ − p)
+
+) λ−1
+
+> λ−p
+
+(2 KPH ) 1−pλ−p w−1 
+
+> μ
+
+.
+
+In particular, taking p = 1 /2 gives 
+
+S∞(μ, ρ ) ≤ 2C/λ 
+
+( 4λ2
+
+λ − 12
+
+) λ−1 
+
+> λ−12
+
+(2 KPH ) 12λ−1 w−1 
+
+> μ
+
+.
+
+Let 
+
+Cλ := 
+
+( 4λ2
+
+λ − 12
+
+) λ−1 
+
+> λ−12
+
+(2 KPH ) 12λ−1 .
+
+For λ ≥ 1, we have 
+
+0 ≤ λ − 1
+
+λ − 12
+
+≤ 1, 4λ2
+
+λ − 12
+
+≤ 8λ, 12λ − 1 ≤ 1.
+
+Thus Cλ ≤ 16 KPH λ, and therefore 
+
+S∞(μ, ρ ) ≤ Cλ2C/λ w−1 
+
+> μ
+
+≤ 16 KPH λ 2C/λ w−1 
+
+> μ
+
+.
+
+This proves the theorem. 
+
+Proof of Proposition1.1. Let 
+
+A := 2 C/λ (w−1 − 1) .
+
+We first prove the following floor lower bound: for every integer k ≥ 1, there is a finite binary model class, weights, a true environment μ with wμ = w, and a valid additive-C Approx-MDL predictor ρ
+
+such that 
+
+S∞(μ, ρ ) ≥ k
+
+2
+
+⌊
+
+2(C+1 −k)/λ (w−1 − 1) 
+
+⌋
+
+. (8) Let the true environment be the deterministic all-zero measure on the binary alphabet, 
+
+μ(000 · · · ) = 1 , wμ = w. 
+
+17 Fix k ≥ 1. Set 
+
+r := 2 (k−1−C)/λ , m := 
+
+⌊ 1 − wrw 
+
+⌋
+
+=
+
+⌊
+
+2(C+1 −k)/λ (w−1 − 1) 
+
+⌋
+
+.
+
+Add m false models ν1, . . . , ν m, each with weight 
+
+wνi := rw. 
+
+Then 
+
+wμ +
+
+> m
+
+∑
+
+> i=1
+
+wνi = w + mrw ≤ w + (1 − w) = 1 .
+
+If m = 0 , then the floor lower bound (8) is trivial. Hence assume m ≥ 1.The false models make their errors in round-robin order. For 
+
+ti,j := ( j − 1) m + i, 1 ≤ i ≤ m, 1 ≤ j ≤ k, 
+
+define νi along the true path by 
+
+νi(0 | 0ti,j −1) = 12 , νi(1 | 0ti,j −1) = 12
+
+at its designated error times, and by 
+
+νi(0 | 0t−1) = 1 
+
+at all other times along the path 0∞. Away from the path 0∞, define νi arbitrarily, say deterministi-cally toward 0. This defines a probability measure on {0, 1}∞.We now define the selector. At history 0ti,j −1, select νi. At all other histories, select an exact minimizer of the MDL objective over the finite class. We verify that the prescribed selections are valid additive-C Approx-MDL choices. Before time ti,j , model νi has made exactly j −1 fair-coin mistakes along the true path. Therefore 
+
+νi(0 ti,j −1)
+
+μ(0 ti,j −1) = 2 −(j−1) .
+
+Its weighted likelihood relative to the true model is 
+
+Aj := wλνi νi(0 ti,j −1)
+
+wλμμ(0 ti,j −1) = rλ2−(j−1) = 2 k−j−C .
+
+Since j ≤ k, we have 
+
+Aj ≥ 2−C .
+
+We also need admissibility relative to the global maximum, not merely relative to the true model. At the i-th step of round j, the models ν1, . . . , ν i−1 have already been used in the current round and have therefore made j mistakes, while νi, . . . , ν m have made only j − 1 mistakes. Thus, the selected model νi attains the largest weighted likelihood among the false models. Hence, the global maximum, measured relative to the true model, is at most max {1, A j }. Since 
+
+Aj ≥ 2−C max {1, A j },
+
+the choice of νi satisfies 
+
+wλνi νi(0 ti,j −1) ≥ 2−C max  
+
+> η∈M
+
+wλη η(0 ti,j −1).
+
+18 Therefore, the selector is a valid additive-C Approx-MDL selector. Each designated selection incurs a squared loss 
+
+(
+
+1 − 12
+
+)2
+
++
+
+(
+
+0 − 12
+
+)2
+
+= 12 .
+
+Since μ is deterministic, the expectation is concentrated on the path 0∞. There are km designated error times, so 
+
+S∞(μ, ρ ) ≥ km 
+
+2 = k
+
+2
+
+⌊
+
+2(C+1 −k)/λ (w−1 − 1) 
+
+⌋
+
+.
+
+This proves (8). It remains to derive the stated simplified bound. Recall that 
+
+A = 2 C/λ (w−1 − 1) .
+
+If A ≤ 1, then 
+
+A − 1 ≤ 0,
+
+and the claimed lower bound 
+
+S∞(μ, ρ ) ≥ cλ (A − 1) 
+
+is trivial, since S∞(μ, ρ ) ≥ 0. If the statement is written with the positive part (A − 1) +, the same case gives the trivial bound S∞(μ, ρ ) ≥ 0.Now suppose A > 1. We split into two subcases. First assume 1 < A ≤ 4e. Choose k := 
+
+⌊1 + λ log 2 A⌋. Then k ≥ 1, and since k ≤ 1 + λ log 2 A,
+
+2(C+1 −k)/λ (w−1 − 1) = A 2(1 −k)/λ ≥ 1.
+
+Therefore the floor in (8) is at least 1, and hence 
+
+S∞(μ, ρ ) ≥ k
+
+2 ≥ λ
+
+2 log 2 A. 
+
+Since the function A 7 → log 2 AA−1 is positive and continuous on the compact interval (1 , 4e] after taking its limit at A = 1 , there exists an absolute constant γ > 0 such that 
+
+log 2 A ≥ γ(A − 1) for all 1 < A ≤ 4e. 
+
+Thus 
+
+S∞(μ, ρ ) ≥ γ
+
+2 λ(A − 1) .
+
+Next assume A > 4e. Choose k := 
+
+⌊ λ
+
+> ln 2
+
+⌋
+
+. Since λ ≥ 1, this gives k ≥ 1 and 
+
+k ≥ λ
+
+2 ln 2 .
+
+Moreover, k ≤ λ/ ln 2 , and hence 
+
+2−k/λ ≥ 2−1/ ln 2 = e−1.
+
+Therefore 
+
+2(C+1 −k)/λ (w−1 − 1) = A 2(1 −k)/λ ≥ Ae −1 > 4.
+
+19 Thus, the floor is at least half of the quantity inside it: 
+
+> ⌊
+
+2(C+1 −k)/λ (w−1 − 1) 
+
+> ⌋
+
+≥ 12 A 2(1 −k)/λ ≥ A
+
+2e .
+
+Using (8), we obtain 
+
+S∞(μ, ρ ) ≥ k
+
+2 · A
+
+2e ≥ λ
+
+2 ln 2 · A
+
+4e = λA 
+
+8e ln 2 .
+
+Since A > 1, this also implies 
+
+S∞(μ, ρ ) ≥ λ(A − 1) 8e ln 2 .
+
+Combining the two subcases, there exists an absolute constant c > 0 such that, for all A > 1,
+
+S∞(μ, ρ ) ≥ cλ (A − 1) .
+
+Together with the trivial case A ≤ 1, this proves 
+
+S∞(μ, ρ ) ≥ cλ 
+
+> (
+
+2C/λ (w−1 
+
+> μ
+
+− 1) − 1
+
+> )
+
+.
+
+If the proposition is stated with a positive part, the same proof gives 
+
+S∞(μ, ρ ) ≥ cλ 
+
+> (
+
+2C/λ (w−1 
+
+> μ
+
+− 1) − 1
+
+> )
+> +
+
+.
+
+This proves the proposition. 
+
+Proof of Corollary 1.1. For the universal class with wν = 2 −K(ν), Kraft’s inequality for the under-lying prefix machine gives ∑ 
+
+> ν∈M
+
+wν ≤ 1. Since the true estimable environment μ belongs to M,Theorem 1.1 yields 
+
+S∞(μ, ρ ) = ∑
+
+> t≥1
+
+et(μ, ρ ) < ∞.
+
+As each et(μ, ρ ) ≥ 0, the terms of this convergent nonnegative series satisfy et(μ, ρ ) → 0.
+
+Lemma A.3 (Deterministic refinement of an estimable measure) . There exists a constant cdet < ∞
+
+such that for every estimable measure ν and every finite binary string x with ν(x) > 0, there is a deterministic estimable measure δω satisfying δω(x) = 1 and 
+
+K(δω) ≤ K(ν) + log 2 ν(x)−1 + cdet log 2
+
+> (
+
+log 2 ν(x)−1 + 2 ) + cdet .
+
+Proof. By the equivalence between generative and probability-computing descriptions for estimable measures, we may use a probability-computing description of ν of length K(ν) + O(1) . This O(1) 
+
+overhead is absorbed into cdet .Let B = − log 2 ν(x). From the probability-computing description of ν, construct the standard arithmetic intervals (Iy)y∈{ 0,1}∗ , whose endpoints are uniformly computable and whose lengths satisfy |Iy| = ν(y). Since |Ix| = ν(x) = 2 −B > 0, a standard dyadic-interval covering argument gives a binary string r such that the dyadic interval J = Jr has closure contained in the interior of Ix and 
+
+|r| ≤ ⌈ B⌉ + c0
+
+for a universal constant c0.20 We hard-wire r into the decoder. The decoder does not need to know x. It maintains a rational interval Jy after having output the prefix y, with Jy ⊆ J ∩ Iy and |Jy| > 0. Initially, y = ϵ and 
+
+Jϵ = J.Given Jy ⊆ Iy, the decoder dovetails over a ∈ { 0, 1} and rational open intervals J′. For each candidate J′, it uses computable approximations to the endpoints of Iya to certify the strict containment 
+
+J′ ⊆ Jy ∩ int( Iya ).
+
+This condition is semidecidable because the containment is strict. Moreover, such a pair (a, J ′)
+
+exists: the interval Jy has positive length and the children Iy0 and Iy1 partition Iy up to endpoints, so one of the intersections Jy ∩ Iya has positive interior. Hence the dovetailing search halts. The decoder outputs this bit a and sets Jya = J′.Iterating this procedure produces a computable infinite sequence ω. Because J is contained in the interior of Ix, during the first |x| steps only the branch consistent with x can have positive intersection with the maintained interval. Hence the first |x| bits of ω are exactly x, and therefore 
+
+δω(x) = 1 .Since ω is computable, the Dirac measure δω is estimable: on input y, compute the first |y| bits of ω and check whether y is a prefix. The generator for δω consists of the probability-computing description of ν, the self-delimiting encoding of r, and a fixed decoder. The string r costs 
+
+|r| + O(log( |r| + 2)) 
+
+bits to encode self-delimitingly. Since |r| ≤ ⌈ B⌉ + c0, the description length is 
+
+K(ν) + B + O(log( B + 2)) .
+
+Absorbing all universal constants into cdet proves the claim. 
+
+Proof of Lemma 3.1. Let ccode be the constant in Lemma 2.2. First we prove the lower bound on the optimum. For any ν ∈ M , Lemma 2.2 gives 
+
+Km(x) ≤ K(ν) + log 2 ν(x)−1 + ccode .
+
+Multiplying by λ ∈ (0 , 1) and using 
+
+λ log 2 ν(x)−1 ≤ log 2 ν(x)−1,
+
+we get 
+
+λK m(x) ≤ λK (ν) + log 2 ν(x)−1 + λc code = Lλ(ν; x) + λc code .
+
+Taking the minimum over ν yields 
+
+OPT λ(x) ≥ λK m(x) − λc code .
+
+Thus the second claim holds with cλ = λc code .We now prove the deterministic approximate-minimizer claim. Let ν⋆ be an exact minimizer of 
+
+Lλ(·; x), and write 
+
+B := log 2 ν⋆(x)−1.
+
+Since the universal class contains deterministic extensions of x, the optimum is finite, and hence 
+
+B < ∞. By Lemma A.3, there exists a deterministic estimable measure νx with νx(x) = 1 and 
+
+K(νx) ≤ K(ν⋆) + B + cdet log 2(B + 2) + cdet .
+
+21 Therefore, 
+
+Lλ(νx; x) = λK (νx) ≤ λK (ν⋆) + λB + λc det log 2(B + 2) + λc det .
+
+Since 
+
+OPT λ(x) = Lλ(ν⋆; x) = λK (ν⋆) + B, 
+
+we obtain 
+
+Lλ(νx; x) − OPT λ(x) ≤ λc det log 2(B + 2) + λc det − (1 − λ)B. 
+
+Because 0 < λ < 1, the right-hand side is bounded above uniformly over B ≥ 0. Define 
+
+Cλ := sup 
+
+> B≥0
+
+{λc det log 2(B + 2) + λc det − (1 − λ)B} < ∞.
+
+Then 
+
+Lλ(νx; x) ≤ OPT λ(x) + Cλ,
+
+as required. 
+
+Proof of Theorem 1.2. Let the true environment be the fair-coin measure 
+
+μ := Bern(1 /2) ∞.
+
+This measure is estimable, so μ ∈ M . For each history x ∈ { 0, 1}∗, let S(x) := νx be the deterministic measure constructed in Lemma 3.1. The lemma implies that there exists a constant 
+
+C < ∞, depending only on λ and the reference machines, such that for every history x,
+
+Lλ(S(x); x) ≤ OPT λ(x) + C. 
+
+Hence S is a valid additive-C Approx-MDL selector. Define the predictor by 
+
+ρt(· | x<t ) := S(x<t )( · | x<t ).
+
+Now fix any history x. Since S(x) is deterministic, there exists a bit b(x) ∈ { 0, 1} such that 
+
+S(x)( · | x) = δb(x).
+
+On the other hand, the true environment μ always predicts 
+
+μ(· | x) = (1 /2, 1/2) .
+
+Therefore the one-step squared loss is exactly 
+
+> ∑
+> a∈{ 0,1}
+> (
+
+μ(a | x) − S(x)( a | x)
+
+> )2
+
+= 
+
+> (
+
+12 − 1
+
+> )2
+
++ 
+
+> (
+
+12 − 0
+
+> )2
+
+= 12 .
+
+This holds for every history x, so for every t ≥ 1, the expected error remains constant: 
+
+Eμ 
+
+> ∑
+> a∈{ 0,1}
+> (
+
+μ(a | X<t ) − ρt(a | X<t ) 
+
+> )2
+> 
+
+= 12 .
+
+Hence, the cumulative squared error diverges: 
+
+S∞(μ, ρ ) = ∑
+
+> t≥1
+
+12 = + ∞.
+
+Because the expected single-step prediction error fails to converge to zero, the predictor ρ does not universally learn the estimable environment μ.22 B Full proofs for multiplicative Approx-MDL 
+
+Proof of Lemma 4.1. Define the mixture over all estimable measures weighted by their prior: 
+
+ξλ(x) := ∑
+
+> ν∈M
+
+2−λK (ν)ν(x).
+
+For every n,
+
+∑ 
+
+> x∈X n
+
+ξλ(x) = ∑
+
+> ν∈M
+
+2−λK (ν) ∑ 
+
+> x∈X n
+
+ν(x) ≤ ∑
+
+> ν∈M
+
+2−λK (ν) ≤ ∑
+
+> ν∈M
+
+2−K(ν) ≤ 1,
+
+where we used λ ≥ 1 and Kraft’s inequality for the prefix-free codes underlying the Kolmogorov complexity. Thus ξλ is a semimeasure. For any ν ∈ M and any string x,
+
+ξλ(x) ≥ 2−λK (ν)ν(x),
+
+so 
+
+− log 2 ξλ(x) ≤ λK (ν) + log 2 ν(x)−1 = Lλ(ν; x).
+
+Taking the minimum over ν gives 
+
+− log 2 ξλ(x) ≤ OPT λ(x). (9) Now define the nonnegative random variable 
+
+Zn := ξλ(X1: n)
+
+μ(X1: n) ,
+
+with the convention Zn := 0 whenever μ(X1: n) = 0 . Then 
+
+Eμ[Zn] = ∑ 
+
+> x∈X n
+
+μ(x) ξλ(x)
+
+μ(x) = ∑ 
+
+> x∈X n
+
+ξλ(x) ≤ 1.
+
+By Markov’s inequality, 
+
+Pr  
+
+> μ
+
+[Zn ≥ 2c] ≤ 2−c.
+
+Equivalently, with probability at least 1 − 2−c,
+
+ξλ(X1: n) ≤ 2cμ(X1: n),
+
+that is, 
+
+− log 2 μ(X1: n) ≤ − log 2 ξλ(X1: n) + c. 
+
+Combining this with (9) yields 
+
+OPT λ(X1: n) ≥ log 2 μ(X1: n)−1 − c
+
+with probability at least 1 − 2−c.
+
+Proof of Theorem 1.3. We work on the binary alphabet X = {0, 1}, and let 
+
+μ := Bern(1 /2) ∞
+
+be the fair-coin product measure. This environment is estimable, hence μ ∈ M . We split the proof into two cases. 23 Case 1: 0 < λ < 1. Here, we use the pointwise overfitting construction from the additive lower bound. By Lemma 3.1, there exists a constant C0 < ∞ such that for every finite string x ∈ { 0, 1}∗,there is a deterministic estimable measure νx ∈ M satisfying 
+
+Lλ(νx; x) ≤ OPT λ(x) + C0.
+
+Moreover, the same lemma gives a constant C1 < ∞ such that 
+
+OPT λ(x) ≥ λK m(x) − C1 for all x ∈ { 0, 1}∗.
+
+For X1: n ∼ μ, the monotone complexity Km(X1: n) tends to infinity in probability. Indeed, for every fixed M < ∞, the number of strings x ∈ { 0, 1}n with Km(x) ≤ M is at most 2M +1 , and each such string has μ-probability 2−n. Hence 
+
+Pμ[Km(X1: n) ≤ M ] ≤ 2M +1 −n → 0.
+
+Combining this with the lower bound 
+
+OPT λ(x) ≥ λK m(x) − C1
+
+shows that 
+
+OPT λ(X1: n) → ∞ in μ-probability .
+
+Define the event 
+
+An := 
+
+{
+
+OPT λ(X1: n) ≥ C0
+
+ϵ
+
+}
+
+.
+
+Then 
+
+Pμ(An) → 1.
+
+On An, the deterministic overfitting model νX1: n satisfies 
+
+Lλ(νX1: n ; X1: n) ≤ OPT λ(X1: n) + C0 ≤ (1 + ϵ) OPT λ(X1: n).
+
+Thus, with probability tending to one, νX1: n is a valid multiplicative-(1 + ϵ) Approx-MDL choice. Now define a selector S by 
+
+S(x) := 
+
+{νx, if Lλ(νx; x) ≤ (1 + ϵ) OPT λ(x),ν⋆x, otherwise ,
+
+where ν⋆x is any exact minimizer of Lλ(·; x). Such an exact minimizer exists for λ > 0. Define 
+
+ρn+1 (· | x1: n) := S(x1: n)( · | x1: n).
+
+By construction, ρ is a valid multiplicative-(1 + ϵ) Approx-MDL predictor. On the event An, the selected model is the deterministic measure νX1: n . Therefore there exists a bit b(X1: n) ∈ { 0, 1} such that 
+
+ρn+1 (· | X1: n) = δb(X1: n).
+
+Since the true conditional distribution is 
+
+μ(· | X1: n) = (1 /2, 1/2) ,
+
+24 The squared prediction error on An equals 
+
+∑
+
+> a∈{ 0,1}
+
+(μ(a | X1: n) − ρn+1 (a | X1: n))2 = 12 .
+
+Hence 
+
+Eμ
+
+ ∑
+
+> a∈{ 0,1}
+
+(μ(a | X1: n) − ρn+1 (a | X1: n))2
+
+ ≥ 12 Pμ(An).
+
+Since Pμ(An) → 1, the expected one-step squared prediction error is at least 1/4 for all sufficiently large n. Summing over n gives 
+
+S∞(μ, ρ ) = + ∞.
+
+Case 2: λ ≥ 1. It remains to handle the strongly regularized regime. Let again 
+
+μ = Bern(1 /2) ∞.
+
+Choose a rational number θ ∈ (0 , 1) \ { 1/2} sufficiently close to 1/2 such that the cross-entropy 
+
+hθ := 12 log 2 θ−1 + 12 log 2(1 − θ)−1
+
+satisfies 
+
+hθ < 1 + ϵ
+
+4 .
+
+This is possible by continuity of hθ at θ = 1 /2 and by density of the rationals. Let 
+
+νθ := Bern( θ)∞.
+
+Since θ is rational, νθ is estimable, and K(νθ) < ∞.Choose N0 such that, for all n ≥ N0,
+
+λK (νθ) ≤ ϵ
+
+2 n − 4(1 + ϵ).
+
+Under μ, the empirical negative log-likelihood under νθ converges in probability to hθ:
+
+− 1
+
+n log 2 νθ(X1: n) → hθ in μ-probability .
+
+Hence there exists N1 such that, for all n ≥ N1,
+
+Pμ
+
+[
+
+− log 2 νθ(X1: n) ≤
+
+(
+
+1 + ϵ
+
+2
+
+)
+
+n
+
+]
+
+≥ 910 .
+
+For n ≥ N := max {N0, N 1}, define 
+
+An := 
+
+{
+
+− log 2 νθ(X1: n) ≤
+
+(
+
+1 + ϵ
+
+2
+
+)
+
+n
+
+}
+
+.
+
+On An,
+
+Lλ(νθ; X1: n) = λK (νθ) + log 2 νθ(X1: n)−1
+
+≤ ϵ
+
+2 n − 4(1 + ϵ) + 
+
+(
+
+1 + ϵ
+
+2
+
+)
+
+n
+
+= (1 + ϵ)n − 4(1 + ϵ)= (1 + ϵ)( n − 4) .
+
+25 Next define 
+
+Bn := {OPT λ(X1: n) ≥ n − 4}.
+
+Since μ(X1: n) = 2 −n for every binary string of length n, Lemma 4.1 with c = 4 gives 
+
+Pμ(Bn) ≥ 1 − 2−4 = 15 16 .
+
+Therefore, on An ∩ Bn,
+
+Lλ(νθ; X1: n) ≤ (1 + ϵ)( n − 4) ≤ (1 + ϵ) OPT λ(X1: n).
+
+By the union bound, 
+
+Pμ(An ∩ Bn) ≥ 910 + 15 16 − 1 = 67 80 .
+
+Define the selector S by 
+
+S(x) := 
+
+{νθ, if Lλ(νθ; x) ≤ (1 + ϵ) OPT λ(x),ν⋆x, otherwise ,
+
+where ν⋆x is any exact minimizer of Lλ(·; x). Define 
+
+ρt(· | x<t ) := S(x<t )( · | x<t ).
+
+By construction, ρ is a valid multiplicative-(1 + ϵ) Approx-MDL predictor. For every t = n + 1 ≥ N + 1 , the preceding bound implies 
+
+Pμ(S(X<t ) = νθ) ≥ 67 80 .
+
+Whenever S(X<t ) = νθ, the next-step prediction is the biased Bernoulli law, whereas the true conditional distribution is 
+
+μ(· | X<t ) = (1 /2, 1/2) .
+
+Thus the squared prediction error on this event is 
+
+∑
+
+> a∈{ 0,1}
+
+(μ(a | X<t ) − ρt(a | X<t ))2 = 2 
+
+(
+
+θ − 12
+
+)2
+
+> 0.
+
+Consequently, for all t ≥ N + 1 ,
+
+Eμ
+
+ ∑
+
+> a∈{ 0,1}
+
+(μ(a | X<t ) − ρt(a | X<t ))2
+
+ ≥ 67 80 · 2
+
+(
+
+θ − 12
+
+)2
+
+.
+
+The right-hand side is a strictly positive constant. Summing over t gives 
+
+S∞(μ, ρ ) = + ∞.
+
+Combining the two cases proves the theorem for every λ > 0 and ϵ > 0.26

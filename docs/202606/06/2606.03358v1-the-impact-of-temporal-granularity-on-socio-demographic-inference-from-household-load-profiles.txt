@@ -1,0 +1,823 @@
+Title: The Impact of Temporal Granularity on Socio-Demographic Inference from Household Load Profiles
+
+URL Source: https://arxiv.org/pdf/2606.03358v1
+
+Published Time: Wed, 03 Jun 2026 00:52:35 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+# The Impact of Temporal Granularity on Socio-Demographic Inference from Household Load Profiles 
+
+Dejan Radovanovic 1,2, Maximilian Schirl 1, Andreas Unterweger 1,2, and Günther Eibl 1 
+
+> 1
+
+Center for Secure Energy Informatics, Salzburg University of Applied Sciences, Puch bei Hallein, Austria  
+
+> 2
+
+Paris Lodron University of Salzburg, Salzburg, Austria 
+
+Abstract. Smart meter data can reveal sensitive socio-demographic characteristics of households, raising privacy concerns. While this risk has been demonstrated at fixed granularities, the role of temporal reso-lution in shaping inference performance remains insufficiently explored. This paper addresses this gap by analyzing how load profiles with granu-larities from 15 minutes to 7 days affect the predictability of eight socio-demographic attributes in a dataset of 1,589 households over one year. We introduce an evaluation framework where classifiers are trained on year-round data but tested on arbitrary weeks, forcing generalization across seasonal and weekly variations. Our results show three main findings. First, while coarsening granularity reduces predictive accuracy, two plateaus emerge: performance is stable between 15 minutes and 1 hour, and again between 1 and 7 days. This re-veals opportunities for data minimization without sacrificing utility. Sec-ond, interpretable handcrafted and ts-fresh features remain competitive with CNN-based autoencoder embeddings, while XGBoost consistently outperforms alternative classifiers. Third, feature importance analysis highlights differences between static and dynamic attributes: dwelling size can be inferred even from coarse data, whereas swimming pool us-age requires fine-grained temporal signals. Overall, our study provides new insights into the privacy–utility trade-off in smart metering, showing how temporal resolution, feature extraction, and classifier choice jointly influence socio-demographic inference. 
+
+Keywords: Load Profile Analysis · Supervised Machine Learning · Eval-uation Methodology · Prediction of Socio-Demographic Characteristics. 
+
+## 1 Introduction 
+
+Smart metering enables the collection of high-resolution electricity consumption data, offering utilities and consumers detailed insights into household energy usage patterns. Such load profiles support diverse applications, including short-term load forecasting, demand response programs, dynamic pricing schemes, and  
+
+> arXiv:2606.03358v1 [cs.LG] 2 Jun 2026 2Radovanovic et al.
+
+improved energy efficiency, ultimately contributing to reduced energy waste and cost savings [17,53]. However, the utility of load profiles depends critically on their temporal res-olution. Coarse monthly consumption values are sufficient for billing, yet they cannot capture daily or hourly variations required for accurate household-level forecasting. At weekly granularity, consumption peaks and appliance-specific patterns are smoothed out, rendering short-term predictions ineffective. This il-lustrates the fundamental privacy–utility trade-off: coarser resolutions increase privacy by reducing behavioral detail but simultaneously limit the utility of the data for advanced analytics. The widespread deployment of smart meters has raised significant privacy concerns. Fine-grained consumption data allow inferences about household be-havior, such as appliance usage [11,33,1] and occupancy schedules [32,35,23]. More critically, because electricity usage is often correlated with socio-demo-graphic attributes, such as dwelling type, household size, or income level, load profiles can be exploited to predict sensitive household characteristics [7,6,4,29,51]. In the worst case, predictions of socio-demographics, such as whether a house-hold has a swimming pool, sauna, or owns their home, may serve as proxies for social standing or income group. Even without linking to external data, such inferences can have discriminatory consequences: (i) insurers could adjust premi-ums based on inferred socio-economic status, (ii) advertisers might micro-target families, (iii) landlords or financial institutions could indirectly evaluate finan-cial capacity, and (iv) utilities could tailor tariffs that disproportionately affect specific groups. Thus, socio-demographic inference from load profiles directly undermines household privacy. A commonly proposed mitigation strategy is to reduce the resolution of load profiles, thereby increasing their time granularity [18,19,20,21,25]. Prior work has primarily examined this trade-off in the context of sub-minute or second-level data, typically used for non-intrusive load monitoring (NILM), where the focus lies on appliance detection [27,55]. In contrast, the privacy implications of coarse-grained load profiles—with temporal resolutions from 15 minutes up to several days—remain insufficiently understood. This question is highly relevant in practice, as European Union regulations mandate a minimum resolution of 15 minutes for electricity data collection [15]. While such resolutions balance privacy and utility at the system level, they may still allow household-level socio-demographic inference [37,42,19]. This paper addresses the following research question: How does the time gran-ularity of coarse-grained load profiles affect the predictability of household socio-demographic characteristics? Earlier studies have shown that socio-demographics can be inferred from 30-minute profiles [6,4,29] or have examined general effects of temporal resolution [19], but a systematic analysis across granularities from 15 minutes to 7 days is still missing [2,52,3]. To close this gap, we evaluate the inference of eight socio-demographic attributes using weekly load profiles from 1,589 suburban households observed over one year. Unlike studies that rely on fixed seasonal or annual aggregates, our framework evaluates classifiers on Title Suppressed Due to Excessive Length 3
+
+arbitrary weeks, requiring generalization across seasonal variation and weekly consumption dynamics. This work extends our previously published conference paper [44] with several additional contributions: 1. Refined evaluation of seasonal attributes: While the set of socio-demographic characteristics remains the same as in the previous study (e.g., swimming pool, sauna, home ownership), we extend the analysis by restricting seasonal attributes to relevant time periods (e.g., swimming pool usage evaluated only during summer weeks, sauna during winter weeks). 2. Systematic comparison of feature extraction methods: We contrast hand-crafted features, ts-fresh, and CNN-based autoencoder embeddings across all granularities. 3. Expanded classifier analysis: Multiple machine learning models are evaluated to test robustness across temporal resolutions. 4. Feature importance and interpretability: We identify which consumption fea-tures most strongly drive socio-demographic inference. Finally, the privacy–utility trade-off studied here has tangible real-world im-plications. While coarse data (e.g., monthly billing) suffice for operational tasks, fine-grained load profiles enable the prediction of sensitive household charac-teristics. In worst-case scenarios, such inferences could facilitate profiling for insurance pricing, targeted advertising, or discriminatory practices. These risks underscore the importance of carefully balancing data utility with privacy preser-vation in future smart metering deployments. The remainder of this paper is structured as follows: Section 2 reviews exist-ing work on socio-demographic inference from smart meter data and the impact of time granularity. Section 3 formally defines the classification problem under study. Section 4 describes our experimental setup, including dataset prepro-cessing, feature extraction, and classification methods. Section 5 presents the empirical results, while Section 6 discusses the implications and compares our findings with related approaches. Finally, Section 7 concludes the paper and outlines directions for future research. 
+
+## 2 Related Work 
+
+Smart meter data has been widely used to analyze residential electricity con-sumption and infer household characteristics. Prior research spans domains such as energy efficiency, demand forecasting, non-intrusive load monitoring (NILM), and privacy-preserving analytics. While NILM studies demonstrate how fine-grained second-level data enables appliance-level disaggregation [54,55], our fo-cus lies on coarse-grained data starting at 15-minute intervals, in line with Eu-ropean Commission guidelines [16]. Early work on coarser data investigated small datasets (5-30 households) us-ing daily or sub-daily intervals, for tasks such as anomaly detection [48], identify-ing routines [1], or short-term load forecasting [46]. Larger studies linked hourly 4 Radovanovic et al. 
+
+consumption to external factors such as temperature [8]. Other research explored how socio-demographic characteristics correlate with load profiles. McLoughlin et al. [40,41] used the CER dataset to relate dwelling type and household com-position to consumption and to cluster households into usage classes. Similarly, Kolter [34] and Kavousian [31] analyzed U.S. data, showing the influence of weather and dwelling characteristics. A central line of work predicts socio-demographics directly from load profiles. Beckel et al. [6,4] used 30-minute CER data to classify attributes such as dwelling type and occupancy, while Hopf et al. [29] improved accuracy by expanding the feature set. Viegas et al. [49] applied fuzzy models for interpretable predictions, and Wang et al. [51] compared handcrafted and automatically extracted features. Studies closer to our dataset investigated specific appliances: Burkhart [10] and Ferner [24] predicted swimming pool ownership, though both assumed year-long load profiles for training and testing. In contrast, our work evaluates arbitrary weekly snippets , requiring classifiers to generalize across seasonal variation. More recent work has introduced alternative methodological advances. Lin et al. [36] applied Bayesian CNNs with synthetic oversampling to address class im-balance and quantify prediction uncertainty. Their emphasis lies on uncertainty-aware classification with half-hourly data, whereas our study systematically ex-amines the role of temporal granularity in privacy risks. Fahim and Sillitti [22] combined ts-fresh features with Random Forests on high-resolution data ag-gregated to 30 minutes, focusing on utility for demand-response. In contrast, we compare handcrafted, ts-fresh, and autoencoder embeddings across granularities up to 7 days, explicitly framing the task in terms of privacy implications. Few works explicitly study time granularity itself. Eibl and Engel [19] showed that increasing aggregation reduces appliance detection accuracy, while Engel et al. [20] proposed multi-resolution encrypted load data for privacy protection. In contrast, our contribution is twofold: (i) we analyze socio-demographic inference from coarse-grained load profiles (15 minutes to 7 days) using a large dataset of 1,589 households, and (ii) we evaluate how random weekly profiles, rather than fixed seasonal or annual aggregates, affect classifier performance, highlighting the privacy risks of socio-demographic predictability across temporal resolutions. Beyond prediction accuracy, we also study feature importance across vary-ing time granularities , which provides additional interpretability. While prior work has mainly reported overall classification performance [4,29,51], our analy-sis shows how the relevance of specific load-profile characteristics shifts as tem-poral resolution changes. This perspective offers deeper insights into how aggre-gation not only reduces accuracy but also alters the consumption patterns that remain informative for inferring household attributes. Another methodological difference concerns the temporal unit of analysis. Previous work often relied on fixed seasonal subsets (e.g., summer weeks for swimming pool detection [24]) or entire year-long profiles [10]. In contrast, we design a more realistic and challenging evaluation by sampling arbitrary weekly snippets . This setting reflects a practical threat scenario in which an adversary may only obtain limited, temporally unconstrained data, yet still attempts to Title Suppressed Due to Excessive Length 5
+
+infer sensitive household attributes. To our knowledge, this perspective, com-bined with a systematic comparison of feature extraction strategies, classifiers, and feature importance across multiple granularities, has not been addressed in prior work. 
+
+## 3 Problem Definition 
+
+In a threat scenario where household electricity consumption data are disclosed together with corresponding socio-demographic attributes, such as in datasets described by [4,10,24,45], an adversary obtains weekly load profiles w for house-holds h along with their socio-demographic characteristics. Electricity consump-tion is observed at a given temporal resolution ∆t . The adversary’s objective is to construct a classifier f ∆t capable of predicting a binarized socio-demographic attribute (label) y of a household from its load profile. Once trained, the classifier f ∆t is applied to an unseen household. Given a consumption segment c ˜w,∆t representing an arbitrary week ˜w of the year, the model predicts the label y. Formally, the task is defined as: 
+
+f ∆t : Rn → 0, 1, c ˜w,∆t 7 → y (1) This classifier can subsequently be deployed on weekly load profiles even in the absence of ground-truth socio-demographic information, thereby raising privacy concerns. The dimensionality n of the consumption vector c ˜w,∆t depends on the temporal resolution: as ∆t becomes coarser, n decreases, as illustrated in Table 2. The central objective of this study is to examine how time granularity ∆t af-fects the predictive performance of f ∆t . In line with prior findings, it is expected that classification accuracy deteriorates as the resolution becomes coarser. 
+
+## 4 Experimental Setup and Methodology 
+
+We employ supervised machine learning techniques to assess how different tem-poral granularities of load profiles affect the inference of household-specific socio-demographic characteristics. The methodology, illustrated in Figure 1, comprises five main stages: preparation of weekly snippets, decrease of temporal resolution, feature extraction, classification, and evaluation. Section 4.1 introduces the input dataset, which contains one year of 15-minute load profiles and corresponding household socio-demographic attributes. The se-lection of target characteristics is described in Section 4.2, and the preprocess-ing steps used to generate weekly snippets are detailed in Section 4.3. Temporal down-sampling is addressed in Section 4.4, followed by the computation of nu-merical feature representations in Section 4.5. The extracted features are then classified using off-the-shelf models (Section 4.6) and evaluated in Section 4.7. Finally, Section 4.8 analyzes the importance of individual features to better un-derstand their contribution to the prediction of socio-demographic attributes. 6 Radovanovic et al. 2. Decrease Resolution 3. Feature Extraction 
+
+> 4. Classification
+> 5. Evaluation 1. Preparing Weekly Snippets
+> family_home
+> large_home
+> sauna
+> ...
+
+Fig. 1: Methodological overview consisting of five steps: (1) preparing weekly snippets, (2) decreasing temporal resolution, (3) feature extraction, (4) classifi-cation, and (5) evaluation, as already used in [44]. 
+
+4.1 Dataset 
+
+The used dataset, PEAK Load Data, stems from a field test, which collected elec-tricity consumption profiles of 1,589 suburban households in Upper Austria via smart meters between September 30, 2017 and October 15, 2018. The field test aimed at testing various incentive schemes for motivating electricity consumers to shift loads towards times of high renewable production. More information about the study and the collection of the data can be found in [45]. The acquired data contains 15-minute load profiles and household-specific socio-demographic characteristics e.g., household type, household size, house-hold appliances and heating type. To put some of the suburban household char-acteristics into perspective, the following statistics are illustrated: The yearly average energy consumption per household is 5327 kWh, with the median be-ing 4409 kWh and a standard deviation of 3721 kWh. The average household size is 138 (mean), 130 (median) and 58 (standard deviation) in square meters, respectively. With 2.8, 2 and 1.2 residents per household, respectively. 
+
+4.2 Selection of household-specific characteristics and class labels 
+
+Table 1 summarizes all available household-specific characteristics collected dur-ing the field test, including their absolute frequencies, class imbalance ratios, and the number of positive and negative samples. For the prediction task, a subset of these characteristics has been selected as class labels based on the following criteria: 1. Privacy sensitivity : Prior research has shown that socio-demographic at-tributes such as household composition (e.g., family homes versus single households) and home ownership status pose a higher privacy risk compared to appliance ownership or heating types [5]. Characteristics with a stronger potential to reveal private information are therefore prioritized. 2. Comparability with prior studies : To enable direct comparability with existing results on socio-demographic inference from energy consumption data, we select characteristics that overlap with those analyzed in [4,29,51]. Title Suppressed Due to Excessive Length 7
+
+3. Class balance : To ensure reliable classification and avoid severe data im-balance issues, we select characteristics with an imbalance ratio below a threshold of 5. This threshold ensures that the minority class represents at least 20% of the samples, which is generally considered sufficient for stable and reliable classifier training without the need for additional re-balancing techniques [28]. A stricter threshold would have removed several privacy-relevant characteristics, while a more lenient one would have led to severely skewed class distributions, potentially biasing both performance evaluation and privacy-risk estimation. In addition to these selection criteria, certain attributes are seasonally re-stricted to reflect their relevance in practice: the label swimming_pool is eval-uated only for summer months (May–September), when pool usage and asso-ciated electricity demand occur, while sauna is analyzed exclusively for win-ter months (November–March), when heating-related consumption patterns are present. Furthermore, multi-class and numeric characteristics are simplified into binary labels to reduce complexity and ensure consistency across classifica-tion tasks. This binarization follows threshold values commonly used in prior work [6,51]; for instance, households with more than two residents are labeled as family_home , and those with a living area exceeding 100 m2 as large_home .Since socio-demographic information is reported once per household, the same label is uniformly assigned to all 52 weekly snippets of that household. Impor-tantly, adopting binary classification also enhances interpretability, as SHAP values can directly quantify each feature’s contribution to revealing the presence or absence of a specific socio-demographic characteristic, whereas multi-class or numeric formulations would complicate the explanation process without offering additional privacy insights. The final set of labels used for prediction is highlighted in bold in Table 1. This selection provides a balanced and privacy-relevant set of characteristics while maintaining alignment with prior research, thereby supporting robust and interpretable classification results. 
+
+4.3 Preparing weekly snippets 
+
+Preprocessing included the following steps: (i) removal of households with too many missing values, (ii) grouping load profiles into weekly time snippets and (iii) selection and binarization of labels for later classification. The original dataset contains smart meter measurements for 1589 house-holds. Due to incompleteness in some profiles—caused by disruptions, device breakdowns, or smart-meter replacements—the number of usable households is reduced to n = 1208 . A household is excluded if it lacks at least one complete week of measurements (i.e., fewer than 672 valid 15-minute readings per week), as such profiles are unsuitable for constructing consistent weekly load snippets. To ensure seasonal coverage and comparability across households, only the common time frame of 52 full weeks (October 2, 2017 to September 29, 2018) is considered. For each household, the yearly load profile comprising 52 · 7 = 364 8 Radovanovic et al. 
+
+Table 1: Extended list of household characteristics and their positive and nega-tive samples, sorted by imbalance ratio, building on [44].                                                                                        
+
+> Characteristic Pos. Neg. Ratio Characteristic Pos. Neg. Ratio
+> family home 595 613 1.03 oil heating 177 1031 5.82 dryer 713 495 1.44 district heating 162 1046 6.46
+> heat pump 400 808 2.02 biomass heating 160 1048 6.55
+> split house 829 379 2.19 heat pump water 142 1066 7.51
+> large home 831 377 2.20 oil water 102 1106 10.84 deep freezer 868 340 2.55 biomass water 86 1122 13.05
+> pool 328 880 2.68 aquarium 75 1133 15.11
+> apartment 283 925 3.27 water bed 70 1138 16.26 gas heating 280 928 3.31 electric heating 53 1155 21.79 electric water 274 931 3.40 air condition 42 1166 27.76
+> sauna 256 952 3.72 computer 1188 20 59.40
+> home owned 967 241 4.01
+
+days is regrouped into 52 weekly snippets as described in [45], resulting in a data matrix of size n × m with n = 1208 · 52 = 62816 household-week combinations and m = 7 · 24 · 4 = 672 measurements per week. Although it is possible that a household may be on vacation during certain weeks, a weekly snippet is considered a realistic and practical time frame for ad-versarial inference: it represents the smallest continuous period that an attacker could plausibly access and still capture behavioral patterns relevant for socio-demographic classification [6]. Aggregating over longer periods (e.g., months or full years) would provide more stable data but assumes extended access, whereas a single week balances minimal accessibility with representativeness of household energy usage behavior. 
+
+4.4 Decrease of temporal resolution 
+
+Before analyzing the privacy influence of different time granularities ∆t , the weekly load profiles w sampled at 15-minute intervals are downsampled to coarser resolutions. Let h denote a household and cw, 15min the weekly energy consump-tion snippet of household h in week w at the base resolution of 15 minutes. Each measurement represents the energy consumed during the respective 15-minute in-terval , expressed in kilowatt-hours (kWh). To obtain a coarser time granularity 
+
+∆t ′ > 15min , we aggregate consecutive 15-minute measurements by summation: 
+
+cw,∆t ′ 
+
+> j
+
+= X
+
+> i∈Ij
+
+cw, 15min  
+
+> i
+
+,
+
+where Ij denotes the set of 15-minute indices that fall into the coarser time slot j.This preserves the physical meaning of the data, i.e., the total energy consumed in the larger time window. For example, if the meter records 0.25 kWh and 
+
+0.30 kWh in two consecutive 15-minute slots, the aggregated 30-minute value is Title Suppressed Due to Excessive Length 9
+
+0.55 kWh. Averaging these values would underestimate the total consumption and distort energy usage statistics. This aggregation is applied to all target resolutions listed in Table 2. For each 
+
+∆t ′, a separate data matrix 
+
+C∆t ′
+
+= cw1,∆t ′
+
+, c w2,∆t ′
+
+, . . . , c wn,∆t ′ ⊤
+
+is generated, where n denotes the number of weekly profiles across all households 
+
+h. The number of columns m decreases proportionally to the factor ∆t ′ 
+
+> 15min
+
+. For instance, ∆t ′ = 1 hour produces m = 168 values per week, while ∆t ′ = 24 hours results in m = 7 values. Table 2: List of time granularities for decreasing temporal resolution and the resulting number of measurements m for a weekly snippet.                 
+
+> ∆t ′m∆t ′m
+> 15 minutes 672 12 hours 14 30 minutes 336 24 hours 71 hour 168 2 days 42 hours 84 3 days 34 hours 42 7 days 16 hours 28
+
+Since subsequent classifiers f ∆t ′
+
+operate on these aggregated snippets c ˜w,∆t ′
+
+,temporal down-sampling is performed for all resolutions ∆t ′ to enable consistent evaluation of privacy risks across varying time granularities. 
+
+4.5 Feature extraction 
+
+Feature extraction transforms preprocessed load profiles into compact numerical representations that can be effectively used for classification [9]. In this work, we evaluate three different approaches for extracting predictive information from weekly household consumption snippets across all time granularities ∆t : (i) au-tomatic feature generation using the ts-fresh library 3, (ii) handcrafted features adapted from Beckel et al. [5,6,4], and (iii) representation learning via an au-toencoder architecture [51]. The handcrafted feature set consists of 35 descriptors grouped into five cate-gories: (i) consumption aggregates, (ii) ratios between time segments, (iii) tem-poral dynamics, (iv) statistical properties, and (v) the first ten principal compo-nents. These features capture a broad range of consumption behaviors, from daily totals to short-lived events. For instance, variance and peak-related features are particularly informative at fine resolutions (15 minutes), where short-lived but characteristic activities remain visible, whereas coarser resolutions emphasize   
+
+> 3https://tsfresh.readthedocs.io 10 Radovanovic et al.
+
+cumulative consumption trends. Statistical assumptions of normality [43,4] are addressed by applying standard normalization, and undefined operations (e.g., ratios at coarse resolutions) are set to zero. An overview of the 35 handcrafted features and their maximum computable resolution is provided in Table2 of[44]. The ts-fresh library computes a large number of statistical, temporal, and frequency-domain descriptors, including coefficients such as CWT and FFT [14]. While many of these features lack straightforward interpretability, they provide a rich feature space for comparison with other methods. To ensure fair comparison with the handcrafted set, we apply univariate feature selection using ANOVA F-values [26], reducing the dimensionality to the 35 most informative features per resolution. Finally, we employ a CNN-based autoencoder adapted from [51]. The en-coder uses stacked convolutional and pooling layers to capture local temporal dependencies in the load profiles, followed by a dense bottleneck layer producing compact embeddings. The decoder mirrors this structure with upsampling and deconvolutions to reconstruct the input sequence. These latent embeddings cap-ture non-linear consumption patterns and enable a complementary perspective to handcrafted or ts-fresh features. However, similar to frequency coefficients in ts-fresh, autoencoder embeddings lack semantic interpretability and are there-fore excluded from the interpretability analysis. 
+
+4.6 Classification 
+
+Supervised machine learning techniques are employed to classify household-specific socio-demographic characteristics based on features extracted from weekly electricity load profiles. The classification task is formulated as a binary prob-lem, where each model is trained to distinguish between two classes (positive and negative) corresponding to the presence or absence of a given characteristic. A key challenge when working with real-world data collected from field stud-ies, such as the dataset described in Section 4.1, lies in the imbalanced distribu-tion of class labels for several characteristics. As shown in Table 1, some char-acteristics are significantly underrepresented. For instance, only 256 households report owning a sauna, while 952 do not. This class imbalance can lead to biased models that favor the majority class, thereby degrading predictive performance, particularly for the minority class. Previous studies have demonstrated that such imbalances can adversely affect classification accuracy and generalization [6,4]. To mitigate this issue, we apply random undersampling during the training process. Undersampling has been shown to be an effective strategy for address-ing class imbalance by equalizing the number of positive and negative samples in the training data [30,28]. Specifically, we randomly remove samples from the majority class such that both classes contain the same number of instances, de-termined by the size of the minority class. Importantly, this resampling is applied only to the training and validation sets to preserve the original distribution in the test set for a realistic evaluation. For the classification task, we consider a diverse set of well-established binary classifiers, selected based on two main criteria: (i) comparability with existing Title Suppressed Due to Excessive Length 11 
+
+work—particularly the studies by Beckel et al. [6,4] and Wang et al. [51], and (ii) interpretability of learned feature importances, which is critical for privacy anal-ysis. The latter motivates the inclusion of tree-based models such as XGBoost, which support post-hoc interpretability using SHAP values. The final classifier set used in this study includes: (i) Support Vector Ma-chines (SVM): margin-based classifiers effective in high-dimensional spaces; (ii) 
+
+k-Nearest Neighbors (kNN): a non-parametric method that classifies based on feature space similarity; (iii) AdaBoost: an ensemble method that combines weak learners to improve predictive performance; (iv) Multi-Layer Perceptrons (MLP): simple feedforward neural networks capable of capturing non-linear de-cision boundaries; (v) Linear Discriminant Analysis (LDA): a generative linear classifier that models class-conditional distributions; and (vi) Extreme Gradient Boosting (XGBoost): a regularized boosting algorithm that additionally provides interpretable feature importance measures. 
+
+4.7 Evaluation Measures 
+
+In the domain of supervised machine learning, the accuracy, defined as the ratio of the number of correct classifications to the total number of samples, is a commonly used metric for evaluating classifier performance [47]. The accuracy can be calculated as follows: ACC = T P + T N T P + T N + F P + F N . (2) 
+
+TP , FN , FP , and TN represent the number of samples that are correctly predicted as positive, incorrectly predicted as negative, incorrectly predicted as positive, and correctly predicted as negative. Precision and recall are calculated as follows: 
+
+P recision = T P T P + F P , Recall = T P T P + F N . (3) Thus, the F1 score is defined as: 
+
+F1 = 2 · P recision · Recall P recision + Recall . (4) Accuracy and F1 score are commonly used statistics, which indicate respec-tively the proportion of true positives and true negatives relative to all elements and the mean of precision and recall. Both of these metrics are widely employed to asses binary classification models, but they tend to yield overly optimistic results, especially when dealing with datasets that exhibit a positive class im-balance [12]. For a more informative evaluation, especially when dealing with an imbal-anced dataset as mentioned in Section 4.6 and shown in Table 1, the MCC (Matthews Correlation Coefficient), also known as the phi coefficient, is com-puted. The coefficient takes into account true and false positives and negatives, 12 Radovanovic et al. 
+
+making it a balanced measure suitable for the evaluation of imbalanced class sizes. MCC values range from -1 to +1, where +1 indicates a perfect classifier, 0 represents random predictions, and -1 signifies complete disagreement between the classifier’s predictions and the actual labels [39]. In the context of binary classification, the MCC is computed as follows: MCC = T P · T N − F P · F N 
+
+p(T P + F P )( T P + F N )( T N + F P )( T N + F N ) . (5) 
+
+4.8 SHAP Values for Feature Importance 
+
+To investigate which load-profile features contribute most to the prediction of socio-demographic characteristics, we employ SHAP (SHapley Additive exPlana-tions) values [38], a method grounded in cooperative game theory. SHAP values allocate the output of a classifier to individual input features by quantifying their marginal contribution relative to a baseline expectation. Given a classifier f ∆t trained to predict a socio-demographic attribute y from a weekly consumption vector c ˜w,∆t ∈ Rn, the SHAP value ϕj for feature j ∈ F
+
+is formally defined as: 
+
+ϕj = X 
+
+> S⊆F\{ j}
+
+|S|! ( |F | − | S| − 1)! 
+
+|F |!
+
+
+
+f ∆t (S ∪ { j}) − f ∆t (S)
+
+
+
+, (6) where F denotes the set of all features and S a subset of F excluding j. This formulation ensures a fair distribution of predictive contributions, analogous to Shapley values in cooperative game theory. SHAP values can be positive or negative. A positive ϕj indicates that feature 
+
+j increases the likelihood of the positive class (e.g., household has a swimming pool ), while a negative ϕj reflects a contribution towards the negative class. The absolute magnitude |ϕj | expresses the strength of the contribution. In the context of our threat model, SHAP values provide interpretability at two levels: (i) global feature importance, by ranking features according to their mean absolute SHAP values across households and weeks, and (ii) local explanations, by quantifying the contribution of each feature to the prediction for a specific household-week c ˜w,∆t .
+
+## 5 Results 
+
+This section presents the experimental results obtained from analyzing the im-pact of time granularity on the prediction of household-specific socio-demographic characteristics. To comprehensively assess this relationship, we evaluate multi-ple dimensions of the prediction task. First, we investigate how varying temporal resolutions of weekly load profiles influence classification performance. Next, we compare different feature extraction strategies, contrasting interpretable hand-crafted features with automatically generated ts-fresh features and representa-tion learning via autoencoders. Building on this, we analyze the performance of Title Suppressed Due to Excessive Length 13 
+
+several supervised learning algorithms to identify which classifiers are most ef-fective in this context. To deepen our understanding, we further examine feature importance and interpretability, highlighting which load-profile characteristics drive predictive power across time resolutions. 
+
+5.1 Influence of Time Granularity 
+
+For the analysis of the time granularity influence on the prediction performance of household-specific socio-demographic characteristics, we employ two comple-mentary evaluation perspectives. First, the Matthews Correlation Coefficient (MCC) is used as a robust single-value metric, capturing both sensitivity and specificity. Figure 2 illustrates the MCC-based prediction performance of the 
+
+XGBoost classifier across all time granularities. Second, a precision–recall analy-sis highlights the trade-off between precision and recall for individual character-istics, exemplified in Figure 3. 15min 30min 1h 2h 4h 6h 12h 24h 2d 3d 7d 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> MCC
+> apartment
+> family_home(2+ residents)
+> heat_pump_heating
+> home_owned
+> large_home(100+ sqm)
+> sauna
+> split_house
+> swimming_pool
+
+Fig. 2: Matthews correlation coefficient (MCC) of the XGBoost classifier using handcrafted features across all temporal granularities, as presented similarly in [44]. Colors indicate the socio-demographic characteristics shown in the legend According to [13], MCC values can be interpreted analogously to correlation strength: values above 0.7 indicate a strong relationship, values between 0.7 and 0.4 represent moderate correlation, values between 0.4 and 0.2 indicate a weak relationship, and values below 0.2 are comparable to random guessing. For example, the characteristic family_home achieves an MCC of 0.57 at 15-minute resolution, which places it in the moderate range. The performance decreases slightly to 0.54 at one hour and drops further into the weak correlation range at coarser resolutions. 14 Radovanovic et al. 
+
+Between two and 24 hours, most socio-demographic characteristics exhibit significant declines, although individual patterns vary. For instance, swimming_ pool shows a strong drop between six and twelve hours followed by a slight recovery, whereas sauna increases marginally in the same range before dropping at 24 hours. Beyond the daily resolution, prediction performance stabilizes with no major changes across characteristics. A similar behavior is also observed for the automatically generated ts-fresh 
+
+features, where prediction performance declines consistently with coarser reso-lutions (see Section 8). A comparable trend is found across all classifiers. For ex-ample, the MCC for heat_pump_heating , apartment , and large_home decreases from about 0.65 at 15 minutes to roughly 0.36 with XGBoost , compared to a range of 0.58 to 0.38–0.41 for AdaBoost , and a similar decline for SVM from about 0.6 to 0.37, as discussed in Section 5.3. 
+
+Fig. 3: Prediction performance of the XGBoost classifier shown as precision–recall plots for the socio-demographic attributes large_home and swimming_pool , as previously presented in [44]. Symbols denote different time granularities, while the cross ( ×) marks the baseline of biased random guessing. Figure 3 complements the MCC analysis by providing a precision–recall eval-uation for the socio-demographic characteristics large_home (left) and swim-ming_pool (right) using the XGBoost classifier. These labels were deliberately chosen because they are frequently examined in related work (see Section 6) and represent two privacy-relevant attributes[6,51,50]: large_home reflects a more static consumption behavior, while swimming_pool captures a dynamic usage pattern. The x-axis denotes recall (true positive rate), while the y-axis represents precision (positive predictive value). Black markers trace the evolution of perfor-mance across time granularities, with the cross (X) marking the baseline of biased Title Suppressed Due to Excessive Length 15 
+
+random guessing, which increases with greater class imbalance. In line with the MCC results, both precision and recall decline as the time resolution becomes coarser. The effect is less pronounced for large_home , which shows more sta-ble consumption patterns, whereas swimming_pool exhibits stronger variability. Despite these declines, the classifier consistently outperforms random guessing. For enhanced inspection, Figure 9 in the Appendix provides a zoomed-in version of all resolutions. Since the baseline of biased random guessing lies far outside the region of interest, it is omitted from this detailed view to allow clearer comparison of the classifier’s performance across time granularities. 
+
+5.2 Comparison of Feature Extraction Methods 
+
+To assess the impact of different feature representations, we compare the perfor-mance of three feature extraction approaches across all selected socio-demographic characteristics: (i) handcrafted features (blue), (ii) automatically generated fea-tures using the ts-fresh library (orange), and (iii) latent embeddings derived from a CNN-based autoencoder (green). For this analysis, the XGBoost classifier was applied consistently to ensure comparability between methods. 15min 
+
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> MCC
+> heat_pump_heating
+> Feature Type
+> Handcrafted
+> autoencoder
+> ts-fresh
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> large_home(100+ sqm)
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> apartment
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> split_house
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> MCC
+> swimming_pool
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> family_home(2+ residents)
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> home_owned
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> sauna
+
+Fig. 4: MCC for the classification result of the XGBoost classifier for all time granularities. The colors represent the time granularity listed in the legend. Figure 4 illustrates the results in the form of subplots, one for each socio-demographic characteristic. Within each subplot, the prediction performance is shown as MCC values across all considered time granularities. While handcrafted and ts-fresh features could be computed at all resolutions, the autoencoder approach was restricted to granularities up to one day, since coarser resolutions 16 Radovanovic et al. 
+
+(two days, three days, and seven days) could not be processed with the convo-lutional structure of the model. The results in Figure 4 highlight systematic differences between feature ex-traction strategies. Across most socio-demographic characteristics, handcrafted and ts-fresh features yield comparable performance, with handcrafted showing slight advantages at finer resolutions (15–60 minutes) for attributes with higher temporal variability, such as swimming_pool and sauna . ts-fresh , in contrast, often maintain stable performance across a broader range of granularities, partic-ularly for more static attributes such as apartment or large_home . Autoencoder embeddings achieve competitive results at high temporal resolutions (up to 24 hours) but cannot be applied to coarser resolutions, limiting their applicability. Overall, the comparison demonstrates that while automated feature generation and representation learning offer strong predictive potential, especially at fine resolutions, handcrafted features remain robust and interpretable across the en-tire spectrum of granularities. This underlines the importance of aligning feature extraction strategies with the temporal characteristics of the prediction task. 
+
+5.3 Classifier Performance Analysis 
+
+After analyzing the effect of temporal resolution and feature representation, we now examine how the choice of classifier influences prediction performance. To this end, we evaluate a set of commonly used supervised learning algorithms, in-cluding XGBoost , AdaBoost , Support Vector Classifier (SVC) , Linear Dis criminant Analysis (LDA) , and k-Nearest Neighbors (KNN) . Figure 5 de-picts the classification results for all socio-demographic characteristics when us-ing handcrafted features as input across the full range of temporal granularities. This analysis provides a systematic comparison of classifier robustness and high-lights their relative effectiveness in the context of socio-demographic inference from coarse-grained load profiles. The results in Figure 5 highlight clear differences in classifier robustness when applied to handcrafted features across all temporal granularities. Overall, 
+
+XGBoost consistently achieves the highest predictive performance, particularly at finer granularities (15–60 minutes), where MCC values frequently reach the strong range. AdaBoost and SVC generally follow as second-tier methods, show-ing comparable trends but at lower performance levels. LDA demonstrates mod-erate results, performing reasonably well at fine resolutions but declining more sharply as granularity increases. In contrast, KNN exhibits the weakest perfor-mance across nearly all socio-demographic characteristics. While all classifiers show declining accuracy as profiles are aggregated into longer intervals, the rel-ative ranking between models remains stable, underlining XGBoost ’s superior robustness for socio-demographic inference from coarse-grained load profiles. It should be noted, however, that for some classifiers the coarsest resolution of seven days could not be computed, reflecting limitations in model applicability at extreme aggregation levels. Title Suppressed Due to Excessive Length 17 15min 
+
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> MCC
+> large_home(100+ sqm)
+> Classifier
+> XGBoost
+> AdaBoost
+> SVC
+> LDA
+> KNN
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> heat_pump_heating
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> apartment
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> split_house
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> MCC
+> swimming_pool
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> family_home(2+ residents)
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> home_owned
+> 15min
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 2d
+> 3d
+> 7d
+> sauna
+
+Fig. 5: MCC for the classification result of the XGBoost classifier for all time granularities. The colors represent the time granularity listed in the legend. 
+
+5.4 Feature Importance and Interpretability 
+
+To complement the analysis of classifier performance, we investigate which hand-crafted features of the load profiles most strongly influence the prediction of socio-demographic characteristics. We restrict our analysis to handcrafted fea-tures because their meaning is interpretable in terms of consumption behavior (e.g., minimum load, evening consumption). In contrast, automatically gener-ated ts-fresh features, such as FFT or CWT coefficients, are more difficult to interpret, and autoencoder embeddings do not permit direct feature-level attri-bution. Figure 6 presents violin plots of SHAP values for the ten most important handcrafted features predicting the presence of a swimming_pool , shown at two temporal resolutions: 15 minutes (top) and 4 hours (bottom). In these plots, the y-axis lists the ten features with the highest contributions to the model, while the x-axis depicts their SHAP values, quantifying the marginal impact of each feature on the model output. Positive values increase the likelihood of predicting swimming pool ownership, whereas negative values support the opposite. The violin shapes indicate the distribution of contributions across households, and the color gradient encodes the feature values (red = high, blue = low). At both 15-minute and 4-hour resolutions, a largely overlapping set of fea-tures emerges as important for predicting swimming pool ownership, yet their relative contributions and the structure of their SHAP distributions differ. At 15 minutes, features such as t_above_mean , c_total , and s_diff dominate. The feature t_above_mean depicts high values concentrated between –1 and 1, while 
+
+c_total is characterized by two distinct violin shapes around –1 and 1, reflecting 18 Radovanovic et al. 4 3 2 1 0 1 2 3       
+
+> c_weekend
+> c_evening
+> c_day
+> c_night
+> s_diff
+> s_variance
+> c_min
+> s_xcorr
+> c_total
+> t_above_mean
+> 43210123
+> r_mean_max
+> t_above_1
+> t_above_mean
+> c_weekend
+> c_weekday
+> s_diff
+> s_xcorr
+> c_total
+> c_min
+> t_above_2
+> Low
+> High
+> Feature value
+> Low
+> High
+> Feature value
+
+Fig. 6: Violin plots of SHAP feature importance for the socio-demographic char-acteristic swimming_pool using handcrafted features. The top plot shows results at 15-minute granularity, the bottom plot at 4-hour granularity. The y-axis lists the ten most important features, while the x-axis depicts SHAP values indicat-ing the impact on the model output. the strong contrast in total weekly consumption between households with and without pools. In addition, s_diff indicates high mid-range values, highlighting the importance of signal variability at fine resolutions. At 4 hours, similar features remain relevant, but their patterns shift due to temporal aggregation. For instance, t_above_2 (time above 2 kWh) exhibits two violin distributions around –1 and 1, centered closer to zero, indicating a weaker separation compared to the finer granularity. The feature c_min contributes mainly with lower positive SHAP values, suggesting that minimum consump-tion levels provide only limited discriminative power at this resolution. A com-parable attenuation is observed for s_diff , where the spread of values narrows substantially. Taken together, these results show that while the same set of consumption indicators is consistently identified as important across granularities, temporal aggregation dampens their discriminative strength. Fine-grained features high-light sharp differences in consumption behavior (e.g., evening and night pump operation), whereas at coarser resolutions, the predictive signal becomes weaker and less distinct. A similar analysis for the socio-demographic characteristic large_home is depicted in Figure 10. At 15-minute granularity, features such as c_min and 
+
+c_evening emerge as dominant, reflecting the consistently higher baseline and elevated evening consumption of larger households. At 4-hour resolution, the feature ranking shifts: c_min remains important but is complemented by aggre-gate indicators such as c_max and temporal threshold features (e.g., t_above_1 ,Title Suppressed Due to Excessive Length 19 
+
+t_above_0.5 , t_above_2 and t_above_mean ). The narrowing of SHAP distribu-tions indicates reduced variability in feature contributions, similar to the swim-ming pool case, but here the predictive signal remains more stable, as dwelling size is a comparatively static attribute. To extend this comparison across all temporal resolutions, Figures 7 and 11 present heatmaps of the most influential handcrafted feature per granularity. For 
+
+swimming_pool , dominance shifts markedly with coarsening resolution, from dy-namic intra-day consumption features at fine granularities to total or maximum consumption aggregates at daily and weekly levels. In contrast, for large_home ,the most influential feature is consistently c_min across most resolutions, with occasional shifts to other aggregates (e.g., t_above_1 at 6 hours, c_total at 12 hours, c_weekday at 24 hours). This comparison illustrates a key distinction: dy-namic socio-demographic attributes such as swimming pool ownership are highly sensitive to temporal resolution, whereas static attributes like dwelling size can be reliably inferred even from coarser profiles. 15min 
+
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+> c_total
+> c_max
+> c_min
+> t_above_05
+> t_above_1
+> t_above_2
+> t_above_mean
+> 0
+> 1
+> 2
+> Feature
+> Rank
+
+Fig. 7: Heatmap of the most influential handcrafted feature for predicting the socio-demographic attribute swimming_pool across all temporal granularities. Each column corresponds to one granularity, and the lightest cell in a column indicates the feature ranked highest in terms of SHAP importance. Dark cells denote that a feature was not the most dominant at the respective resolution. 
+
+## 6 Discussion and Comparison to Related Work 
+
+If a decision has to be made concerning the granularity of collected load data, privacy implications of load-profile time granularities for a specific households, our findings suggest that use cases which require data minimization or maximum privacy may use one-hour data without loss of classification performance for those seeking more utility in their load profiles, a time granularity of one hour 20 Radovanovic et al. 
+
+strikes a balance between data utility and privacy preservation. Conversely, for use cases which require maximum granularity (15 minutes), e.g., for legal or regulatory reasons, no better prediction performance is achieved by using higher granularity those prioritizing heightened privacy, a time granularity of one week offers significant privacy preservation. Best results regarding prediction performance are exhibited for the household characteristics heat_pump_heating , apartment and large_home with values be-tween 0.65 and 0.6, when relying on weekly snippets with 15-minute time granu-larity. While varying MCC values are reported for the eight examined household characteristics, the consistent decline in the prediction performance across all characteristics indicates that the type of characteristic being predicted is not the most significant factor in the trade-off between data utility and privacy preservation. Instead, it suggests that the increase in time granularity may play a more significant role in the change of the prediction performance. A first limitation lies in the ground truth: questionnaire-based socio-demo-graphic information may be inaccurate or incomplete, and week-specific appli-ance usage (e.g., swimming pools, saunas) is not available. We therefore as-signed constant yearly labels to all weeks, which may have introduced mislabels, especially for dynamic attributes. Nevertheless, classification results across all attributes remained substantially above random guessing. A second limitation is the feature design: the handcrafted features originate from a 30-minute set-ting [4] and were applied to coarser resolutions, even up to seven days. Defining new features tailored to such long intervals remains a direction for future re-search. The methodological distinction from [4] is critical. While their evaluation trained and tested on the same fixed week of the year, our design trains on year-round data and predicts arbitrary weeks, requiring models to generalize across seasonal and behavioral variations. Despite this greater complexity, our approach achieves higher performance, e.g., up to 0.65 MCC compared to <0.4 MCC at 30 minutes for family_home (0.34), large_home (0.18), and housetype (0.20). To ensure comparability, we also applied the handcrafted feature extraction method of [4] and evaluated it across multiple classifiers. As shown in Figure 5, XGBoost 
+
+consistently outperforms all classifiers used in [4] for every socio-demographic characteristic. The impact of time granularity on socio-demographic inference differs markedly from appliance detection, as shown in [19]. In their study, with granularities as fine as 3 seconds, privacy was largely preserved already at 15 minutes, except for lighting usage, and privacy arose mainly from reduced recall with stable pre-cision. By contrast, in our setting both recall and precision decline with coarser granularity (Figure 3, right plot). A comparison with [24] and [10], who predicted pool ownership using full-year time series, further highlights the competitiveness of our approach: despite relying on only a single week of data and standard hand-crafted features from [6], we achieve an accuracy of 0.81 and precision of 0.63 at 15-minute resolution, close to their reported 0.93 accuracy and 0.67 precision with SVM classifiers. Title Suppressed Due to Excessive Length 21 
+
+Beyond performance trends, our study provides methodological insights re-garding feature extraction, classifier choice, and interpretability. Feature extrac-tion analysis showed that handcrafted and ts-fresh features yield comparable accuracy across granularities, while autoencoder embeddings—though less in-terpretable—remain competitive up to daily resolution. This confirms that in-terpretable feature sets can rival more complex representations without sacrific-ing predictive power. Furthermore, feature importance analysis revealed system-atic differences between static and dynamic attributes: for static characteristics such as large_home , baseline load indicators like c_min consistently dominated across resolutions, reflecting persistent background consumption. In contrast, for dynamic attributes such as swimming_pool , short-term features (e.g., c_night ,
+
+s_diff ) were decisive at fine resolutions, whereas at coarser scales aggregate indi-cators (e.g., c_total ) took precedence. This demonstrates that static household properties can be robustly inferred even at coarse granularity, while dynamic attributes are substantially more sensitive to temporal aggregation. 
+
+## 7 Conclusion and Outlook 
+
+We introduce a novel evaluation methodology for predicting household-specific socio-demographic characteristics from load profiles with varying time granular-ities, based on randomly selected weekly snippets across one year. This distin-guishes our approach from prior work that either relies on a fixed week for both training and evaluation or uses entire yearly profiles. Despite this more com-plex prediction setting, our methodology yields superior performance for several socio-demographic attributes compared to earlier studies, even when applying the same handcrafted feature extraction method. Our findings confirm that predictive performance generally declines as gran-ularity becomes coarser, yet two plateaus emerge. First, one-hour resolution achieves results comparable to 15 minutes, suggesting that regulatory require-ments for 15-minute metering provide little additional predictive power over hourly aggregation. Second, beyond 24 hours, performance stabilizes up to 7 days, reflecting the limits of handcrafted features in capturing meaningful vari-ability at very coarse resolutions. These plateaus imply that, depending on the application, finer resolutions do not necessarily yield significant utility gains and coarser resolutions can be chosen to enhance privacy in line with the principle of data minimization. Beyond performance trends, our study provides methodological insights. Fea-ture extraction analysis demonstrated that interpretable feature sets—both hand-crafted and ts-fresh—remain competitive with learned embeddings, which per-form well up to daily resolution but lack interpretability. Classifier comparisons showed that XGBoost consistently outperforms alternatives across all attributes and granularities, underlining its robustness in this problem space. Feature im-portance analysis further revealed a systematic distinction between static and dynamic socio-demographic characteristics: static attributes such as large_home 
+
+are strongly driven by persistent baseline load ( c_min ), while dynamic attributes 22 Radovanovic et al. 
+
+such as swimming_pool rely on fine-grained temporal features ( c_night , s_diff )at high resolution and shift toward aggregate indicators ( c_total ) at coarser scales. This demonstrates that static household properties can be reliably in-ferred even at coarse resolutions, whereas dynamic attributes are more sensitive to temporal aggregation. Finally, there is significant room for improvement concerning the correct matching of weekly load profiles to their associated socio-demographic household characteristics. We assume the characteristics to be constant for the whole year, even if the presence of some characteristics (e.g. the use of appliances such as 
+
+sauna or swimming_pool , or the number of residents present in a given week) may fluctuate over the course of a year, leading to incorrect training results for the classifier employed. Moreover, the handcrafted features used here were optimized for sub-daily resolutions and may fail to capture patterns beyond 24 hours. Future work should therefore design features tailored to coarse resolutions, incorporate datasets with week-level ground truth, 
+
+Acknowledgments. The financial support by the Federal State of Salzburg is grate-fully acknowledged. 
+
+## References 
+
+1. Abreu, J.M., Pereira, F.C., Ferrão, P.: Using pattern recognition to identify ha-bitual behavior in residential electricity consumption. Energy and Buildings 49 ,479–487 (2012). https://doi.org/https://doi.org/10.1016/j.enbuild.2012. 02.044 
+
+2. Alahakoon, D., Yu, X.: Smart electricity meter data intelligence for future energy systems: A survey. IEEE Transactions on Industrial Informatics 12 , 425–436 (2 2016). https://doi.org/10.1109/TII.2015.2414355 
+
+3. Asghar, M.R., Dán, G., Miorandi, D., Chlamtac, I.: Smart meter data privacy: A survey. IEEE Communications Surveys Tutorials 19 , 2820–2835 (2017). https: //doi.org/10.1109/COMST.2017.2720195 
+
+4. Beckel, C., Kleiminger, W., Cicchetti, R., Staake, T., Santini, S.: The eco data set and the performance of non-intrusive load monitoring algorithms. In: Proceedings of the 1st ACM Conference on Embedded Systems for Energy-Efficient Buildings. pp. 80–89. BuildSys ’14, Association for Computing Machinery, New York, NY, USA (2014). https://doi.org/10.1145/2674061.2674064 , https://doi.org/10. 1145/2674061.2674064 
+
+5. Beckel, C., Sadamori, L., Santini, S.: Towards automatic classification of private households using electricity consumption data. In: Proceedings of the Fourth ACM Workshop on Embedded Sensing Systems for Energy-Efficiency in Buildings. p. 169–176. BuildSys ’12, Association for Computing Machinery, New York, NY, USA (2012). https://doi.org/10.1145/2422531.2422562 
+
+6. Beckel, C., Sadamori, L., Santini, S.: Automatic socio-economic classification of households using electricity consumption data. e-Energy 2013 - Proceedings of the 4th ACM International Conference on Future Energy Systems pp. 75–86 (2013). https://doi.org/10.1145/2487166.2487175 , https://dl.acm.org/doi/ 10.1145/2487166.2487175 Title Suppressed Due to Excessive Length 23 7. Beckel, C., Serfas, H., Zeeb, E., Moritz, G., Golatowski, F., Timmermann, D.: Requirements for smart home applications and realization with ws4d-pipesbox. In: ETFA2011. pp. 1–8. IEEE (9 2011). https://doi.org/10.1109/ETFA.2011. 6059229 
+
+8. Birt, B.J., Newsham, G.R., Beausoleil-Morrison, I., Armstrong, M.M., Saldanha, N., Rowlands, I.H.: Disaggregating categories of electrical energy end-use from whole-house hourly data. Energy and Buildings 50 , 93–102 (7 2012). https:// doi.org/10.1016/J.ENBUILD.2012.03.025 
+
+9. Bishop, C.M.: Pattern Recognition and Machine Learning (Information Science and Statistics). Springer-Verlag (2006) 10. Burkhart, S., Unterweger, A., Eibl, G., Engel, D.: Detecting swimming pools in 15-minute load data. pp. 1651–1655. IEEE (2018). https://doi.org/10.1109/ TrustCom/BigDataSE.2018.00244 
+
+11. Chen, D., Barker, S., Subbaswamy, A., Irwin, D., Shenoy, P.: Non-intrusive occu-pancy monitoring using smart meters. pp. 1–8 (2013). https://doi.org/10.1145/ 2528282.2528294 
+
+12. Chicco, D., Jurman, G.: The advantages of the matthews correlation coefficient (mcc) over f1 score and accuracy in binary classification evaluation. BMC genomics 
+
+21 , 1–13 (2020) 13. Chicco, D., Starovoitov, V.V., Jurman, G.: The benefits of the matthews correla-tion coefficient (mcc) over the diagnostic odds ratio (dor) in binary classification assessment. IEEE Access 9, 47112–47124 (2021) 14. Christ, M., Braun, N., Neuffer, J., Kempa-Liehr, A.W.: Time series feature ex-traction on basis of scalable hypothesis tests (tsfresh – a python package). Neu-rocomputing 307 , 72–77 (2018). https://doi.org/https://doi.org/10.1016/j. neucom.2018.03.067 
+
+15. Commission, E.: 2012/148/eu: Commission recommendation of 9 march 2012 on preparations for the roll-out of smart metering systems (2012), http://eur-lex. europa.eu/legal-content/EN/ALL/?uri=CELEX%3A32012H0148 
+
+16. Commission, E.: Cost-benefit analyses and state of play of smart metering deploy-ment in the eu-27 (2014), http://eur-lex.europa.eu/legal-content/EN/TXT/ PDF/?uri=CELEX:52014SC0189%5C&from=EN 
+
+17. Darby, S.: Smart metering: What potential for householder engagement? Building Research and Information 38 , 442–457 (2010) 18. Efthymiou, C., Kalogridis, G.: Smart grid privacy via anonymization of smart metering data. pp. 238–243. IEEE (2010) 19. Eibl, G., Engel, D.: Influence of data granularity on smart meter privacy. IEEE Transactions on Smart Grid 6, 930–939 (2015). https://doi.org/10.1109/TSG. 2014.2376613 
+
+20. Engel, D., Eibl, G.: Wavelet-based multiresolution smart meter privacy. IEEE Transactions on Smart Grid 8, 1710–1721 (2017). https://doi.org/10.1109/TSG. 2015.2504395 
+
+21. Erkin, Z., Troncoso-Pastoriza, J.R., Lagendijk, R.L., Perez-Gonzalez, F.: Privacy-preserving data aggregation in smart metering systems: An overview. IEEE Signal Processing Magazine 30 , 75–86 (3 2013). https://doi.org/10.1109/MSP.2012. 2228343 
+
+22. Fahim, M., Sillitti, A.: Analyzing load profiles of energy consumption to infer household characteristics using smart meters. Energies 12 (5) (2019). https:// doi.org/10.3390/en12050773 24 Radovanovic et al. 23. Fan, Z., Kulkarni, P., Gormus, S., Efthymiou, C., Kalogridis, G., Sooriyabandara, M., Zhu, Z., Lambotharan, S., Chin, W.H.: Smart grid communications: Overview of research challenges, solutions, and standardization activities. IEEE Communi-cations Surveys and Tutorials 15 , 21–38 (2013). https://doi.org/10.1109/SURV. 2011.122211.00021 
+
+24. Ferner, C., Eibl, G., Unterweger, A., Burkhart, S., Wegenkittl, S.: Pool detection from smart metering data with convolutional neural networks. Energy Informatics 
+
+2, 1–9 (2019). https://doi.org/https://doi.org/10.1186/s42162-019-0097-8 
+
+25. Finster, S., Baumgart, I.: Privacy-aware smart metering: A survey. IEEE Commu-nications Surveys & Tutorials 16 , 1732–1745 (2014). https://doi.org/10.1109/ SURV.2014.052914.00090 
+
+26. Fisher, R.A.: Statistical Methods for Research Workers, pp. 66–70. Springer New York, New York, NY (1992). https://doi.org/10.1007/978-1-4612-4380-9_6 ,
+
+https://doi.org/10.1007/978-1-4612-4380-9_6 
+
+27. Hart, G.: Nonintrusive appliance load monitoring. Proceedings of the IEEE 80 (12), 1870–1891 (1992). https://doi.org/10.1109/5.192069 
+
+28. He, H., Garcia, E.: Learning from imbalanced data. Knowledge and Data Engi-neering, IEEE Transactions on 21 , 1263–1284 (2009). https://doi.org/10.1109/ TKDE.2008.239 
+
+29. Hopf, K., Sodenkamp, M., Kozlovkiy, I., Staake, T.: Feature extraction and filter-ing for household classification based on smart electricity meter data. Computer Science - Research and Development 31 , 141–148 (8 2016). https://doi.org/ 10.1007/S00450-014-0294-4 , https://link.springer.com/article/10.1007/ s00450-014-0294-4 
+
+30. Japkowicz, N.: The class imbalance problem: Significance and strategies. vol. 56, pp. 111–117 (2000) 31. Kavousian, A., Rajagopal, R., Fischer, M.: Determinants of residential electricity consumption: Using smart meter data to examine the effect of climate, build-ing characteristics, appliance stock, and occupants’ behavior. Energy 55 , 184–194 (2013). https://doi.org/10.1016/j.energy.2013.03.086 
+
+32. Kim, H., Marwah, M., Arlitt, M.F., Lyon, G., Han, J.: Unsupervised disaggregation of low frequency power measurements. pp. 747–758 (2011) 33. Kleiminger, W., Beckel, C., Staake, T., Santini, S.: Occupancy detection from electricity consumption data. pp. 1–8 (2013). https://doi.org/10.1145/2528282. 2528295 , http://dl.acm.org/citation.cfm?doid=2528282.2528295 
+
+34. Kolter, J., Ferreira, J.: A large-scale study on predicting and contextualizing build-ing energy usage. In: Proceedings of the AAAI Conference on Artificial Intelligence. vol. 25, pp. 1349–1356 (2011) 35. Kolter, J.Z., Jaakkola, T.: Approximate inference in additive factorial hmms with application to energy disaggregation. Journal of Machine Learning Research - Pro-ceedings Track 22 , 1472–1482 (4 2012) 36. Lin, J., Ma, J., Zhu, J.G.: Estimation of household characteristics with uncertain-ties from smart meter data. International Journal of Electrical Power and En-ergy Systems 143 , 108440 (2022). https://doi.org/https://doi.org/10.1016/ j.ijepes.2022.108440 
+
+37. Lisovich, M., Mulligan, D., Wicker, S.: Inferring personal information from demand-response systems. IEEE Security and Privacy 8, 11–20 (2010). https: //doi.org/10.1109/MSP.2010.40 
+
+38. Lundberg, S.M., Lee, S.I.: A unified approach to interpreting model predictions. In: Proceedings of the 31st International Conference on Neural Information Processing Systems (NIPS). pp. 4768–4777 (2017) Title Suppressed Due to Excessive Length 25 39. Matthews, B.: Comparison of the predicted and observed secondary struc-ture of t4 phage lysozyme. Biochimica et Biophysica Acta (BBA) - Protein Structure 405 (2), 442–451 (1975). https://doi.org/https://doi.org/10.1016/ 0005-2795(75)90109-9 
+
+40. McLoughlin, F., Duffy, A., Conlon, M.: Characterising domestic electricity con-sumption patterns by dwelling and occupant socio-economic variables: An irish case study. Energy and Buildings 48 , 240–248 (2012). https://doi.org/https: //doi.org/10.1016/j.enbuild.2012.01.037 
+
+41. McLoughlin, F., Duffy, A., Conlon, M.: A clustering approach to domestic electric-ity load profile characterisation using smart metering data. Applied Energy 141 ,190–199 (3 2015). https://doi.org/10.1016/J.APENERGY.2014.12.039 
+
+42. Molina-Markham, A., Shenoy, P., Fu, K., Cecchet, E., Irwin, D.: Private memoirs of a smart meter. pp. 61–66. ACM (2010). https://doi.org/http://doi.acm.org/ 10.1145/1878431.1878446 , http://doi.acm.org/10.1145/1878431.1878446 
+
+43. Osborne, J.: Notes on the use of data transformations. Practical assessment, re-search, and evaluation 8, 6 (2002) 44. Radovanovic, D., Schirl, M., Unterweger, A., Eibl, G.: Predicting socio-demographic characteristics from load profiles with varying time granularities. In: Proceedings of the 14th International Conference on Smart Cities and Green ICT Systems - SMARTGREENS. pp. 87–98. INSTICC, SciTePress (2025). https: //doi.org/10.5220/0013217400003953 
+
+45. Radovanovic, D., Unterweger, A., Eibl, G., Engel, D., Reichl, J.: How unique is weekly smart meter data? Energy Informatics 5, 1–13 (2022). https://doi.org/ 10.1186/s42162-022-00205-8 , https://doi.org/10.1186/s42162-022-00205-8 
+
+46. Silva, D.D., Yu, X., Alahakoon, D., Holmes, G.: A data mining framework for electricity consumption analysis from meter data. IEEE Transactions on Industrial Informatics 7, 399–407 (2011). https://doi.org/10.1109/TII.2011.2158844 
+
+47. Sokolova, M., Lapalme, G.: A systematic analysis of performance measures for clas-sification tasks. Information Processing and Management 45 (4), 427–437 (2009). 
+
+https://doi.org/https://doi.org/10.1016/j.ipm.2009.03.002 
+
+48. Verdu, S.V., Garcia, M.O., Senabre, C., Marin, A.G., Franco, F.J.G.: Classification, filtering, and identification of electrical customer load patterns through the use of self-organizing maps. IEEE Transactions on Power Systems 21 , 1672–1682 (2006). 
+
+https://doi.org/10.1109/TPWRS.2006.881133 
+
+49. Viegas, J.L., Vieira, S.M., Sousa, J.M.: Mining consumer characteristics from smart metering data through fuzzy modelling. Communications in Computer and Information Science 610 , 562–573 (2016). https://doi.org/10.1007/ 978-3-319-40596-4_47/COVER 
+
+50. Wang, Y., Chen, Q., Kang, C.: Smart Meter Data Analytics: Electricity Consumer Behavior Modeling, Aggregation, and Forecasting. Springer Singapore (2020) 51. Wang, Y., Chen, Q., Gan, D., Yang, J., Kirschen, D.S., Kang, C.: Deep learning-based socio-demographic information identification from smart meter data. IEEE Transactions on Smart Grid 10 , 2593–2602 (5 2019). https://doi.org/10.1109/ TSG.2018.2805723 
+
+52. Wang, Z., Lin, J., Cai, Q., Wang, Q., Jing, J., Zha, D.: Blockchain-based certificate transparency and revocation transparency. Springer, Berlin, Heidelberg (2018) 53. Weranga, K.S.K., Kumarawadu, S., Chandima, D.P.: Smart Metering Design and Applications. Springer Singapore (2013) 54. Zeifman, M., Roth, K.: Nonintrusive appliance load monitoring: Review and out-look. IEEE Transactions on Consumer Electronics 57 , 76–84 (2011) 26 Radovanovic et al. 55. Zoha, A., Gluhak, A., Imran, M.A., Rajasegarar, S.: Non-intrusive load moni-toring approaches for disaggregated energy sensing: A survey. Sensors 2012 12 ,16838–16866 (2012). https://doi.org/10.3390/S121216838 , https://www.mdpi. com/1424-8220/12/12/16838 Title Suppressed Due to Excessive Length 27 
+
+## A Implementation Details 
+
+All experiments are implemented in Python. Data handling, splitting, and clas-sical models use scikit-learn ; gradient-boosted trees use XGBoost ; the convo-lutional autoencoder is implemented in TensorFlow /Keras ; SHAP-based inter-pretability uses shap . The code is available at: https://its-git.fh-salzburg. ac.at/fhs38238/time_resolution .
+
+Data splitting and class balancing. For each label, we evaluate on unseen data via disjoint train/validation/test splits. We first hold out 10% of all weekly snip-pets as a test set used only for final evaluation. From the remaining data, we subsample the training split to a balanced 50:50 ratio of positives/negatives for the target label (random undersampling of the majority class). Of the balanced training split, 20% is used as a validation set (for early stopping / model selec-tion). This protocol ensures (i) strict separation of test data, (ii) consistent class balance during training, and (iii) availability of an unbiased validation signal. 
+
+Classifier configurations (constant across labels and granularities). We use fixed hyperparameters across all experiments to isolate the effect of time granularity and feature representation from classifier tuning. 
+
+– XGBoost ( XGBClassifier ): max_depth = 5 , n_estimators = 400 ,
+
+objective binary:logistic , importance_type gain , eval_metric [’error’,’logloss’] . Early stopping is enabled via a callback, e.g. 
+
+xgboost.callback.EarlyStopping(rounds=10, save_best=True) , moni-tored on the validation set passed through eval_set .
+
+– AdaBoost: AdaBoostClassifier with n_estimators = 200 (default base estimator). 
+
+– SVC: RBF kernel with probability estimates enabled ( probability=True ). Inputs are standardized by z-score ( StandardScaler fitted on training data, applied to validation/test). 
+
+– KNN: KNeighborsClassifier with k = 5 .
+
+– LDA: LinearDiscriminantAnalysis with default priors. 
+
+Convolutional autoencoder (feature learning). For resolutions up to and includ-ing 24,h, we learn latent embeddings with a lightweight CNN autoencoder (in the spirit of [51]). Inputs are standardized (z-score) per feature using training statistics. The encoder applies small receptive-field convolutions and downsam-pling; the decoder mirrors this with transposed convolutions to reconstruct the input. The concrete setup we use is: 
+
+– Hyperparameters: latent dimension = 32 , L2 weight decay = 10 −4, dropout rate = 0 .5.
+
+– Encoder: Conv2D(8,(2,3),relu) , Conv2D(16,(3,3),relu) ,
+
+MaxPooling2D(pool_size=(2,2), padding=’same’) , Dropout(0.5) ,
+
+Conv2D(16,(3,3),relu) , Flatten() , Dense(32, activation=’linear’) 
+
+(latent). 28 Radovanovic et al. 
+
+– Decoder: Dense(4 × ⌈ T / 2⌉ × 16, relu) →
+
+Reshape → Conv2DTranspose(16,(3,3),strides=(2,2),relu) 
+
+→ Conv2D(8,(3,3),relu) → Conv2D(1,(3,3),activation=’linear’) .We train the autoencoder with a reconstruction loss (MSE) and L2 regu-larization, using early stopping on validation loss to prevent overfitting. The learned 32-d latent vectors are then used as features for downstream classifica-tion. (For coarser-than-daily resolutions—2,d, 3,d, 7,d—the CNN autoencoder is not applied due to the incompatibility between very short temporal grids and the chosen convolution/pooling scheme.) 
+
+## B Additional Results on Time Granularity 
+
+Figure 8 shows the MCC results of the XGBoost classifier with ts-fresh features across all temporal granularities. Similar to handcrafted features, performance declines with coarser resolutions. Figure 9 further illustrates the precision–recall trade-off for large_home and swimming_pool [44], providing a zoomed view that highlights the consistent performance drop with increasing granularity. 15min 30min 1h 2h 4h 6h 12h 24h 2d 3d 7d 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> MCC
+> apartment
+> family_home(2+ residents)
+> heat_pump_heating
+> home_owned
+> large_home(100+ sqm)
+> sauna
+> split_house
+> swimming_pool
+
+Fig. 8: MCC results for XGBoost with ts-fresh features across all granularities. Title Suppressed Due to Excessive Length 29 
+
+Fig. 9: Precision–recall plots for the socio-demographic attributes large_home 
+
+and swimming_pool , as presented similarly in [44] 
+
+## C Additional Feature Importance Analysis 
+
+To further analyze the drivers of prediction, Figure 10 illustrates violin plots of the ten most important handcrafted features for the attribute large_home .Results are shown at two temporal resolutions, 15 minutes and 4 hours. The y-axis lists the top features, while the x-axis represents SHAP values indicating their impact on the model output. Colors encode feature magnitudes, with red denoting high values and blue low values. Complementing this view, Figure 11 shows how the most influential hand-crafted feature shifts across all temporal resolutions. Each column corresponds to a granularity, and the lightest cell marks the dominant feature at that reso-lution. This highlights the relative stability of baseline consumption indicators such as c_min , contrasted with occasional shifts to other aggregates at specific granularities. 30 Radovanovic et al. 4 3 2 1 0 1 2 3 4 5
+
+c_evening 
+
+c_max 
+
+s_variance 
+
+s_num_peaks 
+
+t_above_05 
+
+t_above_mean 
+
+s_diff 
+
+c_night 
+
+c_day 
+
+c_min 
+
+4 3 2 1 0 1 2 3 4 5
+
+s_xcorr 
+
+t_above_mean 
+
+c_max 
+
+t_above_2 
+
+s_variance 
+
+s_num_peaks 
+
+t_above_05 
+
+s_diff 
+
+t_above_1 
+
+c_min 
+
+Low 
+
+High 
+
+> Feature value
+
+Low 
+
+High 
+
+> Feature value
+
+Fig. 10: SHAP violin plots for large_home at 15 minutes and 4 hours. 15min 
+
+> 30min
+> 1h
+> 2h
+> 4h
+> 6h
+> 12h
+> 24h
+> 2d
+> 3d
+> 7d
+
+c_min 
+
+c_total 
+
+c_weekday 
+
+t_above_1 0
+
+1
+
+2
+
+> Feature
+> Rank
+
+Fig. 11: Most influential feature for large_home across granularities.

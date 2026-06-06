@@ -1,0 +1,909 @@
+Title: Higher-order Network Analysis of Human Mobility Data
+
+URL Source: https://arxiv.org/pdf/2606.00733v1
+
+Published Time: Tue, 02 Jun 2026 01:03:34 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# Higher-order Network Analysis of Human Mobility Data 
+
+## Timothy LaRock 1* , Chen Zhang 1 and J¨ urgen Hackl 1
+
+> 1*
+
+Complex Infrastructure Systems Group, Department of Civil and Environmental Engineering, Princeton University, E209A Engineering Quadrangle, Princeton, 08544, New Jersey, USA. *Corresponding author(s). E-mail(s): larock@princeton.edu; Contributing authors: chen.zhang@princeton.edu; hackl@princeton.edu; 
+
+Abstract 
+
+The detailed study of individual human mobility requires large-scale high-resolution datasets, but collecting such datasets in a way that is both statistically powerful and privacy preserving is a challenging and expensive task. In response, researchers have built tools to generate complex synthetic populations of agents that can be used to simulate synthetic individual mobility data, potentially obvi-ating the difficulties of data collection. While these simulation-based approaches offer a promising avenue for expanding individual mobility research, it is difficult to asses whether such tools are effective at generating realistic mobility traces. In this work, we develop a framework for comparing observed and simulated mobility data using a higher-order network framework that focuses on analyz-ing patterns of movement in the paths individuals take through the underlying infrastructure network. We apply our framework to a case study comparing the NetMob 2025 Data Challenge Dataset, which includes individual mobility data for thousands of residents of the ˆIle-de-France region, with a sophisticated open-source synthetic population and mobility simulation model of the same region. We show that while simulated mobility data is indeed promising as a surrogate for observed mobility, there are some key limitations to the simulation paradigm from a path-based perspective, which we discuss along with potential future remediations and open challenges for higher-order mobility network analysis. 
+
+1
+
+> arXiv:2606.00733v1 [cs.CE] 30 May 2026
+
+# 1 Introduction 
+
+Understanding mobility dynamics in transportation networks is critical for many engineering and policymaking tasks, as well as deeper questions about how humans move through our environment [1, 2]. However, the analysis of human mobility data presents unique challenges due to the diversity of human movement across scales, the difficulty of collecting representative data that is high-resolution in both space and time, and the methodological and computational challenges in analyzing such high-dimensional spatio-temporal datasets, all while protecting the privacy of individual participants [1, 3–5]. These challenges have led to research on how to model human behavior without collecting large-scale data through the use of synthetic populations and mobility simulations [6–10]. Ideally, simulated data based on population-level mobility surveys can be leveraged to develop detailed models of mobility without col-lecting data about the detailed movements of individuals [10]. However, the validity and correspondence of simulated datasets to real-world mobility must be systemati-cally evaluated to ensure that conclusions drawn from simulations can be generalized to understand real human mobility patterns. In this work, we develop a framework for analyzing human mobility data using 
+
+higher-order network science and explore how this framework can be used to evalu-ate the validity of simulated mobility datasets [11, 12]. The key difference between traditional network-based models and the higher-order approach we take here is the treatment of memory . Traditional network models often implicitly assume that move-ment between nodes is memoryless, meaning that the next step is based only on the current position. This assumption limits the ability of these methods to capture sequential dependencies inherent to real-world mobility data, for example those that arise from the intentionality of human movement from origins ( e.g. , home) toward des-tinations ( e.g. , work or school). Empirical analyses of transportation systems indicate the existence of memory effects in routing decisions, whereby choices are influenced not only by current state, but also on the sequence of previously traversed nodes [13– 15]. Therefore it is important to understand the extent to which simulated mobility datasets accurately reproduce these higher-order dependencies. The higher-order net-work representations we use in this work incorporate memory topologically, allowing for the natural generalization of traditional methods for analysis of directed and weighted networks to higher-order patterns [11, 12]. In this work we take as a case study the ˆIle-de-France region of France. This region is ideal for our analysis due to the availability of two key data sources. First, a recent survey and associated dataset made available through the 2025 NetMob Data Challenge provide a high-quality representative sample of real GPS trajectories representing individual human mobility in the region [16]. Second, a well-developed synthetic population model and computational simulation environment designed to simulate human mobility in the ˆIle-de-France region provides a testbed for generating synthetic mobility traces [10]. The availability of these two data sources makes it pos-sible to make a detailed comparison of higher-order movement patterns in both real and simulated mobility datasets in the same region. We make four primary contributions in this paper: 21. We build a map-matching pipeline to convert raw GPS traces from the 2025 Net-Mob Data Challenge Dataset [16] representing movement through the ˆIle-de-France region into sequences of nodes visited in a network ( i.e. , network walks or paths ). 2. We use the Open ˆIle-de-France MATSim simulation software [10] to generate a synthetic population and simulated mobility dataset, extracting paths of agent mobility through the network from the simulation output. 3. Taking these extracted mobility paths as our unit of analysis, we apply techniques from higher-order network analysis to compare the observed and simulated datasets from a path-based perspective, identifying key divergences between the real-world and simulated paths. 4. We outline some implications of these divergences for human mobility research using surrogate data from agent-based simulations.  
+
+> Fig. 1 Map showing the coverage of the transportation network across the ˆIle-de-France region for both NetMob and MATSim data. The inset plot zooms in on the region from Bois de Boulogne in the west to the area surrounding the Louvre in the east.
+
+Our results show that, while the MATSim simulated mobility paths broadly repro-duce many patterns in the observed NetMob Data Challenge dataset, they also diverge in a few key ways because the simulations: (1) do not reproduce paths lengths at the extreme end of the observed data; (2) produce different node visitation patterns; and (3) are on the whole more predictable than the observed mobility paths. We also identify some key challenges moving forward, including the need for improved pre-processing pipelines for GPS trajectory data, as well as more detailed simulation 3models for pedestrian and cyclist behavior that are flexible enough to incorpo-rate diverse mobility behavior beyond commutes, especially one-off trips and leisure activities. Our approach is complementary to related research primarily due to our focus on the analysis of how people (and agents) navigate the detailed topology of the underly-ing physical infrastructure. This is in contrast to human mobility research that encodes mobility patterns in the geospatial domain, without connecting spatial movements to an underlying physical network ( e.g. , [17–25]). Our work is also different from research that focuses on the analysis of visits to points-of-interest (POI), such as shops, restau-rants, and hospitals ( e.g. , [26–32]) for the same reason. Other related research has analyzed the topological structure of street networks [21, 33–35], and while our work takes these street networks as the underlying topology facilitating mobility, we further analyze the interplay between network structure and higher-order mobility dynamics. Finally, closely related recent work also analyzes the 2025 NetMob Data Challenge dataset, combining many of the above areas with a focus on linking features of street networks and the built environment with pedestrian mobility patterns at a 1km ×1km geospatially aggregated scale [36]. Again our work takes a different approach, focusing on the detailed usage of the underlying network, rather than aggregating to a larger geospatial unit or collection of POIs. The remainder of this paper is organized as follows. In Section 2, we describe the two datasets that we analyze in this work, including the pre-processing pipeline required to transform the raw datasets into paths through the underlying network. In Section 3, we define our methodology for analyzing human mobility data using higher-order network science. Then, in Section 4 we describe the results of our analyses. In Section 5, we discuss our findings and their implications before finally concluding the paper with prospects for future research in Section 6. 
+
+# 2 Datasets 
+
+In this work we analyze two datasets representing human mobility in the ˆIle-de-France region. In both datasets we focus our analysis on road transportation modes, including travel by car, bus, commercial vehicle, bicycle, and walking. We exclude transportation via train and metro from our analysis, primarily due to the fact that these modes are inherently difficult to track using GPS, since they may travel underground leading to large noise in the data due to temporary loss of signal. In the next two sections, we describe each dataset, as well as our processing pipeline to extract paths through the network. 
+
+## 2.1 NetMob 2025 Dataset 
+
+The 2025 NetMob Data Challenge Dataset contains mobility trajectories for 3,320 people living in the ˆIle-de-France region [16]. Each participant volunteered to carry a dedicated GPS device and log the purpose of each trip they took during a study period of 7 days. The dataset includes surveyed demographic data about individual participants as well as metadata for trips and geographic regions. 4The dataset represents the movements of participants around the ˆIle-de-France region as sequences of GPS coordinates representing participant position over time. These sequences are logically split into trips based on logs kept by the participants, meaning that for each participant we have a series of GPS traces corresponding to trips taken over the study period. The data have been pre-processed for outliers, missing data, and anonymity, including the application of spatial blurring to the GPS traces to avoid revealing primary home and work locations of participants (see section 3 of [16] for details). In total, the dataset includes over 80,000 trips taken by 3,320 participants over periods of 7 days between October 2022 and May 2023. Each trip also includes the date, start and end time, primary mode of travel ( e.g. private car, taxi, or bus), and the purpose of the trip. Since our goal is to analyze mobility represented as walks through a network, we need to transform these raw GPS traces into sequences of edges traversed through the mobility network of the region, a process which we describe in the next section. 
+
+2.1.1 Map matching 
+
+The transformation of the mobility traces from sequences of GPS coordinates to sequences of network nodes is known as map matching [37, 38]. Map matching transforms raw GPS traces, which are inherently noisy representations of device mea-surements, by matching each coordinate to the most likely road segment or intersection in an underlying geospatial network. The map matching procedure requires an underlying network to which the coor-dinates will be assigned. We use the OpenStreetMaps (OSM) [39] street network of the ˆIle-de-France region as of January 1st, 2022 available via GeoFabrik. 1 An OSM network describes in detail the position and geometry of elements like road segments, intersections, sidewalk availability, bicycle paths, rail lines, and so on. We will be pri-marily interested in the road network, consisting of all OSM nodes that are included in “ways” with the tag “highway”, which entails most public surface roads. We match the NetMob GPS trajectories to the OSM network using the Hidden Markov Model technique, which is, to the best of our knowledge, the gold standard methodology for map matching [37, 38]. We use the implementation provided by Valhalla, an open source routing engine for OSM data [40]. Map matching is a difficult task due to the inherent unreliability of GPS mea-surements. Many factors can make matching difficult, including outlier coordinates, missing data, or complex network geometries leading to ambiguity that is not eas-ily resolvable in an automatic way. The Valhalla matcher was unable to find matches for a number of input trajectories. While we did some experimentation to try to get the best matching possible, ultimately we decided to discard the 3,692 trajectories for which we could not get a match. We leave evaluating and improving the map matching step further for future work. Once we have assigned each GPS coordinate in a trip to an edge in the road network, we take the deduplicated sequence of edges to be the path of the participant through the network. After this process, we are left with a total of 50,661 paths from 
+
+> 1https://download.geofabrik.de/europe/france/ile-de-france.html
+
+5Mode NetMob Mode Name [16] NetMob Count MatSim Combined Total Vehicle PRIV CAR DRIVER 20,915 PRIV CAR PASSENGER 2,952 LIGHT COMM VEHICLE 44 TAXI 195 TWO WHEELER 530 Total Vehicle 24,636 22,861 47,253 Bicycle BIKE 3,693 ELECT BIKE 1,685 ELECT SCOOTER 348 Total Bicycle 5,726 1,223 6,902 Walking WALKING 17,571 18,685 35,260 Public Transportation BUS 2,728 10,947 13,648 Total – 50,661 53,716 103,063  
+
+> Table 1 Paths per dataset broken down by transportation mode.
+
+the NetMob 2025 dataset. Table 1 breaks down how we assign modes from the NetMob classification to broader classes Vehicle (24.7k), Bicycle (5.7k), Public Transportation (2.7k), and Walking (18.0k). We note that many trips list multiple transportation modes, but in the absence of more detailed trip segmentation data, we label trips based on the “Main Mode” as labeled in the NetMob 25 trips database [16]. We also exclude some modes of interest, such as trips by metro, because they are challenging for map-matching, and leave analysis of the remaining modes and a detailed analysis of trips that use multiple modes for future work. 
+
+## 2.2 ˆ Ile-de-France MATSim simulation 
+
+We compare the NetMob 2025 Data Challenge Dataset to a second dataset gener-ated by the simulation software MATSim, a state-of-the-art iterative, agent-based methodology for dynamic traffic assignment [6–10]. We take advantage of the open-source ˆIle-de-France MATSim synthetic popula-tion generation and MATSim simulation code made available by Horl et al. [10]. 2 This software provides code to generate a detailed synthetic population of ˆIle-de-France that is compatible with the MATSim simulation software, as well as well as an inte-grated pipeline for generating the population and running the software. Constructing the synthetic population of ˆIle-de-France and running the MATSim simulation takes advantage of a variety of public regulatory data as documented in the paper describ-ing the simulation software [10]. The output of the MATSim simulation includes data about how the synthetic agents moved throughout the network, which we process into paths, as well as which travel mode the agents used. The MATSim software generates simulated movements of agents through the net-work in the form of an event log. We process this event log to extract the detailed 
+
+> 2https://eqasim-org.github.io/ile-de-france/simulation/simulation data.html
+
+6paths that individual agents took through the network. We then scan the event log and extract events related to movements using relevant modes, grouping these events by agent, such that we are left with a list of movement events for each simulated agent. While the MATSim software begins from the same underlying OpenStreetMaps network, a simplified form of the network where some nodes and edges are removed is used in the simulation. This means that we need to post-process the agent movements to interpolate from the simplified network back to the detailed network so that we start from the same OSM backbone for each dataset. Since the nodes retained in the MATSim network are still OpenStreetMaps identifiers, we can implement this interpolation by scanning each edge of each trip and checking if it is an edge in our detailed network. If an edge between two nodes u and v does not exist in the detailed network, we run Dijkstra’s shortest path algorithm to find a shortest path from u to 
+
+v, using the length in meters of the underlying edge geometry as the edge weight. In the rare event that a pair of adjacent nodes has no path, we remove this trip from the dataset. In MATSim, walking and bicycle modes are implemented as teleportation from an origin to destination node. Therefore, we need to choose how to model walking and biking movements. We again use a Dijkstra shortest path algorithm with the length of the underlying geometry as the edge weight to find these paths. In future studies it would be interesting to experiment with more detailed simulation models for pedestrian and cyclist mobility. Finally, for public transportation trajectories we filter out all modes except for buses, since we are modeling only road-based transportation. The underlying MAT-Sim simulation uses the real bus schedule for the region in Generalized Transit Feed Specification (GTFS) format to route agents through the transportation network. The GTFS schedule involves OSM network nodes representing transit stops, which are not part of our underlying network. However, we can simply map each bus stop to its associated link in the network to get the path in terms of the OSM road network nodes. We run the MATSim simulation using a sample proportion of 0.00175, which results in 54,086 paths, which is on the same order as the total number of paths in the NetMob 2025 dataset. Table 1 shows the MATSim paths broken down by mode, including Vehicle (22.9k), Bicycle (1.2k), Walking (18.9k), and Public Transportation (10.9k). 
+
+## 2.3 Random Walk Dataset 
+
+We compare the NetMob and MATSim simulated datasets against a third dataset constructed by running a memoryless random walk on the same underlying network. We design this random walk dataset to mimic the combined path statistics of the two datasets by generating one random walk for each path in the two datasets (right-hand column in Table 1). For each path, we select its starting node as the starting node in the random walk, then let the walker take exactly the same number of steps as the original path. In this way, the final path dataset has the same path length distribution and starting node distribution as the combination of the two datasets. 72.4 Network Simplification 
+
+It is common to simplify the topology of OpenStreetMaps networks for network analyses [35]. While we use the detailed OSM road network for the purposes of map-matching, path extraction, and random walk generation, as a final pre-processing step we drop from our paths “redundant” nodes that do not represent true junctions in the network. The most common redundant nodes appear in the middle of chains repre-senting road segments without any turns, meaning they offer no meaningful choice in a transportation context (except perhaps in the rare case of a U-turn). These nodes are usually included in the network for other reasons, for example to represent pedestrian crossings, complex lane topologies, or simply to strike a balance between representing network routing and preserving the geometry of the underlying geospatial network [35]. Redundant nodes can be removed without altering the ability of a person or agent to traverse the network. In the directed context, we identify redundant nodes as those with exactly the same 2 neighbors in their in- and out-neighborhood (or different sin-gle neighbors in the case of a one-way road). Removing such a node and replacing it with edges between its former neighbors does not alter the network connectivity with respect to navigation, since paths between all other origins and destinations are pre-served. Since the removal of one redundant node will change the neighborhood of its former neighbors, the filtering process is non-independent and the order in which nodes are processed can determine which nodes are labeled redundant. Therefore, it is impor-tant that all redundant nodes are identified in the network as a pre-processing step before those nodes are subsequently dropped from the path datasets. If the removal of redundant nodes results in an empty path, we drop that path from the data. The original network had 3,016,582 nodes and 6,655,074 edges. After filtering, the network was reduced to 788,018 nodes (26% of original) and 2,197,946 edges (33% of original). In the NetMob paths, we identified 788,685 unique redundant nodes and removed a total of 7,601,189 occurrences, which resulted in the exclusion of 657 paths. In the MATSim paths, we identified 588,606 unique redundant nodes, removed a total of 6,115,998 occurrences, and excluded 370 MATSim paths. Finally, in the random walk dataset, we identified 986,182 redundant nodes, removed a total of 12,551,316 occurrences, and excluded 2,341 Random Walk paths. Note that the path counts in Table 1 (and all subsequent results we will discuss, unless otherwise specified) reflect the paths after applying this simplification step. 
+
+# 3 Methods 
+
+In this section we describe our approach to analyzing the resulting paths using net-work science methods. First, we provide background on the three repesentations that underly all of our methods: networks, de Bruijn graphs, and multi-order network mod-els. Then, we describe the metrics we use in conjunction with these representations to understand how people and agents move through transportation systems. 83.1 Network representations 
+
+We begin by defining the network representations we will use throughout the rest of this work, beginning with a traditional network:                                 
+
+> Definition 1 Anetwork or graph is a tuple G= ( V, E ) where V={v1, . . . , v n}is a set of
+> nnodes (or vertices) and E∈V×Vis a set of mlinks (or edges) representing connections between nodes from V. A network is called directed if the edges ( u, v )∈Eare ordered tuples, with the consequence that ( u, v )∈Edoes not imply ( v, u )∈E.
+
+In the context of human mobility, nodes will typically correspond to intersections or junctions in a transportation network, while links correspond to conduits for moving between them, primarily roads. Since some roads can only be traversed in a specific direction, we will consider the network to be directed. The total number of links connected to a node is called its degree . The total degree is the sum of the number of incoming links ( in-degree ) and the number of outgoing links (out-degree ). The nodes that have edges pointing towards u are called its in-neighbors 
+
+and the nodes that u has edges to are called its out-neighbors .
+
+3.1.1 Networks, walks, and paths 
+
+In this study we are interested in understanding how people and agents move through a mobility network. Traversals of networks can be formally defined as walks , which are sequences of nodes visited by following the links of the network. A walk that never visits the same node twice is called a path . Given two nodes u and v, a shortest directed path from u to v is a path that visits the smallest possible number of nodes. In this paper, we will only distinguish between walks and paths in the context of shortest paths, which we will always refer to explicitly, and otherwise we will use the word “path” colloquially to refer to any traversal of nodes through a network. While important to the analysis of networks, shortest paths are not the only way that one may navigate a network, but rather represent the most efficient navigation with respect to the number of links traversed and nodes visited. The simplest dynami-cal process for modelling the movement of an agent through a network without regard for efficiency is the discrete time random walk. A random walk is a stochastic process where at each time step t a walker is in a certain state s(t) = u ∈ V that corresponds to the walker sitting on a given node u in the network. The walker takes a step at each time point by randomly moving to an out-neighbor of the current node u.Random walks are a powerful framework for understanding how networks can function as conduits for spread and diffusion [41–43]. However, in the context of human mobility they are limited by the fact that they are memoryless , since the next step chosen by the walker depends only on its current state without regard for the nodes it visited before [11, 44]. Often this does not reflect how people navigate in their daily lives, since we do not expect a driver to randomly move between nodes in a road network, but rather we expect they will begin at an origin and move towards a destination in an efficient way. For this reason, our analysis will leverage higher-order 9network representations that explicitly account for sequential ordering and memory in the navigation of a network. 
+
+3.1.2 Higher-order networks 
+
+Higher order network models are designed to incorporate information about the pre-vious movements of a walker directly into the structure of the network, facilitating the convenient analysis of the effects of memory on how the network is traversed. We adopt the framework for higher-order network analysis introduced by Scholtes [11] that models path data as higher-order Markov chains, represented formally as weighted de Bruijn graphs [45]. Throughout this work we will assume we have an underlying (1st-order) graph G =(V, E ) that represents the topology of our transportation network. We are interested in analyzing a dataset S = ( w1, w 2, . . . , w ℓ) consisting of a set of ℓ observed walks over 
+
+G, meaning that wi = ( v1, v 2, . . . v m) is a sequence of nodes vi ∈ V such that every pair ( vi, v i+1 ) ∈ E. We can define an empirical kth-order de Bruijn graph as:                              
+
+> Definition 2 Akth-order de Bruijn graph G(k)= ( V(k), E (k), W (k)) is a directed and weighted graph where kth-order nodes ˆ u∈V(k)represent paths of knodes through the 1st-order graph G,i.e. , ˆ u= ( v1, v 2, . . . , v k), v i∈V, and directed edges connect kth-order nodes that represent paths overlapping in exactly k−1 nodes. Further, edge weights W(k)
+> e∈E(k)count the number of observations of the edge (subpath of length k+ 1 nodes) in S.
+
+Given observed path data S, a de Bruijn graph can be directly constructed from paths by sliding a window of length k nodes across each path in the input data and counting the frequency of each subpath. A subpath ( v1, v 2, . . . , v k) of length k
+
+nodes from the input trajectories is treated as a higher-order node, naturally encoding the memory of the preceding steps. A subpath ( v1, v 2, . . . , v k+1 ) is included as an edge in a kth-order de Bruijn graph by introducing a directed edge from the node representing ( v1, v 2, . . . , v k) to the node representing ( v2, v 3, . . . , v k+1 ), encoding the transition observed in the data directly into the structure of the de Bruijn graph. We encode multiple observations of the same walk as edge weights in the de Bruijn graph. We call a de Bruijn graph constructed in the above fashion an empirical de Bruijn graph to contrast it with the topological de Bruijn graph constructed by simply apply-ing the line graph transformation k times to the 1st-order graph. This topological de Bruijn graph encodes all possible walks through the 1st-order graph G, regardless of whether they were observed in the dataset S. While it is sometimes useful to consider this structure as a null model when analyzing higher-order path data [46], in this work we will focus exclusively on empirical de Bruijn graphs. A kth order de Bruijn graph is a directed and weighted graph structure that can be analyzed using careful applications of existing network analysis methods. Further, with appropriately normalized edge weights, a de Bruijn graph describes a kth-order 10 Markov chain with transition probabilities (eq. (4) in Scholtes [11]): ˆP (k)(vk | v0, . . . , v k−1) = |{ (v0, . . . , v k) ∈ Sk}| 
+
+P 
+
+> w∈V
+
+|{ (v0, . . . , v k−1, w ) ∈ Sk}| (1) The numerator counts the number of times the path ( v0, . . . , v k) was observed as a subpath in the dataset, while the denominator counts the total number of times the subpath ( v0, . . . , v k−1, ·) was observed in the dataset, where here · indicates any neighbor of vk−1, including vk.If we view the target path ( v0, . . . , v k) as an edge between kth-order nodes ˆ u =(v0, . . . , v k−1) and ˆw = ( v1, . . . , v k−1, v k), we can rewrite the transition probability using the de Bruijn graph weights as: ˆP (k)(vk | v0, . . . , v k−1) = ˆP (k)( ˆ w|ˆu) = W (k)ˆu ˆw
+
+Pˆj∈η(ˆ u) W (k)ˆuˆj
+
+, (2) where we use η(ˆ u) to represent the out-neighbors of the higher-order node ˆ u in the de Bruijn graph. The form of (2) shows how a walk with k steps of memory over the underlying 1st-order graph G can be simulated using a memoryless random walk on the kth-order de Bruijn graph, one of the key advantages of using a de Bruijn graph representation to study the role of memory in path data. The empirical de Bruijn graph defined above can be constructed for any order from k = 1 (a traditional weighted and directed network) to k = κ, where κ is the maximum observed path length in the input dataset. One disadvantage of kth-order de Bruijn graphs is that observed paths with lengths smaller than k must be ignored because they do not encode information at the kth order. This means that constructing a de Bruijn graph for a single order may exclude meaningful data. Our final network representation, the multi-order model, deals with this issue. 
+
+3.1.3 Multi-order models 
+
+A multi-order model combines de Bruijn graphs of increasing orders into a single representation [11]. A multi-order model Mκ is a multi-layer network representation, where each layer corresponds to a de Bruijn graph representing a single memory length 
+
+k. Links are created between de Bruijn graph models of adjacent layers, such that the likelihood of a given walk can be computed using increasing orders. For example, given a path x = ( v1, v 2, v 3, v 4, v 5) of length k = 5 and a multi-order model M3 with maximum order 3, the likelihood of the path can be computed by taking the product: ¯P (x|M 3) = ˆP (0) (v1) · ˆP (1) (v2 | v1) · ˆP (2) (v3 | v2, v 1)
+
+· ˆP (3) (v4 | v3, v 2, v 1) · ˆP (3) (v5 | v4, v 3, v 2) (3) Note that the final product is between two 3rd-order terms, since 3 is the maximum order in the multi-order model in this example. The general form of this likelihood 11 appears as eq. (5) in Scholtes [11]. In the next sections we will see how we can make use of higher-order network models for determining an optimal order at which to model paths and predicting the next step in a partial path. 
+
+## 3.2 Analysis methods 
+
+Now that we have defined our representations, we will use this section to describe the methods we leverage in our data analysis. 
+
+3.2.1 Network analysis 
+
+We analyze network statistics including the number of nodes, number of edges, average degree, and network density in empirical de Bruijn graphs of increasing order. Beyond the 1st-order network, all of these statistics provide information about the structure of the paths taken through the network, rather than only the network topology. For example, in the 2nd-order network, the number of nodes is the same as the number of edges in the 1st-order network, while the number of edges counts the number of observed paths of length 3 edges. Similarly, the out-degree of a 2nd-order node u
+
+corresponds to the number of different paths of length 3 observed in the data. Put another way, the out-degree of u counts the number of 2-edge paths with u as the prefix. The density of a network is the total number of edges divided by the total number of possible edges, which in a directed graph is just n(n − 1), where n is the number of nodes. In a kth-order empirical de Bruijn graph, we define the density to be the total number of edges (length k paths) divided by the total possible edges given the topology of the empirical k − 1st-order de Bruijn graph. We use the k − 1st-order network because the total possible paths given the 1st-order network, regardless of whether those paths were observed in the data, can grow exponentially, leading to extremely small values of density that are more difficult to interpret. 
+
+3.2.2 Network coverage 
+
+We are interested in the extent to which the paths in our datasets cover the nodes in the underlying network. We count the number of times each node is visited by a participant or agent in the datasets, thus analyzing the extent to which the observed mobility traces cover the underlying physical infrastructure network. Practically, we construct a vector with an entry for each node in our study area and record the number of visits it received from participants in the NetMob data and from agents in the MATSim data. We report three quantities in this analysis. First, we compute the fraction of nodes in our the network that were visited by at least one agent. This quantifies the extent to which the network is explored. Second, we compute the Jaccard Index between the sets of nodes visited in each dataset, quantifying the extent to which the nodes visited by the datasets are the same. Third, we record the total number of visits to each node in each respective dataset to understand whether there is a correlation between highly visited nodes. In an individual dataset, the node visitation patterns of participants or agents is an indication of how much of the network is actually used. Concentration or lack of node 12 visitations could reflect intentional constraints, such as diversions of vehicle traffic away from pedestrianized areas or low emissions zones and towards specific routes. Lack of coverage may also reflect barriers to accessibility in some parts of the network, or an undersampling of participants or agents who are likely to visit those nodes. If coverage results between the observed participant data and agent based simulation match well, this is a positive signal that the simulation may serve as a good surrogate for real data. However, if there is very little agreement between the coverage results, this may indicate a fundamental discrepancy between the simulation and the observed data. 
+
+3.2.3 Optimal order estimation 
+
+Higher-order network models allow us to study memory effects in path data at any chosen order k. One key question is whether there is an optimal memory length that explains the observed data. We adopt a Likelihood Ratio Test between higher-order models with varying memory length k to determine the optimal model order [11]. Given a set of N observed paths P = {pj }Nj=1 , we calculate the likelihood of the data under a kth-order model as 
+
+L   ¯Mk | P  =
+
+> N
+
+Y
+
+> j=1
+
+¯P (k) (pj ) , (4) where ¯P (k)(pj ) is the probability of path pj under the multi-order model ¯Mk with maximum order k (see eq. (3) above and details in [11, 47]). The idea behind the likelihood ratio test is to strike a balance between model fit and model complexity. In general, we expect that increasing the order of the model will increase the likelihood, since increasing the order directly incorporates more of the data into the model. However, this increase in fit comes at the expense of additional parameters, increasing the risk of overfitting [48]. Hence the use of a Likelihood Ratio Test to decide whether a k + 1st-order model significantly improves the fit compared to a model of order k [11]. We interpret an optimal order of k = 1 as evidence that a traditional weighted and directed network is the best model for the data. In the context of human mobility, where people usually have well-defined origins and destinations, we expect to find an optimal order larger than 1. Further, in comparing mobility path datasets, it is desirable for simulated paths to have the same optimal order as representative observed path data. Even if the optimal order does not match exactly, if we find that the observed data is best explained by a model with memory, but the simulated data is best explained by a memoryless model, this would suggest that the simulated data is not a good representation of how people navigate the network. 
+
+3.2.4 Next-step prediction 
+
+An advantage of higher-order network models is that they naturally facilitate next-step prediction in a way that incorporates sequential memory effects embedded in path data. These predictions rely on empirical transition probabilities computed from 13 the input path data, offering a data-driven approach to predict future movements in mobility trajectories. Here we briefly describe the approach to next-step prediction we use in this paper, which is based on the methods introduced by Gote et al. [47]. Given a partial path ( v1, . . . , v ℓ) of length ℓ, we perform next-step prediction by computing the (higher-order) transition probability for each node vℓ+1 ∈ η(vℓ) that could appear next on the path according to the network topology, where we use η(vℓ)to denote the out-neighbors of the node vℓ in the underlying 1st-order graph topology. We make our prediction by selecting a node proportional to its transition probability according to a kth-order model (eq. (2)) using a softmax function. Transition proba-bilities are derived from a set of training paths that are used to construct the kth-order model. If the partial path was not observed in the training data, we try to make a “backoff” prediction using models of decreasing order k − 1, k − 2, . . . , 1. If we reach the 1st-order model, this means that none of the subpaths of the partial path were observed in the training data. In this case, we simply use a memoryless random walk step as our prediction in the absence of any higher-order evidence. If next-step prediction performs well on a dataset, we may conclude that the higher-order network model captures important sequential features of the mobility tra-jectories. In contrast, if next-step prediction performs poorly, this would suggest that the higher-order network model is not able to capture the sequential dependencies in the data and could indicate that the dataset represents mobility trajectories that are more complex, varied, or noisy. 
+
+3.2.5 Next-step entropy 
+
+Complementary to the performance of the next-step prediction task, we also analyze the expected conditional entropy of the path datasets. Expected conditional entropy gives us a measure of uncertainty or unpredictability in the sequence of nodes visited by mobility paths. The setup for this analysis is similar to the next-step prediction task, where we have a partially observed path s = ( v1, . . . , v k) on k nodes. We denote the distribution of likelihoods for each possible next-step vk+1 with ˆ p(vk+1 |s). We further define the count of our path s as a subpath in our dataset as ns and recall that Nk is the total number of subpaths of length k. Finally, using Shannon’s entropy we define the average uncertainty at memory order k with respect to the empirical distribution ns 
+
+> Nk
+
+:
+
+⟨Hk⟩ = X
+
+> s∈M k
+
+ns
+
+Nk
+
+H (ˆ ps) = 1
+
+Nk
+
+X
+
+> s∈M k
+
+nsH (ˆ ps) . (5) Here, lower average entropy ⟨Hk⟩ indicates that the next move is highly predictable given k previous steps, while higher average entropy reflects many near-equiprobable next steps. This entropy metric indicates the complexity of mobility behavior and the extent to which higher-order network representations capture sequential regularities. 14 4 Results 
+
+In this section we describe the results of applying the methods described above to compare the NetMob Data Challenge 2025 dataset to a dataset of simulated mobil-ity trajectories based on the Open ˆIle-de-France synthetic population and MATSim simulation. 
+
+## 4.1 Mobility path length distribution 0 250 500 750 1000 1250 1500 1750        
+
+> Path length (number of nodes)
+> 0
+> 20000
+> 40000
+> 60000
+> 80000
+> 100000
+> 120000
+> 140000
+> 160000
+> Path length (meters)
+> NetMob 0250 500 750 1000 1250 1500 1750
+> Path length (number of nodes)
+> 0
+> 20000
+> 40000
+> 60000
+> 80000
+> 100000
+> 120000
+> 140000
+> 160000
+> Path length (meters)
+> MATSim
+
+Fig. 2 Scatter plots showing the distributions of path lengths in number of nodes (horizontal) and meters (vertical). External curves show kernel density estimates of the distribution along the same axis. Path length distributions for both the NetMob 2025 dataset (left, 51,354 paths) and the MATSim dataset (right, 53,629 paths) have heavy tails, indicating that most paths are relatively short, with only a few extremely long paths. The NetMob data contains extreme path lengths that are much longer than the longest simulated simulated paths. 
+
+In Figure 2 we show the path length distributions for the NetMob (left) and MAT-Sim (right) datasets, both in terms of the number of nodes visited (horizontal axis) and the length measured in meters (vertical axis). Both measures of length show heavy tailed distributions, with most paths having short lengths and only a relative few hav-ing very long lengths along both axes. There is also a clear correlation between number of nodes in the path and the geospatial length. The two distributions share similar characteristics, however there are noticeably more exceptionally long paths in the Net-Mob dataset. This is the first substantial difference between the NetMob and MATSim datasets: it appears that the simulated data results in fewer trips with extreme lengths relative to the rest of the distribution. We note that this lack of extreme path lengths may be due in part to the fact that the simulated trajectories are derived from a model based on optimization of movement within a well-defined region, while the NetMob trajectories are unconstrained. 
+
+## 4.2 Higher-order network analysis 
+
+In Figure 3 we show how basic properties of the higher-order network change as we increase the order. We show results for the NetMob and MATSim datasets, as well 15 1 2 3 4 5
+
+0
+
+2
+
+4
+
+6
+
+·10 6
+
+Order 
+
+> # Nodes
+> NetMob
+> MATSim
+> Random Walk
+
+1 2 3 4 5
+
+0
+
+2
+
+4
+
+6
+
+·10 6
+
+Order 
+
+> # Edges
+
+1 2 3 4 5
+
+2
+
+4
+
+6
+
+Order 
+
+> Mean Degree
+
+1 2 3 4 5
+
+0
+
+2
+
+4
+
+6
+
+·10 −6
+
+Order  
+
+> Density Fig. 3 Change in number of nodes, number of edges, average node degree, and network density of higher-order networks as order increase from 1 to 5. The NetMob 2025 networks have more nodes and edges, higher degree, and lower densithy than the simulated MATSim paths.
+
+as the memoryless random walk. While the patterns are broadly similar between the NetMob and MATSim datasets, there are more nodes and edges, higher average degree, and lower density in the NetMob dataset. In all of the datasets, the number of nodes and edges grows monotonically with k, while the average degree and density decline, consistent with a finer partition of behavioral contexts that yields a sparser and more specialized state space. The networks built from random walks have more nodes and edges, as well as higher average degree, than the NetMob and MATSim datasets. Indeed, we expect the random walk data to fall somewhere between the observed datasets and a purely topological de Bruijn graph, where the number of nodes and edges tend to grow exponentially with order, since each subsequent order takes the edges of the previous order as its nodes. On the one hand, the random walk paths reflect the graph topology, since the movements of the walkers are influenced only by their initial condition and the 1st-order network. However, due to the walk being finite and intentionally biased by the data (see Section 2.3), the walkers are not likely to fully explore the network topology, since many more walks would be required to reach the stationary state. This suggests that the topology of the de Bruijn graph built from the random walks 16 will still be less dense than the purely topological structure. The empirical de Bruijn graphs built from both the observed NetMob and the simulated MATSim datasets grows much more slowly still, indicating that participants and agents use a relatively small number of the possible walks through the network. 
+
+## 4.3 Optimal Order Estimation 
+
+We estimate optimal order statistics for each mode category in each dataset, as well as the combined path datasets. Across both the NetMob and MATSim datasets, the estimated optimal order is k = 2, confirming that memory effects are present in the path datasets. We also find that the random walks have an optimal order of k = 1, reflecting the fact that these paths were computed using a 1st-order random walk process, which by definition should not require memory to model. These results show that both observed and simulated mobility paths are influenced by more than just the network topology. 
+
+## 4.4 Network coverage Random Walk NetMob MATSim        
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 0.61
+> 0.45 0.36
+> Fraction Nodes Visited NetMob Matsim
+> RW NetMob
+> RW MatSim
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 0.55 0.52 0.42
+> Jaccard Index 0100 200 300
+> 0
+> 100
+> 200
+> 300
+> Node Visits (NetMob)
+> Node Visits (MATSim)
+> Fig. 4 Left: Fraction of the total nodes in the road network visited by a random walker (RW) and the paths from the NetMob and MATSim datasets. Middle: Jaccard Index between visited node sets for each pair of path datasets. Right: Number of visits to each node in the road network by NetMob (horizontal) and MATSim (vertical) paths.
+
+In the left hand plot of Figure 4 we show the fraction of the total number of nodes visited in each of the three datasets. The random walk visits the largest fraction of nodes at around 61%, while the real world NetMob paths visit about 45% of nodes and the MATSim simulated paths about 36%. This result complements the difference in path length distributions we observed above in that it suggests that the diversity of the observed paths taken by NetMob participants is not fully captured by the MATSim simulations. Next we analyze whether the different paths are visiting the same nodes. In the middle plot of Figure 4 we show the Jaccard Index between the sets of nodes visited by the paths in each pair of datasets The Jaccard Index is measured as the size of the intersection over the size of the union, meaning that a perfectly overlapping pair of sets would have index 1, and a pair of sets with no intersection would have index 0. The Jaccard Index between the NetMob and MATSim datasets is around 0.55, meaning around half of the nodes in the union between the two sets appear in both datasets. This overlap is larger than between the random walk dataset and both NetMob and 17 MATSim, which has two implications. First, the NetMob and MATSim node visitation patterns are more similar to each other than to a random walk. Second, the random walk not only visit more nodes in absolute terms, it also visits a different set of nodes than the mobility datasets. Finally, in the right hand plot of Figure 4 we compare the number of times each node was visited in the two sets. For each node in the network, we counted the num-ber of times it appeared in the NetMob (horizontal) and MATSim (vertical) paths. If the two datasets were capturing the same mobility dynamics, we would expect that the same nodes would be visited similar amounts. Indeed, there is a large region of agreement between the two datasets. However, we also observe a range of disagree-ment, including some nodes with 0 visitations in one dataset and nearly the maximum observed visitation in the other. This is especially noticeable for a handful of nodes vis-ited more than 150 times in the NetMob data, but never visited at all by the MATSim agents. 
+
+## 4.5 Next-step prediction 
+
+We test the ability of higher-order models with increasing maximum order to predict the next node to be visited in truncated mobility paths. We first split the paths from each dataset into training and testing sets, where we sample 50% of the original data for training and test on the other 50%. Since the path length distributions are heavy tailed, we use a stratified sampling strategy where we first split the paths into bins based on their order of magnitude (base 10 logarithm), then sample 50% of paths from each bin. We then use the training set to compute the conditional transition probabilities P (vi | vi−1, . . . , v i−K ) for the next node in the sequence for models from 
+
+k = 1 , . . . , K . Each path in the validation set may provide multiple opportunities to make a prediction depending on its length and the order of the model. For a path 
+
+x = ( v1, . . . , v ℓ) in the training set with length ℓ ≥ k, we slide a length-k window over the path and forget the final node vℓ in each window, using the partial path 
+
+vℓ−k . . . v ℓ−1 to find the next step with the highest transition probability. The left column of Figure 5 shows model order against next step prediction accu-racy averaged over 10 train/test splits (standard deviations are too small to appear on plot scales). Each row corresponds to a different transportation mode following the categorization in Table 1. We will focus first on the bottom row, which shows results for the path dataset combining all modes. In both the NetMob and MATSim Combined paths, we find that the prediction accuracy improves dramatically when incorporating paths of length 2, which is also the optimal order according to the likelihood test pro-posed in [11], while increasing the order beyond 2 only marginally improves prediction accuracy (while increasing the number of estimated model parameters). The accuracy results on the two datasets show the same increasing pattern, but prediction accuracy in MATSim is about 10% higher (0 .83) than in NetMob (0 .73). Next-step prediction on the random walk paths is much lower at around 30% accuracy, and moving to increasing orders shows no improvement. We observe some different patterns in next-step prediction performance on the other mode categories. First, we note that for Bus paths the next-step prediction accuracy is notably higher for MATSim than for the NetMob paths. This may be due 18 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Vehicle 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Vehicle ( k = 2 )1 2 3 4 5
+
+0
+
+1
+
+2
+
+Order 
+
+> Hk
+
+Vehicle 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Bus 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Bus ( k = 2 )1 2 3 4 5
+
+0
+
+1
+
+2
+
+Order 
+
+> Hk
+
+Bus 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Bicycle 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Bicycle ( k = 2 )1 2 3 4 5
+
+0
+
+1
+
+2
+
+Order 
+
+> Hk
+
+Bicycle 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Walking 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Walking ( k = 2 )1 2 3 4 5
+
+0
+
+1
+
+2
+
+Order 
+
+> Hk
+
+Walking 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Combined 
+
+> NetMob
+> MATSim
+> Random Walk
+
+0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Combined ( k = 2 )1 2 3 4 5
+
+0
+
+1
+
+2
+
+Order 
+
+> Hk
+
+Combined Fig. 5 Next-step prediction accuracy as a function of model order (left column) and fraction of paths used in training for fixed order k = 2 (middle column) across individual and combined transport modes. The last point in the fixed-order plots represents 99% of paths used for training. Right column: Average conditional entropy of (higher-order) node transition probability distributions for increasing orders. Filled areas show standard deviations (too small relative to axis scales for prediction accuracy results). 
+
+to the fact that MATSim bus trajectories are derived from fixed bus routes, while 19 the NetMob bus trajectories may be mixed, since we adopt the main mode label in multi-mode trips (see discussion in Section 2.1). We further notice that next-step prediction accuracy is higher in the NetMob data for both bicycle and, to a lesser extent, walking modes, reversing the trend in the combined dataset. The performance of next-step prediction for MATSim bicycle paths is the worst across all modes. This is surprising because the MATSim bicycle paths are based on shortest paths through the network (see Section 2.2), which we initially expected to result in highly predictable paths. This may be due to lack of bicycling paths in the MATSim dataset, since there are almost 5 times fewer paths (1.2k) than in the NetMob dataset (5.7k paths). Indeed, in Figure B3 we show that after downsampling the NetMob paths to have the same number as MATSim, the prediction accuracy is reduced. However, the downsampled NetMob accuracy is still higher than the prediction accuracy in the MATSim Bicycle paths, so lack of data does not fully explain the poor next-step prediction performance in the Bicycle paths. Further, the prediction performance in the MATSim Walking paths, generated using the same methodology as the Bicycle paths, is also low, and this time it is also low in the NetMob paths. This suggests that dealing with non-vehicle transport modes requires more attention. In the middle column of Figure 5 we show next-step prediction experiments where we fix the order to k = 2 and vary the fraction of training data. When no paths are used for training, next-step prediction shows the same accuracy on both datasets. With only 10% of the data, next-step prediction accuracy already improves to nearly its maximum in the Vehicle, Bus, and Combined modes, while the gains for Bicycle and Walking are much more gradual. Even using 95% of the data for training (rightmost point), the prediction accuracy remains below 1 across all modes. 
+
+4.5.1 Next-step entropy 
+
+To better understand the predictability of mobility paths, we compute the average conditional entropy of next-step distributions for models of increasing orders. A model with high conditional entropy indicates that there is ambiguity in next-step probability distributions, while small entropy indicates that the choice of next-step is largely deter-mined in the transition probability distribution. The right-hand column of Figure 5 shows the expected conditional entropy Hk as a function of order k. The conditional entropy Hk declines monotonically with memory order for both datasets, indicating that higher-order context makes next-step choices more predictable. For every mode and every order, the NetMob paths exhibit higher Hk than the MATSim paths, implying systematically larger route variability in observed behav-ior. Notably, even as the number of nodes grows with k (which also can been seen as an increase in the number of distinct contexts), the average uncertainty per con-text shrinks, showing that higher-order conditioning partitions behavior into more specialized yet more predictable contexts. 20 5 Discussion 
+
+Taken together, our results reveal a complex and variable relationship between the NetMob and MATSim mobility paths. On the positive side, the simulated MATSim paths broadly align with the observed NetMob paths in terms of path lengths, basic network properties, and estimated optimal order, and they both show clear and con-sistent differences from random walks without memory. However, our analysis also found that the simulated paths are different in some key ways that warrant further investigation in follow-up studies. First, we found that the simulated trajectories did not produce extreme values in the path length distribution observed in the NetMob data. Second, we found that the node visitation patterns, including the set of nodes visited and their frequency of visitation, did not align as closely as we might hope if we would like to generalize the simulation approach to regions where detailed GPS data is not available. Finally, we found that the simulated trajectories were on the whole more predictable than the observed human mobility data, suggesting that real mobility behavior, while far from random, is more noisy than these simulations allow. These three differences point to an inherent limitation of simulated mobility trajec-tories: their inability to model noisy, extreme events that are nonetheless reflections of intentional human behavior. We hypothesize that some of the differences we observed through our analyses are due to the fact that individual mobility briefly, but regularly, strays far from the norm. These aberrations are difficult to capture in a large-scale mobility model. For example, it is difficult to endow an agent with the ability to choose to help a friend move, or to visit a distant relative who lives on the opposite side of the city once per year. These sorts of events are, somewhat paradoxically, commonplace at the individual level, but difficult to model at the collective scale using a synthetic population built from survey data. We believe that further research into modeling these off-model behaviors can greatly improve the promise of simulation approaches to generating human mobility data. We also note that all of our results on the NetMob dataset hinge on the accuracy of our map matching pipeline, but in the absence of ground truth, we are not able to give an estimate of our confidence in the map matched paths. We believe that benchmarking and evaluation of map matching techniques on modern GPS data is a key methodological challenge that should be addressed in the future. Our analysis shows the promise of applying higher-order network models in human mobility research. We found that human mobility is indeed a higher-order phe-nomenon, requiring the incorporation of notions of memory. Taking a path-based perspective allowed us to model the topological and dynamical factors of human mobility together, showing how the two are intertwined. 
+
+# 6 Conclusion 
+
+In this work we have compared two human mobility datasets from the perspective of higher-order network science, with the goal of understanding whether the dataset generated via simulations from a synthetic population is a good model for the observed NetMob 2025 Dataset. We found that, while the datasets broadly align on collective 21 human mobility trends, the simulated data was not able to capture the variation observed in the real data. Many questions remain open for future research. It is clear from the poor next-step prediction results on Bicycle and Walking paths that we need to better understand non-vehicle based mobility. In the NetMob case, this likely means further refinement of map-matching methods, as the performance of map-matching is a key remaining source of uncertainty, especially given that pedestrian movements are not constrained to the road network topology, where the underlying OSM data is most likely to be accurate. Future research would benefit from methods combining machine learning approaches to automatically segment trips based on transportation mode with improved map-matching techniques. In the MATSim case, future research should incorporate specific models for pedestrian and cyclist mobility, including those that can be tuned for leisure behaviors, rather than falling back on shortest paths between origins and destinations as we have done here. Future research could build on this analysis by incorporating further context, including the analysis of trip purpose, point-of-interest visitations, as well as adding sociodemographic variables into the analysis, all of which we have left out of scope in this work. Both of the datasets allow for weighting of mobility behavior based on population representativeness, though it will be a challenge to decide how exactly to use those weights, since the observed trajectories occur at the individual level, while weights reflect population-level statistical representativeness. Finally, the use of ran-dom walks as a baseline comparison could be expanded in numerous directions, for example by introducing biased or weighted walks, higher-order walks, or other null models suited for the analysis of human mobility. We believe this study provides a foundation for further research into using higher-order network science to compare observed and simulated mobility pathway datasets. 
+
+# References 
+
+[1] Barbosa, H., Barthelemy, M., Ghoshal, G., James, C.R., Lenormand, M., Louail, T., Menezes, R., Ramasco, J.J., Simini, F., Tomasini, M.: Human mobility: Mod-els and applications. Physics Reports 734 , 1–74 (2018) https://doi.org/10.1016/ j.physrep.2018.01.001 [2] Wang, Q.R., Bell, M.L., Zhang, Y.: Integrating mobility data into air pollution research for public health. Nature Health 1(3), 280–289 (2026) https://doi.org/ 10.1038/s44360-026-00056-7 [3] Yabe, T., Luca, M., Tsubouchi, K., Lepri, B., Gonzalez, M.C., Moro, E.: Enhancing human mobility research with open and standardized datasets. Nature Computational Science 4(7), 469–472 (2024) https://doi.org/10.1038/ s43588-024-00650-3 [4] Armenante, P., Huang, K., Jha, N., Vassio, L.: Protecting Participants or Popu-lation? Comparison of k-Anonymous Origin-Destination Matrices. arXiv (2025). https://doi.org/10.48550/arXiv.2509.12950 22 [5] Chen, C., Wang, R., Bansal, P., Chen, L., Ugurel, E., Zhang, Y., Wu, X.: From biases to opportunities: Leveraging Location-Based-Service (LBS) data for next-generation transportation planning. Transportation Research Part C: Emerging Technologies 182 , 105416 (2026) https://doi.org/10.1016/j.trc.2025.105416 [6] Nagel, K., Fl¨ otter¨ od, G.: Agent-based traffic assignment: Going from trips to behavioral travelers. (2009) [7] Chakirov, A., Fourie, P.J.: Enriched Sioux Falls Scenario with Dynamic and Disaggregate Demand. ETH Zurich (2014). https://doi.org/10.3929/ ETHZ-B-000080996 [8] Horni, A., Nagel, K., Axhausen, K.W.: The Multi-Agent Transport Simulation MATSim. Ubiquity Press, ??? (2016). https://doi.org/10.5334/baw [9] Hackl, J., Dubernet, T.: Epidemic Spreading in Urban Areas Using Agent-Based Transportation Models. Future Internet 11 (4), 92 (2019) https://doi.org/10. 3390/fi11040092 [10] H¨ orl, S., Balac, M.: Synthetic population and travel demand for Paris and ˆIle-de-France based on open and publicly available data. Transportation Research Part C: Emerging Technologies 130 , 103291 (2021) https://doi.org/10.1016/j.trc. 2021.103291 [11] Scholtes, I.: When is a Network a Network? Multi-Order Graphical Model Selec-tion in Pathways and Temporal Networks. In: Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining. KDD ’17, pp. 1037–1046. Association for Computing Machinery, New York, NY, USA (2017). https://doi.org/10.1145/3097983.3098145 [12] Zhang, C., Hackl, J.: Beyond Connectivity: Higher-Order Network Framework for Capturing Memory-Driven Mobility Dynamics. arXiv (2025). https://doi.org/10. 48550/ARXIV.2507.07727 [13] Zhu, S., Levinson, D.: Do People Use the Shortest Path? An Empirical Test of Wardrop’s First Principle. PLOS ONE 10 (8), 0134322 (2015) https://doi.org/10. 1371/journal.pone.0134322 [14] Lima, A., Stanojevic, R., Papagiannaki, D., Rodriguez, P., Gonz´ alez, M.C.: Understanding individual routing behaviour. Journal of The Royal Society Interface 13 (116), 20160021 (2016) https://doi.org/10.1098/rsif.2016.0021 [15] Manley, E.J., Addison, J.D., Cheng, T.: Shortest path or anchor-based route choice: A large-scale empirical analysis of minicab routing in London. Journal of Transport Geography 43 , 123–139 (2015) https://doi.org/10.1016/j.jtrangeo. 2015.01.006 23 [16] Chasse, A., Kouam, A.J., Viana, A.C., Stanica, R., Lobato, W.V., Ramos, G., Deperle, G., Bouroudi, A., Bussod, S., Molano, F.: The NetMob25 Dataset: A High-resolution Multi-layered View of Individual Mobility in Greater Paris Region. arXiv (2025). https://doi.org/10.48550/arXiv.2506.05903 [17] Erlander, S., Stewart, N.F.: The Gravity Model in Transportation Analysis: Theory and Extensions. Topics in Transportation. VSP, Utrecht (1990) [18] Simini, F., Gonz´ alez, M.C., Maritan, A., Barab´ asi, A.-L.: A universal model for mobility and migration patterns. Nature 484 (7392), 96–100 (2012) https://doi. org/10.1038/nature10856 [19] Louail, T., Lenormand, M., Picornell, M., Garc´ ıa Cant´ u, O., Herranz, R., Frias-Martinez, E., Ramasco, J.J., Barthelemy, M.: Uncovering the spatial structure of mobility networks. Nature Communications 6(1), 6007 (2015) https://doi.org/ 10.1038/ncomms7007 [20] Pappalardo, L., Simini, F., Rinzivillo, S., Pedreschi, D., Giannotti, F., Barab´ asi, A.-L.: Returners and explorers dichotomy in human mobility. Nature Communi-cations 6(1), 8166 (2015) https://doi.org/10.1038/ncomms9166 [21] Lee, M., Barbosa, H., Youn, H., Holme, P., Ghoshal, G.: Morphology of travel routes and the organization of cities. Nature Communications 8(1), 2229 (2017) https://doi.org/10.1038/s41467-017-02374-7 [22] Feng, J., Li, Y., Zhang, C., Sun, F., Meng, F., Guo, A., Jin, D.: DeepMove: Pre-dicting Human Mobility with Attentional Recurrent Networks. In: Proceedings of the 2018 World Wide Web Conference. WWW ’18, pp. 1459–1468. Interna-tional World Wide Web Conferences Steering Committee, Republic and Canton of Geneva, CHE (2018). https://doi.org/10.1145/3178876.3186058 [23] Simini, F., Barlacchi, G., Luca, M., Pappalardo, L.: A Deep Gravity model for mobility flows generation. Nature Communications 12 (1), 6576 (2021) https:// doi.org/10.1038/s41467-021-26752-4 [24] Schl¨ apfer, M., Dong, L., O’Keeffe, K., Santi, P., Szell, M., Salat, H., Anklesaria, S., Vazifeh, M., Ratti, C., West, G.B.: The universal visitation law of human mobility. Nature 593 (7860), 522–527 (2021) https://doi.org/10.1038/s41586-021-03480-9 [25] Bontorin, S., Centellegher, S., Gallotti, R., Pappalardo, L., Lepri, B., Luca, M.: Mixing individual and collective behaviors to predict out-of-routine mobility. Proceedings of the National Academy of Sciences 122 (17), 2414848122 (2025) https://doi.org/10.1073/pnas.2414848122 [26] Krumme, C., Llorente, A., Cebrian, M., Pentland, A., Moro, E.: The predictability of consumer visitation patterns. Scientific Reports 3(1), 1645 (2013) https://doi. org/10.1038/srep01645 24 [27] Jiang, S., Ferreira, J., Gonz´ alez, M.C.: Clustering daily patterns of human activ-ities in the city. Data Mining and Knowledge Discovery 25 (3), 478–510 (2012) https://doi.org/10.1007/s10618-012-0264-z [28] Hasan, S., Schneider, C.M., Ukkusuri, S.V., Gonz´ alez, M.C.: Spatiotemporal Pat-terns of Urban Human Mobility. Journal of Statistical Physics 151 (1-2), 304–318 (2013) https://doi.org/10.1007/s10955-012-0645-0 [29] Toole, J.L., Colak, S., Sturt, B., Alexander, L.P., Evsukoff, A., Gonz´ alez, M.C.: The path most traveled: Travel demand estimation using big data resources. Transportation Research Part C: Emerging Technologies 58 , 162–177 (2015) https://doi.org/10.1016/j.trc.2015.04.022 [30] Zeng, W., Fu, C.-W., Muller Arisona, S., Schubiger, S., Burkhard, R., Ma, K.-L.: Visualizing the Relationship Between Human Mobility and Points of Inter-est. IEEE Transactions on Intelligent Transportation Systems 18 (8), 2271–2284 (2017) https://doi.org/10.1109/TITS.2016.2639320 [31] Chen, H., Song, X., Xu, C., Zhang, X.: Using Mobile Phone Data to Exam-ine Point-of-Interest Urban Mobility. Journal of Urban Technology 27 (4), 43–58 (2020) https://doi.org/10.1080/10630732.2021.1882175 [32] Mauro, G., Minici, M., Pappalardo, L.: The urban impact of AI: Modelling feed-back loops in location-based recommender systems. Machine Learning 115 (1), 19 (2026) https://doi.org/10.1007/s10994-025-06904-z [33] Kirkley, A., Barbosa, H., Barthelemy, M., Ghoshal, G.: From the betweenness cen-trality in street networks to structural invariants in random planar graphs. Nature Communications 9(1), 2501 (2018) https://doi.org/10.1038/s41467-018-04978-z [34] Boeing, G.: Modeling and Analyzing Urban Networks and Amenities With OSMnx. Geographical Analysis (2025) https://doi.org/10.1111/gean.70009 [35] Boeing, G.: Topological Graph Simplification Solutions to the Street Intersection Miscount Problem. Transactions in GIS 29 (3) (2025) https://doi.org/10.1111/ tgis.70037 [36] Fu, J., Zhong, Z., Wang, X., Ma, J., Sekimoto, Y.: Linking Urban Morphology and Human Activity Patterns: An Empirical Study Based on Mobility Survey Data from the Paris Region. In: 2025 IEEE International Conference on Big Data (BigData), pp. 3685–3694. IEEE, Macau, China (2025). https://doi.org/10.1109/ BigData66926.2025.11402166 [37] Newson, P., Krumm, J.: Hidden Markov map matching through noise and sparse-ness. In: Proceedings of the 17th ACM SIGSPATIAL International Conference on Advances in Geographic Information Systems, pp. 336–343. ACM, Seattle Washington (2009). https://doi.org/10.1145/1653771.1653818 25 [38] W¨ oltche, A.: Open source map matching with Markov decision processes: A new method and a detailed benchmark with existing approaches. Transactions in GIS 
+
+27 (7), 1959–1991 (2023) https://doi.org/10.1111/tgis.13107 [39] OpenStreetMap contributors: Planet Dump Retrieved from https://planet.osm.org (2017) [40] Valhalla (2026) [41] Pearson, K.: The Problem of the Random Walk. Nature 72 (1867), 342–342 (1905) https://doi.org/10.1038/072342a0 [42] Lov´ asz, L.: Random Walks on Graphs: A Survay. Technical Report YALEU/DCS/TR-1029, Yeale University, New Haven, CT, US (May 1994) [43] Masuda, N., Porter, M.A., Lambiotte, R.: Random walks and diffusion on net-works. Physics Reports 716–717 , 1–58 (2017) https://doi.org/10.1016/j.physrep. 2017.07.007 [44] Lambiotte, R., Rosvall, M., Scholtes, I.: From networks to optimal higher-order models of complex systems. Nature Physics 15 (4), 313–320 (2019) https://doi. org/10.1038/s41567-019-0459-y [45] Bruijn, N.G. de: A combinatorial problem. Proceedings of the Koninklijke Nederlandse Akademie van Wetenschappen 49 (7), 758–764 (1946) [46] LaRock, T., Scholtes, I., Eliassi-Rad, T.: Sequential motifs in observed walks. Journal of Complex Networks 10 (5), 036 (2022) https://doi.org/10.1093/comnet/ cnac036 [47] Gote, C., Casiraghi, G., Schweitzer, F., Scholtes, I.: Predicting variable-length paths in networked systems using multi-order generative models. Applied Network Science 8(1), 1–20 (2023) https://doi.org/10.1007/s41109-023-00596-x [48] Mohri, M., Rostamizadeh, A., Talwalkar, A.: Foundations of Machine Learning, Second edition edn. Adaptive Computation and Machine Learning. The MIT Press, Cambridge, Massachusetts (2018) 
+
+Acknowledgements. This work has been supported by a grant from the Fund for Energy Research with Corporate Partners administered by the Andlinger Center for Energy and the Environment at Princeton University. 
+
+# Appendix A Results on full data 
+
+In this appendix we show the results from the main paper, but computed over the full paths without removing redundant nodes. The patterns are broadly similar to the paths through the simplified network, but we note that the next-step prediction 26 0 1000 2000 3000 4000 5000 
+
+Path length (number of nodes) 
+
+> 0
+> 20000
+> 40000
+> 60000
+> 80000
+> 100000
+> 120000
+> 140000
+> 160000
+> Path length (meters)
+
+NetMob 0 1000 2000 3000 4000 5000 
+
+Path length (number of nodes) 
+
+> 0
+> 20000
+> 40000
+> 60000
+> 80000
+> 100000
+> 120000
+> 140000
+> 160000
+> Path length (meters)
+
+MATSim Fig. A1 The same results as Figure 2, but for the original paths before filtering out redundant nodes. 
+
+accuracy is higher using the full paths, reflecting the fact that the nodes we removed in the filtering process are relatively “easy” to make predictions about, since they most often do not reflect true choice points in the network. 27 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Vehicle 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Vehicle ( k = 2 )1 2 3 4 5
+
+0
+
+0.5
+
+1
+
+1.5
+
+Order 
+
+> Hk
+
+Vehicle 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Bus 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Bus ( k = 2 )1 2 3 4 5
+
+0
+
+0.5
+
+1
+
+1.5
+
+Order 
+
+> Hk
+
+Bus 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Bicycle 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Bicycle ( k = 2 )1 2 3 4 5
+
+0
+
+0.5
+
+1
+
+1.5
+
+Order 
+
+> Hk
+
+Bicycle 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Walking 0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Walking ( k = 2 )1 2 3 4 5
+
+0
+
+0.5
+
+1
+
+1.5
+
+Order 
+
+> Hk
+
+Walking 1 2 3 4 5
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Order 
+
+> Prediction Accuracy
+
+Combined 
+
+> NetMob
+> MATSim
+> Random Walk
+
+0 0.2 0.4 0.6 0.8 1
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+Fraction Training Paths 
+
+> Prediction Accuracy
+
+Combined ( k = 2 )1 2 3 4 5
+
+0
+
+0.5
+
+1
+
+1.5
+
+Order 
+
+> Hk
+
+Combined Fig. A2 The same results as Figure 5, but computed over the original paths before filtering out redundant nodes. 
+
+# Appendix B Downsampling paths 
+
+We noticed that for some of the results in Figure 5, the difference in next-step pre-diction performance may be attributable to data sparsity. We test this possibility using the bicycle paths, since there were about 5 times fewer bicycle paths in the MATSim data and the results showed significantly lower performance. We ran the next-step prediction experiment again on the NetMob bicycle paths, but where we 28 first randomly downsampled the paths so they have exactly the same number as the MATSim dataset. In Figure B3, we see that, while the next-step prediction accuracy does degrade after downsampling the NetMob paths, the prediction accuracy remains substantially higher than for the MATSim paths. 1 2 3 4 5
+
+> 0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1
+> Order
+> Prediction Accuracy
+
+Bicycle 1 2 3 4 5
+
+> 0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1
+> Order
+> Prediction Accuracy
+
+Bicycle  
+
+> Fig. B3 Next-step prediction accuracy remains higher in the NetMob bicycle paths compared to the MATSim simulations after downsampling the NetMob paths from 5,726 paths to 1,223.
+
+29
