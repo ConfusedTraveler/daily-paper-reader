@@ -1,0 +1,354 @@
+Title: Theoretical Analysis of Engression and Reverse Markov Engression
+
+URL Source: https://arxiv.org/pdf/2606.01002v1
+
+Published Time: Tue, 02 Jun 2026 01:12:01 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+# Theoretical Analysis of Engression and Reverse Markov Engression 
+
+Jiaqi Huang, Gongjun Xu, and Ji Zhu Department of Statistics, University of Michigan Ann Arbor, MI 48109, U.S.A. 
+
+jiaqihua@umich.edu , gongjun@umich.edu , jizhu@umich.edu 
+
+Abstract 
+
+Engression is a recently proposed and effective framework for conditional distribution learn-ing. Its multi-step Reverse Markov extension further improves generative flexibility by decom-posing complex conditional sampling into sequential reverse transitions. Despite their strong empirical performance, rigorous finite-sample statistical guarantees for these methods remain un-available. In this paper, under deep neural network parameterizations, we establish nonasymp-totic convergence bounds for Engression by directly controlling the Energy Distance between the learned and target conditional distributions. For the Reverse Markov framework, we further de-velop an Energy-Distance-based chain rule that enables a rigorous analysis of error propagation across reverse steps. Our analysis yields corresponding excess-risk bounds that are near-optimal up to logarithmic factors relative to the classical minimax rate over a general H¨ older class. 
+
+Keywords: Chain Rule; Convergence rate; Engression; Energy Distance; Neural Network; Reverse Markov. 
+
+# 1 Introduction 
+
+Generative models have been extensively studied for learning and sampling from complex data distributions. Their applications span diverse fields, including image synthesis [Pinaya et al., 2022, Song et al., 2026, Gao et al., 2020], climate modeling [Shen et al., 2025], and the generation of synthetic electronic health records [Tian et al., 2024] driven by growing privacy concerns. Awide variety of generative model architectures have been proposed, such as diffusion models [Sohl-Dickstein et al., 2015, Song and Ermon, 2019, Ho et al., 2020, Han et al., 2022] and generative adversarial networks (GANs) [Zhou et al., 2023, Song et al., 2026, Su et al., 2026]. Recently, Shen and Meinshausen [2025] proposed a computationally efficient generative ap-proach named “Engression”. Engression combines neural networks with the energy score and uses a neural generator to directly learn the conditional distribution of the response from covariates and random noise. Building on this, Shen et al. [2025] extended the framework with a reverse Markov process to learn complex distributions and provided an efficient discretization strategy for both training and inference. The Engression framework has attracted significant attention and found applications in various fields, with adaptations and extensions to suit specific task requirements, such as image generation and robotics tasks [De Bortoli et al., 2025], causal margin modelling [Yang et al., 2025], and generative time-series modeling for environmental applications [Kraft et al., 2026]. 1
+
+> arXiv:2606.01002v1 [stat.ME] 31 May 2026
+
+Existing studies on Engression and its related Reverse Markov extensions have demonstrated strong empirical performance and established the population validity of the underlying energy-score objectives. However, a rigorous finite-sample error analysis quantifying the discrepancy between the learned and target distributions under neural network approximation is still lacking. Shen and Meinshausen [2025] showed that distributional fitting can improve nonlinear extrapolation, partic-ularly under preadditive-noise models, while their analysis is mainly focused on extrapolation and some specific finite-sample settings. Shen et al. [2025] considered an analysis through a multi-step framework, but their derivation relies on a restrictive assumption that the Wasserstein approxima-tion error can be explicitly controlled at each discretization step. Note that Engression is based on the Energy Distance rather than the Wasserstein distance. Although it is known that the squared energy-based discrepancy can be bounded from above by the Wasserstein distance [Bottou et al., 2018], this one-way relationship does not yield the converse implication. Therefore, theoretical guarantees stated in terms of stepwise Wasserstein errors are not naturally justified by the energy-score objective optimized in Engression. To further illustrate this mismatch, Figure 1 compares the Energy Distance and Wasserstein distances under a simple mean-shift perturbation. The two met-rics exhibit different sensitivities to local distributional changes, suggesting that a well-controlled energy-based objective may still correspond to a non-negligible Wasserstein error. This motivates developing a finite-sample theory directly under the Energy Distance, the same discrepancy that underlies the Engression objective. 
+
+Figure 1: Comparison of distributional metrics under a mean-shift perturbation δ between N (0 , 1) and N (δ, 1). The blue solid line with circular markers represents the squared Energy Distance (D2). The green dashed line represents the 1-Wasserstein ( W1) and 2-Wasserstein ( W2) distances. The light gray shaded area denotes the numerical gap between D2 and W1.Developing a finite-sample theory under the Energy Distance presents two main challenges. First, existing theories do not directly cover our setting. The original Engression analysis mainly 2focuses on extrapolation and specific model classes, while existing theories for other deep generative models, such as GANs [Chen et al., 2020, Song et al., 2026] and flow matching [Zhou and Liu, 2025], are typically tailored to different training objectives, sampling mechanisms, and probability metrics. These existing approaches cannot be directly applied to the conditional generator trained by the energy-score loss. New analysis is therefore needed to handle the pairwise-distance structure of the Energy-Distance objective and the auxiliary-noise randomness. Second, the reverse Markov framework creates a sequential error-propagation problem, in which stepwise estimation errors may accumulate along the reverse chain. Unlike Wasserstein-type analyses, where pushforward stability often provides a natural tool for tracking such errors, the Energy Distance has no direct analogous propagation mechanism. Therefore, quantifying the accumulation of local Energy-Distance errors requires a dedicated Energy-Distance-based propagation analysis. The main contributions of this paper are threefold. First, we establish a finite-sample convergence theory for Engression by quantifying both the approximation and estimation errors induced by deep neural network generators. We derive an explicit nonasymptotic convergence bound for the Energy Distance between the learned and target conditional distributions. The proof also yields an excess-risk bound that is near-optimal up to logarithmic factors relative to the classical minimax rate over a general H¨ older class. Second, we identify and address a key technical obstacle in the analysis of multi-step gener-ative procedures: the absence of a usable compositional error propagation mechanism under the energy-based discrepancy. To overcome this difficulty, we develop an Energy-Distance-based error propagation inequality, which provides a new analytical tool for controlling the accumulation of statistical errors across sequential reverse transitions. Finally, building on this chain rule, we extend the finite-sample analysis to the Reverse Markov Engression framework and derive an explicit global convergence bound for the resulting multi-step generator. The bound shows how stepwise errors accumulate along the reverse chain and how the overall rate is governed by the least smooth reverse transition. 
+
+# 2 Engression and Reverse Markov Learning Frameworks 
+
+Consider the regression setting where we aim to learn the conditional distribution of a response variable Y ∈ Rq given covariates X ∈ Rp. In this framework, we consider a general stochastic generator class M = {g(x, ε)}, where each generator g : Rp × Rd → Rq, x ∈ Rp denotes the input covariates, and ε ∈ Rd is a random noise vector drawn from a prescribed distribution independent of X. For a fixed x, the randomness in ε allows g(x, ε) to generate samples from a candidate conditional distribution for Y | X = x.To evaluate such distributional predictions, Engression adopts the energy score [Gneiting and Raftery, 2007], which for a predictive distribution P on Rq and an observation y is defined as ES( P, y) = EZ,Z′∼P ∥Z − Z′∥2/2 − EZ∼P ∥Z − y∥2, where Z and Z′ are two independent draws from P and ∥ · ∥ 2 denotes the Euclidean norm. Based on the energy score, Shen and Meinshausen 3[2025] defines the population Engression solution as g∗ ∈ arg min g∈M L(g), where 
+
+L(g) = E
+
+n
+
+∥Y − g(X, ε)∥2 − 12 ∥g(X, ε) − g(X, ε′)∥2
+
+o
+
+, (1) and ε, ε′ are independent draws from the noise distribution. Proposition 1 of Shen and Mein-shausen [2025] shows that under a realizability condition on the generator class M, the population Engression solution g∗ recovers the target conditional distribution almost everywhere. In practice, we approximate this target by optimizing over a class of neural network-based functions, denoted by G, such as deep neural networks with ReLU activation functions. Let {(Xi, Y i)}ni=1 be i.i.d. samples drawn from the joint distribution of ( X, Y ). For each observation Xi, we generate m independent noise samples {εij }mj=1 from the noise distribution. The resulting empirical estimator is then defined as ˆ g ∈ arg min g∈G ˆL(g), where the empirical risk ˆL(g) is given by ˆL(g) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(
+
+1
+
+m
+
+> m
+
+X
+
+> j=1
+
+∥Y i − g(Xi, εij )∥2 − 12m(m − 1) 
+
+> m
+
+X
+
+> j=1
+> m
+
+X 
+
+> j′=1
+> j′̸=j
+
+∥g(Xi, εij ) − g(Xi, εij ′ )∥2
+
+)
+
+.
+
+To learn highly complex conditional distributions, a single-step generator may be insufficient to capture intricate structures. In particular, directly mapping noise to data in one step can be challenging, often leading to overly smooth approximations and unrealistic samples in low-density regions [Shen et al., 2025]. To address this limitation, Shen et al. [2025] proposed combining En-gression with a multi-step Reverse Markov Process, which decomposes the generation task into a sequence of simpler conditional transformations. Their approach bridges the unknown target con-ditional distribution Pg∗ (· | X = x) to a known reference conditional distribution Q∗(· | X = x)over a finite number of steps S, such as diffusion, linear interpolation, or spatial pooling, producing a conditional stochastic process {Y 0 = Y , Y 1, . . . , Y S } | X = x. This forward process gradually transforms the target distribution into a simpler reference distribution through a sequence of in-termediate states. For instance, in a diffusion-based forward process following Ho et al. [2020], we have Y s | Y s−1 ∼ N (√1 − σsY s−1, σ 2 
+
+> s
+
+I), with an increasing schedule σs.In the reverse process, each conditional Markov distribution is learned via Engression. Specif-ically, for each step s, let Pg∗ 
+
+> (s)
+
+(· | x, ys) denote the target conditional distribution of ˜Y s−1 given (X, ˜Y s) = ( x, ys), where { ˜Y s}Ss=0 is generated by the reverse Markov chain, which sequentially reconstructs samples from the target conditional distribution by iteratively transforming samples from the reference distribution backward through the learned conditional mappings. For each step s ∈ { 1, 2, . . . , S }, consider a general stochastic generator class Ms = {g(x, ys, εs)}, where 
+
+g : ( x, ys, εs) 7 → ys−1 belongs to a function class and εs is a random noise vector with a prescribed distribution independent of ( X, Y s). We define the stepwise population Engression solution as 4g∗ 
+
+> (s)
+
+∈ arg min g∈M s Ls(g), where 
+
+Ls(g) = E
+
+n
+
+∥Y s−1 − g(X, Y s, εs)∥2 − 12 ∥g(X, Y s, εs) − g(X, Y s, ε′
+
+> s
+
+)∥2
+
+o
+
+.
+
+Its empirical counterpart is defined as ˆ g(s) ∈ arg min g∈G s ˆLs(g), where Gs denotes the class of deep ReLU neural networks at step s, and (with denoting Zsi = ( Xi, Y si )) ˆLs(g) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(
+
+1
+
+m
+
+> m
+
+X
+
+> j=1
+
+∥Y s−1 
+
+> i
+
+− g(Zsi , εsij )∥2 − 12m(m − 1) 
+
+> m
+
+X
+
+> j=1
+> m
+
+X 
+
+> j′=1
+> j′̸=j
+
+∥g(Zsi , εsij ) − g(Zsi , εsij ′ )∥2
+
+)
+
+.
+
+Finally, given a new observation x, the reverse sampling process proceeds as ˜ y(s−1) = ˆ g(s)(x, ˜y(s), εs),s = S, S − 1, . . . , 1, where ˜ y(S) is drawn from the known distribution Q∗(· | X = x). This yields a sample ˜ y(0) from the estimated conditional distribution. 
+
+# 3 Model Architectures and Theoretical Results 
+
+The goal of this section is to establish finite-sample guarantees under the same discrepancy that is optimized by the Engression objective. Since Engression is trained through the energy score, its population excess risk is naturally linked to the Energy Distance between the generated and target conditional distributions. More precisely, Lemma 1 in the Supplementary Material shows that the population excess Engression loss is proportional to the conditional squared Energy Dis-tance, averaged over the covariate distribution. Therefore, rather than translating the analysis into a Wasserstein-type error, we study the convergence of the learned conditional distribution directly under the Energy Distance. This aligns the theoretical error criterion with the training objec-tive and avoids relying on assumptions that are not implied by the energy-score formulation. For two probability distributions P and Q on Rq with finite first moments, we define the Energy Dis-tance [Bottou et al., 2018] as D(P, Q ) := {2E∥U − V ∥2 − E∥U − U ′∥2 − E∥V − V ′∥2}1/2 , where 
+
+U , U ′ i.i.d.
+
+∼ P and V , V ′ i.i.d.
+
+∼ Q are independent. Moreover, D is a metric on probability distributions and D(P, Q ) = 0 if and only if P = Q; see Sz´ ekely and Rizzo [2013]. 
+
+3.1 Single-step Engression 
+
+In this paper, we approximate the true generator g∗ using neural networks with the ReLU activation function [Schmidt-Hieber, 2020]. The ReLU function is denoted by σ(x) := max( x, 0) for each component of x if x is a vector. Let G ≡ NN( p + d, q, W G, H G) be a class of ReLU-activated feedforward neural networks gθ : Rp+d → Rq, with parameter θ, width WG, and depth HG. Each network in G can be expressed as a composite function gθ(x, ε) = LHG ◦ σ ◦ LHG−1 ◦ σ ◦ · · · ◦ σ ◦
+
+L1 ◦ σ ◦ L0(x, ε), (x, ε) ∈ Rp+d, where ◦ denotes function composition, and Li(z) = W iz + bi with a weight matrix W i ∈ Rpi+1 ×pi and bias vector bi ∈ Rpi+1 in the ith linear transformation, and pi
+
+is the width of the ith layer, i = 0 , 1, . . . , H G. The width and depth of the network are described 5by WG = max {p1, . . . , p HG } and HG, respectively. We introduce the following notation and assumptions for our theoretical results. For any β > 0, 
+
+B > 0 and a set Ω ⊆ Rp+d, we define the H¨ older class of functions Hβ (Ω , B ) as 
+
+Hβ (Ω , B ) = 
+
+
+
+f : Ω → R : max  
+
+> ∥α∥1≤⌊ β⌋
+
+∥∂αf ∥∞ ≤ B, max  
+
+> ∥α∥1=⌊β⌋
+
+sup 
+
+> x,y ∈Ω
+> x̸=y
+
+|∂αf (x) − ∂αf (y)|∥x − y∥β−⌊ β⌋ ≤ B
+
+
+
+,
+
+where ∥α∥1 = Pp+di=1 αi, ⌊β⌋ denotes the largest integer strictly smaller than β, ∂α = ∂α1 · · · ∂αp+d
+
+with α = ( α1, . . . , α p+d)⊤ ∈ Np+d 
+
+> 0
+
+and N0 is the union of the set of positive integers and 0. Let 
+
+X ⊆ Rp denote the domain of the covariates X, Y ⊆ Rq the domain of the response Y , and Ω ε ⊆ Rd
+
+the domain of the noise variable ε.
+
+Condition 1. The probability measures of (X, Y ) and (X, g (X, ε)) are supported on a compact set X × Y ⊆ [−B1, B 1]p+q for any g ∈ G , with a constant 0 < B 1 < ∞. The noise vector ε is sub-exponential with parameter L > 0. Specifically, for each component εj , j = 1 , . . . , d , and any 
+
+t > 0, its tail probability satisfies P(|εj | > t ) ≤ 2 exp ( −t/L ).
+
+Condition 2. For the Engression setting, the true generator g∗ = ( g∗ 
+
+> 1
+
+, . . . , g ∗ 
+
+> q
+
+)⊤ satisfies g∗ 
+
+> k
+
+∈Hβ (X × Ωε, B 1) for k = 1 , . . . , q .
+
+Condition 3. Let ¯W , ¯H ∈ N, which may depend on n. The generator ReLU network class G =NN( p + d, q, W G, H G) has width WG = 38 q(⌊β⌋ + 1) 23p+d(m + d)⌊β⌋+1 ¯W log 2(8 ¯W ) and depth HG =21( ⌊β⌋ + 1) 2 ¯H[log 2( ¯H)] + 2( p + d).
+
+Remark 1. Conditions 1–3 are in line with the regularity assumptions commonly adopted in recent theoretical studies of deep neural generative models, including GAN-based distribution approxima-tion and estimation [Chen et al., 2020, Su et al., 2026], and flow matching [Zhou and Liu, 2025]. Throughout this subsection, the generator class M is studied under the above H¨ older-smooth regu-larity framework. In particular, Condition 1 relaxes the bounded-support requirement on the noise that is often used in related theoretical analyses. We only require a sub-exponential tail condition, allowing ε to have unbounded support on Rd while keeping the neural approximation and stochastic error terms controllable. 
+
+We next present the main theoretical result for single-step Engression. Our goal is to quantify the discrepancy between the conditional distribution generated by the fitted neural network and the target conditional distribution. Recall that Pg∗ (· | X) is the target conditional distribution, and let 
+
+Pˆg(· | X) be the distribution induced by the generator ˆ g(X, ε). The estimator ˆ g is obtained by mini-mizing the empirical Engression objective over G, based on S = {(Xi, Y i)}ni=1 ∪{ εij }i=1 ,...,n ; j=1 ,...,m .
+
+Thus, ˆ g is random through S, and the expectation ES averages over repeated S. The following theorem gives its finite-sample convergence rate under the Energy Distance. 
+
+Theorem 1. Suppose Conditions 1-3 hold. Then for some positive constant C independent of n,we have ES
+
+EX
+
+D Pˆg(· | X), P g∗ (· | X) ≤ Cn − β 
+
+> 2( p+d+2 β)
+
+log( n) βp+d + β∨12 .
+
+6Remark 2. The proof of Theorem 1 also yields the excess risk bound 
+
+ES {L (ˆ g) − L (g∗)} = O
+
+
+
+n−β/ (p+d+2 β) log( n)1∨β+2 β/ (p+d)
+
+,
+
+where L(ˆ g) − L (g∗) denotes the population Engression loss gap. Up to logarithmic factors, this rate is near-optimal relative to the classical minimax rate for nonparametric regression over a (p + d)-dimensional H¨ older class [Gy¨ orfi et al., 2002]. Related finite-sample convergence analyses for other deep generative models have recently been developed; see, for example, Chen et al. [2020], Zhou and Liu [2025], Su et al. [2026] and Song et al. [2026]. In our setting, our result is derived directly under the Energy Distance induced by the Engression objective. To the best of our knowledge, this is the first finite-sample statistical estimation guarantee established for Engression under deep neural network parameterization. This theorem also provides the fundamental local convergence bound used in the subsequent reverse Markov analysis. 
+
+3.2 Reverse Markov Learning Conditions 
+
+This subsection extends the analysis to the multi-step reverse Markov framework. The sequential nature of the process introduces additional complexity, and thus extra conditions are imposed to control error propagation and ensure theoretical guarantees. Specifically, Conditions 4-6 extend the regularity conditions from the single-step Engression setting to the multi-step reverse Markov framework. Condition 7 imposes an Energy-Distance stability requirement on the true reverse generators. This condition controls the pullback of RKHS functions through each reverse transition and serves as the structural foundation for the cumulative error analysis. Following the neural network notation introduced in Subsection 3.1, for each step s ∈ { 1, . . . , S }, the generator class Gs
+
+consists of ReLU neural networks with depth HG,s and width WG,s . For the reverse Markov setting, let Ys ⊆ Rq denote the domain of the intermediate variable Y s at step s.
+
+Condition 4. There exists a constant 0 < B 1 < ∞ such that, for each step s = 1 , . . . , S ,the probability measures of (X, Y s, Y s−1) and (X, Y s, g (s)(X, Y s, εs)) are supported on X × Ys × Y s−1 ⊆ [−B1, B 1]p+2 q, for any g(s) ∈ G s. For each step s = 1 , . . . , S , the noise vector 
+
+εs = ( εs, 1, . . . , ε s,d )⊤ is zero-mean and satisfies the componentwise sub-exponential tail condition 
+
+P(|εs,j | > t ) ≤ 2 exp( −t/L ), j = 1 , . . . , d , where t > 0 and L > 0 is the scale parameter. 
+
+Condition 5. For each step s ∈ { 1, . . . , S }, the true generator g∗ 
+
+> (s)
+
+= ( g∗
+
+> (s),1
+
+, . . . , g ∗
+
+> (s),q
+
+)⊤ satisfies 
+
+g∗ 
+
+> (s),k
+
+∈ H βs (X × Y s × Ωε, B 1,s ) for k = 1 , . . . , q . Here, βs and B1,s represent the smoothness level and the uniform bound for step s, respectively. 
+
+Condition 6. For each step s ∈ { 1, . . . , S }, let ¯Ws, ¯Hs ∈ N be parameters, which may depend on n.The ReLU network class Gs = NN( p + q + d, q, W G,s , H G,s ) for the sth generator has width WG,s =38 q(⌊βs⌋ + 1) 23p+q+d(p + q + d)⌊βs⌋+1 ¯Ws log 2(8 ¯Ws) and depth HG,s = 21( ⌊βs⌋ + 1) 2 ¯Hs[log 2( ¯Hs)] + 2( p + q + d).
+
+7Condition 7. For each s = 1 , . . . , S and each covariate value x, define T xs (y, εs) = g∗
+
+> (s)
+
+(x, y, εs), y ∈Y(s). Let ks, out and ks, in be the distance-induced kernels associated with the Energy Distance on 
+
+Y(s−1) and Y(s), respectively, and let Bks, out and Bks, in denote the corresponding RKHS unit balls. For every f ∈ B ks, out , define ℓxs,f (y) = Eεs [f {T xs (y, εs)}] . There exist a constant Ms < ∞ and an anchor point y0 ∈ Y (s) such that, for every f ∈ B ks, out , ∥ℓxs,f (·) − ℓxs,f (y0)∥Hks, in ≤ Ms, uniformly over x.
+
+Remark 3. The Energy Distance admits an equivalent maximum mean discrepancy (MMD) repre-sentation induced by a distance-based kernel; see, for example, Sejdinovic et al. [2013] and Sz´ ekely and Rizzo [2013]. In this representation, distributional discrepancies are characterized by expecta-tion differences over the unit ball of the induced RKHS space. Condition 7 requires this RKHS unit ball to be stable under the pullback induced by each stochastic reverse transition. Specifically, for an output-space RKHS unit-ball function f , ℓxs,f (y) = Eεs {f (g∗
+
+> (s)
+
+(x, y, εs)) } is the pulled-back function on the input space. The condition states that, after centering, this function has a uniformly bounded input-space RKHS norm. Intuitively, the transition should not turn Energy-Distance RKHS func-tions into overly irregular functions of the previous state. This condition holds for a broad class of transitions, including common Gaussian and certain nonlinear transformations; see the Supple-mentary Material for further discussion and examples. 
+
+In the Reverse Markov Engression setting, let S = ∪Ss=1 Ss denote the overall training random-ness across S reverse steps, where Ss = {(Xi, Y s−1 
+
+> i
+
+, Y si )}ni=1 ∪ { εsij }i=1 ,...,n ; j=1 ,...,m is the training sample for the sth step generator ˆ g(s). Recall that Pg∗ (· | X) denotes the target conditional dis-tribution. In this subsection, Pˆg(· | X) denotes the final conditional distribution induced by the fitted reverse Markov Engression procedure. Together with the error propagation result in Lemma 2 of the Supplementary Material, we obtain the following global convergence rate. 
+
+Theorem 2. Suppose Conditions 4-7 hold for each s = 1 , . . . , S . For the generator g∗
+
+> (s)
+
+, let din =
+
+p + q + d be the concatenated input dimension. Define αs = βs/{2( din + 2 βs)}. We have 
+
+ES EX
+
+D Pˆg(· | X), P g∗ (· | X) ≤ C S n− min s αs log( n)max s   
+
+> βs din +βs ∨12
+> 
+
+,
+
+where CS is a constant independent of n.
+
+Remark 4. Theorem 2 shows that the reverse Markov Engression framework preserves the same polynomial convergence order as the single-step Engression result, with the overall rate determined by the least smooth reverse transition. Moreover, the cumulative Energy-Distance stability constants are absorbed into CS ; hence the reverse chain does not introduce rate deterioration beyond the hardest local step. 
+
+# 4 Conclusion and discussion 
+
+In this paper, we provide theoretical guarantees for Engression and its Reverse Markov extension under the Energy Distance. Our analysis connects the energy-based distributional objective with 8finite-sample guarantees for deep ReLU generators, and establishes nonasymptotic convergence rates for both single-step Engression and multi-step reverse Markov learning. Several directions remain open. First, although our rates are near-optimal in terms of the ambi-ent dimension, they still suffer from the curse of dimensionality. Incorporating sufficient dimension reduction or other intrinsic low-dimensional structure may lead to bounds depending on the effec-tive dimension rather than the nominal input dimension. Second, our analysis focuses on ReLU networks; extending the theory to other architectures is an important direction. Third, it would be valuable to generalize the framework beyond Euclidean vector data, including functional, manifold-valued, or graph-structured responses, where the Energy Distance and the generator class must be formulated on appropriate mathematical spaces. Finally, our results are stated for conditional dis-tribution learning on the training support. Combining the present finite-sample Energy-Distance guarantees with structural extrapolability conditions, such as preadditive-noise models, may lead to out-of-support distributional guarantees for Engression-type estimators. 
+
+# References 
+
+Leon Bottou, Martin Arjovsky, David Lopez-Paz, and Maxime Oquab. Geometrical insights for implicit generative modeling. In Braverman Readings in Machine Learning. Key Ideas from Inception to Current State: International Conference Commemorating the 40th Anniversary of Emmanuil Braverman’s Decease, Boston, MA, USA, April 28-30, 2017, Invited Talks , pages 229–268. Springer, 2018. Minshuo Chen, Wenjing Liao, Hongyuan Zha, and Tuo Zhao. Distribution approximation and statistical estimation guarantees of generative adversarial networks. arXiv preprint arXiv:2002.03938 , 2020. Valentin De Bortoli, Alexandre Galashov, J Swaroop Guntupalli, Guangyao Zhou, Kevin Murphy, Arthur Gretton, and Arnaud Doucet. Distributional diffusion models with scoring rules. arXiv preprint arXiv:2502.02483 , 2025. Ruiqi Gao, Yang Song, Ben Poole, Ying Nian Wu, and Diederik P Kingma. Learning energy-based models by diffusion recovery likelihood. arXiv preprint arXiv:2012.08125 , 2020. Tilmann Gneiting and Adrian E Raftery. Strictly proper scoring rules, prediction, and estimation. 
+
+Journal of the American Statistical Association , 102(477):359–378, 2007. L´ aszl´ o Gy¨ orfi, Michael Kohler, Adam Krzy˙ zak, and Harro Walk. A Distribution-Free Theory of Nonparametric Regression . Springer Series in Statistics. Springer, 2002. Xizewen Han, Huangjie Zheng, and Mingyuan Zhou. Card: Classification and regression diffusion models. Advances in Neural Information Processing Systems , 35:18100–18115, 2022. Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusion probabilistic models. Advances in Neural Information Processing Systems , 33:6840–6851, 2020. 9Basil Kraft, Steven Stalder, William H Aeberhard, Nicol´ as Harrington Ruiz, Nicolai Meinshausen, Xinwei Shen, and Lukas Gudmundsson. Modeling uncertainty with engression: A deep generative time-series approach. Geophysical Research Letters , 53(2):e2025GL120122, 2026. Walter HL Pinaya, Petru-Daniel Tudosiu, Jessica Dafflon, Pedro F Da Costa, Virginia Fernandez, Parashkev Nachev, Sebastien Ourselin, and M Jorge Cardoso. Brain imaging generation with latent diffusion models. In MICCAI workshop on deep generative models , pages 117–126. Springer, 2022. Johannes Schmidt-Hieber. Nonparametric regression using deep neural networks with ReLU acti-vation function. The Annals of Statistics , 48(4):1875, 2020. Dino Sejdinovic, Bharath Sriperumbudur, Arthur Gretton, and Kenji Fukumizu. Equivalence of distance-based and RKHS-based statistics in hypothesis testing. The Annals of Statistics , 41(5): 2263–2291, 2013. Xinwei Shen and Nicolai Meinshausen. Engression: extrapolation through the lens of distributional regression. Journal of the Royal Statistical Society Series B: Statistical Methodology , 87(3):653– 677, 2025. Xinwei Shen, Nicolai Meinshausen, and Tong Zhang. Reverse Markov Learning: Multi-step gener-ative models for complex distributions. arXiv preprint arXiv:2502.13747 , 2025. Jascha Sohl-Dickstein, Eric Weiss, Niru Maheswaranathan, and Surya Ganguli. Deep unsuper-vised learning using nonequilibrium thermodynamics. In International Conference on Machine Learning , pages 2256–2265. PMLR, 2015. Shanshan Song, Tong Wang, Guohao Shen, Yuanyuan Lin, and Jian Huang. Wasserstein generative regression. Journal of the Royal Statistical Society Series B: Statistical Methodology , 88(1):330– 351, 2026. Yang Song and Stefano Ermon. Generative modeling by estimating gradients of the data distribu-tion. Advances in Neural Information Processing Systems , 32, 2019. Wen Su, Changyu Liu, Guosheng Yin, and Jian Huang. Wasserstein GAN-based estimation for conditional distribution function with current status data. Lifetime Data Analysis , 32(1):12, 2026. G´ abor J Sz´ ekely and Maria L Rizzo. Energy statistics: A class of statistics based on distances. 
+
+Journal of Statistical Planning and Inference , 143(8):1249–1272, 2013. Muhang Tian, Bernie Chen, Allan Guo, Shiyi Jiang, and Anru R Zhang. Reliable generation of privacy-preserving synthetic electronic health record time series via diffusion models. Journal of the American Medical Informatics Association , 31(11):2529–2539, 2024. 10 Linying Yang, Robin J Evans, and Xinwei Shen. Frugal, flexible, faithful: Causal data simulation via frengression. arXiv preprint arXiv:2508.01018 , 2025. Xingyu Zhou, Yuling Jiao, Jin Liu, and Jian Huang. A deep generative approach to conditional sampling. Journal of the American Statistical Association , 118(543):1837–1848, 2023. Zhengyu Zhou and Weiwei Liu. An error analysis of flow matching for deep generative modeling. In Forty-second International Conference on Machine Learning , 2025. 11

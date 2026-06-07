@@ -6,41 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-06
-- 运行时间：2026-06-06 21:17:12 UTC
+- 最新运行日期：2026-06-07
+- 运行时间：2026-06-07 21:12:09 UTC
 - 运行状态：成功
 - 本次总论文数：7
 - 精读区：1
 - 速读区：6
 
 ### 今日简报（AI）
-今日处理7篇论文，精读1篇、速读6篇，重点聚焦预测与人类移动性分析。最值得关注的是精读的《Prediction Under Imperfect Compression》（8.0/10），以及速读中人类移动网络分析与负荷数据推断的两篇（7.0/10）。建议优先阅读精读论文以理解近似MDL理论，再浏览速读中高评分文章拓展交叉视角。
-- 详情：[/202606/06/README](/202606/06/README)
+今日精读1篇Engression理论分析，速读3篇覆盖能源预测、推荐系统长尾和EV模式。最值得关注的是Engression与反向马尔可夫过程的数学框架，以及《BAHSD》中通过自适应蒸馏缓解黑盒序列推荐的长尾问题。下一步可深入理解Engression的收敛性证明，并尝试将BAHSD的蒸馏方法应用到其他推荐场景。
+- 详情：[/202606/07/README](/202606/07/README)
 
 ### 精读区论文标签
-1. [Prediction Under Imperfect Compression: A Theory of Approximate MDL](/202606/06/2606.04834v1-prediction-under-imperfect-compression-a-theory-of-approximate-mdl)  
+1. [Theoretical Analysis of Engression and Reverse Markov Engression](/202606/07/2606.01002v1-theoretical-analysis-of-engression-and-reverse-markov-engression)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：近似压缩下预测的理论分析，涉及可预测性极限
+   evidence：为条件分布学习提供了非渐近收敛界，符合理论可预测性分析需求。
 
 ### 速读区论文标签
-1. [Higher-order Network Analysis of Human Mobility Data](/202606/06/2606.00733v1-higher-order-network-analysis-of-human-mobility-data)  
+1. [EnergyMamba: An Uncertainty-Aware Graph-Enhanced Selective State Space Model for Energy Consumption Prediction](/202606/07/2606.00506v1-energymamba-an-uncertainty-aware-graph-enhanced-selective-state-space-model-for-energy-consumption-prediction)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：高阶网络分析框架用于比较观测和模拟的人类移动数据，与移动模式预测相关。
-2. [The Impact of Temporal Granularity on Socio-Demographic Inference from Household Load Profiles](/202606/06/2606.03358v1-the-impact-of-temporal-granularity-on-socio-demographic-inference-from-household-load-profiles)  
+   evidence：不确定性感知的能耗预测；时空学习
+2. [BAHSD: Bridging the Long-tail Gap via Adaptive Distillation in Black-box Sequential Recommendation](/202606/07/2606.03091v1-bahsd-bridging-the-long-tail-gap-via-adaptive-distillation-in-black-box-sequential-recommendation)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：分析时间粒度对家庭属性可预测性的影响
-3. [MobEvolve: An Agentic Self-Evolving Heuristic System for Interpretable Human Mobility Generation](/202606/06/2606.01640v1-mobevolve-an-agentic-self-evolving-heuristic-system-for-interpretable-human-mobility-generation)  
+   evidence：黑盒自适应蒸馏用于序列推荐
+3. [Using large scale GPS data to reveal EV driver activity patterns beyond charging sessions](/202606/07/2606.02848v1-using-large-scale-gps-data-to-reveal-ev-driver-activity-patterns-beyond-charging-sessions)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：人类移动性生成，与预测模式相关
-4. [Enhancing the Socioeconomic Understanding of Foundation Models with Urban Mobility](/202606/06/2606.01745v1-enhancing-the-socioeconomic-understanding-of-foundation-models-with-urban-mobility)  
+   evidence：大规模GPS数据揭示电动车驾驶员活动模式
+4. [From Long News to Accurate Forecast: Importance-Aware Fusion and PRM-Guided Reflection for Time Series Forecasting](/202606/07/2606.03097v1-from-long-news-to-accurate-forecast-importance-aware-fusion-and-prm-guided-reflection-for-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：利用城市移动网络增强预测
-5. [Physically-Constrained Mamba-SDE for Remaining Useful Life Prediction under Irregular Observations](/202606/06/2606.01894v1-physically-constrained-mamba-sde-for-remaining-useful-life-prediction-under-irregular-observations)  
+   evidence：结合新闻重要性的时间序列预测
+5. [Stationarity-Aware Retrieval-Augmented Time Series Forecasting](/202606/07/2606.04135v1-stationarity-aware-retrieval-augmented-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：不规则观测下的时间序列预测
-6. [Signed Dual Attention: Capturing Signed Dependencies in Time Series Forecasting](/202606/06/2606.04833v1-signed-dual-attention-capturing-signed-dependencies-in-time-series-forecasting)  
+   evidence：时间序列预测，非平稳性，检索增强
+6. [Adaptive Oscillatory-State Alignment for Time Series Forecasting](/202606/07/2606.06010v1-adaptive-oscillatory-state-alignment-for-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列预测方法，捕捉正负依赖
+   evidence：自适应时间序列预测方法
 
 
 <div class="dpr-home-promo-card">
