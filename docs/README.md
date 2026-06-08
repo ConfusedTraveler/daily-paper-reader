@@ -6,41 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-07
-- 运行时间：2026-06-07 21:12:09 UTC
+- 最新运行日期：2026-06-08
+- 运行时间：2026-06-08 21:54:58 UTC
 - 运行状态：成功
-- 本次总论文数：7
-- 精读区：1
-- 速读区：6
+- 本次总论文数：4
+- 精读区：2
+- 速读区：2
 
 ### 今日简报（AI）
-今日精读1篇Engression理论分析，速读3篇覆盖能源预测、推荐系统长尾和EV模式。最值得关注的是Engression与反向马尔可夫过程的数学框架，以及《BAHSD》中通过自适应蒸馏缓解黑盒序列推荐的长尾问题。下一步可深入理解Engression的收敛性证明，并尝试将BAHSD的蒸馏方法应用到其他推荐场景。
-- 详情：[/202606/07/README](/202606/07/README)
+今日共完成4篇论文阅读，精读2篇，速读2篇。最值得关注的是《A Temporal Spatial Minimax Rate for Smoothly-Varying Distributions》10分高评价论文，以及《Unified Geometry-Guided ML-FTLE》8分混沌追踪研究。建议优先精读满分论文，再结合速读中的时间序列基础模型和扩散模型，拓展动态数据生成与应用理解。
+- 详情：[/202606/08/README](/202606/08/README)
 
 ### 精读区论文标签
-1. [Theoretical Analysis of Engression and Reverse Markov Engression](/202606/07/2606.01002v1-theoretical-analysis-of-engression-and-reverse-markov-engression)  
+1. [A Temporal Spatial Minimax Rate for Smoothly-Varying Distributions in Wasserstein Space](/202606/08/2606.07325v1-a-temporal-spatial-minimax-rate-for-smoothly-varying-distributions-in-wasserstein-space)  
+   标签：评分：10.0/10、query:pred-limit
+   evidence：Wasserstein空间未来分布估计的极小化下界，时空约化
+2. [Unified Geometry-Guided ML-FTLE for Tracking Transient Chaos from Scalar Time Series](/202606/08/2606.07385v1-unified-geometry-guided-ml-ftle-for-tracking-transient-chaos-from-scalar-time-series)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：为条件分布学习提供了非渐近收敛界，符合理论可预测性分析需求。
+   evidence：直接研究混沌时间序列中基于轨迹发散的可预测性极限
 
 ### 速读区论文标签
-1. [EnergyMamba: An Uncertainty-Aware Graph-Enhanced Selective State Space Model for Energy Consumption Prediction](/202606/07/2606.00506v1-energymamba-an-uncertainty-aware-graph-enhanced-selective-state-space-model-for-energy-consumption-prediction)  
+1. [TS-ICL: A Flexible Time-Indexed Foundation Model for Time Series via In-Context Learning](/202606/08/2606.05878v1-ts-icl-a-flexible-time-indexed-foundation-model-for-time-series-via-in-context-learning)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：不确定性感知的能耗预测；时空学习
-2. [BAHSD: Bridging the Long-tail Gap via Adaptive Distillation in Black-box Sequential Recommendation](/202606/07/2606.03091v1-bahsd-bridging-the-long-tail-gap-via-adaptive-distillation-in-black-box-sequential-recommendation)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：黑盒自适应蒸馏用于序列推荐
-3. [Using large scale GPS data to reveal EV driver activity patterns beyond charging sessions](/202606/07/2606.02848v1-using-large-scale-gps-data-to-reveal-ev-driver-activity-patterns-beyond-charging-sessions)  
+   evidence：统一预测与插补的时间序列基础模型
+2. [Diffusion Models for Adaptive Sequential Data Generation](/202606/08/2606.06007v1-diffusion-models-for-adaptive-sequential-data-generation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：大规模GPS数据揭示电动车驾驶员活动模式
-4. [From Long News to Accurate Forecast: Importance-Aware Fusion and PRM-Guided Reflection for Time Series Forecasting](/202606/07/2606.03097v1-from-long-news-to-accurate-forecast-importance-aware-fusion-and-prm-guided-reflection-for-time-series-forecasting)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：结合新闻重要性的时间序列预测
-5. [Stationarity-Aware Retrieval-Augmented Time Series Forecasting](/202606/07/2606.04135v1-stationarity-aware-retrieval-augmented-time-series-forecasting)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列预测，非平稳性，检索增强
-6. [Adaptive Oscillatory-State Alignment for Time Series Forecasting](/202606/07/2606.06010v1-adaptive-oscillatory-state-alignment-for-time-series-forecasting)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：自适应时间序列预测方法
+   evidence：时间序列数据生成模型，可用于预测
 
 
 <div class="dpr-home-promo-card">

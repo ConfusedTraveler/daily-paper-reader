@@ -1,0 +1,1479 @@
+Title: A Temporal Spatial Minimax Rate for Smoothly-Varying Distributions in Wasserstein Space
+
+URL Source: https://arxiv.org/pdf/2606.07325v1
+
+Published Time: Mon, 08 Jun 2026 00:58:51 GMT
+
+Number of Pages: 31
+
+Markdown Content:
+# A Temporal–Spatial Minimax Rate for Smoothly-Varying Distributions in Wasserstein Space 
+
+Munsik Kim 
+
+physicist456@gmail.com 
+
+June 2026 
+
+Abstract 
+
+We study the minimax rate of estimating a future value μtn+h of a curve t 7 → μt in the 2-Wasserstein space P2(Rd) from finitely many noisy snapshots of its past, under an adiabatic bound ∥∇ kt v∥ ≤ ε on the k-th covariant derivative of the velocity field. Our central result is a unified temporal–spatial minimax lower bound : over regular, locally transport-rich subclasses of P2(Rd), every estimator incurs W2-risk with M -exponent γd(k + 1) /(k + 1 + γd), γd =min(1 /d, 1/2) ( M the total sample size). It follows from a temporal-to-spatial reduction : the smoothness budget defines a reachable W2-ball into which a transport packing is embedded along the time axis, and the information of the entire snapshot experiment is controlled by a Fano argument — the spatial packing is classical, but its smoothness-admissible temporal embedding and the full-window analysis are new. The bound interpolates a dimension-free extrapolation floor of order εh k+1 — the irreducible cost of an unobserved future, present even with the exact past — and the spatial estimation curse M −γd , recovering the static distribution-estimation rate as k → ∞ . We state the lower bound in a design-dependent form — with a design-weighted effective sample size — valid for arbitrary observation times, and obtain the closed-form exponent in the dense (equispaced) regime. The matching upper bound is established at k = 0 (rate M −1/(d+1) , d ≥ 3) and, in a translation submodel, for all k; for k ≥ 1a covariant estimator attains the rate conditionally on two estimates (a comparison-geometry bias bound and an optimal-transport map-estimation rate), leaving the unconditional general-k
+
+upper bound as an explicit open problem. Numerical experiments on synthetic curved and flat families corroborate the predicted exponents. 
+
+# 1 Introduction 
+
+Many systems are described not by a state but by a distribution that drifts in time: the cross-sectional distribution of incomes or firm sizes from year to year, the law of a particle ensemble under a slowly changing potential, a population of single cells across developmental time, the distribution of intraday returns from one day to the next, or the law of the hidden states and token embeddings as a sequence model runs. In each case one observes a trajectory t 7 → μt of probability measures and would like to forecast the measure μtn+h a horizon h beyond the last observation. A large and active literature builds estimators for this task — Wasserstein autoregression, Koopman-operator models, distribution-on-distribution regression — yet a prior question is left open: how far ahead is an evolving distribution forecastable at all, and what sets the limit? 
+
+We study this question in the 2-Wasserstein space P2(Rd) with its Otto–Benamou–Brenier Riemannian structure, the natural geometry for measures that move by transport. The single assumption is regularity in time: the velocity field vt of the curve has a bounded k-th covariant derivative, ∥∇ kt vt∥ ≤ ε, defining an adiabatic (slowly-varying) class Ck(ε). The index k graduates the assumption — k = 0 bounds the speed, k = 1 the acceleration (a near-geodesic curve), k = 2 a near-spline — the Wasserstein analogue of assuming a forecastable scalar signal has k bounded derivatives, the setting of classical extrapolation theory. 1
+
+> arXiv:2606.07325v1 [math.ST] 5 Jun 2026
+
+A tension between time and space. Forecasting an evolving distribution is governed by two opposing forces. Temporal smoothness helps: a curve with a bounded ( k+1)-st derivative can be extrapolated by a Taylor/geodesic rule whose error grows only as hk+1 , so more controlled derivatives buy a longer forecastable horizon. Spatial dimension hurts: a measure on Rd must be learned from finitely many samples, and even the empirical measure converges in W2 only at the dimension-cursed rate M −1/d for d > 2 (with parametric saturation M −1/2 in low dimension). The central object of this paper is how these forces combine into a single forecasting limit, and the phase structure — extrapolation-limited versus statistics-limited — that results. 
+
+Contributions. We prove a hierarchy of lower bounds, each matched by an explicit forecaster to the extent stated, and are deliberate about which half — lower bound, upper bound, or constant — is established. The centerpiece is the unified temporal–spatial minimax lower bound (Theorem 5); its temporal-to-spatial reduction (Lemma 5, Appendix B) is the paper’s main technical step, and the exact-past and location-channel results below are both its ingredients and results in their own right. Table 1 states exactly what is proven, conditional, or open. 
+
+• Exact-past floors. Even given the entire past exactly, no forecaster beats a worst-case floor 
+
+εh k+1 /(k + 1)! (Theorem 1) or, under a process prior, a complementary average-case floor 
+
+d σ 2h2k+1 /(( k!) 2(2 k + 1)) (Theorem 2); the order-k geodesic/spline extrapolator attains the worst-case scaling, with the exact constant on flat translation submodels (Proposition 1). 
+
+• A clean statistical separation. With M samples the limit splits into a dimension-free extrapolation floor and a dimension-cursed shape floor that do not interact (Theorem 3); in the location channel the latter sharpens to M −(k+1) /(2 k+3) (Theorem 4), the classical H¨ older rate M −β/ (2 β+1) , β = k + 1, lifted to distribution forecasting. 
+
+• A unified temporal–spatial rate. Over regular, locally transport-rich subclasses of P2(Rd)we prove a lower bound, valid for all k, with M -exponent γd(k + 1) /(k + 1 + γd), γd =min(1 /d, 1/2) (Theorem 5), interpolating smoothness and the spatial curse and recovering the static shape rate M −γd as k → ∞ ; the temporal-to-spatial reduction behind it — turning the smoothness budget into a reachable W2-ball and embedding a transport packing along the time axis (Lemma 5, Appendix B) — is the central technical step. The matching upper bound is established at k = 0 (Theorem 6, rate M −1/(d+1) for d ≥ 3), sharp there; for k ≥ 1we give a covariant (development-based) forecaster that attains it conditionally on two esti-mates — a comparison-geometry bias bound and an optimal-transport map-estimation rate (Proposition 5). The unconditional matching upper bound for k ≥ 1 remains Conjecture 1. 
+
+• Phase structure and verification. The bounds predict a sharp boundary between extrapolation- and statistics-limited regimes; numerics confirm the integer horizon exponents and the ( N, h ) phase boundary, track the unified exponent’s spatial curse out to d = 6, and show — end-to-end on a morphing nonparametric shape — that a moving distribution is forecastable strictly more slowly than a static one, as the unified rate predicts. 
+
+Technique. Two reductions carry the lower bounds. A translation embedding realizes Rd as a flat, totally geodesic submanifold of P2(Rd) (Lemma 1), reducing the exact-past and location-channel bounds to scalar extrapolation and Le Cam/van Trees two-point arguments. For the unified bound a reachability lemma (Lemma 5) shows that any measure within a smoothness-budgeted W2-ball is reached by an admissible curve, obtained by reparametrizing a W2-geodesic in time; this 2Result Range Lower Upper Constant Exact-past floor εh k+1 all k proven submodels exact (flat) Average-case floor σ2h2k+1 all k proven submodels exact (Gaussian) Location channel M −(k+1) /(2 k+3) all k proven proven rate Unified M −γd(k+1) /(k+1+ γd) k = 0 proven proven rate Unified (same exponent) k ≥ 1 proven conditional open 
+
+Table 1: What is established. “Submodels”: the matching upper bound holds on flat translation (and Gaussian) submodels. “Conditional”: Proposition 5 attains the rate under the comparison-geometry and map-estimation estimates (C),(S); the unconditional statement is Conjecture 1. turns temporal forecasting into spatial estimation from the pooled in-window samples, where the empirical-W2 minimax rate enters. The classical empirical-W2 exponent is recovered, not assumed: Appendix B constructs the spatial packing explicitly; the temporal reduction and the reachability construction are ours. 
+
+Scope and outline. Section 7 contains the finite-sample theory and Section 8 the unified rate; the remaining sections give the exact-past floors, the k = 0 matching upper bound (with the conditional k ≥ 1 construction in Appendix D), and a numerical illustration. Proofs are deferred to Appendix A; Appendix C details the degree-k forecaster. 
+
+# 2 Related work 
+
+Distributional and functional time series. Forecasting a measure-valued trajectory is an active methodological area. Wasserstein autoregression models density time series in the tan-gent space of P2(Rd) (Zhang–Kokoszka–Petersen [6]), with inferential and diagnostic extensions; Koopman-operator methods lift the dynamics to a linear evolution on observables (Wang–Araki [7]); and distribution-on-distribution regression learns transport maps between measures (Ghodrati– Panaretos [8]). These sit within functional data analysis and functional time series more broadly. All propose estimators ; we instead ask for the limits that bound any such method under a smoothness-only assumption — a complementary and, to our knowledge, previously unaddressed question for Wasserstein forecasting. 
+
+Trajectory inference and population dynamics. Reconstructing how a distribution evolves from temporal snapshots is central to single-cell genomics, where optimal-transport methods re-cover developmental trajectories (Schiebinger et al. [18]) and a mathematical theory of trajectory inference has emerged (Lavenant et al. [19]). That line interpolates a population between observed times; we study the distinct, harder problem of extrapolating it beyond the last observation, and the fundamental limit on doing so. 
+
+Geometry of Wasserstein space. Our regularity class and extrapolators rest on the Otto calculus of P2(Rd) (Otto [14]; Benamou–Brenier [15]; Ambrosio–Gigli–Savar´ e [1]; Villani [3]) and its second-order theory (Gigli [2]), in particular geodesics and the covariant derivative of velocity fields. Smooth interpolation on Wasserstein space — splines and higher-order models (Benamou– Gallou¨ et–Vialard [4]; Chewi et al. [5]) — provides the k ≥ 1 extrapolators whose forecast error we bound, and we quantify when curvature corrections enter (Proposition 1). 3Empirical measures in Wasserstein distance. The spatial half of our rates is governed by convergence of the empirical measure in W2, classical since Dudley [17] and sharpened by Fournier– Guillin [9] and Weed–Bach [16], with matching minimax density-estimation rates by Niles-Weed– Berthet [10] and Singh–P´ oczos [11]. We invoke these at the optimized temporal bandwidth; the dimension curse they exhibit is exactly what degrades the forecast exponent away from the para-metric rate. 
+
+Nonparametric estimation and extrapolation. The location channel reproduces the classical minimax theory of nonparametric estimation under H¨ older smoothness (Stone [12]; Tsybakov [13]): the rate M −β/ (2 β+1) , β = k + 1, appears here as a forecasting lower bound — the extrapolation (boundary) instance of that theory. We make this correspondence explicit rather than presenting the rate as new. 
+
+Prediction under temporal change. Forecasting a smooth signal from its past is the classical Kolmogorov–Wiener problem; our exact-past floors are its distributional, finite-smoothness analogue. Statistically, slow variation in time is the premise of locally stationary processes (Dahlhaus [20]) and, in machine learning, of learning under concept drift (Gama et al. [21]); our bounds quantify the price such drift imposes on distributional forecasting, with the optimal pooling bandwidth emerging from a bias–variance balance. 
+
+# 3 Setup 
+
+Let ( P2(Rd), W 2) carry the Otto–Benamou–Brenier formal Riemannian structure. We observe 
+
+t 7 → μt on [0 , t n] and forecast μtn+h, h > 0. A forecaster is any measurable ˆ ν = ˆ ν(μ|[0 ,t n]) ∈ P 2(Rd). For an absolutely continuous curve the velocity field vt satisfies ∂tμt + ∇ · (μtvt) = 0; ∇t denotes the covariant derivative of vector fields along the curve (Gigli’s second-order calculus, assuming the requisite tangent-module regularity), with ∥ · ∥ μt the L2(μt) tangent norm. 
+
+Definition 1 (Order-k slow-variation class) . For k ≥ 0, ε > 0, let Ck(ε) be the absolutely continuous curves whose velocity field admits covariant derivatives up to order k with ess sup t ∥∇ kt vt∥μt ≤ ε,
+
+vt = ˙ μt. Informally the curve’s ( k+1)-st covariant derivative is bounded by ε (geodesic for k=1, cubic spline for k=2). 
+
+Two elementary facts. Both deterministic bounds reduce to a shift problem. 
+
+Lemma 1 (Isometric translation embedding) . Fix ρ ∈ P 2(Rd), τx(z) = z + x. Then x 7 → (τx)#ρ
+
+is an isometric embedding of (Rd, | · | ) into (P2(Rd), W 2); its image is totally geodesic and flat. 
+
+Lemma 2 (Mean contraction) . W2(α, β ) ≥ | mean( α) − mean( β)| for all α, β ∈ P 2(Rd).
+
+# 4 Worst-case (Le Cam) lower bound 
+
+Theorem 1 (Extrapolation floor, worst case) . For every integer k ≥ 0, h > 0, ε > 0,
+
+inf  
+
+> ˆν
+
+sup  
+
+> μ•∈C k(ε)
+
+W2(ˆ ν, μ tn+h) ≥ ε h k+1 
+
+(k + 1)! .
+
+Lemma 3 (Mollification) . Convolving x(k+1)  
+
+> b
+
+with a width-η kernel makes the construction Ck+1 
+
+with ∥∇ kv∥ ≤ ε and changes the separation by 1 + O(η/h ).
+
+45 Average-case lower bound (conditional Bayes floor) 
+
+Theorem 2 (Conditional Bayes floor) . Fix ρ and let μt = ( τx(t))#ρ with x(k+1) (t) = ξ(t), ξ
+
+white noise of intensity σ2Id (a (k+1) -fold integrated Brownian motion). Then for every forecaster measurable w.r.t. {μu : u ≤ tn},
+
+E W 22 (ˆ ν, μ tn+h) ≥ d σ 2 h2k+1 
+
+(k!) 2(2 k + 1) ,
+
+with equality, within this model, for the order-k Taylor extrapolator (the conditional mean). This stochastic model is the average-case analogue of Ck(ε): its (k+1) -st derivative has variance σ2 rather than an almost-sure sup bound, so it is not contained in the deterministic class. The worst-case floor of Theorem 1 and this average-case floor are therefore complementary, not nested. 
+
+This floor is the irreducible process noise between tn and tn + h; no amount of memory or data removes it. 
+
+# 6 Matching upper bound and the role of curvature 
+
+Lemma 4 (Curvature-controlled remainder; rigorous on flat/finite-dim submodels) . Let μ• be 
+
+Ck+1 with well-defined endpoint k-jet and Pk its order-k extrapolator. On the flat translation sub-model, W2(μtn+h, P k(tn + h)) = hk+1  
+
+> (k+1)!
+
+∥∇ kt vtn ∥μtn exactly. On a finite-dimensional totally geodesic submanifold (e.g. centered Gaussians under the Bures metric) a normal-coordinate computation gives the same leading term for k ≤ 2, curvature entering only at order hk+3 via the identity 
+
+(∂mΓijk )( p)vmvj vk = 0 (Riemann antisymmetry against the symmetric v⊗3). On general P2(Rd)
+
+this expansion is a formal Otto-calculus computation. 
+
+Proposition 1 (Sharp on flat submodels; rate match on regular finite-dimensional submanifolds) .
+
+On the flat translation submodel, and on finite-dimensional totally geodesic Wasserstein subman-ifolds satisfying the normal-coordinate hypotheses of Lemma 4 (e.g. centered Gaussians under the Bures metric, k ≤ 2), the order-k extrapolator attains εh k+1 /(k+1)!+ O(hk+2 ), matching Theorem 1 in exponent; on flat translation submodels the constant is in addition exact. On general P2(Rd)
+
+the same leading term is a formal Otto-calculus expansion (Lemma 4); for k ≥ 3 or positively curved submodels the exponent is expected to persist with a possibly curvature-corrected constant, not proved here. Nonnegative Alexandrov curvature of P2(Rd) is expected to give one-sided control at finite h.
+
+# 7 Statistical floor: finite samples 
+
+Replace exact observation by N i.i.d. samples from each of n snapshots at ti = tn − (n − 1 − i)∆, window L = ( n−1)∆, total M = N n . For a bandwidth H ∈ (0 , L ] write nH = # {i : ti ∈ [tn−H, t n]}
+
+for the number of in-window observation times and MH = N n H for the in-window sample count; for the equispaced design nH ≍ 1 + H/ ∆, so MH ≍ M H/L once H ≥ ∆, while MH = N
+
+for H < ∆ (the window then holds only the endpoint snapshot). Let w = (1 , h, . . . , h k)⊤ and 
+
+Gjl = Pn−1 
+
+> i=0
+
+(ti − tn)j+l the design Gram matrix. 
+
+Theorem 3 (Statistical floor, separated from the extrapolation floor) . If ρ has Fisher information 
+
+Ie = e⊤I(ρ)e > 0 along e, then 
+
+inf  
+
+> ˆν
+
+sup  
+
+> μ•∈C k(ε)
+
+E W2(ˆ ν, μ tn+h) ≳ max 
+
+n
+
+cd M −γd
+
+| {z }   
+
+> (A) shape: γd= min(1 /d, 1/2)
+
+, 14
+
+ εh k+1  
+
+> (k+1)!
+
++ ( N I e)−1/2 w⊤G−1w1/2| {z }
+
+> (B) extrapolation + location leverage
+
+o
+
+.
+
+5Here γd = min(1 /d, 1/2): the shape floor (A) is the dimension curse M −1/d for d ≥ 3 and saturates to the parametric M −1/2 in d ≤ 2 (with a possible critical logarithmic correction at d = 2, whose exact form depends on the estimation class and on whether empirical or optimized estimators are considered; we state (A) at the power-law level). 
+
+Corollary 1 (Extrapolation leverage) . For the equispaced design and h ≳ L,
+
+q 1
+
+> N I e
+
+√w⊤G−1w ≍
+
+ck(h/L )kM −1/2: the parametric rate amplified by leverage (h/L )k. The governing scale is the window L, not the spacing ∆.
+
+Theorem 4 (Sharp nonparametric extrapolation rate, location channel) . In the translation sub-model with ρ Gaussian (per-sample location variance σ21 ), n equispaced snapshots over a window L,and M = N n total samples, the minimax forecast error in the location channel is 
+
+inf  
+
+> ˆν
+
+sup  
+
+> μ•∈C k(ε)
+
+E W2(ˆ ν, μ tn+h) ≍ ε
+
+(k + 1)! (h + H∗)k+1 , H∗ =
+
+ σ21 LM ε 2
+
+ 12k+3 
+
+,
+
+equivalently ≍ max {εh k+1 , ε 12k+3 (σ21 L/M ) k+1 2k+3 }. The statistics-dominated branch ( h ≲ H∗) is the classical H¨ older-β pointwise rate M −β/ (2 β+1) with β = k + 1 ; the extrapolation-dominated branch (h ≳ H∗) is the dimension-free floor of Theorem 1. For the equispaced design the two-sided rate presumes the optimal width resolves the snapshots, H∗ ≥ ∆; otherwise the continuous-design non-parametric branch ceases to apply and the risk enters a resolution-limited regime controlled by ∆
+
+and N , of rate max {εh k+1 , min( ε∆k+1 , σ 1N −1/2)}, reducing to the displayed ε∆k+1 scale when discretization dominates the per-snapshot sampling noise σ1N −1/2.Remark 1. This sharpens Theorem 3(B): the degree-k-polynomial construction there gives only the loose parametric floor M −1/2(h/L )k, whereas spending the ( k+1)-st derivative budget on a width-H∗ bump yields the tight nonparametric rate M −(k+1) /(2 k+3) (Figure 3). This is the classical H¨ older-smoothness nonparametric rate M −β/ (2 β+1) , β = k + 1 (Stone 1980; Tsybakov 2009), here arising as a location-channel forecasting lower bound. The dimension-cursed shape channel of Theorem 3(A) is folded into the unified rate of Section 8. 
+
+# 8 Unified temporal–spatial rate over P2(Rd)
+
+Definition 2 (Regular class) . The forecasting problem is regular if the curve takes values in densi-ties on a fixed compact convex Ω ⊂ Rd, with densities bounded in [ c/ 2, 2C] for fixed 0 < c ≤ C < ∞,with the W2-optimal maps from the reference μ0 to its members sufficiently smooth (along the reference-centered displacement geodesics used below), the family star-geodesically closed around 
+
+μ0 (the displacement geodesic from μ0 to each member stays in the family), and locally transport-rich around the reference density μ0: every sufficiently small smooth compactly supported potential 
+
+ρ keeps (id + ∇ρ)#μ0 and its displacement interpolation in the class. The stronger pairwise/chart regularity used only by the conditional upper bound of Appendix D — smooth Brenier maps from the barycenter to members — is not part of this definition and is stated separately as As-sumptions (C),(S). This makes the tangent calculus of Lemma 5 applicable and the packing of Appendix B admissible (Ambrosio–Gigli–Savar´ e; Gigli). A single hard reference suffices for the lower bound, and we take μ0 ≡ 1 to be the uniform (constant) density on Ω = [0 , 1] d. We stress that the regular class is a local transport-rich neighborhood of μ0 within the two-sided-bounded family [ c/ 2, 2C], not the whole bounded-density class: not every bounded density has smooth op-timal maps or a star-geodesically closed neighborhood, and we claim neither. The perturbations 6of Appendix B stay within [ c/ 2, 2C], keep the reference-centered optimal maps smooth, and keep the displacement interpolations in the class; the spatial constancy of μ0 — not merely a two-sided bound c ≤ μ0 ≤ C — is what the separation estimates of Appendix B use, and no regularity of μ0
+
+beyond constancy is invoked. 
+
+Proposition 2 (A nontrivial reference-star regular class) . Fix μ0 ≡ 1 on Ω = [0 , 1] d. There is 
+
+r0 > 0 such that the transport neighborhood 
+
+Fr0 = (id + ∇ρ)#μ0 : ρ ∈ C∞ 
+
+> c
+
+(Ω) , ∥∇ 2ρ∥∞ ≤ r0
+
+together with the W2-displacement geodesics from μ0 to its members satisfies Definition 2: every member has density in [c/ 2, 2C], the reference-to-member optimal maps id + ∇ρ are smooth diffeo-morphisms, the family is star-geodesically closed around μ0, and it is locally transport-rich there. In particular the packing of Appendix B lies in Fr0 , so Definition 2 is nonvacuous and the lower bound is not an artifact of an empty class. Proof. This is Lemma 8 applied to the bump family. For ∥∇ 2ρ∥∞ ≤ r0 small, the potential 12 |x|2+θρ 
+
+is uniformly convex for every θ ∈ [0 , 1], so id+ θ∇ρ is a Brenier diffeomorphism and the pushforward density 1 / det( I + θ∇2ρ) lies in [ c/ 2, 2C]. Since ρ ∈ C∞ 
+
+> c
+
+(Ω) is supported in the interior, id + θ∇ρ
+
+equals the identity near ∂Ω, so it maps Ω diffeomorphically onto itself. The displacement geodesic from μ0 to a member (id + ∇ρ)#μ0 is exactly θ 7 → (id + θ∇ρ)#μ0, and since θρ obeys the same Hessian bound it stays in Fr0 for all θ ∈ [0 , 1]; this is simultaneously the star-geodesic closure around μ0 and the local transport-richness required by Definition 2. We make no claim about the geodesic between two arbitrary members: the Brenier map (id + ∇ρ2) ◦ (id + ∇ρ1)−1 between them is in general not a gradient perturbation of μ0, and the construction does not need it — Lemma 5 and Appendix B use only reference-to-endpoint geodesics. Constancy of μ0 is used only by the separation estimates of Appendix B, not here. The reduction needs a local statistical-richness bound: for the reference μ0, constants c, r 0 > 0with inf ˆν sup ν: W2(ν,μ 0)≤r Eν W2(ˆ ν, ν ) ≥ c min( r, m −γd ) for every 0 < r ≤ r0 and sample size m,
+
+γd = min(1 /d, 1/2). A global minimax rate need not transfer to every shrinking ball, so rather than assume this we derive it from regularity — it is exactly Proposition 3. Theorem 5 is then a reduction to this local lower bound. This local, moving-target bound is distinct from the static shape floor of Theorem 3(A): there a fixed separated subfamily is observed directly with all M samples, whereas here the moving target confines the usable temporal pool to the in-window snapshots, coupling temporal smoothness and spatial estimation into a single rate. 
+
+Lemma 5 (Reachability under the smoothness budget) . Assume the geometric regularity of Def-inition 2, and that the constant-speed W2-geodesic from μ0 to ν is regular with a well-defined velocity field V along which the covariant-derivative chain rule holds. Then for every ν with 
+
+δ := W2(μ0, ν ) ≤ εH k+1 /(k + 1)! there is a curve in Ck(ε) that equals μ0 for t ≤ tn − H and reaches μtn = ν.
+
+Theorem 5 (Unified lower bound via temporal-to-spatial reduction) . For a regular problem (Def-inition 2) with ∥∇ kt vt∥ ≤ ε, observed through n snapshots of N samples each ( M = N n total), the minimax prediction risk satisfies, for every k ≥ 0,
+
+inf  
+
+> ˆν
+
+sup  
+
+> μ•∈C k(ε)
+
+E W2(ˆ ν, μ tn+h) ≳ max 
+
+n εh k+1  
+
+> (k+1)!
+
+, sup 
+
+> 0<H ≤L
+
+min 
+
+
+
+ck εH k+1 , c (M eff 
+
+> H,k
+
+)−γd
+
+o 
+
+,
+
+where γd = min(1 /d, 1/2) and M eff  
+
+> H,k
+
+= N P  
+
+> i:ti∈[tn−H,t n]
+
+qk
+
+  ti−tn+HH
+
+2 is the design-weighted in-window information ( qk the smoothstep schedule of the construction, Appendix B; 0 ≤ qk ≤ 1). 
+
+7The first term is the exact-past floor of Theorem 1, the second the temporal-to-spatial reduction (Lemma 5, proved in Appendix B). The bound is design-dependent : M eff  
+
+> H,k
+
+is the information actually carried by the snapshots inside the bandwidth, so the supremum is over feasible windows with no continuity of H assumed. Since qk ≤ 1, M eff  
+
+> H,k
+
+≤ MH := N n H , so the cruder bound with 
+
+MH in place of M eff  
+
+> H,k
+
+also holds. 
+
+Corollary 2 (Closed-form rate; dense versus resolution-limited regimes) . For the equispaced design (nH ≍ 1 + H/ ∆, and M eff  
+
+> H,k
+
+≍k MH ≍ M H/L for H ≥ ∆ by the Riemann sum 1
+
+> nH
+
+P 
+
+> i
+
+qk(si)2 →
+
+cq,k ∈ (0 , 1) ), let H# =  (L/M )γd /ε 1/(k+1+ γd) be the unconstrained maximizer of the inner min .
+
+(i) Dense regime. If H# ≥ ∆ — the statistically optimal bandwidth resolves at least one snapshot beyond the endpoint — then, for fixed k,
+
+inf  
+
+> ˆν
+
+sup  
+
+> μ•∈C k(ε)
+
+E W2(ˆ ν, μ tn+h) ≳k ε (h + H#)k+1 (using max {ak+1 , b k+1 } ≍ k (a + b)k+1 ),
+
+whose statistics-dominated branch ( h ≲ H#) has M -exponent γd(k + 1) /(k + 1 + γd): the location rate M −(k+1) /(2 k+3) of Theorem 4 for d ≤ 2, and M −(k+1) /(d(k+1)+1) for d ≥ 3 (stated at the power-law level at d = 2 ; the critical logarithmic factor is not optimized by the single-scale packing of Appendix B). (ii) Resolution-limited regime. If instead H# < ∆, the feasible windows obey H ≥ ∆
+
+(or contain only the endpoint, where M eff  
+
+> H,k
+
+≍ N ), so the inner sup is of the same order as its value at the smallest resolved window H ∈ [∆ , 2∆) , namely ≳k max {εh k+1 , min( ck ε∆k+1 , c N −γd )} —governed by the temporal resolution ∆ and the per-snapshot count N , not by M . The closed-form exponent in (i) is thus the dense-temporal-design rate; the matching upper bounds below operate in the same regime. Proof. In the dense regime M eff  
+
+> H,k
+
+≍k MH ≍ M H/L (equispaced Riemann sum), so up to k-constants the inner objective is min( ckεH k+1 , c (M H/L )−γd ); the first factor increases and the second decreases in H, so the continuous maximizer balances them, εH k+1 ≍ (M H/L )−γd , giving 
+
+H# = (( L/M )γd /ε )1/(k+1+ γd) and value ≍k εH k+1 # . If H# ≥ ∆ this maximizer is feasible; com-bining with the exact-past floor by max {ak+1 , b k+1 } ≍ k (a + b)k+1 gives (i), and substituting H#
+
+into εH k+1 # yields the stated M -exponents. If H# < ∆ the balancing bandwidth is infeasible; for 
+
+H > H # the binding term is the resolution c (M eff 
+
+> H,k
+
+)−γd (decreasing in H), while at the smallest resolved widths H ≍ ∆ one has M eff  
+
+> H,k
+
+≍ N , so the supremum is of the same order as its value at 
+
+H ≍ ∆, namely min( ckε∆k+1 , cN −γd ), giving (ii). 
+
+Theorem 6 (Matching upper bound at k = 0) . For k = 0 on a regular problem, the pooled (persistence) estimator — the empirical distribution of all MH = N n H samples in a window [tn −
+
+H, t n] — satisfies 
+
+E W2(ˆ ν, μ tn+h) ≲ ε (h + H) + M −γd 
+
+> H
+
+.
+
+In the dense regime ( H# ≥ ∆, so MH ≍ M H/L ) optimizing H matches the lower bound of Theorem 5; hence the k = 0 unified rate M −1/(d+1) (d ≥ 3; M −1/3 for d ≤ 2) is sharp. 
+
+Conjecture 1 (General-k upper bound) . For k ≥ 1 on a regular problem (equispaced dense design), a degree-k temporal local-polynomial forecaster on the tangent bundle (geodesic/barycentric regres-sion [26] of the snapshots with sample splitting) attains bias ≲ ε(h+H)k+1 (the order-k Otto–Taylor remainder, Proposition 1) and variance ≲ (M H/L )−γd , hence meets the lower bound of Theorem 5 and the unified exponent M −(k+1) /(d(k+1)+1) . The construction and constant are established here only in the location channel (Theorem 4, all k) and end-to-end at k = 0 (Theorem 6, Figure 4); 
+
+8Appendix C gives the explicit estimator and reduces this conjecture to a curvature-stability esti-mate (C) and an optimal-transport map-estimation rate (S), both unconditional at k = 0 and on flat submodels. Remark 2. The exponent degrades from the static shape rate M −γd (Theorem 3A, recovered as 
+
+k → ∞ : a frozen target permits unlimited pooling) because a moving target limits temporal pooling; higher smoothness k recovers more of it, and in d ≤ 2 the spatial channel is already rate-M −1/2, adding nothing beyond the location channel. The proven envelope: lower bound for all k (Theorem 5), sharp at k = 0 (Theorem 6); for k ≥ 1 Appendix D gives a covariant (development-based) forecaster and shows it attains the rate conditionally on two estimates — a comparison-geometry bias bound and an optimal-transport map-estimation rate (Proposition 5). The unconditional k ≥ 1 upper bound remains open (Conjecture 1). Figure 4 plots the exponent and the M −γd ingredient. 
+
+Open Problem 1 (Unconditional general-k upper bound) . Exhibit an estimator bν and a finite constant ck such that, for every regular problem (Definition 2) with ∥∇ kt v∥ ≤ ε and every k ≥ 1, 
+
+E W2(bν, μ tn+h) ≤ ck ε (h + H#)k+1 at the window-optimal H#, thereby matching the lower bound of Theorem 5 without Assumptions (C),(S). By Proposition 5 it suffices to establish, on the regular class: (C) a uniform sectional-curvature upper bound ¯ κ < ∞ together with a valid operator-valued Rauch comparison in ( P2(Rd), W 2), yielding a curvature-free anti-development bias; and (S) apooled Brenier-map estimation rate E∥ bU − E bU ∥2 
+
+> L2(¯ μ)
+
+≲ M −2γd 
+
+> H
+
+at the empirical-measure exponent 
+
+γd = min(1 /d, 1/2). Both reduce to established facts at k = 0 and on flat submodels (Appendix D); the open content is their validity at the infinite-dimensional, positively-curved general-k level. 
+
+# 9 Numerical illustration 
+
+The theory is illustrated numerically in Appendix E: horizon exponents hk+1 on a flat translation family and a curved (Bures–Wasserstein) Gaussian path; the unified rate M −(k+1) /(d(k+1)+1) under the window-optimal budget; robustness to the temperature smoothing window (Appendix F); and two real series — near-stationary equity returns versus a smoothly drifting seasonal temperature — at opposite ends of the drift/noise spectrum (Section E.1). The experiments confirm the proven 
+
+k = 0 rate and are consistent with the conditional general-k prediction; the contribution of this paper is theoretical and no claim rests on them. 
+
+# 10 Discussion 
+
+We have mapped the forecastability of a slowly-varying curve in P2(Rd) into two regimes: an exact-past extrapolation floor set purely by temporal smoothness, dimension-free and of order hk+1 , and a finite-sample statistical floor governed by the spatial cost of estimating a measure. Their interaction is the paper’s main object: because a moving target caps temporal pooling, the static empirical-W2
+
+rate M −γd is unattainable, and the forecast risk obeys a unified lower bound with M -exponent 
+
+γd(k + 1) /(k + 1 + γd). The three remarks below record what each floor certifies; we then state what is sharp, what the data decide, and what remains open. 
+
+Remark 3 (Worst vs. average case) . The floors scale as hk+1 (worst case) and hk+1 /2 (rms, average case): a sup-bound lets an adversary push consistently, a random derivative cancels. Complemen-tary, not matching; both identify the order-k extrapolator as optimal, respectively in worst-case scaling and in Bayes risk within the Gaussian translation model. 9Remark 4 (Adiabatic hierarchy) . k = 0 , 1, 2 give persistence ( εh ), geodesic ( εh 2/2), spline ( εh 3/6): controlled derivatives = forecastable horizon exponent. 
+
+Remark 5 (What is sharp) . The worst-case constant is exact on the flat translation submodel (Theorem 1), the average-case Bayes risk is exact within its Gaussian model (Theorem 2), and the finite-sample statistical exponents (Theorems 3, 4) are rate-sharp in the regimes stated. Over 
+
+P2(Rd) the unified lower bound (Theorem 5) is rigorous for all k on the regular class, recovering the classical empirical-W2 minimax exponent (Fournier–Guillin; Niles-Weed–Berthet) via the explicit packing of Appendix B; the matching upper bound is proved at k = 0 (Theorem 6), and for 
+
+k ≥ 1 a covariant forecaster (Appendix D) attains it conditionally on a comparison-geometry bias bound and an optimal-transport map-estimation rate (Proposition 5), the unconditional k ≥ 1 case remaining open (Conjecture 1); numerically the curse γd is tracked to d = 6 by two independent OT solvers (on the predicted ordering; the higher-d fits are pre-asymptotic) and the unified exponent is reproduced by the measured-curse-plus-exact-bias construction (Figure 4); the endpoint-estimation experiment ( h = 0) lands on the predicted band for d = 2 and remains pre-asymptotic for d = 3. Open, for the k ≥ 1 upper bound: (i) well-posedness of the Cartan development and a uniform sectional-curvature bound on the regular class in ( P2(Rd), W 2), on which the bias estimate (C) rests; (ii) a transport-map (not merely distribution) estimation rate for the drift-corrected pooled estimator, estimate (S); and the curvature correction beyond k ≤ 2 (Proposition 1). 
+
+The effective extrapolation order is data-dependent. Which forecaster is optimal is de-termined by the regularity actually present, not fixed a priori. The two real series of Section E.1 bracket this: on the near-stationary S&P cross-sections degree-0 persistence is best, while on the strongly-drifting temperature field the horizon slope grows with k and the optimal pooling band-width is interior ( H∗ = 3 days), the observable slope rising with the drift-to-noise ratio. In both, the moving forecast floor sits well above the finite-sample noise reference. Crucially, the calibrated bandwidth predicts the held-out optimum (Figure 5), so the bias–variance trade-off is a genuine prediction, not a post-hoc fit. 
+
+Limitations and outlook. The unified upper bound is established end-to-end only at k = 0 and in the location channel for all k; for k ≥ 1 a covariant forecaster attains it only conditionally on the curvature-stability and optimal-transport map-estimation estimates isolated in Appendices C– D (given which, Proposition 5 matches the lower bound), and the curvature correction itself is controlled only for k ≤ 2 (Proposition 1); the unconditional k ≥ 1 upper bound remains Con-jecture 1. Under a finite memory budget on the past, these floors become the high-rate limit of a rate–distortion curve, developed separately. Extending the empirical study to deseasonalized residuals, downstream tasks, and longer horizons is left to future work. 
+
+# References       
+
+> [1] L. Ambrosio, N. Gigli, G. Savar´ e. Gradient Flows in Metric Spaces and in the Space of Probability Measures . 2nd ed., Lectures in Math. ETH Z¨ urich, Birkh¨ auser, 2008. [2] N. Gigli. Second order analysis on ( P2(M), W 2). Mem. Amer. Math. Soc. 216 (2012), no. 1018. [3] C. Villani. Optimal Transport: Old and New . Grundlehren der math. Wissenschaften 338, Springer, 2009.
+
+10 [4] J.-D. Benamou, T. O. Gallou¨ et, F.-X. Vialard. Second-order models for optimal transport and cubic splines on the Wasserstein space. Found. Comput. Math. 19 (2019), 1113–1143. 
+
+doi:10.1007/s10208-019-09425-z ; arXiv:1801.04144. [5] S. Chewi, J. Clancy, T. Le Gouic, P. Rigollet, G. Stepaniants, A. Stromme. Fast and smooth interpo-lation on Wasserstein space. Proc. AISTATS , PMLR 130 (2021), 3061–3069. arXiv:2010.12101. [6] C. Zhang, P. Kokoszka, A. Petersen. Wasserstein autoregressive models for density time series. J. Time Series Anal. 43 (2022), no. 1, 30–52. arXiv:2006.12640. [7] Z. Wang, Y. Araki. Functional time series forecasting of distributions: a Koopman–Wasserstein ap-proach. Behaviormetrika (2025). doi:10.1007/s41237-025-00278-1 ; arXiv:2507.07570. [8] L. Ghodrati, V. M. Panaretos. Minimax rate for optimal transport regression between distributions. 
+
+Statist. Probab. Lett. 194 (2022), 109758. doi:10.1016/j.spl.2022.109758 ; arXiv:2206.01447. [9] N. Fournier, A. Guillin. On the rate of convergence in Wasserstein distance of the empirical measure. 
+
+Probab. Theory Related Fields 162 (2015), 707–738. [10] J. Niles-Weed, Q. Berthet. Minimax estimation of smooth densities in Wasserstein distance. Ann. Statist. 50 (2022), no. 3, 1519–1540. [11] S. Singh, B. P´ oczos. Minimax distribution estimation in Wasserstein distance. arXiv:1802.08855, 2018. [12] C. J. Stone. Optimal rates of convergence for nonparametric estimators. Ann. Statist. 8 (1980), no. 6, 1348–1360. [13] A. B. Tsybakov. Introduction to Nonparametric Estimation . Springer Ser. in Statist., Springer, 2009. [14] F. Otto. The geometry of dissipative evolution equations: the porous medium equation. Comm. Partial Differential Equations 26 (2001), no. 1–2, 101–174. [15] J.-D. Benamou, Y. Brenier. A computational fluid mechanics solution to the Monge–Kantorovich mass transfer problem. Numer. Math. 84 (2000), no. 3, 375–393. [16] J. Weed, F. Bach. Sharp asymptotic and finite-sample rates of convergence of empirical measures in Wasserstein distance. Bernoulli 25 (2019), no. 4A, 2620–2648. [17] R. M. Dudley. The speed of mean Glivenko–Cantelli convergence. Ann. Math. Statist. 40 (1969), no. 1, 40–50. [18] G. Schiebinger, J. Shu, M. Tabaka, et al. Optimal-transport analysis of single-cell gene expression identifies developmental trajectories in reprogramming. Cell 176 (2019), no. 4, 928–943. [19] H. Lavenant, S. Zhang, Y.-H. Kim, G. Schiebinger. Toward a mathematical theory of trajectory infer-ence. Ann. Appl. Probab. 34 (2024), no. 1A, 428–500. doi:10.1214/23-AAP1969 ; arXiv:2102.09204. [20] R. Dahlhaus. Fitting time series models to nonstationary processes. Ann. Statist. 25 (1997), no. 1, 1–37. [21] J. Gama, I. ˇZliobait˙ e, A. Bifet, M. Pechenizkiy, A. Bouchachia. A survey on concept drift adaptation. 
+
+ACM Comput. Surv. 46 (2014), no. 4, art. 44. [22] J. Fan, I. Gijbels. Local Polynomial Modelling and Its Applications . Monographs on Statist. and Appl. Probab. 66, Chapman & Hall, 1996. [23] J.-C. H¨ utter, P. Rigollet. Minimax estimation of smooth optimal transport maps. Ann. Statist. 49 (2021), no. 2, 1166–1194. arXiv:1905.05828. [24] T. Manole, S. Balakrishnan, J. Niles-Weed, L. Wasserman. Plugin estimation of smooth optimal trans-port maps. Ann. Statist. 52 (2024), no. 3, 966–998. doi:10.1214/24-AOS2379 ; arXiv:2107.12364. 
+
+11 [25] A.-A. Pooladian, J. Niles-Weed. Entropic estimation of optimal transport maps. arXiv:2109.12004, 2021. [26] P. T. Fletcher. Geodesic regression and the theory of least squares on Riemannian manifolds. Int. J. Comput. Vis. 105 (2013), no. 2, 171–185. [27] M. Cuturi. Sinkhorn distances: lightspeed computation of optimal transport. Adv. Neural Inf. Process. Syst. 26 (NIPS 2013), 2292–2300. [28] J. Feydy, T. S´ ejourn´ e, F.-X. Vialard, S.-i. Amari, A. Trouv´ e, G. Peyr´ e. Interpolating between opti-mal transport and MMD using Sinkhorn divergences. Proc. AISTATS , PMLR 89 (2019), 2681–2690. arXiv:1810.08278. [29] G. Peyr´ e, M. Cuturi. Computational optimal transport. Found. Trends Mach. Learn. 11 (2019), no. 5–6, 355–607. [30] L. Ambrosio, F. Stra, D. Trevisan. A PDE approach to a 2-dimensional matching problem. Probab. Theory Related Fields 173 (2019), 433–477. doi:10.1007/s00440-018-0837-x ; arXiv:1611.04960. [31] R. Peyr´ e. Comparison between W2 distance and ˙H−1 norm, and localization of Wasserstein dis-tance. ESAIM Control Optim. Calc. Var. 24 (2018), no. 4, 1489–1501. doi:10.1051/cocv/2017050 ;arXiv:1104.4631. 
+
+# A Proofs 
+
+This appendix collects the proofs of the results stated in the main text, in order of appearance. 
+
+Proof of Lemma 1. (τx, τ y)#ρ has cost |x − y|2, so W2 ≤ | x − y|; the translation z 7 → z + ( y − x)is the Brenier map between translates, attaining it. Displacement interpolation of two translates is a translate, so geodesics stay in the image (totally geodesic); the induced metric is Euclidean (flat). 
+
+Proof of Lemma 2. For any coupling π, |mean α−mean β| = |Eπ[X −Y ]| ≤ (Eπ|X −Y |2)1/2; infimize over π.
+
+Proof of Theorem 1. Two curves μbt = (τxb(t))#ρ with xb(t) = 0 for t ≤ tn and xb(t) =(−1) b ε 
+
+> (k+1)!
+
+(t − tn)k+1 e for t > t n. By Lemma 1 the directions are flat, so ∥∇ kt vbt ∥ = |x(k+1)  
+
+> b
+
+| = ε
+
+on (tn, ∞), hence μb 
+
+> •
+
+∈ Ck(ε) (the jump at tn is admissible under the ess-sup bound, or mollify; Lemma 3). The curves agree on [0 , t n], so the forecaster is fixed, while 
+
+W2(μ0
+
+> tn+h
+
+, μ 1
+
+> tn+h
+
+) = 2 εh k+1 /(k + 1)!; the triangle inequality gives the bound. 
+
+Proof of Theorem 2. With ˆ a := mean(ˆ ν)−mean( ρ), Lemma 2 gives W 22 (ˆ ν, μ tn+h) ≥ | ˆa−x(tn +h)|2.The state ( x, ˙x, . . . , x (k)) is Markov, so the past fixes the k-jet at tn; Taylor with integral remainder gives x(tn + h) = P 
+
+> j≤kx(j)(tn)
+> j!
+
+hj + 1
+
+> k!
+
+R h 
+
+> 0
+
+(h − s)kξ(tn + s)ds , a conditional mean plus an independent residual of covariance σ2Id 
+
+> (k!) 2
+> h2k+1
+> 2k+1
+
+, of trace as claimed. 
+
+Proof of Theorem 3. (A) Restrict to static curves μt ≡ μ ∈ C k(ε): data are M i.i.d. draws from μ
+
+and μtn+h = μ, so forecasting is W2 density estimation, minimax ≍ M −γd (γd = min(1 /d, 1/2), up to a possible critical-dimension logarithmic correction at d = 2) by Fano packing (Niles-Weed–Berthet; Singh–P´ oczos; upper bound Fournier–Guillin). (B) Two-point along e: x0 ≡ 0 vs x1 = p + b, p
+
+degree-k, b(t) = ε 
+
+> (k+1)!
+
+(t − tn)k+1 + . Both in Ck(ε); b ≡ 0 on the window, so data differ only through 
+
+p. With KL( ρ∥ρ(· − δe )) = 12 Ieδ2 + O(δ3), KL( P0∥P1) ≤ N I e 
+
+> 2
+
+a⊤Ga ; impose a⊤Ga ≤ 1 
+
+> N I e
+
+(KL ≤ 12 ,12 TV ≤ 12 ). Le Cam + Lemma 2 give risk ≥ 14
+
+ |w⊤a| + εh k+1 
+
+> (k+1)!
+
+; maximizing |w⊤a| over the ellipsoid gives sup a⊤Ga ≤(N I e)−1 |w⊤a| = ( N I e)−1/2(w⊤G−1w)1/2 (Cauchy–Schwarz in the G-metric), the bump b adding the extrapolation floor. 
+
+Proof of Theorem 4. Lower bound (optimized bump width). Take x0 ≡ 0, x1 = ϕ, where on [ tn −
+
+H, t n] the function ϕ spends its full budget ∥ϕ(k+1) ∥∞ ≤ ε to build a k-jet ϕ(j)(tn) ≍ εH k+1 −j , then continues by degree-k Taylor for t > t n (so ϕ(k+1) = 0 there and ϕ ∈ C k(ε)). The future separation is ϕ(tn + h) = Pkj=0  
+
+> ϕ(j)(tn)
+> j!
+
+hj ≍k ε(h + H)k+1 (the bump matches the endpoint k-jet up to k-dependent constants; the precise 1 /(k + 1)! is the maximal-jet normalization and is not needed). On the window ϕ is supported on [ tn − H, t n] with |ϕ| ≤ c εH k+1 , so P 
+
+> i
+
+ϕ(ti)2/σ 2 
+
+> N
+
+≍ M ε 2  
+
+> σ21L
+
+H2k+3 ;demanding indistinguishability ( ≤ 1) gives H ≤ H∗. Le Cam with Lemma 2 yields risk ≳ ϕ(tn + h), maximized at H = H∗. Upper bound. A degree-k local polynomial of bandwidth H has worst-case bias ≍ ε(h + H)k+1 and variance ≍ σ21 L/ (M H ) for h ≲ H; minimizing ε2H2( k+1) + σ21 L/ (M H )over H gives H ≍ H∗ and a matching error. 
+
+Proof of Lemma 5. Let ( γu)u∈[0 ,1] be the unit-time constant-speed W2-geodesic from μ0 to ν; its velocity field V has ∥V ∥ ≡ δ and ∇V V = 0. With the time profile θ(t) =  (t − (tn − H)) /H k+1 
+
+on [ tn − H, t n] — so θ(j)(tn − H) = 0 for j ≤ k and θ(k+1) ≡ (k + 1)! /H k+1 — set μt = γθ(t) on the window and μt = μ0 before it. Then vt = θ′(t)V , and since ∇ jV V = 0 for all j ≥ 1 only the scalar derivatives of θ survive: ∇kt vt = θ(k+1) (t) V , hence ∥∇ kt vt∥ = θ(k+1) δ = ( k + 1)! δ/H k+1 ≤ ε. The pre-window piece has v ≡ 0, so the curve lies in Ck(ε). 
+
+Proof of Theorem 5. Fix H and restrict Ck(ε) to the sub-family of curves equal to a fixed μ0 for t ≤
+
+tn − H that, by Lemma 5, reach an arbitrary ν in the ball BH := {ν : W2(μ0, ν ) ≤ εH k+1 /(k + 1)! }
+
+at tn. Only the nH = # {i : ti ∈ [tn − H, t n]} snapshots inside the window depend on ν, and their information is the design-weighted M eff  
+
+> H,k
+
+= N P 
+
+> i
+
+qk(si)2 ≤ MH = N n H (M eff  
+
+> H,k
+
+≍k MH ≍ M H/L 
+
+in the equispaced dense regime H ≥ ∆, Corollary 2). These are drawn not from ν but from the intermediate laws along the geodesic μ0 → ν, so the empirical-W2 minimax bound cannot be transferred to ν directly. Appendix B (Proposition 3) closes this step: an explicit transport-map packing of BH together with a Fano bound on the full snapshot experiment shows that the window experiment has effective KL sample size ≍k M eff 
+
+> H,k
+
+, yielding for each feasible bandwidth H the local minimax lower bound ≳k min( ck εH k+1 , c (M eff 
+
+> H,k
+
+)−γd ); taking the supremum over feasible H gives the second term of the displayed bound, with no continuity or monotonicity of H 7 → MH used. Appendix B freezes each packing path after tn, so over that subfamily μ(ω) 
+
+> tn+h
+
+= νω exactly and forecasting reduces to endpoint estimation with no h-dependence; the first term is the separate exact-past floor εh k+1 /(k + 1)! of Theorem 1. The closed-form optimization of this supremum — the crossing H = H# and the resulting ε(h + H#)k+1 , via max {ak+1 , b k+1 } ≍ k (a + b)k+1 — is carried out for the equispaced dense design in Corollary 2. 
+
+Lemma 6 (Non-i.i.d. empirical W2). Let X1, . . . , X m be independent, Xj ∼ Pj , all supported on a compact Ω ⊂ Rd, and ¯Pm = 1
+
+> m
+
+P 
+
+> j
+
+Pj . Then E W2
+
+  1
+
+> m
+
+P 
+
+> j
+
+δXj , ¯Pm
+
+ ≤ CΩ,d m−γd , γd =min(1 /d, 1/2) (up to the critical d = 2 logarithm). Proof. The Fournier–Guillin / Weed–Bach dyadic argument bounds W2 by a weighted sum of E | ˆP (Q) − ¯Pm(Q)| over dyadic cubes Q, ˆP = 1
+
+> m
+
+P 
+
+> j
+
+δXj . Independence gives Var   ˆP (Q) = 1
+
+> m2
+
+P 
+
+> j
+
+Pj (Q) 1 − Pj (Q) ≤ ¯Pm(Q)/m , the same per-cube control as the i.i.d. case; identical distribution is never used, only independence and bounded support. Summing over scales reproduces the i.i.d. rate. 13 Proof of Theorem 6. We bound a population bias and an empirical fluctuation separately. Step 1 (population mixture bias). The speed bound gives W2(μt, μ tn+h) ≤ ε(h + H) for all t ∈ [tn − H, t n]. Gluing the optimal couplings of each ( μti , μ tn+h) shows the population pooled mixture ¯ μH =P 
+
+> i
+
+λiμti obeys W 22 (¯ μH , μ tn+h) ≤ P 
+
+> i
+
+λiW 22 (μti , μ tn+h) ≤ max i W 22 (μti , μ tn+h) ≤ (ε(h + H)) 2, i.e. 
+
+W2(¯ μH , μ tn+h) ≤ ε(h + H). Step 2 (empirical fluctuation). The pooled empirical measure ˆ μH is built from the MH = N n H window samples — independent but not identically distributed, N
+
+from each snapshot μti . By Lemma 6 (the dyadic empirical-W2 argument needs only independence and bounded support, not identical distribution) it concentrates on its mean law ¯ μH = P 
+
+> i
+
+λiμti
+
+at the empirical-W2 rate, E W2(ˆ μH , ¯μH ) ≲ M −γd 
+
+> H
+
+. This is the fixed-N -per-snapshot design; it is not identical to i.i.d. mixture sampling, where the per-snapshot counts would themselves be random. Step 3 (triangle inequality). Hence E W2(ˆ μH , μ tn+h) ≤ W2(¯ μH , μ tn+h) + E W2(ˆ μH , ¯μH ) ≲
+
+ε(h + H) + M −γd 
+
+> H
+
+, as in the theorem statement for arbitrary design. In the equispaced dense regime (H ≥ ∆), MH ≍ M H/L , and optimizing H recovers the k = 0 rate of Corollary 2. Figure 4 is consistent with both terms and the optimized exponent. 
+
+# B The temporal–spatial reduction: a window-experiment Fano bound 
+
+This appendix proves the local minimax lower bound invoked in the proof of Theorem 5. The point it settles is that the window snapshots are drawn not from the endpoint ν but from the intermediate laws μνs along the geodesic μ0 → ν; reachability of ν (Lemma 5) does not by itself make the window experiment equivalent to direct sampling from ν. We construct an explicit packing of the reachable ball and bound the Kullback–Leibler (KL) divergence of the full snapshot experiment, so that Fano’s inequality applies. The spatial packing follows the localized transport perturbation of Wasserstein minimax lower bounds (Niles-Weed–Berthet; Weed–Bach); the smoothstep temporal embedding and the full-window KL accumulation are the new ingredients. 
+
+Window experiment. Take Ω = [0 , 1] d and let μ0 ≡ 1 be the uniform (constant) reference density (Definition 2); only this single hard reference is needed, and its constancy — not merely a two-sided bound 0 < c ≤ μ0 ≤ C — is what the density and separation estimates below require. Parametrise the window by s ∈ [0 , 1], s = ( t − tn + H)/H , with a smoothstep schedule qk(s) in place of the bare sk+1 of Lemma 5: qk(0) = 0, qk(1) = 1, q(j) 
+
+> k
+
+(0) = q(j) 
+
+> k
+
+(1) = 0 for 1 ≤ j ≤ k, and 
+
+∥q(k+1)  
+
+> k
+
+∥∞ ≤ Ck, so the path is Ck-flat at both ends (flat at s = 0 to glue with the past constant curve, flat at s = 1 so it can be frozen at νω afterwards). A concrete choice is the regularized incomplete-beta profile qk(s) = R s 
+
+> 0
+
+uk(1 − u)k du R 10 uk(1 − u)k du, with Ck = ∥q(k+1)  
+
+> k
+
+∥∞ growing in k; all ≳k constants below are k-dependent. There are nH = # {i : ti ∈ [tn − H, t n]} in-window snapshots at si, each sampled N times, MH := N n H (for the equispaced design nH ≍ nH/L and 
+
+MH ≍ M H/L once H ≥ ∆, Corollary 2). 
+
+Transport-map packing. Partition Ω into md subcubes of side 1 /m with centres xc. Fix a smooth Φ compactly supported in the open unit cube (0 , 1) d with R Φ = 0, and for ω ∈ {± 1}md
+
+set 
+
+ρω(x) = am
+
+X
+
+> c
+
+ωc Φ m(x − xc), νω = ( ∇ψω)#μ0, ψω(x) = 12 |x|2 + ρω(x).
+
+For am ≤ c0 (a small constant) ψω is convex, so ∇ψω = id + ∇ρω is a Brenier map and μ(ω) 
+
+> s
+
+=(id + qk(s)∇ρω)#μ0 traces the W2-geodesic from μ0 to νω on a Ck-flat schedule (Lemma 8). The 14 displacement field ∇ρω = a P 
+
+> c
+
+ωc∇Φ( m(x−xc)) has amplitude ≍ a on each cell of Lebesgue volume 
+
+m−d (equal to its μ0-mass, μ0 ≡ 1), so with constants depending only on Φ , d ,
+
+W2(μ0, ν ω) ≍ a, W2(νω, ν ω′ ) ≍ a
+
+q
+
+dH (ω, ω ′)/m d,dH the Hamming distance; the upper bound is the common-source coupling and the matching lower bound is the bi-Lipschitz estimate of Lemma 7, with ∥∇ ρω − ∇ ρω′ ∥2 
+
+> L2(μ0)
+
+≍ a2 dH /m d over the dH
+
+differing cells. By the Varshamov–Gilbert bound there is W ⊂ {± 1}md
+
+with |W| ≥ 2md/8 and pairwise dH ≥ md/8, hence W2(νω, ν ω′ ) ≳ a on W.
+
+Lemma 7 (Transport separation for the bump packing: a two-sided W2 bound) . Let μ0 ≡ 1 be the uniform density on Ω = [0 , 1] d, and let ρω, ρ ω′ be two potentials of the packing above with am ≤ c0
+
+for a small c0 = c0(Φ , d ). With u = ∇ρω, v = ∇ρω′ and a constant c′ = c′(Φ , d ) > 0,
+
+c′ ∥u − v∥L2(μ0) ≤ W2
+
+ (id + u)#μ0, (id + v)#μ0
+
+ ≤ ∥u − v∥L2(μ0);
+
+in particular W2(νω, ν ω′ ) ≍ a pdH (ω, ω ′)/m d.
+
+For a signed measure ξ on Ω with ξ(Ω) = 0 we use the weighted homogeneous norm ∥ξ∥ ˙H−1(μ0) := sup {R 
+
+> Ω
+
+g dξ : g ∈ C∞(Ω) , R 
+
+> Ω
+
+|∇ g|2 dμ0 ≤ 1}, equal to ∥∇ Λξ∥L2(μ0), where Λ ξ solves the weighted Neumann problem −∇ · (μ0∇Λξ) = ξ on Ω, ∂nΛξ|∂Ω = 0; since μ0 ≡ 1 it coincides with the unweighted ˙H−1(d x) norm. 
+
+Proof. Upper bound. The common-source coupling x 7 →  (id + u)( x), (id + v)( x) has cost R 
+
+> Ω
+
+|u −
+
+v|2 dμ0, so W2 ≤ ∥ u − v∥L2(μ0) unconditionally. 
+
+Lower bound. Let pw be the density of νw := (id + w)#μ0. Since μ0 ≡ 1, pw = 1 / det  I +
+
+∇w ◦ (id + w)−1, so ∥pw − 1∥∞ ≲ ∥∇ w∥∞ ≲ am for am ≤ c0 (Lemma 8(i)); in particular 
+
+pu, p v ∈ [1 − C′am, 1 + C′am ] ⊂ [c/ 2, 2C]. Peyr´ e’s non-asymptotic comparison [31, Thm. 1] gives 
+
+W2(νu, ν v) ≥ c′′ ∥pu − pv∥ ˙H−1(d x) with c′′ =  2(1 + C′c0)−1/2, and ˙H−1(d x) = ˙H−1(μ0) as μ0 ≡ 1. We compare pv − pu with its linearisation, using the Eulerian velocity . Along wτ = (1 − τ )u + τ v 
+
+set Tτ = id + wτ ; the pushforward curve τ 7 → νwτ = ( Tτ )#μ0 solves the continuity equation 
+
+∂τ pτ + ∇· (pτ bτ ) = 0 whose Eulerian velocity is the Lagrangian velocity ∂τ wτ = v − u evaluated at the current configuration , bτ = ( v − u) ◦ T −1 
+
+> τ
+
+(writing v − u directly in the Eulerian variable would drop this composition). Integrating in τ and decomposing pwτ bτ = ( v − u) + Rτ with 
+
+Rτ = ( pwτ − 1)( v − u) + pwτ
+
+(v − u) ◦ T −1 
+
+> τ
+
+− (v − u),(pv − pu) + ∇·  μ0(v − u) = −
+
+Z 10
+
+∇· Rτ dτ. 
+
+As v − u = ∇(ρω′ − ρω) is a gradient, the Neumann solution of −∇ · (μ0∇Λ) = ∇ · (μ0(v − u)) is Λ = −(ρω′ − ρω), whence ∥∇· (μ0(v − u)) ∥ ˙H−1(μ0) = ∥v − u∥L2(μ0) exactly . Both pieces of Rτ
+
+are supported on the dH differing cells: since Φ is compactly supported in the open unit cube, every Tτ is the identity near each cell boundary and maps each cell onto itself ( cell preservation ), so T −1 
+
+> τ
+
+(y) lies in the same cell as y and v − u vanishes off the differing cells, where |v − u| ≍ a,
+
+∥∇ (v − u)∥∞ ≍ am , and ∥wτ ∥∞ ≲ a. Hence, for any g with R |∇ g|2dμ0 ≤ 1: (a) density remainder 
+
+— R g ∇·  (pwτ −1)( v−u) = R ∇g·(pwτ −1)( v−u) ≤ ∥ pwτ −1∥∞∥v−u∥L2(μ0) ≲ am ∥v−u∥L2(μ0);
+
+(b) composition remainder — on each differing cell |(v−u)◦T −1 
+
+> τ
+
+−(v−u)| ≤ ∥∇ (v−u)∥∞ |T −1 
+
+> τ
+
+−id | ≲
+
+(am ) a while |v −u| ≍ a, so ∥(v −u)◦T −1 
+
+> τ
+
+−(v −u)∥L2(μ0) ≲ am ∥v −u∥L2(μ0) and the ˙H−1(μ0)-norm of ∇·  pwτ [· · · ] is ≲ am ∥v − u∥L2(μ0). Combining, ∥pu − pv∥ ˙H−1(μ0) ≥ (1 − C′′ am )∥v − u∥L2(μ0),15 so W2(νu, ν v) ≥ c′ ∥u − v∥L2(μ0) with c′ = c′′  1 − C′′ c0
+
+ > 0 for c0 small. Both remainders use only ∥∇ (u − v)∥∞ ≍ am and the constancy of μ0 — no spatial regularity of the reference beyond constancy. For the packing u − v = ∇(ρω − ρω′ ) has amplitude ≍ a on the dH differing cells, each of Lebesgue volume m−d (equal to its μ0-mass since μ0 ≡ 1), so ∥u − v∥L2(μ0) ≍ apdH /m d.
+
+Lemma 8 (Bump regularity) . There is c0 = c0(Φ , c, C ) > 0 such that for am ≤ c0: (i) each 
+
+νω has density in [c/ 2, 2C] and id + θ∇ρω is a diffeomorphism of Ω for all θ ∈ [0 , 1] ; (ii) the displacement interpolation is the W2-geodesic and lies in the regular class; (iii) along it ∥∇ kt vt∥ ≤ 
+
+Ck W2(μ0, ν ω)/H k+1 with Ck = ∥q(k+1)  
+
+> k
+
+∥∞, so the path lies in Ck(ε) whenever W2(μ0, ν ω) ≤ rH := 
+
+εH k+1 /C k ≍k εH k+1 .
+
+This is the standard small-C2-perturbation argument for Brenier maps (cf. [23, 24]); part (iii) 
+
+is the reparametrisation identity of Lemma 5 with the smoothstep constant Ck.
+
+Lemma 9 (Hamming-localized density separation) . For am ≤ c0 and every s ∈ [0 , 1] ,
+
+μ(ω) 
+
+> s
+
+− μ(ω′) 
+
+> s
+> 2
+> L2(Ω)
+
+≤ C q k(s)2 a2m2 dH (ω, ω ′)
+
+md ,C = C(Φ , c, C ).Proof. Since Φ is compactly supported in the open unit cube, ∇Φ vanishes in a neighbourhood of each cell boundary; as T (s) 
+
+> ω
+
+:= id+ qk(s)∇ρω is a diffeomorphism equal to the identity there, it maps each cell onto itself (cell preservation). Hence the inverse x = ( T (s) 
+
+> ω
+
+)−1(y) lies in the same cell as 
+
+y, where both ∇ρω and ∇2ρω depend only on ωc. Because μ0 ≡ 1 is constant the numerator of the pushforward density carries no spatial dependence : p(ω) 
+
+> s
+
+(y) = 1 / det  I + qk(s)∇2ρω(x) depends, on cell c, only on ωc. In particular, for two codewords ω, ω ′ the otherwise-delicate numerator difference μ0(xω) − μ0(xω′ ) (which for a merely bounded reference would require Lipschitz/Sobolev control) vanishes identically , so p(ω) 
+
+> s
+
+−p(ω′) 
+
+> s
+
+is supported on the dH differing cells and is controlled by the determinant alone. There ∇2ρ has amplitude am (since ∇2[ am Φ( m·)] = am Φ′′ (m·)), and with 
+
+qk(s) am ≤ c0 the determinant expands as 1+ O(qk(s) am ), so |p(ω) 
+
+> s
+
+−p(ω′) 
+
+> s
+
+| ≲ qk(s) am over Lebesgue volume m−d per cell (its μ0-mass, μ0 ≡ 1). Only this upper bound is needed (the matching W2
+
+lower separation is Lemma 7). Squaring and summing over the dH differing cells gives the stated bound. 
+
+KL of the snapshot experiment. Write δp (ω) 
+
+> s
+
+= μ(ω) 
+
+> s
+
+− μ0. A change of variables gives δp (ω) 
+
+> s
+
+=
+
+−qk(s) ∇· (μ0∇ρω) + R(ω) 
+
+> s
+
+with ∥R(ω) 
+
+> s
+
+∥L2 ≲ (am )2. Since all densities are ≥ c/ 2 and am ≤ c0, a fixed constant C (depending only on c0, Φ, c ) bounds 
+
+DKL 
+
+ μ(ω) 
+
+> s
+
+μ(ω′)
+
+> s
+
+ ≤ 1
+
+c
+
+Z
+
+> Ω
+
+ μ(ω) 
+
+> s
+
+− μ(ω′)
+
+> s
+
+2 ≤ C q k(s)2 I(ω, ω ′), I(ω, ω ′) := a2m2 dH (ω, ω ′)
+
+md
+
+(the L2 separation is Lemma 9; a constant upper bound, not a leading-order equivalence, is all Fano needs, so the am = O(1) remainder is absorbed into C). Summing the N draws at each of the nH snapshots, the pairwise KL of the full snapshot experiment is 
+
+Dtot (ω, ω ′) := X
+
+> i
+
+N D KL 
+
+ μ(ω) 
+
+> si
+
+∥μ(ω′)
+
+> si
+
+ ≲k M eff  
+
+> H,k
+
+I(ω, ω ′), M eff  
+
+> H,k
+
+:= N X 
+
+> i:ti∈[tn−H,t n]
+
+qk(si)2,
+
+16 the design-weighted effective sample size. Since 0 ≤ qk ≤ 1 we have M eff  
+
+> H,k
+
+≤ N n H = MH for every design, and the endpoint snapshot alone ( si = 1, qk(1) = 1) forces M eff  
+
+> H,k
+
+≥ N . The smoothstep concentrates information near the endpoint ( qk(si) ≈ 0 for small si), so a design clustered at the window start carries strictly less information than its raw count MH suggests — the shape-channel analogue of the location-channel leverage of Theorem 4, with P 
+
+> i
+
+qk(si)2 in place of P
+
+> i
+
+(ti − tn)2k.
+
+For the equispaced design the Riemann sum gives P 
+
+> i
+
+qk(si)2 ≈ nH
+
+R 10 qk(s)2 ds = nH cq,k with 
+
+cq,k ∈ (0 , 1) a k-constant, so M eff  
+
+> H,k
+
+≍k MH ; for a general design only the inequality M eff  
+
+> H,k
+
+≤ MH is used. 
+
+Proposition 3 (Local minimax lower bound over the reachable ball) . Under Definition 2, with the reachable ball BH = {ν : W2(μ0, ν ) ≤ rH }, rH ≍k εH k+1 , and the design-weighted effective sample size M eff  
+
+> H,k
+
+of the window experiment above, 
+
+inf  
+
+> ˆν
+
+sup    
+
+> μ•∈C k(ε): μtn ∈B H
+
+E W2(ˆ ν, μ tn ) ≳k min  rH , c (M eff 
+
+> H,k
+
+)−γd , γd = min(1 /d, 1/2) .
+
+For the equispaced design M eff  
+
+> H,k
+
+≍k MH ≍ M H/L (for H ≥ ∆), recovering the closed-form rate of Corollary 2. Proof. Use the packing {νω}ω∈W at the largest admissible amplitude a. Two constraints bound a:the path must lie in Ck(ε), i.e. a ≲ rH ≍k εH k+1 (Lemma 8(iii)), and the map must stay monotone, 
+
+am ≤ c0. Pairwise separation is ≳ a (Varshamov–Gilbert, dH ≥ md/8), and since dH ≤ md the total KL obeys Dtot ≲k M eff  
+
+> H,k
+
+a2m2. Fano’s inequality ([13], Thm. 2.5) gives a lower bound of order the separation once Dtot + log 2 ≤ 12 log |W| ≍ md, i.e. 
+
+M eff  
+
+> H,k
+
+a2m2 ≲k md ⇐⇒ a2 ≲k
+
+md−2
+
+M eff 
+
+> H,k
+
+.
+
+Maximising a over m subject to am ≤ c0: for d ≥ 3 the binding choice is m ≍ (M eff 
+
+> H,k
+
+)1/d , giving 
+
+a ≍ (M eff 
+
+> H,k
+
+)−1/d ; for d ≤ 2 the optimum is at m ≍ 1, where the packing reduces to a fixed finite 
+
+(Varshamov–Gilbert) hypothesis set and the bound is equivalently a Le Cam/finite-Fano two-point-type argument, giving the parametric a ≍ (M eff 
+
+> H,k
+
+)−1/2 (the critical d = 2 logarithmic factor is not 
+
+produced by this single-scale packing and is not claimed here). Thus the largest separation a 
+
+Ck(ε)-admissible packing supports is ≍k min( rH , (M eff 
+
+> H,k
+
+)−γd ), and the minimax error is ≳k this value. 
+
+From the ball to the forecast. Because the smoothstep qk is Ck-flat at s = 1 (all derivatives up to order k vanish at tn), the constant continuation μ(ω) 
+
+> t
+
+= νω for t ≥ tn is a genuine Ck extension — no velocity jump — and keeps the path in Ck(ε). Hence μ(ω) 
+
+> tn+h
+
+= νω, so forecasting μtn+h over this sub-family is exactly estimating νω ∈ B H , and Proposition 3 lower-bounds the forecast risk by the spatial term of Theorem 5. Combined with the disjoint exact-past floor of Theorem 1 (location channel) and optimised over H, this yields the stated ≳k ε(h + H#)k+1 . The packing lives in the class by the local transport-richness of Definition 2; Proposition 3 is thus the promised local statistical-richness bound, derived from regularity rather than assumed. 
+
+Remark 6 (The lower bound is unconditional; consolidated constants) . Unlike the matching upper bound for k ≥ 1 (Proposition 5, conditional on the estimates (C),(S) of Appendix D), the lower bound proved here invokes no unverified hypothesis beyond Definition 2. It uses only: the constant reference μ0 ≡ 1; a single compactly supported bump Φ; Peyr´ e’s non-asymptotic W2– ˙H−1 compar-ison [31]; the Varshamov–Gilbert and Fano inequalities [13]; and the Fournier–Guillin/Weed–Bach 17 empirical-W2 rate [9, 16]. The chain of constants is explicit and finite at each fixed k: c0 = c0(Φ , d )(monotonicity, Lemma 8), c′′ = (2(1 + C′c0)) −1/2 (Peyr´ e), c′ = c′′ (1 − C′′ c0) > 0 (separation, Lemma 7), Ck = ∥q(k+1)  
+
+> k
+
+∥∞ and cq,k = R 10 qk(s)2 ds ∈ (0 , 1) (smoothstep schedule); none vanishes or diverges at fixed k. Consequently the design-dependent lower bound (with the weighted M eff 
+
+> H,k
+
+)holds unconditionally for every k ≥ 0 and arbitrary observation design; its closed-form exponent 
+
+γd(k + 1) /(k + 1 + γd) and the floor ε(h + H#)k+1 additionally use the equispaced dense design (Corollary 2, where M eff  
+
+> H,k
+
+≍k MH ). With the k = 0 matching upper bound (Theorem 6) the char-acterization is tight at k = 0; the general-k upper bound is the sole remaining gap (Conjecture 1). 
+
+# C A degree-k tangent-space forecaster behind Conjecture 1 
+
+This appendix makes Conjecture 1 concrete: we give an explicit degree-k forecaster on P2(Rd), decompose its error, prove the parts that are unconditional — recovering the rate at k = 0 and on flat submodels — and isolate what remains open as two named estimates, (C) and (S). 
+
+C.1 Construction 
+
+Write s = t−tn, so the window is s ∈ [−H, 0] and the target is s = h > 0. Fix a kernel K supported on [ −1, 0] and set KH (s) = K(s/H ). The N draws at each snapshot are split into two folds D0, D1
+
+(sample splitting). 
+
+Step 1 (base point). From D0 form an estimate ¯ μ of μtn — the kernel-weighted Wasserstein barycenter of the windowed empirical snapshots, or simply the empirical measure of the snapshot nearest tn.
+
+Step 2 (chart coordinates). For each windowed snapshot ti, using D1, estimate the optimal transport map ˆTi from ¯ μ to the empirical measure ˆ μti , and set the log coordinate ˆUi := ˆTi − id ∈
+
+L2(¯ μ; Rd). Its population version is U (si) := Log ¯μμtn+si = T ¯μ→μtn +si − id. 
+
+Step 3 (degree-k regression in the chart). In the Hilbert space L2(¯ μ; Rd) solve ( ˆA0, . . . , ˆAk) = arg min  
+
+> Aj∈L2(¯ μ)
+
+X
+
+> i
+
+KH (si) ˆUi − Pkj=0 Aj s ji
+
+> 2
+> L2(¯ μ)
+
+.
+
+This separates over ¯ μ-a.e. x into scalar degree-k local polynomial regressions of { ˆUi(x)} on {si},so ˆAj (x) = P 
+
+> i
+
+ωj (si) ˆUi(x) with the usual local-polynomial weights ωj (the same for every x,depending only on {si} and KH ). 
+
+Step 4 (extrapolate and lift). Evaluate the fitted polynomial at s = h, ˆU⋆ = Pkj=0 ˆAj hj , and output ˆ ν = Exp ¯μ( ˆU⋆) = (id + ˆU⋆)# ¯μ. At k = 0 the regression returns the kernel-weighted average of the coordinates (a transport-barycentric persistence); the mixture forecaster of Theorem 6 is an equally valid degree-0 rule and is the one analyzed there. 
+
+C.2 Error decomposition 
+
+Since the Brenier map from ¯ μ to the nearby target exists on the regular class, Exp ¯μU (h) = μtn+h.The exponential is 1-Lipschitz from L2(¯ μ) to ( P2(Rd), W 2) — W2((id + a)# ¯μ, (id + b)# ¯μ) ≤ ∥ a −
+
+b∥L2(¯ μ), the two maps coupling the measures — so 
+
+W2(ˆ ν, μ tn+h) ≤ ∥ ˆU⋆ − U (h)∥L2(¯ μ) ≤ E ˆU⋆ − U (h)
+
+| {z }
+
+> (B) in-chart bias
+
++ ˆU⋆ − E ˆU⋆
+
+| {z }
+
+> (V) variance
+
+,
+
+expectations over D1 given ¯ μ (the folds are independent by Step 1). 18 C.3 The in-chart bias (B): unconditional given chart smoothness 
+
+If s 7 → U (s) ∈ Ck+1 ([ −H, h ]; L2(¯ μ)) with sup s ∥U (k+1) (s)∥L2(¯ μ) ≤ ε′, the standard local-polynomial remainder (Fan–Gijbels [22]), applied ¯ μ-pointwise and integrated, gives 
+
+E ˆU⋆ − U (h) L2(¯ μ) ≤ Ck,K ε′ (h + H)k+1 .
+
+This is rigorous: it uses only the chart-curve smoothness ε′ and boundedness of the weights ωj for 
+
+h ≲ H (a well-conditioned design Gram matrix, as in Corollary 1). 
+
+C.4 The two open estimates 
+
+(C) Chart stability (curvature). The in-chart derivative ∂k+1  
+
+> s
+
+U differs from the intrinsic co-variant derivative ∇kt v by terms involving the curvature of P2(Rd) contracted with lower-order velocities (Gigli’s second-order calculus). On flat submodels — translation (Lemma 1) and Gaus-sian/Bures families, where ¯ μ-geodesics are affine — Log ¯μ is an isometry on the window, so ∂k+1  
+
+> s
+
+U =
+
+∇kt v and ε′ = ε exactly; Proposition 1 shows the leading correction otherwise enters only at order 
+
+hk+3 for k ≤ 2. Assumption (C): on the regular class sup s ∥U (k+1) (s)∥L2(¯ μ) ≤ c1ε.
+
+(S) Chart estimation rate. The coordinate ˆUi requires estimating the Brenier map ¯ μ → μti
+
+from N samples. On the regular class, plug-in and entropic map estimators converge in L2(¯ μ) at the empirical-measure scale (H”utter–Rigollet [23]; Manole et al. [24]; Pooladian–Niles-Weed [25]), and sample splitting makes ¯ μ ⊥ { ˆUi}. As ˆU⋆ = P 
+
+> i,j
+
+ωj (si)hj ˆUi is a fixed bounded-weight linear combination pooling MH ≍ M H/L samples, 
+
+E ˆU⋆ − E ˆU⋆ L2(¯ μ) ≲ (M H/L )−γd , γd = min(1 /d, 1/2) .
+
+Assumption (S): the displayed variance bound holds on the regular class. 
+
+C.5 Conclusion 
+
+Under (C) and (S), E W2(ˆ ν, μ tn+h) ≲ ε(h+H)k+1 +( M H/L )−γd , and optimizing H as in Theorem 6 yields the unified rate of Theorem 5; the forecaster is then minimax-rate-optimal, which would es-tablish Conjecture 1 (stated as the conditional Proposition 5). Both estimates hold unconditionally at k = 0 — (C) is the 1-Lipschitz drift bound W2(μt, μ tn+h) ≤ ε(h + H) and (S) the empirical-W2
+
+rate (Theorem 6) — and for all k on flat/Gaussian submodels (chart isometric, maps affine and estimable at N −γd ). The residual content of the conjecture is therefore exactly (C) for k ≥ 1 in the curved regime, a quantitative second-order Otto-calculus estimate, and (S), an optimal-transport map-estimation rate matching the empirical-measure exponent — both of a kind studied in the literature, though not, to our knowledge, in the combined window-regression form required here. Appendix D carries out that combination, giving an explicit covariant (development-based) fore-caster and reducing the k ≥ 1 bound to (C) and (S) stated as assumptions; establishing them unconditionally on the regular class remains open. 
+
+# D A covariant forecaster for the general-k upper bound 
+
+Appendix C reduced Conjecture 1 to the chart-stability estimate (C) and the map-estimation rate (S). This appendix gives an explicit covariant forecaster and reduces the k ≥ 1 matching upper bound to two clean estimates, which we state as Assumptions (C) and (S) below; we verify 19 them at k = 0 and on flat/Gaussian submodels, and the resulting bound (Proposition 5) is therefore 
+
+conditional on these assumptions for k ≥ 1. We do not claim to establish them unconditionally on the regular class: a caveat is in order, since ( P2(Rd), W 2) is not a finite-dimensional smooth manifold, and the global existence, regularity, and curvature bounds underlying the development calculus we use are themselves nontrivial (see [1, 2] for the available second-order structure and Section D.6 for what remains open). The construction nonetheless makes the obstruction to (C) precise — it is genuine for the naive in-chart forecaster — and identifies the covariant remedy. We keep the notation of Appendix C: ¯μ the in-window reference, U = Log ¯μ(·) the chart, v = ˙ γ,and ∇t the Levi-Civita covariant derivative on ( P2(Rd), W 2) (Otto calculus; Gigli’s second-order structure [2]). Independently of the conditional rate, two ingredients here are exact and self-contained and may be read on their own: the development jet identity (1) and the order-( k+1) curvature cancellation (Remark 7), which pinpoints why a naive in-chart extrapolator fails and what a covariant one must cancel. 
+
+D.1 The covariant forecaster 
+
+Let eγ : [0 , h ] → T¯μP2(Rd) be the Cartan development of γ, i.e. eγ ′(s) = P0←s ˙γ(s) with P0←s parallel transport along γ. Using dds 
+
+ P0←sX(s) = P0←s∇tX(s) and P0←0 = id gives, for all j ≥ 1, 
+
+eγ(j)(0) = ∇ j−1 
+
+> t
+
+v 0. (1) The degree-k covariant forecaster extrapolates the development by its degree-k Taylor polynomial and maps back through the anti-development: 
+
+bν = antidev 
+
+
+
+s 7 → Pkj=1 sj
+
+> j!
+
+\
+
+∇ j−1 
+
+> t
+
+v
+
+
+
+> s=h
+
+,
+
+the covariant derivatives \
+
+∇ j−1 
+
+> t
+
+v being estimated by the tangent-bundle regression of Appendix C. Expanding the anti-development in the chart yields the explicit form bUcov (h) = Pkj=1 hj
+
+> j!
+
+\
+
+∇ j−1 
+
+> t
+
+v +
+
+P 
+
+> i≥k+1
+
+hici, whose corrections ci are built from the estimated jet and the curvature of P2(Rd)at ¯ μ [2]; the leading correction is at order hk+1 . For k = 3 it equals − h4 
+
+> 24
+
+R(v, ∇tv)v, the order-4 coefficient of U ◦ γ minus ∇3 
+
+> t
+
+v.
+
+D.2 Bias: the estimate (C) 
+
+The bias splits into the development Taylor remainder — exact and curvature-free in T¯μP2(Rd) — and the Lipschitz stability of the anti-development. We isolate the geometric content as an explicit assumption and indicate the candidate argument, which we do not claim to be rigorous in the infinite-dimensional setting (Section D.6). 
+
+Assumption 1 (Comparison-geometry estimate (C)) . On the regular class the Cartan development and anti-development of admissible curves exist and are unique, the chart Log ¯μ and the Brenier maps from the barycenter ¯ μ to the snapshots are Ck (Caffarelli regularity — the pairwise/chart smoothness deliberately excluded from Definition 2), the relevant variation family is differentiable, the sectional curvature of ( P2(Rd), W 2) along the spanned 2-planes lies in a fixed [0 , ¯κ] with ¯ κ < 
+
+∞, and the anti-development is Cgeo -Lipschitz from development curves (sup-norm) to W2 with 
+
+Cgeo = 1 + O(¯ κ∥v∥2h2) bounded for every h.20 Candidate argument (non-rigorous). Linearise the anti-development along σλ = eγ + λ Tk[eγ] −
+
+eγ; the variation field Jλ formally solves a forced Jacobi equation ∇2 
+
+> s
+
+Jλ + R(Jλ, ˙c) ˙ c = uλ ¨δ + Hλ
+
+with a holonomy term Hλ from the frame variation. For sec ≥ 0 (global on P2(Rd) for a Eu-clidean base [1, 3]) the homogeneous Jacobi Green’s function is bounded by the flat ( s − τ ) with no conjugate-point restriction — conjugate points obstruct the two-point boundary problem, not this forced initial-value problem — suggesting a contraction Cgeo = 1 − O(¯ κ∥v∥2h2), with the holon-omy contributing a higher-order O(¯ κ∥v∥ ∥∇ tv∥h3) that is dominated in the slow-variation regime 
+
+∥∇ tv∥h ≲ ∥v∥. Turning this into a theorem requires the well-posedness and uniform curvature bound of Assumption 1 and an operator-valued Rauch comparison in P2(Rd), none of which we establish; hence (C) is an assumption, not a lemma. 
+
+Proposition 4 (Bias under (C)) . Let k ≥ 1 and grant Assumption 1. If sup [0 ,h ] ∥∇ kt v∥L2(¯ μ) ≤ ε,then W2
+
+ bν, μ tn+h
+
+ ≤ Cgeo ε h k+1 /(k + 1)! .Proof. By (1) the development of γ and its degree-k Taylor agree to first order at 0, and their difference δ has ∥¨δ(s)∥ ≤ εs k−1/(k−1)!; the Lagrange remainder gives R h 
+
+> 0
+
+(h−τ )∥¨δ∥ dτ = εh k+1 /(k+1)! in T¯μP2(Rd), with no curvature term (parallel transport is isometric). The Cgeo -Lipschitz anti-development of Assumption 1 turns this into the stated W2 bias. 
+
+Remark 7 (The naive forecaster fails (C)) . The order-( k+1) chart derivative of U ◦ γ equals ∇kt v
+
+plus curvature corrections each carrying at least one covariant acceleration ∇jt v, j ≥ 1: along any 
+
+W2-geodesic the chart curve is the straight line s 7 → sv and all ∇jt v vanish, so a pure-velocity 
+
+correction would contradict straightness and hence cannot occur; mixed corrections do. For k = 3 the correction is −R(v, ∇tv)v, of size ≍ ∥ R∥ ∥ v∥2∥∇ tv∥, which is O(1) rather than O(ε) unless the entire jet is small. Thus the naive in-chart forecaster of Appendix C does not achieve the curvature-free bias of estimate (C) for k ≥ 3, whereas the covariant forecaster cancels the correction by construction — this is precisely why a covariant extrapolation is needed. 
+
+D.3 Variance: the estimate (S) 
+
+Lemma 10 (Optimality of the empirical exponent on the class) . The packing of Appendix B may be taken with bounded potential Hessian ( am ≤ c0, hence inside the regular class) while the perturbed density has Hessian of order m2. The densities therefore do not lie in a fixed H¨ older ball as m →∞, so density smoothness cannot be exploited and the empirical-W2 exponent γd = min(1 /d, 1/2) 
+
+(Fournier–Guillin [9]; Weed–Bach [16]; cf. the smooth regime of [10]) is minimax-optimal on the class. 
+
+Assumption 2 (Map-estimation rate (S)) . On the regular class, the chart estimate of the degree-
+
+k covariant forecaster — the Brenier (transport) map obtained by drift-correcting the in-window samples to the forecast time via the estimated jet and pooling the resulting MH ≍ M H/L samples — estimates the drift-removed chart value in L2(¯ μ) at the rate E∥ bU (0) − E bU (0) ∥2 
+
+> L2(¯ μ)
+
+≲ (MH )−2γd .Estimate (S) is a transport-map rate, not the distribution rate, and the two are not interchangeable: 
+
+W2(bμ, μ ) ≍ M −γd does not by itself give the same L2(¯ μ) rate for the Brenier map. Map-estimation bounds of this order are available under additional regularity — smooth maps, strongly convex potentials (H¨ utter–Rigollet [23]; Manole et al. [24]) — but not for an arbitrary bounded-density class, which is why we state (S) as an assumption rather than derive it from Lemma 10. By Lemma 10 the exponent in (S), if attained, cannot be improved; achievability itself is the content of the assumption, since a lower bound does not certify an estimator. 21 Candidate argument (non-rigorous) and the design factor. Granting (S), the forecast 
+
+bUcov (h) = Pkj=0 hj 
+
+> j!
+
+\U (j)(0) = qk(h/H )⊤ bβ is a fixed linear functional of the degree-k local-polynomial coefficients bβ; with the in-window snapshots ( N samples each, ≍ nH/L of them, MH = M H/L 
+
+pooled) uniform on the rescaled window, the weighted Gram matrix tends to the Hilbert moment matrix fMk = (1 /(i+j+1)) 0≤i,j ≤k, so the pooled value-variance ( MH )−2γd of (S) propagates to the forecast through the exact design quadratic form 
+
+E bUcov (h) − E bUcov (h) 2 
+
+> L2(¯ μ)
+
+≲ (M H/L )−2γd Φk(h/H ),
+
+where Φ k(r) = qk(r)⊤ fM −1 
+
+> k
+
+qk(r) with qk(r) = (1 , −r, . . . , (−r)k), and whose two governing diagonal entries are exact and classical, Φ k(0) = [ fM −1 
+
+> k
+
+]00 = ( k + 1) 2 and [ fM −1 
+
+> k
+
+]kk = (2 k + 1)  2kk
+
+2 ∼ 2 
+
+> π
+
+16 k
+
+(Fan–Gijbels [22]); sample-splitting keeps ¯ μ ⊥ bβ. For h ≲ H the prefactor is the polynomial (k + 1) 2, so the variance is ≍ (M H/L )−2γd uniformly in k; the exponential constant governs only far extrapolation h ≫ H. The single non-rigorous step is (S) itself; the choice to pool rather than average snapshots is forced by resolution — for d ≥ 3 the empirical-W2 error is a common, non-cancelling deficit, so averaging the ≍ nH/L snapshots stays floored at the single-snapshot N −γd
+
+(a naive N −γd (nH/L )−1/2 would undercut Theorem 5), while pooling reaches the MH -sample resolution; for d ≤ 2 the two coincide. 
+
+D.4 Conditional general-k characterization 
+
+Proposition 5 (Conditional matching upper bound for k ≥ 1, equispaced dense design) . Let k ≥ 1
+
+and grant Assumptions 1 and 2. On a regular problem under the equispaced dense design ( H# ≥ ∆,so MH ≍ M H/L ) the degree-k covariant forecaster attains 
+
+E W2
+
+ bν, μ tn+h
+
+ ≲ ε (h + H)k+1 + ( M H/L )−γd ,
+
+and optimizing H = H# =  (L/M )γd /ε 1/(k+1+ γd) gives, for h ≲ H#, the M -exponent γd(k +1) /(k + 1 + γd) of Theorem 5. Thus, conditionally on (C) and (S) , the upper bound matches the lower bound for all k in the window-limited regime h ≲ H#. The unconditional statement (without (C),(S)) is Conjecture 1. Proof. Add the bias of Proposition 4 ( ≤ Cgeo εh k+1 /(k + 1)! under (C), and ε(h + H)k+1 once the window fit over [ −H, h ] is included) and the variance under (S) via the design factor of Section D.3 (≍ (M H/L )−2γd for h ≲ H, since Φ k(h/H ) ≍ (k+1) 2 there), then optimize over H as in Theorem 6; the exponent is unimprovable by Theorem 5 and Lemma 10. 
+
+D.5 Necessity of the regularity 
+
+Proposition 6 (Sufficiency and rate-tightness of the regularity) . The two regularity layers play distinct, non-gratuitous roles. (Lower bound, spatial.) By Lemma 10 the packing of Appendix B already saturates the empirical-W2 exponent γd while remaining inside the reference-star class of Definition 2, so strengthening the smoothness of the densities cannot improve the spatial rate — the 
+
+spatial exponent is tight on this class . (Upper bound, chart.) The conditional forecaster instead needs the chart regularity of Assumption 1: Caffarelli regularity — convex support and density bounded away from 0 and ∞ — is what makes the Brenier maps from the barycenter, hence the chart Log ¯μ and the development (1) , well defined and Ck, so that the jet ∇jt v exists and is estimable; dropping it removes the very object the forecaster extrapolates. Thus the spatial exponent is tight 
+
+22 and the chart assumption is necessary for the construction to be defined ; the remaining structural conditions (star-geodesic closure, reference-map smoothness) are sufficient ingredients used by the proofs rather than individually shown necessary. 
+
+D.6 Scope 
+
+We separate what is established from what is assumed. Exact: the development identity (1), the curvature-cancellation of Remark 7 (the order-4 coefficient −R(v, ∇tv)v), and the design constants Φk(0) = ( k + 1) 2, [ fM −1 
+
+> k
+
+]kk = (2 k + 1)  2kk
+
+2. Assumed (and hence the source of the “conditional” in Proposition 5): Assumption 1, comprising (a) well-posedness of the Cartan development/anti-development, the variation calculus, and the Caffarelli chart regularity (smooth Brenier maps from the barycenter, excluded from Definition 2) in ( P2(Rd), W 2) — which, unlike a finite-dimensional manifold, does not follow automatically and rests on the second-order theory of [1, 2]; (b) a uni-form sectional-curvature upper bound ¯ κ < ∞ over the regular class, not implied by Definition 2 (Wasserstein curvature depends on the densities and potential derivatives, and need not be uni-formly bounded); and (c) validity of the operator-valued, variable-curvature Rauch/Jacobi com-parison in this setting, of which the scalar Green-kernel computation in the candidate argument of Section D.2 is only the model case. And Assumption 2, a transport-map (not distribution) estima-tion rate for the pooled, drift-corrected estimator, known only under extra map regularity [23, 24] and not for an arbitrary bounded-density class. Caveats: the contraction Cgeo ≤ 1 holds only in the slow-variation regime ∥∇ tv∥h ≲ ∥v∥ (the holonomy term has positive sign); the operating regime is the window-limited h ≲ H#; the d = 2 logarithmic correction (Appendix G) is left at the power-law level. Establishing (C) and (S) unconditionally on the regular class — in particular a uniform curvature bound and a map-estimation rate at the empirical-measure exponent — is the content of Conjecture 1 and is left open. 
+
+# E Numerical verification 
+
+Exponents survive curvature (Figure 1). We compare degree-k extrapolation on a flat trans-lation family (right; W2 is Euclidean on the mean) against a curved path of zero-mean Gaussians with rotating eigenvectors (left; the covariances do not commute, so the path is genuinely curved in the Bures–Wasserstein manifold), scored by the closed-form Bures distance. Both give fitted log–log slopes ≈ k + 1 — curved 0 .96 , 2.03 , 3.01 and flat 0 .98 , 1.99 , 2.99 for k = 0 , 1, 2 — consistent with the prediction that, in this tested finite-dimensional submodel, curvature changes the leading 
+
+constant but not the local horizon exponent hk+1 (the curved/flat ratio runs 0 .50 , 0.93 , 1.90 across 
+
+k); cf. Proposition 1/Lemma 4. (N, h ) phase diagram (Figure 2). This verifies Theorem 3(B) and Corollary 1 directly, using the lower-bound construction itself: ρ = N (0 , 1), n = 8 ( L = 7), k = 1, window truth a degree-k
+
+trend and the future carrying the invisible bump b. The order-k least-squares extrapolant then has, exactly, bias equal to the extrapolation floor εh k+1 /(k + 1)! (the future deviation is information-theoretically unobservable) and variance equal to the leverage 1 
+
+> N
+
+w⊤G−1w. Panel A maps the RMS 
+
+pEW 22 =
+
+p
+
+floor 2 + var over ( N, h ); the white phase boundary εh k+1 /(k + 1)! = √v separates the extrapolation-limited regime (error set by h, independent of N : the dimension-free floor) from the statistics-limited regime ( N −1/2 leverage). Panels B–C confirm the limiting scalings ( N −1/2 → bias plateau; slope k → k+1 in h); Monte Carlo (markers) matches the analytic risk to within 1 .3%. 23 Figure 1: Horizon exponent survives curvature (Proposition 1). (Left) a curved path of zero-mean Gaussians with rotating eigenvectors (Bures–Wasserstein), degree-k Taylor extrapolation, closed-form Bures error: slopes ≈ 1, 2, 3. (Right) a flat translation control: slopes ≈ 1, 2, 3. The integer exponent is identical on both; only the constant differs. The fitted large-h slope of √w⊤G−1w is 0 .97 ≈ k with effective scale 6 .4 ≈ L, confirming that the leverage is governed by the window L, not the spacing. 
+
+Sharp extrapolation rate (Figure 3). Using a dense design ( n = 600) and a small hori-zon ( h = 0 .02) to remain in the h-independent deep-statistics regime H∗ ≫ h, the optimized-bandwidth local-polynomial forecaster has error decaying as M −(k+1) /(2 k+3) . The fitted exponents 0.314 , 0.390 , 0.421 , 0.438 for k = 0 , 1, 2, 3 track the theoretical 0 .333 , 0.400 , 0.429 , 0.444 (Figure 3B; the small undershoot is the expected pre-asymptotic bias) and stand well clear of the loose para-metric 1 /2. Monte Carlo matches the analytic bias–variance to within 0 .5%. 
+
+Unified rate over P2(Rd) (Figure 4). Three pieces, on isotropic Gaussians drifting in Rd.
+
+(1) The spatial curse. The empirical-W2 fluctuation E W2(ˆ μM , ˆμ′ 
+
+> M
+
+) between two M -sample clouds — a two-sample proxy for the estimation risk E W2(ˆ μM , μ ), which shares its exponent — decays at the predicted M − min(1 /d, 1/2) : a debiased Sinkhorn divergence [27, 28] on the GPU gives fitted exponents 0 .39 , 0.31 , 0.23 , 0.19 , 0.17 for d = 2 , . . . , 6 (theory 0 .50 , 0.33 , 0.25 , 0.20 , 0.17), and an independent exact network-simplex solver [29] reproduces 0 .39 , 0.31 , 0.24 for d = 2 , 3, 4 — the two optimal-transport solvers agree to within 0 .01, so the measured curse is not an entropic-regularization artifact. The d = 2 undershoot (0 .39 vs. 0 .50) is the boundary log-correction. The d = 2 undershoot (0 .39 vs. 0 .50) is this Ajtai–Koml´ os–Tusn´ ady / Ambrosio–Stra–Trevisan effect [30]: in d = 2 the two-sample fluctuation scales as plog M/M , whose finite-range log–log slope over M ∈ [6 ×10 2, 4×10 3] is − 12 + 12 log M ≈ − 0.43 (Appendix G), already below the asymptotic 0.50 and close to the observed 0 .39. (2) The unified exponent. Combining the measured curse with the exact temporal Otto–Taylor bias and optimizing the pooling window reproduces the predicted γd(k + 1) /(k + 1 + γd) (Panel 3, solid vs. dashed): the exponent rises with smoothness k
+
+and falls with d, collapsing to the location rate for d ≤ 2. (3) Endpoint estimation ( h = 0 ). An endpoint-estimation experiment — pooling de-drifted snapshots within an optimized bandwidth, with h = 0 so it isolates the statistics-dominated branch (current-distribution estimation rather than future forecasting) — recovers the unified exponent (Panel 2; stars in Panel 3). For d = 2 the 24 Figure 2: ( N, h ) phase diagram for Theorem 3(B) (location channel, ρ = N (0 , 1), n = 8, L = 7, ε =0.1, k = 1). (A) forecast RMS over ( N, h ); the white curve is the phase boundary εh k+1 /(k + 1)! = 
+
+√v separating the dimension-free extrapolation-limited regime (upper/right) from the statistics-limited regime ∼ N −1/2(h/L )k (lower/left); circles are Monte Carlo. (B) RMS vs. N at fixed h:statistical N −1/2 decay (dashed) settling onto the extrapolation floor (dotted, ∝ h2); triangles are Monte Carlo. (C) RMS vs. h at fixed N : slope k (leverage) crossing to slope k+1 (floor). 
+
+Figure 3: Sharp nonparametric extrapolation rate (Theorem 4), location channel, β = k + 1 H¨ older. (A) optimized-bandwidth forecast error vs. M (solid) with theoretical slope M −(k+1) /(2 k+3) 
+
+(dashed); the floor is off-scale at this small h. (B) fitted statistical M -exponent vs. k against (k + 1) /(2 k + 3) = β/ (2 β + 1) (solid) and the loose parametric 1 /2 (dashed). 25 Figure 4: Unified rate over P2(Rd) (Theorem 5, Conjecture 1), isotropic Gaussians in Rd. (1) 
+
+empirical-W2 fluctuation (two-sample proxy for the estimation risk) vs. M , fitted curse exponents against M − min(1 /d, 1/2) for d = 2 , . . . , 6 (debiased Sinkhorn divergence; an exact EMD solver agrees to 0 .01 for d ≤ 4). (2) endpoint estimation (de-drift + pooling, optimized bandwidth, h = 0) isolating the statistics-dominated branch, fitted M -exponent rising with k for d = 2; the d = 3 fits are pre-asymptotic at these budgets. (3) the unified M -exponent vs. d for k = 0 , 1, 2: semi-empirical (measured curse + exact bias, solid) against theory γd(k + 1) /(k + 1 + γd) (dashed); stars mark the endpoint-estimation fits (on the band for d = 2, pre-asymptotic for d = 3). fitted M -exponents are 0 .31 , 0.31 , 0.35 for k = 0 , 1, 2, on the predicted band (theory 0 .33 , 0.40 , 0.43; semi-empirical with the measured curse 0 .28 , 0.33 , 0.35) and rising toward k=2. For d = 3 the fits 0 .19 , 0.18 , 0.22 sit below the asymptotic prediction (0 .25 , 0.29 , 0.30), a finite-budget effect: the curse itself is still pre-asymptotic at these M (ˆ γ3 = 0 .31 vs. 1 /3), which lowers the whole estimation exponent. This confirms Theorem 6 ( k=0) and is consistent with the conditional construction of Proposition 5 ( k ≥ 1); the run is the de-drift-plus-pooling surrogate, not the full development forecaster, so it probes the predicted exponent rather than verifying the geometry. A genuine positive-horizon run at h = o(H#) would share the same exponent while remaining a forecast. 
+
+Held-out predictive validation (Figure 5). To rule out post-hoc tuning of the bias–variance trade-off, we split a drifting field into a calibration half and a held-out test half. From the calibration half alone we fit the two constants of the model err 2(H) = a2(h + H/ 2) 2 + b2/(N H ) (extrapolation bias + pooled-estimator variance); the fitted drift coefficient a = 0 .030 recovers the true per-step drift 0 .031, whereas the naive increment ∥∆Q∥ = 0 .49 instead measures sampling noise — the finite-sample pitfall of Section 7. The calibrated model then predicts , on the untouched test half, the U-shaped bandwidth curve (median relative error 18%) and its interior optimum ( H# ≈ 10 vs. measured H∗ = 8). The optimal pooling bandwidth of Theorem 6 is thus a genuine out-of-sample prediction of the theory, not a fit. 
+
+E.1 Two real series at opposite ends of the drift/noise spectrum 
+
+The synthetic experiments isolate each rate under controlled conditions. We complement them with two real distribution-valued series chosen to sit at opposite extremes of the drift-to-noise ratio, scoring both by rolling-origin backtesting (expanding past, no look-ahead). 
+
+Near-stationary: S&P 500 (Figure 6). Daily cross-sections of log-returns of the S&P 500 constituents, one empirical measure ˆ μt per trading day (2514 days, 2015–2024; ≈ 192 names/day), the series studied in the Wasserstein-autoregression literature (Zhang–Kokoszka–Petersen). Two 26 Figure 5: Held-out predictive validation. (A) a bias–variance model with two constants fit on the calibration half (blue) predicts the held-out test U-shape (red) and its optimal pooling bandwidth 
+
+H#; grey is the calibration fit target. (B) predicted vs. measured held-out forecast error across the bandwidth grid (median relative error 18%). The optimum is predicted out-of-sample, not fitted. findings align with the theory. First, the effective extrapolation order is data-dependent : degree-0 persistence is the best forecaster at every horizon, degree-1 is slightly worse, and degree-2 degrades sharply with h — on a high-noise, near-stationary series the higher-order tangent forecaster of Appendix C extrapolates sampling noise, precisely the k=0 regime of Theorem 6. Second, the 
+
+moving-versus-static gap persists : the one-step pooled-persistence error sits at ≈ 10 −2 and does not fall with the sample budget, whereas static empirical-W2 estimation of a frozen law decays as 
+
+M −1/2; a finite-sample noise reference τ (N ) lies ≈ 6.6× below the floor, a persistent moving-versus-static gap not explained by the finite-sample noise reference alone. 
+
+Strongly drifting: surface temperature (Figure 7). Daily mean 2 m temperature over a 12 ×
+
+10 European lon–lat grid (Open-Meteo ERA5 archive, Jan–Jun 2023; 120 cells, 15-day smoothed to remove synoptic weather), one cross-section ˆ μt per day with a ≈ +0 .05 ◦C/day seasonal drift. Here the predictions that the near-stationary S&P series masks become directly visible. (A) pooled persistence has an interior optimal bandwidth H∗ = 3 days (Theorems 3/6): too little pooling is variance-limited, too much crosses the warming trend. (B) the horizon exponents rise with the forecaster order, fitted slopes 0 .21 , 0.42 , 1.25 for k = 0 , 1, 2 — still below the integer k+1, as finite-station leverage damps them (Corollary 1), but an order of magnitude above the near-stationary S&P slopes. (C) the moving forecast floor ( ≈ 1◦C) again sits far above the static M −1/2 estimation curve. We are explicit that the slopes are damped and that the raw increment overstates the drift (here ∥∆Q∥ reflects 30-station sampling noise, not the ≈ 0.05 ◦C/day signal); the quantities we read off are the measured optimal bandwidth and the slope ordering , not a parametric rate. The slope ordering and the interior optimum persist across smoothing windows {1, 7, 15 , 30 } days, including no smoothing, so the smoothness-order evidence is not a preprocessing artifact (Appendix F). Across the two series the observable horizon slope grows monotonically with the drift-to-noise ratio (S&P 
+
+≈ 0.01, temperature 0 .21): a direct demonstration that the effective extrapolation order depends on the drift-to-noise regime. 27 Figure 6: Real-data illustration on S&P 500 daily return cross-sections (2514 days, ≈ 192 names/day), rolling-origin. (Top) Forecast error vs. horizon: degree-0 persistence (and the last-snapshot baseline) are best, the degree-1 geodesic forecaster is slightly worse, and the degree-2 forecaster diverges with h — on a high-noise series higher-order extrapolation amplifies sampling noise, consistent with a k=0 regime (Theorem 6). (Bottom) Moving-versus-static gap: the pooled one-step forecast error (red) stays at ≈ 10 −2 independently of the sample budget M , while static empirical-W2 estimation of a frozen law (green) decays as M −1/2; the finite-sample noise reference 
+
+τ (N ) (dotted) lies ≈ 6.6× below the forecast floor, a persistent moving-versus-static gap not ex-plained by the noise reference alone. 28 Figure 7: Strongly-drifting real series: daily 2 m surface temperature over a European grid (Open-Meteo ERA5 archive, Jan–Jun 2023, 15-day smoothed). (A) pooled-persistence error vs. band-width H, with an interior optimum H∗ = 3 days (Theorem 6). (B) horizon scaling, fitted slopes 0.21 , 0.42 , 1.25 for k = 0 , 1, 2, rising with smoothness and an order of magnitude above the near-stationary S&P slopes (finite-station leverage keeps them below the integer k+1). (C) moving-vs-static gap: the ≈ 1◦C moving forecast floor sits far above the static M −1/2 estimation curve. 
+
+# F Robustness to the temperature smoothing window 
+
+The real-temperature experiment of Section E.1 applies a 15-day rolling mean to remove synoptic weather. To verify that the reported smoothness order is not an artifact of this preprocessing, we recompute the interior optimal bandwidth H∗ and the fitted horizon slopes on the same cached field for smoothing windows of 1 (no smoothing), 7, 15, and 30 days, holding every other setting fixed. smoothing (days) ˆε (◦C/day) H∗ (days) slope k=0 k=1 k=2 1 (none) 2.50 2 0.18 0.50 1.24 7 2.16 3 0.21 0.50 1.27 15 2.09 3 0.21 0.42 1.25 30 1.98 3 0.20 0.38 1.25 The horizon slopes — the actual evidence for temporal smoothness order — are nearly invariant (k=0: 0 .18–0 .21; k=1: 0 .38–0 .50; k=2: 1 .24–1 .27) and remain an order of magnitude above the near-stationary S&P values ( ≈ 0.01) even with no smoothing. Smoothing lowers the day-to-day noise ˆ ε and sharpens the variance-limited regime — moving H∗ off the grid boundary at w=1 to a stable interior optimum of 3 days for w ≥ 7 — but does not manufacture the smoothness order, which is carried by the large seasonal drift already present in the raw field (Figure 8). This non-deseasonalized field mixes a near-deterministic seasonal trend with the weather residual; the complementary deseasonalized-residual regime (a near-stationary, S&P-like field) is left to future work. 
+
+# G The d = 2 logarithmic correction 
+
+In d = 2 the empirical-W2 two-sample fluctuation is not exactly M −1/2. The Ajtai–Koml´ os– Tusn´ ady optimal-matching result, made sharp for absolutely continuous laws by Ambrosio–Stra– Trevisan [30], gives E W2(ˆ μM , ˆμ′ 
+
+> M
+
+) ≍ plog M/M = M −1/2(log M )1/2, whose log–log slope is d log E W2
+
+d log M = − 12 + 12 log M ,
+
+29 Figure 8: Robustness of the real-temperature experiment to the smoothing window w ∈{1, 7, 15 , 30 } days. (A) pooled-persistence U-shape: the interior optimum is stable at H∗ ≈ 3days for w ≥ 7 and only touches the grid boundary at w=1. (B) fitted horizon slopes by forecaster order k = 0 , 1, 2: the rising-slope structure is nearly invariant across windows and far above the near-stationary S&P reference, so it is not a smoothing artifact. strictly above − 12 and decaying only logarithmically. Over the range M ∈ [6 × 10 2, 4 × 10 3] of Figure 4(1) this local slope runs from −0.42 to −0.44, and a single power-law fit to plog M/M across the range returns an effective exponent of 0 .43 (Figure 9) — already well below the asymptotic 0 .50 and close to the observed 0 .39, the residual being the Ambrosio–Stra–Trevisan constant and sub-leading terms. The d = 2 undershoot is therefore the expected finite-range form of the boundary log-correction, not a breakdown of the curse exponent; for d ≥ 3 no such correction appears and the fitted exponents track 1 /d directly. 30 Figure 9: The d = 2 logarithmic correction. (A) plog M/M (effective single-slope fit 0 .43) against the asymptotic M −1/2 (slope 0 .50) over the range of Figure 4(1). (B) the local slope 12 − 12 log M
+
+(running 0 .42–0 .44), the asymptotic 0 .50, the range-averaged 0 .43, and the observed fitted exponent 0.39. 31
