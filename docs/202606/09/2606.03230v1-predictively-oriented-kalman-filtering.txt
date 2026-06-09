@@ -1,0 +1,1518 @@
+Title: Predictively-Oriented Kalman Filtering
+
+URL Source: https://arxiv.org/pdf/2606.03230v1
+
+Published Time: Wed, 03 Jun 2026 00:42:04 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+# Predictively-Oriented Kalman Filtering 
+
+## Zheyang Shen 1, Gerardo Duran-Martin 2, Chris. J. Oates 1
+
+> 1
+
+Newcastle University 
+
+> 2
+
+University of Oxford 
+
+## June 3, 2026 
+
+Abstract 
+
+This paper presents a post-Bayesian approach to online filtering in nonlinear state-space models, capable of avoiding over-confident inferences in settings where either the dynamical model, the measurement model, or both , could be misspecified. This is addressed using predictively oriented (PrO) posteriors, an emerging paradigm in which learning (i.e., posterior concentration) occurs if and only if the overall model is well-specified, without strict adherence to Bayes’ theorem. As the characterisation of PrO posteriors is challenging, our main technical contribution is a fast approximate linear-Gaussian update procedure, analogous to an (iterated) extended Kalman filter. The methodology, which we call EKF-PrO , has no tunable hyper-parameters and has a computational cost comparable to that of existing filtering methods. Performance is empirically assessed on a range of linear and non-linear applications, in which the state-space model is systematically misspecified. 
+
+# 1 Introduction 
+
+Our setting is a state-space model 
+
+xk = f (xk−1, ϵ k) (1) 
+
+yk = h(xk, ξ k) (2) where the noise terms ( ϵi)i∈N and ( ξi)i∈N are independent. The functions f and h may be nonlinear and only the yk are observed. The filtering task refers to the inference of the state variable xk given the observations y1: k := ( yi)ki=1 . Note that this set-up also allows for f and 
+
+h to depend on one or more unknown (static) parameters θ, which can be cast as additional components of the state variable xk and held constant under the dynamic model (1). State-space models of the form (1) and 2 arise in time series analysis [Durbin and Koopman, 2012], tracking in computational vision [Chen, 2011], and sensor fusion in robotics [Thrun, 2002]. Since the latent state xk may not be strongly constrained from the observations y1: k,a Bayesian approach to quantify uncertainty in xk is natural in the filtering context. For 1
+
+> arXiv:2606.03230v1 [stat.ME] 2 Jun 2026
+
+linear f , h, and Gaussian ϵk, ξk with known mean and covariance, the Kalman filter (KF ) is an efficient online algorithm for exact calculation of the posterior (or filtering ) distributions 
+
+p(xk|y1: k) [Kalman, 1960]. For nonlinear f , h, algorithms such as the extended Kalman filter (EKF ) exploit local linearisation to approximate the filtering distribution while retaining the efficient online nature of the KF . A textbook treatment of algorithms for Bayesian inference in the state-space model in (1) and (2) can be found in S¨ arkk¨ a and Svensson [2023]. The focus of this paper is the filtering problem in settings where the true data-generating process is not an instance of the state-space model in (1) and (2). In such settings Bayesian inference, and the various numerical methods that approximate Bayesian inference (e.g. 
+
+EKF ), can produce inferences and predictions that are over-confident because they are not capable of recognising and adapting to model misspecification. Accordingly, several solutions have been proposed to mitigate this effect: 
+
+Misspecification of the Measurement Error Model One common cause of misspeci-fication for the measurement error model (2) is the presence of outliers in the dataset [Liu, 2020]. Accordingly several potential remedies have been proposed, including hierarchical measurement models; see e.g., [Ting et al., 2007, Pich´ e et al., 2012, Agamennoni et al., 2012, Nurminen et al., 2015, Huang et al., 2016, Wang et al., 2018], or the use of robust (e.g. Hu-ber) loss functions in place of the usual negative log-likelihood [e.g. Boncelet and Dickinson, 1983, Karlgaard, 2015, Das, 2023]. The latter can be considered as generalised Bayesian methods [Bissiri et al., 2016, Knoblauch et al., 2022], and were further developed from this perspective in Boustati et al. [2020], Duran-Martin et al. [2024, 2025]. In particular, by departing from the traditional Bayesian update it is possible to down-weight the influence of outliers as they are encountered. That is, if an observed datum yk is far into the tail of the data predictive distribution based on y1: k−1, then the effect of yk on inferences and predictions can be manually discounted. This idea enabled Duran-Martin et al. [2024] to rigorously establish outlier-robustness properties of their generalised Bayes method, called the weighted observation likelihood filter (WoLF). However, while generalised Bayesian meth-ods are capable of ignoring occasional outliers, they do not provide a solution to systematic 
+
+model misspecification; if all data were deemed to be outliers, then all data would be ignored. 
+
+Misspecification of the Dynamical Model An alternative form of missppecification arises from an incomplete knowledge of the latent dynamics (1). This occurs, for example, when tracking high-speed maneuvering objects, when a system undergoes unmodelled phase transitions (see e.g., top plot in Figure 1), or when the transition function is incorrectly parametrised. In such cases, the resulting observations may exhibit abrupt jumps, or the estimation error can increase over time—a phenomenon commonly referred to as divergence 
+
+[Schlee et al., 1967, Fitzgerald, 2003]. To address this form of misspecification, various methods that admit closed-form (including fixed-point) solutions have been proposed. This includes approaches that assume heavy-tailed noise in the observation and latent space [Roth et al., 2013, Huang et al., 2017], variational Bayesian methods for estimating unknown system dynamics [Roth et al., 2017a, Huang et al., 2020, Vilmarest and Wintenberger, 2024], as well 2as heuristics that perform covariance inflation for adaptation Mehra [2003], Kelly [2002], Chang et al. [2023]. However, these approaches typically rely on explicit parametrisations of the latent noise process ( ϵi)i∈N, or specification of hyper-parameters, requiring a priori 
+
+knowledge of how the dynamical model might be misspecified. Bayesian deep learning offers a point of contrast, enabling dynamics to be learned [e.g. Dahan et al., 2025], but at the expense of introducing hyper-parameters and substantially increased computational overhead. In summary, the state-of-the-art for closed-form Bayesian filtering under model misspecifi-cation mainly focuses on either defining a more sophisticated hierarchical state-space model and developing efficient computational methods to facilitate Bayesian inference, or down-weighting the contribution from particular observations yk within a generalised Bayesian framework. Neither approach is ideal; we are typically unable to write down a well-specified state-space model, and typical (generalised) Bayesian posteriors do not provide calibrated uncertainty when the statistical model is misspecified, e.g. as demonstrated in the recent work of Shen et al. [2025]. In the filtering context, a collapse of uncertainty causes overcon-fident inferences and predictions when the state-space model is misspecified, as illustrated in the first two columns of Figure 1. 
+
+## 1.1 Our Contributions 
+
+To deal with generic model misspecification in (1) and (2), we contend that an alternative to (generalised) Bayesian inference is required; rather than attempting to fit a more accurate model in a Bayesian framework in the hope that the resulting posterior predictions will be well-calibrated, we propose instead to target the predictive performance of the original state-space model. Our inspiration comes from deep learning, where the pitfalls of Bayesian inference are explicitly acknowledged and predictively oriented techniques such as posterior tempering are routinely used [Kuleshov et al., 2018, Wenzel et al., 2020]. However, post hoc 
+
+techniques such as posterior tempering introduce additional hyper-parameters, a problem which we seek to avoid. To achieve this we pursue a promising and emerging research direction in post-Bayesian methodology, which was termed predictively oriented (PrO) posteriors in McLatchie et al. [2025]. PrO posteriors seek a distribution over latent variables for which the implied data predictive distribution most closely matches the observed dataset. This represents a fun-damental departure from Bayesian and generalised Bayesian methods. For example, in the case of a static model of observations parametrised by θ, the PrO posterior will concentrate around a single “best” parameter θ⋆ if and only if the model is well-specified. In contrast, both Bayesian and generalised Bayesian posteriors concentrate around θ⋆ irrespective of whether the model is well-specified [Miller, 2021]; this leads to a problematic collapse of uncertainty when the model is misspecified. The main technical challenge in developing a PrO posterior for state-space models is that PrO posteriors are only implicitly defined, in contrast (generalised) Bayesian posteriors for which one can express the posterior density as the product of the prior density and a (generalised) likelihood. Although PrO posteriors can be approximated to arbitrary precision 3Outlier 
+
+KF WoLF-IMQ KF-PrO 
+
+> Systematic
+
+Figure 1: Illustration on the Gaussian location model. Data ( yk)nk=1 are shown as circles and the true latent state is in red; in the top row the data are corrupted by outliers, while in the bottom row the model is systematically misspecified. Posterior predictives are displayed for KF (left), a generalised Bayes method called WoLF-IMQ due to Duran-Martin et al. [2024] (centre) and our proposed KF-PrO (right). using techniques such as gradient flows and mean-field Langevin dynamics, these techniques are computationally intensive and therefore unsuitable in the state-space context [Chazal et al., 2025]. Our main technical contribution in Section 2 is therefore a fast approximate update for PrO posteriors in linear (or linearised) state-space models, analogous to how the 
+
+EKF enables fast approximate inference in the Bayesian framework. Through detailed empirical assessment in Section 3, we demonstrate that EKF-PrO out-performs existing robust filtering methods when the state-space model is systematically misspecified. A discussion of our findings is contained in Section 4. 
+
+# 2 Methodology 
+
+Section 2.1 casts probabilistic filtering as an optimisation task, relating common filtering algorithms to optimisation objectives that are implicitly being minimised. Section 2.2 builds on this perspective to introduce a novel PrO filtering algorithm in terms of its associated optimisation objective, initially for the case where f and h are linear, and Section 2.3 com-pares the PrO filtering distribution with standard KF . The general case of the PrO Kalman filter, where f and h can be nonlinear, is addressed by the EKF-PrO algorithm, presented in Section 2.4. 42.1 Filtering as an Optimisation Task 
+
+This section casts probabilistic filtering as an optimisation task. The latent state xk is assumed to take values in Rd and we let P(Rd) denote the set of probability distributions on Rd. The conditional distribution of xk (resp. yk) given xk−1 implied by (1) and (2) is denoted p(xk|xk−1) (resp. p(yk|xk)), and a prediction for xk given the observations y1: l is denoted qk|l ∈ P (Rd), where to improve presentation we interchange freely between densities and distributions, and use the standard filtering notation in S¨ arkk¨ a and Svensson [2023]. Through the lens of optimisation, existing Bayesian and generalised Bayesian filtering methods can be formulated as minimising objective functionals defined on P(Rd). Following standard filtering terminology, we present this in two steps: the prediction step uses the filtering distribution from the previous step qk−1|k−1 to calculate the latent predictive distri-bution qk|k−1, then the update step minimises an objective function in which qk|k−1 appears as a regulariser via the Kullback–Leibler divergence (KLD): 
+
+Prediction Step Given the filtering distribution from the previous time step, qk−1|k−1(xk−1), the latent predictive distribution is obtained using the Chapman–Kolmogorov equation 
+
+qk|k−1(xk) := 
+
+Z
+
+p(xk|xk−1)qk−1|k−1(xk−1)d xk−1. (3) 
+
+Update Step Given the latent predictive distribution in (3), we can then formulate the filtering distribution as the solution of an infinite-dimensional optimisation problem on the set of probability measures 
+
+qk|k := arg min 
+
+> q∈P (Rd)
+
+ℓ(yk; q) + KL( q∥qk|k−1) (4) where the loss function ℓ is to be specified. This optimisation-centric formulation unifies Bayesian and generalised Bayesian filtering, which correspond to different choices of loss function ℓ in (4): 
+
+Example 1 (Bayes; KF ). Standard Bayesian inference is recovered using the (negative) av-erage log-likelihood loss 
+
+ℓ(Bayes) (yk; q) := −
+
+Z
+
+log( p(yk|xk)) q(xk)d xk, (5) 
+
+a result which follows from the Donsker–Varadhan characterisation of the KLD [see e.g. Knoblauch et al., 2022]. For linear f , h and Gaussian ϵk, ξk, the above updates exactly im-plement the KF . More broadly, this perspective encompasses methods which attempt Bayesian inference for a variety of more flexible state-space models, mentioned in Section 1. 
+
+Example 2 (Generalised Bayes; WoLF) . As an exemplar of generalised Bayesian filtering methods, the WoLF algorithm of Duran-Martin et al. [2024] employs 
+
+ℓ(WoLF) (yk; q) := −
+
+Z
+
+w(yk, ˆyk) log( p(yk|xk)) q(xk)d xk
+
+5where w is a non-negative weight function , comparing a prediction ˆyk based on y1: k−1 to the actual datum yk observed. The weight function is user-specified; for example as an inverse multi-quadric weight function gives rise to the WoLF-IMQ method, while a variant based on Mahalanobis distance was termed WoLF-TMD . In either case, if the observed yk is far from the predicted ˆyk, then yk is deemed to be unreliable and its influence on the filtering distribution is reduced. 
+
+The principal drawback of (generalised) Bayesian methods in this context is that they lack awareness that the state-space model could be misspecified. The issue is seen most eas-ily in the simplest setting where xk = θ is a static parameter and we model yk = θ + ξk as a noisy observation of θ; given sufficient data, both Bayesian and generalised Bayesian posteri-ors collapse onto a single “best” parameter θ⋆ [Miller, 2021], while such arbitrarily confident predictions are inappropriate when the state-space model on which they are based is mis-specified. To address this problem we adopt an alternative, predictively-oriented perspective next. 
+
+## 2.2 Predictively-Oriented Kalman Filtering 
+
+Our novel PrO filtering method employs a loss function which explicitly promotes predic-tive performance of the filtering distribution. Taking inspiration from the earlier work of Masegosa [2020], Jankowiak et al. [2020], Sheth and Khardon [2020], Morningstar et al. [2022], Lai and Yao [2024], Shen et al. [2025], McLatchie et al. [2025], Liu et al. [2025] in the static inference context, we define the PrO filtering objective as follows: 
+
+Definition 1 (PrO filtering objective) . The PrO filter employs the loss 
+
+ℓ(PrO) (yk; q) := − log 
+
+Z 
+
+p(yk|xk)q(xk)d xk
+
+
+
+. (6) Unlike attempts to perform Bayesian inference with a more sophisticated state-space model, or generalised Bayesian solutions in which additional hyper-parameters must be user-specified, the PrO filter performs a probabilistic lifting of the original measurement model 
+
+p(yk|xk) pq(yk) := R p(yk|xk)q(xk)d xk
+
+viewing q (rather than xk) as the ‘parameter’ of the model, in this case an (infinite) mixture model in a similar manner to nonparametric maximum likelihood [Laird, 1978]. As such, our construction circumvents the requirement to manually design a more sophisticated model, and does not introduce any hyper-parameter which need to be specified (cf. Table 1). Compared to the Bayesian loss (5), the order of the logarithm and the integral are interchanged; this key difference causes the PrO filter to behave in a more desirable way compared to (generalised) Bayesian methods when the state-space model is misspecified. 6Indeed, considering yk to be a sample from the true data-generating distribution ptrue , we can see that 
+
+Eyk ∼ptrue (·| xk )[ℓ(PrO) (yk; q)] = KL ( ptrue (·| xk) ∥pq )
+
+| {z }
+
+> predictive fit
+
++ constant , (7) which demonstrates that PrO filtering explicitly minimises the KLD between the predictive 
+
+pq and the true data distribution ptrue (·| xk), automatically calibrating predictions even when the model is misspecified [McLatchie et al., 2025]. 
+
+Remark 1 (General scoring rules) . Alternative scoring rules could be used in (6) and would correspond to alternative divergences in (7) [Gneiting and Raftery, 2007]. However, the log scoring rule ensures that both the loss and the regulariser in (4) are in the same units (i.e. nats), avoiding the need to introduce a ‘learning rate’ to balance the size of the two terms [Liu et al., 2025, Remark 2]. 
+
+The key technical question that we address in this work is how to efficiently (and perhaps approximately) perform the update in (4) when the PrO filtering objective is used. Tech-niques such as gradient flows and mean-field Langevin dynamics can in principle be applied to approximate qk|k [Shen et al., 2025, McLatchie et al., 2025, Chazal et al., 2025], but they are computationally intensive and therefore impractical when rapid calculation is required, as is often the case in a filtering context. Instead, we develop a fast update analogous to the 
+
+EKF , based on recursive Gaussian variational approximations [Lambert et al., 2022, Jones et al., 2024], which we call the EKF-PrO .
+
+Computing the PrO Filter For presentational purposes we begin by considering the simplest case where f , h are linear and ϵk, ξk are Gaussian, i.e. the setting of the KF :
+
+xk|xk−1 ∼ N (Ak−1xk−1, Λk−1)
+
+yk|xk ∼ N (Hkxk, R k)for positive definite Λ k−1 and Rk. The optimal filtering distribution q minimising the PrO objective (4) is not necessarily Gaussian, even with a Gaussian prior qk|k−1. To relieve the computational burden, we define the KF-PrO as the optimal filtering distribution within the Gaussian variational family 
+
+qk|k := arg min 
+
+> q∈Q (Rd)
+
+− log 
+
+Z 
+
+p(yk|xk)q(xk)d xk
+
+
+
++ KL( q∥qk|k−1), (8) where Q(Rd) is the set of all Gaussian distributions on Rd.Given a filtering distribution qk−1|k−1 from the previous time step of the form N (mk−1, P k−1), the prediction step coincides with the standard KF , as the Chapman–Kolmogorov equation yields a closed-form solution 
+
+qk|k−1 = N ( ˜ mk, ˜Pk), ˜mk = Ak−1mk−1, ˜Pk = Ak−1Pk−1A⊤ 
+
+> k−1
+
++ Λ k−1. (9) However, the update step does not have a closed form in general. Nevertheless, the opti-misation objective in (8) can be explicitly computed: 7Proposition 1 (Explicit form of PrO filtering objective) . Parametrising q ∈ Q (Rd) as 
+
+q = N (m, P ), we can write down the objective function in (8) as 
+
+Jk(m, P ) +C
+
+:= 12
+
+
+
+tr 
+
+ ˜P −1 
+
+> k
+
+P
+
+
+
++ ˜P − 12 
+
+> k
+
+(m − ˜mk) 2
+
++ log |Sk(P )||P | + S− 12 
+
+> k
+
+(P )vk(m) 2 
+
+(10) 
+
+where Sk(P ) := HkP H ⊤ 
+
+> k
+
++ Rk and vk(m) := yk − Hkm.
+
+The proof of Proposition 1 is contained in Section A.1. To minimise (10), we first note that Jk is convex in m when P is fixed, and that the minimiser m⋆k(P ) can be explicitly computed: 
+
+Proposition 2 (Explicit minimisation over m for fixed P ). Let Jk be the objective function in (10) and let the covariance matrix P be fixed. Then m 7 → J k(m, P ) is uniquely minimised at 
+
+m⋆k(P ) = ˜ mk + Kk(P )( yk − Hk ˜mk), (11) 
+
+where Kk(P ) := [ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk]−1H⊤ 
+
+> k
+
+Sk(P )−1.
+
+The proof of Proposition 2 is contained in Section A.2. Similarly to the KF , (11) takes the form of a prior mean ( ˜ mk) plus a ‘correction’ term which depends on how much the observed datum ( yk) deviates from the predictive mean ( Hk ˜mk). The matrix Kk in (11) is an analogue of the Kalman gain matrix for the KF-PrO ; we elaborate on this relationship in Section 2.3. Although Φ k(P ) := Jk(m⋆k(P ), P ) is non-convex in P , we note that − log |Sk(P )| is convex in P , and the remainder is convex, forming a difference-of-convex (DoC) structure [Tao and An, 1997, Yuille and Rangarajan, 2003]: 
+
+Proposition 3 (Difference of convex representation for the PrO filtering objective) .
+
+Φk(P ) +C
+
+= 12
+
+h
+
+tr( ˜P −1 
+
+> k
+
+P ) − log |P | + vk( ˜ mk)⊤ Sk(P ) + Hk ˜PkH⊤
+
+> k
+
+−1vk( ˜ mk)
+
+| {z } 
+
+> convex in P
+
+− − log |Sk(P )|
+
+| {z } 
+
+> convex in P
+
+i
+
+.
+
+The proof of Proposition 3 is contained in Section A.3. Due to the DoC structure, efficient numerical methods from DoC programming can be applied to obtain the KF-PrO 
+
+covariance Pk = arg min P Φk(P ), and hence also the PrO filtering mean mk = m⋆k(Pk); full implementational details are contained in Section B. 
+
+## 2.3 Comparison with the Standard Kalman Filter 
+
+This section compares the one-step behaviour of KF with our proposed KF-PrO , with the main findings summarised in the following result: 
+
+Proposition 4 (Conservativity of PrO filtering relative to KF ). Let mk and Pk denote the mean and covariance associated with the KF , and assume both the KF and KF-PrO start from a common prior qk−1|k−1, with predictive mean ˜mk defined in (9) . Then 
+
+81. ∥mk − ˜mk∥ ≤ ∥ mk − ˜mk∥
+
+2. ∇Φk(Pk) ⪯ 0.
+
+The proof of Proposition 4 is contained in Section A.4. The first part shows that the 
+
+KF-PrO mean mk is no more sensitive to yk than the KF , while the second part shows that inflating the covariance (i.e. Pk 7 → Pk + ∆ Pk for a positive semi-definite perturbation ∆ Pk)is a local descent direction of Φ k at the Kalman solution Pk, indicating that minimising Φ k
+
+locally promotes higher posterior uncertainty compared to the KF . (In dimension d = 1 the function Φ is convex, implying that the KF-PrO variance Pk is at least as large as the KF 
+
+variance Pk.) Further, an outlier in yk results in a steeper gradient ∇Φk(Pk), leading to 
+
+data-dependent covariance inflation relative to the KF 1 when outliers are encountered. Figure 1 illustrates the difference in behaviour of the KF and KF-PrO in the setting of a simple state space model: Ak = 1 , R k = σ2 = 1 , Λk = ϵ2 = 10 −4, H k = 1. The dataset in the first row is corrupted by outliers, and we observe both the conservative mean update and the data-driven covariance inflation for KF-PrO . The second row represents a missepcified dynamics model, where the true state abruptly changes after k = 20. Like the KF , the KF-PrO 
+
+mean m21 is not strongly affected by the first outlier y21 (cf. Part 1 of Proposition 4), however unlike the KF the KF-PrO covariance P21 is increased (cf. Part 2 of Proposition 4). This large 
+
+P21 enables the KF-PrO to rapidly update the filter mean m22 at the next step using (11), resulting in better predictions compared with KF and WoLF-IMQ for all subsequent values of 
+
+k considered. 
+
+## 2.4 A PrO Extended Kalman Filter 
+
+The EKF extends the KF using local linearisation to perform approximate inference in settings where f and h are nonlinear [Maybeck, 1982]. Analogously, in this section we extend the 
+
+KF-PrO to the EKF-PrO . Firstly, the prediction step follows the same recipe as the EKF 
+
+[S¨ arkk¨ a and Svensson, 2023, Algorithm 7.5], linearising f around the mean from the previous time step (i.e. mk−1): ˜mk = f (mk−1, 0) ,
+
+˜Pk = Fx(mk−1, 0) Pk−1 Fx(mk−1, 0) ⊤ + Fϵ(mk−1, 0) Λ k−1 Fϵ(mk−1, 0) ⊤,
+
+where without loss of generality we assume that ϵk ∼ N (0 , Λk) and ξk ∼ N (0 , R k). Here 
+
+Fx and Fϵ denote the Jacobian matrices of the dynamic model f in (1). For the update step , we could proceed similarly to the EKF and linearise h around the predictive mean from the previous time step (i.e. ˜mk). However the DoC formulation from Section 2.2 affords an opportunity to linearise around a more suitable origin, namely m⋆k = m⋆k(P ) where P is the current iterate on the DoC optimisation path, analogous to the iterative EKF (see Gelb,      
+
+> 1The posterior covariance Pkof KF is yk-independent, a consequence of assuming the state-space model is well-specified.
+
+9Method Cost #HP Ref                      
+
+> EKF O(d3)0Kalman [1960]
+> I-EKF O(I d 3)0Jazwinski [1970]
+> EKF-B O(I d 3)2Wang et al. [2018]
+> EKF-IW O(I d 3)1Agamennoni et al. [2012]
+> WoLF-IMQ O(d3)1Duran-Martin et al. [2024]
+> WoLF-TMD O(d3)1Duran-Martin et al. [2024]
+> EKF-PrO O(I d 3)0(Ours)
+
+Table 1: Computational complexity of the update step for each baseline method. Here d is the dimension of the latent state, I is the number of inner-loop iterations that are performed, and #HP is the number of hyper-parameters to be specified. 1974, and Algorithm 7.9 in S¨ arkk¨ a and Svensson, 2023). Thus we take 
+
+Sk(P ) = Hx(m⋆k, 0) P Hx(m⋆k, 0) ⊤ + Hξ(m⋆k, 0) Rk Hξ(m⋆k, 0) ⊤, (12) 
+
+vk(m) = yk − h(m⋆k, 0) − Hm(m⋆k, 0)( m − m⋆k), (13) where Hx, Hξ refer to the Jacobian matrices of the measurement model h in (2). 
+
+# 3 Empirical Results 
+
+This section presents a range of results to demonstrate the properties of the EKF-PrO , relative to baselines described in Section 3.1. Tracking of a 2D object is considered in Section 3.2, and prediction for a chaotic dynamical system is considered in Section 3.3. 
+
+## 3.1 Baseline Methods 
+
+For baselines, we consider the standard EKF ( EKF ), the iterated EKF ( I-EKF ; Gelb, 1974) and also methods that are representative of recent state-of-the-art approaches to robust filtering: the Bernoulli filter of Wang et al. [2018] ( EKF-B ; an example of a detect-and-reject strategy, identifying outliers and then ignoring them); the inverse-Wishart filter of Agamennoni et al. [2012] ( EKF-IW ; an example of a compensation-based strategy, which anticipates heavier-than-Gaussian tails in the dataset), and the weighted observation likelihood filter Duran-Martin et al. [2024] (a generalised Bayesian approach, here in two variants, WoLF-IMQ and WoLF-TMD ). Note that we do not compare against more sophisticated hierarchical methods nor methods based on particle filtering, because typically these do not scale well to high-dimensional state spaces; the computational complexity of EKF-PrO is designed to be comparable to the fast baseline methods, as shown in Table 1. 10 10 4     
+
+> 10 5
+> MSE
+> Outlier
+> 10 4
+> 10 5
+> Systematic
+> 10 4
+> 10 6
+> 10 8
+> Maneuver
+> KF KF-B KF-IW WoLF-IMQ WoLF-MD KF-PrO
+
+Figure 2: Tracking an object in 2D. Here the mean square error for the filtering mean of the object location is displayed for each of the methods in Table 1, with either outlier ,
+
+systematic , or maneuver -type misspecification present in the dataset; cf. Section 3.2. Note that in this linear setting both EKF and I-EKF are identical to the classical KF . A total of 500 replicates were performed. 
+
+## 3.2 Tracking an Object in 2D 
+
+For our first experiment we consider the classical problem of tracking an object moving with constant velocity in 2D (see e.g., Example 8.2.1.1 in Murphy, 2023 or Example 4.5 in S¨ arkk¨ aand Svensson, 2023). A typical linear state-space model for this task is f (x, ϵ ) = A + Λ 1/2ϵ
+
+and h(x, ξ ) = Hx + R1/2ξ, where 
+
+A =
+
+I2 0.1I2
+
+0 I2
+
+
+
+, H =  I2 0 , Λ = 0 .1I4, R = 10 I2
+
+with the state variable xk ∈ R4 representing the location and velocity of the object. Three types of data are considered, none of which are accurately described by the model; system-atic misspecification draws ϵk ∼ t(3), so that the state noise is sampled from a student-t
+
+distribution with 3 degrees of freedom, outlier misspecification draws ξk ∼ t(2 .01), so that the measurement noise is heavier-tailed, and maneuver introduces random piecewise con-stant shifts to the velocity component, with full experimental protocol in Section C.1. For this experiment we simulated T = 1 , 000 time steps in total. Figure 2 shows that, when only the measurement model is misspecified ( outlier ), the data-driven approach to the mean update enables WoLF-IMQ to achieve the lowest positional mean square error (MSE); however, when misspecification occurs in the dynamical model (systematic , and especially maneuver ), KF-PrO is to be preferred. 
+
+## 3.3 Lorenz96 Process 
+
+For our final experiment, we consider the classical nonlinear Lorenz96 model, commonly used to simulate the atmosphere [Lorenz, 1996]. We set the latent state as d-dimensional, 
+
+d = 60. Our experimental protocol is similar to Roth et al. [2017b]; full details are contained 11 0 20   
+
+> Time t
+> 10 1
+> 10 0
+> 10 1
+> Lt
+
+EKF EKF-PrO EKF-B WoLF-MD Figure 3: The misspecified Lorenz96 model. For a filtering algorithms with mean {mt}Tt=1 ,we plot the error Lt = ∥θt − mt∥ as a function of time, and mark the region when the underlying data-generating distribution is misspecified (white means no misspecification). in Section C.2. The state-space model is defined by a discretised ODE system for θ ∈ Rd: 
+
+> dθi
+> dt
+
+= ( θi+1 − θi−2)θi−1 − θi + ϕi, i ∈ 1, 2, . . . , d , and the observation yt is generated using a Gaussian likelihood. As Lorenz96 is nonlinear, we opt for the iterative variant of EKF-PrO .Similar to the maneuver example, the data-generating distribution contains an additional latent state mt ∈ { 1, 2} and vectors ϕ(1) , ϕ (2) ∈ Rd, such that for each θt+∆ , it takes an Euler step in the Lorenz96 system driven by ϕ(mt).Interestingly, Figure 3 illustrates that outlier-robust filters alone cannot alleviate system-atic misspecification, and can sometimes worsen it: EKF-B and WoLF-TMD underperform EKF 
+
+because an “outlier” observation can be rejected if it is too far from the predicted value from the prior, however, when the outlier is caused by state-space misspecification, this leads to consecutive rejections and slower updates in the state-space. Therefore, EKF-PrO is particu-larly beneficial in cases where the precise source of model misspecification is undetermined. 
+
+# 4 Discussion 
+
+In applications it is rare for a state-space model to be well-specified, and even if this is the case at the outset, dynamics may change over time or data may become corrupted. Existing solutions either assume the dynamical model is correct and discount observations to hedge against outliers, or include additional degrees of freedom into the model. However, discount-ing observations reduces the amount of information available to the filtering method, while increasing model capacity introduces hyper-parameters which need to be elicited or esti-mated. Our contribution established EKF-PrO , a novel hyper-parameter-free post-Bayesian filtering method whose predictions are explicitly calibrated against the data-generating pro-cess, cf. (7), suitable for situations where both the dynamical model and measurement model may be misspecified. Our work contributes to an emerging literature on PrO posteriors [Lai and Yao, 2024, Shen et al., 2025], extending their applicability to state-space models. On the other hand, the theoretical properties of the EKF-PrO (e.g. statistical efficiency, dimension dependence) are not well-understood, and further work will be needed to extend existing theoretical 12 analysis of PrO posteriors to the state-space setting [McLatchie et al., 2025]. Further, while all experiments ran in a few minutes on a standard laptop calculations for EKF-PrO were 10-20 × slower than the extremely rapid KF ; reducing this wall-clock time is left as further work. The main technical challenge was to develop an efficient (approximate) update for the filtering mean and covariance, which we achieved here with linearisation, Gaussian varia-tional approximation, and DoC programming. Several extensions and improvements can be considered, based on relaxing the linearity and Gaussian assumptions (albeit potentially introducing hyper-parameters and increasing computational cost). The prediction step 
+
+relied on linearisation to integrate f with respect to a Gaussian, but more sophisticated techniques such as moment matching [Maybeck, 1982], cubature [Ito and Xiong, 2002], and unscented transforms [Julier, 1996] could be used. The update step relied on a Gaussian approximation to facilitate optimisation, but particle methods analogous to the ensemble Kalman filter [Evensen, 2003] could also be considered. 
+
+Acknowledgments CJO and ZS were supported by EPSRC (EP/W019590/1). CJO was supported by a Philip Leverhulme Prize (PLP-2023-004). 
+
+# References 
+
+G. Agamennoni, J. I. Nieto, and E. M. Nebot. Approximate inference in state-space models with heavy-tailed noise. IEEE Transactions on Signal Processing , 60(10):5024–5037, 2012. P. G. Bissiri, C. C. Holmes, and S. G. Walker. A general framework for updating belief distributions. Journal of the Royal Statistical Society Series B: Statistical Methodology , 78 (5):1103–1130, 2016. C. G. Boncelet and B. W. Dickinson. An approach to robust Kalman filtering. In IEEE Conference on Decision and Control , pages 304–305, 1983. A. Boustati, O. D. Akyildiz, T. Damoulas, and A. Johansen. Generalised Bayesian filtering via sequential Monte Carlo. Advances in Neural Information Processing Systems , 34: 418–429, 2020. P. G. Chang, G. Dur´ an-Mart´ ın, A. Shestopaloff, M. Jones, and K. P. Murphy. Low-rank extended Kalman filtering for online learning of neural networks from streaming data. In 
+
+Conference on Lifelong Learning Agents , pages 1025–1071. PMLR, 2023. C. Chazal, H. Kanagawa, Z. Shen, A. Korba, and C. J. Oates. A computable measure of sub-optimality for entropy-regularised variational objectives. arXiv preprint arXiv:2509.10393 ,2025. S.-Y. Chen. Kalman filter for robot vision: A survey. IEEE Transactions on Industrial Electronics , 59(11):4409–4420, 2011. 13 Y. Dahan, G. Revach, J. Dunik, and N. Shlezinger. Bayesian KalmanNet: Quantifying uncertainty in deep learning augmented Kalman filter. IEEE Transactions on Signal Processing , 73:2558–2573, 2025. S. Das. Robust State Estimation Methods for Robotics Applications . PhD thesis, West Virginia University, 2023. G. Duran-Martin, M. Altamirano, A. Y. Shestopaloff, L. S´ anchez-Betancourt, J. Knoblauch, M. Jones, F.-X. Briol, and K. Murphy. Outlier-robust Kalman filtering through generalised Bayes. In Proceedings of the 41st International Conference on Machine Learning , 2024. G. Duran-Martin, L. S´ anchez-Betancourt, A. Shestopaloff, and K. Murphy. A unifying frame-work for generalised Bayesian online learning in non-stationary environments. Transactions on Machine Learning Research , 2025. J. Durbin and S. J. Koopman. Time Series Analysis by State Space Methods . Oxford University Press, 2012. G. Evensen. The ensemble Kalman filter: Theoretical formulation and practical implemen-tation. Ocean Dynamics , 53(4):343–367, 2003. R. Fitzgerald. Divergence of the Kalman filter. IEEE Transactions on Automatic Control ,16(6):736–747, 2003. A. Gelb. Applied Optimal Estimation . MIT Press, 1974. T. Gneiting and A. E. Raftery. Strictly proper scoring rules, prediction, and estimation. 
+
+Journal of the American statistical Association , 102(477):359–378, 2007. Y. Huang, Y. Zhang, N. Li, and J. Chambers. A robust Gaussian approximate filter for non-linear systems with heavy tailed measurement noises. In IEEE International Conference on Acoustics, Speech and Signal Processing , pages 4209–4213, 2016. Y. Huang, Y. Zhang, N. Li, Z. Wu, and J. A. Chambers. A novel robust student’s t-based Kalman filter. IEEE Transactions on Aerospace and Electronic Systems , 53(3):1545–1554, 2017. Y. Huang, F. Zhu, G. Jia, and Y. Zhang. A slide window variational adaptive Kalman filter. 
+
+IEEE Transactions on Circuits and Systems II: Express Briefs , 67(12):3552–3556, 2020. K. Ito and K. Xiong. Gaussian filters for nonlinear filtering problems. IEEE Transactions on Automatic Control , 45(5):910–927, 2002. M. Jankowiak, G. Pleiss, and J. Gardner. Parametric Gaussian process regressors. In 
+
+International Conference on Machine Learning , pages 4702–4712. PMLR, 2020. A. Jazwinski. Stochastic Processes and Filtering Theory . Academic Press, 1970. 14 M. Jones, P. Chang, and K. Murphy. Bayesian online natural gradient (BONG). Advances in Neural Information Processing Systems , 37:131104–131153, 2024. S. J. Julier. A general method for approximating non-linear transformations of probability distributions. 1996. URL http://www.robots.ox.ac.uk/~siju/work/work.html .R. E. Kalman. A new approach to linear filtering and prediction problems. Journal of Basic Engineering , 82(Series D):35–45, 1960. C. D. Karlgaard. Nonlinear regression Huber–Kalman filtering and fixed-interval smoothing. 
+
+Journal of Guidance, Control, and Dynamics , 38(2):322–330, 2015. R. Kelly. Reducing geometric dilution of precision using ridge regression. IEEE Transactions on Aerospace and Electronic Systems , 26(1):154–168, 2002. J. Knoblauch, J. Jewson, and T. Damoulas. An optimization-centric view on Bayes’ rule: Reviewing and generalizing variational inference. Journal of Machine Learning Research ,23(132):1–109, 2022. V. Kuleshov, N. Fenner, and S. Ermon. Accurate uncertainties for deep learning using calibrated regression. In International Conference on Machine Learning , 2018. J. Lai and Y. Yao. Predictive variational inference: Learn the predictively optimal posterior distribution. arXiv preprint arXiv:2410.14843 , 2024. N. Laird. Nonparametric maximum likelihood estimation of a mixing distribution. Journal of the American Statistical Association , 73(364):805–811, 1978. M. Lambert, S. Bonnabel, and F. Bach. The recursive variational Gaussian approximation (R-VGA). Statistics and Computing , 32(1):10, 2022. D. C. Liu and J. Nocedal. On the limited memory BFGS method for large scale optimization. 
+
+Mathematical Programming , 45(1):503–528, 1989. G. Liu. Data quality problems troubling business and financial researchers: A literature review and synthetic analysis. Journal of Business & Finance Librarianship , 25(3-4): 315–371, 2020. Q. Liu, M. A. Fisher, Z. Shen, K. Tant, X. Zhao, A. Curtis, and C. J. Oates. Detecting model misspecification in Bayesian inverse problems via variational gradient descent. arXiv preprint arXiv:2512.01667 , 2025. E. N. Lorenz. Predictability of Weather and Climate , chapter Predictability: A problem partly solved. Cambridge University Press, 1996. A. Masegosa. Learning under model misspecification: Applications to variational and en-semble methods. Advances in Neural Information Processing Systems , 34, 2020. 15 P. S. Maybeck. Stochastic Models, Estimation, and Control . Academic Press, 1982. Y. McLatchie, B.-E. Cherief-Abdellatif, D. T. Frazier, and J. Knoblauch. Predictively ori-ented posteriors. arXiv preprint arXiv:2510.01915 , 2025. R. Mehra. Approaches to adaptive filtering. IEEE Transactions on Automatic Control , 17 (5):693–698, 2003. J. W. Miller. Asymptotic normality, concentration, and coverage of generalized posteriors. 
+
+Journal of Machine Learning Research , 22(168):1–53, 2021. W. R. Morningstar, A. Alemi, and J. V. Dillon. PACm-Bayes: Narrowing the empirical risk gap in the misspecified Bayesian regime. In International Conference on Artificial Intelligence and Statistics , 2022. K. P. Murphy. Probabilistic Machine Learning: Advanced Topics . MIT Press, 2023. F. Nogueira. Bayesian Optimization: Open source constrained global optimiza-tion tool for Python, 2014. URL https://github.com/bayesian-optimization/ BayesianOptimization .H. Nurminen, T. Ardeshiri, R. Pich´ e, and F. Gustafsson. Robust inference for state-space models with skewed measurement noise. IEEE Signal Processing Letters , 22(11):1898– 1902, 2015. R. Pich´ e, S. S¨ arkk¨ a, and J. Hartikainen. Recursive outlier-robust filtering and smoothing for nonlinear systems using the multivariate student-t distribution. In IEEE International Workshop on Machine Learning for Signal Processing , 2012. M. Roth, E. ¨Ozkan, and F. Gustafsson. A student’s t filter for heavy tailed process and measurement noise. In 2013 IEEE International Conference on Acoustics, Speech and Signal Processing , pages 5770–5774. IEEE, 2013. M. Roth, T. Ardeshiri, E. ¨Ozkan, and F. Gustafsson. Robust Bayesian filtering and smooth-ing using Student’s-t distribution. arXiv preprint arXiv:1703.02428 , 2017a. M. Roth, G. Hendeby, C. Fritsche, and F. Gustafsson. The ensemble Kalman filter: A signal processing perspective. Journal on Advances in Signal Processing , 2017:1–16, 2017b. F. Schlee, C. Standish, and N. Toda. Divergence in the Kalman filter. AIAA Journal , 5(6): 1114–1120, 1967. Z. Shen, J. Knoblauch, S. Power, and C. J. Oates. Prediction-centric uncertainty quan-tification via MMD. In International Conference on Artificial Intelligence and Statistics ,2025. 16 R. Sheth and R. Khardon. Pseudo-Bayesian learning via direct loss minimization with ap-plications to sparse Gaussian process models. In Symposium on Advances in Approximate Bayesian Inference , 2020. S. S¨ arkk¨ a and L. Svensson. Bayesian Filtering and Smoothing (2nd edition) . Cambridge University Press, 2023. P. D. Tao and L. H. An. Convex analysis approach to DC programming: Theory, algorithms and applications. Acta Mathematica Vietnamica , 22(1):289–355, 1997. S. Thrun. Probabilistic robotics. Communications of the ACM , 45(3):52–57, 2002. J.-A. Ting, E. Theodorou, and S. Schaal. Learning an outlier-robust Kalman filter. In 
+
+European Conference on Machine Learning , 2007. J. d. Vilmarest and O. Wintenberger. Viking: Variational Bayesian variance tracking. Sta-tistical Inference for Stochastic Processes , 27(3):839–860, 2024. H. Wang, H. Li, J. Fang, and H. Wang. Robust Gaussian Kalman filter with outlier detection. 
+
+IEEE Signal Processing Letters , 25(8):1236–1240, 2018. F. Wenzel, K. Roth, B. Veeling, J. Swiatkowski, L. Tran, S. Mandt, J. Snoek, T. Salimans, R. Jenatton, and S. Nowozin. How good is the Bayes posterior in deep neural networks really? In International Conference on Machine Learning , 2020. A. L. Yuille and A. Rangarajan. The concave-convex procedure. Neural Computation , 15 (4):915–936, 2003. 
+
+# Supplementary Material 
+
+This document contains supplementary material for the paper Predictively-Oriented Kalman Filtering . Section A contains proofs for all theoretical results in the main text. Section B explains how DoC programming was implemented for the update step of the EKF-PrO .Section C contains full details required to reproduce the empirical results in the main text. 
+
+# A Proofs 
+
+This appendix contains proofs for all theoretical results in the main text. The proof of Propo-sition 1 is contained in Section A.1, the proof of Proposition 2 is contained in Section A.2, the proof of Proposition 3 is contained in Section A.3, and the proof of Proposition 4 is contained in Section A.4. 
+
+Remark 2 (Existence of matrix inverses) . Our standing assumption in Section 2.2 that Λk−1
+
+and Rk are (symmetric) positive definite ensures that the matrices ˜Pk and Sk(P ) exist and are also (symmetric) positive definite and can hence be inverted. 
+
+17 A.1 Proof of Proposition 1 
+
+Denote the density function of a Gaussian with mean μ and covariance Σ as N (·; μ, Σ). Parametrising q ∈ Q (Rd) as q = N (m, P ), we can write down the objective function in (8) as the convolution of two Gaussian densities: 
+
+Jk(m, P ) = − log 
+
+Z
+
+N (yk; Hkx, R k)N (x; m, P )d x + KL( N (m, P )∥N ( ˜ mk, ˜Pk)) = − log N (0; yk − Hkm
+
+| {z } 
+
+> =vk(m)
+
+, H kP H ⊤ 
+
+> k
+
++ Rk
+
+| {z }  
+
+> =Sk(P)
+
+) + KL( N (m, P )∥N ( ˜ mk, ˜Pk)) = 12
+
+
+
+log |Sk(P )| + S− 12 
+
+> k
+
+(P )vk(m) 2
+
++ 12
+
+"
+
+tr 
+
+ ˜P −1 
+
+> k
+
+P
+
+
+
++ ˜P − 12 
+
+> k
+
+(m − ˜mk) 2
+
++ log | ˜Pk||P |
+
+#
+
+> +C
+
+= 12
+
+
+
+tr 
+
+ ˜P −1 
+
+> k
+
+P
+
+
+
++ ˜P − 12 
+
+> k
+
+(m − ˜mk) 2
+
+− log |P | + log |Sk(P )| + S− 12 
+
+> k
+
+(P )vk(m) 2 
+
+,
+
+recovering the final expression in Proposition 1. 
+
+## A.2 Proof of Proposition 2 
+
+For fixed P , the map m 7 → J k(m, P ) is a quadratic function; cf. (10). Therefore, again with fixed P , we can find the critical point using the first-order optimality condition: 
+
+∇mJk(m, P ) = 0 =⇒ ˜P −1 
+
+> k
+
+(m − ˜mk) − H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )( yk − Hkm) = 0 Rearranging the above formula, 
+
+ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+
+
+m = ˜P −1 
+
+> k
+
+˜mk + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )yk
+
+= ˜P −1 
+
+> k
+
+˜mk + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )( yk − Hk ˜mk + Hk ˜mk)=
+
+ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+
+
+˜mk + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )( yk − Hk ˜mk).
+
+Note that this linear system is uniquely invertible from positive-definiteness of ˜P −1 
+
+> k
+
+; cf. Remark 2. Solving this linear system for m, we thus obtain the prediction-correction form of the unique critical point 
+
+m⋆k(P ) = ˜mk
+
+|{z} 
+
+> predict
+
++
+
+ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+−1
+
+H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )( yk − Hk ˜mk)
+
+| {z }
+
+> correct
+
+,
+
+as claimed. 18 A.3 Proof of Proposition 3 
+
+First we note that 
+
+vk(m) = yk − Hkm = vk( ˜ mk) − Hk(m − ˜mk),
+
+so that from the definition of Jk(m, P ) in Proposition 1, 
+
+Jk(m, P ) +C
+
+= 12
+
+h
+
+tr( ˜P −1 
+
+> k
+
+P ) + ( m − ˜mk)⊤ ˜P −1 
+
+> k
+
+(m − ˜mk) + log |Sk(P )||P | (14) + ( vk( ˜ mk) − Hk(m − ˜mk)) ⊤S−1 
+
+> k
+
+(P )( vk( ˜ mk) − Hk(m − ˜mk)) 
+
+i
+
+.
+
+Let x := m − ˜mk. The terms in (14) depending on x are 
+
+x⊤ ˜P −1 
+
+> k
+
+x + ( vk( ˜ mk) − Hkx)⊤S−1 
+
+> k
+
+(P )( vk( ˜ mk) − Hkx).
+
+Expanding, 
+
+x⊤ ˜P −1 
+
+> k
+
+x + vk( ˜ mk)⊤S−1 
+
+> k
+
+(P )vk( ˜ mk) − 2x⊤H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )vk( ˜ mk) + x⊤H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hkx
+
+= x⊤Bx − 2x⊤c + vk( ˜ mk)⊤S−1 
+
+> k
+
+(P )vk( ˜ mk), (15) where B := ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk and c := H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )vk( ˜ mk). Since B ≻ 0, the minimiser of (15) is x⋆ = B−1c, and min 
+
+> x
+
+ x⊤Bx − 2x⊤c = −c⊤B−1c. (16) Recalling that Φ k(P ) = min m Jk(m, P ) = min x Jk(x + ˜ mk, P ), the calculation in (16) estab-lishes that Φk(P ) +C
+
+= 12
+
+h
+
+tr( ˜P −1 
+
+> k
+
+P ) + log |Sk(P )||P | + vk( ˜ mk)⊤S−1 
+
+> k
+
+(P )vk( ˜ mk) − c⊤B−1c
+
+i
+
+. (17) From the definition of B and c,
+
+c⊤B−1c = vk( ˜ mk)⊤S−1 
+
+> k
+
+(P )Hk
+
+  ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+−1H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )vk( ˜ mk). (18) Using the Woodbury matrix inversion identity, 
+
+S−1 
+
+> k
+
+(P ) − S−1 
+
+> k
+
+(P )Hk
+
+  ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+−1H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P ) =  Sk(P ) + Hk ˜PkH⊤
+
+> k
+
+−1.
+
+Combining this identity with (18), 
+
+vk( ˜ mk)⊤S−1 
+
+> k
+
+(P )vk( ˜ mk) − c⊤B−1c = vk( ˜ mk)⊤ Sk(P ) + Hk ˜PkH⊤
+
+> k
+
+−1vk( ˜ mk). (19) Substituting (19) back into (17) gives the claimed result. 19 A.4 Proof of Proposition 4 
+
+In the statement and proof of Proposition 4, we use ⪯ to denote the Loewner ordering on the cone of (real) symmetric positive semi-definite matrices; i.e. A ⪯ B if and only if B − A
+
+is a positive semi-definite matrix. The standard KF update equations are 
+
+Pk−1 = ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+R−1 
+
+> k
+
+Hk, (20) 
+
+mk = ˜ mk + PkH⊤ 
+
+> k
+
+R−1 
+
+> k
+
+(yk − Hk ˜mk) = ˜ mk + Kkvk( ˜ mk). (21) where Kk := PkH⊤ 
+
+> k
+
+R−1 
+
+> k
+
+is the classical Kalman gain matrix. To establish the first claim, we wish to compare 
+
+mk − ˜mk = Kkvk( ˜ mk)
+
+mk − ˜mk = Kk(Pk)vk( ˜ mk).
+
+Recall that 
+
+Kk(Pk) = [ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(Pk)Hk]−1
+
+| {z }
+
+> =: ˆPk
+
+H⊤ 
+
+> k
+
+Sk(Pk)−1.
+
+and notice that ˆPk ⪯ ˜Pk. Then 
+
+Kk(P )Kk(P )⊤ = ˆPkH⊤ 
+
+> k
+
+S−2 
+
+> k
+
+(Pk)Hk ˆP ⊤
+
+> k
+
+⪯ ˜PkH⊤ 
+
+> k
+
+S−2 
+
+> k
+
+(Pk)Hk ˜P ⊤ 
+
+> k
+
+(22) 
+
+⪯ ˜PkH⊤ 
+
+> k
+
+R−2 
+
+> k
+
+Hk ˜P ⊤ 
+
+> k
+
+(23) = KkKk⊤
+
+where (22) follows from ˆPk ⪯ ˜Pk and (23) follows from Rk ⪯ HkPkH⊤ 
+
+> k
+
++ Rk = Sk(Pk). Thus, 
+
+vk( ˜ mk)⊤Kk(Pk)Kk(Pk)⊤vk( ˜ mk) ≤ vk( ˜ mk)⊤KkKk⊤vk( ˜ mk),
+
+which implies ∥mk − ˜mk∥ ≤ ∥ mk − ˜mk∥, as claimed. To establish the second claim, recall from Proposition 3 that Φk(P ) +C
+
+= 12
+
+h
+
+tr( ˜P −1 
+
+> k
+
+P ) − log |P | + vk( ˜ mk)⊤  Sk(P ) + Hk ˜PkH⊤
+
+> k
+
+| {z }  
+
+> =: Mk(P)
+
+−1vk( ˜ mk) + log |Sk(P )|
+
+i
+
+.
+
+Computing the gradient, using the standard identities ∇P tr( AP ) = A⊤, ∇P log |P | = P −⊤ ,
+
+∇P log |f (P )| = ( ∂f /∂P )⊤f −⊤ , and ∇P [v⊤f (P )−1v] = −(∂f /∂P )⊤f −⊤ vv ⊤f −⊤ , we obtain that 
+
+∇P Φk(P ) = 12
+
+h ˜P −1 
+
+> k
+
+− P −1 + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(P )Hk
+
+| {z }
+
+> (∗)
+
+−H⊤ 
+
+> k
+
+M −1 
+
+> k
+
+(P )vk( ˜ mk)vk( ˜ mk)⊤M −1 
+
+> k
+
+(P )Hk
+
+| {z }
+
+> ⪯0
+
+i
+
+20 where the negative semi-definiteness of the second term follows from noting this term is rank-1. To complete the proof we will show that ( ∗) ⪯ 0 at P = Pk. Indeed, at P = Pk, and using the definition of Pk in (20), (∗) = ˜P −1 
+
+> k
+
+− Pk−1 + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(Pk)Hk
+
+= ˜P −1 
+
+> k
+
+− [ ˜P −1 
+
+> k
+
++ H⊤ 
+
+> k
+
+R−1 
+
+> k
+
+Hk] + H⊤ 
+
+> k
+
+S−1 
+
+> k
+
+(Pk)Hk
+
+= H⊤ 
+
+> k
+
+[S−1 
+
+> k
+
+(Pk) − R−1 
+
+> k
+
+]Hk
+
+⪯ 0where the final conclusion follows from Rk ⪯ HkPkH⊤ 
+
+> k
+
++ Rk = Sk(Pk). 
+
+# B Difference-of-Convex Optimisation 
+
+As the objective function Φ k(P ) in Proposition 3 can be written as the difference of two convex functions, it is possible to apply DoC programming to numerically obtain the EKF-PrO 
+
+covariance matrix Pk = arg min P Φk(P ). 
+
+Outline of the Algorithm A DoC programme is an iterative algorithm where, given the current approximation P (t) 
+
+> k
+
+, we first linearise P 7 → log |Sk(P )| around P (t) 
+
+> k
+
+using its first-order Taylor expansion log |Sk(P )| ≤ log |Sk(P (t) 
+
+> k
+
+)| + tr( S−1 
+
+> k
+
+(P (t) 
+
+> k
+
+)( Sk(P ) − Sk(P (t) 
+
+> k
+
+))) , (24) where the inequality follows from concavity of P 7 → log |Sk(P )|. Then we can combine Proposition 3 and (24) to obtain an upper bound on Φ k(P ) of the form 
+
+ϕk(P ; P (t) 
+
+> k
+
+) +C
+
+= 12
+
+h
+
+tr( ˜P −1 
+
+> k
+
+P ) − log |P | + vk( ˜ mk)⊤ Sk(P ) + Hk ˜PkH⊤
+
+> k
+
+−1vk( ˜ mk)
+
+| {z } 
+
+> convex in P
+
++ tr( S−1 
+
+> k
+
+(P (t) 
+
+> k
+
+)Sk(P )) 
+
+| {z } 
+
+> linear in P
+
+i
+
+.
+
+Since ϕk(·; P (t) 
+
+> k
+
+) is the sum of a convex and a linear term, it is globally convex and therefore amenable to being efficiently optimised. Thus, in the final step we use efficient convex optimisation [ L-BFGS Liu and Nocedal, 1989] to compute P (t+1)  
+
+> k
+
+= arg min P ϕk(P ; P (t) 
+
+> k
+
+). The iterative algorithm proceeds in this manner until convergence, as described in Algorithm 1. 
+
+Guaranteed Improvement Because ϕk(·; P (t) 
+
+> k
+
+) is a tight upper-bound on Φ k, with equal-ity at P = P (t) 
+
+> k
+
+, each iteration is guaranteed to decrease the objective: Φk(P (t+1)  
+
+> k
+
+) ≤ ϕk(P (t+1)  
+
+> k
+
+; P (t) 
+
+> k
+
+) ≤ ϕk(P (t) 
+
+> k
+
+; P (t) 
+
+> k
+
+) = Φ k(P (t) 
+
+> k
+
+)In practice we implement a sufficient number of iterations that P (t) 
+
+> k
+
+no longer significantly changes when further iterations are performed. 21 Algorithm 1 One-step update for EKF-PrO 
+
+Input: previous mean mk−1 and covariance Pk−1, current observation yk
+
+Output: updated mean mk and covariance Pk 
+
+> 1:
+
+compute the predictive ˜ mk and covariance ˜Pk using (9) ▷ prediction step  
+
+> 2:
+
+t ← 0, P (0)  
+
+> k
+
+← ˜Pk ▷ initialise optimiser at the prior  
+
+> 3:
+
+while not converged do  
+
+> 4:
+
+t ← t + 1  
+
+> 5:
+
+P (t) 
+
+> k
+
+← L-BFGS  ϕk( · ; P (t−1)  
+
+> k
+
+) ▷ returns approx. solution to arg min P ϕk(P |P (t−1)  
+
+> k
+
+) 
+
+> 6:
+
+m(t) 
+
+> k
+
+← m⋆(P (t) 
+
+> k
+
+) ▷ obtains the current best filter mean solution  
+
+> 7:
+
+Calculate (12), (13) using m(t) 
+
+> k
+> 8:
+
+end while  
+
+> 9:
+
+Pk ← P (t) 
+
+> k
+
+▷ updated covariance  
+
+> 10:
+
+mk ← m(t) 
+
+> k
+
+▷ updated mean 
+
+Efficient Implementation via Cholesky Decomposition Direct optimisation over P
+
+requires care since P must remain a symmetric positive definite matrix. Rather than imple-menting constrained optimisation over the manifold of such matrices, we instead parametrise 
+
+P using the lower-triangular Cholesky factor L of the whitened matrix, i.e. P = ˜P 1/2 
+
+> k
+
+LL ⊤ ˜P 1/2 
+
+> k
+
+.Our implementation applies L-BFGS to optimise with respect to L, whose domain is uncon-strained. 
+
+Stopping Criterion For simplicity, we perform a fixed outer loop of length n outer for 
+
+EKF-PrO . The stopping criterion for the inner L-BFGS loop is defined by 3 factors: (i) the hard ceiling of how many iterations to perform is determined by an n inner param-eter; (ii) we threshold the norm of the gradient term ∥∇ P ϕ(P, P ′)∥ and upper bound this with gtol =10 −4; (iii) we check the “stalling” effect by checking if the relative improvement  
+
+> ϕ(Pcurr )−ϕ(Pnew )max {1,ϕ (Pcurr )}
+
+≤ rtol , and stop if the above condition is achieved for patience number of iterations in a row. We set rtol = 10 −7, patience = 3. n outer and n inner can either be set manually or selected using Bayesian optimisation (Cf. Section C). 
+
+# C Experimental Protocol 
+
+Hardware Requirement Experiments were run locally on an Apple M2 Pro machine with 16 GB unified memory using JAX/Metal. 
+
+JAX implementation. Our experimental code is implemented in JAX. The code frame-work builds on the third-party package rebayes mini (https://github.com/gerdm/rebayes-mini/ tree/main ), which provides a lightweight implementation framework for recursive Bayesian filtering methods. We use this package for shared filtering abstractions and baseline imple-mentations, and implement the method-specific updates, experimental configurations, and 22 0 1 2 3 4 5 6
+
+Time t
+
+0
+
+10 
+
+20 
+
+> Lt
+> KF
+> KF-PrO
+
+Figure 4: Example of the error Lt = ∥xt − mt∥ for the location variable, as a function of time for KF and KF-PrO in the maneuver type of misspecification. The background shading denotes the existence of systematic misspecification, with white background indicating no misspecification. We can see from this plot that KF-PrO starts out similar to KF , but the propagation of overconfident predictions, and the consequent overconfidence priors for the next state leads to prolonged periods of time where KF contains much higher levels of error. evaluation scripts used in this paper on top of this framework. 
+
+Hyper-parameter selection The hyper-parameters for different robust filters are chosen using the Bayesian Optimisation (BO) package [Nogueira, 2014]. We note that while EKF-PrO 
+
+is hyper-parameter free, we can use BO to select the optimal number of iterative steps, similar to how the number of iterations in EKF-B and EKF-IW can be tuned using BO. We argue that while these hyper-parameters are tunable, they are a consequence of the optimisation procedure and do not impact the final filtering distribution. For all methods, we perform hyper-parameter tuning by minimising mean-squared error using the first trial of the data-generating distribution. 
+
+## C.1 Tracking an Object in 2D 
+
+For each method, the positional MSE is calculated as 
+
+MSE =
+
+> T
+
+X
+
+> k=1
+
+X
+
+> i∈{ 1,2}
+
+(xk,i − mk,i )2 =
+
+> T
+
+X
+
+> k=1
+
+L2
+
+> k
+
+,
+
+where xk,i is the ith coordinate of the true object location at time k, and mk,i is the filtering mean for the ith coordinate of the object location at time k.
+
+Generating a maneuvering object We consider a switching linear dynamical system, identical to Example 13.4.2 from [Murphy, 2023], for tracking a maneuvering object. The continuous state is 
+
+xt = ( x1,t , x 2,t , ˙x1,t , ˙x2,t )⊤,
+
+23 where ( x1,t , x 2,t ) denotes the two-dimensional position and ( ˙ x1,t , ˙x2,t ) denotes the correspond-ing velocity. Conditional on the discrete mode mt = k, the state evolves according to 
+
+p(xt | xt−1, m t = k) = N (xt | F x t−1 + bk, Q ).
+
+The observations are linear-Gaussian, 
+
+p(yt | xt) = N (yt | Hx t, R ), H = I, R = 10 I. 
+
+The dynamics matrix is 
+
+F =
+
+
+
+1 0 ∆ 00 1 0 ∆0 0 1 00 0 0 1
+
+ , ∆ = 0 .1,
+
+and the process noise covariance is 
+
+Q = 0 .1I. 
+
+The mode-dependent bias vectors are 
+
+b1 =
+
+
+
+0000
+
+ , b2 =
+
+
+
+−1.225 
+
+−0.35 1.225 0.35 
+
+ , b3 =
+
+
+
+1.225 0.35 
+
+−1.225 
+
+−0.35 
+
+ .
+
+Thus the discrete mode controls the direction of the maneuver through the additive bias 
+
+bk. We use a persistent three-state Markov transition matrix with self-transition probability 0.99, 
+
+A =
+
+
+
+0.99 0.005 0.005 0.005 0.99 0.005 0.005 0.005 0.99 
+
+ .
+
+The comparison between KF and KF-PrO is shown in Figure 4, where we can see the prop-agation of overconfident predictions leads to prolonged periods of large errors obtained by 
+
+KF , similar to the results shown in Figure 3. 
+
+## C.2 Lorenz96 Process 
+
+The Lorenz96 process is a d = 60-dimensional ordinary differential equation driven by some 
+
+ϕ ∈ Rd. The canonical choice for ϕ is 8 · 1, where 1 denotes a vector of all 1s. For a fixed time interval ∆ = 0 .002, the data-generating process uses the following 
+
+θt+∆  
+
+> i
+
+− θti
+
+∆ = ( θi+1 − θi−2)θi−1 − θi + ϕi.
+
+24 5        
+
+> 0
+> 5
+> 10
+> 12
+> 0.0 2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+> t
+> 5
+> 0
+> 5
+> 10
+> 12
+
+Figure 5: Tracing the mean of EKF-PrO and EKF against the ground truth state (black dotted). Even though EKF is able to capture the trajectory most of the time, it does not match EKF-PrO in accuracy, especially around the area t = 17 .5. Similar to the maneuver example, we set two discrete modes, with ϕ(1) = 8 · 1, ϕ(2) ∼N (8 · 1, I). The discrete model transition matrix is given by 
+
+A =
+
+0.995 0.005 0.005 0.995 
+
+
+
+.
+
+The dynamics model is defined by the following 
+
+θt+∆  
+
+> i
+
+∼ N 
+
+
+
+θti + ∆(( θi+1 − θi−2)θi−1 − θi + ϕ(1)  
+
+> i
+
+), ∆2
+
+
+
+.
+
+and the state-space model is defined by yt ∼ N (θt, 5 · I). The data-generating distribution shares the same measurement model Gaussian likelihood. We generate a total of N = 20 , 000 steps. Figure 5 illustrates the effect of a misspecified nonlinear state-space model on EKF .25

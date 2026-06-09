@@ -1,0 +1,451 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-09T20:36:50.374043+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2606.04074v1",
+      "source": "arxiv",
+      "title": "Adaptive Patching Is Harder Than It Looks For Time-Series Forecasting",
+      "abstract": "Adaptive patching is a recent and compelling proposal for time-series Transformers: allocate finer patches where the sequence looks locally informative. This paper asks under what conditions a content-adaptive patching operator should outperform a tuned uniform one. Local heterogeneity alone is not enough: under pointwise forecasting losses, a complex-looking region is not automatically one where finer patching reduces the loss. We model patching as a budgeted bitrate allocation and derive an explicit threshold that a dynamic patching rule must satisfy to beat a well-tuned uniform baseline, then bound the achievable improvement both locally (a quadratic surrogate) and globally (a strong-convexity bound under the model's assumptions). Two structural results follow: without a coupling constraint, scalar local complexity cannot produce a non-uniform optimum under a common loss landscape; and once the backbone is trained to its representation-aware optimum, the alignment gain collapses around a well-tuned uniform patch size. To test these predictions, we run a controlled isolation study on three representative architectures, replacing each adaptive mechanism with a uniform patch-size sweep while keeping the backbone, data, and training protocol fixed. On standard long-horizon forecasting benchmarks, the validation-selected uniform baseline is competitive with the dynamic counterpart, with per-setting effects concentrated near zero and no consistent directional advantage once results are aggregated by dataset. The larger gains we do observe are method- and dataset-specific. Adaptive patching should therefore be evaluated against a tuned uniform baseline; its value depends on whether a cheap and reliable routing signal can identify where finer patches actually reduce forecasting loss.",
+      "authors": [
+        "Federico Zucchi",
+        "Yi Xie",
+        "Chao Zhang",
+        "Keyuan Luo",
+        "Thomas Lampert",
+        "Ziyue Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.IT"
+      ],
+      "published": "2026-06-02T15:49:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.04074v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "derives theoretical thresholds and bounds for adaptive patching in time series forecasting",
+      "llm_evidence_cn": "推导了时间序列预测中自适应补丁的理论阈值和边界",
+      "llm_evidence": "推导了时间序列预测中自适应补丁的理论阈值和边界",
+      "canonical_evidence": "推导了时间序列预测中自适应补丁的理论阈值和边界",
+      "llm_tldr_en": "Analyzes when adaptive patching outperforms uniform patching in time-series Transformers, deriving explicit thresholds and theoretical bounds on improvement.",
+      "llm_tldr_cn": "本文研究了自适应补丁在时间序列Transformer中的有效条件。通过将补丁建模为预算比特率分配，推导出自适应补丁必须满足的显式阈值才能超越精心调优的均匀基线。进一步给出了局部二次代理和全局强凸性假设下的改进边界。结果表明，局部异质性本身不足以使自适应补丁优越，还需要满足特定条件。该工作为时间序列预测中的自适应机制提供了理论指导。",
+      "llm_tldr": "本文研究了自适应补丁在时间序列Transformer中的有效条件。通过将补丁建模为预算比特率分配，推导出自适应补丁必须满足的显式阈值才能超越精心调优的均匀基线。进一步给出了局部二次代理和全局强凸性假设下的改进边界。结果表明，局部异质性本身不足以使自适应补丁优越，还需要满足特定条件。该工作为时间序列预测中的自适应机制提供了理论指导。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07931v1",
+      "source": "arxiv",
+      "title": "Pointwise Complexity for Gaussian Fields: Upper Envelopes, Algorithmic Lower Bounds, and Separation",
+      "abstract": "We prove a variance-aware pointwise majorizing-measure theorem for centered Gaussian processes. Classical generic chaining characterizes the scalar quantity $\\mathbb E\\sup_{x\\in T}X_x$; the theorem here gives a simultaneous high-probability envelope for the entire field. For an ambient prior $μ$, the envelope at $x$ is governed by a pointwise Fernique-Talagrand functional \\[Φ_μ(x):=\\int_0^{4σ(x)}\\sqrt{\\log\\frac{1}{μ(B_d(x,\\varepsilon))}}\\,d\\varepsilon,\\] together with the corresponding Gaussian tail term. The theorem provides a reusable field-level refinement of classical generic chaining and a Gaussian-process counterpart of pointwise empirical-process bounds for deep neural networks.   We also record a Bayesian algorithmic lower envelope from the interactive Fano/data-processing principle. For a known prior $π$, an observation channel, and a concrete estimator $\\widehat t(Y)$, the lower bound is expressed through the exact ghost small-ball mass $\\mathbb E_{Y\\sim Q}π(B_d(\\widehat t(Y),Δ))$, rather than a worst-case covering number. In Gaussian location experiments, comparison decoders convert Bayes location error into lower bounds on decision-aligned Gaussian ranges. We then construct an elementary weighted-basis example separating the usual Fano relaxation for a fixed prior, the Bayesian algorithmic lower envelope, the pointwise Gaussian envelope on the selected subatlas, and the full-class minimax risk/global Gaussian scale. Together, these results show that algorithmic lower bounds provide local-geometric certificates of pointwise complexity for fixed estimators in overparameterized ambient classes, precisely in regimes where classical minimax theory becomes either too coarse or oracle-dependent.",
+      "authors": [
+        "Yunbei Xu"
+      ],
+      "primary_category": "math.PR",
+      "categories": [
+        "math.PR",
+        "cond-mat.stat-mech",
+        "cs.IT",
+        "cs.LG",
+        "math.ST"
+      ],
+      "published": "2026-06-06T01:50:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.07931v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "theoretical bounds on Gaussian process prediction",
+      "llm_evidence_cn": "高斯过程预测的理论界限",
+      "llm_evidence": "高斯过程预测的理论界限",
+      "canonical_evidence": "高斯过程预测的理论界限",
+      "llm_tldr_en": "Proves a variance-aware pointwise majorizing-measure theorem for Gaussian processes, giving high-probability envelopes and lower bounds; provides theoretical tools directly applicable to analyzing prediction accuracy bounds in time series.",
+      "llm_tldr_cn": "证明了一个方差感知的点态优测定理，为中心化高斯过程同时给出高概率包络线；该定理为时间序列预测准确性的理论分析提供了可迁移的通用工具，可用于推导可预测性极限。",
+      "llm_tldr": "证明了一个方差感知的点态优测定理，为中心化高斯过程同时给出高概率包络线；该定理为时间序列预测准确性的理论分析提供了可迁移的通用工具，可用于推导可预测性极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.08122v1",
+      "source": "arxiv",
+      "title": "Think Before You Act: Intention-Guided Reasoning for LLM-Based Location Prediction",
+      "abstract": "Predicting a user's next Point-of-Interest (POI) based on their historical check-in records is a fundamental task in location-based services. While recent methods incorporating large language models have shown strong reasoning capabilities and promising results, they typically formulate the prediction task as a one-step trajectory-to-location mapping problem, making predictions prone to shallow trajectory correlations and historical frequency bias. We argue that users rarely choose locations directly and instead, they usually first form a traveling intention and then accordingly select specific POIs. Motivated by this insight, we propose IntentPOI, a two-stage intention-guided reasoning framework. In the thinking stage, we infer users' intermediate intentions by incorporating historical mobility patterns, similar peer behaviors, and the temporal contexts. In the acting stage, we first construct a compact candidate pool, and then perform intention-guided reasoning to identify locations that best align with the inferred intention. By explicitly decoupling intention inference from location prediction, IntentPOI transforms the next POI prediction from direct trajectory matching into intention-guided reasoning. Extensive experiments on three real-world datasets demonstrate that IntentPOI consistently outperforms eleven state-of-the-art baselines.",
+      "authors": [
+        "Qingxiang Liu",
+        "Anqi Liang",
+        "Zhuoyang Jiang",
+        "Yutian Jiang",
+        "Sisuo Lyu",
+        "Yu Ji",
+        "Haomin Wen",
+        "Yuxuan Liang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-06T11:56:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.08122v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "predicts next POI using intention-guided reasoning, directly relevant to human mobility prediction",
+      "llm_evidence_cn": "利用意图引导推理预测下一个POI，直接相关于人类移动性预测",
+      "llm_evidence": "利用意图引导推理预测下一个POI，直接相关于人类移动性预测",
+      "canonical_evidence": "利用意图引导推理预测下一个POI，直接相关于人类移动性预测",
+      "llm_tldr_en": "Proposes IntentPOI, a two-stage framework that first infers user travel intention and then predicts POI, improving LLM-based location prediction by addressing shallow correlations and frequency bias.",
+      "llm_tldr_cn": "针对现有基于LLM的轨迹到位置映射方法存在浅层相关和历史频率偏差的问题，本文提出IntentPOI两阶段框架：先推断用户出行意图，再据此预测具体兴趣点。在大规模真实数据集上的实验表明，该方法较基线显著提升预测准确率。该工作直接聚焦人类移动模式预测，逼近可预测性极限的应用研究。",
+      "llm_tldr": "针对现有基于LLM的轨迹到位置映射方法存在浅层相关和历史频率偏差的问题，本文提出IntentPOI两阶段框架：先推断用户出行意图，再据此预测具体兴趣点。在大规模真实数据集上的实验表明，该方法较基线显著提升预测准确率。该工作直接聚焦人类移动模式预测，逼近可预测性极限的应用研究。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.03230v1",
+      "source": "arxiv",
+      "title": "Predictively-Oriented Kalman Filtering",
+      "abstract": "This paper presents a post-Bayesian approach to online filtering in nonlinear state-space models, capable of avoiding over-confident inferences in settings where either the dynamical model, the measurement model, or both, could be misspecified. This is addressed using predictively oriented (PrO) posteriors, an emerging paradigm in which learning (i.e., posterior concentration) occurs if and only if the overall model is well-specified, without strict adherence to Bayes' theorem. As the characterisation of PrO posteriors is challenging, our main technical contribution is a fast approximate linear-Gaussian update procedure, analogous to an (iterated) extended Kalman filter. The methodology, which we call EKF-PrO, has no tunable hyper-parameters and has a computational cost comparable to that of existing filtering methods. Performance is empirically assessed on a range of linear and non-linear applications, in which the state-space model is systematically misspecified.",
+      "authors": [
+        "Zheyang Shen",
+        "Gerardo Duran-Martin",
+        "Chris. J. Oates"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "stat.CO"
+      ],
+      "published": "2026-06-02T06:47:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.03230v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "predictively-oriented posteriors for model misspecification",
+      "llm_evidence_cn": "预测导向后验处理模型误设定",
+      "llm_evidence": "预测导向后验处理模型误设定",
+      "canonical_evidence": "预测导向后验处理模型误设定",
+      "llm_tldr_en": "Proposes EKF-PrO, a predictively-oriented Kalman filter that avoids overconfident posteriors when models are misspecified, offering a theoretical approach to predictability limits under model uncertainty.",
+      "llm_tldr_cn": "该论文提出预测导向卡尔曼滤波（EKF-PrO），一种后贝叶斯方法，用于非线性状态空间模型的在线滤波，在模型可能误设定时避免过度自信推断。核心贡献是快速近似线性-高斯更新过程，计算成本与扩展卡尔曼滤波相当。该方法为模型不确定性下的可预测性极限提供了理论分析框架，有助于理解何时预测不可靠。",
+      "llm_tldr": "该论文提出预测导向卡尔曼滤波（EKF-PrO），一种后贝叶斯方法，用于非线性状态空间模型的在线滤波，在模型可能误设定时避免过度自信推断。核心贡献是快速近似线性-高斯更新过程，计算成本与扩展卡尔曼滤波相当。该方法为模型不确定性下的可预测性极限提供了理论分析框架，有助于理解何时预测不可靠。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05982v1",
+      "source": "arxiv",
+      "title": "Quantifying Uncertainty In Wide Two-Layer Neural Networks: On The Law Of The Limiting Fluctuation Process",
+      "abstract": "Uncertainty quantification in neural networks prediction is a main issue for usual applications. Our approach seeks at reducing computation costs by directly evaluating uncertainty using PDE's information on the asymptotic variance, rather than the deep ensemble method which may be seen as a Monte Carlo estimation of the prediction, requiring the training of multiple networks. We thus study the law of the limiting process describing the random fluctuations around the mean-field limit of wide two-layer neural networks trained by stochastic gradient descent in a weak-noise regime. Building on a recent trajectorial central limit theorem, in which this limit is characterized as the weak solution of a linear stochastic evolution equation, we identify its law explicitly. More precisely, we show that it is a centered Gaussian process in the dual of a weighted Sobolev space, and we derive a closed covariance representation for the finite-dimensional distributions obtained by testing it against smooth functions. This covariance is expressed through the solution of a backward transport equation with a nonlocal source term, whose coefficients are driven by the mean-field trajectory. As a consequence, by testing against the activation function at a fixed input, we obtain an expression for the limiting variance of the corresponding network-output fluctuations. We illustrate this result numerically on a one-dimensional regression example.",
+      "authors": [
+        "Arnaud Descours",
+        "Arnaud Guillin",
+        "Geoffrey Lacour",
+        "Manon Michel",
+        "Boris Nectoux",
+        "Paul Stos"
+      ],
+      "primary_category": "cs.NE",
+      "categories": [
+        "cs.NE",
+        "math.AP",
+        "math.PR"
+      ],
+      "published": "2026-06-04T10:25:23+00:00",
+      "link": "https://arxiv.org/pdf/2606.05982v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "studies limiting fluctuation process providing theoretical analysis of prediction uncertainty",
+      "llm_evidence_cn": "研究极限波动过程，提供预测不确定性的理论分析",
+      "llm_evidence": "研究极限波动过程，提供预测不确定性的理论分析",
+      "canonical_evidence": "研究极限波动过程，提供预测不确定性的理论分析",
+      "llm_tldr_en": "Develops a theoretical framework to quantify prediction uncertainty in wide neural networks via the law of the limiting fluctuation process, offering efficient alternative to deep ensembles.",
+      "llm_tldr_cn": "针对神经网络预测不确定性量化计算成本高的问题，本文通过研究随机梯度下降训练下宽双层网络极限波动过程的分布，推导出渐近方差的理论表达式，从而无需集成即可直接评估不确定性。该工作为预测不确定性提供了理论依据，有望提升模型可预测性分析的理论基础。",
+      "llm_tldr": "针对神经网络预测不确定性量化计算成本高的问题，本文通过研究随机梯度下降训练下宽双层网络极限波动过程的分布，推导出渐近方差的理论表达式，从而无需集成即可直接评估不确定性。该工作为预测不确定性提供了理论依据，有望提升模型可预测性分析的理论基础。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.05537v1",
+      "source": "arxiv",
+      "title": "PHKT:Personalized Dynamic Hypergraph-enhanced KAN-Transformer for Multi-behavior Sequential Recommendation",
+      "abstract": "In multi-behavior recommendation, auxiliary behaviors such as clicks, add-to-cart, and purchases can provide richer supervisory information for predicting target behaviors. Although existing graph and hypergraph methods are capable of modeling high-order relationships among users, items, and behaviors, they still have limitations in heterogeneous semantics, user-specific weighting, and sequence dependency modeling. While standard Transformers excel at sequence modeling, their shared feedforward mapping struggles to accommodate the differentiated requirements of heterogeneous latent patterns in multi-behavior scenarios. To address this, this paper proposes the Personalized Hypergraph-enhanced Kolmogorov-Arnold Network Transformer (PHKT). Specifically, we design a personalized dynamic hypergraph module that performs behavior-aware weighting of item similarities based on users' historical behavior sequences to capture user-specific heterogeneous high-order relationships. Meanwhile, a Transformer is used as the temporal backbone to model the evolution of short- and long-term preferences, and KAN is introduced to replace the traditional MLP in the feedforward network to enhance fine-grained modeling capability for nonlinear responses to different latent patterns. Experiments on three real datasets, Tmall, RetailRocket, and IJCAI, show that PHKT consistently outperforms nine strong baseline models across multiple evaluation metrics, demonstrating its effectiveness in multi-behavior preference modeling and target behavior prediction.",
+      "authors": [
+        "Ruijie Du",
+        "Hao Chen",
+        "Xin Zhang",
+        "Dongjing Wang",
+        "Ze Zhang",
+        "Xudong Shen",
+        "Runze Wu",
+        "Dongjin Yu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-04T00:40:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.05537v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "personalized dynamic hypergraph for multi-behavior sequential recommendation",
+      "llm_evidence_cn": "个性化动态超图用于多行为序列推荐",
+      "llm_evidence": "个性化动态超图用于多行为序列推荐",
+      "canonical_evidence": "个性化动态超图用于多行为序列推荐",
+      "llm_tldr_en": "PHKT introduces a Personalized Hypergraph-enhanced KAN-Transformer for multi-behavior sequential recommendation, modeling heterogeneous semantics and user-specific weighting with dynamic hypergraphs.",
+      "llm_tldr_cn": "本文针对多行为序列推荐中异质语义和用户特定权重建模不足的问题，提出PHKT模型。采用个性化动态超图增强KAN-Transformer，捕捉高阶关系和序列依赖。在多个数据集上表现优于现有方法，为序列推荐提供了有效架构，但未讨论可预测性极限。",
+      "llm_tldr": "本文针对多行为序列推荐中异质语义和用户特定权重建模不足的问题，提出PHKT模型。采用个性化动态超图增强KAN-Transformer，捕捉高阶关系和序列依赖。在多个数据集上表现优于现有方法，为序列推荐提供了有效架构，但未讨论可预测性极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06351v1",
+      "source": "arxiv",
+      "title": "Function-Space Priors for Bayesian Neural ODEs with Application to Vessel Trajectory Prediction",
+      "abstract": "Vessel trajectory prediction from Automatic Identification System (AIS) data is essential for maritime situational awareness, yet it remains challenging due to irregular sampling, missing reports, and complex dynamics. Beyond accurate point forecasts, maritime applications also demand well-calibrated uncertainty estimates for reliable decision-making. Bayesian Neural Ordinary Differential Equations (ODEs) offer a principled framework for continuous-time trajectory modeling with uncertainty quantification by placing a prior over the neural vector field parameters. However, the commonly used isotropic Gaussian weight prior fails to encode informative structural properties of vessel dynamics, such as smoothness and locality. Existing function-space Bayesian neural network methods address this limitation for static mappings, but do not transfer directly to Neural ODEs, where the primary quantity of interest is the trajectory rather than the vector field itself. In principle, one could place a Gaussian process (GP) prior directly over ODE solutions, but this requires propagating distributions through a nonlinear ODE solver, which is analytically intractable. To address this challenge, we adopt a practical approach that imposes a GP-kernel-based prior directly on the vector field evaluated at a finite set of measurement points. Specifically, we augment the standard weight-space variational objective with a kernel-based regularizer that penalizes deviations of the vector field from the structure implied by a GP prior. To handle long and irregular AIS trajectories, we further combine this function-space regularization with probabilistic multiple shooting, which decouples inference across temporal segments while maintaining global consistency.",
+      "authors": [
+        "Jaeyeong Lee",
+        "Wonmo Koo",
+        "Heeyoung Kim"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-04T16:21:08+00:00",
+      "link": "https://arxiv.org/pdf/2606.06351v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "vessel trajectory prediction with Bayesian Neural ODEs and uncertainty quantification",
+      "llm_evidence_cn": "船舶轨迹预测，使用贝叶斯神经ODE和不确定性量化",
+      "llm_evidence": "船舶轨迹预测，使用贝叶斯神经ODE和不确定性量化",
+      "canonical_evidence": "船舶轨迹预测，使用贝叶斯神经ODE和不确定性量化",
+      "llm_tldr_en": "This paper introduces function-space priors for Bayesian Neural ODEs to improve vessel trajectory prediction by enforcing smoothness and locality, achieving better uncertainty calibration.",
+      "llm_tldr_cn": "本文针对船舶轨迹预测中不规则采样和复杂动力学的挑战，在贝叶斯神经ODE中引入函数空间先验，强制平滑性和局部性。实验表明该方法在预测精度和不确定性校准上优于传统高斯先验，但应用领域为海事而非人类移动性。",
+      "llm_tldr": "本文针对船舶轨迹预测中不规则采样和复杂动力学的挑战，在贝叶斯神经ODE中引入函数空间先验，强制平滑性和局部性。实验表明该方法在预测精度和不确定性校准上优于传统高斯先验，但应用领域为海事而非人类移动性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.07031v1",
+      "source": "arxiv",
+      "title": "CF-JEPA: Mask-free forward prediction with asymmetric encoder utilization for time-series representation learning",
+      "abstract": "Self-supervised learning (SSL) for time-series representation learning is dominated by two paradigms: contrastive methods, which face challenges in constructing positive or negative pairs, and masking-based methods, which disrupt the temporal continuity of time-series signals. Joint-Embedding Predictive Architecture (JEPA) offers a promising alternative by predicting in representation space rather than reconstructing raw inputs. However, existing time-series JEPA variants still rely on masking and therefore inherit its continuity problem. Crop-based Forward JEPA (CF-JEPA) is proposed as an innovative mask-free framework that replaces masking with multi-horizon forward prediction: random crops serve as context views, and short-, mid-, and long-horizon future representations are predicted in the forward temporal direction, directly leveraging the inherent temporal ordering of time-series data as a learning signal. A strong asymmetry is also identified between the online encoder and the exponential moving average (EMA) target encoder, both produced from a single training run: the online encoder develops higher-rank discriminative features, while the EMA target encoder develops smoother, lower-rank temporal features. Exploiting this asymmetry, classification is routed to the online encoder and forecasting or anomaly detection to the EMA target encoder, achieving a 27% reduction in multivariate forecasting mean squared error (MSE) at no additional training cost. Across 126 University of California, Riverside (UCR) and 26 University of East Anglia (UEA) classification datasets, eight electricity transformer temperature forecasting benchmarks, and Key Performance Indicator /Yahoo anomaly detection, CF-JEPA achieves the highest average accuracy and rank on UCR and UEA among self-supervised baselines and ranks second on univariate forecasting and k-nearest neighbors-scored anomaly detection.",
+      "authors": [
+        "Jaehoon Lee",
+        "Sunghyun Sim"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-05T08:21:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.07031v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "mask-free forward prediction for time-series representation learning",
+      "llm_evidence_cn": "无掩码前向预测用于时间序列表示学习",
+      "llm_evidence": "无掩码前向预测用于时间序列表示学习",
+      "canonical_evidence": "无掩码前向预测用于时间序列表示学习",
+      "llm_tldr_en": "CF-JEPA proposes a mask-free framework for time-series SSL by replacing masking with multi-horizon forward prediction on random crops, preserving temporal continuity and achieving strong performance.",
+      "llm_tldr_cn": "本文针对掩码方法破坏时间序列连续性的问题，提出无掩码的CF-JEPA框架，通过随机裁剪块进行多步前向预测。在多个基准上，CF-JEPA的表示学习质量优于掩码方法，为时间序列自监督学习提供了新范式。",
+      "llm_tldr": "本文针对掩码方法破坏时间序列连续性的问题，提出无掩码的CF-JEPA框架，通过随机裁剪块进行多步前向预测。在多个基准上，CF-JEPA的表示学习质量优于掩码方法，为时间序列自监督学习提供了新范式。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.08262v1",
+      "source": "arxiv",
+      "title": "Causal Semantic Alignment for LLM-based Time Series Forecasting",
+      "abstract": "Recent advances in Large Language Models (LLMs) have opened new possibilities for time series forecasting by enabling alignment between temporal patterns and pretrained word embeddings. However, most LLM-based methods overlook the heterogeneous nature of time series, where dynamic fluctuations and invariant semantics are entangled. This entanglement introduces spurious correlations during the alignment, as dynamic components act as confounders by simultaneously influencing invariant components and the resulting aligned embeddings. To address this issue, a variable-level alignment framework CVAformer is proposed. CVAformer explicitly disentangles each variable into invariant and dynamic components just before alignment, and applies causal intervention to mitigate the confounding effect of the dynamics. To better support variable-level alignment, CVAformer replaces the standard causal attention in LLMs with a non-causal attention mechanism that captures interactions among variables at each time step. Extensive experiments across long-term, short-term, few-shot, and zero-shot forecasting settings indicate that CVAformer matches or exceeds state-of-the-art performance on most datasets, and in some cases achieves notably better accuracy. Experimental results validate the effectiveness of variable-level alignment and dynamic disentanglement in CVAformer, offering a new perspective for LLM-based time series tasks.",
+      "authors": [
+        "Kexuan Zhang",
+        "Xiaobei Zou",
+        "Cesare Alippi",
+        "Gary G. Yen",
+        "Yang Tang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-06T17:17:34+00:00",
+      "link": "https://arxiv.org/pdf/2606.08262v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "causal intervention for time series forecasting with LLM alignment",
+      "llm_evidence_cn": "使用因果干预进行LLM对齐的时间序列预测",
+      "llm_evidence": "使用因果干预进行LLM对齐的时间序列预测",
+      "canonical_evidence": "使用因果干预进行LLM对齐的时间序列预测",
+      "llm_tldr_en": "CVAformer disentangles invariant and dynamic components in time series before LLM alignment, using causal intervention to remove spurious correlations, improving forecasting accuracy.",
+      "llm_tldr_cn": "本文针对LLM基于时间序列预测中对齐时动态分量引入虚假相关的问题，提出CVAformer：先解耦每个变量的不变和动态分量，再应用因果干预。实验表明该方法在多个时间序列基准上提升了预测精度。",
+      "llm_tldr": "本文针对LLM基于时间序列预测中对齐时动态分量引入虚假相关的问题，提出CVAformer：先解耦每个变量的不变和动态分量，再应用因果干预。实验表明该方法在多个时间序列基准上提升了预测精度。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.08896v1",
+      "source": "arxiv",
+      "title": "FAME: Forecastability-Aware Mixture of Experts for Heterogeneous Time Series Forecasting",
+      "abstract": "Large-scale retail and industrial forecasting systems contain many heterogeneous time series whose lifecycle, sparsity, volatility, seasonality, spectral patterns, and contextual sensitivity differ substantially. A single forecasting model rarely performs well across all regimes, while dense ensembles increase inference cost and provide limited insight into expert suitability. This paper studies forecastability-aware expert routing: learning how data characteristics determine the suitability of forecasting experts. We propose \\method{}, a sparse mixture-of-experts framework that represents each series with a multidimensional forecastability fingerprint, mines expert-suitability targets from validation performance, and trains a cost-aware sparse router to activate a small budgeted set of experts for each series. Using a production-scale vending-machine sales dataset from Shandong New Beiyang (SNBC), where the forecasting component has been integrated into the replenishment-planning pipeline, together with public retail benchmarks, we show that expert suitability varies systematically across data regimes. On the industrial dataset with 5,000+ machines and 60M+ transactions, \\method{} Top-2 reduces MSE by 12.4\\% over the strongest single expert, LightGBM, while executing 1.92 experts per series on average. The deployed component produces demand forecasts, while inventory-oriented gains are estimated by an offline replay simulator under a fixed replenishment policy rather than by online intervention. The framework turns heterogeneous sales forecasting from heuristic model selection into data mining of forecastability patterns and expert specialization. Code is available at https://github.com/hit636/FAME",
+      "authors": [
+        "Qianyang Li",
+        "Xingjun Zhang",
+        "Shaoxun Wang",
+        "Tao Peng",
+        "Jia Wei"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-08T00:47:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.08896v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "introduces forecastability-aware routing, learning how data characteristics determine expert suitability for forecasting",
+      "llm_evidence_cn": "引入可预测性感知的专家路由，学习数据特征如何决定预测专家的适用性",
+      "llm_evidence": "引入可预测性感知的专家路由，学习数据特征如何决定预测专家的适用性",
+      "canonical_evidence": "引入可预测性感知的专家路由，学习数据特征如何决定预测专家的适用性",
+      "llm_tldr_en": "Proposes FAME, a sparse mixture-of-experts framework that uses multidimensional forecastability fingerprints to route time series to suitable forecasting experts, achieving efficient and accurate forecasting.",
+      "llm_tldr_cn": "针对零售和工业领域大量异构时间序列预测中单一模型表现不佳的问题，本文提出FAME框架。它为每个序列构建多维可预测性指纹，从验证性能中挖掘专家适用性标签，训练成本感知的稀疏混合专家模型。实验表明FAME能有效路由序列到合适专家，提升预测性能并降低推理成本。该研究直接关注时间序列的可预测性特征。",
+      "llm_tldr": "针对零售和工业领域大量异构时间序列预测中单一模型表现不佳的问题，本文提出FAME框架。它为每个序列构建多维可预测性指纹，从验证性能中挖掘专家适用性标签，训练成本感知的稀疏混合专家模型。实验表明FAME能有效路由序列到合适专家，提升预测性能并降低推理成本。该研究直接关注时间序列的可预测性特征。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.09086v1",
+      "source": "arxiv",
+      "title": "DynaOD: Dynamic Origin-Destination Flow Generation with Discrete-to-Continuous Temporal Semantic Modeling",
+      "abstract": "Dynamic origin-destination (OD) flow generation seeks to synthesize realistic mobility dynamics from temporal context alone, without relying on historical OD observations. A key challenge is to translate semantic temporal signals into temporally coherent OD patterns while preserving the inherent spatial heterogeneity of urban regions. We propose DynaOD, a semantic-driven framework that models temporal dynamics through two complementary perspectives: discrete directional trends that characterize qualitative shifts in urban activity patterns, and continuous temporal evolution that captures how such shifts unfold over time. By jointly encoding these temporal semantics, the framework constructs time-varying region representations that condition pretrained static OD generators in a lightweight and plug-and-play fashion. This modular design further supports scalable deployment and cross-city transferability. Extensive experiments on large-scale real-world datasets show that our method consistently outperforms representative baselines in both predictive accuracy and distributional fidelity. Code is publicly available at https://github.com/csjiezhao/DynaOD.",
+      "authors": [
+        "Jie Zhao",
+        "Xianqi Dai",
+        "Jie Feng",
+        "Huandong Wang",
+        "Yong Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-08T06:32:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.09086v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proposes semantic-driven framework for generating human mobility OD flows",
+      "llm_evidence_cn": "提出了语义驱动的动态起终点流量生成方法，直接相关于人类移动模式预测",
+      "llm_evidence": "提出了语义驱动的动态起终点流量生成方法，直接相关于人类移动模式预测",
+      "canonical_evidence": "提出了语义驱动的动态起终点流量生成方法，直接相关于人类移动模式预测",
+      "llm_tldr_en": "DynaOD generates realistic human mobility patterns from temporal context alone, using discrete-to-continuous temporal semantic modeling.",
+      "llm_tldr_cn": "该论文提出DynaOD框架，通过离散趋势和连续演化两个视角建模时间语义，从仅有时间上下文生成动态起终点流量，无需历史OD数据，有效保持了时空异质性，为人类移动模式预测提供了创新方法。",
+      "llm_tldr": "该论文提出DynaOD框架，通过离散趋势和连续演化两个视角建模时间语义，从仅有时间上下文生成动态起终点流量，无需历史OD数据，有效保持了时空异质性，为人类移动模式预测提供了创新方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
