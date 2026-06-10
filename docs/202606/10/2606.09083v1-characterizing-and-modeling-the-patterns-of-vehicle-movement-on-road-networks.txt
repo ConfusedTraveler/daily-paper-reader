@@ -1,0 +1,435 @@
+Title: Characterizing and modeling the patterns of vehicle movement on road networks
+
+URL Source: https://arxiv.org/pdf/2606.09083v1
+
+Published Time: Tue, 09 Jun 2026 01:47:03 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Characterizing and modeling the patterns of vehicle movement on road networks 
+
+Dongwon Kang, 1 Jung-Hoon Jung, 1, 2 Jongwoo Lee, 3 Seunghoon Cheon, 3 and Young-Ho Eom 1, 4, ∗
+
+> 1
+
+Department of Physics, University of Seoul, Seoul 02504, Republic of Korea 
+
+> 2
+
+Department of Physics, Korea University, Seoul 02841, Republic of Korea 
+
+> 3
+
+Department of Transport Big Data, Korea Transport Institute, 370 Sicheong-daero, Sejong 30147, Republic of Korea 
+
+> 4
+
+Urban Big data and AI Institute, University of Seoul, Seoul 02504, Republic of Korea 
+
+(Dated: June 9, 2026) Understanding vehicle movement on road networks is closely related to various practical and theoretical issues. While recent works have focused on which cost vehicles minimize while moving, how they move to minimize that cost remains less explored. In this work, we analyze large-scale data of individual vehicle trajectories in real-world road networks to identify cost-minimizing movement patterns of vehicles and the influence of road network structure on such movement. We observed that vehicle movements exhibit three phases: the beginning, middle, and end of trips. At the beginning and end, vehicles detour more, lose directional memory quickly, and travel at lower speeds than during the middle. In contrast, during the middle, they tend to detour less, maintain directional memory, and travel faster than at the beginning and end. Finally, at the beginning and end, vehicles exhibit similar detour and velocity patterns, except the direction of movement. To understand these patterns, we propose a double-layered network model mimicking the hierarchical structure of real-world road networks. We found that when vehicles move across our model network while minimizing travel time, they tend to concentrate on high-level roads, and the three observed movement phases are reproduced. Consequently, when a vehicle moves between a given origin-destination pair, it must enter and exit these high-level roads. This causes it to deviate from the trajectory that minimizes travel distance between the same origin-destination pair—particularly at the beginning and end of the trip. Our results reveal common patterns underlying individual vehicle movements that appear highly diverse at first glance, demonstrating that these patterns emerge because vehicles leverage the characteristics of hierarchical road networks to minimize travel time. 
+
+I. INTRODUCTION 
+
+How do vehicles move from one location to others in real-world road networks? This question is relevant to not only practical issues from the efficient design of road networks and urban structure [1–6] to traffic con-gestion [7–9] and urban air pollution [10–12], but also theoretical issues such as the motion of active particles in network-shaped space [13–15] and human mobility in urban environments [16–18]. Current works on vehicular movement on road net-works have focused on what objective function vehi-cles optimize when traveling between a given origin-destination (OD) pair. In transportation engineering, a simple yet powerful idea underlying vehicle movement is formalized as Wardrop’s first principle, which states that individual vehicles move to minimize their travel time under given conditions [19]. Although slight deviations from this principle have been reported in some empiri-cal studies, it is widely accepted that optimizing travel time is the primary objective of vehicle movement [20– 26]. In network science, similarly, a pervasive idea is that flow between two nodes in a network takes place through the shortest path connecting the nodes [27–31], although a recent work suggested that substantial vehicular traf-fic flows through an alternative shortest path in some  
+
+> ∗yheom@uos.ac.kr
+
+cities [32]. These works in common suggest that vehicle movement is based on minimizing some cost functions such as travel time or distance. However, even if we know which cost function vehicles minimize when they move, this only accounts for half of understanding their movement. A question remains: How do vehicles move from one location to another in road networks to minimize a cost function such as travel time or distance? More specifically, when minimizing such costs, do vehicles move persistently toward the des-O
+
+D
+
+FIG. 1. Visualization of an actual vehicle trajectory (red line) and a trajectory obtained when the vehicle minimizes its travel distance for the same OD pair (blue line) on the Seoul road network. Note that the actual trajectory shows a significant deviation from the trajectory obtained by mini-mizing travel distance, though they share the same OD. 
+
+> arXiv:2606.09083v1 [physics.soc-ph] 8 Jun 2026
+
+210 2 10 3 10 4     
+
+> Travel time (s)
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> Count
+> 1e3
+> Jeju
+> Seoul
+> (a) (b) (c)
+> FIG. 2. Representative trajectories in (a) Jeju and (b) Seoul. For both trajectories, the starting points are marked in blue and the end points are marked in red and the colors denote the relative temporal evolution along each trajectory. (c) Travel time distribution of trajectories in Jeju during January 2019 (blue) and in Seoul from January 1 to January 7, 2019 (red, diagonal hatching). The shaded area marks trajectories within 2 σof the mean in logarithmic space, representing the dataset used for our analysis. Filtered travel times range from 183 s to 5832 s in Jeju and from 212 s to 4703 s in Seoul.
+
+tination with almost uniform velocity, or do they instead exhibit systematic variations in direction and speed dur-ing their movement? Moreover, since vehicles move within a road network rather than in open space, it can be expected that the structure of the road network will play a critical role in vehicle movement. For instance, if a road network were homogeneous—meaning vehicles could travel at the same speed on all roads—the trajectory of a vehicle passing between a given OD pair will be similar to the shortest distance path between the same OD pair, since travel time would be directly proportional to distance. How-ever, since real-world road networks are in general not ho-mogeneous, the actual trajectories produced by vehicles tend to deviate significantly from the shortest distance paths between the same OD pair, as shown in Fig. 1. In this work, we analyze large-scale individual vehicle trajectory data to investigate how vehicles move while minimizing their costs on real-world road networks and how they utilize the road network structure to achieve cost minimization. By comparing actual vehicle trajec-tories with those obtained by minimizing travel distance (distance-minimizing trajectories, DMTs; see Sec. II for time assignment) between the same OD pairs, we identify a systematic difference between the two. At the begin-ning and end of trips, vehicles tend to take a distance greater than the DMTs, lose their directional memory quickly, and travel at lower speeds than during the mid-dle part of trips. In contrast, during the middle part of trips, vehicles tend to cover a distance close to the DMTs, maintain their directional memory, and travel at higher speeds than at the beginning and end of trips. To explain these patterns, we constructed a double-layered network which mimics the hierarchical structure of real-world road networks (e.g., highways and low-speed roads). Our simple model reproduces the key empirical observations qualitatively, suggesting that the observed patterns in vehicle movement arise from vehicles utilizing the hier-archical structure of road networks to minimize travel time.  
+
+> II. DATASET
+
+We use large-scale individual vehicle trajectory data collected from navigation devices in individual vehicles provided by the Korea Transport Institute (KOTI). The dataset is constructed by map-matching GPS points to the edges of the road network, and includes the entry and exit times for each road segment, along with the corresponding speeds. Approximately 60 million indi-vidual vehicle trajectories were recorded across Korea in 2019. For the sake of simplicity, we focus on Jeju—an island which is not connected to the mainland by bridges or tunnels with a population of roughly 700,000—during January 2019, and on Seoul, the capital of Korea and a megacity with a population of roughly 9,600,000, from January 1 to January 7, 2019. Figure 2(a) and 2(b) illus-trate examples of vehicle trajectories, starting from the blue point to the red point, in Jeju and Seoul, respec-tively. To focus on typical vehicle trajectories, we prepro-cessed the dataset by removing outliers with excessively short or long travel times. As shown in Fig. 2(c), the travel time distribution appears approximately log-normal. Accordingly, we retained only trajectories whose travel times fall within the interval [ μ−2σ, μ +2 σ] in loga-rithmic space, where μ and σ are the mean and standard deviation of the logarithm of travel time, respectively. The shaded areas in Fig. 2(c) indicate the dataset used for analysis: travel times range from 183 s to 5832 s in Jeju and from 212 s to 4703 s in Seoul. After filtering, we obtained 147,620 individual vehicle trajectories in Jeju, and 122,652 trajectories in Seoul. 3For each actual trajectory, we construct a DMT on the road network between its OD pair, which serve as a reference trajectory obtained solely by minimizing travel distance. The blue line in Fig. 1 shows one such DMT, while the red line represents the actual vehicle trajectory for the same OD pair. To analyze not only the spatial but also the dynamical differences between actual trajectories and DMTs, we assign travel time to the road segments of each DMT by assuming constant-speed motion within each road segment. Specifically, for each road segment e, we define its rep-resentative speed vseg (e) as the mean speed of all vehicles that passed through e in 2019. We then assume that a ve-hicle travels road segment e of the DMT at speed vseg (e). We adjust outliers in distribution of vseg (e) across road segments in a road network, which fall outside the 5th and 95th percentiles, to the closest boundary values. We also replace missing values, including those for segments with fewer than 30 data points, with the median value of the vseg (e) distribution.  
+
+> III. RESULTS
+
+We compare actual vehicle trajectories with their DMTs for the same OD pairs in order to understand how vehicles move to minimize their cost function.  
+
+> A. Detour profile
+
+First, we measure the detour profile [33] to quantify how much actual vehicle trajectories deviate from the minimum travel distance within sub-trajectories of a trip. For a given trajectory, we define a sub-trajectory with a prescribed target length ∆ L along the actual trajec-tory. The variable x ∈ [0 , 1] denotes the normalized po-sition of this sub-trajectory along the full trajectory. In this notation, x = 0 corresponds to the sub-trajectory starting from the origin, and x = 1 corresponds to the sub-trajectory ending at the destination. At each posi-tion x, the sub-trajectory has length ℓx measured along the actual trajectory. We regard the two endpoints of this sub-trajectory as a local OD pair and compute the minimum travel distance sx between them on the road network. The detour profile is defined as 
+
+dx = ℓx − sx
+
+ℓx
+
+. (1) Thus, dx measures the fraction of the sub-trajectory length that exceeds the minimum travel distance between its two endpoints. A value of dx = 0 indicates that the vehicle covers the minimum travel distance between the two endpoints of the sub-trajectory, whereas larger values indicate stronger local detours. The limiting case dx = 1 corresponds to sx = 0, meaning that the vehicle returns to the same location after traveling a distance ℓx. In this work, following Ref. [33], we set the target length ∆ L of the sub-trajectory to approximately one-third of the to-tal trajectory length and investigate the median detour profile ¯dx over all trajectories. Therefore, ¯dx quantifies how much longer vehicles travel than the minimum travel distance within sub-trajectories of their trips, revealing which parts of trips exhibit more prominent detours. (For further details on this measure, see [33].) Figure 3(a) illustrates the median detour profile results for Jeju (blue) and Seoul (red), with the interquartile range shaded in the corresponding colors. As shown in Fig. 3(a), in both Jeju and Seoul, vehicles tend to travel much longer than the minimum distance at the begin-ning and end parts of their trips, while traveling nearly the minimum travel distance in the middle part of the trips. These results suggest that for intervals in the mid-dle parts of trips, the actual vehicle trajectories closely resemble the DMTs within the intervals. In contrast, the results at x ≈ 0 and x ≈ 1 indicate that for intervals at the beginning and end of trips, actual trajectories differ significantly from the DMTs within the intervals. Remarkably, the detour profiles exhibit a consistent tendency in both Jeju and Seoul, although quantitative differences still exist. We attribute these differences to distinct geometric constraints. For instance, Jeju has a large mountain at the center of the island, while Seoul is crossed by a large river flowing from east to west. Considering that vehicle trajectories are influenced by the geometric structure of the road network (e.g., net-work dimension, road density, and interconnection with other cities) [34–36], the difference in ¯dx values between Jeju and Seoul appears to stem from such geometric con-straints. Nevertheless, the consistent tendency of the de-tour profiles indicates that the observed patterns emerge from the intrinsic structural properties shared by road networks, rather than from regional characteristics. In-deed, if vehicle trajectories are determined by the nature of road networks, this pattern should manifest not only in the detour profile, which is a spatial measure, but also in dynamic measures.  
+
+> B. Velocity direction autocorrelation function
+
+To investigate how the observed detour patterns mani-fest dynamically, we calculate the velocity direction auto-correlation function (VDACF) for all trajectories [37, 38], denoted as Cv (t0, ∆t). The VDACF is defined as 
+
+Cv (t0, ∆t) = 
+
+⃗v (t 0)
+
+|⃗v (t 0)| ·⃗ v (t 0 + ∆ t)
+
+|⃗v (t 0 + ∆ t)|
+
+
+
+, (2) where ⃗v (t) is the velocity at time t, t 0 is a reference time point, and ∆ t is the time lag. Here, ⟨· · · ⟩ denotes the ensemble average across all trajectories. Cv quantifies the persistence of directional memory over time, captur-ing how consistently vehicles maintain their direction of motion as time progresses. In other words, we can exam-ine how the persistence of vehicle direction decays over 40.0 0.5 1.0 
+
+x
+
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> ¯dx
+
+(a)     
+
+> Jeju Seoul
+> 02000 4000 6000
+
+∆t
+
+> 1.0
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+> Cv(t0, ∆t)
+
+(b)        
+
+> Jeju, 0 (s)
+> Jeju, T/ 3
+> Seoul, 0 (s)
+> Seoul, T/ 3
+> 02000 4000 6000
+
+∆t
+
+> 1.0
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+> Cv(0 , ∆t)
+
+(c)    
+
+> Jeju, Data
+> Jeju, DMT
+> Seoul, Data
+> Seoul, DMT
+> 02000 4000 6000
+
+∆t
+
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+> Cv(0 , ∆t)
+
+(d)     
+
+> 0270 540 810 1080
+
+∆t
+
+> 0
+> 270
+> 540
+> 810
+> 1080
+> t0
+
+(e)     
+
+> 0150 300 450 600
+
+∆t
+
+> 0
+> 150
+> 300
+> 450
+> 600
+> t0
+
+(f)      
+
+> 317
+> 392
+> 460
+> 527
+> 597
+> 669
+> 746
+> 833
+> 927
+> 1032
+> 1148
+> 1281
+> 1433
+> 1616
+> 1843
+> 2116
+> 2457
+> 2913
+> 3618
+> 5832
+> 0.0 0.2 0.4 0.6 0.8 1.0
+
+Cv(t0, ∆t)
+
+FIG. 3. Spatial and dynamical measurements of real-world vehicle trajectories. (a) Median detour profiles for all trajectories in Jeju (blue) and Seoul (red). The shaded areas indicate the interquartile ranges (25th-75th percentile). (b) VDACF with reference times at the trip’s beginning ( t0 = 0 s, solid lines) and middle ( t0 = T / 3, dashed lines) for all trajectories, where T
+
+denotes the total travel time of each trajectory. Blue lines represent Jeju, and red lines represent Seoul. (c) Comparison of the VDACF at t0 = 0 s for vehicles in the empirical data (solid lines) and for vehicles minimizing travel distance between the same OD pairs (dashed lines). Blue lines represent Jeju, and red lines represent Seoul. (d) VDACF at t0 = 0 s for trajectory groups in Jeju, classified by travel time, where each group contains an equal number of trajectories. The color of each line corresponds to the maximum travel time of the group, as indicated by the colorbar; for instance, the longest group includes trajectories with travel times between 3618 s and 5832 s. (e), (f) VDACF as a function of time lag (∆ t) and reference time ( t0)for Jeju trajectories, to examine how VDACF changes when varying t0, for a trajectory group with representative travel times: (e) actual trajectories (977 s to 1088 s), (f) when vehicles minimize travel distance (538 s to 603 s). For (e) and (f), colors are mapped using a power-law normalization ( γ = 1 .5) only to enhance visual contrast. 
+
+a time window ∆ t from the reference time t0. To calcu-late Cv of actual trajectories, we assume that the vehicle travels at a constant speed along each road segment of its trajectory. For each vehicle, the travel time on a given segment is obtained by measuring the difference between its entry and exit times on that segment. We then di-vide each trajectory into 1-second interval points based on these segment travel times and calculate the VDACF using the velocity vectors at these 1-second intervals. To identify that the disparity observed in ¯dx manifests in Cv , we compute the VDACF at two distinct reference points: t0 = 0 s, representing the beginning part of a trip, and t0 = T / 3, where T denotes the total travel time of each trajectory, representing the middle part of the trip. As shown in Fig. 3(b), our analysis reveals that the VDACF with t0 = T / 3 (dashed lines) decays signifi-cantly slower than the VDACF with t0 = 0 s (solid lines). This result suggests that vehicles tend to maintain their direction longer in the middle part of trips. Conversely, vehicles change their direction frequently in the begin-ning part of the trip, as shown by a more rapid decay of the VDACF. Furthermore, this disparity of directional memory is highly consistent with the detour profile re-sults, which showed greater detours at the beginning and reduced detours in the middle. Moreover, we compare the Cv (t0, ∆t) at t0 = 0 s for vehicles in empirical data with that for vehicles minimizing travel distance between the same OD pairs in both Jeju and Seoul, which is rep-resented in Fig. 3(c). To compute VDACF of vehicles minimizing travel distance, we utilize the mean speed of each road segment vseg (e) as described in Sec. II. We as-sume that the velocity of vehicle following DMT is given by these average speeds. A primary observation is that 
+
+Cv (0 , ∆t) of the actual vehicles (solid lines) decays faster than that of vehicles minimizing travel distance (dashed lines) for both Jeju and Seoul. It is, however, challenging to analyze the VDACF char-acteristics at the end parts of trips, since trips of different 5length are averaged into Cv (0 , ∆t), resulting in the loss of fine details. To address this issue and ensure robust anal-ysis, we divide the trajectories into 20 distinct bins based on their total travel times, ordered from the shortest to the longest trips, with each bin containing an equal num-ber of trajectories. Remarkably, as shown in Fig. 3(d), the results show consistent and clear patterns after bin-ning: the beginning, middle, and end parts of the trips. Specifically, the VDACF exhibits a rapid decay at the beginning parts of the trips, followed by a much slower rate of decay during the middle parts, and then decays rapidly again at the end parts of the trips. This tripartite dynamical signature is observed consistently across all 20 travel time bins, highlighting its generality regardless of total travel time. To investigate the change in tendency when varying the reference time t0, we select actual trajectories whose travel times fall within the 5th-percentile range centered around the median in Jeju (977 s to 1088 s) and com-pute the VDACF across all possible reference times t0
+
+and time window ∆ t, as illustrated in Fig. 3(e). (We also calculated the VDACF with the time-reversal pro-tocol for the end part of the trip and obtained a similar result. See the Appendix A.) As shown in Fig. 3(e), the VDACF decays rapidly at the beginning and end parts of trips. In contrast, within the middle part of the trips, the Cv remains significantly high over a long time lag ∆t. These findings indicate a common property of ve-hicular movement, revealed by both static and dynamic measures, which is the distinguishability into beginning, middle, and end parts of trips. Similarly, to compare how the VDACF of actual ve-hicles differs from that of vehicles minimizing travel dis-tance between the same OD pairs when varying the refer-ence time t0, we apply the same binning procedure to the DMTs based on their total travel times. We then select DMTs whose travel times fall within the 5th-percentile range around the median (538 s to 603 s) and compute the VDACF across all possible reference times t0 and time windows ∆ t; the results are shown in Fig. 3(f). When vehicles minimize their travel distance, the Cv re-mains remarkably higher across a broad range of t0 and ∆t compared with that of the actual vehicles. Although the VDACF of vehicles minimizing travel distance may appear to decay rapidly at the beginning and end of trips (i.e., t0 ≈ 0 and t0 ≈ 1), it actually remains at relatively high values. Moreover, in the middle parts of trips, the VDACF of vehicles minimizing travel distance exhibits strong directional persistence for significantly longer than that observed from actual vehicles.  
+
+> C. Road hierarchy
+
+We hypothesize that the observed static and dynamic patterns in actual vehicle trajectories originate from the hierarchical structure of road networks. That is, since a broad range of low-level roads (e.g., low-speed roads) are interconnected by high-level roads (e.g., highways) at high speeds, vehicles minimizing travel costs tend to exhibit specific patterns at the beginning, middle, and end of their trajectories. Under these conditions, if a vehicle minimizes the travel time, a vehicle routes to uti-lize high-level roads whenever the time savings by using high-level roads are significant enough, even if it means taking a detour. This results in a high detour profile and the rapid decay of VDACF when accessing such roads. In contrast, when a vehicle minimizes its travel distance, it may avoid high-level roads because, even though these roads allow for faster travel over long distances, using them may require a longer detour. Consequently, the tendency to maintain direction towards the destination is stronger than the tendency to utilize high-level roads. As a result, the VDACF of vehicles minimizing travel distance decays more slowly than that of vehicles mini-mizing travel time. Figure 4(a) presents a schematic diagram illustrating the trajectories generated when a vehicle minimizes its travel time (red line) and when it minimizes its travel dis-tance (blue line). This suggests that a trajectory when a vehicle minimizes its travel time consists of three distinct phases. Phase 1 involves accessing high-level roads (il-lustrated as the orange and green lines) at the beginning part of the trip. In Phase 2, vehicles rapidly travel toward the vicinity of the destination by utilizing these high-level roads. Finally, Phase 3 involves exiting the high-level roads and reaching the final destination through low-level roads. Since the time advantage gained from using high-level roads is greater than the additional distance cost caused by detours on low-level roads, we expect that this low-high-low road usage pattern will be observed in hier-archical road networks. This interpretation is consistent with the patterns observed in actual vehicle trajectories. Conversely, when vehicles minimize their travel distance, the hierarchical structure of road networks has much less influence on the vehicle movement. Thus, this low-high-low road usage pattern would not emerge. From this perspective, the observed high detour and rapid VDACF decay at the beginning of trips can be interpreted as the process of accessing high-level roads and, symmetrically, those at the end as the process of exiting them. To support our hypothesis, we examine the temporal changes in road hierarchy during vehicle movement. For each road segment e, we assign its representative speed 
+
+vseg (e), defined as the mean speed of vehicles passing through that segment, as described in Sec. II. We then group trajectories by total travel time, as in the VDACF analysis. For each group i, we compute the hierarchy profile hi(t), defined as the ensemble average of vseg at time t over trajectories in group i. Figure 4(b) illus-trates that hi(t) exhibits an inverted-U shaped pattern of road hierarchy usage in the empirical dataset for dif-ferent travel time groups. To simplify comparison across groups, we linearly normalize time so that the origin and destination correspond to u = 0 and u = 1, respectively, and denote the resulting profile by ˜hi(u), as shown in 6(a) minimizing time    
+
+> minimizing distance
+> 02000 4000 6000
+
+t (s) 
+
+> 35
+> 40
+> 45
+> 50
+> 55
+> hi (km /h)
+
+(b)   
+
+> 0.0 0.5 1.0
+
+u
+
+> 35
+> 40
+> 45
+> 50
+> 55
+> ˜hi (km /h)
+
+(c)   
+
+> 0.0 0.5 1.0
+
+u
+
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> ˆhi
+
+(d)   
+
+> 0.0 0.5 1.0
+
+u
+
+> 35
+> 40
+> 45
+> 50
+> 55
+> ˜hi (km /h)
+
+(e) 
+
+FIG. 4. Hierarchical patterns in vehicle trajectories. (a) Schematic of trajectories that minimize travel time (red line) and travel distance (blue line). When minimizing travel time on the hierarchical network, a vehicle utilizes high-level roads (orange and green lines) to reduce travel time, despite traveling a longer distance than when it minimizes travel distance. (b) Temporal changes in road hierarchy for actual trajectories in Jeju. The hierarchy is quantified by the representative speed vseg (e) of each road segment e, defined as the mean speed of vehicles passing through that segment. For trajectory group i, hi(t) denotes the ensemble averaged vseg at time t. Each color represents the same travel time group as in Fig. 3(d). (c) Same as (b), but with time linearly normalized to u ∈ [0 , 1], where u = 0 and u = 1 correspond to the origin and destination, respectively; the resulting profile is denoted by ˜hi(u). (d) Rescaled profile ˆhi(u), showing nearly identical behavior across groups. (e) Same analysis as in (c), but conducted for the DMTs between the same OD pairs, grouped into 20 bins by their travel times. 
+
+Fig. 4(c). This inverted-U shaped hierarchy usage is not only observed in road networks but also in other human-utilized networks [34, 39]. Furthermore, to compare the profile shape across groups, we investigate the rescaled hierarchy profile ˆhi(u), defined as ˆhi(u) = ˜hi(u) − ˜hi, min 
+
+˜hi, avg − ˜hi, min 
+
+, (3) where ˜hi, min and ˜hi, avg are the minimum and the average of ˜hi(u) over u, respectively. As illustrated in Fig. 4(d), the temporal changes of hierarchy across different travel times exhibit nearly identical behavior. In contrast, as shown in Fig. 4(e), when vehicles minimize travel dis-tance, only relatively minor changes are observed across groups except for those with long travel times. While these results generally support our hypothesis, Fig. 4(e) also shows that vehicles minimizing travel distance ex-hibit an inverted-U shaped pattern in road hierarchy us-age as travel time increases. This indicates that vehicle trajectories are influenced by the structural constraints of road networks. In particular, as the distance between OD increases, the DMT necessarily includes high-level roads, because continuous connections of low-level roads do not span long distances. 
+
+IV. MODEL 
+
+To verify our hypothesis and analyze the influence of the hierarchical structure of road networks, we construct a simple double-layered network model. We consider a modified version of the model introduced in Ref. [40]. Our model consists of distinct high-level and low-level roads, mimicking real-world road hierarchies. To rep-resent the distinct urban structures of Seoul and Jeju, we implement two different types of network topologies: a square lattice-like network for the grid-like nature of Seoul, and a network with periodic boundary conditions (PBC) to represent the island geography of Jeju. First, we construct a square lattice network composed of N ×N nodes with an internode distance of d, and then we add high-level roads whose segments are longer and whose speeds are faster. The highway addition process stops once the total sum of their Manhattan distances exceeds the construction budget C; the Manhattan dis-70 250 500 750 1000 
+
+∆t     
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Cv(0 , ∆t)
+> Square, Time
+> Square, DMT
+> PBC, Time
+> PBC, DMT
+> 0140 280 420 560 700
+
+∆t     
+
+> 0
+> 140
+> 280
+> 420
+> 560
+> 700
+> t0
+> 0140 280 420 560 700
+
+∆t      
+
+> 0
+> 140
+> 280
+> 420
+> 560
+> 700
+> t0
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Cv(t0,∆t)
+
+(a) (b) (c) (d) 
+
+(e) (f) (g) 
+
+FIG. 5. Model for double-layered road networks and vehicle movement on the model networks (a) Schematic illustrating the placement of high–level roads (red lines) on a grid of nodes. The probability of adding a high-level road with Manhattan distance 
+
+L follows the power law L−α and the high-level road addition process stops once the total sum of high-level roads’ Manhattan distance exceeds the budget C. (b) Schematic illustrating the formation of the low-level road network. Node positions are perturbed, and adjacent nodes are connected by low-level roads (black lines) to simulate imperfections of road networks. (c) An example of a network generated with parameters ( N = 32 , C = 5 N d, α = 2 , τ = 0 .5, r = 1 .2d), where high-level roads are depicted in red. (d) Sample trajectories of a vehicle minimizing its travel time (red line) and travel distance (blue line) for the same OD pair on the network shown in (c). (e) Comparison of the VDACF at t0 = 0 s for vehicles minimizing travel time (solid lines) and vehicles minimizing travel distance between the same OD pairs (dotted lines) on the square lattice-like networks (red) and the networks with PBC (blue). (f), (g) Full VDACF profiles computed from the central 1,000 trajectories per network in terms of travel time, Cv (t0, ∆t), on the square lattice-like networks for (f) vehicles minimizing travel time and (g) vehicles minimizing travel distance. For (f) and (g), colors are mapped using a power-law normalization ( γ = 1 .5) only to enhance visual contrast. 
+
+tance is used here because it fully captures the routing cost of the underlying square lattice network. The prob-ability of adding a highway with Manhattan distance L
+
+follows the power law P (L) ∝ L−α [Fig. 5(a)]. The rela-tive speed advantage of high-level roads is controlled by a time efficiency parameter, τ (with 0 < τ < 1), such that the speed on high-level roads, vh, is set relative to the speed on low-level roads, vl, by the relation vh = vl/τ .Additionally, to implement road network defects and to make the shortest path between specific nodes unique, we introduce fluctuations to the nodes’ positions within a ra-dius d/ 5, and rewire every edge for which the internode distance is less than a threshold r [Fig. 5(b)]. A real-ization of our model network is illustrated in Fig. 5(c), where the highways are depicted as red lines. Here, we set N = 32 , C = 5 N d, α = 2 , τ = 0 .5, r = 1 .2d
+
+for the analysis of our network model. To create the network with PBC, we double the number of nodes in the x-direction and halve it in the y-direction, and then connect the nodes at the opposing ends of the x-axis to implement periodicity. For the analysis, we generate 100 networks under each condition and produce 3,000 trajec-tories for randomly selected OD pairs on each network. Here, we assume that d ≈ 1 km and that vehicles travel at 30 km /h on low-level roads. To examine whether the simple model can reproduce the patterns observed in empirical data, we analyze the VDACF of vehicles traveling on our model networks. Fig-ure 5(d) illustrates sample trajectories generated on the model networks. For the same OD, the red line represents a trajectory that minimizes travel time, whereas the blue line represents one that minimizes travel distance. This visualization clearly shows that characteristic behaviors observed in the empirical data—such as frequent direc-tion changes at the beginning and end of trips—are suc-cessfully reproduced by our model. Figure 5(e) demon-8strates that the VDACF of vehicles minimizing travel time decays more rapidly than that of vehicles minimiz-ing travel distance on our hierarchical model networks, consistent with our main results. In Fig. 5(f) and (g), the VDACF was computed using the central 1,000 trajecto-ries in terms of travel time from each network. As shown in Fig. 5(f), the VDACF of vehicles minimizing travel time on our model networks decays quickly at small and large t0. In stark contrast, as shown in Fig. 5(g), when vehicles minimize travel distance, the VDACF exhibits persistence across the entire range of t0. These VDACF patterns qualitatively resemble those observed for actual vehicles and for vehicles minimizing travel distance be-tween the same OD pairs, as illustrated in Fig. 3(d) and (f). Moreover, the results for the model with PBC are similar to those for the square lattice-like model and are illustrated in the Appendix B. To verify the influence of high-level roads on road networks, we investigate the edge betweenness central-ity for networks weighted by either travel distance or travel time. Since edge betweenness centrality quantifies how frequently a road segment is utilized in all shortest paths, it highlights the essential road segments which af-fect the connection of entire networks [41, 42]. As shown in Fig. 6(a), when we calculate the centrality based on the distance, high-level roads do not play an important role, even though they connect distant regions. In con-trast, as illustrated in Fig. 6(b), when we calculate the centrality based on travel time, these roads exhibit sig-nificantly higher values of edge betweenness centrality. Based on these results, we can conclude that the travel-time-based hierarchical structure of road networks leads to the utilization of high-level roads. Specifically, high-level roads, which cover long distances at high speeds, sig-nificantly reduce travel time, concentrating vehicles onto these roads. Therefore, when vehicles minimize travel time, the process of accessing and exiting these high-level roads causes the rapid decay of directional memory at the beginning and end parts of trips.  
+
+> V. DISCUSSION
+
+In summary, we addressed questions of how vehicles ac-tually move in terms of speed and direction on real-world road networks to minimize their costs and how the under-lying network structure affects their movements. By an-alyzing large-scale individual vehicle trajectory datasets and comparing them with the DMTs for the same OD pairs, we revealed the characteristics of individual vehi-cle trajectories. Using the detour profile and VDACF, we observed that vehicles typically take more detours and lose their directional memory faster at the begin-ning and end of their trips compared to the middle. In contrast, they tend to travel with minimal detours and maintain high speeds in the middle parts of their trips. We hypothesize that these patterns emerge from the hi-erarchical structure of road networks based on the ob-0.02   
+
+> 0.04
+> 0.06
+> 0.08
+> Edge betweenness
+> 0.01
+> 0.02
+> 0.03
+> 0.04
+> 0.05
+> 0.06
+> Edge betweenness
+> (a)
+> (b)
+> FIG. 6. Visualization of edge betweenness centrality un-der two different weighting schemes. (a) In the distance-weighted network, the centrality is distributed across the low-level roads, even though the high-level roads connect distant regions. (b) In the time-weighted network, the centrality be-comes highly concentrated on the high-level roads.
+
+servation of inverted-U shaped hierarchy profile in the real-world trajectory data. To verify our hypothesis, we constructed simple double-layered road networks and produced trajectories for vehicles minimizing either their travel time or distance on these networks. This simple model qualitatively reproduced the VDACF patterns ob-served in actual vehicle trajectories when vehicles mini-mize their travel time, utilizing high-level roads. Further-more, our edge betweenness centrality analysis revealed that the high-level roads attract vehicles when they min-imize travel time, whereas this is not the case when min-imizing travel distance. Our results suggest that vehicle trajectories exhibit a consistent regularity that can be divided into distinct phases: the beginning, middle, and end of trips, regard-less of travel time or region. These phases emerge when vehicles move on hierarchical road networks that allow them to cover long distances in a short time with fewer directional changes while traveling on high-level roads, and to access high-level roads via low-level roads with more directional changes, thereby minimizing total travel time. Consequently, to enter and exit these high-level roads, vehicles take routes that are significantly differ-9ent from the DMT at the beginning and end of trips. Through this process, vehicle trajectories exhibit an in-verted U-shaped hierarchical road usage pattern. Inter-estingly, such an inverted U-shaped hierarchical pattern reflects a consistency in human behavior across various networks [34, 39]. Moreover, combined with findings of Ref. [43], our results suggest that maintaining high flow on high-level roads is more efficient than improving nu-merous low-level roads [41]. This is because high-level roads, although they constitute only a small fraction of the road network, significantly affect the entire system. From the perspective of cost minimization, this sug-gests that even a small fraction of high-level roads can substantially reduce the effective travel cost over the network. This large cost reduction geometrically sug-gests the emergence of a ‘small-world’ network struc-ture, which means that these high-level roads effectively shorten path lengths between OD pairs [44–46]. Our re-sults suggest that this effect is particularly pronounced when travel time is taken as the travel cost. In terms of travel time, high-level roads effectively shrink the path length between distant points, thereby emphasiz-ing local network structures near their entry and exit points because of the expected concentration of traffic demand [47]. This geometric distortion caused by hier-archical structures provides an important perspective for understanding the nature of transportation systems, as many such systems inherently possess hierarchical prop-erties to improve efficiency. Although our results reveal the regularity of individual vehicle trajectories and the fundamental elements that affect them, there are some limitations. First, our re-search does not explain the deviation of actual vehicle trajectories from the trajectories that minimize travel time or the existence of multiple paths between the same OD pairs. However, we speculate that the fundamen-tal routing principle is still based on optimizing travel time (i.e., Wardrop’s first principle), and such deviations emerge from dynamic changes in flow (due to congestion, commuting patterns, etc.) and individual-level fluctua-tions [48–51]. Second, in this work, since our model is simulated with fixed parameters to focus on explaining trajectory patterns, we do not analyze the effects of each model parameter. We leave a detailed parameter analysis of the model, such as identifying the effects of high-level road length, speed, and budget for future work. 
+
+> ACKNOWLEDGMENTS
+
+We thank J.D. Noh for helpful discussions. This re-search was supported by Basic Science Research Pro-gram through the National Research Foundation of Ko-rea (NRF) grant funded by the Ministry of Education (Grant No. RS-2024-00346558) and the Ministry of Sci-ence and ICT (Grant No. RS-2025-00515556). The au-thors also acknowledge the Urban Big data and AI Insti-tute of the University of Seoul supercomputing resources (https://ubai.uos.ac.kr) made available for conducting the research reported in this paper.              
+
+> Appendix A: VDACF for time-reversal trajectory 0270 540 810 1080
+> ∆t
+> 0
+> 270
+> 540
+> 810
+> 1080
+> t0
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Cv(t0, ∆t)
+> FIG. 7. VDACF calculated with the time-reversal protocol for actual trajectories in Jeju. The reference time t0= 0 s corresponds to the arrival at the destination, and ∆ trepre-sents the backward time lag. The rapid decay near t0= 0 s indicates that vehicles lose directional memory quickly at the end part of trips. Colors are mapped using a power-law nor-malization ( γ= 1 .5) only to enhance visual contrast.
+
+As total travel times vary across individual trajec-tories, averaging the VDACF forward from the origin (t0 = 0 s) obscures the dynamic characteristics near the destination. To address this, we apply a time-reversal protocol, setting the arrival time as the reference time and calculating the VDACF backward. As shown in Fig. 7, the VDACF for time-reversal trajectories exhibits a rapid decay near the destination, confirming that vehi-cles also lose directional memory quickly during the end part of trips. 
+
+> Appendix B: Periodic boundary conditions
+
+We also simulate vehicle routing on a hierarchical net-work with PBC, mimicking the geography of an isolated island like Jeju. We double the nodes in the x-direction and halve it in the y-direction, and connect opposing ends of the x-axis. As shown in Fig. 8(c), the VDACF of vehicles minimizing travel time on this periodic net-work exhibits the same characteristic fast-slow-fast decay pattern observed in the square lattice-like model. 10 0 160 320 480 640 800 
+
+∆t      
+
+> 0
+> 160
+> 320
+> 480
+> 640
+> 800
+> t0
+> 0160 320 480 640 800 960
+
+∆t      
+
+> 0
+> 160
+> 320
+> 480
+> 640
+> 800
+> 960
+> t0
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Cv(t0,∆t)
+
+(a) (b) 
+
+(c) 
+
+(d) 
+
+FIG. 8. Modeling hierarchical road networks with PBC. (a) An example of a network generated with PBC, where high-level roads are depicted in red. (b) Sample trajectories of a vehicle minimizing its travel time (red line) and distance (blue line) for the same OD pair on the network shown in (a). (c), (d) Full VDACF profiles, Cv (t0, ∆t) of (c) vehicles minimiz-ing travel time and (d) vehicles minimizing travel distance. For (c) and (d), colors are mapped using a power-law normal-ization ( γ = 1 .5) only to enhance visual contrast. [1] M. Barth´ elemy and A. Flammini, Modeling Urban Street Patterns, Phys. Rev. Lett. 100 , 138702 (2008). [2] C. Clark, Urban Population Densities, Journal of the Royal Statistical Society. Series A (General) 114 , 490 (1951), 10.2307/2981088. [3] R. Louf and M. Barthelemy, Modeling the Polycentric Transition of Cities, Phys. Rev. Lett. 111 , 198702 (2013). 11 
+
+[4] M. Lee, H. Barbosa, H. Youn, P. Holme, and G. Ghoshal, Morphology of travel routes and the organization of cities, Nat Commun 8, 2229 (2017). [5] X. Liu, L. Gong, Y. Gong, and Y. Liu, Revealing travel patterns and city structure with taxi trip data, Journal of Transport Geography 43 , 78 (2015). [6] L. Zheng, D. Xia, X. Zhao, L. Tan, H. Li, L. Chen, and W. Liu, Spatial–temporal travel pattern mining us-ing massive taxi trajectory data, Physica A: Statistical Mechanics and its Applications 501 , 24 (2018). [7] J.-H. Jung and Y.-H. Eom, Empirical analysis of con-gestion spreading in Seoul traffic network, Phys. Rev. E 
+
+108 , 054312 (2023). [8] S. C ¸ olak, A. Lima, and M. C. Gonz´ alez, Understanding congested travel in urban areas, Nature Communications 
+
+7, 10793 (2016). [9] D. De Martino, L. Dall’Asta, G. Bianconi, and M. Mar-sili, Congestion phenomena on complex networks, Phys. Rev. E 79 , 015101 (2009). [10] M. Rosenlund, F. Forastiere, M. Stafoggia, D. Porta, M. Perucci, A. Ranzi, F. Nussio, and C. A. Perucci, Com-parison of regression models with land-use and emissions data to predict the spatial distribution of traffic-related air pollution in Rome, Journal of Exposure Science & Environmental Epidemiology 18 , 192 (2008). [11] K. Zhang and S. Batterman, Air pollution and health risks due to vehicle traffic, Science of The Total Environ-ment 450–451 , 307 (2013). [12] J. Gasana, D. Dillikar, A. Mendy, E. Forno, and E. Ramos Vieira, Motor vehicle air pollution and asthma in children: A meta-analysis, Environmental Research 
+
+117 , 36 (2012). [13] D. Chowdhury, Statistical physics of vehicular traffic and some related systems, Physics Reports 329 , 199 (2000). [14] D. Helbing, Traffic and related self-driven many-particle systems, Rev. Mod. Phys. 73 , 1067 (2001). [15] C. Bechinger, R. Di Leonardo, H. L¨ owen, C. Reichhardt, G. Volpe, and G. Volpe, Active Particles in Complex and Crowded Environments, Rev. Mod. Phys. 88 , 045006 (2016). [16] L. Pappalardo, F. Simini, S. Rinzivillo, D. Pedreschi, F. Giannotti, and A.-L. Barab´ asi, Returners and explor-ers dichotomy in human mobility, Nat Commun 6, 8166 (2015). [17] J. Tang, F. Liu, Y. Wang, and H. Wang, Uncovering urban human mobility from large scale taxi GPS data, Physica A: Statistical Mechanics and its Applications 
+
+438 , 140 (2015). [18] C. Peng, X. Jin, K.-C. Wong, M. Shi, and P. Li` o, Col-lective human mobility pattern from taxi trips in urban area, PLOS ONE 7, 1 (2012). [19] J. G. Wardrop, Road paper. Some theoretical aspects of road traffic research, Proceedings of the Institution of Civil Engineers 1, 325 (1952). [20] W. Tang and D. M. Levinson, Deviation between Ac-tual and Shortest Travel Time Paths for Commuters, J. Transp. Eng., Part A: Systems 144 , 04018042 (2018). [21] M. Wardman, Public transport values of time, Transport Policy 11 , 363 (2004). [22] S. Zhu and D. Levinson, Do People Use the Shortest Path? An Empirical Test of Wardrop’s First Principle, PLoS ONE 10 , e0134322 (2015). [23] D. Papinski and D. M. Scott, Route Choice Efficiency: An Investigation of Home-To-Work Trips Using GPS Data, Environ Plan A 45 , 263 (2013). [24] L. Li, S. Wang, and F.-Y. Wang, An Analysis of Taxi Driver’s Route Choice Behavior Using the Trace Records, IEEE Trans. Comput. Soc. Syst. 5, 576 (2018). [25] W. Yang, H. Chen, and W. Wang, The path and time efficiency of residents’ trips of different purposes with dif-ferent travel modes: An empirical study in Guangzhou, China, Journal of Transport Geography 88 , 102829 (2020). [26] S. Bekhor, M. E. Ben-Akiva, and M. S. Ramming, Evalu-ation of choice set generation algorithms for route choice models, Ann Oper Res 144 , 235 (2006). [27] M. E. J. Newman, The structure and function of complex networks, SIAM Review 45 , 167 (2003), https://doi.org/10.1137/S003614450342480. [28] S. Boccaletti, V. Latora, Y. Moreno, M. Chavez, and D.-U. Hwang, Complex networks: Structure and dynamics, Physics Reports 424 , 175 (2006). [29] M. Barth´ elemy, Spatial networks, Physics Reports 499 ,1 (2011). [30] H. Jeong, B. Tombor, R. Albert, Z. N. Oltvai, and A.-L. Barab´ asi, The large-scale organization of metabolic networks, Nature 407 , 651 (2000). [31] E. Bullmore and O. Sporns, Complex brain networks: Graph theoretical analysis of structural and functional systems, Nat Rev Neurosci 10 , 186 (2009). [32] M. Akbarzadeh and E. Estrada, Communicability geom-etry captures traffic flows in cities, Nat Hum Behav 2,645 (2018). [33] K. M. Mittal, M. Timme, and M. Schr¨ oder, Efficient self-organization of informal public transport networks, Nat Commun 15 , 4910 (2024). [34] M. Bogu˜ n´ a, D. Krioukov, and K. C. Claffy, Navigability of complex networks, Nature Phys 5, 74 (2009). [35] H. Youn, M. T. Gastner, and H. Jeong, Price of Anarchy in Transportation Networks: Efficiency and Optimality Control, Phys. Rev. Lett. 101 , 128701 (2008). [36] L. A. Braunstein, S. V. Buldyrev, R. Cohen, S. Havlin, and H. E. Stanley, Optimal Paths in Disordered Complex Networks, Phys. Rev. Lett. 91 , 168701 (2003). [37] J. d’Alessandro, L. Mas, L. Aubry, J.-P. Rieu, C. Rivi` ere, and C. Anjard, Collective regulation of cell motility using an accurate density-sensing system, J. R. Soc. Interface. 
+
+15 , 20180006 (2018). [38] F. Rehfeldt and M. Weiss, The random walker’s toolbox for analyzing single-particle tracking data, Soft Matter 
+
+19 , 5206 (2023). [39] A. Guly´ as, J. B´ ır´ o, G. R´ etv´ ari, M. Nov´ ak, A. K˝ or¨ osi, M. Sl´ ız, and Z. Heszberger, The role of detours in indi-vidual human navigation patterns of complex networks, Sci Rep 10 , 1098 (2020). [40] G. Li, S. D. S. Reis, A. A. Moreira, S. Havlin, H. E. Stanley, and J. S. Andrade, Towards Design Principles for Optimal Transport Networks, Phys. Rev. Lett. 104 ,018701 (2010). [41] Y. Kwon, J.-H. Jung, and Y.-H. Eom, Global effi-ciency and network structure of urban traffic flows: Apercolation-based empirical analysis, Chaos: An Interdis-ciplinary Journal of Nonlinear Science 33 , 113104 (2023). [42] M. Akbarzadeh, S. Memarmontazerin, S. Derrible, and S. F. Salehi Reihani, The role of travel demand and net-work centrality on the connectivity and resilience of an urban street system, Transportation 46 , 1127 (2019). 12 
+
+[43] P. Wang, T. Hunter, A. M. Bayen, K. Schechtner, and M. C. Gonz´ alez, Understanding Road Usage Patterns in Urban Areas, Sci Rep 2, 1001 (2012). [44] D. J. Watts and S. H. Strogatz, Collective dynamics of ‘small-world’ networks, Nature 393 , 440 (1998). [45] V. Latora and M. Marchiori, Efficient behavior of small-world networks, Phys. Rev. Lett. 87 , 198701 (2001). [46] M. T. Goodrich and E. Ozel, Modeling the small-world phenomenon with road networks, in Proceedings of the 30th International Conference on Advances in Ge-ographic Information Systems , SIGSPATIAL ’22 (Asso-ciation for Computing Machinery, New York, NY, USA, 2022). [47] C. Liu, C. Zhang, B. Wang, Z. Tang, and Z. Xie, Dig-ital twin of highway entrances and exits: A traffic risk identification method, IEEE Journal of Radio Frequency Identification 6, 934 (2022). [48] L. Zhang, F. Xie, and D. Levinson, Illusion of Mo-tion: Variation in Value of Travel Time Under Different Freeway Driving Conditions, Transportation Research Record: Journal of the Transportation Research Board 
+
+2135 , 34 (2009). [49] D. Levinson and S. Zhu, A portfolio theory of route choice, Transportation Research Part C: Emerging Tech-nologies 35 , 232 (2013). [50] P. Parthasarathi, D. Levinson, and H. Hochmair, Net-work Structure and Travel Time Perception, PLoS ONE 
+
+8, e77718 (2013). [51] A. Lima, R. Stanojevic, D. Papagiannaki, P. Rodriguez, and M. C. Gonz´ alez, Understanding individual routing behaviour, J. R. Soc. Interface. 13 , 20160021 (2016).
