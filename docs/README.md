@@ -6,40 +6,60 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-10
-- 运行时间：2026-06-10 22:12:23 UTC
+- 最新运行日期：2026-06-11
+- 运行时间：2026-06-11 21:05:22 UTC
 - 运行状态：成功
-- 本次总论文数：6
+- 本次总论文数：12
 - 精读区：1
-- 速读区：5
+- 速读区：11
 
 ### 今日简报（AI）
-今日共处理6篇论文，精读1篇、速读5篇，重点聚焦混沌系统预测与序列推荐。  
-最值得关注的是《First-Order Trajectory Matching》（8.0分）提出的快速集成预测方法，面向混沌、湍流与随机系统；速读中《MARS》与《S&P 500异常点与可预测性》均获7.0分，分别涉及稀疏/密集场景下的序列推荐及高频交易分析。  
-建议优先精读轨迹匹配论文以理解前沿预测框架，速读组论文可作为推荐系统与金融时间序列的补充参考。
-- 详情：[/202606/10/README](/202606/10/README)
+今日推荐系统研究日报：精读1篇生成式原型表示评8分，速读3篇涵盖长序列推荐、连续图模拟及Wasserstein平滑，整体聚焦序列建模与长期预测。
+
+最值得关注方向：精读论文《Generative Archetype...》提出生成式原型增强物品表示，速读《SinkRec》用记忆门控缓解长序列语义沉降，《COGENT》结合神经ODE实现长期物理预测，三者均具创新性。
+
+建议优先精读8分论文以掌握生成式原型框架，再结合速读论文对比长序列与连续时间建模技术，后续可关注这些方法在时序推荐中的实际应用效果。
+- 详情：[/202606/11/README](/202606/11/README)
 
 ### 精读区论文标签
-1. [First-Order Trajectory Matching: Fast Ensemble Predictions of Chaotic, Turbulent, Stochastic Systems](/202606/10/2606.11138v1-first-order-trajectory-matching-fast-ensemble-predictions-of-chaotic-turbulent-stochastic-systems)  
+1. [Generative Archetype-Grounded Item Representations for Sequential Recommendation](/202606/11/2606.11023v1-generative-archetype-grounded-item-representations-for-sequential-recommendation)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：使用轨迹匹配对混沌系统进行理论可预测性分析
+   evidence：序列推荐中的下一项预测，生成式原型基础物品表示
 
 ### 速读区论文标签
-1. [MARS: Multi-rate Aggregation of Recency Signals for Sequential Recommendation across Sparse and Dense Regimes](/202606/10/2606.03718v1-mars-multi-rate-aggregation-of-recency-signals-for-sequential-recommendation-across-sparse-and-dense-regimes)  
+1. [SinkRec: Mitigating Semantic State Sink in Long Sequence Recommendation with Memory-Conditioned Gated Delta Networks](/202606/11/2606.09888v1-sinkrec-mitigating-semantic-state-sink-in-long-sequence-recommendation-with-memory-conditioned-gated-delta-networks)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：多尺度时序的序列推荐
-2. [Cross-sectional topological anomaly scores and intraday return predictability in the S&P 500: A BallMapper, decoder-conditional VAE, and Function-on-Function regression approach](/202606/10/2606.08586v1-cross-sectional-topological-anomaly-scores-and-intraday-return-predictability-in-the-sp-500-a-ballmapper-decoder-conditional-vae-and-function-on-function-regression-approach)  
+   evidence：缓解序列推荐中的状态沉没问题
+2. [COGENT: Continuous Graph Emulators with Neural Ordinary Differential Equations for Long-Term Physical Forecasting](/202606/11/2606.11162v1-cogent-continuous-graph-emulators-with-neural-ordinary-differential-equations-for-long-term-physical-forecasting)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：标准普尔500指数日内收益率可预测性
-3. [Characterizing and modeling the patterns of vehicle movement on road networks](/202606/10/2606.09083v1-characterizing-and-modeling-the-patterns-of-vehicle-movement-on-road-networks)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：分析道路网络中车辆移动模式
-4. [Trio: Learning Time-Series Forecasting with Temporal-Spatial-Sample Attention and Structural Causal Priors](/202606/10/2606.07291v1-trio-learning-time-series-forecasting-with-temporal-spatial-sample-attention-and-structural-causal-priors)  
+   evidence：使用神经ODE在非规则地理网格上进行长期物理预测，可应用于时间序列可预测性
+3. [Wasserstein Exponential Smoothing](/202606/11/2606.05560v1-wasserstein-exponential-smoothing)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列预测架构，含注意力机制
-5. [Dirichlet-Guided Group Forecasting for Alleviating Over-smoothing in Time Series Forecasting](/202606/10/2606.10592v1-dirichlet-guided-group-forecasting-for-alleviating-over-smoothing-in-time-series-forecasting)  
+   evidence：将指数平滑扩展到分布时间序列并进行理论一致性分析，为时间序列可预测性研究提供方法支持
+4. [Cluster-Aware Conformal Calibration for Spatio-Temporal Distributional Prediction](/202606/11/2606.06753v1-cluster-aware-conformal-calibration-for-spatio-temporal-distributional-prediction)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列预测中的过平滑缓解
+   evidence：时空分布预测
+5. [DSFNet: Learning Dual-Domain Spectral Operators for Multi-Modality Spatio-Temporal Forecasting in Urban Transportation Systems](/202606/11/2606.07695v1-dsfnet-learning-dual-domain-spectral-operators-for-multi-modality-spatio-temporal-forecasting-in-urban-transportation-systems)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：城市交通预测属于人类移动性预测
+6. [InA-Probe: Instruction-Aware Active Probing for Time Series Forecasting with LLMs](/202606/11/2606.08601v1-ina-probe-instruction-aware-active-probing-for-time-series-forecasting-with-llms)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：利用LLM进行时间序列预测与主动探测
+7. [Towards Long-Horizon Vessel Trajectory and Destination Forecasting with Reasoning Large Language Models](/202606/11/2606.08633v1-towards-long-horizon-vessel-trajectory-and-destination-forecasting-with-reasoning-large-language-models)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：使用推理大语言模型进行长期航迹和目的港预测
+8. [Decoding Pedestrian Crossing Intention from Egocentric Vision via Vision Language Models](/202606/11/2606.09142v1-decoding-pedestrian-crossing-intention-from-egocentric-vision-via-vision-language-models)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：行人过街意图预测用于移动模式
+9. [Report the Floor: A Training-Free Conformal Interval Is a Mandatory Baseline for Probabilistic Time-Series Forecasting](/202606/11/2606.09473v1-report-the-floor-a-training-free-conformal-interval-is-a-mandatory-baseline-for-probabilistic-time-series-forecasting)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：用于概率时间序列预测的简单保形基线
+10. [Does Normalization Choice Matter for Causal Large Time-Series Models?](/202606/11/2606.09954v1-does-normalization-choice-matter-for-causal-large-time-series-models)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：归一化对因果自回归时间序列预测模型性能的影响
+11. [Structured Adaptive Tensor Prediction for Streaming Data](/202606/11/2606.10085v1-structured-adaptive-tensor-prediction-for-streaming-data)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：流式矩阵值时间序列自适应预测，与时间序列可预测性相关
 
 
 <div class="dpr-home-promo-card">

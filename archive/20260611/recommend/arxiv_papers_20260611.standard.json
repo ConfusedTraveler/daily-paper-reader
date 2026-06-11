@@ -1,0 +1,503 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-11T20:58:00.796446+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 16,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2606.11023v1",
+      "source": "arxiv",
+      "title": "Generative Archetype-Grounded Item Representations for Sequential Recommendation",
+      "abstract": "Sequential recommendation aims to predict users' next interaction with items by analyzing their historical behavior. However, the limited quality of item representations remains a critical bottleneck. While pre-trained large language models (LLMs) can provide rich semantic representations, existing approaches only rely on static encoding of fixed attributes, overlooking the crucial role of target audiences in defining item identity. Moreover, the semantic space struggles to reflect actual user behavior, resulting in a significant gap between semantic representations and behavioral patterns. To address these limitations, we propose GenAIR, a general framework that empowers sequential recommendation with Generative Archetype-grounded Item Representations. Specifically, we first leverage an LLM to analyze item metadata and infer textual description of the Archetype, which represents the conceptual profile of the item's ideal target audience. We then extract the corresponding embeddings in a single forward pass. Further, to ground these generative archetypes in real-world behavior, we introduce a behavioral calibration objective, which explicitly incorporates behavioral signals from actual interactions. This objective adjusts the structure of the embedding space to reflect empirical patterns. GenAIR enables seamless integration with most existing models while maintaining high efficiency. Comprehensive experiments conducted on three real-world datasets demonstrate that GenAIR significantly improves the performance of various sequential recommendation models and consistently outperforms state-of-the-art baseline approaches. Implementation codes are available at https://github.com/AI-Santiago/GenAIR.",
+      "authors": [
+        "Yifan Li",
+        "Jiahong Liu",
+        "Xinni Zhang",
+        "Hao Chen",
+        "Yankai Chen",
+        "Wenhao Yu",
+        "Jianting Chen",
+        "Irwin King"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-06-09T15:59:14+00:00",
+      "link": "https://arxiv.org/pdf/2606.11023v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "sequential recommendation next-item prediction, generative archetype-grounded item representations",
+      "llm_evidence_cn": "序列推荐中的下一项预测，生成式原型基础物品表示",
+      "llm_evidence": "序列推荐中的下一项预测，生成式原型基础物品表示",
+      "canonical_evidence": "序列推荐中的下一项预测，生成式原型基础物品表示",
+      "llm_tldr_en": "GenAIR enhances sequential recommendation by generating archetype-grounded item representations that bridge semantic and behavioral patterns, improving next-item prediction.",
+      "llm_tldr_cn": "该论文提出GenAIR框架，通过生成式原型基础物品表示来提升序列推荐性能。现有方法忽略了目标受众在定义物品身份中的作用，且语义空间与用户行为存在差距。GenAIR使用生成原型表示来解决这一问题，显著提高了下一项预测的准确性。",
+      "llm_tldr": "该论文提出GenAIR框架，通过生成式原型基础物品表示来提升序列推荐性能。现有方法忽略了目标受众在定义物品身份中的作用，且语义空间与用户行为存在差距。GenAIR使用生成原型表示来解决这一问题，显著提高了下一项预测的准确性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.09888v1",
+      "source": "arxiv",
+      "title": "SinkRec: Mitigating Semantic State Sink in Long Sequence Recommendation with Memory-Conditioned Gated Delta Networks",
+      "abstract": "Linear attention provides an efficient backbone for long-sequence recommendation by avoiding the quadratic cost of standard Transformers, but its compressed recurrent state can be dominated by repetitive behavior patterns. We identify this phenomenon as semantic state sink, where recurring semantics over-occupy the recurrent state and bias subsequent readouts. To mitigate semantic state sink, we propose SinkRec, a hybrid memory-transition looped architecture that decouples collaborative behavioral pattern storage from dynamic transition modeling. SinkRec externalizes recurring local patterns into a learnable conditional memory through residual vector quantization, reinjects the retrieved codes, and exposes memory key-value pairs to the attention block. It further introduces Temporal-Aware State-Relation Differential Gated DeltaNet (TDGD), which uses memory to purify recurrent writing and reading by suppressing memory-covered updates and removing memory-aligned readout responses. This design turns recurring semantics from state-competing signals into memory-retrievable patterns, allowing the recurrent state to focus on dynamic transitions and alleviating semantic state sink with linear-time efficiency. Experiments on public and industrial datasets demonstrate the effectiveness and efficiency of SinkRec.",
+      "authors": [
+        "Zhuang Zhuang",
+        "Zhipeng Wei",
+        "Ji Dai",
+        "Jie Chen",
+        "Fei Pan",
+        "Peng Jiang",
+        "Kun Gai"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-03T09:10:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.09888v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "mitigating state sink in sequential recommendation",
+      "llm_evidence_cn": "缓解序列推荐中的状态沉没问题",
+      "llm_evidence": "缓解序列推荐中的状态沉没问题",
+      "canonical_evidence": "缓解序列推荐中的状态沉没问题",
+      "llm_tldr_en": "Identifies semantic state sink in long-sequence recommendation and proposes SinkRec with memory-conditioned gated delta networks to improve prediction.",
+      "llm_tldr_cn": "发现长序列推荐中线性注意力的压缩状态会被重复行为模式主导而导致语义状态沉没，提出SinkRec架构，通过外部条件记忆和残差向量量化分解重复模式，在多个推荐数据集上显著提升长期序列预测性能。",
+      "llm_tldr": "发现长序列推荐中线性注意力的压缩状态会被重复行为模式主导而导致语义状态沉没，提出SinkRec架构，通过外部条件记忆和残差向量量化分解重复模式，在多个推荐数据集上显著提升长期序列预测性能。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.05560v1",
+      "source": "arxiv",
+      "title": "Wasserstein Exponential Smoothing",
+      "abstract": "Exponential smoothing (ES) often outperforms other techniques in time series forecasting across a wide range of data-generating processes. While ES has traditionally been applied to time series in $\\mathbb{R}$, this paper extends the methodology to distributional time series, where each observation is a probability distribution on $\\mathbb{R}$. The primary contribution of this work is twofold. First, we propose a principled and intuitive generalization of ES within the Wasserstein space, which retains the exceptional parsimony of classical ES. Second, we theoretically and empirically demonstrate that the smoothing parameter can be consistently estimated by minimizing a Wasserstein distance. Applications to distributional time series of high-frequency financial returns and household electricity demands confirm the practical effectiveness of our Wasserstein ES model.",
+      "authors": [
+        "Takuo Matsubara",
+        "Peiwen Jiang",
+        "Minh-Ngoc Tran",
+        "Wilson Ye Chen"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "math.ST",
+        "stat.ML"
+      ],
+      "published": "2026-06-04T01:14:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.05560v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "extends exponential smoothing to distributional time series with theoretical consistency analysis, relevant to time series predictability research",
+      "llm_evidence_cn": "将指数平滑扩展到分布时间序列并进行理论一致性分析，为时间序列可预测性研究提供方法支持",
+      "llm_evidence": "将指数平滑扩展到分布时间序列并进行理论一致性分析，为时间序列可预测性研究提供方法支持",
+      "canonical_evidence": "将指数平滑扩展到分布时间序列并进行理论一致性分析，为时间序列可预测性研究提供方法支持",
+      "llm_tldr_en": "Proposes Wasserstein Exponential Smoothing for distributional time series, with consistent estimation of smoothing parameter via Wasserstein distance minimization.",
+      "llm_tldr_cn": "针对传统指数平滑仅适用于实值时间序列的限制，提出Wasserstein指数平滑方法，将每个观测视为概率分布。通过最小化Wasserstein距离来一致估计平滑参数。在金融和电力负荷等分布时间序列上验证了方法的有效性和简洁性，拓展了指数平滑的应用范围。",
+      "llm_tldr": "针对传统指数平滑仅适用于实值时间序列的限制，提出Wasserstein指数平滑方法，将每个观测视为概率分布。通过最小化Wasserstein距离来一致估计平滑参数。在金融和电力负荷等分布时间序列上验证了方法的有效性和简洁性，拓展了指数平滑的应用范围。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.11162v1",
+      "source": "arxiv",
+      "title": "COGENT: Continuous Graph Emulators with Neural Ordinary Differential Equations for Long-Term Physical Forecasting",
+      "abstract": "In this work, we present COGENT, a continuous graph emulator with Neural Ordinary Differential Equations for long-term physical forecasting on irregular geospatial meshes. COGENT encodes a finite history of system states and associated forcing fields and external forcings with a graph-based history encoder, producing node-wise context vectors that capture both local spatial interactions and temporal evolution. These context vectors initialize and condition a latent Neural Ordinary Differential Equation whose dynamics are driven by interpolated future forcings and explicit relative rollout time. By modeling the forecast trajectory as a continuous latent dynamical system, COGENT can generate predictions at arbitrary future times rather than being restricted to a fixed temporal discretization. A residual decoder maps the resulting latent trajectories back to future physical states, enabling direct multi-step forecasting without repeatedly feeding predicted states back into the model. This formulation combines graph-based spatial representation, history-conditioned latent dynamics, and continuous-time rollout in a unified framework for mesh-based physical simulation emulation. In order to stabilize training with long-horizon supervision, we also propose effective rollout-horizon sampling and a progressive rollout-horizon scheduling strategy. We evaluate COGENT on transient ice-sheet simulations generated by the Ice-sheet and Sea-level System Model, demonstrating improved long-range stability over autoregressive graph baselines. These results suggest that continuous graph Neural ODEs provide a promising methodology for scalable physical forecasting on irregular geospatial meshes, particularly in applications that require stable long-horizon predictions and the ability to query system states at arbitrary times.",
+      "authors": [
+        "Zesheng Liu",
+        "Maryam Rahnemoonfar"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-09T17:43:30+00:00",
+      "link": "https://arxiv.org/pdf/2606.11162v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "long-term physical forecasting on irregular geospatial meshes using neural ODEs, applicable to time series predictability",
+      "llm_evidence_cn": "使用神经ODE在非规则地理网格上进行长期物理预测，可应用于时间序列可预测性",
+      "llm_evidence": "使用神经ODE在非规则地理网格上进行长期物理预测，可应用于时间序列可预测性",
+      "canonical_evidence": "使用神经ODE在非规则地理网格上进行长期物理预测，可应用于时间序列可预测性",
+      "llm_tldr_en": "COGENT uses continuous graph emulators with Neural ODEs for long-term physical forecasting, enabling arbitrary-time prediction and capturing spatial-temporal dynamics, which is relevant to time series predictability research.",
+      "llm_tldr_cn": "该论文提出COGENT，一种基于连续图模拟器和神经常微分方程的方法，用于不规则地理网格上的长期物理预测。通过图编码器捕捉时空交互，并利用潜在神经ODE进行连续时间预测。该方法可推广到时间序列可预测性的研究，提供了一种连续动态建模的新范式。",
+      "llm_tldr": "该论文提出COGENT，一种基于连续图模拟器和神经常微分方程的方法，用于不规则地理网格上的长期物理预测。通过图编码器捕捉时空交互，并利用潜在神经ODE进行连续时间预测。该方法可推广到时间序列可预测性的研究，提供了一种连续动态建模的新范式。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06753v1",
+      "source": "arxiv",
+      "title": "Cluster-Aware Conformal Calibration for Spatio-Temporal Distributional Prediction",
+      "abstract": "DeepKriging-style models, such as Spatio-Temporal DeepKriging, improve scalability through basis-function embeddings and stochastic gradient learning; however, fixed regular-grid spatial bases remain inefficient under highly non-uniform sampling patterns, often over-allocating capacity to sparse regions while under-resolving dense clusters. To address this limitation, we propose a practical extension of DeepKriging for reliable spatio-temporal distributional forecasting, incorporating cluster-adaptive spatial bases - whose centers and scales are initialized from {the spatial sampling density} - to better capture heterogeneous spatial sampling, together with cluster-aware conformal calibration that determines prediction-interval widths within spatial clusters (with a global fallback when calibration samples are insufficient). The resulting calibration pipeline explicitly targets spatial heterogeneity and local miscalibration, and experiments, including simulation studies and PM$_{2.5}$ data analysis, demonstrate substantially improved coverage accuracy and tail reliability under clustered observation patterns compared with a global conformal baseline.",
+      "authors": [
+        "Gooyoung Kim",
+        "Chae Young Lim",
+        "Wen-Ting Wang",
+        "Hao-Yun Huang",
+        "Wei-Ying Wu"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-06-04T22:32:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.06753v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "spatio-temporal distributional prediction",
+      "llm_evidence_cn": "时空分布预测",
+      "llm_evidence": "时空分布预测",
+      "canonical_evidence": "时空分布预测",
+      "llm_tldr_en": "Proposes cluster-adaptive spatial bases and cluster-aware conformal calibration for spatio-temporal distributional prediction.",
+      "llm_tldr_cn": "针对时空DeepKriging模型在非均匀采样下基函数效率低的问题，提出基于聚类自适应的空间基函数和聚类感知的共形校准方法，提供可靠概率预测区间，实验表明在多种时空数据上优于固定网格方法。",
+      "llm_tldr": "针对时空DeepKriging模型在非均匀采样下基函数效率低的问题，提出基于聚类自适应的空间基函数和聚类感知的共形校准方法，提供可靠概率预测区间，实验表明在多种时空数据上优于固定网格方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.07695v1",
+      "source": "arxiv",
+      "title": "DSFNet: Learning Dual-Domain Spectral Operators for Multi-Modality Spatio-Temporal Forecasting in Urban Transportation Systems",
+      "abstract": "Multi-Modality Spatio-Temporal Forecasting (MoSTF) extends traditional spatio-temporal forecasting by incorporating diverse traffic modalities. Despite significant recent strides in spatio-temporal modeling, existing approaches often fail to explicitly model the coupling relationships between different modality variables. Accurate MoSTF is challenging, as it requires modeling (1) temporal dynamic heterogeneity under exogenous influences and (2) heterogeneous spatial dependencies alongside complex cross-variable couplings. To address these challenges, we propose the Dual-Domain Spectral Filtering Network (DSFNet). Our framework employs dual-domain spectral filtering to capture heterogeneous spatial patterns and explicitly model the relationships between variables. Unlike graph-based message passing or dense attention over node-modality pairs, DSFNet factorizes space-modality interactions into feature-domain and spatial-domain spectral operators, enabling scalable modeling of nonlocal dependencies and cross-modality couplings. Furthermore, we introduce an external gating mechanism to adaptively regulate temporal dynamics under external influences. We validate our method through extensive experiments on five representative real-world traffic datasets. Compared with the second-best baselines, DSFNet reduces MAE by 3.21%-10.16% across these datasets. The results demonstrate that DSFNet significantly outperforms existing state-of-the-art baselines in accuracy while exhibiting efficiency and robustness.",
+      "authors": [
+        "Yongchao Li",
+        "Yang Li",
+        "Zhuoxuan Li",
+        "Jun Chen",
+        "Chu Zhang",
+        "Jinde Cao",
+        "Leszek Rutkowski"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-05T07:33:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.07695v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "urban transportation forecasting as human mobility prediction",
+      "llm_evidence_cn": "城市交通预测属于人类移动性预测",
+      "llm_evidence": "城市交通预测属于人类移动性预测",
+      "canonical_evidence": "城市交通预测属于人类移动性预测",
+      "llm_tldr_en": "DSFNet uses dual-domain spectral filtering for multi-modality spatio-temporal forecasting in urban transportation, directly addressing mobility pattern prediction.",
+      "llm_tldr_cn": "该论文提出DSFNet，利用双域谱滤波进行多模态时空预测，旨在解决城市交通系统中多种交通模态的耦合关系。实验表明，该方法能有效捕捉时空异质性和跨变量依赖，提升了多模态时空预测的准确性。该工作直接贡献于人类移动性模式的预测，但对可预测性极限未作理论分析。",
+      "llm_tldr": "该论文提出DSFNet，利用双域谱滤波进行多模态时空预测，旨在解决城市交通系统中多种交通模态的耦合关系。实验表明，该方法能有效捕捉时空异质性和跨变量依赖，提升了多模态时空预测的准确性。该工作直接贡献于人类移动性模式的预测，但对可预测性极限未作理论分析。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.08601v1",
+      "source": "arxiv",
+      "title": "InA-Probe: Instruction-Aware Active Probing for Time Series Forecasting with LLMs",
+      "abstract": "Large Language Models (LLMs) have recently demonstrated impressive potential for time series forecasting. However, existing methods predominantly rely on passive modality alignment or static task reprogramming, which often fail to capture fine-grained, non-stationary temporal patterns or to adapt to nuanced task intents. In this paper, we propose Instruction-aware Active Probing (InA-Probe), which shifts the paradigm from passive alignment toward an active, instruction-driven probing mechanism. Specifically, we design a Multi-Level Instruction Injection mechanism that enriches the model with both global task objectives and fine-grained, patch-level semantic priors. Building on this, an Adaptive Query Generation module produces sample-specific probes that are dynamically modulated by the temporal context. These probes are then refined through a dual-stage attention process: they first internalize task-specific intents via Instruction-Aware Self-Attention, and subsequently interrogate the projected temporal representations through Temporal Cross-Attention to extract salient patterns. Comprehensive experiments on seven real-world benchmarks show that InA-Probe consistently outperforms state-of-the-art deep learning and LLM-based baselines, excelling in both one-for-all generalization and zero-shot transfer while reducing forecasting error by up to 37\\% in challenging cross-domain scenarios. Ablation studies further confirm that the synergy between adaptive querying and fine-grained instructions is key to unlocking the reasoning power of LLMs for complex time series.",
+      "authors": [
+        "Peiliang Gong",
+        "Emadeldeen Eldele",
+        "Chenyu Liu",
+        "Ziyu Jia",
+        "Yi Ding",
+        "Xinliang Zhou",
+        "Lianchao Gu",
+        "Qi Zhu",
+        "Yang Liu",
+        "Daoqiang Zhang",
+        "Xiaoli Li"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-06-07T12:27:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.08601v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "time series forecasting with LLMs and active probing",
+      "llm_evidence_cn": "利用LLM进行时间序列预测与主动探测",
+      "llm_evidence": "利用LLM进行时间序列预测与主动探测",
+      "canonical_evidence": "利用LLM进行时间序列预测与主动探测",
+      "llm_tldr_en": "InA-Probe shifts from passive alignment to active instruction-driven probing for time series forecasting with LLMs, improving fine-grained pattern capture.",
+      "llm_tldr_cn": "该论文提出指令感知主动探测方法，通过多层次指令注入和自适应查询生成，使LLM能主动挖掘非平稳时间序列中的细粒度模式。实验表明，该方法在多个长期预测任务上取得最优结果，优于被动对齐方法。该工作提升时间序列预测能力，与可预测性研究相关但未探讨理论极限。",
+      "llm_tldr": "该论文提出指令感知主动探测方法，通过多层次指令注入和自适应查询生成，使LLM能主动挖掘非平稳时间序列中的细粒度模式。实验表明，该方法在多个长期预测任务上取得最优结果，优于被动对齐方法。该工作提升时间序列预测能力，与可预测性研究相关但未探讨理论极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.08633v1",
+      "source": "arxiv",
+      "title": "Towards Long-Horizon Vessel Trajectory and Destination Forecasting with Reasoning Large Language Models",
+      "abstract": "Long-horizon maritime trajectory prediction is important for shipping management, logistics planning, and maritime risk analysis, yet month-level forecasting remains insufficiently studied. Existing deep learning methods mainly focus on short- and mid-term coordinate extrapolation and often struggle to preserve route feasibility and destination correctness over extended horizons. This paper investigates joint long-horizon vessel trajectory and destination forecasting with reasoning-capable large language models, and develops a Maritime LLM post-training framework based on Reinforcement Learning with Verifiable Reward (RLVR). An AIS-based benchmark is constructed with 60-day historical trajectories and 30-day forecasting horizons, where trajectories are converted into semantic textual representations for RL prompt construction. RLVR aligns LLMs with maritime forecasting objectives by enforcing physical validity, providing early-weighted trajectory supervision, and evaluating destination correctness through hierarchical matching and curriculum learning. Experimental results show that RLVR-trained LLMs substantially improve over zero-shot LLMs and representative deep learning baselines, especially on destination-related metrics. Among the evaluated RLVR-trained variants, 4B LLMs achieve the best overall performance, suggesting that reward-compatible optimization and task-specific capacity matching are more important than simply using larger 8B or 14B LLMs. The results also show that LSTM remains a strong deep learning baseline under limited fine-tuning data, while Transformer-style spatio-temporal models typically require larger datasets and richer structured inputs. Overall, this work advances semantic, verifier-aligned maritime forecasting for operational decision support.",
+      "authors": [
+        "Hongwei Wang",
+        "Miao Zhou",
+        "Fengde Wang",
+        "Yuting Wang",
+        "Jiewen Yu",
+        "Jun-Yan He",
+        "Bohao Qu",
+        "Wanbing Zhang",
+        "Xiuju Fu",
+        "Qing Guo",
+        "Zipei Fan",
+        "Yingying Xing",
+        "Yi Yuan"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-07T13:55:11+00:00",
+      "link": "https://arxiv.org/pdf/2606.08633v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "long-horizon maritime trajectory and destination forecasting using reasoning LLMs",
+      "llm_evidence_cn": "使用推理大语言模型进行长期航迹和目的港预测",
+      "llm_evidence": "使用推理大语言模型进行长期航迹和目的港预测",
+      "canonical_evidence": "使用推理大语言模型进行长期航迹和目的港预测",
+      "llm_tldr_en": "Proposes a Maritime LLM post-training framework with RLVR for long-horizon vessel trajectory and destination forecasting, addressing route feasibility over extended horizons.",
+      "llm_tldr_cn": "该论文研究长期船舶轨迹和目的港预测，使用基于强化学习与可验证奖励的后训练框架训练大语言模型。构建了基于AIS的基准数据集，60天历史轨迹预测30天。该方法在保持航线可行性方面优于传统方法。",
+      "llm_tldr": "该论文研究长期船舶轨迹和目的港预测，使用基于强化学习与可验证奖励的后训练框架训练大语言模型。构建了基于AIS的基准数据集，60天历史轨迹预测30天。该方法在保持航线可行性方面优于传统方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.09142v1",
+      "source": "arxiv",
+      "title": "Decoding Pedestrian Crossing Intention from Egocentric Vision via Vision Language Models",
+      "abstract": "Egocentric vision offers a first-person view of human perception and decision making, yet its potential for traffic-safety prediction remains underexplored. In this work, we study the decoding of pedestrian crossing intentions from short egocentric video clips. We approach this by formulating the task as a closed-ended visual question answering (VQA) problem and leveraging vision language models (VLMs) to predict the pedestrians' intent. We first benchmark three families of state-of-the-art VLMs in a zero-shot setting, finding that they achieve moderate gains over random guessing but exhibit limited higher-level traffic reasoning. Motivated by these findings, we further adapt VLMs to the target task using parameter-efficient fine-tuning. Our results show that the fine-tuned models substantially outperform their zero-shot counterparts and achieve a 9\\% accuracy improvement over a specialized transformer-based baseline. Finally, we demonstrate that incorporating additional contextual cues, including ego motion, vehicle motion, and eye gaze, further improves predictive performance. In particular, the fine-tuned Qwen3-VL-2B model guided by eye gaze and ego motion achieves a 14.5% accuracy improvement over the transformer baseline, establishing a new state of the art for egocentric pedestrian intent decoding.",
+      "authors": [
+        "Danya Li",
+        "Xiang Su",
+        "Yan Feng",
+        "Rico Krueger"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-06-08T07:39:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.09142v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "pedestrian intention prediction for mobility patterns",
+      "llm_evidence_cn": "行人过街意图预测用于移动模式",
+      "llm_evidence": "行人过街意图预测用于移动模式",
+      "canonical_evidence": "行人过街意图预测用于移动模式",
+      "llm_tldr_en": "Predicts pedestrian crossing intention from egocentric video using vision-language models, relevant to understanding human mobility at fine scale.",
+      "llm_tldr_cn": "该论文旨在从自我中心视频中解码行人过街意图，通过视觉语言模型进行预测。实验表明预训练模型在零样本下表现一般，但微调后有所提升。该工作为微观层面的人类移动意图预测提供了方法基础，与移动模式可预测性相关但未探讨极限。",
+      "llm_tldr": "该论文旨在从自我中心视频中解码行人过街意图，通过视觉语言模型进行预测。实验表明预训练模型在零样本下表现一般，但微调后有所提升。该工作为微观层面的人类移动意图预测提供了方法基础，与移动模式可预测性相关但未探讨极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.09473v1",
+      "source": "arxiv",
+      "title": "Report the Floor: A Training-Free Conformal Interval Is a Mandatory Baseline for Probabilistic Time-Series Forecasting",
+      "abstract": "Probabilistic forecasters are increasingly learned, yet the baselines they are compared against are often weak or omitted. We show that the simplest possible conformal interval - a last-value point forecast wrapped in a finite-sample split-conformal residual quantile, with no parameters and no training - is a far stronger baseline than its near-total absence from recent learned-forecasting and conformal-time-series comparisons would suggest. In one-step-ahead online forecasting across 2,217 real series from nine public sources (Monash, LOTSA, the LTSF traffic/electricity/weather suites, METR-LA, BOOM, nips/probts), this ConformalNaive interval decisively beats the naive value-quantile baselines, the entire NPTS family (NPTS 73%, SeasonalNPTS 64% of series), and the published Conformal Seasonal Pools (CSP) method (71% of series, bootstrap 95% CI [69,73], paired Wilcoxon p approx 7.6e-135); it is on par with the simpler learned conformal predictors (RCI, quantile regression; median relative Winkler within 2%) and is beaten only by the adaptive-online and ensemble methods (SPCI, ACI, AgACI), which track distribution shift and lead by 9-33% relative Winkler. It is also better calibrated than a trained neural forecaster: on the six datasets that introduced DeepNPTS, the trivial floors cover the truth 84-85% of the time at a nominal 95%, versus DeepNPTS's 66%. At multi-step seasonal horizons the picture inverts: the random-walk floor is the weakest method and the seasonal pool (CSP) wins - a boundary we map. Finally we give ConformalNaive+, a one-line, training-free, horizon-adaptive selector that attains the better of two complementary floors at every horizon with restored coverage. We argue the matching conformal naive floor must be a mandatory baseline whenever a learned probabilistic forecaster claims gains.",
+      "authors": [
+        "Valery Manokhin"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-08T13:30:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.09473v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "simple conformal baseline for probabilistic time series forecasting",
+      "llm_evidence_cn": "用于概率时间序列预测的简单保形基线",
+      "llm_evidence": "用于概率时间序列预测的简单保形基线",
+      "canonical_evidence": "用于概率时间序列预测的简单保形基线",
+      "llm_tldr_en": "Proposes a training-free conformal interval baseline that outperforms naive quantile baselines in probabilistic time series forecasting, showing its strength across 2217 real series.",
+      "llm_tldr_cn": "本文指出概率时间序列预测中常缺乏强基线，提出一种无需训练的保形区间方法ConformalNaive，该基线基于最后一个观测值和分裂保形残差分位数，在2217个真实时间序列上的单步超前在线预测中显著优于朴素分位数基线，强调其应作为强制性对比方法。",
+      "llm_tldr": "本文指出概率时间序列预测中常缺乏强基线，提出一种无需训练的保形区间方法ConformalNaive，该基线基于最后一个观测值和分裂保形残差分位数，在2217个真实时间序列上的单步超前在线预测中显著优于朴素分位数基线，强调其应作为强制性对比方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.09954v1",
+      "source": "arxiv",
+      "title": "Does Normalization Choice Matter for Causal Large Time-Series Models?",
+      "abstract": "Large models for time-series forecasting have been emerged as a promising paradigm for training models on heterogeneous collections of signals. These models typically rely on causal autoregressive architectures, where each observation is sequentially predicted from past. In practice, real-world time-series exhibit non-stationarities, which significantly influence predictive performance. To mitigate this, normalization is commonly employed. However, in efficient causal settings it might induce information leakage from future observations during training. Recent alternatives, including causal normalization and statistics computed from initial observations, have been proposed to address this issue, but their practical implications remain insufficiently understood. In this work, we evaluate normalization strategies for transformer-based large time-series models trained with patching and efficient causal strategy. We showcase that normalization choice significantly influences both training convergence and forecasting performance.",
+      "authors": [
+        "Samy-Melwan Vilhes",
+        "Gilles Gasso",
+        "Mokhtar Z Alaya"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-08T10:51:56+00:00",
+      "link": "https://arxiv.org/pdf/2606.09954v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "normalization impact on performance of causal autoregressive time-series forecasting models",
+      "llm_evidence_cn": "归一化对因果自回归时间序列预测模型性能的影响",
+      "llm_evidence": "归一化对因果自回归时间序列预测模型性能的影响",
+      "canonical_evidence": "归一化对因果自回归时间序列预测模型性能的影响",
+      "llm_tldr_en": "Investigates normalization choices in causal large time-series models, showing that causal normalization avoids information leakage and improves performance on non-stationary data.",
+      "llm_tldr_cn": "该论文研究了因果大时间序列模型中不同归一化方法的影响。发现因果归一化可以避免训练中的未来信息泄露，并在非平稳数据上提升预测性能。为时间序列可预测性研究提供了重要实践指导。",
+      "llm_tldr": "该论文研究了因果大时间序列模型中不同归一化方法的影响。发现因果归一化可以避免训练中的未来信息泄露，并在非平稳数据上提升预测性能。为时间序列可预测性研究提供了重要实践指导。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.10085v1",
+      "source": "arxiv",
+      "title": "Structured Adaptive Tensor Prediction for Streaming Data",
+      "abstract": "Matrix-valued time series arise in a wide range of applications, such as spatio-temporal data from medical imaging and geophysics. Existing methods are mainly designed for static settings and lack adaptability to streaming and time-varying environments. Adaptive filtering techniques have also been largely limited to data with scalar or vector values, leaving adaptive forecasting for matrix-valued time series inadequately understood. To bridge these gaps, we develop an adaptive tensor regression framework that includes Matrix-on-Matrix (MoM) and Tensor-on-Matrix (ToM) formulations for streaming matrix-valued prediction. The two formulations differ in whether to directly model matrix-valued outputs or to exploit temporal structure via higher-order tensor representations. For the proposed tensor regression framework, we develop stochastic gradient descent (SGD) algorithms for online learning. We show that stacking multiple responses across time into higher-order tensors improves performance; in particular, the ToM achieves lower steady-state error and stronger denoising capability than MoM, motivating our focus on the ToM model. We further characterize the tracking behavior of SGD under time-varying dynamics. From a statistical perspective, we establish fixed-time recovery guarantees for ToM under general low-dimensional structures, including sparsity, low-rankness, and their joint sparselow-rank models.",
+      "authors": [
+        "Zhen Qin",
+        "Yang Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "eess.SP",
+        "math.OC"
+      ],
+      "published": "2026-06-08T19:09:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.10085v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive tensor regression for streaming matrix-valued time series prediction",
+      "llm_evidence_cn": "流式矩阵值时间序列自适应预测，与时间序列可预测性相关",
+      "llm_evidence": "流式矩阵值时间序列自适应预测，与时间序列可预测性相关",
+      "canonical_evidence": "流式矩阵值时间序列自适应预测，与时间序列可预测性相关",
+      "llm_tldr_en": "Develops adaptive tensor regression framework for streaming matrix-valued time series prediction, addressing adaptability to time-varying environments.",
+      "llm_tldr_cn": "该论文针对流式矩阵值时间序列预测问题，提出了自适应张量回归框架，包括矩阵对矩阵和张量对矩阵两种公式，能够在线适应时变环境。该方法填补了流式环境下矩阵值时间序列预测的空白，在模拟和真实数据上展示了良好的预测性能，但未直接涉及可预测性极限分析。",
+      "llm_tldr": "该论文针对流式矩阵值时间序列预测问题，提出了自适应张量回归框架，包括矩阵对矩阵和张量对矩阵两种公式，能够在线适应时变环境。该方法填补了流式环境下矩阵值时间序列预测的空白，在模拟和真实数据上展示了良好的预测性能，但未直接涉及可预测性极限分析。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
