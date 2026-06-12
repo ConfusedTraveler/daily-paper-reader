@@ -1,0 +1,4123 @@
+Title: Stability beyond Bounded Differences: Sharp Generalization Bounds under Finite L_p Moments
+
+URL Source: https://arxiv.org/pdf/2606.06855v1
+
+Published Time: Mon, 08 Jun 2026 00:28:03 GMT
+
+Number of Pages: 30
+
+Markdown Content:
+# Stability beyond Bounded Differences: Sharp Generalization Bounds under Finite Lp Moments 
+
+Qianqian Lei 1 Soham Bonnerjee 1 Yuefeng Han 2 Wei Biao Wu 1
+
+## Abstract 
+
+While algorithmic stability is a central tool for un-derstanding generalization of learning algorithms, existing high-probability guarantees typically rely on uniform boundedness or sub-Gaussian/sub-Weibull tail assumptions, which can be overly re-strictive for modern settings with heavy-tailed or unbounded losses. We develop a stability-based framework that requires only a finite Lp moment condition. Our first contribution is sharp concen-tration inequalities for functions of independent random variables under Lp constraints, extend-ing McDiarmid’s bounded-differences techniques beyond the classical regime. Leveraging these re-sults, we derive sharp high-probability generaliza-tion bounds across a range of learning paradigms, including empirical risk minimization, transduc-tive regression, and meta-learning. These guar-antees show that Lp stability suffices for robust generalization even when boundedness fails, sub-stantially weakening the standard assumptions in the stability literature. 
+
+## 1. Introduction 
+
+Algorithmic stability has emerged as a fundamental tool for the theoretical analysis of machine learning algorithms, providing a principled framework for establishing gener-alization bounds. Seminal work by Bousquet & Elisse-eff (2002) established that uniform stability is sufficient to bound the discrepancy between empirical and true risk for symmetric learning algorithms. Unlike complexity-based measures such as VC-dimension (Vapnik & Chervonenkis, 1971; Blumer et al., 1989; Vapnik, 1991; 1999; Shalev-
+
+> 1
+
+Department of Statistics, The University of Chicago, Chicago, IL 60637, USA. 2Department of Applied and Computational Mathematics and Statistics, University of Notre Dame, Notre Dame, IN 46556, USA. Correspondence to: Yuefeng Han <yue-feng.han@nd.edu >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). 
+
+Shwartz et al., 2010; Shalev-Shwartz & Ben-David, 2014) and Rademacher complexity (Bartlett & Mendelson, 2003; Bartlett et al., 2005; van de Geer, 2006), stability analysis quantifies how perturbations in training data affect the out-put hypothesis, thereby providing insight into why machine learning algorithms trained on finite samples generalize to unseen data. Subsequent work has extended these ideas to broader settings, including stochastic optimization (Hardt et al., 2016; Kuzborskij & Lampert, 2018; Lei & Ying, 2020), federated learning (Sun et al., 2024; Liu et al., 2025), and reinforcement learning (Tamar et al., 2021; Smith & Whiteson, 2022). A significant portion of this literature derives high-probability control over generalization error via uniform stability (Bousquet & Elisseeff, 2002; Maurer, 2005; Warnke, 2016; Bousquet et al., 2020; Zhou et al., 2023) or its relaxations through distribution-dependent sur-rogates such as sub-Gaussian or sub-exponential conditions (Kontorovich, 2014; Maurer & Pontil, 2021; Li & Liu, 2023; Li et al., 2024; Fan & Lei, 2024; Han et al., 2023; 2026). Though powerful, these approaches fail to capture the com-plexities of modern data science and deep learning. Recent empirical and theoretical studies (Catoni, 2012; Mendel-son, 2014; Simsekli et al., 2019; Martin & Mahoney, 2021) highlight the inadequacy of sub-Gaussian assumptions for data with heavy tails. Instead, these studies reveal a preva-lence of power law behavior–that is, polynomial tail in the large deviation regimes–reminiscent of the t-distribution. To accommodate such behavior, in this work, we introduce a further relaxation to (Lp, β )-Lipschitz stability , which requires only a finite p-th moment rather than uniform con-stant bounds or tail specifications such as sub-Gaussian or sub-Weibull conditions. Drawing on the classical Nagaev-type inequalities (Nagaev, 1979) as a powerful alternative when exponential concentration is unattainable, we derive novel sharp concentration bounds for generalization error and apply them to a range of settings, including empirical risk minimization, transductive learning, and meta-learning. 
+
+1.1. Main Contributions 
+
+Our contributions can be summarized as follows. • In Section 2, we establish new sharp concentration in-equalities for general functions of independent random 1  
+
+> arXiv:2606.06855v1 [stat.ML] 5 Jun 2026 Stability beyond bounded differences: sharp generalization bounds under finite Lpmoments
+
+variables under Lp moment. The resulting bounds exhibit a clear two-regime structure: a sub-Gaussian tail gov-erning moderate deviations and a polynomial correction capturing rare large fluctuations. Informally: 
+
+Theorem 1.1 (Theorem 2.2, informal) . Let x1, ..., x n
+
+be independent random variables, and let x′ 
+
+> i
+
+be an in-dependent copy of xi. Suppose there exist functions f
+
+and {Hi}ni=1 such that, almost surely, |f (x1, . . . , x n) −
+
+f (x1, . . . , x i−1, x ′
+
+> i
+
+, x i+1 , . . . , x n)| ≤ Hi(xi, x ′
+
+> i
+
+). If 
+
+Hi(xi, x ′
+
+> i
+
+) has a finite p-th moment for p ≥ 2, then for 
+
+y > 0,
+
+P(|f (x1, . . . , x n) − E[f (x1, . . . , x n)] | > y )
+
+≲
+
+Pni=1 E[|Hi|p]
+
+yp + exp 
+
+
+
+− y2
+
+Pni=1 E[|Hi|2]
+
+
+
+.
+
+We also develop the result for the complementary heavy-tailed regime p ∈ (1 , 2) in Theorem 2.6. This two-regime behavior arises directly from working under weaker Lp
+
+moment assumptions rather than bounded or sub-Weibull conditions, yielding non-asymptotic guarantees that re-main valid without exponential moments. • Using these probabilistic tools, we derive high-probability generalization bounds for three learning paradigms: em-pirical risk minimization (Section 3.1), transductive re-gression (Section 3.2), and meta-learning (Section 3.3). For each setting, we formulate an appropriate (Lp, β )-Lipschitz stability notion and obtain corresponding two-regime bounds. The transductive setting requires con-centration inequalities for sampling without replacement, developed in Theorem 3.9. Compared to bounded uniform stability, the weaker Lp framework relaxes tail assump-tions but imposes stronger decay requirements on the rel-evant stability notion to achieve vanishing generalization bounds. • Our numerical experiments confirm the sharpness of the theory and, in particular, highlight the necessity of the polynomial term in our generalization bounds. The results clearly exhibit the predicted transition between the sub-Gaussian and polynomial-tail regimes. 
+
+1.2. Related Work Algorithmic Stability and Generalization. Algorithmic stability offers an algorithm-dependent route to generaliza-tion bounds, initiated by Bousquet & Elisseeff (2002) who combined uniform stability and bounded losses via McDi-armid’s inequality (McDiarmid, 1989); later works sharp-ened rates (Feldman & Vondrak, 2018; 2019; Bousquet et al., 2020; Klochkov & Zhivotovskiy, 2021; Zhou et al., 2023) and connected stability to optimization (Hardt et al., 2016; Kuzborskij & Lampert, 2018; Lei & Ying, 2020). Since ex-pectation bounds can mask non-negligible probabilities of large deviations for a single learned model, high-probability guarantees are needed (Maurer, 2005; Bousquet et al., 2020; Yuan & Li, 2023a), but typically rely on bounded differ-ences. For unbounded stability, existing approaches either tolerate rare large deviations under high-probability bound-edness (Kutin, 2002; Kutin & Niyogi, 2002; Warnke, 2016), or replace worst-case bounds by distributional surrogates such as sub-Gaussian/sub-exponential assumptions (Kon-torovich, 2014; Maurer & Pontil, 2021; Li & Liu, 2023; Li et al., 2024; Fan & Lei, 2024), often via Efron-Stein-type inequalities (Abou-Moustafa & Szepesv ´ari, 2019), or pro-vide moment bound (Yuan & Li, 2023b). Another route avoids exponential moments by robustifying empirical risk (or gradients) using robust mean estimators: Catoni-type M-estimators for robust ERM (Catoni, 2012; Brownlees et al., 2015), median-of-means extensions (Hsu & Sabato, 2016; Lecu ´e & Lerasle, 2020), and truncation/clipping methods such as robust gradient descent (Holland & Ikeda, 2019), which can yield exponential-type deviation bounds under low-order moments but modify the learning rule. Our Lp sta-bility framework instead relaxes tail assumptions directly ,accommodating heavy-tailed regimes where exponential moments may not exist, without changing the learning rule. 
+
+Transductive Regression. In transductive learning, the learner observes unlabeled test inputs in advance and pre-dicts only on this fixed set (Vapnik, 2006). Cortes & Mohri (2006) provided systematic VC dimension bounds for transductive regression, and Cortes et al. (2008) de-rived algorithm-dependent generalization bounds via stabil-ity analysis. We extend this framework to the Lp setting, requiring new concentration inequalities for sampling with-out replacement. 
+
+Meta-Learning. Meta-learning studies how training on past tasks improves performance on new tasks (Bengio et al., 1990; Thrun & Pratt, 1998; Maurer, 2005; Hoskins & Fredriksson, 2008). Theoretical work focuses on con-vergence (Zhou et al., 2019; Ji et al., 2020; Mishchenko et al., 2023) and generalization (Baxter, 2000; Ben-David & Schuller, 2003; Du et al., 2021); see Wang & Arora (2024) for a review. Stability-based analyses were initiated by Mau-rer (2005) and recently advanced by Chen et al. (2020); Fallah et al. (2021); Al-Shedivat et al. (2021); Guan et al. (2022) under various meta-stability notions. Wang & Arora (2024) proposed uniform meta-stability coupling task-level and within-task perturbations with high-probability bounds. Our Lp framework generalizes these results under weaker moment assumptions. 
+
+## 2. Main Results 
+
+In this section, as a key technical contribution, we present sharp concentration inequalities that substantially broaden the scope of algorithmic stability. Classical high-probability stability bounds rely on uniform stability (Bousquet & Elis-2Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+seeff, 2002), which requires uniform boundedness of the loss, or sub-Gaussian/sub-Weibull tail assumptions. We re-place these restrictions with a single, weaker requirement: a finite Lp moment for the one-sample perturbation. This relaxation is essential in modern applications, such as deep learning with heavy-tailed gradients or regression over un-bounded domains, where the effect of replacing one training sample is not uniformly bounded but can be controlled in Lp
+
+norm. Our framework thus provides a powerful theoretical tool for analyzing generalization in learning algorithms. 
+
+2.1. Preliminaries 
+
+We first introduce the mathematical framework used throughout the paper. Let x1, . . . , x n be independent ran-dom variables in a measurable space X , and let f : X n →
+
+R be a measurable function. We study the concentra-tion of f (x1, . . . , x n) around its expectation under an Lp-type moment condition. Fix i ∈ [n] and define g =
+
+f (x1, . . . , x i, . . . , x n) and gi = f (x1, . . . , x ′
+
+> i
+
+, . . . , x n),where x′ 
+
+> i
+
+is an independent copy of xi. Assume that for some nonnegative measurable functions Hi : X 2 → R+,
+
+|g − gi| ≤ Hi(xi, x ′
+
+> i
+
+). (1) Each Hi is deterministic ; randomness arises only through the pair (xi, x ′
+
+> i
+
+). We interpret Hi as measuring the sen-sitivity to resampling the i-th coordinate: the one-point perturbation bound (1) is a Lipschitz-type condition with respect to this coordinate-wise distance, consistent with viewing stability assumptions as Lipschitz continuity in an appropriate metric structure (Li et al., 2024). When Hi is a metric (or is dominated by one), it induces the 
+
+ℓ1 product metric on X n, ρ(n)(x, x ′) := Pni=1 Hi(xi, x ′
+
+> i
+
+),
+
+yielding a geometric interpretation: modifying a single coor-dinate incurs cost Hi(xi, x ′
+
+> i
+
+), while multi-coordinate pertur-bations accumulate additively, as for Lipschitz functions on product spaces (Kontorovich, 2014). In unbounded settings, 
+
+(X , H i) may have infinite diameter, so we instead quantify the distribution-dependent scale via an independent pair 
+
+(xi, x ′
+
+> i
+
+):
+
+∥g − gi∥p < ∥Hi(xi, x ′
+
+> i
+
+)∥p < ∞.
+
+This Lp-diameter is an analogue of Orlicz/sub-Weibull di-ameters, except we require only a finite p-th moment rather than a ψα-norm bound (Kontorovich, 2014; Li et al., 2024); see also Remark 2.1. We refer to this as Lp-Lipschitz stabil-ity , which replaces bounded differences with an integrable, distribution-dependent surrogate. 
+
+Remark 2.1 . The ψα Orlicz norm is defined as 
+
+∥X∥ψα = inf {θ > 0 : E[e(|X|/θ )α
+
+] ≤ 2}. (2) This class includes sub-exponential (α = 1) and sub-Gaussian (α = 2) variables, but still requires an expo-nential moment, implying that all Lp moments exist and scale as O(p1/α ). In contrast, we assume only a finite Lp
+
+moment for a fixed p, which is strictly weaker. For in-stance, heavy-tailed variables such as Pareto distributions with shape parameter p can have finite Lp moments yet fail every sub-Weibull condition due to the nonexistence of the moment-generating function. Therefore, our framework substantially weakens the tail requirements on the stability variable Hi, yielding high-probability guarantees in regimes where sub-Weibull-based stability is inapplicable. 
+
+2.2. Concentration Inequalities 
+
+With Lp-Lipschitz stability in place, we now state our main concentration bounds. We begin with the case p ≥ 2, where the tail behavior is captured by a hybrid inequality combin-ing a polynomial (moment) term with a sub-Gaussian term. This form is well suited to settings where the algorithm is typically stable but may exhibit occasional large deviations due to heavy-tailed data, contamination, or irregular loss landscapes. 
+
+Theorem 2.2. Let x1, . . . , x n be independent random vari-ables taking values in a measurable space X , and let 
+
+f : X n → R be a measurable function such that for some nonnegative measurable functions Hi : X 2 → R+, (1) 
+
+holds. If ∥Hi(xi, x ′
+
+> i
+
+)∥p < ∞ for some p ≥ 2 and all i, then for all z > 0,
+
+P(|f (x1, x 2, . . . , x n) − E[f (x1, x 2, . . . , x n)] | > z )
+
+≤c1
+
+Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+zp + 2 exp 
+
+
+
+− c2z2
+
+Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|2
+
+
+
+,
+
+(3) 
+
+where c1 = 4(4 p+2  
+
+> p
+
+)p and c2 = (2( p + 2) 2ep)−1 depend only on p.Remark 2.3 . Theorem 2.2 admits an equivalent high-probability form. For any δ ∈ (0 , 1) , with probability at least 1 − δ,
+
+f (x1, . . . , x n) − Ef (x1, . . . , x n)
+
+≤c−1/22
+
+r
+
+log 4
+
+δ
+
+> n
+
+X
+
+> i=1
+
+∥Hi(xi, x ′
+
+> i
+
+)∥22
+
+!1/2
+
++ (2 c1)1/p δ−1/p 
+
+> n
+
+X
+
+> i=1
+
+∥Hi(xi, x ′
+
+> i
+
+)∥pp
+
+!1/p 
+
+. (4) 
+
+Using   P ni=1 ∥Hi∥pp
+
+1/p ≤ n1/p max i ∥Hi∥p, the second term in (4) simplifies to a max-type bound: 
+
+f (x1, . . . , x n) − Ef (x1, . . . , x n)
+
+≤c−1/22
+
+r
+
+log 4
+
+δ
+
+> n
+
+X
+
+> i=1
+
+∥Hi(xi, x ′
+
+> i
+
+)∥22
+
+!1/2
+
++ (2 c1)1/p n1/p δ−1/p max  
+
+> 1≤i≤n
+
+∥Hi(xi, x ′
+
+> i
+
+)∥p.
+
+The deviation thus decomposes into a sub-Gaussian term governed by P 
+
+> i
+
+∥Hi(xi, x ′
+
+> i
+
+)∥22 and a heavy-tail correction controlled by the p-th moments. 3Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Remark 2.4 . A closely related result is Corollary 29 of Li & Liu (2024), whose statement shares the same Gaussian-plus-polynomial form as Theorem 2.2. However, its proof relies on a direct application of Markov’s inequality, which is not sharp enough to establish the conclusion uniformly over all deviation levels z > 0 under a single fixed p-th moment con-dition. The issue can already be seen in the simplest exam-ple. Let Xi
+
+> i.i.d.
+
+∼ N (0 , 1) and f (X1, . . . , X n) = Pni=1 Xi.A direct Markov argument based on the fixed p-th moment gives P (|Pni=1 Xi| > t ) ≤ E| Pni=1 Xi|p 
+
+> tp
+
+= E|N (0 ,1) |p np/ 2 
+
+> tp
+
+,which is worse than the polynomial term in Theorem 2.2 by a factor np/ 2−1 for p > 2 and fails to recover the sub-Gaussian component entirely. In contrast, our proof em-ploys a truncation and martingale argument to derive the Nagaev-type bound directly and uniformly over all z > 0.
+
+Remark 2.5 (Sharpness) . Throughout the paper, we use the term “sharp” in the tail-order sense, rather than in a minimax sense. For Theorem 2.2, sharpness refers to the precise large-deviation form under a single fixed finite-Lp
+
+replace-one condition: the deviation probability consists of a sub-Gaussian moderate-deviation component and a poly-nomial large-deviation correction. The polynomial term is not an artifact of the proof; it reflects the unavoidable large-deviation behavior allowed by finite-moment increments. This interpretation is consistent with the classical Fuk– Nagaev phenomenon for sums of independent heavy-tailed random variables, where the correct non-asymptotic tail form contains both a Gaussian term and a one-large-jump polynomial term. Exact moderate and large deviation re-sults for linear processes further show that this two-regime structure can hold at the level of asymptotic equality, not merely as an upper-bound phenomenon; see, for instance, Peligrad et al. (2014). Our theorem extends this tail-order structure from explicit sums to general functions satisfying a replace-one Lp envelope condition. The bounds in Sec-tion 3 are sharp in the same sense: once the corresponding stability assumption reduces the generalization gap to Theo-rem 2.2, the resulting high-probability bounds inherit this Gaussian-plus-polynomial tail-order structure. We also provide an accompanying result when only lower moments exist. 
+
+Theorem 2.6. Let x1, . . . , x n be independent random vari-ables taking values in a measurable space X , and let 
+
+f : X n → R be a measurable function. For each 
+
+i ∈ [n], define g = f (x1, . . . , x i−1, x i, x i+1 , . . . , x n) and 
+
+gi = f (x1, . . . , x i−1, x ′
+
+> i
+
+, x i+1 , . . . , x n), where x′ 
+
+> i
+
+is an in-dependent copy of xi. Assume there exist nonnegative mea-surable functions Hi : X 2 → R+, such that 
+
+|g − gi| ≤ Hi(xi, x ′
+
+> i
+
+), i = 1 , . . . , n, 
+
+with ∥Hi(xi, x ′
+
+> i
+
+)∥p < ∞ for some 1 < p < 2 and all i.Then, for all Q ≥ 1 and z > 0,
+
+P (|f (x1, . . . , x n) − Ef (x1, . . . , x n)| > z )
+
+≤
+
+> n
+
+X
+
+> i=1
+
+P(|Hi(xi, x ′
+
+> i
+
+)| > z
+
+4Q )+ 2 
+
+ e4pQp−1 Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+zp
+
+Q
+
+Remark 2.7 . Theorem 2.6 is essentially sharp for polynomially-tailed variables. Consider n = 1 with 
+
+H1(x1, x ′
+
+> 1
+
+) ∼ | t2| (Student’s t with ν = 2 degrees of free-dom). Then ∥H1(x1, x ′
+
+> 1
+
+)∥p < ∞ for every 1 < p < 2.The t2 distribution has the closed-form tail           
+
+> P(|H1(x1, x ′
+> 1)|>z
+> 4Q) = 1 −z/ 4Q
+> pz2/16 Q2+ 2 ∼1
+> z2(z→ ∞ ),
+
+so the first term in the bound is of order z−2. For any fixed 
+
+Q > 2/p , the second term satisfies O(z−pQ ) = o(z−2).Hence the bound yields an O(z−2) tail rate, matching the true exponent of the t2 distribution. In particular, under only an Lp increment condition with 
+
+p < 2, one cannot generally expect sub-Gaussian or sub-exponential decay. Compared with the naive Markov bound based solely on ∥H1∥p, which gives order z−p, Theorem 2.6 recovers the correct z−2 rate in this canonical heavy-tailed example. 
+
+Remark 2.8 . Table 1 compares our results with representa-tive concentration inequalities under assumptions ranging from bounded, sub-Gaussian, and sub-exponential to sub-Weibull coordinate diameters. Theorem 2.2 yields a hybrid bound combining a sub-Gaussian component and a polynomial term. For moderate deviations (small z), the sub-Gaussian term in (3) domi-nates, matching McDiarmid-type tail behavior and agreeing with Kontorovich (2014); Maurer & Pontil (2021); Li et al. (2024) up to constants. For large deviations (large z), the polynomial term dominates, reflecting that our assumptions impose only finite Lp moments; the tail therefore decays polynomially rather than sub-Weibull. Our simulations illus-trate this transition between the sub-Gaussian and heavy-tail regimes in two application settings. 
+
+## 3. Applications 
+
+3.1. Empirical Risk Minimization (ERM) 
+
+In this subsection, we illustrate how our concentration re-sults yield high-probability generalization bounds in the standard i.i.d. setting. Let X and Y be the input and output spaces, and let Z = X × Y . Consider a training sample 
+
+S = {z1 = ( x1, y 1), . . . , z m = ( xm, y m)} ∼ D m, drawn i.i.d. from an unknown distribution D. A learning algo-rithm is a map A : Zm → F , producing a hypothesis 4Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Table 1. Comparison with prior concentration results. For simplicity, we write Hi := Hi(xi, x ′
+
+> i
+
+) and focus on the relevant Orlicz norm.                                                                                                                             
+
+> Result Assumption Deviation bound Kontorovich (2014) fis 1-Lipschitz;
+> ∥Hi∥ψ2<∞for all iP(|f−Ef|> z )≤2 exp −z2
+> 2Pni=1 ∥Hi∥2
+> ψ2
+> !
+> Maurer & Pontil (2021) fis 1-Lipschitz;
+> ∥Hi∥ψ1<∞for all iP(f−Ef > z )≤exp −z2
+> 4e2Pni=1 ∥Hi∥2
+> ψ1) + 2 e(max i∥Hi∥ψ1)z
+> !
+> Li et al. (2024)
+> |f−fi| ≤ Hi,
+> ∥Hi∥ψα <∞,
+> 0< α ≤1
+> P(|f−Ef|> z )≤exp −cα
+> z2
+> Pni=1 ∥Hi∥2
+> ψα
+> !
+> + exp −zα
+> max i∥Hi∥αψα
+> !
+> Li et al. (2024)
+> |f−fi| ≤ Hi,
+> ∥Hi∥ψα <∞,α > 1
+> and α−1+ ( α∗)−1= 1
+> P(|f−Ef|> z )≤exp −cα
+> z2
+> Pni=1 ∥Hi∥2
+> ψα
+> !
+> + exp
+> −zα
+> Pni=1 ∥Hi∥α∗
+> ψα
+> α/α ∗
+> 
+> Ours (Thm. 2.2) |f−fi| ≤ Hi,
+> ∥Hi∥p<∞for some p≥2P(|f−Ef|> z )≤c1,p
+> Pni=1 E|Hi|p
+> zp+ 2 exp −c2,p
+> z2
+> Pni=1 E|Hi|2
+> !
+> Ours (Thm. 2.6) |f−fi| ≤ Hi,
+> ∥Hi∥p<∞for some 1< p < 2P(|f−Ef|> z )≤Pni=1 P(|Hi|>z
+> 4Q) + 2
+> e4pQp−1Pni=1 E|Hi|pzp
+> Q
+
+AS ∈ F ⊆ Y . For simplicity, we assume A is deterministic and permutation-invariant in S. We also adopt standard measurability assumptions. • S\i, the leave-one-out sample of size m − 1 obtained by removing the i-th observation: 
+
+S\i = S \ zi = {z1, . . . , z i−1, z i+1 , . . . , z m}.
+
+• Si, the replacement sample of size m where zi is replaced by an independent draw z′ 
+
+> i
+
+∼ D :
+
+Si = {z1, . . . , z i−1, z ′
+
+> i
+
+, z i+1 , . . . , z m}.
+
+All expectations and probabilities are taken with respect to the data distribution D. We use subscripts to specify the variables of integration: ES [·] denotes the expectation over the training sample S ∼ D m, while Ez [·] denotes the expectation over a single test instance z ∼ D .To measure the discrepancy between a prediction f (x) and the ground truth y, we use a nonnegative cost function 
+
+c : Y × Y → R+. For any hypothesis f and sample 
+
+z = ( x, y ), define the loss ℓ(f, z ) = c(f (x), y ). Given a training sample S, the population risk of the learned hy-pothesis AS is R(A, S ) = Ez [ℓ(AS , z )] , where z ∼ D is an independent test point. Since D is unknown, R(A, S )
+
+cannot be computed directly. We therefore compare it to empirical surrogates: the empirical risk and leave-one-out risk, defined respectively as 
+
+Remp (A, S ) = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+ℓ(AS , z i),Rloo (A, S ) = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+ℓ(AS\i , z i).
+
+When the algorithm A and sample S are clear from context, we write simply R, R emp , and Rloo .The classical route to high-probability generalization bounds typically relies on deterministic uniform stability : the point-wise change in loss under a one-sample perturbation is as-sumed to be bounded, often together with an almost surely bounded loss. These conditions make McDiarmid-type con-centration inequalities straightforward, but they are too re-strictive for many modern problems, such as regression with unbounded responses or heavy-tailed noise. Leveraging Theorem 2.2, we instead adopt an (Lp, β )-Lipschitz stabil-ity framework. 
+
+Assumption 3.1 ((Lp, β )-Lipschitz stability) . An algorithm 
+
+A trained on set S = {z1, . . . , z m} is β-Lipschitz stable if the function f (z1, . . . , z m, z ) = ℓ(AS , z ) with respect to the loss ℓ is β-Lipschitz, and with respect to a measurable function H : Z ×Z 7 → R+ such that for all i ∈ { 1, . . . , m },
+
+|ℓ(AS , z ) − ℓ(ASi , z )| ≤ βH (zi, z ′
+
+> i
+
+),
+
+where ∥H(z, z ′)∥p < ∞ for some p ≥ 2, and the norm 
+
+∥ · ∥ p is computed with respect to z ∼ D .Assumption 3.1 significantly generalizes the Lipschitz sta-bility notion of Kontorovich (2014); Li et al. (2024), and consequently also generalizes the uniform stability of Bous-quet & Elisseeff (2002), which in turn implies hypothesis stability. It can also be construed as generalizing the notions of argument stability (Liu et al., 2017; Wang et al., 2022), random uniform stability (Shen et al., 2020). 
+
+Remark 3.2 . Assumption 3.1 is compatible with, and strictly extends, several standard stability regimes. If the replace-one stability increment is uniformly bounded, one may take 
+
+H ≡ 1, recovering the classical deterministic uniform-stability setting. This includes standard uniformly stable regularized ERM procedures, such as Hilbert-space regu-larization and support vector machines under bounded-loss assumptions. Similarly, if the stability envelope H is sub-Gaussian, sub-exponential, or sub-Weibull, then H has finite moments of all orders, and Assumption 3.1 holds for any fixed finite p. Our framework therefore does not replace these light-tailed assumptions where they apply; rather, it 5Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+covers the complementary regime in which exponential-tail assumptions are unavailable but a finite p-th moment exists. Random, sample-dependent stability/Lipschitz envelopes arise naturally in modern learning settings. Kontorovich (2014) studies stability in unbounded metric spaces and gives generalization bounds for unbounded losses, includ-ing regularized metric-regression algorithms. In private optimization, Das et al. (2023) replace uniform Lipschitz-ness in DP-SGD by sample-dependent per-example Lips-chitz constants with bounded moments, with applications to private softmax-layer training. The SGD stability lit-erature (Hardt et al., 2016) similarly shows that stochas-tic gradient methods can be stable under smoothness and Lipschitz-type conditions. While these works do not verify Assumption 3.1 for every modern optimizer, they show that finite-moment, sample-dependent perturbation scales are natural; once such an Lp replace-one envelope is established, Theorem 3.4 gives the corresponding high-probability gen-eralization bound. 
+
+Assumption 3.3. There exists a measurable function G :
+
+Z × Z 7 → R+, such that for all S = {z1, . . . , z m} ∈ D m,
+
+z, z ′ ∼ D ,
+
+|ℓ(AS , z ) − ℓ(AS , z ′)| ≤ β′G(z, z ′), β ′ > 0,
+
+where ∥G(z, z ′)∥p < ∞ for some p ≥ 2, and the norm 
+
+∥ · ∥ p is computed with respect to z, z ′ ∼ D 2.Combining these assumptions with Theorem 2.2 yields the following high-probability generalization bounds. 
+
+Theorem 3.4. Suppose learning algorithm A satisfies As-sumption 3.1 and the loss function ℓ(AS , z ) satisfies As-sumption 3.3. Then, for any set S with |S| = m ≥ 1 and any y > 0, the following two bounds hold: 
+
+P(|R − Remp | > y + βEH(z, z ′)) 
+
+≤ c1
+
+mβ pE[|H(z, z ′)|p] + ( β′)pE[|G(z, z ′)|p]/m p−1
+
+yp
+
++ 2 exp 
+
+
+
+− c2y2
+
+β2mE|H(z, z ′)|2 + (β′)2 
+
+> m
+
+E[|G(z, z ′)|2]
+
+
+
+,
+
+P(|R − Rloo − (Rm − Rm−1)| > y )
+
+≤ c3
+
+mβ pE[|H(z, z ′)|p] + ( β′)pE[|G(z, z ′)|p]/m p−1
+
+yp
+
++ 2 exp 
+
+
+
+− c4y2
+
+mβ 2E[|H(z, z ′)|2] + (β′)2 
+
+> m
+
+E[|G(z, z ′)|2]
+
+
+
+,
+
+where c1, c 2, c 3, c 4 depend only on p, and Rm := 
+
+ES∼D m,z ∼D [ℓ(AS , z )] = ES∼D m [R(A, S )] .Remark 3.5 . We briefly recall classical generalization bounds for uniformly stable algorithms. A sharp high-probability result is Corollary 8 of Bousquet et al. (2020), which assumes deterministic uniform stability with con-stant β (i.e., Assumption 3.1 with H ≡ 1) and almost sure bounded loss 0 ≤ ℓ ≤ L. It states that, for any δ ∈ (0 , 1) ,with probability at least 1 − δ,
+
+|R − Remp | ≲ β log m log(1 /δ ) + L
+
+r log(1 /δ )
+
+m .
+
+This bound is informative only when β = o(1) ; moreover, it is tight (up to logarithmic factors) in the regime β ≲ m−1/2,which yields the canonical m−1/2 rate. In contrast, The-orem 3.4 allows the stability increment to be random and data-dependent (through H(zi, z ′
+
+> i
+
+)) and does not require bounded loss; it suffices that H and G have finite p-th mo-ments for some p ≥ 2. In particular, with probability at least 1 − δ,
+
+|R − Remp | ≲  β∥H∥pm1/p + β′∥G∥pm−(1 −1/p )δ−1/p 
+
++
+
+
+
+β∥H∥2
+
+√m + β′ ∥G∥2
+
+√m
+
+
+
+log 1
+
+δ + β∥H∥1.
+
+For the bound to vanish, one needs ∥H∥p = O(1) , ∥G∥p =
+
+O(1) and (up to logarithmic factors) β ≪ m−1/2, β′ ≪√m; smaller δ further strengthens the required decay in 
+
+β, β ′ through the factor δ−1/p . This requirement is stan-dard rather than a weakness of our proof: a closely re-lated bound in Li et al. (2024) also contains a term of order 
+
+γ∆α
+
+pm log(1 /δ ), and the paper explicitly notes that the stability coefficient is typically of order m−1/2. In this sense, moving from bounded uniform stability to weaker 
+
+(Lp, β )-Lipschitz stability trades assumptions for stronger Lipschitz-decay requirements. This condition is verifiable in standard examples. For instance, in ridge regression with squared loss, on the usual well-conditioned covariance event, the replace-one perturbation yields β = O(log m/m ), and one may take 
+
+H(z, z ′) = ∥xy − x′y′∥2. Thus the term β∥H∥2
+
+√m is controllable without imposing almost-sure boundedness on the covariates, responses, or losses. Appendix D.3 further provides an empirical illustration for a two-layer neural net-work trained with Adam, showing the same ratio-based tail behavior in a less structured learning algorithm. 
+
+3.2. Transductive Regression Algorithms 
+
+We consider the transductive learning setting (Cortes et al., 2008), where the learner is given a fixed finite population 
+
+X of size N = m + u. A training set S of m labeled samples is drawn uniformly at random without replacement 
+
+from X ; the remaining u points form the unlabeled test set 
+
+T := X \ S. We denote this random partition by X ⊢ (S, T ).The goal is to predict the labels of the test points in T using only the labeled data in S. Unlike inductive learning, which aims to learn a function that generalizes to arbitrary future 6Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+inputs, transductive learning only targets a fixed, known set of test inputs. Access to the unlabeled set T during training allows the algorithm to exploit the geometry or manifold structure of the test set to regularize learning and improve prediction. Let ℓ(h, z ) ≥ 0 be a nonnegative loss measuring the error of a hypothesis h on sample z = ( x, y ); for regression, a canonical choice is the squared loss ℓ(h, z ) = ( h(x) − y)2.Define the training and test (transductive) risks by 
+
+ˆR(h) = 1
+
+m
+
+X
+
+> z∈S
+
+ℓ(h, z ), R(h) = 1
+
+u
+
+X
+
+> z∈T
+
+ℓ(h, z ). (5) Our goal is to control the generalization gap R(h) − ˆR(h)
+
+via stability properties of the algorithm. Classical analyses often assume uniform β-stability, which imposes bounded differences uniformly over all partitions. To accommodate heavy-tailed losses or unbounded domains, we instead adopt an (Lp, β )-Lipschitz stability notion. 
+
+Assumption 3.6 (Transductive (Lp, β )-Lipschitz stability) .
+
+Let A be a transductive learning algorithm. For a partition 
+
+X ⊢ (S, T ), let h be the hypothesis returned by A, and let h′ be the hypothesis returned for a modified partition 
+
+X ⊢ (S′, T ′). We say A is uniformly Lp-Lipschitz stable with respect to the cost function ℓ if there exist nonnegative measurable functions H such that, whenever (S′, T ′) is obtained from (S, T ) by swapping exactly one point xi ∈ S
+
+with one point xm+j ∈ T , then for all x ∈ X ,
+
+|ℓ(h, x ) − ℓ(h′, x )| ≤ βH (xi, x m+j ),
+
+and ∥H(xi, x m+j )∥p < ∞ for some p ≥ 2.
+
+Remark 3.7 . As with Assumption 3.1, we do not require a deterministic control. To see this, view ℓ(h, x ) = f (x1, . . . , x m, x ) and ℓ(h′, x ) =
+
+f (x1, . . . , x i−1, x m+j , x i+1 , . . . , x m, x ); the assumption above is then equivalent to the function f : X m+1 → R
+
+being (Lp, β )-Lipschitz Stable. 
+
+Assumption 3.8 (Lp-bounded hypothesis class) . A hypoth-esis class H is Lp-bounded with respect to ℓ if there exists a measurable function G such that for all h ∈ H and all 
+
+x, x ′ ∈ X ,
+
+|ℓ(h, x ) − ℓ(h, x ′)| ≤ β′G(x, x ′), β′ > 0,
+
+where ∥G(x, x ′)∥p < ∞ for some p ≥ 2, and the norm 
+
+∥ · ∥ p is computed with respect to x, x ′ ∼ D .A key technical challenge in transduction is that S =
+
+{x1, . . . , x m} is sampled without replacement from the finite population X , which induces dependencies among the training points and precludes applying concentration inequalities for independent variables directly. Prior work addresses this using McDiarmid-type inequalities tailored to sampling without replacement, typically under strict bounded-differences assumptions. In our (Lp, β )-Lipschitz stability regime, we develop corresponding extensions of Theorem 2.2 that accommodate the transductive sampling dependence while requiring only finite Lp moments. 
+
+Theorem 3.9. Let X be a finite set with |X| = N =
+
+m + u. Let xm 
+
+> 1
+
+= ( x1, . . . , x m) be sampled uniformly without replacement from X and let ϕ : Xm → R
+
+be a symmetric measurable function. Assume that for each i ∈ [m] there exists a measurable function H :
+
+X × X → R such that for all (x1, . . . , x m) ∈ Xm
+
+and all x′ 
+
+> i
+
+∈ X, where x′ 
+
+> i
+
+is an independent copy of 
+
+xi, defining φ = ϕ(x1, . . . , x i−1, x i, x i+1 , . . . , x m) and 
+
+φi = ϕ(x1, . . . , x i−1, x ′
+
+> i
+
+, x i+1 , . . . , x m), we have 
+
+|φ − φi| ≤ H(xi, x ′
+
+> i
+
+).
+
+Suppose that for some p ≥ 2, ∥H(x, x ′)∥p < ∞ for all 
+
+i ∈ [m]. Then for all y > 0,
+
+P(|φ − Eφ| > y ) ≤ c1
+
+Vp
+
+yp + 2 exp 
+
+
+
+− c2
+
+y2
+
+V2
+
+
+
+, (6) 
+
+where                         
+
+> Vp=up
+> p−1
+> 1(u−12)p−1−1(m+u−12)p−1
+> 
+> E|H(x, x ′)|p,V2=mu
+> (m+u−1/2)(1 −1/(2 max {m, u })) E|H(x, x ′)|2,
+
+and c1 = 4(4 p+2  
+
+> p
+
+)p and c2 = 1 /(2( p + 2) 2ep) are some constants depending only on p.
+
+We now apply Theorem 3.9 to study stability-based general-ization for transductive regression. Our target is the gener-alization gap between the transductive risk and the training risk, which is defined as ϕ(S) := R(S) − ˆR(S). By control-ling |Eϕ(S)| and the one-swap increment |ϕ(S) − ϕ(S′)|,where S and S′ differ in exactly one point, we can invoke Theorem 3.9 to conclude the following result. 
+
+Theorem 3.10. Let H be an Lp-bounded hypothesis class and let A be a symmetric transductive (Lp, β )-Lipschitz stability algorithm satisfying Assumption 3.6. Let h be the hypothesis returned by A for a random partition X ⊢ (S, T ).Then for any y > 0, we have 
+
+P R(h) − ˆR(h) ≥ y + βEH(xi, x ′
+
+> i
+
+)
+
+≤ c1V ′
+
+> p
+
+yp + exp 
+
+
+
+− c2y2
+
+V ′
+
+> 2
+
+
+
+,
+
+where 
+
+V ′ 
+
+> p
+
+= up
+
+p − 1
+
+ 1(u − 1/2) p−1 − 1(m + u − 1/2) p−1
+
+
+
+× E|2βH (x, x ′) + |1/u − 1/m |β′G(x, x ′)|p,V ′ 
+
+> 2
+
+= mu 
+
+(m + u − 1/2)(1 − 1/(2 max {m, u })) 
+
+× E|2βH (x, x ′) + |1/u − 1/m |β′G(x, x ′)|2,
+
+7Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+and the constants c1 = 4(4 p+2  
+
+> p
+
+)p and c2 = 1 /(2( p+2) 2ep)
+
+depend only on p.Remark 3.11 . In Appendix § C.2, we extend Theorems 3.9 and 3.10 to allow coordinate-dependent control through functions Hi(xi, x ′
+
+> i
+
+) as in Assumption 3.6. Theorem 3.10 shows that, with probability at least 1 − δ,
+
+R(h) − ˆR(h)
+
+≲ √um 
+
+
+
+β∥H∥2 + |u − m|
+
+um β′∥G∥2
+
+r
+
+log 1
+
+δ
+
++ ( um ) 1
+
+> p
+
+
+
+β∥H∥p + |u − m|
+
+um β′∥G∥p
+
+
+
+δ− 1 
+
+> p
+
++ β∥H∥1.
+
+For comparison, under uniform stability with constant β and almost surely bounded loss 0 ≤ ℓ ≤ L, Cortes et al. (2008) show that with probability at least 1 − δ,
+
+R(h) − ˆR(h) ≲ β +
+
+
+
+β + L2(m + u)
+
+mu 
+
+√m
+
+r
+
+log 1
+
+δ .
+
+To achieve vanishing bounds, their result, with significantly stronger assumptions, requires β ≪ m−1/2, whereas ours requires faster decay β ≪ (um )−1/2 with ∥H∥p = O(1) .
+
+3.3. Meta-Learning 
+
+Consider a (possibly randomized) meta-learning algorithm 
+
+A acting on a meta-sample S = {S 1, . . . , Sm}, where each task dataset Sj = {z1 
+
+> j
+
+, . . . , z nj } is drawn independently. Specifically, task distributions D1, . . . , Dm are sampled i.i.d. from an unknown meta-distribution μ over a measurable space Z, and for each j, the samples z1 
+
+> j
+
+, . . . , z nj are drawn i.i.d. from Dj . Given S, the meta-learner outputs a task-level learning algorithm A(S), which, when trained on a new task dataset S ∼ D n with D ∼ μ, produces a model 
+
+A(S)( S) ∈ P , where P denotes the model space. We evaluate a model P ∈ P on a test point z ∈ Z via a loss function ℓ : P × Z → R+.In the context of meta-learning, the empirical meta-risk of a meta-learning algorithm A, evaluated on the meta-sample 
+
+S, is given by 
+
+R(A(S), S) = 1
+
+mn 
+
+> m
+
+X
+
+> j=1
+> n
+
+X
+
+> i=1
+
+ℓ(A(S)( Sj ), z ij ), (7) and the population meta-risk is 
+
+R(A(S), μ ) = ED∼ μE(S,z )∼D n+1 ℓ(A(S)( S), z ). (8) In order to relate the empirical meta-risk (7) and the pop-ulation meta-risk (8) , we impose meta-stability assump-tions. We first introduce neighboring datasets. For a task dataset S = {z1, . . . , z n} ∼ D n and index i ∈ [n], let 
+
+S(i) = {z1, . . . , z i−1, z i′
+
+, z i+1 , . . . , z n}, where zi′
+
+∼ D 
+
+is an independent copy of zi. For a meta-sample S and indices j ∈ [m], i ∈ [n], define the neighboring meta-sample S(j,i ) = {S 1, . . . , Sj−1, S(i) 
+
+> j
+
+, Sj+1 , . . . , Sm}, so that S and S(j,i ) differ only by replacing zij with an i.i.d. copy zi′ 
+
+> j
+
+∼ D j . We write S\i = S \ { zi} and S\j = S \ S j .
+
+Assumption 3.12. The meta-learning algorithm A satisfies the following three stability conditions. (i) Meta-stability across training tasks. There exists a measurable function H : Z × Z → R+ with 
+
+ED∼ μEz,z ′ i.i.d.   
+
+> ∼D
+
+|H(z, z ′)|p < ∞ for some p ≥ 2 such that for all j ∈ [m] and i ∈ [n],
+
+|ℓ(A(S)( S), z ) − ℓ(A(S(j,i ))( S), z )| ≤ βH (zij , z i′ 
+
+> j
+
+), (9) (ii) Within-task stability. There exists a measurable function 
+
+G : Z × Z → R+ with ED∼ μEz,z ′ i.i.d.  
+
+> ∼D
+
+|G(z, z ′)|p′
+
+< ∞
+
+for some p′ > 2 such that for all i ∈ [n],
+
+|ℓ(A(S)( S), z ) − ℓ(A(S)( S(i)), z )| ≤ β′G(zi, z i′
+
+), (10) (iii) Test-sample stability. There exists a mea-surable function M : Z × Z → R+ with 
+
+ED∼ μEz,z ′ i.i.d.   
+
+> ∼D
+
+|M (z, z ′)|p′′ 
+
+< ∞ for some p′′ > 2 such that for all i ∈ [n],
+
+|ℓ(A(S)( S), z ) − ℓ(A(S)( S), z ′)| ≤ β′′ M(z, z ′), (11) Without loss of generality, we take p′ = p′′ = p; otherwise, one can work with p ∧ p′ ∧ p′′ .
+
+Remark 3.13 . We contrast Assumption 3.12 with the closely related stability assumptions of Maurer (2005). First, As-sumption 3.12 replaces almost-sure bounded stability gaps by a finite Lp-moment requirement. More importantly, part (i) is strictly weaker: Maurer (2005) perturbs the meta-sample by replacing an entire task with an i.i.d. copy, whereas we replace only a single within-task sample among the m tasks in S. This smaller, more realistic perturbation yields a more verifiable stability condition, yet remains suf-ficient for sharp high-probability bounds. 
+
+Theorem 3.14. Let μ denote the task distribution. Given a meta-sample S and a meta-algorithm A, recall the empiri-cal and population meta-risks R(A(S), S) and R(A(S), μ )
+
+from (7) and (8) respectively. Suppose A satisfies Assump-tion 3.12. Then, for all y > 0 it follows that 
+
+P
+
+
+
+R(A(S), S) − R(A(S), μ ) ≥ y + E[βH + β′G]
+
+
+
+≤c1
+
+mnE |βH |p + nm −(p−1) E|β′G|p + ( mn )−(p−1) E|β′′ M| p
+
+yp
+
++2 exp 
+
+
+
+− c2y2
+
+mnE |βH |2 + nm −1E|β′G|2 + ( mn )−1E|β′′ M| 2
+
+
+
+8Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+where E is taken with respect to z, z ′ i.i.d. 
+
+∼ D, D ∼ μ, and 
+
+c1, c 2 are constants solely depending on p.Remark 3.15 . Theorem 3.14 admits an equivalent high-probability form: for any δ ∈ (0 , 1) , with probability at least 1 − δ,
+
+R(A(S), S) − R(A(S), μ ) ≲ E[βH + β′G]+ δ− 1
+
+> p
+
+ (mn ) 1 
+
+> p
+
+β∥H∥p + n 1 
+
+> p
+
+m 1 
+
+> p−1
+
+β′∥G∥p
+
+
+
++ δ− 1
+
+> p
+
+ (mn ) 1 
+
+> p−1
+
+β′′ ∥M∥ p
+
+ + plog(1 /δ ) √mnβ ∥H∥2
+
+
+
++ plog(1 /δ ) n 12 m− 12 β′∥G∥2 + ( nm )− 12 β′′ ∥M∥ 2
+
+.
+
+For comparison, under uniform meta-stability with constant 
+
+β, and almost surely bounded loss 0 ≤ ℓ ≤ L, Wang & Arora (2024) show that with probability at least 1 − δ,
+
+R(A(S), S − R(A(S), μ )
+
+≲β log( mn ) log(1 /δ ) + Lplog(1 /δ )/(mn ).
+
+To achieve vanishing bounds, their result requires β ≪
+
+(log( mn )) −1, whereas ours requires faster decay ∥H∥q =
+
+O(1) , ∥G∥q = O(1) , ∥M∥ q = O(1) , β ≪ (mn )−1/2,
+
+β′ ≪ n−1/q m1−1/q , and β′′ ≪ (mn )1−1/q for q = 2 , p .
+
+## 4. Numerical experiments 
+
+In this section, we provide some empirical studies high-lighting the tightness of our theoretical bounds. Consider i.i.d. observations S := {zi = ( xi, y i)}mi=1 ∈ Rd × R from the linear model Y = Xβ + ε, where the errors satisfy 
+
+ε d
+
+= U −1/ν  
+
+> 1
+
+− U −1/ν  
+
+> 2
+
+with U1, U 2
+
+> i.i.d.
+
+∼ U [0 , 1] . Note that here p = ν/ 2. We set d = 5 , β = (1 , 1, . . . , 1) ⊤, and vary m ∈ { 500 , 1000 }, and ν = {2.2, 4.4}. If the bound in Theorem 3.4 is sharp, the ratio p(y) := P(|R−Remp |>y )
+
+> P(|R−Remp |>C 0y)
+
+should stabilize near Cν/ 20 for large y. We set C0 = 1 .5. To incorporate stability in our analysis, we use ridge regression for empirical risk minimization with regularization param-eter λ = 1 .0. Tail probabilities are empirically estimated via 50 , 000 Monte Carlo draws. Figure 1 shows that p(y)           
+
+> (a) ν= 2 .2(b) ν= 4 .4
+> Figure 1. Plot of p(y)versus y; both curves stabilize around Cν/ 20
+> for large y.
+
+exhibits initial exponential growth before slowing down and stabilizing near Cν/ 20 , further vindicating the importance of the polynomial-in-y term in Theorem 3.4. For larger ν (e.g., 
+
+ν = 4 .4), the Gaussian tail dominates the polynomial tail more strongly at smaller values of y. Consequently, p(y)
+
+may exceed the threshold Cν/ 20 initially, before stabilizing in the large-y regime. This behavior confirms the tightness of our results. Moreover, as baby steps towards more practically relevant stability analysis, we perform similar experiments on two layer neural-network, trained via ADAM (Kingma & Ba, 2015), for a regression problem. The corresponding plot of 
+
+p(y) versus y appears in Figure 2. In this result, even for a modern training algorithm, the heavy-tailed nature of the data shines through in distinct characterizations of Gaussian and polynomial tails. Additional details and experiments for transductive learning appear in Appendix § D.      
+
+> Figure 2. Plot of p(y)versus yfor the neural network regression experiment in Section D.3.
+
+## 5. Conclusion and Future Works 
+
+In this work, we provide a systematic treatment of stability analysis under weakened Lp assumptions by establishing a new large-deviation inequality, which may be of indepen-dent interest. Theorems 2.2 and 2.6 broaden the scope of stability-based generalization by accommodating set-tings where the stability increment admits either higher-order finite moments ( p ≥ 2) or only lower-order moments (p ∈ (1 , 2) ). We develop three representative applications in Section 3, and provide supporting empirical evidence for the sharpness of our bounds in Section 4. Our results also suggest several natural directions for future research: (i) extending the analysis to dependent data (e.g., Markovian sampling) (Yang et al., 2021; Wang et al., 2022); 
+
+(ii) extending the framework to unsupervised learning prob-lems (Cheng et al., 2021); and (iii) establishing matching lower bounds in specific settings to formally quantify when the polynomial correction term is unavoidable under finite-moment assumptions. 9Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+## Impact Statement 
+
+This paper develops theoretical tools for stability-based generalization under unbounded losses, replacing classi-cal boundedness or sub-Weibull assumptions with finite Lp
+
+moment conditions on one-sample perturbations. By en-abling high-probability generalization guarantees in settings where exponential-tail assumptions are implausible, the re-sults may improve the theoretical foundations of learning with heavy-tailed data (e.g., robust regression, learning un-der contamination, and other non-ideal data regimes). This can support more reliable model assessment and encourage principled handling of outliers and unbounded losses. The work is primarily theoretical and does not introduce new learning systems, datasets, or deployment-facing algorithms. As with most generalization theory, the results could be mis-interpreted as a blanket endorsement of a model’s safety or suitability for high-stakes deployment. Our bounds certify statistical generalization under specific stability and moment conditions; they do not address fairness, privacy, security, or downstream harms. Improperly claiming “theory-backed reliability” without validating the assumptions (e.g., finite moments or sufficient stability decay) could create false confidence. We do not foresee direct societal harms arising from this theoretical contribution. We encourage practitioners who use these insights to (i) empirically validate the relevant stability/moment conditions when possible, and (ii) com-plement generalization guarantees with domain-appropriate safety, robustness, and ethical evaluations. 
+
+## References 
+
+Abou-Moustafa, K. and Szepesv ´ari, C. An exponential efron-stein inequality for l q stable learning rules. In 
+
+Algorithmic Learning Theory , pp. 31–63. PMLR, 2019. Al-Shedivat, M., Li, L., Xing, E., and Talwalkar, A. On data efficiency of meta-learning. In International Conference on Artificial Intelligence and Statistics , pp. 1369–1377. PMLR, 2021. Bartlett, P. L. and Mendelson, S. Rademacher and gaussian complexities: risk bounds and structural results. J. Mach. Learn. Res. , 3(null):463–482, March 2003. ISSN 1532-4435. Bartlett, P. L., Bousquet, O., and Mendelson, S. Local Rademacher complexities. The Annals of Statistics , 33 (4):1497 – 1537, 2005. Baxter, J. A model of inductive bias learning. Journal of artificial intelligence research , 12:149–198, 2000. Ben-David, S. and Schuller, R. Exploiting task relatedness for multiple task learning. In Learning Theory and Ker-nel Machines , pp. 567–580. Springer Berlin Heidelberg, 2003. Bengio, Y., Bengio, S., and Cloutier, J. Learning a synap-tic learning rule , volume 2. Universit ´e de Montr ´eal, D´ epartement d’informatique et de recherche . . . , 1990. Blumer, A., Ehrenfeucht, A., Haussler, D., and Warmuth, M. K. Learnability and the vapnik-chervonenkis dimen-sion. J. ACM , 36(4):929–965, October 1989. ISSN 0004-5411. Bousquet, O. and Elisseeff, A. Stability and generalization. 
+
+J. Mach. Learn. Res. , 2:499–526, March 2002. ISSN 1532-4435. Bousquet, O., Klochkov, Y., and Zhivotovskiy, N. Sharper bounds for uniformly stable algorithms. In Proceedings of Thirty Third Conference on Learning Theory , volume 125 of Proceedings of Machine Learning Research , pp. 610–626. PMLR, 09–12 Jul 2020. Brownlees, C., Joly, E., and Lugosi, G. Empirical risk mini-mization for heavy-tailed losses. The Annals of Statistics ,43(6):2507–2536, 2015. Catoni, O. Challenging the empirical mean and empirical variance: A deviation study. Annales de l’Institut Henri Poincar ´e, Probabilit ´es et Statistiques , 48(4):1148 – 1185, 2012. Celisse, A. and Guedj, B. Stability revisited: new gener-alisation bounds for the leave-one-out. arXiv preprint arXiv:1608.06412 , 2016. Chen, J., Wu, X.-M., Li, Y., Li, Q., Zhan, L.-M., and Chung, F.-l. A closer look at the training strategy for modern meta-learning. Advances in neural information process-ing systems , 33:396–406, 2020. Cheng, Q. et al. Algorithmic stability and generalization of an unsupervised feature selection algorithm. Advances in neural information processing systems , 34:19860–19875, 2021. Cortes, C. and Mohri, M. On transductive regression. In 
+
+Advances in Neural Information Processing Systems , vol-ume 19. MIT Press, 2006. Cortes, C., Mohri, M., Pechyony, D., and Rastogi, A. Stabil-ity of transductive regression algorithms. In Proceedings of the 25th international conference on Machine learning ,pp. 176–183, 2008. Das, R., Kale, S., Xu, Z., Zhang, T., and Sanghavi, S. Be-yond uniform Lipschitz condition in differentially private optimization. In Krause, A., Brunskill, E., Cho, K., Engel-hardt, B., Sabato, S., and Scarlett, J. (eds.), Proceedings 
+
+10 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+of the 40th International Conference on Machine Learn-ing , volume 202 of Proceedings of Machine Learning Research , pp. 7066–7101. PMLR, 23–29 Jul 2023. Du, S. S., Hu, W., Kakade, S. M., Lee, J. D., and Lei, Q. Few-shot learning via learning the representation, provably. In International Conference on Learning Rep-resentations , 2021. Fallah, A., Mokhtari, A., and Ozdaglar, A. Generalization of model-agnostic meta-learning algorithms: Recurring and unseen tasks. Advances in Neural Information Processing Systems , 34:5469–5480, 2021. Fan, J. and Lei, Y. High-probability generalization bounds for pointwise uniformly stable algorithms. Applied and Computational Harmonic Analysis , 70:101632, 2024. ISSN 1063-5203. Feldman, V. and Vondrak, J. Generalization bounds for uni-formly stable algorithms. In Advances in Neural Informa-tion Processing Systems , volume 31. Curran Associates, Inc., 2018. Feldman, V. and Vondrak, J. High probability generaliza-tion bounds for uniformly stable algorithms with nearly optimal rate. In Proceedings of the Thirty-Second Con-ference on Learning Theory , volume 99 of Proceedings of Machine Learning Research , pp. 1270–1279. PMLR, 25–28 Jun 2019. Guan, J., Liu, Y., and Lu, Z. Fine-grained analysis of sta-bility and generalization for modern meta learning al-gorithms. Advances in Neural Information Processing Systems , 35:18487–18500, 2022. Han, Y., Tsay, R. S., and Wu, W. B. High dimensional generalized linear models for temporal dependent data. 
+
+Bernoulli , 29(1):105–131, 2023. Han, Y., Chen, L., and Wu, W. B. Estimation of high-dimensional nonlinear vector autoregressive models. 
+
+IEEE Transactions on Information Theory , 72(1):521– 541, 2026. Hardt, M., Recht, B., and Singer, Y. Train faster, gener-alize better: Stability of stochastic gradient descent. In 
+
+Proceedings of The 33rd International Conference on Ma-chine Learning , volume 48 of Proceedings of Machine Learning Research , pp. 1225–1234, New York, New York, USA, 20–22 Jun 2016. PMLR. Holland, M. and Ikeda, K. Better generalization with less data using robust gradient descent. In Chaudhuri, K. and Salakhutdinov, R. (eds.), Proceedings of the 36th Inter-national Conference on Machine Learning , volume 97 of 
+
+Proceedings of Machine Learning Research , pp. 2761– 2770. PMLR, 09–15 Jun 2019. Hoskins, B. and Fredriksson, U. Learning to learn: What is it and can it be measured? European Commission JRC, 2008. Hsu, D. and Sabato, S. Loss minimization and parameter estimation with heavy tails. J. Mach. Learn. Res. , 17(1): 543–582, January 2016. ISSN 1532-4435. Ji, K., Lee, J. D., Liang, Y., and Poor, H. V. Convergence of meta-learning with task-specific adaptation over partial parameters. Advances in Neural Information Processing Systems , 33:11490–11500, 2020. Kingma, D. P. and Ba, J. Adam: A method for stochastic optimization. In International Conference on Learning Representations (ICLR) , 2015. URL https://arxiv. org/abs/1412.6980 .Klochkov, Y. and Zhivotovskiy, N. Stability and deviation optimal risk bounds with convergence rate o(1 /n ). Ad-vances in Neural Information Processing Systems , 34: 5065–5076, 2021. Kontorovich, A. Concentration in unbounded metric spaces and algorithmic stability. In International conference on machine learning , pp. 28–36. PMLR, 2014. Kutin, S. Extensions to mcdiarmid’s inequality when differ-ences are bounded with high probability. Dept. Comput. Sci., Univ. Chicago, Chicago, IL, USA, Tech. Rep. TR-2002-04 , 2002. Kutin, S. and Niyogi, P. Almost-everywhere algorithmic stability and generalization error. In Proceedings of the Eighteenth Conference on Uncertainty in Artificial Intel-ligence , pp. 275–282, 2002. ISBN 1558608974. Kuzborskij, I. and Lampert, C. Data-dependent stability of stochastic gradient descent. In Proceedings of the 35th International Conference on Machine Learning , vol-ume 80 of Proceedings of Machine Learning Research ,pp. 2815–2824. PMLR, 10–15 Jul 2018. Lecu ´e, G. and Lerasle, M. Robust machine learning by median-of-means: Theory and practice. The Annals of Statistics , 48(2):906 – 931, 2020. Lei, Y. and Ying, Y. Fine-grained analysis of stability and generalization for stochastic gradient descent. In Pro-ceedings of the 37th International Conference on Ma-chine Learning , volume 119 of Proceedings of Machine Learning Research , pp. 5809–5819. PMLR, 13–18 Jul 2020. Li, S. and Liu, Y. Distribution-dependent McDiarmid-type inequalities for functions of unbounded interaction. In 
+
+Proceedings of the 40th International Conference on Ma-chine Learning , volume 202 of Proceedings of Machine 
+
+11 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Learning Research , pp. 19789–19810. PMLR, 23–29 Jul 2023. Li, S. and Liu, Y. Concentration and moment inequalities for general functions of independent random variables with heavy tails. Journal of Machine Learning Research ,25(268):1–33, 2024. Li, S., Zhu, B., and Liu, Y. Algorithmic stability unleashed: Generalization bounds with unbounded losses. In Pro-ceedings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learn-ing Research , pp. 29489–29510. PMLR, 21–27 Jul 2024. Liu, T., Lugosi, G., Neu, G., and Tao, D. Algorithmic sta-bility and hypothesis complexity. In International Con-ference on Machine Learning , pp. 2159–2167. PMLR, 2017. Liu, Y., Li, Q., Tan, J., Shi, Y., Shen, L., and Cao, X. Un-derstanding the stability-based generalization of person-alized federated learning. In The Thirteenth International Conference on Learning Representations , 2025. Martin, C. H. and Mahoney, M. W. Implicit self-regularization in deep neural networks: Evidence from random matrix theory and implications for learning. Jour-nal of Machine Learning Research , 2021. Maurer, A. Algorithmic stability and meta-learning. Journal of Machine Learning Research , 6(33):967–994, 2005. Maurer, A. and Pontil, M. Concentration inequalities un-der sub-gaussian and sub-exponential conditions. In Ad-vances in Neural Information Processing Systems , vol-ume 34, pp. 7588–7597. Curran Associates, Inc., 2021. McDiarmid, C. On the method of bounded differences , pp. 148–188. London Mathematical Society Lecture Note Series. Cambridge University Press, 1989. Mendelson, S. Learning without concentration. In Proceed-ings of The 27th Conference on Learning Theory , vol-ume 35 of Proceedings of Machine Learning Research ,pp. 25–39, Barcelona, Spain, 13–15 Jun 2014. PMLR. Mishchenko, K., Hanzely, S., and Richt ´arik, P. Convergence of first-order algorithms for meta-learning with moreau envelopes. arXiv preprint arXiv:2301.06806 , 2023. Nagaev, S. V. Large deviations of sums of independent random variables. Ann. Probab. , 7(5):745–789, 1979. ISSN 0091-1798,2168-894X. Peligrad, M., Sang, H., Zhong, Y., and Wu, W. B. Exact moderate and large deviations for linear processes. Sta-tistica Sinica , 24(2):957–969, 2014. ISSN 10170405, 19968507. Shalev-Shwartz, S. and Ben-David, S. Understanding Ma-chine Learning: From Theory to Algorithms . Cambridge University Press, 2014. Shalev-Shwartz, S., Shamir, O., Srebro, N., and Sridharan, K. Learnability, stability and uniform convergence. J. Mach. Learn. Res. , 11:2635–2670, December 2010. ISSN 1532-4435. Shen, W., Yang, Z., Ying, Y., and Yuan, X. Stability and opti-mization error of stochastic gradient descent for pairwise learning. Analysis and Applications , 18(05):887–927, 2020. Simsekli, U., Sagun, L., and Gurbuzbalaban, M. A tail-index analysis of stochastic gradient noise in deep neural net-works. In International Conference on Machine Learning ,pp. 5827–5837. PMLR, 2019. Smith, M. J. A. and Whiteson, S. Stability and generalisa-tion in batch reinforcement learning, 2022. Sun, Z., Niu, X., and Wei, E. Understanding generalization of federated learning via stability: Heterogeneity matters. In Proceedings of The 27th International Conference on Artificial Intelligence and Statistics , volume 238 of 
+
+Proceedings of Machine Learning Research , pp. 676–684. PMLR, 02–04 May 2024. Tamar, A., Soudry, D., and Zisselman, E. Regulariza-tion guarantees generalization in bayesian reinforce-ment learning through algorithmic stability. ArXiv ,abs/2109.11792, 2021. Thrun, S. and Pratt, L. (eds.). Learning to Learn .Springer, New York, NY, 1 edition, 1998. doi: 10.1007/ 978-1-4615-5529-2. van de Geer, S. Discussion: Local rademacher complexities and oracle inequalities in risk minimization. The Annals of Statistics , 34(6):2688–2696, 2006. ISSN 00905364. Vapnik, V. Principles of risk minimization for learning the-ory. Advances in neural information processing systems ,4, 1991. Vapnik, V. Estimation of dependences based on empirical data . Springer Science & Business Media, 2006. Vapnik, V. N. An overview of statistical learning the-ory. Trans. Neur. Netw. , 10(5):988–999, September 1999. ISSN 1045-9227. Vapnik, V. N. and Chervonenkis, A. Y. On the uniform convergence of relative frequencies of events to their probabilities. Theory of Probability & Its Applications ,16(2):264–280, 1971. 12 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Wang, P., Lei, Y., Ying, Y., and Zhou, D.-X. Stability and generalization for markov chain stochastic gradient methods. Advances in Neural Information Processing Systems , 35:37735–37748, 2022. Wang, Y. and Arora, R. On the stability and generalization of meta-learning. In The Thirty-eighth Annual Conference on Neural Information Processing Systems , 2024. Warnke, L. On the method of typical bounded differ-ences. Combinatorics, Probability and Computing , 25(2): 269–299, 2016. doi: 10.1017/S0963548315000103. Yang, Z., Lei, Y., Wang, P., Yang, T., and Ying, Y. Sim-ple stochastic and online gradient descent algorithms for pairwise learning. Advances in Neural Information Pro-cessing Systems , 34:20160–20171, 2021. Yuan, X. and Li, P. l 2-uniform stability of randomized learning algorithms: Sharper generalization bounds and confidence boosting. Advances in Neural Information Processing Systems , 36:78580–78592, 2023a. Yuan, X. and Li, P. Exponential generalization bounds with near-optimal rates for l q -stable algorithms. In The Eleventh International Conference on Learning Repre-sentations , 2023b. Zhou, P., Yuan, X., Xu, H., Yan, S., and Feng, J. Efficient meta learning via minibatch proximal update. Advances in Neural Information Processing Systems , 32, 2019. Zhou, S., Lei, Y., and Kab ´an, A. Toward better pac-bayes bounds for uniformly stable algorithms. Advances in Neu-ral Information Processing Systems , 36:29602–29614, 2023. 13 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+# Appendices 
+
+In this appendix, we provide additional discussion of the technical novelty, the proofs of our technical results, and additional experimental evidence behind the tightness of our theoretical results. In particular, §A connects our work to two closely related papers in the literature. §B collects the proofs of our main technical results Theorem 2.2 and 2.6. §C.1, §C.2 and §C.3 contains the proofs of results in §3.1, §3.2 and §3.3 respectively. Finally, we provide some additional simulation results in §D. 
+
+## A. Technical novelty compared to existing literature 
+
+In this section, we provide additional discussion connecting this manuscript to Celisse & Guedj (2016) and Li & Liu (2024). The main contribution of Celisse & Guedj (2016) is to introduce Lq -stability as a higher-moment stability notion for the leave-one-out (LOO) estimator and to show, for concrete models such as ridge regression, how this condition can be verified and then combined with moment inequalities to obtain PAC-exponential LOO bounds. Our contribution differs in emphasis: starting from a replace-one perturbation bound dominated by a random envelope H with only a fixed finite Lq moment, we derive a high-probability Nagaev-type concentration and generalization bound. Thus, Celisse & Guedj (2016) primarily studies when higher-moment stability holds, whereas our paper studies what high-probability guarantees follow from a finite-moment replace-one stability condition. Their work is best viewed as closely related model-side evidence that higher-moment stability conditions are meaningful, complementing the motivation for ours. The work of Li & Liu (2024) is structurally closer to our framework, particularly Theorems 4 and 5 and the subsequent Remark 6. Theorem 5 therein provides a symmetrization-like argument that may be leveraged to deduce exponential tails even under polynomial moment assumptions. In contrast, our proof strategy hinges more on a clever truncation-trick, borrowing on ideas from Nagaev (1979). On the other hand, Li & Liu (2024), in their Corollary 29, also attempts to derive a similar Gaussian-plus-polynomial deviation bound by leveraging Theorems 4 and 5 therein. Unfortunately, it can be seen that the proof contains a fatal gap that cannot be trivially rescued. In the polynomial-moment regime, Corollary 28 provides only a fixed-p moment bound, since the assumption is merely that there exists some p ≥ 2 such that E|fi(X)( x)|p ≤ bi.The proof of Corollary 29 then applies Markov’s inequality to obtain a t−p tail, and in the variance-dominated case chooses a special threshold t ≍ √p(P 
+
+> i
+
+σ2 
+
+> i
+
+)1/2 so that this polynomial bound equals e−p. This only gives a bound at that particular threshold. The subsequent step, where this is rewritten as a sub-Gaussian bound for arbitrary t > 0, is not justified unless one can vary p with t, i.e. unless a whole family of moment bounds is available. That is not the stated assumption of Corollary 28. Hence, while Corollary 29 has essentially the same formal statement as our Theorem 2.2, its displayed proof does not justify the full Gaussian-plus-polynomial inequality from the stated polynomial-moment assumption. In principle, a large deviation bound similar to our Theorem 2.2 may also be developed using clever chaining arguments on top of Theorem 5 of Li & Liu (2024), but it is not an obvious extension. In contrast, our Theorem 2.2 goes through a different route to provide a direct and self-contained derivation of this Nagaev-type bound in the stability setting, settling the problem for once and all. 
+
+## B. Proofs of Theorems in Section 2 
+
+B.1. Technical lemmas Lemma B.1. Let X ∈ X be a random variable and a function g : X → R satisfying P(g(X) > b ) = 0 , b > 0, and for any 
+
+p ≥ 2
+
+∥g(X)∥p < ∞. (12) 
+
+Then for any positive ϕ,
+
+log E exp {ϕg (X)} ≤ ϕEg(X) + epϕ2
+
+2 E[g(X)2] + eϕb − 1 − ϕb bp E[|g(X)|p] × I{ϕ > p/b }. (13) 
+
+Proof of Lemma B.1. By Taylor expansion, 
+
+E exp {ϕg (X)} = 1 + ϕEg(X) + 
+
+Z
+
+> g(X)≤b
+
+(eϕg (X) − 1 − ϕg (X))d F (g(X)) . (14) 14 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Consider 2nd-order Taylor formula with integral remainder, 
+
+ex = 1 + x + x2
+
+Z 10
+
+(1 − s)esx ds. (15) Then for any x ≤ t, when s ∈ [0 , 1] , sx ≤ x ≤ t, we have 
+
+ex − 1 − x = x2
+
+Z 10
+
+(1 − s)esx ds ≤ x2
+
+Z 10
+
+(1 − s)etds = etx2
+
+2 . (16) Therefore, suppose that ϕ ≤ p/b , then 
+
+Z
+
+> g(X)≤b
+
+(eϕg (X) − 1 − ϕg (X))d F (g(X)) ≤
+
+Z
+
+> g(X)≤p/ϕ
+
+(eϕg (X) − 1 − ϕg (X))d F (g(X)) ≤ epϕ2
+
+2 E[g(X)2]. (17) Then, for ϕ > p/b ,
+
+Z
+
+> g(X)≤b
+
+(eϕg (X) − 1 − ϕg (X))d F (g(X)) 
+
+≤
+
+Z
+
+> g(X)≤p/ϕ
+
+(eϕg (X) − 1 − ϕg (X))d F (g(X)) + 
+
+Z
+
+> g(X)>p/ϕ
+
+eϕg (X) − 1 − ϕg (X)
+
+g(X)p g(X)pdF (g(X)) . (18) Since eϕg (X)−1−ϕg (X) 
+
+> g(X)p
+
+increase w.r.t. g(X) for g(X) > p/ϕ , on the region p/ϕ < g (X) ≤ b we have g(X) > 0. thus 
+
+Z
+
+> g(X)>p/ϕ
+
+eϕg (X) − 1 − ϕg (X)
+
+g(X)p g(X)pdF (g(X)) 
+
+≤ eϕb − 1 − ϕb bp
+
+Z
+
+> g(X)>p/ϕ
+
+|g(X)|pdF (g(X)) ≤ eϕb − 1 − ϕb bp E[|g(X)|p]. (19) From Equation (17) and Equation (18), with log x ≤ x − 1, we obtain the bound in Equation (13). 
+
+B.2. Proof of Theorem 2.2 Proof of Theorem 2.2. Let Fk = ( . . . , X k−1, X k) and define the projection operator Pi(·) = E(·|F i) − E(·|F i−1). For simplicity of notation, denote ∆n = f (X1, X 2, . . . , X n) − Ef (X1, X 2, . . . , X n). Then, we can obtain the following decomposition, 
+
+|∆n| = | X
+
+> i≤n
+
+Pi(g)| = | X
+
+> i≤n
+
+E(g − gi|F i)|, (20) where g = f (X1, X 2, . . . , X i−1, X i, X i+1 , . . . , X n) and gi = f (X1, X 2, . . . , X i−1, X ′ 
+
+> i
+
+, X i+1 , . . . , X n) is the coupled version of g obtained by replacing Xi by an i.i.d. copy X′ 
+
+> i
+
+.For any y = pz/ 4( p + 2) and i ∈ [n], define the truncated version of ˜Pi(g) = Pi(g)1{|P i(g)| ≤ y}. Note that if every increment satisfies |P i(∆ n)| < y , then Pi(∆ n) = ˜Pi(∆ n) for all i, so 
+
+∆n =
+
+> n
+
+X
+
+> i=1
+
+Pi(∆ n) = 
+
+> n
+
+X
+
+> i=1
+
+˜Pi(∆ n). (21) Hence, on the event {| ∆n| > z }, we have either the truncated sum itself exceeds z, or at least one increment satisfies 
+
+|P i(∆ n) ≥ y|. Consequently, we can obtain the following decomposition 
+
+P(|∆n| > z ) ≤ P(| X
+
+> i≤n
+
+˜Pi(∆ n)| ≥ z) + 
+
+> n
+
+X
+
+> i=1
+
+P(|P i(∆ n)| ≥ y) =: I1 + I2. (22) 15 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+For I2 in (22), by Markov inequality, one derives 
+
+I2 ≤
+
+Pni=1 E|P i(g)|p
+
+yp ≤
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp , (23) where the second inequality comes from 
+
+E|P i(g)|p = E|E(g − gi|F i)|p ≤ E[E(|g − gi|p|F i)] = E|g − gi|p ≤ E|Hi(Xi, X ′ 
+
+> i
+
+)|p. (24) Then, we bound the term I1. Define 
+
+μi := E[ ˜Pi(g)|F i−1], Ui := ˜Pi(g) − μi, (25) where 
+
+|μi| =|E[ ˜Pi|F i−1]| = |E[Pi(g)1{|P i(g)| ≤ y}|F i−1]| (26) 
+
+=| − E[Pi(g)1{|P i(g)| > y }|F i−1]| (27) 
+
+≤E[|P i(g)|1{|P i(g)| > y }|F i−1] (28) 
+
+≤y1−pE[|P i(g)|p|F i−1] (29) 
+
+≤y1−pE|Hi(xi, x ′
+
+> i
+
+)|p. (30) Thus we have, 
+
+E[Ui|F i−1] = 0 , |Ui| ≤ 2y (31) and term I1 satisfies, 
+
+I1 ≤ P(|
+
+> n
+
+X
+
+> i=1
+
+Ui| ≥ z/ 2) + 1
+
+ nX
+
+> i=1
+
+|μi| > z/ 2
+
+
+
+≤ P (|
+
+> n
+
+X
+
+> i=1
+
+Ui| ≥ z/ 2) + 2 Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+zy p−1 (32) For the term P(| Pni=1 Ui| ≥ z/ 2) , we need to control the following moment generating function 
+
+M (t) = E exp 
+
+(
+
+t
+
+> n
+
+X
+
+> i=1
+
+Ui
+
+)
+
+, t > 0. (33) To that end, observe that for each h ∈ [n], |Ui| ≤ 2y , by Lemma B.1, we have 
+
+E{exp( tU i)|F i−1} ≤ 1 + ept2
+
+2 E[|Ui|2|F i−1] + exp(2 ty ) − 1 − 2ty 
+
+(2 y)p E[|Ui|p|F i−1] × 1{t > p/ 2y}≤ 1 + ept2
+
+2 E|Hi(Xi, X ′ 
+
+> i
+
+)|2 + exp(2 ty ) − 1 − 2ty yp E|Hi(Xi, X ′ 
+
+> i
+
+)|p × 1{t > p/ 2y}, (34) where the upper bound above is independent of Fi−1. Therefore, iterated from 1 to n, we can obtain that 
+
+M (t) ≤
+
+> n
+
+Y
+
+> i=1
+
+
+
+1 + ept2
+
+2 E|Hi(Xi, X ′ 
+
+> i
+
+)|2 + exp(2 ty ) − 1 − 2ty yp E|Hi(Xi, X ′ 
+
+> i
+
+)|p × 1{t > p/ 2y}
+
+
+
+≤ exp 
+
+ 12 ept2
+
+> n
+
+X
+
+> i=1
+
+E|Hi(Xi, X ′ 
+
+> i
+
+)|2 + exp(2 ty ) − 1 − 2ty ypnX
+
+> i=1
+
+E|Hi(Xi, X ′ 
+
+> i
+
+)|p × 1{t > p/ 2y}
+
+
+
+. (35) By Chernoff’s bound, it is obvious that 16 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+P(|∆n| > z ) ≤
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1
+
++ 2 exp 
+
+
+
+− tz/ 2 + 12 ept2
+
+> n
+
+X
+
+> i=1
+
+E|Hi(Xi, X ′ 
+
+> i
+
+)|2 + exp(2 ty ) − 1 − 2ty ypnX
+
+> i=1
+
+E|Hi(Xi, X ′ 
+
+> i
+
+)|p × 1{t > p/ 2y}
+
+
+
+:= 
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1 + 2 I3. (36) Then, for simplicity of representation, denote M2 = Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|2, M p = Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p. Define 
+
+h(t) = ept2
+
+2 M2 − t z
+
+2 , (37) 
+
+h1(t) = ept2
+
+2 M2 − αt z
+
+2 , 0 < α < 1, (38) 
+
+h2(t) = exp(2 ty ) − 1 − 2ty yp Mp − γt z
+
+2 , γ = 1 − α. (39) By taking derivative of h1(t) and h2(t) w.r.t. t, then we can get 
+
+t1 = αz/ (2 epM2), t2 = 12y log( γzy p−1/4Mp + 1) , (40) where h′
+
+> 1
+
+(t1) = 0 and h′
+
+> 2
+
+(t2) = 0 , which implies that h1(t) and h2(t) reaches their minimum at t1 and t2 separately. First we examine the case when t1 ≤ p/ 2y, we can conclude that 
+
+I3 ≤ exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
+. (41) Then, for t2 > t 1 ≥ p/ 2y, plug-in t = t1, I3 becomes 
+
+I3 ≤ exp {h1(t1) + h2(t1)} ≤ exp {h1(t1)} = exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
+, (42) where the second inequality comes from h2(t2) < h 2(t1) < h 2(0) < 0 since h2 is convex and t2 is the minimizer of h2.Consider when t1 > t 2 > p/ 2yh1(t2) + h2(t2) < t 2
+
+ epM2t1
+
+2 − z
+
+2
+
+
+
++ (e2t2y − 1) Mp
+
+yp
+
+= γz 
+
+4y − t2(1 − α/ 2) z
+
+2= γz 
+
+4y − αzt 2
+
+4 − γt 2
+
+z
+
+2
+
+<
+
+
+
+γ − pα 
+
+2
+
+ z
+
+4y − γt 2
+
+z
+
+2 , (43) which lead to 
+
+I3 ≤ exp 
+
+ 
+
+γ − pα 
+
+2
+
+ z
+
+4y − γ z
+
+4y log 
+
+ γzy p−1
+
+4Mp
+
++ 1 
+
+  
+
+. (44) 17 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+It now remains to examine when t1 > p/ 2y ≥ t2, we only need to consider the case when plug in t = p/ 2yh(p/ 2y) < epM2
+
+2
+
+p2
+
+(2 y)2 − p
+
+2yz
+
+2
+
+< p
+
+2y
+
+ epM2
+
+2 t1 − z
+
+2
+
+
+
+= p
+
+2y
+
+ αz 
+
+4 − z
+
+2
+
+
+
+= −γ z
+
+2
+
+p
+
+2y − αzp 
+
+8y< −γ z
+
+2 t2 − αzp 
+
+8y , (45) thus we get 
+
+I3 ≤ exp 
+
+ 
+
+γ − pα 
+
+2
+
+ z
+
+4y − γ z
+
+4y log 
+
+ γzy p−1
+
+4Mp
+
++ 1 
+
+  
+
+. (46) Combining all the result above, since either 
+
+I3 ≤ exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
+, (47) or 
+
+I3 ≤ exp 
+
+ 
+
+γ − pα 
+
+2
+
+ z
+
+4y − γ z
+
+4y log 
+
+ γzy p−1
+
+4Mp
+
++ 1 
+
+  
+
+, (48) holds for all z > 0, we have 
+
+P(|∆n| > z ) = 
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1 + 2 I3
+
+≤
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1 (49) 
+
++ 2 exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
++ 2 exp 
+
+ 
+
+γ − pα 
+
+2
+
+ z
+
+4y − γ z
+
+4y log 
+
+ γzy p−1
+
+4Mp
+
++ 1 
+
+  
+
+. (50) By taking γ = pα  
+
+> 2
+
+, above equation can be generalized to 
+
+P(|∆n| > z ) ≤
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1 (51) 
+
++ 2 exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
++ 2 exp 
+
+ 
+
+γ − pα 
+
+2
+
+ z
+
+4y − γ z
+
+4y log 
+
+ γzy p−1
+
+4Mp
+
++ 1 
+
+  
+
+≤
+
+Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+yp + 2 Pni=1 E|Hi(Xi, X ′ 
+
+> i
+
+)|p
+
+zy p−1 (52) 
+
++ 2 exp 
+
+
+
+− α2z2
+
+8epM2
+
+
+
++ 2 
+
+ γzy p−1
+
+4Mp
+
+−γz/ 4y
+
+. (53) Furthermore, taking y = γz/ 4, the proof is completed. 
+
+B.3. Proof of Theorem 2.6 Proof of Theorem 2.6. We follow the same martingale–difference decomposition as in the proof of Theorem 2.2. Let 
+
+Fk = σ(X1, . . . , X k), Pi(g) = E(g | F i) − E(g | F i−1), (54) 18 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+and write 
+
+∆n := f (X1, . . . , X n) − Ef (X1, . . . , X n) = 
+
+> n
+
+X
+
+> i=1
+
+Pi(g). (55) For a threshold y > 0 (to be chosen in terms of z and p below) set 
+
+ePi(g) := Pi(g)1{|P i(g)| ≤ y}. (56) Define 
+
+μi = E[Pi(g)1{|P i(g)| ≤ y}|F i−1], Ui = Pi(g)1{|P i(g)| ≤ y} − μi, (57) thus we have, 
+
+E[Ui|F i−1] = 0 , |Ui| ≤ 2y, (58) similarly as what we have done in the proof of Theorem 2.2, 
+
+|μi| ≤ y1−pE|Hi(xi, x ′
+
+> i
+
+)|p (59) Then, we have the following decomposition 
+
+P(|∆n| > z ) ≤ P
+
+
+
+|
+
+> n
+
+X
+
+> i=1
+
+Ui| ≥ z/ 2
+
+
+
++ 1
+
+ nX
+
+> i=1
+
+|μi| > z/ 2
+
+
+
++
+
+> n
+
+X
+
+> i=1
+
+P |P i(g)| > y  =: I1 + I2 + I3. (60) By Lipschitz property, we have 
+
+P |P i(g)| > y  ≤ P(|Hi(Xi, X ′ 
+
+> i
+
+)| > y ). (61) Write 
+
+Sn := 
+
+> n
+
+X
+
+> i=1
+
+Ui. (62) Each Ui is Fi–measurable, centered ( E[Ui | F i−1] = 0 ) and bounded by 2y. Then, defining u := ePi(g) ,we can derive the following 
+
+E[exp( tu )|F i−1] ≤ 1 + 
+
+Z
+
+> |u|≤ 2y
+
+etu − 1 − tu u2 u2dF (u|F i−1)
+
+≤ 1 + e2ty − 1 − 2ty 
+
+(2 y)2
+
+Z
+
+> |u|≤ 2y
+
+u2dF (u|F i−1)
+
+≤ 1 + e2ty − 1 − 2ty 
+
+(2 y)p
+
+Z
+
+> |u|≤ 2y
+
+|u|pdF (u|F i−1), (63) where the second inequality comes from the monotonicity of etu −1−tu u2 w.r.t. u ≤ 2y and the third inequality comes from monotonicity of |u|p 
+
+> yp
+
+w.r.t. p for u > 0.By log x ≤ x − 1, above result can be expressed as 
+
+log E exp( Ui) ≤ e2ty − 1 − 2ty 
+
+(2 y)p E[| ePi(g)|p|F i−1] ≤ e2ty − 1 − 2ty yp E|Hi(xi, x ′
+
+> i
+
+)|p (64) Taking the sum over i, we can further obtain 
+
+e−tz/ 2E exp( 
+
+> n
+
+X
+
+> i=1
+
+Ui) ≤ exp 
+
+ e2ty − 1 − 2ty ypnX
+
+> i=1
+
+E|Hi(xi, x ′
+
+> i
+
+)|p − t z
+
+2
+
+
+
+. (65) 19 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Setting 
+
+t = 12y log 
+
+ zy p−1
+
+4 Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p + 1 
+
+
+
+, (66) the right hand side becomes 
+
+e−tz E exp( Ui) ≤ exp 
+
+ z
+
+4y −
+
+ z
+
+4y +
+
+Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+yp
+
+
+
+log 
+
+ zy p−1
+
+4 Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p + 1 
+
+ 
+
+≤ exp 
+
+ z
+
+4y
+
+
+
+1 − log 
+
+ zy p−1
+
+4 Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+  
+
+=
+
+ 4e Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p
+
+zy p−1
+
+z/ 4y
+
+. (67) Combining the bounds for I1 and I2 and plug in y = z 
+
+> 4Q
+
+for any Q > 1, the proof is completed. For the term indicator term 1
+
+ Pni=1 |μi| > z/ 2
+
+
+
+, consider two case separately. Let Mp = Pni=1 E|Hi(xi, x ′
+
+> i
+
+)|p, define 
+
+By := Pni=1 |μi| ≤ Mp/y p−1. If By ≥ z/ 2, we have Mp > zy p−1 
+
+> 2
+
+= zp/(2(4 Q)p−1), thus A = e4pQp−1Mp/z p > 2e.Indicator term can be adsorbed by I1. Otherwise, Indicator term is 0. 20 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+## C. Proofs of Theorems in Section 3 
+
+C.1. Proof of Results in Section 3.1: Empirical Risk Minimization Proof of Theorem 3.4. Clearly, 
+
+|R − Ri| ≤ | Ez [ℓ(AS , z ) − ℓ(ASi , z )] | ≤ βH (zi, z ′
+
+> i
+
+). (68) On the other hand, 
+
+|Rloo − Riloo | ≤ 1
+
+m
+
+X 
+
+> j̸=i
+
+|ℓ(AS\j , z j ) − ℓ(ASi, \j , z j )| + 1
+
+m |ℓ(AS\i , z i) − ℓ(AS\i , z ′
+
+> i
+
+)| ≤ m − 1
+
+m βH (zi, z ′
+
+> i
+
+) + 1
+
+m β′G(zi, z ′
+
+> i
+
+).
+
+(69) Therefore, with ϕ = R − Rloo and ϕi = Ri − Riloo , (68) and (69) yields 
+
+|ϕ − ϕi| ≤ 2m − 1
+
+m βH (zi, z ′
+
+> i
+
+) + 1
+
+m β′G(zi, z ′
+
+> i
+
+).
+
+Moreover, 
+
+ES [R − Rloo ] = Rm − 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+ES [ℓ(AS\j , z j )] = Rm − Rm−1.
+
+Applying Theorem 2.2, we can get 
+
+P(|R−Rloo −(Rm−Rm−1)| > y ) ≤ c1
+
+mE| 2m−1 
+
+> m
+
+βH (z, z ′) + β′ G(z,z ′) 
+
+> m
+
+|p
+
+yp +2 exp {− c2
+
+y2
+
+mE| 2m−1 
+
+> m
+
+βH (z, z ′) + β′ G(z,z ′) 
+
+> m
+
+|2 }.
+
+(70) Note that by H¨ older’s inequality, we can have for q ∈ { 2, p }
+
+E 2m − 1
+
+m βH (zi) + Gm
+
+> q
+
+≤2q E
+
+ 2m − 1
+
+m β
+
+q
+
+|H(zi)|q + 1
+
+mq |β′G|q
+
+
+
+≤2q
+
+
+
+(2 β)q E|H(zi)|q + (β′)q
+
+mq E|G|q
+
+
+
+,
+
+thus taking sum over 1 to m, we can obtain Equation (5). For the Remp , we proceed similarly. We have 
+
+|Remp − Riemp | ≤ 1
+
+m
+
+X 
+
+> j̸=i
+
+|ℓ(AS , z j ) − ℓ(ASi , z j )| + 1
+
+m |ℓ(AS , z i) − ℓ(ASi , z i)| + 1
+
+m |ℓ(ASi , z i) − ℓ(ASi , z ′
+
+> i
+
+)|≤βH (zi, z ′
+
+> i
+
+) + β′ G(zi, z ′
+
+> i
+
+)
+
+m (71) and 
+
+ES [R − Remp ] = ES,z ′ 
+
+> i
+
+[ℓ(AS , z ′
+
+> i
+
+)] − 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+ES [ℓ(AS , z j )] 
+
+≤ 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+(ES,z ′ 
+
+> i
+
+[ℓ(ASj , z j )] − ES,z ′ 
+
+> i
+
+[ℓ(AS , z j )]) (where Sj = ( z1, . . . , z j−1, z ′
+
+> i
+
+, z j+1 ,...,z n ))
+
+≤βE[H(z, z ′)] . (72) So the Theorem 2.2 can again be applied and the proof is completed. 21 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+C.2. Proof of Results in Section 3.2: Transductive Regression Algorithms Proof of Theorem 3.9. Let Fi := σ(x1, . . . , x i) and define the Doob martingale 
+
+Mi := E[φ | F i], i = 0 , 1, . . . , m, (73) so that M0 = Eφ and Mm = φ. Let the martingale differences be 
+
+Di := Mi − Mi−1, i = 1 , . . . , m, (74) so φ − Eφ = Pmi=1 Di and E[Di | F i−1] = 0 .For fixed i, consider xi ∈ X,
+
+Gi(xi) := E[φ | F i−1, x i]. (75) Then Mi = Gi(xi) and Mi−1 = E[Gi(xi) | F i−1], hence 
+
+Di = Gi(xi) − E[Gi(xi) | F i−1]. (76) Then, Consider the sequence of xmi , since the function ϕ is symmetric, any permutations containing same elements may lead to same value. Thus, we only need to consider for the case that xi is not included in sequence xmi+1 , and the number of those cases are (m − i)!  N −i−1
+
+> m−i
+
+
+
+Thus, we have that for all xi, x ′ 
+
+> i
+
+∈ Ri−1,
+
+|Di| ≤ u!(N − i)! (m − i)! 
+
+N − i − 1
+
+m − i
+
+
+
+|φ(x i−11 , xi, xmi+1 ) − φ(x i−11 , x′
+
+> i
+
+, xmi+1 )| ≤ uN − i H(xi, x ′
+
+> i
+
+) (77) Then, by similar proof as Theorem 2.2, we have 
+
+P
+
+ mX
+
+> i=1
+
+Di > z 
+
+
+
+≤ 4
+
+
+
+4 p + 2 
+
+p
+
+p Sp
+
+zp + exp 
+
+
+
+− 12( p + 2) 2ep
+
+z2
+
+S2
+
+
+
+, (78) where 
+
+Sp = E|H(xi, x ′
+
+> i
+
+)|ppmX
+
+> i=1
+
+ uN − i
+
+p
+
+. (79) Then, consider for p = 2 , mX
+
+> i=1
+
+ uN − i
+
+2
+
+≤ mu 
+
+(N − 1/2)(1 − 1/2 max {m, u }) , (80) for p > 2, mX
+
+> i=1
+
+ um + n − i
+
+p
+
+≤ up
+
+p − 1
+
+ 1(u − 1/2) p−1 − 1(m + u − 1/2) p−1
+
+
+
+(81) The proof is complete. Before concluding the proof of Theorem 3.10, we bound |Eϕ(S)| and the one-swap increment |ϕ(S) − ϕ(S′)|, where S and 
+
+S′ differ in exactly one point. 
+
+Lemma C.1. Let H be an Lp-bounded hypothesis class and let A be an Lp-stable algorithm. Let h and h′ be the hypotheses returned by A when trained on S = {x1, . . . , x i, . . . , x m} and S′ = {x1, . . . , x ′
+
+> i
+
+, . . . , x m}, which differ in exactly one point, where x′ 
+
+> i
+
+is an independent copy of xi for any i ∈ [1 , m ]. Define ϕ(S) = R(h) − ˆR(h). Then, for any p ≥ 2,
+
+|ϕ(S) − ϕ(S′)| ≤ 2βH (x, x ′) + 1
+
+u − 1
+
+m β′G(x, x ′).
+
+22 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Lemma C.2. Let h be the hypothesis returned by an Lp-stable algorithm A trained on S = {x1, . . . , x m}. Then, 
+
+|ES [ϕ(S)] | ≤ βm
+
+> m
+
+X
+
+> i=1
+
+EH(xi, x ′
+
+> i
+
+).
+
+Proof of Lemma C.1. WLOG, we assume x′ 
+
+> i
+
+= xm+j for j ∈ [1 , u ]. By definition and assumption, we have 
+
+|ϕ(S) − ϕ(S′)| = 1
+
+u
+
+X 
+
+> k∈[1 ,u ],k ̸=j
+
+
+
+ℓ(h(S), x m+k) − ℓ(h(S′), x m+k)
+
+
+
+− 1
+
+m
+
+X
+
+> ℓ∈[1 ,m ],ℓ ̸=i
+
+
+
+ℓ(h(S), x ℓ) − ℓ(h(S′), x ℓ)
+
+
+
++ 1
+
+u
+
+
+
+ℓ(h(S), x m+j ) − ℓ(h(S′), x i)
+
+
+
+− 1
+
+m
+
+
+
+ℓ(h(S), x i) − ℓ(h(S′), x m+j )
+
+
+
+≤ u − 1
+
+u H(x, x ′) + m − 1
+
+m H(x, x ′)+ min { 1
+
+u , 1
+
+m }
+
+
+
+ℓ(h(S), x m+j ) − ℓ(h(S′), x m+j ) + ℓ(h(S), x i) − ℓ(h(S′), x )
+
+
+
++ 1
+
+u − 1
+
+m ×
+
+
+
+ℓ(h(S), x m+j ) − ℓ(h(S), x i) + ℓ(h(S), x i) − ℓ(h(S′), x i)
+
+
+
+≤2βH (x, x ′) + 1
+
+u − 1
+
+m β′G(x, x ′) (82) 
+
+Proof of Lemma C.2. By definition of E[ϕ(S)] ,
+
+E[ϕ(S)] = E
+
+ 1
+
+u
+
+> u
+
+X
+
+> j=1
+
+ℓ(hS , x m+j )
+
+ − E
+
+"
+
+1
+
+m
+
+> m
+
+X
+
+> i=1
+
+ℓ(hS , x i)
+
+#
+
+= 1
+
+u
+
+> u
+
+X
+
+> j=1
+
+E[ℓ(hS , x m+j )] − 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+E[ℓ(hS , x i)] = E[ℓ(hS , x m+j )] − E[ℓ(hS , x i)] = E
+
+h 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+ℓ(hS(j) , x i)
+
+i
+
+− E
+
+h 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+ℓ(hS , x i)
+
+i
+
+= 1
+
+m
+
+> m
+
+X
+
+> j=1
+
+E[ℓ(hS(j) , x i) − ℓ(hS , x i)] 
+
+≤ βm
+
+> m
+
+X
+
+> j=1
+
+EH(xi, x ′
+
+> i
+
+) (83) 
+
+Proof of Theorem 3.10. The result follows directly from Theorem 3.9 and Lemmas C.1 and C.2. Here, we give a more general result of Transductive regression algorithm. Instead of assuming a single universal bound 
+
+H(xi, x ′
+
+> i
+
+) as in Assumption 3.6, we allow a weaker, potentially coordinate-dependent control through functions Hi(xi, x ′
+
+> i
+
+).
+
+Assumption C.3 (Transductive Lp-Lipschitz stability) . Let A be a transductive learning algorithm. For a partition 
+
+X ⊢ (S, T ), let h be the hypothesis returned by A, and let h′ be the hypothesis returned for a modified partition X ⊢ (S′, T ′).We say A is uniformly Lp-stable with respect to the cost function ℓ if there exist nonnegative measurable functions Hi such that, whenever (S′, T ′) is obtained from (S, T ) by swapping exactly one point xi ∈ S with one point xm+j ∈ T , then for all x ∈ X ,
+
+|ℓ(h, x ) − ℓ(h′, x )| ≤ Hi(xi, x m+j ),
+
+and ∥Hi(xi, x m+j )∥p < ∞ for some p ≥ 2.23 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Under this transductive Lp stability notion, Theorems 3.9 and 3.10 extend to Theorems C.4 and C.5. 
+
+Theorem C.4. Let X be a finite set with |X| = N = m + u. Let xm 
+
+> 1
+
+= ( x1, . . . , x m) be sampled uniformly without replacement from X and let ϕ : Xm → R be a measurable function. Assume that for each i ∈ [m] there exists a measurable function Hi : X × X → R such that for all (x1, . . . , x m) ∈ Xm and all x′ 
+
+> i
+
+∈ X, where x′ 
+
+> i
+
+is an independent copy of xi,defining φ = ϕ(x1, . . . , x i−1, x i, x i+1 , . . . , x m) and φi = ϕ(x1, . . . , x i−1, x ′
+
+> i
+
+, x i+1 , . . . , x m), we have 
+
+|φ − φi| ≤ Hi(xi, x ′
+
+> i
+
+)
+
+Suppose that for some p ≥ 2, ∥Hi(xi, x ′
+
+> i
+
+)∥p < ∞ for all i ∈ [m]. Then for all y > 0,
+
+P
+
+
+
+|φ − Eφ| > y 
+
+
+
+≤ c1
+
+Vp
+
+yp + 2 exp 
+
+
+
+− c2
+
+y2
+
+V2
+
+
+
+, (84) 
+
+where for q ∈ { 2, p },
+
+Vq := 
+
+
+
+1 + mN
+
+q−1
+
+1 + log 
+
+ Nu
+
+ mX
+
+> i=1
+
+∥Hi(xi, x ′
+
+> i
+
+)∥qq , (85) 
+
+and c1 = 4(4 p+2  
+
+> p
+
+)p and c2 = 1 /(2( p + 2) 2ep) are some constants depending only on p.
+
+Theorem C.5. Let H be a Lp-bounded hypothesis class and let A be a transductive Lp stability algorithm satisfying Assumption C.3. Let h be the hypothesis returned by A for a random partition X ⊢ (S, T ). Then for any y > 0, we have 
+
+P
+
+
+
+R(h) − ˆR(h) ≥ y + 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+EHi(xi, x ′
+
+> i
+
+)
+
+
+
+≤c1
+
+Vp
+
+yp + exp 
+
+
+
+− c2
+
+y2
+
+V2
+
+
+
+, (86) 
+
+where for q ∈ { 2, p },
+
+Vq =
+
+
+
+1 + mN
+
+q−1
+
+1 + log 
+
+ Nu
+
+ 
+
+×
+
+> m
+
+X
+
+> i=1
+
+E 2Hi(xi, x ′
+
+> i
+
+) + 1
+
+m − 1
+
+u β′G(xi, x ′
+
+> i
+
+) q
+
+, (87) 
+
+and the constants c1 = 4(4 p+2  
+
+> p
+
+)p and c2 = 1 /(2( p + 2) 2ep) depend only on p.
+
+Proof of Theorem C.4. We do the similar decomposition as in Proof of Theorem C.4 
+
+Gi(xi) := E[φ | F i−1, x i], (88) and 
+
+Di = Gi(xi) − E[Gi(xi) | F i−1]. (89) Let Ri−1 := X \{ x1, . . . , x i−1} denote the remaining pool after the first i−1 draws, so |Ri−1| = N −i+1 . Conditional on 
+
+Fi−1, xi is uniform on Ri−1. Denote xℓi=k = {xk, x k+1 , . . . , x ℓ} and Sm 
+
+> 1
+
+a sequence of random variables S1, . . . , s m. We write Smi = x mi as a shorthand for the m equalities Si = xi, i = 1 , . . . , m and P(x mi+1 |xi−11 , x i) = P(Smi+1 = x mi+1 |Si−11 =xi−11 , S i = xi). Let x′ 
+
+> i
+
+be an independent copy of xi conditional on Fi−1, which means conditional on Fi−1, x′ 
+
+> i
+
+is also uniform on Ri−1 and independent of xi. Then E[Gi(xi) | F i−1] = E[Gi(x′
+
+> i
+
+) | F i−1]. Conditioning further on (Fi−1, x i)
+
+gives the key identity 
+
+Di = E [Gi(xi) − Gi(x′
+
+> i
+
+) | F i−1, x i] . (90) Then, consider fix Fi−1 and fix xi, x ′ 
+
+> i
+
+∈ Ri−1. Under Fi−1 and Si = xi, the remaining coordinates (Si+1 , . . . , S m) are sampled uniformly without replacement from Ri−1 \ { xi}; similarly under Si = x′ 
+
+> i
+
+they are sampled from Ri−1 \ { x′
+
+> i
+
+}. By definition of conditional expectation, we have 
+
+Di = X
+
+> xmi+1
+
+ϕ(x i−11 , x i, xmi+1 )P(x mi+1 |xi−11 , x i) − X
+
+> x′mi+1
+
+ϕ(x i−11 , x ′
+
+> i
+
+, x′mi+1 )P(x ′mi+1 |xi−11 , x ′
+
+> i
+
+). (91) 24 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+Note that 
+
+P(x mi+1 |xi−11 , x i) = 
+
+> m−1
+
+Y
+
+> k=i
+
+1
+
+N − i = u!(N − i)! = P(x ′mi+1 |xi−11 , x ′
+
+> i
+
+), (92) we can obtain 
+
+Di = u!(N − i)! 
+
+ X
+
+> xmi+1
+
+ϕ(x i−11 , x i, xmi+1 ) − X
+
+> x′mi+1
+
+ϕ(x i−11 , x ′
+
+> i
+
+, xmi+1 )
+
+
+
+. (93) Consider the sequence of xmi+1 and x′mi+1 , We can find bijection relationship among the two sequence: i) xj = x′
+
+> i
+
+, x′j = xi
+
+and xmi+1 \ xj = x ′mi+1 \ x′j ; ii) x′ 
+
+> i
+
+/∈ xmi+1 , x i /∈ x′mi+1 and xmi+1 = x ′mi+1 .For the first case, for any fixed j ∈ [i + 1 , m ], the number of the permutations are (m − i − 1)!  N −i−1
+
+> m−i−1
+
+, thus we have 
+
+> m
+
+X
+
+> j=i+1
+
+ X 
+
+> xmi+1 \xj=x ′mi+1 \x′j
+
+ϕ(x i−11 , x i, xj−1 
+
+> i+1
+
+, x ′
+
+> i
+
+, xmj+1 ) − X 
+
+> xmi+1 \xj=x ′mi+1 \x′j
+
+ϕ(x i−11 , x ′
+
+> i
+
+, x′j−1 
+
+> i+1
+
+, x i, x′mj+1 )
+
+
+
+≤
+
+> m
+
+X
+
+> j=i+1
+
+(m − i − 1)! 
+
+N − i − 1
+
+m − i − 1
+
+
+
+ϕ(x i−11 , x i, xj−1 
+
+> i+1
+
+, x ′
+
+> 1
+
+, xmj+1 ) − ϕ(x i−11 , x ′
+
+> i
+
+, x′j−1 
+
+> i+1
+
+, x i, x′mj+1 )
+
+
+
+≤
+
+> m
+
+X
+
+> j=i+1
+
+(m − i − 1)! 
+
+N − i − 1
+
+m − i − 1
+
+ 
+
+Hi(xi, x ′
+
+> i
+
+) + Hj (xi, x ′
+
+> i
+
+)
+
+
+
+. (94) For the second case, the number of those permutations are (m − i)!  N −i−1
+
+> m−i
+
+, thus we can claim that, 
+
+X 
+
+> xmi+1 :x′
+> i/∈xmi+1
+
+ϕ(x i−11 , x i, xmi+1 ) − X 
+
+> x′mi+1 :xi/∈x′mi+1
+
+ϕ(x i−11 , x ′
+
+> i
+
+, xmi+1 )=( m − i)! 
+
+N − i − 1
+
+m − i
+
+
+
+|ϕ(x i−11 , x i, xmi+1 ) − ϕ(x i−11 , x ′
+
+> i
+
+, xmi+1 )|≤(m − i)! 
+
+N − i − 1
+
+m − i
+
+
+
+Hi(xi, x ′
+
+> i
+
+). (95) Combining above result, we can derive 
+
+|Di| ≤ u!(N − i)! 
+
+
+
+(m − i)! 
+
+N − i − 1
+
+m − i
+
+
+
+Hi(xi, x ′
+
+> i
+
+) + 
+
+> m
+
+X
+
+> j=i+1
+
+(m − i − 1)! 
+
+N − i − 1
+
+m − i − 1
+
+ 
+
+Hi(xi, x ′
+
+> i
+
+) + Hj (xi, x ′
+
+> i
+
+)
+
+ 
+
+≤ uN − i Hi(xi, x ′
+
+> i
+
+) + 
+
+> m
+
+X
+
+> j=i+1
+
+1
+
+N − i
+
+
+
+Hi(xi, x ′
+
+> i
+
+) + Hj (xi, x ′
+
+> i
+
+)
+
+
+
+=Hi(xi, x ′
+
+> i
+
+) + 
+
+> m
+
+X
+
+> j=i+1
+
+1
+
+N − i Hj (xi, x ′
+
+> i
+
+) (96) Then, by similar proof as Theorem 2.2, we have 
+
+P
+
+ mX
+
+> i=1
+
+Di > z 
+
+
+
+≤ 3
+
+
+
+1 + 2
+
+p
+
+p Sp
+
+zp + exp 
+
+
+
+− 2(p + 2) 2ep
+
+z2
+
+S2
+
+
+
+(97) where 
+
+Sp =
+
+> m
+
+X
+
+> i=1
+
+E Hi(xi, x ′
+
+> i
+
+) + 
+
+> m
+
+X
+
+> j=i+1
+
+1
+
+N − i Hj (xi, x ′
+
+> i
+
+)
+
+> p
+
+. (98) 25 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+By H¨ older’s inequality, we can obtain 
+
+E Hi(xi, x ′
+
+> i
+
+) + 
+
+> m
+
+X
+
+> j=i+1
+
+1
+
+N − i Hj (xi, x ′
+
+> i
+
+)
+
+> p
+
+≤
+
+1 + 
+
+> m
+
+X
+
+> j=i+1
+
+1
+
+N − i
+
+ 
+
+> p−1
+
+
+
+E|Hi(xi, x ′
+
+> i
+
+)|p +
+
+ 1
+
+N − i
+
+ mX
+
+> j=i+1
+
+E|Hj (xi, x ′
+
+> i
+
+)|p
+
+
+
+≤
+
+
+
+1 + mN
+
+p−1 
+
+E|Hi(xi, x ′
+
+> i
+
+)|p +
+
+ 1
+
+N − i
+
+ mX
+
+> j=i+1
+
+E|Hj (xi, x ′
+
+> i
+
+)|p
+
+
+
+. (99) By taking sum over 1 to m,
+
+Sp ≤
+
+> m
+
+X
+
+> i=1
+
+
+
+1 + mN
+
+p−1
+
+E|Hi(xi, x ′
+
+> i
+
+)|p +
+
+ 1
+
+N − i
+
+ mX
+
+> j=i+1
+
+E|Hj (xi, x ′
+
+> i
+
+)|p
+
+
+
+≤
+
+
+
+1 + mN
+
+p−1 mX
+
+> i=1
+
+
+
+E|Hi(xi, x ′
+
+> i
+
+)|p +
+
+> m
+
+X
+
+> j=1
+
+E|Hj (xj , x ′ 
+
+> j
+
+)|p
+
+ mX
+
+> i=j−1
+
+1
+
+N − i
+
+ 
+
+≤
+
+
+
+1 + mN
+
+p−1 mX
+
+> i=1
+
+E|Hi(xi, x ′
+
+> i
+
+)|p +
+
+> m
+
+X
+
+> j=1
+
+E|Hj (xj , x ′ 
+
+> j
+
+)|p × log 
+
+ Nu
+
+ 
+
+≤
+
+
+
+1 + mN
+
+p−1
+
+1 + log 
+
+ Nu
+
+ mX
+
+> i=1
+
+E|Hi(xi, x ′
+
+> i
+
+)|p (100) The proof is completed. 
+
+Proof of Theorem C.5. The result follows directly from Theorem C.4 and similar versions of Lemmas C.1 and C.2. 
+
+C.3. Proof of Results in Section 3.3: Meta-Learning Proof of Theorem 3.14. In the following, we suppress β, β ′ and β′′ inside the functions H, G and M. We follow a similar, but slightly more convoluted strategy compared to that of Theorem 3.4. Observe that, for k ∈ [m], l ∈ [n],it holds almost surely that 
+
+mn R(A(S), S) − R(A(S(k,l )), S(k,l ))
+
+≤
+
+> m
+
+X 
+
+> j̸=kn
+
+X
+
+> i=1
+
+|ℓ(A(S)( Sj ), z ij ) − ℓ(A(S(k,l ))( Sj ), z ij )| +
+
+> n
+
+X
+
+> i̸=l
+
+|ℓ(A(S)( Sk), z ik) − ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+), z ik)|
+
++ |ℓ(A(S)( Sk), z lk) − ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+), z l′ 
+
+> k
+
+)|
+
+> (a)
+
+≤ (m − 1) n H (zlk, z l′ 
+
+> k
+
+) + 
+
+> n
+
+X
+
+> i̸=l
+
+
+
+|ℓ(A(S)( Sk), z ik) − ℓ(A(S)( S(l) 
+
+> k
+
+), z ik)| + |ℓ(A(S)( S(l) 
+
+> k
+
+), z ik) − ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+), z ij )|
+
+
+
++ |ℓ(A(S)( Sk), z lk) − ℓ(A(S(k,l ))( Sk), z lk)| + |ℓ(A(S(k,l ))( Sk), z lk) − ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+)) , z lk)|
+
++ |ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+), z lk) − ℓ(A(S(k,l ))( S(l) 
+
+> k
+
+)) , z l′ 
+
+> k
+
+)|
+
+> (b)
+
+≤ mn H (zlk, z l′ 
+
+> k
+
+) + n G (zlk, z l′ 
+
+> k
+
+) + M(zlk, z l′ 
+
+> k
+
+), (101) where (a) follows from (9), and (b) follows from (10) and (11) . On the other hand, it is trivial to note that 
+
+|R(A(S), μ ) − R(A(S(k,l )), μ )| ≤ H(zlk, z l′ 
+
+> k
+
+) almost surely . (102) Let g ≡ R(A(S), S) − R(A(S), μ ), and denote by gk,l ≡ R(A(S(k,l )), S(k,l )) − R(A(S(k,l )), μ ). Combining (101) - (102) provides that 
+
+|g − gk,l | ≤ 2 H(zlk, z l′ 
+
+> k
+
+) + 1
+
+m G(zlk, z l′ 
+
+> k
+
+) + 1
+
+mn M(zlk, z l′ 
+
+> k
+
+). (103) 26 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+To deliver the coup de gr ˆace via an application of Theorem 2.2, we are also required to control ES[g]. To that end, we proceed as follows. Let S′ = {S ′
+
+> 1
+
+, . . . , S′
+
+> m
+
+} be an i.i.d. copy of S, and S(j) := {S 1, . . . , Sj−1, S′ 
+
+> j
+
+, Sj+1 , . . . , Sm}. For each 
+
+i, j , let S′′ := {zi′′  
+
+> j
+
+} be an i.i.d. copy of {zij }, independent of S and S′. Let S(i) 
+
+> j
+
+= {z1 
+
+> j
+
+, . . . , z i−1 
+
+> j
+
+, z i′′  
+
+> j
+
+, z i+1  
+
+> j
+
+, . . . , z nj }.
+
+ES,S,z 
+
+ 1
+
+mn 
+
+> m
+
+X
+
+> j=1
+> n
+
+X
+
+> i=1
+
+ ℓ(A(S)( Sj ), z ij ) − ℓ(A(S)( S), z ) 
+
+= ES,S′,S′′ 
+
+ 1
+
+mn 
+
+> m
+
+X
+
+> j=1
+> n
+
+X
+
+> i=1
+
+ ℓ(A(S)( Sj ), z ij ) − ℓ(A(S(j))( S(i) 
+
+> j
+
+), z ij ) 
+
+= ES,S′,S′′ 
+
+ 1
+
+mn 
+
+> m
+
+X
+
+> j=1
+> n
+
+X
+
+> i=1
+
+ ℓ(A(S)( Sj ), z ij ) − ℓ(A(S(j))( Sj ), z ij ) + ℓ(A(S(j))( Sj ), z ij ) − ℓ(A(S(j))( S(i) 
+
+> j
+
+), z ij ) 
+
+≤ ES,S′,S′′ [ 1
+
+mn 
+
+> m
+
+X
+
+> j=1
+> n
+
+X
+
+> i=1
+
+H(zij , z i′ 
+
+> j
+
+) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+G(zij , z i′′  
+
+> j
+
+)] = Ez,z ′∼D ,D∼ μ[H(z, z ′) + G(z, z ′)] . (104) Therefore, from Theorem 2.2, it follows that 
+
+P
+
+
+
+R(A(S), S) − R(A(S), μ ) ≥ y + Ez,z i.i.d.  
+
+> ∼D,D∼ μ
+
+[H(z, z ′) + G(z, z ′)] 
+
+
+
+≤c1
+
+Lp1
+
+yp + 2 exp   − c2
+
+y2
+
+Lp2
+
+, (105) where 
+
+Lp1 := 
+
+> m
+
+X
+
+> k=1
+> n
+
+X
+
+> l=1
+
+E[ 2 H(zlk, z l′ 
+
+> k
+
+) + 1
+
+m G(zlk, z l′ 
+
+> k
+
+) + 1
+
+mn M(zlk, z l′ 
+
+> k
+
+)p], and, 
+
+Lp2 := 
+
+> m
+
+X
+
+> k=1
+> n
+
+X
+
+> l=1
+
+E[ 2 H(zlk, z l′ 
+
+> k
+
+) + 1
+
+m G(zlk, z l′ 
+
+> k
+
+) + 1
+
+mn M(zlk, z l′ 
+
+> k
+
+)2].
+
+Evidently, using H¨ older’s inequality, it follows that 
+
+Lp1 ≤ Cp(mn E[Hp] + nmp−1 E[Gp] + 1(mn )p−1 E[Mp]) 
+
+Lp2 ≤ C2(mn E[H2] + nm E[G2] + 1
+
+mn E[M2]) ,
+
+which completes the proof in light of (105). 
+
+## D. Numerical Experiments 
+
+In this section, we provide empirical studies highlighting the tightness of our theoretical bounds in Sections 3.1 and 3.2. It is imperative we describe the general recipe of our experiments before going into the details. Since the applications in Section 3 stem from the key theoretical result Theorem 2.2, let us presume that the bounds in (3) are tight up to some constant. Therefore, when z is large, the polynomial term z−p dominates in the decay, and from (3), it follows that 
+
+P(|f (x1, x 2, . . . , x n)| − E[f (x1, x 2, . . . , x n)] | > z )
+
+P(|f (x1, x 2, . . . , x n)| − E[f (x1, x 2, . . . , x n)] | > C 0z) ≈ Cp 
+
+> 0
+
+. (106) On the other hand, in the absence of the polynomial term z−p or when z is small, the sub-gaussian term dominates the tail probability, and consequently we should expect 
+
+P(|f (x1, x 2, . . . , x n)| − E[f (x1, x 2, . . . , x n)] | > z )
+
+P(|f (x1, x 2, . . . , x n)| − E[f (x1, x 2, . . . , x n)] | > C 0z) ≈ 2 exp( C1z2), (107) where C1 is some constant depending on p, E[Hi] and C0. The twin observations (106) and (107) informs our subsequent discussion, whereby any deviations from the expected behaviors would indicate our bounds are not sharp. In particular, we analyze the setting corresponding to Sections 3.1 and 3.2 in the following Sections D.1 and D.2, respectively. 27 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments 
+
+D.1. Simulations for empirical risk minimization 
+
+Consider i.i.d. observations S := {zi = ( xi, y i)}mi=1 ∈ Rd × R from a linear model Y = Xβ + ε, where the errors 
+
+ε d
+
+= U −1/ν  
+
+> 1
+
+− U −1/ν  
+
+> 2
+
+, U1, U 2
+
+> i.i.d.
+
+∼ U [0 , 1] , is drawn from the distribution of the difference of two independent Pareto (type I) random variables. Note that here p = ν/ 2. For our analysis, we take d = 5 , β = (1 , 1, . . . , 1) ⊤, and vary m ∈ { 500 , 1000 },and ν = {2.2, 4.4}. For the scaling parameter C0 in (106), we choose C0 = 1 .5.To incorporate stability in our analysis, we resort to a ridge-regression with regularization parameter λ = 1 .0; formally, let 
+
+ˆβ = ( X⊤X + λI d)−1X⊤Y, X = ( x1 : . . . : xm)⊤, Y = ( y1, . . . , y m).
+
+Note that ˆβ plays the role of AS in Section 3.1. Here we consider (xi)mi=1 
+
+> i.i.d.
+
+∼ N (0 , Σ) , Σij = 0 .3|i−j|. We consider ℓ to be the squared error loss, so that 
+
+R(A, S ) = Ex,y [( y − x⊤ ˆβ)2], Remp (A, S ) = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+(yi − x⊤ 
+
+> i
+
+ˆβ)2.
+
+Elementary calculations show that Assumption 3.1 is satisfied with probability approaching 1 for H(zi, z ′
+
+> i
+
+) = |xiyi −
+
+x′
+
+> i
+
+y′
+
+> i
+
+| and β = log mm . Since β is extremely small for large values of m, we may be excused for comparing p(y) :=  
+
+> P(|R−Remp |>y )
+> P(|R−Remp |>C 0y)
+
+against Cν/ 20 . The tail probabilities are empirically estimated via 50 , 000 Monte Carlo draws. In Figure 3, 
+
+(a) ν = 2 .2 (b) ν = 4 .4
+
+Figure 3. Plot of p(y) versus y; both curves stabilize around Cν/ 20 for large y.
+
+the ratio p(y) exhibits an initial exponential growth before slowing down and stabilizing near Cν/ 20 , further vindicating the behavior typified in (106) in light of Theorem 3.4. For larger ν (e.g., ν = 4 .4), the Gaussian tail dominates the polynomial tail more strongly at smaller values of y. Consequently, p(y) may exceed the threshold Cν/ 20 initially, before stabilizing in the large-y regime. This exhibits the tightness of our results. For ν = 2 .2, we also fix y = 30 , and plot p(y) for m ∈ { 500 , 600 , . . . , 2000 }. From Figure 4, it is evident that p(y) remains quite stable around Cν/ 20 across a wider range of m at fixed y. This confirms that the ratio is independent of m for large m,justifying our original focus on varying y to identify the sub-Gaussian and polynomial tails. 
+
+D.2. Simulations for transductive regression algorithms 
+
+For the numerical studies involving transductive regression, we maintain the experimental set-up of ridge regression from Section D.1. Borrowing the notations of Section 3.2, let S and T denote the training and test set respectively, with |S| = m, 
+
+and |T | = u. For the purpose of this experiment, we take m = u, and vary m ∈ { 500 , 1000 }. Similar to Theorem C.5, we are concerned with 
+
+ˆR(h) = 1
+
+m
+
+X
+
+> i∈S
+
+(yi − x⊤ 
+
+> i
+
+ˆβ)2, R(h) = 1
+
+m
+
+X
+
+> i∈T
+
+(yi − x⊤ 
+
+> i
+
+ˆβ)2.
+
+28 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments     
+
+> Figure 4. Plot of p(y)versus m.
+
+Note that here ˆβ is trained via ridge regression with λ = 1 .0 only on the training sample S. Similar to Section D.1, tail probabilities are empirically estimated via 50 , 000 Monte Carlo draws. Figure 5 showcases the corresponding line plots of 
+
+p(y) versus y, where p(y) := P(|R− ˆR|>y )  
+
+> P(|R−ˆR|>C 0y)
+
+. The stabilization of the curve p(y) around the threshold Cν/ 20 is evident for this example as well, exhibiting the sharpness of our bounds.           
+
+> (a) ν= 2 .2(b) ν= 4 .4
+> Figure 5. Plot of p(y)versus yfor the transductive regression problem in Section 3.2.
+
+D.3. Additional experiments: a modern application. 
+
+In principle, any data with heavy tail would exhibit behavior similar to what we predict in our theory. Nevertheless, as baby steps towards more grounded stability theory, we perform a similar experiment on two layer neural-network for a regression problem. Specifically, we consider the set-up of Section D.1 in the current manuscript; consider i.i.d. observations S := {zi = ( xi, y i)}mi=1 ∈ Rd × R from a linear model Y = Xβ + ε, where the errors ε d
+
+= U −1/ν  
+
+> 1
+
+− U −1/ν  
+
+> 2
+
+,
+
+U1, U 2
+
+> i.i.d.
+
+∼ U [0 , 1] , is drawn from the distribution of the difference of two independent Pareto (type I) random variables. Note that here p = ν/ 2. For our analysis, we take d = 5 , β = (1 , 1, . . . , 1) ⊤, and vary m ∈ { 500 , 1000 }, and ν = {2.2, 4.4}.For the scaling parameter C0, we choose C0 = 1 .5.To S, we fit a two-layer neural net 
+
+AS : x 7 → W2 ReLU( W1x + b1) + b2, W 1 ∈ R32 ×d, W ⊤ 
+
+> 2
+
+∈ R32 , b 1 ∈ R32 , b 2 ∈ R.
+
+The neural net is fitted with an Adam optimizer with learning rate 10 −3 and 200 epochs. Thereafter, we evaluate the empirical loss and the true loss as in Section 3.1. The tail probabilities are estimated via 10 , 000 Monte Carlo repetitions. Finally, similar to Section D.1, we plot p(y) versus y, where the desired threshold is Cν/ 20 ≈ 1.562 .We see that even for a training algorithm such as a Neural net, optimized via Adam, the heavy-tailed nature of the data shines 29 Stability beyond bounded differences: sharp generalization bounds under finite Lp moments      
+
+> Figure 6. Plot of p(y)versus yfor the neural network regression experiment in Section D.3.
+
+through in distinct characterizations of Gaussian and polynomial tails. As predicted by our theory and can also be seen for the simpler ridge-regression example, p(y) stabilizes at around Cν/ 20 ≈ 1.562 . This corroborates our theory on a prototype of modern ML algorithm. Note that here, the number of parameters being optimized using Adam is also comparable to the sample sizes m, which further indicates the applicability of our results in modern, large-dimensional scenarios. 30

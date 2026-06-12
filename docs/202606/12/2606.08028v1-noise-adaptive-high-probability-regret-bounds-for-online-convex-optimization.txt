@@ -1,0 +1,4013 @@
+Title: Noise-Adaptive High-Probability Regret Bounds for Online Convex Optimization
+
+URL Source: https://arxiv.org/pdf/2606.08028v1
+
+Published Time: Tue, 09 Jun 2026 00:32:13 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# Noise-Adaptive High-Probability Regret Bounds for Online Convex Optimization 
+
+Wentao Zhang 1, Yutong Zhang 2, and Wentao Mo 1 
+
+> 1
+
+Tsinghua Shenzhen International Graduate School, Tsinghua University, China 
+
+{zhang-wt24,mow10}@mails.tsinghua.edu.cn  
+
+> 2
+
+College of Mathematics, Sichuan University, China 
+
+yutongzhang@stu.scu.edu.cn 
+
+Abstract. We study high-probability regret bounds for online convex optimization (OCO) with strongly convex losses and establish three re-sults that resolve open questions at the intersection of noise adaptivity, feedback structure, and constraint satisfaction. For the full-information setting with sub-Gaussian stochastic gradients, we prove a noise-adaptive high-probability regret bound in which the martingale deviation term scales with the noise level σ rather than the gradient bound G, yielding a multiplicative improvement of G/σ over the classical Azuma-Hoeffding baseline. Our analysis introduces an exponential supermartingale argu-ment that bypasses the bounded-difference requirement of Freedman’s inequality, enabling direct treatment of unbounded sub-Gaussian noise without truncation artifacts. For bandit feedback, we prove a minimax lower bound: the high-probability regret scales linearly in log(1 /δ ), in contrast to the plog(1 /δ ) confidence cost under full information. This constitutes a formal separation in the confidence cost of strongly convex OCO across feedback models. Regarding constrained OCO with stochas-tic constraints satisfying a Slater condition, we provide simultaneous high-probability guarantees for both cumulative regret and long-run con-straint violation, achieving O(pT log( m/δ )) regret and O(√T / (ζδ ) + 
+
+mpT log( m/δ )) violation. Synthetic experiments corroborate all theo-retical predictions. 
+
+Keywords: Online convex optimization · Regret bounds · Concentra-tion. 
+
+## 1 Introduction 
+
+Online convex optimization (OCO) provides a principled framework for sequen-tial decision-making under uncertainty, with applications spanning online learn-ing, portfolio selection, resource allocation, and real-time control [26, 12]. In the standard OCO protocol, a learner iteratively selects decisions from a convex set, incurs losses chosen by an adversary, and aims to minimize regret, defined as the cumulative excess loss relative to the best fixed decision in hindsight. When the loss functions are α-strongly convex, classical results establish that Online  
+
+> arXiv:2606.08028v1 [cs.LG] 6 Jun 2026 2W. Zhang et al.
+
+Gradient Descent (OGD) with step size ηt = 1 /(αt ) achieves O( G2 
+
+> α
+
+log T ) ex-pected regret, where G bounds the gradient norms and T is the time horizon [13]. This logarithmic rate is known to be minimax optimal for expected regret in the strongly convex setting. In many safety-critical applications, such as algorithmic trading with risk constraints, online resource provisioning under service-level agreements, and medical treatment optimization, bounding the expected regret is insufficient. Practitioners require guarantees that hold with high probability over the ran-domness in stochastic gradient feedback. The standard approach to obtaining high-probability regret bounds decomposes the regret into a deterministic com-ponent, controlled by the OGD telescoping argument, and a stochastic martin-gale component MT = PTt=1 ⟨ξt, x ⋆ − xt⟩, where ξt = gt − ∇ ft(xt) denotes the gradient noise. The classical route applies Azuma-Hoeffding’s inequality to MT ,yielding a tail bound of GD p2T log(1 /δ ), where D is the domain diameter and 
+
+δ is the failure probability. However, this approach treats MT as having bounded differences of size GD per round, which is a worst-case bound that ignores the actual noise level σ in the stochastic gradients. When the noise level σ is sub-stantially smaller than the gradient bound G, a regime that frequently arises in regularized empirical risk minimization where G reflects the deterministic gra-dient magnitude while σ captures only the sampling noise, the Azuma-based bound is loose by a factor of G/σ in the martingale deviation term. Concrete instances of this regime include online portfolio rebalancing with quadratic transaction-cost or risk regularization, cloud resource provisioning with service-level constraints, and personalized recommendation or treatment allocation based on regularized generalized linear models. In these examples, strong convexity is typically induced by explicit ℓ2 regularization or by a lo-cal curvature condition, stochastic gradients arise from mini-batches or sampled users, and the constraint functions encode risk, budget, fairness, latency, or safety requirements. A Slater point corresponds to a conservative baseline policy that satisfies these requirements with slack, which is often available even when the optimal policy is unknown. A natural question is whether the high-probability martingale deviation can be made noise-adaptive, scaling with σ rather than G. In the expected-regret set-ting, variance-aware bounds are well-established [24, 11]. In the high-probability setting, however, achieving noise-adaptivity is substantially more challenging. The difficulty is technical but fundamental: Freedman’s inequality, the variance-sensitive extension of Azuma-Hoeffding, requires bounded differences almost surely, but sub-Gaussian gradient noise ξt is unbounded, as it merely has ex-ponentially decaying tails. Applying Freedman after truncating ξt to a high-probability event E0 is invalid, because the conditional measures after condi-tioning on E0 may destroy the martingale property. Prior works either assume bounded noise, sidestepping the issue but sacrificing generality, or accept the Azuma-based GD scaling as unavoidable. Two further frontiers in OCO high-probability theory remain largely unex-plored, specifically moving beyond full information to bandit feedback and con-Noise-Adaptive High-Probability Regret Bounds for OCO 3
+
+strained settings. First, in the bandit setting where only the scalar loss ft(xt)
+
+is observed, lacking gradient information, the information-theoretic cost of con-fidence is poorly understood. It remains unclear whether the high-probability regret scales as plog(1 /δ ), as in the full-information martingale deviation, or whether the reduced feedback fundamentally alters the confidence structure. Second, in constrained OCO where the learner must simultaneously minimize regret and satisfy stochastic constraints in expectation, no prior work provides high-probability guarantees for both the regret and the constraint violation si-multaneously. Existing constrained OCO results, such as those by Mahdavi et al. [18] and Yu et al. [30], typically bound violations in expectation, leaving the high-probability regime open. In this work, we resolve these three open questions, providing a unified treat-ment of noise adaptivity, feedback structure, and constraint satisfaction in the high-probability regime of strongly convex OCO. Our specific contributions are as follows: 
+
+– We prove that projected OGD with sub-Gaussian stochastic gradients achieves a high-probability regret bound in which the martingale deviation term scales with the noise level σ rather than the gradient bound G, yielding a multiplica-tive G/σ improvement over the Azuma-Hoeffding baseline. Our proof intro-duces an exponential supermartingale argument that bypasses the bounded-difference requirement of Freedman’s inequality, enabling direct treatment of unbounded sub-Gaussian noise without truncation artifacts. 
+
+– We establish a minimax lower bound proving that the high-probability re-gret under bandit feedback scales linearly in log(1 /δ ), in contrast to the plog(1 /δ ) confidence cost achievable under full information. This consti-tutes the first formal separation in the confidence cost of strongly convex OCO across feedback structures. 
+
+– We provide the first algorithm achieving simultaneous high-probability con-trol of both cumulative regret and long-run constraint violation under stochas-tic constraints satisfying a Slater condition, attaining O(pT log( m/δ )) re-gret and O(√T / (ζδ ) + mpT log( m/δ )) violation with cleanly separated probability budgets. 
+
+## 2 Related Work 
+
+2.1 High-probability regret bounds and concentration techniques 
+
+The O( G2 
+
+> α
+
+log T ) expected regret rate for strongly convex OCO was established by Hazan et al. [13] and shown minimax optimal by Abernethy et al. [1]. Lifting expected bounds to high probability requires concentrating the martingale com-ponent MT = P
+
+> t
+
+⟨ξt, x ⋆ − xt⟩. Under bounded noise, Azuma-Hoeffding yields a 
+
+GD pT log(1 /δ ) tail directly [16]. Freedman’s inequality and its Bernstein-type variants achieve variance-sensitivity but retain the almost-sure boundedness re-quirement, making them inapplicable when gradient noise is sub-Gaussian and thus unbounded. Truncation-based workarounds, which involve conditioning on 4 W. Zhang et al. 
+
+a high-probability event to restore boundedness, risk destroying the martingale property, as discussed by de la Peña et al. [22]. The exponential supermartingale method for sub-Gaussian sequences is classical and underpins modern confi-dence sequences [25] and sequential testing [23]. However, its direct application to the OCO regret decomposition, where the conditional sub-Gaussian parameter 
+
+σ∥x⋆ − xt∥ varies with the random iterate, has not been formalized. In parallel, variance-aware expected regret bounds have been developed through sequen-tial complexities [24], localization [28], prediction with expert advice [11], and parameter-free methods [6]. The online analogue of the Bernstein condition [3] connects loss variance to iterate error [27]. Translating this into high-probability bounds requires stopping-time arguments [4] whose interaction with the iterate error decay rate O(log t/t ) under ηt = 1 /(αt ) has not been previously analyzed. 
+
+2.2 Bandit convex optimization 
+
+Bandit OCO was initiated by Flaxman et al. [9] with O(T 3/4) expected regret, subsequently improved to the optimal O(√T ) rate by Dani et al. [7]. For strongly convex losses, Agarwal et al. [2] and Hazan et al. [14] achieved O(poly (d)√T )
+
+and O(d log T ) expected regret, respectively. Existing lower bounds characterize the minimax expected regret but do not address the confidence cost, referring to the dependence of the high-probability regret on δ. Whether this cost scales as plog(1 /δ ), as in the full-information martingale deviation, or log(1 /δ ) linearly, has remained unresolved. The testing-based lower bound machinery, including Le Cam’s method, Fano’s inequality, Assouad’s lemma, and the Bretagnolle-Huber lemma, has been applied to bandit problems primarily in the multi-armed set-ting and the linear bandit setting [7]. Applying these techniques to continuous strongly convex bandit OCO introduces additional difficulties: multiplicative-noise constructions produce per-round KL singularities at domain boundaries, and establishing stochastic domination of adaptive epoch errors requires a con-ditional coupling argument [8] that is often invoked heuristically but rarely for-malized. 
+
+2.3 Constrained Online Convex Optimization 
+
+Constrained OCO was formalized by Mannor et al. [19] and Mahdavi et al. [18], who introduced the long-run cumulative violation ˆVT = P
+
+> i
+
+[P 
+
+> t
+
+g(i) 
+
+> t
+
+(xt)] +
+
+and established the first regret-violation tradeoffs. Yu and Neely [30] achieved 
+
+O(√T ) regret with O(√T ) expected violation under a Slater condition, ex-tending the Lyapunov drift framework of Neely [20]. The per-round violation 
+
+VT = P
+
+> t
+
+[P 
+
+> i
+
+g(i) 
+
+> t
+
+(xt)] +, a strictly harder metric, was studied by Neely and Yu [21] , Yi et al. [29], and Guo et al. [10]. Extensions to adversarial constraints were considered by Liakopoulos et al. [17] and Castiglioni et al. [5], and to the strongly convex setting. Despite this progress, existing results bound both re-gret and violation in expectation. Jenatton et al. [15] studied high-probability regret under constraints but did not provide high-probability violation guar-antees. Simultaneous high-probability control of regret and constraint violation Noise-Adaptive High-Probability Regret Bounds for OCO 5
+
+under stochastic constraints has not been established. A key bottleneck is con-verting the expected violation E[ ˆVT ] ≤ O (√T /ζ ) to high probability: Markov’s inequality yields a 1/δ factor, and improving this to log(1 /δ ) would require path-wise control of the primal-dual saddle-point inequality, a challenge connected to the drift-Lyapunov analysis that remains open in the stochastic i.i.d. constraint setting. 
+
+## 3 Problem Setup 
+
+3.1 The Online Convex Optimization Protocol 
+
+We consider the standard online convex optimization framework over a time horizon T ≥ 2. Let K ⊆ Rd be a convex compact decision set with diameter 
+
+D = sup x,y ∈K ∥x − y∥, where ∥ · ∥ denotes the Euclidean norm throughout. At each round t = 1 , . . . , T , the learner selects a decision xt ∈ K , after which an adversary reveals a loss function ft : K → R. The learner then receives feedback and incurs a loss ft(xt). The nature of this feedback distinguishes the three settings we study. In the full-information setting, discussed in Sections 4.1 and 4.2, the learner observes a stochastic gradient gt ∈ Rd satisfying E[gt |Ft−1] = ∇ft(xt), where Ft = σ(x1, g 1, . . . , x t, g t) is the natural filtration, and we write ξt = gt − ∇ ft(xt) for the gradient noise. In the bandit setting, detailed in Section 4.2, the learner observes only the scalar loss value ft(xt) without any gradient information. Finally, in the constrained setting of Section 4.3, the learner additionally observes stochastic constraint functions g(1)  
+
+> t
+
+, . . . , g (m) 
+
+> t
+
+: K → 
+
+R and must control the cumulative constraint violation alongside the regret. 
+
+3.2 Performance Metrics 
+
+The primary performance metric is the cumulative regret against the best fixed decision in hindsight, given by 
+
+RT =
+
+> T
+
+X
+
+> t=1
+
+ft(xt) − min 
+
+> x∈K
+> T
+
+X
+
+> t=1
+
+ft(x) = 
+
+> T
+
+X
+
+> t=1
+
+[ft(xt) − ft(x⋆)] ,
+
+where x⋆ = arg min x∈K 
+
+PTt=1 ft(x). We seek high-probability regret bounds, meaning an algorithm achieves a bound B(T, δ ) if P(RT ≤ B(T, δ )) ≥ 1 − δ for all δ ∈ (0 , 1) . For the constrained setting, we additionally measure the long-run cumulative constraint violation, defined as ˆVT = Pmi=1 
+
+hPTt=1 g(i) 
+
+> t
+
+(xt)
+
+i
+
+> +
+
+, where 
+
+[a]+ = max( a, 0) . This metric is standard in the constrained OCO literature, as seen in the works of Mahdavi et al. [18] and Yu et al. [30]. It aggregates each constraint over time before taking the positive part, measuring whether each constraint is satisfied on average. This formulation is distinct from, and generally incomparable to, the per-round violation VT = PTt=1 [P 
+
+> i
+
+g(i) 
+
+> t
+
+(xt)] +,which is strictly harder to bound. For the bandit lower bound, we define the 6 W. Zhang et al. 
+
+environment class E(α, G, D, d ) as the set of all bandit OCO instances where 
+
+K ⊆ Rd has a diameter of at most D, each ft is α-strongly convex and G-Lipschitz on K, and only the scalar loss ft(xt) is observed. 
+
+3.3 Assumptions 
+
+We state the assumptions for each setting, beginning with the common condi-tions shared across all results. 
+
+Assumption 1 (Strong Convexity) Each ft is α-strongly convex over K with parameter α > 0: for all x, y ∈ K ,
+
+ft(y) ≥ ft(x) + ⟨∇ ft(x), y − x⟩ + α
+
+2 ∥y − x∥2.
+
+Assumption 2 (Bounded Gradients) There exists G > 0 such that ∥∇ ft(x)∥ ≤ 
+
+G for all x ∈ K and all t ∈ [T ].
+
+Assumption 3 (Compact Domain) K is convex and compact with diameter 
+
+D < ∞.
+
+Assumption 4 (Oblivious Adversary) The loss sequence f1, . . . , f T is cho-sen before the game begins and does not depend on the learner’s past decisions. This ensures that ∇ft(xt) is Ft−1-measurable. 
+
+Assumptions 1–4 are standard in the strongly convex OCO literature [12, 26]. The following assumptions are specific to the stochastic gradient and constrained settings. 
+
+Stochastic gradient feedback (Theorem 1 and Corollary 1). 
+
+Assumption 5 (Unbiased Oracle) E[gt | F t−1] = ∇ft(xt) for all t.
+
+Assumption 6 (Sub-Gaussian Noise) The gradient noise ξt = gt − ∇ ft(xt)
+
+is conditionally σ-sub-Gaussian: for all unit vectors v ∈ Rd and all t,
+
+Eexp  s⟨ξt, v ⟩ | F t−1
+
+ ≤ exp 
+
+ s2σ2
+
+2
+
+
+
+, ∀s ∈ R.
+
+The sub-Gaussian condition is stronger than bounded variance  E[∥ξt∥2 |Ft−1] ≤ dσ 2 but weaker than the bounded-noise assumption (∥ξt∥ ≤ B a.s. )
+
+used in classical analyses. It is satisfied by Gaussian noise, bounded noise, and any noise with a log-concave conditional distribution. For the tighter bound in Corollary 1, we additionally require: 
+
+Assumption 7 (Variance-Scaling Loss Differences) The losses ft are drawn i.i.d. from a distribution D. Let F (x) = E[f (x)] and x⋆F = arg min x∈K F (x).
+
+There exists σV > 0 such that the centered loss difference ft(x)−ft(x⋆F )− F (x)−
+
+F (x⋆F ) is conditionally σV ∥x − x⋆F ∥-sub-Gaussian given Ft−1, for ∀s ∈ R:
+
+E
+
+h
+
+exp 
+
+
+
+s ft(x) − ft(x⋆F ) − F (x) + F (x⋆F )
+
+| F t−1
+
+i
+
+≤ exp 
+
+ s2σ2 
+
+> V
+
+∥x − x⋆F ∥2
+
+2
+
+
+
+.Noise-Adaptive High-Probability Regret Bounds for OCO 7
+
+The sub-Gaussian MGF bound is essential for exponential concentration and is not implied by variance control alone. It is satisfied, for instance, by square losses ft(x) = ( a⊤ 
+
+> t
+
+x − bt)2 with sub-Gaussian measurements (at, b t).
+
+Stochastic constraints (Theorem 3). For the constrained setting, we relax strong convexity to general convexity and impose the following on the m constraint functions. 
+
+Assumption 8 (Stochastic Constraints) At each round t, the constraint func-tions g(1)  
+
+> t
+
+, . . . , g (m) 
+
+> t
+
+are drawn i.i.d. from a distribution Dg , independently of 
+
+Ft−1, and satisfy: (a) Convexity. ¯g(i)(x) = E[g(i) 
+
+> t
+
+(x)] is convex for each i ∈ [m].(b) Slater condition. There exists ˆx ∈ int( K) and ζ > 0 such that ¯g(i)(ˆ x) ≤ − ζ
+
+for all i.(c) Regularity. Each g(i) 
+
+> t
+
+is Lg -Lipschitz, and g(i) 
+
+> t
+
+(x)−¯g(i)(x) is σg -sub-Gaussian for each fixed x.(d) Uniform boundedness. |g(i) 
+
+> t
+
+(x)| ≤ Bg a.s. for all x ∈ K , i ∈ [m], and t ∈ [T ].
+
+Conditions (a) − − (c) are standard in the stochastic constrained OCO liter-ature [18, 30]. Condition (d) provides the almost-sure boundedness required for Freedman’s inequality; it is satisfied whenever the constraint functions take val-ues in a bounded range and implies |g(i) 
+
+> t
+
+(x) − ¯g(i)(x)| ≤ 2Bg a.s. We note that Lipschitz continuity on a compact domain alone yields only the oscillation bound 
+
+|h(x) − h(y)| ≤ 2Lg D for the noise function h = g(i) 
+
+> t
+
+− ¯g(i), not the pointwise bound |h(x)| ≤ 2Lg D; Condition (d) closes this gap. We emphasize that the assumptions are modular rather than cumulative. The noise-adaptive full-information bound uses Assumptions 1–6; the variance-scaling refinement additionally uses Assumption 7; and the constrained result uses the common bounded-gradient/domain conditions together with Assump-tion 8. Thus no single theorem requires all eight assumptions at once. Assump-tion 7 is mainly intended for stochastic ERM-style losses whose centered loss differences shrink with the distance to the population optimum, for example bounded-feature square losses or regularized generalized linear losses after stan-dard clipping or bounded-domain preprocessing. Assumption 8(d) is likewise natural in operational applications where constraints represent bounded bud-gets, normalized risk scores, latency penalties, or clipped safety signals. These examples delineate the intended scope of the results and also clarify that heavy-tailed or fully adversarial constraint noise would require different concentration tools. 
+
+## 4 Main Results 
+
+We present the three main results and their corollaries. For each theorem, we state the result, discuss its structure and implications, and provide a proof sketch highlighting the key steps. Complete proofs with all auxiliary lemmas are given 8 W. Zhang et al. 
+
+in Appendices A–D. For readability, the section can be viewed as three indepen-dent modules: Theorem 1 treats full-information stochastic gradients, Theorem 2 isolates the additional confidence cost of bandit feedback, and Theorem 3 stud-ies stochastic long-run constraints. The shared theme is not a single algorithmic setting but the concentration mechanism needed to obtain high-probability guar-antees. 
+
+4.1 Noise-Adaptive High-Probability Regret Bound 
+
+Consider projected OGD with stochastic gradients and step size ηt = 1 /(αt ):
+
+xt+1 = ΠK(xt − 1 
+
+> αt
+
+gt).
+
+Theorem 1 (Noise-Adaptive High-Probability Regret). Under Assump-tions 1–6, for all δ0, δ 1 ∈ (0 , 1) ,
+
+P
+
+
+
+RT ≤ B∇(δ0)2
+
+2α (1 + log T ) + σD 
+
+r
+
+2T log 1
+
+δ1
+
+
+
+≥ 1 − δ0 − δ1,
+
+where Bξ (δ0) = σp2d log(2 dT /δ 0) and B∇(δ0) = G + Bξ (δ0). Setting δ0 = δ1 =
+
+δ/ 2 yields confidence 1 − δ.
+
+The two probability budgets are fully separated. The parameter δ0 controls the truncation of sub-Gaussian noise (bounding ∥gt∥ on a high-probability event) and appears only in the first term; δ1 controls the martingale tail and appears only in the second. Expanding the first term reveals the structure: 
+
+B∇(δ0)2
+
+2α (1 + log T ) = G2
+
+2α (1 + log T )+ Gσ p2d log(2 dT /δ 0) + dσ 2 log(2 dT /δ 0)
+
+α (1 + log T ).
+
+The deterministic term recovers the classical rate with exact gradients. The truncation cost is dominated by the cross term Gσ pd log( dT /δ 0) · log T /α in the typical regime G ≫ σpd log( dT /δ 0). Compared with the Azuma–Hoeffding baseline, which bounds the martingale deviation by GD p2T log(1 /δ ), Theorem 1 replaces G with σ in this term—a multiplicative improvement of G/σ when 
+
+σ ≪ G. Thus the theorem should be read as a noise-adaptive refinement of the martingale component, not as a uniform domination of the classical bound in every parameter regime. The gain is most relevant when oracle noise is substan-tially smaller than the deterministic gradient scale, while for σ comparable to G
+
+the guarantee recovers the same qualitative order up to the explicit truncation terms. 
+
+Proof sketch. (See Appendix A for the complete proof.) The standard strongly convex OGD analysis with ηt = 1 /(αt ) yields the pathwise inequality 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+∥gt∥2
+
+2αt +
+
+> T
+
+X
+
+> t=1
+
+⟨ξt, x ⋆ − xt⟩.Noise-Adaptive High-Probability Regret Bounds for OCO 9
+
+Write the two sums as ST and MT , respectively. The first is the deterministic gradient-norm sum, and the second is a martingale. This decomposition fol-lows from the non-expansiveness of projection, strong convexity, and telescoping with the step-size schedule ηt = 1 /(αt ) (Lemma 2, Appendix A.1). The two terms are bounded separately with independent probability budgets. By the coordinate-wise sub-Gaussian tail bound and a union over d coordinates and T
+
+rounds (Lemma 3, Appendix A.2), the event E0(δ0) = {∥ ξt∥ ≤ Bξ (δ0), ∀t} holds with probability ≥ 1 − δ0. On this event, ∥gt∥ ≤ G + Bξ (δ0) = B∇(δ0), giving 
+
+ST ≤ B∇(δ0)2(1 + log T )/(2 α). Define Dt = ⟨ξt, x ⋆ − xt⟩. Since xt and x⋆ are 
+
+Ft−1-measurable and ξt is conditionally σ-sub-Gaussian (Assumption 6), the dif-ference Dt is conditionally sub-Gaussian with parameter σt = σ∥x⋆ − xt∥ ≤ σD .Crucially, this bound is deterministic via the diameter D—no conditioning on random events is needed. The process Zt = exp( λ P 
+
+> s≤t
+
+Ds − λ2
+
+> 2
+
+P 
+
+> s≤t
+
+σ2 
+
+> s
+
+) is a non-negative supermartingale with Z0 = 1 . Markov’s inequality on ZT and op-timization over λ yields P(MT ≥ σD p2T log(1 /δ 1)) ≤ δ1. This argument uses only the conditional MGF bound and bypasses the bounded-difference require-ment entirely. Combining the two events via a union bound gives the stated result. 
+
+4.2 Information-Theoretic Lower Bound under Bandit Feedback Theorem 2 (Minimax Lower Bound for Bandit Strongly Convex OCO). 
+
+For any bandit algorithm A in dimension d = 1 , there exists an environment in 
+
+E(α, G, D, 1) such that for all δ ∈ [T −c⋆/ log 2 , 1/4] :
+
+PA
+
+
+
+RT ≥ r0
+
+8c⋆
+
+log 1
+
+δ
+
+
+
+≥ δ, 
+
+where r0 = σ2  
+
+> εlog 2 2αD 2
+
+and c⋆ = dKL (1 /8 ∥ 1/4) ≈ 0.0469 . The proof establishes the stronger form ≥ 1 − δ; the stated form follows since δ ≤ 1/4.
+
+The admissible range δ ≥ T −c⋆/ log 2 ≈ T −0.068 links the confidence parameter to the time horizon; at the boundary, the lower bound recovers Ω( σ2 
+
+> ε
+> αD 2
+
+log T )
+
+with polynomially small probability. This range restriction is a limitation of the epoch-based testing construction: it certifies the linear confidence cost over polynomially small failure probabilities, rather than over arbitrarily tiny δ. Com-paring with Theorem 1: in the full-information setting, the confidence cost scales as plog(1 /δ ) through the martingale deviation; in the bandit setting, it scales as 
+
+log(1 /δ )—linearly. This is a genuine information-theoretic separation: the bandit learner pays linearly for confidence, while the full-information learner pays only a square-root cost. The extension to d ≥ 2 follows by Assouad’s method. 
+
+Proof sketch. (See Appendix B for the complete proof.) On K = [0 , D ], partition [T ] into K = ⌊log 2 T ⌋ epochs of doubling length 
+
+Tk = 2 k. In each epoch k, define a binary hypothesis: θk = 0 gives ft(x) =  
+
+> α
+> 2
+
+x2 + εt and θk = 1 gives ft(x) = α 
+
+> 2
+
+(x − ∆k)2 + εt, where εt ∼ N (0 , σ 2 
+
+> ε
+
+) is 10 W. Zhang et al. 
+
+additive noise independent of x. The additive design ensures constant observa-tion variance σ2 
+
+> ε
+
+under both hypotheses, avoiding the KL singularity that arises under multiplicative-noise models. Both hypotheses are α-strongly convex with 
+
+G = αD , since x, θ k ∈ [0 , D ].By the KL divergence formula for Gaussians with equal variance (Lemma 5, Appendix B.1), D(k)KL ≤ α2∆2
+
+> k
+
+D2Tk/(2 σ2 
+
+> ε
+
+). Choosing ∆k = c0σε/(αD √Tk) with 
+
+c20 = 2 log 2 gives D(k)KL ≤ log 2 and a per-epoch regret gap r0 = c20σ2 
+
+> ε
+
+/(4 αD 2) = 
+
+σ2 
+
+> ε
+
+log 2 /(2 αD 2), independent of k.The Bretagnolle–Huber lemma gives min A max( P0(A), P 1(Ac)) ≥ 12 e−DKL =1/4 for any test A, including tests defined by adaptive algorithms using all prior observations. Therefore P(error in epoch k | Hk−1) ≥ 1/4 almost surely. Since the error indicators Ek satisfy P(Ek = 1 | E0, . . . , E k−1) ≥ 1/4 a.s. (by the tower property applied to the finer filtration Hk−1), the total error count E =P 
+
+> k
+
+Ek stochastically dominates Bin( K, 1/4) by the conditional coupling lemma. The total regret satisfies RT ≥ E · r0. The multiplicative Chernoff bound gives 
+
+P(E ≥ K/ 8) ≥ 1 − e−c⋆K . Setting δ = e−c⋆K yields P(RT ≥ r0 log(1 /δ )/(8 c⋆)) ≥
+
+1 − δ.
+
+4.3 High-Probability Joint Guarantee for Constrained OCO 
+
+Consider primal-dual OGD with convex (not necessarily strongly convex) Gf -Lipschitz losses and m stochastic constraints: 
+
+xt+1 = ΠK
+
+
+
+xt − η
+
+
+
+∇ft(xt) + Pmi=1 λ(i) 
+
+> t
+
+∇g(i) 
+
+> t
+
+(xt)
+
+ 
+
+, λ (i) 
+
+> t+1
+
+=
+
+h
+
+λ(i) 
+
+> t
+
++ μ g (i) 
+
+> t
+
+(xt)
+
+i
+
+> +
+
+with η = D/ [( Gf + Bg Lg
+
+√T )√T ], μ = 1 /√T , and λ1 = 0 .
+
+Theorem 3 (High-Probability Joint Regret and Constraint Violation). 
+
+Under Assumptions 2–4 and 8, for all δ, δ 1, δ 2 ∈ (0 , 1) :
+
+P RT ≤ CR
+
+r
+
+T log mδ and ˆVT ≤ Cdet 
+
+√Tζ δ 1
+
++ CV m
+
+r
+
+T log mδ2
+
+!
+
+≥ 1−δ−δ1 −δ2,
+
+where CR, C V , C det > 0 depend on Gf , L g , D, B g , σ g , m . Setting δ1 = δ2 = δ
+
+gives confidence 1 − 3δ. The expected violation satisfies unconditionally: 
+
+E[ ˆVT ] ≤ m C det 
+
+√T / ζ. 
+
+The violation bound has two components with distinct statistical mechanisms and confidence dependences. The first term, Cdet 
+
+√T / (ζδ 1), arises from convert-ing the expected violation to high probability via Markov’s inequality; the 1/δ 1
+
+factor is tight for this conversion. The second term, CV mpT log( m/δ 2), con-trols the stochastic deviation of the constraint noise via Freedman’s inequality, leveraging the almost-sure boundedness from Assumption 8(d). Improving the 
+
+1/δ 1 dependence to log(1 /δ 1) would require a pathwise bound on the cumula-tive expected violation; this remains an open problem. Assumption 8(d) is also Noise-Adaptive High-Probability Regret Bounds for OCO 11 
+
+used specifically to invoke bounded-difference concentration. Weakening it to sub-exponential, finite-variance, or heavy-tailed constraint noise would require different tools, such as truncation-free self-normalized bounds or robust primal-dual updates, and is an important direction beyond the present analysis. 
+
+Proof sketch. (See Appendix C for the complete proof.) The standard primal-dual OGD analysis yields RT ≤ O (√T ) + MRT , where 
+
+MRT = P
+
+> t
+
+P 
+
+> i
+
+λ⋆i [g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt)] is a martingale with a.s. bounded differences 
+
+| · | ≤ 2λ⋆
+
+> max
+
+Bg (by Assumption 8(d)) and deterministic predictable quadratic variation W RT ≤ m(λ⋆
+
+> max
+
+)2σ2 
+
+> g
+
+T . Freedman’s inequality applied directly to MRT
+
+gives RT ≤ CR
+
+pT log( m/δ ) with probability ≥ 1 − δ. The a priori dual bound 
+
+Λ = Bg
+
+√T follows from the dual update rule and Assumption 8(d). For each constraint i, the cumulative constraint decomposes as P 
+
+> t
+
+g(i) 
+
+> t
+
+(xt) = 
+
+P (i) 
+
+> T
+
++ MV,i T , where P (i) 
+
+> T
+
+= P 
+
+> t
+
+¯g(i)(xt) is the expected component and MV,i T
+
+is a zero-mean martingale. To bound E[[ P (i) 
+
+> T
+
+]+], we evaluate the primal-dual regret inequality at the Slater point ˆx with a free dual parameter Λ0ei and take expectations: the tower property eliminates the martingale terms MV,i T and the Slater condition converts ¯g(j)(ˆ x) ≤ − ζ into a lower bound on the cumulative dual-weighted constraint (Lemma 6, Appendix C.1). A matching upper bound from the dual OGD regret with λ† = 0 controls E[AT ] + ζ P 
+
+> j,t
+
+E[λ(j) 
+
+> t
+
+] ≤ O (√T ).Combining and choosing Λ0 = ζ yields E[P
+
+> i
+
+[P (i) 
+
+> T
+
+]+] ≤ Cdet 
+
+√T /ζ . Markov’s inequality then gives P
+
+> i
+
+[P (i) 
+
+> T
+
+]+ ≤ Cdet 
+
+√T / (ζδ 1) with probability ≥ 1 − δ1.Each martingale MV,i T has differences bounded by 2Bg a.s. (Assumption 8(d)) and predictable quadratic variation W V,i T ≤ σ2 
+
+> g
+
+T . Freedman’s inequality with a union bound over m constraints and two-sided tails gives max i |M V,i T | ≤ O(pT log( m/δ 2)) with probability ≥ 1 − δ2. Using [P 
+
+> t
+
+g(i) 
+
+> t
+
+(xt)] + ≤ [P (i) 
+
+> T
+
+]+ +
+
+|M V,i T | and summing over i, a final union bound over the three independent events ( δ for regret, δ1 for expected violation, δ2 for stochastic violation) yields the joint guarantee. 
+
+4.4 Corollaries Corollary 1 (Variance-Scaling Refinement). Under Assumptions 1–7, the same projected OGD as in Theorem 1 satisfies: for all δ0, δ 1, δ 2 > 0 with δ0 +
+
+δ1 + δ2 ≤ δ,
+
+P RT ≤ B∇(δ0)2
+
+2α (1 + log T ) + σV (1 + log T )
+
+r 2Q′
+
+δ1
+
+log 1
+
+δ2
+
+!
+
+≥ 1 − δ, 
+
+where Q′ ≤ Ce = 2( G2 + dσ 2)/α 2 for T ≥ 3.
+
+The stochastic term now scales with σ2 
+
+> V
+
+∥xt − x⋆F ∥2 rather than the worst-case 
+
+σ2D2, at the cost of an extra (1 + log T ) factor and a 1/δ 1 term. The three budgets serve distinct roles: δ0 for noise truncation, δ1 for the stopping-time 12 W. Zhang et al. 
+
+trigger (the event that P 
+
+> t
+
+∥xt − x⋆F ∥2 exceeds its mean), and δ2 for the stopped supermartingale tail. 
+
+Proof sketch. (See Appendix D for the complete proof.) The regret decomposes as RT ≤ ST + P 
+
+> t
+
+∆t, where ∆t = [ ft(xt) − F (xt)] −
+
+[ft(x⋆F ) − F (x⋆F )] is conditionally σV ∥xt − x⋆F ∥-sub-Gaussian by Assumption 7. The exponential supermartingale Zt = exp( λ P 
+
+> s≤t
+
+∆s − λ2 
+
+> 2
+
+σ2
+
+> V
+
+P 
+
+> s≤t
+
+es) is valid, but the variance proxy VT = σ2
+
+> V
+
+P 
+
+> t
+
+et is now random. We show E[VT ] ≤
+
+σ2 
+
+> V
+
+Q′(1 + log T )2 via a direct unrolling of the one-step contraction E[et+1 ] ≤
+
+(1 − 1/t )E[et] + Ce/t 2, which yields the correct rate E[et] = O(log t/t ) (Lemma 7, Appendix A.3). A stopping time τ = min {t : Vt > V budget  
+
+> T
+
+} ∧ (T + 1) with 
+
+V budget  
+
+> T
+
+= E[VT ]/δ 1 makes the variance proxy deterministic on {t ≤ τ }; Markov’s inequality gives P(τ ≤ T ) ≤ δ1. The stopped supermartingale Zt∧τ then admits a standard Markov-based tail bound with budget δ2. On {τ > T }, the stopped and original sums coincide, completing the argument. 
+
+Corollary 2 (Full-Information vs. Bandit Separation). The confidence cost of strongly convex OCO, defined as the growth rate of the high-probability regret as δ → 0, exhibits a feedback-dependent dichotomy: - Full information (Theorem 1): plog(1 /δ ), through the martingale deviation; - Bandit feedback (Theorem 2): Ω(log(1 /δ )) , linearly in log(1 /δ ).
+
+Corollary 3 (Online-to-Batch Conversion). Under the conditions of Corol-lary 1, the averaged iterate ¯xT = 1
+
+> T
+
+PTt=1 xt satisfies 
+
+P F (¯ xT ) − F (x⋆F ) ≤ C log TαT + C′σD 
+
+√T
+
+r
+
+log 1
+
+δ
+
+!
+
+≥ 1 − O (δ).
+
+This follows by dividing the Theorem 1 bound by T and applying Jensen’s inequality. 
+
+## 5 Experiments 
+
+We conduct three groups of synthetic experiments to validate the theoretical predictions of Theorems 1 through 3. The purpose of these experiments is con-trolled theorem validation rather than a full application benchmark: each experi-ment isolates one predicted scaling law while keeping the data-generating process transparent. Evaluating the same guarantees in domain-specific systems, such as portfolio or resource-allocation deployments with real constraints, is left for fu-ture empirical work. All experiments use projected Online Gradient Descent on strongly convex quadratic losses over an ℓ2-ball K = {x ∈ Rd : ∥x∥ ≤ R} with step sizes ηt = 1 /(αt ). Unless stated otherwise, we set d = 5 , α = 1 , and R = 1 ,yielding a diameter D = 2 , and repeat each configuration over 10 ,000 indepen-dent trials to obtain reliable empirical tail statistics. All code is available in the supplementary material. Noise-Adaptive High-Probability Regret Bounds for OCO 13 10 3                      
+
+> 10 2
+> 10 1
+> Failure probability
+> 10 2
+> 10 3
+> Regret  RT
+> (a) Tail comparison ( T= 1000 ,d= 5 )
+> Empirical /G= 0.01
+> Azuma bound
+> Empirical /G= 0.05
+> Empirical /G= 0.1
+> Empirical /G= 0.5
+> 10 210 3
+> Time horizon T
+> 10 1
+> 10 2
+> 10 3
+> Regret  RT at  = 0.05
+> (b) Scaling with T(/G= 0.05 )
+> Empirical 95 -th pctile
+> Theorem 1 bound
+> Azuma bound
+> O(log T)reference
+
+Fig. 1. Experiment 1: Noise-adaptive regret bound (Theorem 1). (a) Empirical (1 −δ)-quantile of RT versus failure probability δ for four noise levels. Dashed lines: Theorem 1 bounds; dotted gray: Azuma bound. (b) 95 th-percentile regret scaling with T at σ/G =0.05 . The empirical curve follows the O(log T ) reference. 
+
+5.1 Noise-Adaptive Bound Verification Setup. We consider losses ft(x) = α 
+
+> 2
+
+∥x∥2 +⟨ct, x ⟩ with oblivious cost vectors ct ∈
+
+Rd fixed before the game, satisfying ∥ct∥ = Gbase = 2 to yield an overall gradient bound G = Gbase +αR = 3 . The stochastic gradient oracle returns gt = ∇ft(xt)+ 
+
+ξt for ξt ∼ N (0 , σ 2Id). Varying the noise ratio σ/G ∈ { 0.01 , 0.05 , 0.1, 0.5} spans regimes from near-exact gradients to moderate noise. For each configuration, we compute the empirical 1 − δ quantile of cumulative regret RT across trials to compare against the classical Azuma-Hoeffding bound and the Theorem 1 bound using δ0 = δ1 = δ/ 2.
+
+Results. Figure 1(a) shows that the empirical high-probability regret quantiles track the noise-adaptive bound across the tested noise levels and stay well below the Azuma-Hoeffding baseline when σ ≪ G. Figure 1(b) verifies the logarithmic dependence on T at a fixed noise ratio σ/G = 0 .05 . Together, these results confirm that the martingale deviation is governed by the oracle noise level rather than the worst-case gradient norm. This experiment is therefore focused on the noise-adaptive improvement in Theorem 1; the feedback-dependent confidence-cost separation is tested separately in Section 5.2. 
+
+5.2 Full-Information vs. Bandit Confidence Cost Setup. To validate the information-theoretic separation from Theorem 2 and Corollary 2, we compare full-information and bandit confidence costs on a one-dimensional strongly convex problem ( d = 1 , α = 1 , K = [ −1, 1] ). Under full information, the learner receives gt = ∇ft(xt)+ ξt (ξt ∼ N (0 , σ 2), σ = 0 .3). With bandit feedback, the learner observes only scalar losses ft(xt)+ εt (εt ∼ N (0 , σ 2 
+
+> ε
+
+),
+
+σε = 0 .3) to construct a one-point gradient estimator using smoothing parame-ter μ = 0 .05 . We run 20 ,000 independent trials over T = 2 ,000 .
+
+Results. Figure 2(a) plots the empirical 1−δ quantile of RT against log(1 /δ ) for 14 W. Zhang et al. 0 1 2 3 4 5 6 7 8                 
+
+> log(1/ )
+> 0
+> 100
+> 200
+> 300
+> 400
+> Empirical  (1  )-quantile of  RT
+> (a) Confidence cost comparison ( T= 2000 )
+> Full-information OGD
+> Bandit OGD
+> log(1/ )fit
+> log(1/ )fit
+> 012345678
+> log(1/ )
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Normalized tail growth
+> (b) Normalized confidence cost scaling
+> Full-info (normalized)
+> Bandit (normalized)
+> log(1/ )
+> log(1/ )
+
+Fig. 2. Experiment 2: Confidence cost separation (Theorem 2, Corollary 2). (a) Empir-ical (1 − δ)-quantile of RT versus log(1 /δ ). Full-information (blue) grows as plog(1 /δ );bandit (red) grows linearly. (b) Normalized tail growth to isolate the functional form. 
+
+both feedback models. The key prediction is that confidence cost—the growth rate of high-probability regret as δ → 0—scales as plog(1 /δ ) under full infor-mation (Theorem 1) but linearly as log(1 /δ ) under bandit feedback (Theorem 2). Empirical curves confirm this: the full-information quantile shows concave sublinear growth matching the plog(1 /δ ) reference, while the bandit quantile grows approximately linearly. Figure 2(b) shows normalized tail growth, median-subtracted and rescaled to a unit maximum, highlighting the functional-form separation. This evidence suggests the linear bandit confidence cost is a gen-uine information-theoretic phenomenon rather than a proof-technique artifact, demonstrating that bandit learners pay a fundamentally higher price for confi-dence. 
+
+5.3 Constrained OCO Joint Guarantee Setup. To test Theorem 3’s joint high-probability guarantee, we design an on-line linear optimization problem with m stochastic constraints over K = {x ∈
+
+R5 : ∥x∥ ≤ 1}. The losses ft(x) = ⟨ct, x ⟩ have mean directions pushing iterates toward boundaries, creating tension between regret and constraints. Each con-straint g(i) 
+
+> t
+
+(x) = ⟨a(i), x ⟩ − b(i) + w(i) 
+
+> t
+
+uses fixed directions ∥a(i)∥ = Lg = 1 .5 and 
+
+b(i) = ζ, making x = 0 a Slater point with margin ζ. The noise w(i) 
+
+> t
+
+∼ N (0 , σ 2 
+
+> g
+
+)
+
+has σg = 0 .8, clipped to [−Bg , B g ] with Bg = 3 . Running primal-dual OGD with 
+
+η = D/ [( Gf + Bg Lg
+
+√T )√T ] and μ = 1 /√T , we track cumulative regret RT and long-run violation ˆVT = Pmi=1 
+
+hPTt=1 g(i) 
+
+> t
+
+(xt)
+
+i
+
+> +
+
+.
+
+Results. Figure 3(a) plots the (RT , ˆVT ) joint empirical distribution at T =1,000 , m = 5 , and ζ = 0 .15 . The 95th-percentile contours indicate mostly low regret and violation, their weak correlation matching Theorem 3’s independent probability budgets δ, δ1, and δ2. In Figure 3(b), RT ’s empirical 1 − δ quan-tile tracks the pT log( m/δ ) reference from Freedman’s inequality on the re-Noise-Adaptive High-Probability Regret Bounds for OCO 15 80 100 120 140 160 180 200 220                                        
+
+> Cumulative regret RT
+> 0
+> 5
+> 10
+> 15
+> 20
+> 25
+> 30
+> 35
+> 40
+> Cumulative violation  VT
+> (a) Joint distribution ( T= 1000 ,m= 5 ,= 0.15 )
+> 95 -th pctile violation
+> 95 -th pctile regret
+> 10 3
+> 10 2
+> 10 1
+> Failure probability
+> 10 0
+> 10 1
+> 10 2
+> Bound value
+> (b) Tail comparison
+> Regret RT
+> Violation VT
+> Tlog( m/)ref
+> 2.5 5.0 7.5 10.0 12.5 15.0 17.5 20.0
+> Number of constraints m
+> 0
+> 25
+> 50
+> 75
+> 100
+> 125
+> 150
+> 175
+> Value
+> (c) Sensitivity to m(= 0.05 )
+> Regret (1 )-quantile
+> Violation (1 )-quantile
+> Violation mean
+> 0.1 0.2 0.3 0.4 0.5
+> Slater gap
+> 0
+> 50
+> 100
+> 150
+> 200
+> 250
+> Value
+> (d) Sensitivity to (m= 5 ,= 0.05 )
+> Regret (1 )-quantile
+> Violation (1 )-quantile
+> Violation mean
+> O(1/ ) reference
+
+Fig. 3. Experiment 3: Constrained OCO joint guarantee (Theorem 3). (a) Scatter plot of (RT , ˆVT ) for T = 1 ,000 , m = 5 , ζ = 0 .15 . (b) Tail comparison of regret and violation versus δ. (c) Sensitivity to m at δ = 0 .05 . (d) Sensitivity to ζ with O(1 /ζ ) reference. 
+
+gret martingale M RT , confirming the plog( m/δ ) confidence cost. Figure 3(c) varies constraints m ∈ { 1, 3, 5, 10 , 20 } at ζ = 0 .15 . Counterintuitively, the viola-tion quantile decreases with m as diverse constraints shrink the feasible region, forcing conservative primal-dual iterates. The regret quantile lacks a monotone 
+
+m-trend, reflecting complex constraint-loss interactions. Figure 3(d) varies the Slater gap ζ ∈ { 0.05 , 0.1, 0.15 , 0.3, 0.5} at m = 5 . Matching Theorem 3’s pre-dicted O(√T /ζ ) inverse-linear scaling, empirical mean violation drops from 10.19 at ζ = 0 .05 to 6.73 at ζ = 0 .15 , and reaches zero for ζ ≥ 0.3, where the large margin avoids the boundary. With an overlaid O(1 /ζ ) reference, this illustrates the Slater condition: larger feasibility margins restrict dual variable growth, re-ducing expected violation and its high-probability tail. 
+
+## 6 Conclusion 
+
+We sharpen high-probability strongly convex online convex optimization via three results. Under full information, an exponential supermartingale yields a noise-adaptive regret bound scaling with noise σ instead of gradient bound G, by-passing Freedman’s bounded-difference requirement and separating probability 16 W. Zhang et al. 
+
+budgets. Bandit confidence costs scale linearly in log(1 /δ ), proving information-theoretic separation from the plog(1 /δ ) full-information rate. For constrained OCO, we guarantee simultaneous high-probability regret and long-run viola-tion under Slater-conditioned stochastic constraints. Open questions include im-proving 1/δ violation dependence to log(1 /δ ) via pathwise drift-Lyapunov con-trol, extending noise adaptivity to bandits with nontrivial bias-supermartingale interactions, and generalizing to adversarial constraints. Our supermartingale paradigm and budget-separation principle offer versatile templates for broader sequential decision-making. 
+
+## 7 Use of LLMs 
+
+We used large language models (LLMs) solely for minor writing polish. 
+
+## References 
+
+1. Abernethy, J., Bartlett, P.L., Rakhlin, A., Tewari, A.: Optimal strategies and min-imax lower bounds for online convex games. In: Proceedings of the 21st Annual Conference on Learning Theory (2008) 2. Agarwal, A., Dekel, O., Xiao, L.: Optimal algorithms for online convex optimization with multi-point bandit feedback. In: Colt. pp. 28–40 (2010) 3. Bartlett, P.L., Bousquet, O., Mendelson, S.: Local rademacher complexities. The Annals of Statistics 33 (4), 1497–1537 (2005) 4. Beygelzimer, A., Langford, J., Li, L., Reyzin, L., Schapire, R.: Contextual bandit algorithms with supervised learning guarantees. In: Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics. pp. 19–26. JMLR Workshop and Conference Proceedings (2011) 5. Castiglioni, M., Celli, A., Marchesi, A., Romano, G., Gatti, N.: A unifying frame-work for online optimization with long-term constraints. Advances in Neural In-formation Processing Systems 35 , 33589–33602 (2022) 6. Cutkosky, A., Orabona, F.: Black-box reductions for parameter-free online learn-ing in banach spaces. In: Conference On Learning Theory. pp. 1493–1529. PMLR (2018) 7. Dani, V., Hayes, T.P., Kakade, S.M.: Stochastic linear optimization under bandit feedback. In: 21st Annual Conference on Learning Theory. pp. 355–366 (2008) 8. Dubhashi, D.P., Panconesi, A.: Concentration of measure for the analysis of ran-domized algorithms. Cambridge University Press (2009) 9. Flaxman, A.D., Kalai, A.T., McMahan, H.B.: Online convex optimization in the bandit setting: gradient descent without a gradient. arXiv preprint cs/0408007 (2004) 10. Guo, H., Liu, X., Wei, H., Ying, L.: Online convex optimization with hard con-straints: Towards the best of two worlds and beyond. Advances in Neural Informa-tion Processing Systems 35 , 36426–36439 (2022) 11. Harvey, N.J., Liaw, C., Plan, Y., Randhawa, S.: Tight analyses for non-smooth stochastic gradient descent. In: Conference on Learning Theory. pp. 1579–1613. PMLR (2019) 12. Hazan, E.: Introduction to online convex optimization. Foundations and Trends in Optimization 2(3-4), 157–325 (2016) Noise-Adaptive High-Probability Regret Bounds for OCO 17 13. Hazan, E., Agarwal, A., Kale, S.: Logarithmic regret algorithms for online convex optimization. Machine Learning 69 (2), 169–192 (2007) 14. Hazan, E., Levy, K.: Bandit convex optimization: Towards tight bounds. Advances in Neural Information Processing Systems 27 (2014) 15. Jenatton, R., Huang, J., Archambeau, C.: Adaptive algorithms for online convex optimization with long-term constraints. In: International Conference on Machine Learning. pp. 402–411. PMLR (2016) 16. Kakade, S.M., Shalev-Shwartz, S., Tewari, A.: Efficient bandit algorithms for on-line multiclass prediction. In: Proceedings of the 25th international conference on Machine learning. pp. 440–447 (2008) 17. Liakopoulos, N., Destounis, A., Paschos, G., Spyropoulos, T., Mertikopoulos, P.: Cautious regret minimization: Online optimization with long-term budget con-straints. In: International Conference on Machine Learning. pp. 3944–3952. PMLR (2019) 18. Mahdavi, M., Jin, R., Yang, T.: Trading regret for efficiency: online convex opti-mization with long term constraints. The Journal of Machine Learning Research 
+
+13 (1), 2503–2528 (2012) 19. Mannor, S., Tsitsiklis, J.N.: Online learning with constraints. In: International Conference on Computational Learning Theory. pp. 529–543. Springer (2006) 20. Neely, M.: Stochastic network optimization with application to communication and queueing systems. Morgan & Claypool Publishers (2010) 21. Neely, M.J., Yu, H.: Online convex optimization with time-varying constraints. arXiv preprint arXiv:1702.04783 (2017) 22. de la Pena, V.H., Klass, M.J., Leung Lai, T.: Self-normalized processes: expo-nential inequalities, moment bounds and iterated logarithm laws. The Annals of Probability 32 (3A), 1902–1933 (2004) 23. De la Pena, V.H., Lai, T.L., Shao, Q.M.: Self-normalized processes: Limit theory and Statistical Applications. Springer (2009) 24. Rakhlin, S., Sridharan, K.: Optimization, learning, and games with predictable sequences. Advances in Neural Information Processing Systems 26 (2013) 25. Ramdas, A., Grünwald, P., Vovk, V., Shafer, G.: Game-theoretic statistics and safe anytime-valid inference. Statistical Science 38 (4), 576–601 (2023) 26. Shalev-Shwartz, S.: Online learning and online convex optimization. Foundations and Trends ® in Machine Learning 4(2), 107–194 (2025) 27. Shamir, O., Zhang, T.: Stochastic gradient descent for non-smooth optimization: Convergence results and optimal averaging schemes. In: International conference on machine learning. pp. 71–79. PMLR (2013) 28. Steinhardt, J., Liang, P.: Adaptivity and optimism: An improved exponentiated gradient algorithm. In: International conference on machine learning. pp. 1593– 1601. PMLR (2014) 29. Yi, X., Li, X., Yang, T., Xie, L., Chai, T., Johansson, K.: Regret and cumula-tive constraint violation analysis for online convex optimization with long term constraints. In: International conference on machine learning. pp. 11998–12008. PMLR (2021) 30. Yu, H., Neely, M., Wei, X.: Online convex optimization with stochastic constraints. Advances in Neural Information Processing Systems 30 (2017) 18 W. Zhang et al. 
+
+## A Auxiliary Lemmas 
+
+We collect the auxiliary tools used throughout the proofs. 
+
+A.1 Freedman’s Inequality Lemma 1 (Freedman, 1975). Let (Dt, Ft)nt=1 be a martingale difference se-quence with |Dt| ≤ b almost surely. Let Wn = Pnt=1 E[D2 
+
+> t
+
+| F t−1] denote the predictable quadratic variation. Then for all ε > 0 and v > 0,
+
+P
+
+> n
+
+X
+
+> t=1
+
+Dt ≥ ε and Wn ≤ v
+
+!
+
+≤ exp 
+
+
+
+− ε2
+
+2( v + bε/ 3) 
+
+
+
+.
+
+Remark 1. The strength of Freedman’s inequality over Azuma–Hoeffding is its sensitivity to the actual predictable quadratic variation Wn, not merely the worst-case bound nb 2. When Wn ≪ nb 2, Freedman yields strictly sharper tail bounds. In this paper, Freedman is used in Theorem 3 (where constraint differ-ences are a.s. bounded by Assumption 8(d)) and in Lemma 4 (the stopped mar-tingale tool). Theorem 1 instead uses the sub-Gaussian supermartingale method, which avoids the bounded-difference requirement entirely. 
+
+A.2 Deterministic Regret Decomposition Lemma 2. Under Assumptions 1–6, consider projected OGD with step sizes 
+
+ηt = 1 
+
+> αt
+
+and stochastic gradients: xt+1 = ΠK(xt − ηtgt). Denote et = ∥xt − x⋆∥2.Then the following pathwise inequality holds for every realization: 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+∥gt∥2
+
+2αt +
+
+> T
+
+X
+
+> t=1
+
+⟨ξt, x ⋆ − xt⟩.
+
+Proof. By the non-expansiveness of Euclidean projection onto a convex set, for any u ∈ K :
+
+∥xt+1 − u∥2 = ∥ΠK(xt − ηtgt) − u∥2 ≤ ∥ xt − ηtgt − u∥2.
+
+Expanding the right-hand side: 
+
+∥xt+1 − u∥2 ≤ ∥ xt − u∥2 − 2ηt⟨gt, x t − u⟩ + η2 
+
+> t
+
+∥gt∥2.
+
+Rearranging: 
+
+⟨gt, x t − u⟩ ≤ ∥xt − u∥2 − ∥ xt+1 − u∥2
+
+2ηt
+
++ ηt
+
+2 ∥gt∥2. (L2.1) Since gt = ∇ft(xt) + ξt:
+
+⟨∇ ft(xt), x t − x⋆⟩ = ⟨gt, x t − x⋆⟩ − ⟨ ξt, x t − x⋆⟩.Noise-Adaptive High-Probability Regret Bounds for OCO 19 
+
+By Assumption 1 applied with x = xt and y = x⋆:
+
+ft(x⋆) ≥ ft(xt) + ⟨∇ ft(xt), x ⋆ − xt⟩ + α
+
+2 ∥xt − x⋆∥2.
+
+Rearranging: 
+
+ft(xt) − ft(x⋆) ≤ ⟨∇ ft(xt), x t − x⋆⟩ − α
+
+2 et. (L2.2) This step uses only the definition of α-strong convexity and is valid for all 
+
+xt, x ⋆ ∈ K , regardless of whether x⋆ minimizes ft individually. Substituting into inequality (L2.2) and applying (L2.1) with u = x⋆:
+
+ft(xt) − ft(x⋆) ≤ et − et+1 
+
+2ηt
+
++ ηt
+
+2 ∥gt∥2 + ⟨ξt, x ⋆ − xt⟩ − α
+
+2 et.
+
+With ηt = 1 /(αt ), we have 12ηt = αt  
+
+> 2
+
+. The coefficient of et in the telescoping is: 
+
+αt 
+
+2 − α
+
+2 = α(t − 1) 2
+
+and the coefficient of −et+1 is αt  
+
+> 2
+
+. Summing over t = 1 , . . . , T :
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+ α(t − 1) 2 et − αt 
+
+2 et+1 
+
+
+
++
+
+> T
+
+X
+
+> t=1
+
+∥gt∥2
+
+2αt +
+
+> T
+
+X
+
+> t=1
+
+⟨ξt, x ⋆ − xt⟩. (L2.3) We now evaluate the telescoping sum. Define at = α(t−1) 2 (coefficient of et) and 
+
+bt = αt  
+
+> 2
+
+(coefficient of −et+1 ). Then: 
+
+> T
+
+X
+
+> t=1
+
+[atet − btet+1 ] = a1e1 +
+
+> T
+
+X
+
+> t=2
+
+(at − bt−1)et − bT eT +1 .
+
+Computing at − bt−1 = α(t−1) 2 − α(t−1) 2 = 0 for all t ≥ 2. Also a1 = 0 . Therefore: 
+
+> T
+
+X
+
+> t=1
+
+[atet − btet+1 ] = − αT 
+
+2 eT +1 ≤ 0,
+
+since eT +1 ≥ 0. Dropping this non-positive term from (L2.3) yields: 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+∥gt∥2
+
+2αt +
+
+> T
+
+X
+
+> t=1
+
+⟨ξt, x ⋆ − xt⟩.
+
+A.3 Noise Norm Control Lemma 3. Under Assumptions 5–6, for any δ0 ∈ (0 , 1) , define the event 
+
+E0(δ0) = {∥ ξt∥ ≤ Bξ (δ0) ∀t ∈ [T ]} , Bξ (δ0) = σ
+
+r
+
+2d log 2dT δ0
+
+.
+
+Then P(E0(δ0)) ≥ 1 − δ0.20 W. Zhang et al. 
+
+Proof. By Assumption 6, each coordinate ξ(j) 
+
+> t
+
+is σ-sub-Gaussian conditionally on 
+
+Ft−1. By the sub-Gaussian tail bound: P(|ξ(j) 
+
+> t
+
+| > u | F t−1) ≤ 2 exp( −u2/(2 σ2)) .Setting u = σp2 log(2 dT /δ 0) gives P(|ξ(j) 
+
+> t
+
+| > u | F t−1) ≤ δ0/(dT ). By a union bound over all d coordinates and T rounds: 
+
+P
+
+
+
+∃t ∈ [T ], j ∈ [d] : |ξ(j) 
+
+> t
+
+| > u 
+
+
+
+≤ dT · δ0
+
+dT = δ0.
+
+On the complement event E0(δ0): ∥ξt∥2 = P 
+
+> j
+
+(ξ(j) 
+
+> t
+
+)2 ≤ d·u2 = 2 dσ 2 log(2 dT /δ 0).Therefore ∥ξt∥ ≤ Bξ (δ0), and ∥gt∥ ≤ G + Bξ (δ0) =: B∇(δ0) on E0(δ0).
+
+A.4 Stopped Martingale Concentration Lemma 4. Let (Dt, Ft)Tt=1 be a martingale difference sequence with |Dt| ≤ b
+
+a.s. Suppose there exist Ft−1-measurable non-negative random variables (σ2 
+
+> t
+
+)Tt=1 
+
+and a deterministic constant V > 0 such that: (a) E[D2 
+
+> t
+
+| F t−1] ≤ σ2 
+
+> t
+
+a.s. for all t;(b) The stopping time τ = min {t ≥ 1 : Pts=1 σ2 
+
+> s
+
+> V } ∧ (T + 1) satisfies 
+
+P(τ ≤ T ) ≤ δ1 for some δ1 ∈ (0 , 1) . Then for all δ2 ∈ (0 , 1) :
+
+P
+
+> T
+
+X
+
+> t=1
+
+Dt ≥
+
+r
+
+2V log 1
+
+δ2
+
++ 2b
+
+3 log 1
+
+δ2
+
+!
+
+≤ δ1 + δ2.
+
+Proof. Define the stopped martingale differences ˜Dt = Dt · 1{t ≤ τ }. We verify that ( ˜Dt, Ft) is a martingale difference sequence. The event {t ≤ τ } = {τ ≥ t} is equivalent to {Pt−1 
+
+> s=1
+
+σ2 
+
+> s
+
+≤ V } (since τ is the first time the cumulative variance proxy exceeds V , and the σ2 
+
+> s
+
+are Fs−1-measurable). Therefore {t ≤ τ } ∈ F t−1,which is the key measurability property. The conditional expectation: 
+
+E[ ˜Dt | F t−1] = 1{t ≤ τ } · E[Dt | F t−1] = 0 ,
+
+where we used (i) 1{t ≤ τ } is Ft−1-measurable (established above), so it factors out of the conditional expectation; (ii) E[Dt | F t−1] = 0 since (Dt) is a martingale difference sequence. Since |Dt| ≤ b a.s., | ˜Dt| ≤ b a.s. The conditional variance of the stopped process: 
+
+E[ ˜D2 
+
+> t
+
+| F t−1] = 1{t ≤ τ } · E[D2 
+
+> t
+
+| F t−1] ≤ 1{t ≤ τ } · σ2 
+
+> t
+
+.
+
+The predictable quadratic variation of the stopped process satisfies the deter-ministic bound: 
+
+˜WT =
+
+> T
+
+X
+
+> t=1
+
+E[ ˜D2 
+
+> t
+
+| F t−1] ≤
+
+> T
+
+X
+
+> t=1
+
+1{t ≤ τ } · σ2 
+
+> t
+
+≤ V. 
+
+The last inequality holds by definition of τ : for all t ≤ τ , Pts=1 σ2 
+
+> s
+
+≤ V (by the stopping condition), and for t > τ , the indicator is zero. Since ( ˜Dt) is a Noise-Adaptive High-Probability Regret Bounds for OCO 21 
+
+martingale difference sequence with | ˜Dt| ≤ b and ˜WT ≤ V deterministically, Lemma 1 (Freedman) applies directly (without any conditioning on random events): 
+
+P
+
+> T
+
+X
+
+> t=1
+
+˜Dt ≥ ε and ˜WT ≤ V
+
+!
+
+≤ exp 
+
+
+
+− ε2
+
+2( V + bε/ 3) 
+
+
+
+.
+
+Since ˜WT ≤ V holds deterministically, the event " ˜WT ≤ V " has probability 1, so: 
+
+P
+
+> T
+
+X
+
+> t=1
+
+˜Dt ≥ ε
+
+!
+
+≤ exp 
+
+
+
+− ε2
+
+2( V + bε/ 3) 
+
+
+
+. (L4.1) Setting ε = p2V log(1 /δ 2) + 2b 
+
+> 3
+
+log(1 /δ 2) and using the exact algebraic verifica-tion below, the right-hand side of (L4.1) is at most δ2. Algebraic verification. We must verify that ε2  
+
+> 2( V+bε/ 3)
+
+≥ log 1 
+
+> δ2
+
+. Define L = log(1 /δ 2) > 0. The inequality is equivalent to ε2 − 2bL  
+
+> 3
+
+ε − 2V L ≥ 0. This quadratic in ε has non-negative root: 
+
+ε0 = bL 
+
+3 +
+
+r b2L2
+
+9 + 2 V L. 
+
+Any ε ≥ ε0 satisfies the inequality. Substituting ε0 into the Freedman exponent gives ε20  
+
+> 2( V+bε 0/3)
+
+= L exactly, confirming the failure probability is e−L = δ2. We show ε = √2V L + 2bL  
+
+> 3
+
+≥ ε0 = bL  
+
+> 3
+
++
+
+q b2L2 
+
+> 9
+
++ 2 V L . This is equivalent to: 
+
+√2V L + bL 
+
+3 ≥
+
+r b2L2
+
+9 + 2 V L. 
+
+The left-hand side is ≥ 0 (both terms are non-negative). Squaring both sides (valid since both sides are non-negative): 
+
+2V L + 2bL 
+
+3
+
+√2V L + b2L2
+
+9 ≥ b2L2
+
+9 + 2 V L. 
+
+Simplifying: 2bL 
+
+> 3
+
+√2V L ≥ 0, which holds since b, L, V ≥ 0. Therefore ε ≥ ε0, and Freedman’s inequality gives: 
+
+exp 
+
+
+
+− ε2
+
+2( V + bε/ 3) 
+
+
+
+≤ exp 
+
+
+
+− ε20
+
+2( V + bε 0/3) 
+
+
+
+= exp( −L) = δ2,
+
+where the first inequality uses the monotonicity of ϕ(ε) = ε2  
+
+> 2( V+bε/ 3)
+
+for ε ≥ 0.Define ϕ(ε) = ε2  
+
+> 2( V+bε/ 3)
+
+for ε ≥ 0. Differentiating: 
+
+ϕ′(ε) = 2ε(V + bε/ 3) − ε2 · b/ 32( V + bε/ 3) 2 = ε(2 V + bε/ 3) 2( V + bε/ 3) 2 > 0 for ε > 0.22 W. Zhang et al. 
+
+So ϕ is strictly increasing on (0 , ∞), confirming that ε ≥ ε0 implies ϕ(ε) ≥
+
+ϕ(ε0) = L. The exact threshold ε0 satisfies: in the regime V ≫ b2L (large variance), ε0 ≈ √2V L + bL  
+
+> 3
+
+; in the regime V ≪ b2L (small variance), ε0 ≈ 2bL  
+
+> 3
+
+.Our threshold ε = √2V L + 2bL  
+
+> 3
+
+exceeds ε0 by at most bL  
+
+> 3
+
+, which is a lower-order additive term. The bound is tight up to the constant in the second term. On the event {τ > T } (i.e., the stopping time is never triggered during [T ]), the stopped and original processes coincide: ˜Dt = Dt for all t ∈ [T ], hence 
+
+PTt=1 ˜Dt = PTt=1 Dt. Therefore: 
+
+P
+
+> T
+
+X
+
+> t=1
+
+Dt ≥ ε
+
+!
+
+≤ P(τ ≤ T ) + P
+
+> T
+
+X
+
+> t=1
+
+˜Dt ≥ ε
+
+!
+
+≤ δ1 + δ2,
+
+where ε = p2V log(1 /δ 2) + 2b 
+
+> 3
+
+log(1 /δ 2).
+
+A.5 Change-of-Measure for Bandit Lower Bound Lemma 5. Let K = [0 , D ] ⊂ R (so that diam( K) = D). Let P0 and Pμ be two bandit OCO environments on K with: Under P0: ft(x) = α 
+
+> 2
+
+x2 + εt where εt
+
+> i.i.d.
+
+∼ N (0 , σ 2 
+
+> ε
+
+);Under Pμ: ft(x) = α 
+
+> 2
+
+(x − μ)2 + εt for some μ ∈ (0 , D ].Both are α-strongly convex with G-bounded gradients ( G = αD ), since θ ∈{0, μ } ⊂ [0 , D ] = K and x ∈ K imply |∇ ft(x)| = α|x−θ| ≤ αD . Under one-point bandit feedback, the KL divergence between the induced observation distributions satisfies 
+
+DKL (P T 
+
+> 0
+
+∥P Tμ ) ≤ α2μ2D2T
+
+2σ2
+
+> ε
+
+.
+
+The noise εt enters additively into the loss function, not multiplicatively as 
+
+εtx. This is a deliberate design choice: under additive noise, the observation 
+
+yt = ft(xt) = α 
+
+> 2
+
+x2 
+
+> t
+
++ εt (under P0) has conditional distribution N ( α 
+
+> 2
+
+x2 
+
+> t
+
+, σ 2 
+
+> ε
+
+)
+
+with variance σ2 
+
+> ε
+
+independent of xt. A multiplicative model εtxt would produce variance σ2 
+
+> ε
+
+x2 
+
+> t
+
+, creating a singularity at xt = 0 that makes the per-round KL divergence Dt unbounded when xt is small. The additive model avoids this en-tirely while preserving all required properties ( α-strong convexity, G-Lipschitz gradients, σε-sub-Gaussian noise). Proof. Under one-point bandit feedback, the observation at round t is yt =
+
+ft(xt). Under P0: yt = α 
+
+> 2
+
+x2 
+
+> t
+
++ εt. Conditional on xt (which is Ft−1-measurable): 
+
+yt | xt ∼ N 
+
+ α
+
+2 x2 
+
+> t
+
+, σ 2
+
+> ε
+
+
+
+.
+
+Under Pμ: yt = α 
+
+> 2
+
+(xt − μ)2 + εt = α 
+
+> 2
+
+x2 
+
+> t
+
+− αμx t + αμ 2 
+
+> 2
+
++ εt. Conditional on xt:
+
+yt | xt ∼ N 
+
+ α
+
+2 x2 
+
+> t
+
+− αμx t + αμ 2
+
+2 , σ 2
+
+> ε
+
+
+
+.Noise-Adaptive High-Probability Regret Bounds for OCO 23 
+
+Crucially, the observation variance is σ2 
+
+> ε
+
+under both hypotheses, independent of 
+
+xt. There is no singularity at xt = 0 . The conditional mean difference is: 
+
+∆μ t = α
+
+2 x2 
+
+> t
+
+−
+
+ α
+
+2 x2 
+
+> t
+
+− αμx t + αμ 2
+
+2
+
+
+
+= αμx t − αμ 2
+
+2 .
+
+By the KL divergence formula for Gaussians with equal variance ( DKL (N (a, τ 2)∥N (b, τ 2)) =   
+
+> (a−b)2
+> 2τ2
+
+): 
+
+Dt = DKL (P0(yt | xt) ∥ Pμ(yt | xt)) = (∆μ t)2
+
+2σ2
+
+> ε
+
+=
+
+
+
+αμx t − αμ 2
+
+> 2
+
+2
+
+2σ2
+
+> ε
+
+. (L5.1) This expression is finite for all xt ∈ K , including xt = 0 (where Dt = α2μ4
+
+> 8σ2
+> ε
+
+). By the chain rule for KL divergence: 
+
+DKL (P T 
+
+> 0
+
+∥P Tμ ) = 
+
+> T
+
+X
+
+> t=1
+
+EP0 [Dt] = 12σ2
+
+> εT
+
+X
+
+> t=1
+
+EP0
+
+"
+
+αμx t − αμ 2
+
+2
+
+2#
+
+.
+
+For each round t, since xt ∈ [0 , D ] and μ ∈ (0 , D ]:
+
+|∆μ t| = αμx t − αμ 2
+
+2 ≤ αμ max 
+
+ μ
+
+2 , D − μ
+
+2
+
+
+
+= αμ 
+
+
+
+D − μ
+
+2
+
+
+
+≤ αμD, 
+
+where the equality uses D ≥ μ, hence D − μ/ 2 ≥ μ/ 2; the maximum is attained at xt = D. Squaring: 
+
+(∆μ t)2 ≤ α2μ2D2.
+
+Therefore: 
+
+DKL (P T 
+
+> 0
+
+∥P Tμ ) ≤ T · α2μ2D2
+
+2σ2
+
+> ε
+
+= α2μ2D2T
+
+2σ2
+
+> ε
+
+.
+
+Verification that the hard instance lies in E(α, G, D, d ). Under both P0 and 
+
+Pμ:(a) α-strong convexity: ∇2ft(x) = α for all x, so ft is α-strongly convex. (b) G-Lipschitz gradient: Since K = [0 , D ], both x and θ ∈ { 0, μ } lie in [0 , D ].Therefore |∇ ft(x)| = |α(x − θ)| ≤ αD =: G.(c) σε-sub-Gaussian noise: The noise εt ∼ N (0 , σ 2 
+
+> ε
+
+) is σε-sub-Gaussian. The loss function ft(x) = α 
+
+> 2
+
+(x−θ)2 +εt has ∇ft(x) = α(x−θ), which is deterministic (no gradient noise). The stochasticity is in the function value only, which is the relevant quantity in the bandit setting. 24 W. Zhang et al. 
+
+Remark 2. Lemma 5 constructs a hard instance using Gaussian noise εt ∼N (0 , σ 2 
+
+> ε
+
+), which is a specific member of the σε-sub-Gaussian family. For any en-vironment class E that contains the Gaussian instance, a minimax lower bound over E is at least as large as the lower bound for the Gaussian sub-class: 
+
+inf  
+
+> A
+
+sup 
+
+> env ∈E
+
+RT (A, env ) ≥ inf  
+
+> A
+
+sup 
+
+> env ∈E Gauss
+
+RT (A, env ),
+
+since EGauss ⊆ E . This subset inclusion is the only property needed. The Theorem 2 lower bound therefore applies to the entire σε-sub-Gaussian environment class 
+
+E(α, G, D, d ) as stated. 
+
+A.6 Expected Iterate Error Decay Lemma 6. Under Assumptions 1–7, consider projected OGD with step sizes 
+
+ηt = 1 /(αt ) and stochastic gradients: 
+
+xt+1 = ΠK(xt − ηtgt) .
+
+Let x⋆F = arg min x∈K F (x) and et = ∥xt − x⋆F ∥2. Then 
+
+E[et+1 ] ≤ Ce(1 + log t)
+
+t , ∀t ≥ 1, (L6.a) 
+
+where 
+
+Ce = 2( G2 + ˜ σ2)
+
+α2 , ˜σ2 = dσ 2.
+
+Consequently, TX
+
+> t=1
+
+E[et] ≤ D2 + Ce · H(2)  
+
+> T
+
+, (L6.b) 
+
+where 
+
+H(2)  
+
+> T
+
+= 
+
+> T−1
+
+X
+
+> t=1
+
+1 + log tt ≤ (1 + log T )2
+
+2 + 1 .
+
+Proof. By the non-expansiveness of projection and the OGD update: 
+
+et+1 = ∥xt+1 − x⋆F ∥2 ≤ ∥ xt − ηtgt − x⋆F ∥2 = et − 2ηt⟨gt, x t − x⋆F ⟩ + η2 
+
+> t
+
+∥gt∥2.
+
+Taking conditional expectations given Ft−1 (which fixes xt), using E[gt | F t−1] = 
+
+∇ft(xt) (Assumption 5) and that ft is independent of Ft−1 (i.i.d. assumption): 
+
+E[et+1 | F t−1] ≤ et − 2ηtE[⟨∇ ft(xt), x t − x⋆F ⟩ | F t−1] + η2 
+
+> t
+
+E[∥gt∥2 | F t−1].
+
+Since ft is i.i.d. and independent of Ft−1, and xt is Ft−1-measurable: 
+
+E[⟨∇ ft(xt), x t − x⋆F ⟩ | F t−1] = ⟨∇ F (xt), x t − x⋆F ⟩,Noise-Adaptive High-Probability Regret Bounds for OCO 25 
+
+where F (x) = E[ft(x)] is the population loss. Since each ft is α-strongly convex (Assumption 1) and F = E[ft], the population loss F is also α-strongly convex. Therefore: 
+
+⟨∇ F (xt), x t − x⋆F ⟩ ≥ F (xt) − F (x⋆F ) + α
+
+2 et ≥ α
+
+2 et,
+
+where the last inequality uses F (xt) ≥ F (x⋆F ) (since x⋆F minimizes F ). By 
+
+∥gt∥2 = ∥∇ ft(xt) + ξt∥2 ≤ 2∥∇ ft(xt)∥2 + 2 ∥ξt∥2 and taking conditional ex-pectations: 
+
+E[∥gt∥2 | F t−1] ≤ 2G2 + 2 E[∥ξt∥2 | F t−1] ≤ 2G2 + 2˜ σ2 = 2( G2 + ˜ σ2),
+
+where we used Assumption 2 ( ∥∇ ft(x)∥ ≤ G) and Assumption 6 ( E[∥ξt∥2 |Ft−1] ≤ dσ 2 = ˜ σ2). Taking full expectations. Define at = E[et]:
+
+at+1 ≤
+
+
+
+1 − 1
+
+t
+
+
+
+at + Ce
+
+t2 , Ce = 2( G2 + ˜ σ2)
+
+α2 . (L6.rec) We solve (L6.rec) by unrolling. The homogeneous part has multiplicative factor Qts=k(1 −1/s ) = Qts=k s−1 
+
+> s
+
+= k−1 
+
+> t
+
+(telescoping product). In particular, Qts=1 (1 −
+
+1/s ) = 0 for any t ≥ 1 (since the s = 1 factor is 0). Therefore the initial condition 
+
+a1 is completely absorbed, and: 
+
+at+1 ≤
+
+> t
+
+X
+
+> s=1
+
+Ce
+
+s2
+
+> t
+
+Y
+
+> j=s+1
+
+j − 1
+
+j =
+
+> t
+
+X
+
+> s=1
+
+Ce
+
+s2 · st = Ce
+
+t
+
+> t
+
+X
+
+> s=1
+
+1
+
+s = Ce · Ht
+
+t , (L6.unroll) where Ht = Pts=1 1/s ≤ 1 + log t is the t-th harmonic number. For t = 1 :
+
+a2 ≤ (1 − 1) a1 + Ce/1 = Ce = Ce · H1/1. For the inductive step: if at+1 = CeHt 
+
+> t
+
+,then at+2 ≤ tt+1 · CeHt 
+
+> t
+
++ Ce 
+
+> (t+1) 2
+
+= CeHt 
+
+> t+1
+
++ Ce 
+
+> (t+1) 2
+
+= Ce 
+
+> t+1
+
+(Ht + 1 
+
+> t+1
+
+) = CeHt+1  
+
+> t+1
+
+.This establishes (L6.a): E[et+1 ] ≤ Ce(1 + log t)/t for all t ≥ 1. For the sum: 
+
+> T
+
+X
+
+> t=1
+
+E[et] = a1 +
+
+> T
+
+X
+
+> t=2
+
+at ≤ D2 +
+
+> T
+
+X
+
+> t=2
+
+CeHt−1
+
+t − 1 = D2 + CeT −1X
+
+> k=1
+
+Hk
+
+k .
+
+The sum PNk=1 Hk/k satisfies: by Abel summation (or direct computation), 
+
+PNk=1 Hk/k = 12 H2 
+
+> N
+
++ 12
+
+PNk=1 1/k 2 ≤ (1+log N )2 
+
+> 2
+
++ π2 
+
+> 12
+
+. Therefore PTt=1 E[et] ≤
+
+D2 + Ce 
+
+> 2
+
+(1 + log T )2 + π2Ce 
+
+> 12
+
+=: Q′(1 + log T )2, where the constant Q′ absorbs 
+
+D2, Ce/2, and lower-order terms. 
+
+Remark 3. One might expect E[et] ≤ Q/t by analogy with the regret bound. However, the one-step contraction at+1 ≤ (1 − 1/t )at + Ce/t 2 has contraction factor 1 − 1/t that exactly cancels the 1/t decay: an inductive proof of at ≤ Q/t 
+
+requires Ce(t + 1) ≤ Q for all t, which is impossible for finite Q. The correct rate is O(log t/t ), proved above by direct unrolling. To recover the exact O(1 /t )
+
+rate, one would need a stronger step size such as ηt = 2 /(α(t + 1)) , which gives contraction factor 1 − 2/(t + 1) < 1 − 1/t and leaves room for the noise term. 26 W. Zhang et al. 
+
+## B Proof of Theorem 1 
+
+By Lemma 2: 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+∥gt∥2
+
+2αt +
+
+> T
+
+X
+
+> t=1
+
+⟨ξt, x ⋆ − xt⟩. (T1.1) Write the first and second sums as ST and MT , respectively. We bound them separately, using independent probability budgets δ0 and δ1. On the event E0(δ0)
+
+from Lemma 3 (which has P(E0(δ0)) ≥ 1 − δ0), each ∥gt∥ ≤ B∇(δ0). Therefore: 
+
+ST ≤ B∇(δ0)2
+
+2α (1 + log T ). (T1.2) Define Dt = ⟨ξt, x ⋆ −xt⟩. Since xt and x⋆ are both Ft−1-measurable (by Assump-tion 4, ft is deterministic, so x⋆ is non-random; xt depends only on g1, . . . , g t−1), and E[ξt | F t−1] = 0 (Assumption 5): 
+
+E[Dt | F t−1] = ⟨E[ξt | F t−1], x ⋆ − xt⟩ = 0 .
+
+Therefore (Dt, Ft)Tt=1 is a martingale difference sequence. We bound MT using the exponential supermartingale method for conditionally sub-Gaussian differ-ences, which does not require bounded differences and hence requires no trun-cation. By Assumption 6, for any unit vector v, ⟨ξt, v ⟩ is conditionally σ-sub-Gaussian. Since xt, x ⋆ are Ft−1-measurable, define vt = ( x⋆ − xt)/∥x⋆ − xt∥ (a unit vector, Ft−1-measurable). Then Dt = ∥x⋆ − xt∥ · ⟨ ξt, v t⟩, and for all s ∈ R:
+
+EesD t | F t−1
+
+ = E
+
+h
+
+es∥x⋆−xt∥⟨ ξt,v t⟩ | F t−1
+
+i
+
+≤ exp 
+
+ s2∥x⋆ − xt∥2σ2
+
+2
+
+
+
+,
+
+(T1.SG) where the inequality uses the conditional sub-Gaussian property with v = vt
+
+(which is Ft−1-measurable and thus can be treated as fixed in the conditional expectation). Define σ2 
+
+> t
+
+= σ2∥x⋆ − xt∥2 ≤ σ2D2. For any λ > 0, define: 
+
+Zt = exp λ
+
+> t
+
+X
+
+> s=1
+
+Ds − λ2
+
+2
+
+> t
+
+X
+
+> s=1
+
+σ2
+
+> s
+
+!
+
+.
+
+We claim (Zt)Tt=0 is a supermartingale with Z0 = 1 . Verify: 
+
+E[Zt | F t−1] = Zt−1 · EeλD t | F t−1
+
+ · e−λ2σ2  
+
+> t/2
+
+≤ Zt−1 · eλ2σ2  
+
+> t/2
+
+· e−λ2σ2  
+
+> t/2
+
+= Zt−1,
+
+where the inequality uses (T1.SG) with s = λ. Since Z0 = 1 and (Zt) is a non-negative supermartingale, E[ZT ] ≤ 1. By Markov’s inequality: 
+
+P(ZT ≥ 1/δ 1) ≤ δ1 · E[ZT ] ≤ δ1.
+
+The event {ZT < 1/δ 1} is equivalent to: 
+
+λ
+
+> T
+
+X
+
+> t=1
+
+Dt < log 1
+
+δ1
+
++ λ2
+
+2
+
+> T
+
+X
+
+> t=1
+
+σ2 
+
+> t
+
+.Noise-Adaptive High-Probability Regret Bounds for OCO 27 
+
+Since P 
+
+> t
+
+σ2 
+
+> t
+
+≤ σ2D2T =: V deterministically: 
+
+P
+
+> T
+
+X
+
+> t=1
+
+Dt ≥ log(1 /δ 1)
+
+λ + λV 
+
+2
+
+!
+
+≤ δ1.
+
+Setting λ = p2 log(1 /δ 1)/V (minimizing the right-hand side): 
+
+log(1 /δ 1)
+
+λ + λV 
+
+2 =
+
+r
+
+2V log 1
+
+δ1
+
+.
+
+Therefore: 
+
+P
+
+
+
+MT ≥ σD 
+
+r
+
+2T log 1
+
+δ1
+
+
+
+≤ δ1. (T1.3) The sub-Gaussian supermartingale argument uses only the conditional moment generating function bound (T1.SG), which holds for all s ∈ R without any trun-cation. The MGF bound is a direct consequence of Assumption 6 (sub-Gaussian noise) and requires no a.s. boundedness of Dt. Freedman’s inequality (Lemma 1) is not used here; it is reserved for settings where bounded differences are avail-able by assumption (e.g., Theorem 3, where constraint noise is a.s. bounded by Assumption 8(d)). Bounding ST uses the truncation event E0(δ0) with failure probability δ0. Bounding MT uses the sub-Gaussian supermartingale argument with failure probability δ1. These are independent probability budgets applied to different terms. By union bound: 
+
+P
+
+
+
+RT ≤ B∇(δ0)2
+
+2α (1 + log T ) + σD 
+
+r
+
+2T log 1
+
+δ1
+
+
+
+≥ 1 − δ0 − δ1.
+
+Remark 4. The bound for MT no longer contains a Bξ (δ0)-dependent term (un-like the previous Freedman-based approach). The truncation parameter δ0 ap-pears only in the ST bound (through B∇(δ0)), and the martingale confidence 
+
+δ1 appears only in the MT bound. This cleanly separates the two probability budgets. 
+
+## C Proof of Theorem 2 
+
+Fix d = 1 for clarity; the d-dimensional extension follows by Assouad’s lemma (embedding independent 1D problems along orthogonal directions). Work on 
+
+K = [0 , D ] (so that diam( K) = D). Partition [T ] into K = ⌊log 2 T ⌋ epochs: epoch 
+
+k ∈ { 0, 1, . . . , K − 1} has Tk = 2 k rounds, covering at most PK−1 
+
+> k=0
+
+2k = 2 K − 1 ≤
+
+T rounds. For each epoch k, define two hypotheses indexed by θk ∈ { 0, 1}: -
+
+θk = 0 : f (k) 
+
+> t
+
+(x) = α 
+
+> 2
+
+x2 + εt; - θk = 1 : f (k) 
+
+> t
+
+(x) = α 
+
+> 2
+
+(x − ∆k)2 + εt; where εt
+
+> i.i.d.
+
+∼N (0 , σ 2 
+
+> ε
+
+) and ∆k > 0 will be chosen. The noise is additive (independent of x), matching the Lemma 5 construction. Both hypotheses are α-strongly convex with 
+
+G-Lipschitz gradients ( G = αD ), since x, θ k ∈ [0 , D ] implies |α(x − θk)| ≤ αD .Under hypothesis θk = 1 , the per-round minimizer is x⋆k = ∆k (since ∇f (k) 
+
+> t
+
+(x) = 28 W. Zhang et al. 
+
+α(x − ∆k), which is zero at x = ∆k; the noise εt does not affect the minimizer). Under hypothesis θk = 0 , the minimizer is x = 0 . An algorithm that behaves as if θk = 0 (keeping xt near 0) incurs per-epoch regret under θk = 1 :
+
+R(epoch ) 
+
+> k
+
+= X 
+
+> t∈epoch k
+
+h
+
+f (k) 
+
+> t
+
+(xt) − f (k) 
+
+> t
+
+(∆k)
+
+i
+
+= X 
+
+> t∈epoch k
+
+α
+
+2 (xt −∆k)2 −0 ≥ α∆ 2
+
+> k
+
+4 ·Tk
+
+(since |xt − ∆k| ≥ ∆k/√2 whenever |xt| ≤ ∆k/√2, which holds for at least half the rounds if the algorithm keeps xt near 0). By Lemma 5, the KL divergence between the observation distributions in epoch k satisfies: 
+
+D(k)KL ≤ α2∆2
+
+> k
+
+D2Tk
+
+2σ2
+
+> ε
+
+.
+
+Choose ∆k = c0σε
+
+> αD √Tk
+
+(with c0 > 0 to be determined) so that: 
+
+D(k)KL ≤ c20
+
+2 . (T2.1) With this choice, R(epoch ) 
+
+> k
+
+≥ α∆ 2  
+
+> kTk
+> 4
+
+= c20σ2 
+
+> ε
+> 4αD 2
+
+(a positive constant independent of 
+
+k). Bretagnolle–Huber’s lemma states: for any event A (i.e., any test), 
+
+P (k)0 (A) + P (k)1 (Ac) ≥ 12 e−D(k)KL .
+
+Choosing c20 = 2 log 2 (so D(k)KL ≤ log 2 and 12 e− log 2 = 1 /4): 
+
+min  
+
+> A
+
+max 
+
+
+
+P (k)0 (A), P (k)1 (Ac)
+
+
+
+≥ 14 . (T2.BH) Crucially, this holds for ANY measurable event A, including events defined by an adaptive algorithm that uses observations from all previous epochs. The al-gorithm’s policy πk in epoch k is a (possibly randomized) function of the history 
+
+Hk−1 = {(xs, y s) : s ∈ epochs 0, . . . , k − 1}. Given Hk−1, the algorithm induces a specific test for θk: the "accept θk = 0 " event is Ak = Ak(Hk−1), which is a measurable function of epoch-k observations. Since (T2.BH) holds for ALL tests, it holds for Ak regardless of Hk−1. Therefore, the conditional error probability satisfies: 
+
+P(error in epoch k | Hk−1) ≥ 14 almost surely for all Hk−1. (T2.CE) Define Ek = 1{error in epoch k} and E = PK−1 
+
+> k=0
+
+Ek. Claim: E stochastically dominates Bin( K, 1/4) . We use the following standard result: Let X1, . . . , X n be 
+
+{0, 1}-valued random variables satisfying P(Xk = 1 | X1, . . . , X k−1) ≥ p almost surely for all k. Then Pnk=1 Xk stochastically dominates Bin( n, p ). By induc-tion on n. Construct i.i.d. Yk ∼ Ber( p) and couple: on the event {P(Xk =1 | X1, . . . , X k−1) = qk} with qk ≥ p, sample Xk and Yk jointly so that Noise-Adaptive High-Probability Regret Bounds for OCO 29 
+
+Xk ≥ Yk a.s. (possible because qk ≥ p: set Xk = Yk = 1 with probability p,
+
+Xk = 1 , Y k = 0 with probability qk − p, and Xk = Yk = 0 with probability 
+
+1 − qk). Then P Xk ≥ P Yk pathwise. From (T2.CE), we derive the condi-tional probability with respect to the coarser filtration generated by past errors. Since (E0, . . . , E k−1) is a function of Hk−1 (but NOT the other way around— 
+
+(E0, . . . , E k−1) is a strict coarsening of Hk−1), we use the tower property of conditional expectation: 
+
+P(Ek = 1 | E0, . . . , E k−1) = E[P(Ek = 1 | Hk−1) | E0, . . . , E k−1] ≥ E
+
+ 14 E0, . . . , E k−1
+
+
+
+= 14 ,
+
+where the inequality uses (T2.CE) ( P(Ek = 1 | Hk−1) ≥ 1/4 a.s.) and the monotonicity of conditional expectation. By the Conditional Coupling Lemma, 
+
+E ⪰ Bin( K, 1/4) . The total regret: RT ≥ E · r0, where r0 = c20σ2 
+
+> ε
+> 4αD 2
+
+= σ2  
+
+> εlog 2 2αD 2
+
+. For 
+
+E ⪰ Bin( K, 1/4) , by the multiplicative Chernoff bound: 
+
+P(E ≤ K/ 8) ≤ exp( −c⋆K), c⋆ = dKL (1 /8∥1/4) . (T2.BT) We compute c⋆ exactly: dKL (1 /8∥1/4) = 18 ln 1/81/4 + 78 ln 7/83/4 = − ln 2 8 + 78 ln 76 ≈−0.0866 + 0 .1335 = 0 .0469 . Therefore: P(E ≥ K/ 8) ≥ 1 − e−c⋆K , giving P(RT ≥
+
+r0K/ 8) ≥ 1 − e−c⋆K . Setting δ = e−c⋆K , equivalently K = 1 
+
+> c⋆
+
+log 1 
+
+> δ
+
+. From the front: 
+
+P
+
+
+
+RT ≥ r0
+
+8c⋆
+
+log 1
+
+δ
+
+
+
+≥ 1 − δ. (T2.strong) For the theorem statement, we note that for δ ∈ [T −c⋆/ log 2 , 1/4] , we have δ ≤
+
+1/4, hence 1 − δ ≥ 3/4 ≥ δ. Therefore: 
+
+P
+
+
+
+RT ≥ r0
+
+8c⋆
+
+log 1
+
+δ
+
+
+
+≥ δ. (T2.LB) We state the theorem using the weaker (T2.LB) form because it is the conven-tional form for minimax lower bounds (cf. Tsybakov 2009): P(RT ≥ β) ≥ δ
+
+means the algorithm fails to achieve regret < β with non-negligible probability 
+
+δ. The stronger (T2.strong) form is available and noted here for completeness. This is valid when K = ⌊log 2 T ⌋ ≥ 1 
+
+> c⋆
+
+log 1 
+
+> δ
+
+, i.e., δ ≥ T −c⋆/ log 2 ≈ T −0.068 . At the boundary δ = T −c⋆/ log 2 : RT ≥ r0 
+
+> 8 log 2
+
+log T = Ω( σ2 
+
+> ε
+> αD 2
+
+log T ) with proba-bility ≥ T −0.068 . The extension to d ≥ 2 follows by embedding d independent 1D problems along orthogonal coordinate directions. The lower bound scales as 
+
+d · r0/(8 c⋆) · log(1 /δ ). The detailed construction and verification are standard and are omitted here; we state the 1D result as the main theorem. 30 W. Zhang et al. 
+
+## D Proof of Theorem 3 
+
+For any fixed comparator x ∈ K and any fixed λ ∈ Rm
+
+> ≥0
+
+, the standard OGD analysis for the primal and dual variables yields: 
+
+> T
+
+X
+
+> t=1
+
+"
+
+ft(xt) − ft(x) + X
+
+> i
+
+λ(i)g(i) 
+
+> t
+
+(xt)
+
+#
+
+≤ D2
+
+2η + η(Gf + ΛL g )2T
+
+2 +
+
+> m
+
+X
+
+> i=1
+
+(λ(i))2
+
+2μ + μ
+
+2
+
+X
+
+> i
+
+X
+
+> t
+
+(g(i) 
+
+> t
+
+(xt)) 2.
+
+(T3.1) This follows from the regret bound of OGD for the primal (bounded by D2 
+
+> 2η
+
++
+
+> η
+> 2
+
+P 
+
+> t
+
+∥primal gradient ∥2) and the regret bound of projected gradient ascent for the dual (bounded by ∥λ∥2 
+
+> 2μ
+
++ μ
+
+> 2
+
+P 
+
+> t
+
+∥gt(xt)∥2), combined with the bilinearity of the Lagrangian coupling. By the dual update rule and the a.s. boundedness 
+
+|g(i) 
+
+> t
+
+(xt)| ≤ Bg (Assumption 8(d)): 
+
+λ(i) 
+
+> t+1
+
+≤ λ(i) 
+
+> t
+
++ μB g ≤ λ(i)1 + T μB g .
+
+With λ(i)1 = 0 and μ = 1 /√T : λ(i) 
+
+> t
+
+≤ Bg
+
+√T . Define Λ = Bg
+
+√T (this is the a priori dual bound used in the step-size calibration). Set x = x⋆ (the best feasible point satisfying ¯g(i)(x⋆) ≤ 0) and λ = 0 in (T3.1): 
+
+RT =
+
+> T
+
+X
+
+> t=1
+
+[ft(xt) − ft(x⋆)] ≤ D2
+
+2η + η(Gf + ΛL g )2T
+
+2 + X
+
+> i
+
+μ
+
+2
+
+X
+
+> t
+
+(g(i) 
+
+> t
+
+(xt)) 2.
+
+With our step sizes: D2 
+
+> 2η
+
++ η(Gf +ΛL g )2T 
+
+> 2
+
+= D(Gf +ΛL g )√T and μ
+
+> 2
+
+P
+
+> i
+
+P
+
+> t
+
+(g(i) 
+
+> t
+
+(xt)) 2 ≤ 
+
+> mB 2
+> g
+> √T
+> 2
+
+. Thus the deterministic regret bound is Rdet  
+
+> T
+
+= O(√T ). For the high-probability refinement: the stochastic terms enter through the constraint noise. Set x = x⋆ and λ = λ⋆ (an optimal dual variable) in (T3.1). The term P
+
+> t
+
+P 
+
+> i
+
+λ⋆i g(i) 
+
+> t
+
+(xt)
+
+decomposes as: 
+
+X
+
+> t
+
+X
+
+> i
+
+λ⋆i g(i) 
+
+> t
+
+(xt) = X
+
+> t
+
+X
+
+> i
+
+λ⋆i ¯g(i)(xt) + X
+
+> t
+
+X
+
+> i
+
+λ⋆i [g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt)] .
+
+Denote the second sum by MRT . Since ¯g(i)(x⋆) ≤ 0 and λ⋆i ≥ 0: P 
+
+> i
+
+λ⋆i ¯g(i)(x⋆) ≤
+
+0. The term MRT is a martingale (each summand has zero conditional mean since λ⋆ is deterministic and g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt) is zero-mean conditionally on 
+
+Ft−1). Each difference |λ⋆i [g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt)] | is bounded by λ⋆ 
+
+> max
+
+· 2Bg =: bR
+
+a.s. (using Assumption 8(d): |g(i) 
+
+> t
+
+(x)| ≤ Bg a.s. implies |g(i) 
+
+> t
+
+(x) − ¯g(i)(x)| ≤ 2Bg )and has conditional variance ≤ (λ⋆i )2σ2 
+
+> g
+
+. The predictable quadratic variation is deterministically bounded: 
+
+W RT = X
+
+> t
+
+X
+
+> i
+
+(λ⋆i )2σ2 
+
+> g
+
+≤ m(λ⋆
+
+> max
+
+)2σ2 
+
+> g
+
+T. Noise-Adaptive High-Probability Regret Bounds for OCO 31 
+
+Applying Freedman (Lemma 1) directly (no stopping time needed, since W RT is deterministic): 
+
+P MRT ≥
+
+r
+
+2m(λ⋆
+
+> max
+
+)2σ2 
+
+> g
+
+T log 2
+
+δ + 2bR
+
+3 log 2
+
+δ
+
+!
+
+≤ δ. (T3.R) Combining: RT = O(√T ) + O(pT log(1 /δ )) = O(pT log( m/δ )) with probabil-ity ≥ 1 − δ. We bound each [PTt=1 g(i) 
+
+> t
+
+(xt)] + separately and then sum over i.Decompose for each i:
+
+> T
+
+X
+
+> t=1
+
+g(i) 
+
+> t
+
+(xt) = 
+
+> T
+
+X
+
+> t=1
+
+¯g(i)(xt) + 
+
+> T
+
+X
+
+> t=1
+
+[g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt)] .
+
+Let P (i) 
+
+> T
+
+and MV,i T denote the first and second sums, respectively. By the triangle inequality for the positive part ( [a + b]+ ≤ [a]+ + |b|): 
+
+"X
+
+> t
+
+g(i) 
+
+> t
+
+(xt)
+
+#
+
+> +
+
+≤ [P (i) 
+
+> T
+
+]+ + |M V,i T |. (T3.decomp) We bound the two terms by different techniques: the expected violation P (i) 
+
+> T
+
+via the saddle-point expectation argument + Markov’s inequality, and the stochastic deviation MV,i T via Freedman’s inequality. The OGD primal regret against any fixed x ∈ K yields (by convexity of ft and g(i) 
+
+> t
+
+): 
+
+> T
+
+X
+
+> t=1
+
+ft(xt) − ft(x) + X
+
+> j
+
+λ(j) 
+
+> t
+
+(g(j) 
+
+> t
+
+(xt) − g(j) 
+
+> t
+
+(x)) 
+
+ ≤ ΓT , (T3.PR) where ΓT = D(Gf + ΛL g )√T with our step size η. The dual projected-gradient-ascent regret against any fixed λ† ∈ Rm 
+
+> ≥0
+
+yields: 
+
+X
+
+> i
+
+(λ† 
+
+> i
+
+− λ(i) 
+
+> t
+
+) X
+
+> t
+
+g(i) 
+
+> t
+
+(xt) ≤ ∥λ†∥2
+
+2μ + μmB 2 
+
+> g
+
+T
+
+2 . (T3.DR) Adding (T3.PR) and (T3.DR): 
+
+> T
+
+X
+
+> t=1
+
+[ft(xt)−ft(x)]+ X
+
+> i
+
+λ†
+
+> i
+
+X
+
+> t
+
+g(i) 
+
+> t
+
+(xt)−X
+
+> i
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(x) ≤ ΓT + ∥λ†∥2
+
+2μ + μmB 2 
+
+> g
+
+T
+
+2 .
+
+(T3.CPD) 
+
+Lemma 7 (Expected Constraint Violation from Primal-Dual Saddle Point). Under the conditions of Theorem 3, the expected long-run cumulative constraint violation satisfies: 
+
+E
+
+" mX
+
+> i=1
+
+[P (i) 
+
+> T
+
+]+
+
+#
+
+≤ Cdet 
+
+√Tζ , (T3.EV2) 
+
+where Cdet = 2 ΓT /√T + μmB 2
+
+> g
+
+√T + Λ20/(2 μ√T ) depends on Gf , L g , D, B g , m .32 W. Zhang et al. 
+
+Proof. We use the primal-dual combined inequality in expectation, combined with the dual OGD regret bound. Two applications of the combined bound. From (T3.CPD) with x = ˆ x and λ† = Λ0ei (where Λ0 > 0 is a free parameter to be chosen later): 
+
+AT + Λ0
+
+X
+
+> t
+
+g(i) 
+
+> t
+
+(xt) − X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(ˆ x) ≤ ΓT + Λ20
+
+2μ + μmB 2 
+
+> g
+
+T
+
+2 =: ΦT . (L7.1) From (T3.CPD) with x = ˆ x and λ† = 0 :
+
+AT + X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+[g(j) 
+
+> t
+
+(xt) − g(j) 
+
+> t
+
+(ˆ x)] ≤ ΓT . (L7.2) Since g(j) 
+
+> t
+
+(ˆ x) is drawn i.i.d. from Dg (Assumption 8) and ˆx is a fixed point, g(j) 
+
+> t
+
+(ˆ x)
+
+is independent of Ft−1. Since λ(j) 
+
+> t
+
+is Ft−1-measurable, the tower property gives: 
+
+E[λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(ˆ x)] = E[λ(j) 
+
+> t
+
+] · E[g(j) 
+
+> t
+
+(ˆ x)] = E[λ(j) 
+
+> t
+
+] · ¯g(j)(ˆ x).
+
+By the Slater condition ¯g(j)(ˆ x) ≤ − ζ:
+
+− X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(ˆ x)] = X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+]( −¯g(j)(ˆ x)) ≥ ζ X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+].
+
+(L7.Slater) Similarly, E[g(i) 
+
+> t
+
+(xt) | F t−1] = ¯ g(i)(xt) (tower property with xt ∈ F t−1), so 
+
+E[P 
+
+> t
+
+g(i) 
+
+> t
+
+(xt)] = E[P (i) 
+
+> T
+
+]. Taking expectations in (L7.1) and applying (L7.Slater): 
+
+E[AT ] + Λ0E[P (i) 
+
+> T
+
+] + ζ X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+] ≤ ΦT . (L7.3) Deriving a matching upper bound on E[AT ] + ζ P P E[λt]. From the dual OGD regret bound (T3.DR) with λ† = 0 (which holds pathwise): 
+
+− X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(xt) ≤ μmB 2 
+
+> g
+
+T
+
+2 =: RD . (L7.dual) In (L7.2), the second term on the left decomposes as: 
+
+X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+[g(j) 
+
+> t
+
+(xt) − g(j) 
+
+> t
+
+(ˆ x)] = X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(xt) − X
+
+> j
+
+X
+
+> t
+
+λ(j) 
+
+> t
+
+g(j) 
+
+> t
+
+(ˆ x).
+
+Taking expectations of (L7.2), applying the tower property as above, and using (L7.dual) in expectation ( E[P P λtgt(xt)] ≥ − RD ): 
+
+E[AT ] + X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+¯g(j)(xt)] + ζ X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+] ≤ ΓT .Noise-Adaptive High-Probability Regret Bounds for OCO 33 
+
+Using the lower bound P
+
+> j
+
+P 
+
+> t
+
+E[λ(j) 
+
+> t
+
+¯g(j)(xt)] ≥ − RD :
+
+E[AT ] + ζ X
+
+> j
+
+X
+
+> t
+
+E[λ(j) 
+
+> t
+
+] ≤ ΓT + RD =: C2
+
+√T . (L7.4) If E[P (i) 
+
+> T
+
+] ≤ 0, then E[[ P (i) 
+
+> T
+
+]+] = 0 trivially (since [P (i) 
+
+> T
+
+]+ = 0 whenever P (i) 
+
+> T
+
+≤ 0). If E[P (i) 
+
+> T
+
+] > 0, then from (L7.3): 
+
+Λ0E[P (i) 
+
+> T
+
+] ≤ ΦT − E[AT ] − ζ X X E[λt].
+
+Using (L7.4): −(E[AT ] + ζ P P E[λt]) could be as large as +C2
+
+√T (from the upper bound on the parenthetical) or negative (when the algorithm’s regret against ˆx is favorable). In either case, when E[AT ] + ζ P P E[λt] > 0, we have 
+
+Λ0E[P (i) 
+
+> T
+
+] ≤ ΦT . When E[AT ] + ζ P P E[λt] ≤ 0, we have Λ0E[P (i) 
+
+> T
+
+] ≤ ΦT +
+
+C2
+
+√T . Therefore: E[[ P (i) 
+
+> T
+
+]+] ≤ (ΦT + C2
+
+√T )/Λ 0 =: Cdet 
+
+√T /ζ , where we choose 
+
+Λ0 = ζ (or more generally Λ0 = O(1) calibrated to the Slater gap). Summing over i:
+
+E
+
+"X
+
+> i
+
+[P (i) 
+
+> T
+
+]+
+
+#
+
+≤ m(ΦT + C2
+
+√T )
+
+ζ = Cdet 
+
+√Tζ .
+
+By Markov’s inequality applied to the non-negative random variable P
+
+> i
+
+[P (i) 
+
+> T
+
+]+:for any δ1 ∈ (0 , 1) ,
+
+P X
+
+> i
+
+[P (i) 
+
+> T
+
+]+ > E[P
+
+> i
+
+[P (i) 
+
+> T
+
+]+]
+
+δ1
+
+!
+
+≤ δ1.
+
+Therefore, with probability ≥ 1 − δ1:
+
+X
+
+> i
+
+[P (i) 
+
+> T
+
+]+ ≤ Cdet 
+
+√Tζδ 1
+
+. (T3.PMarkov) The Markov-based bound scales as 1/δ 1 rather than log(1 /δ 1). Improving this to logarithmic dependence would require a pathwise bound P (i) 
+
+> T
+
+≤ C√T /ζ (hold-ing for all sample paths, not just in expectation). This amounts to showing 
+
+AT + ζ P
+
+> j
+
+P 
+
+> t
+
+λ(j) 
+
+> t
+
+≥ − O(√T ) pathwise. Such a bound would follow from a drift-Lyapunov analysis showing that the primal regret against ˆx and the cumu-lative Slater benefit ζ P P λt stay in balance along the sample path. This is a known open problem in the stochastic constrained OCO setting. MV,i T is a mar-tingale with differences g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt) that are σg -sub-Gaussian (Assumption 8(c)) and a.s. bounded by |g(i) 
+
+> t
+
+(xt) − ¯g(i)(xt)| ≤ 2Bg =: bV (Assumption 8(d)). Predictable quadratic variation: W V,i T ≤ σ2 
+
+> g
+
+T (deterministic bound). Applying Freedman directly: 
+
+P
+
+
+
+MV,i T ≥
+
+r
+
+2σ2 
+
+> g
+
+T log 2mδ2
+
++ 2bV
+
+3 log 2mδ2
+
+
+
+≤ δ2
+
+m . (T3.V) 34 W. Zhang et al. 
+
+By the union bound over all i ∈ [m] and the two-sided Freedman bound (applied to both MV,i T and −M V,i T ): 
+
+P
+
+
+
+max  
+
+> i
+
+|M V,i T | ≤ 
+
+r
+
+2σ2 
+
+> g
+
+T log 4mδ2
+
++ 2bV
+
+3 log 4mδ2
+
+
+
+≥ 1 − δ2. (T3.Vunion) From (T3.decomp), for each i:
+
+"X
+
+> t
+
+g(i) 
+
+> t
+
+(xt)
+
+#
+
+> +
+
+≤ [P (i) 
+
+> T
+
+]+ + |M V,i T |.
+
+Summing over i:
+
+ˆVT = X
+
+> i
+
+"X
+
+> t
+
+g(i) 
+
+> t
+
+(xt)
+
+#
+
+> +
+
+≤ X
+
+> i
+
+[P (i) 
+
+> T
+
+]+ + X
+
+> i
+
+|M V,i T |.
+
+By a union bound over the event (T3.PMarkov) with failure probability δ1 and the event (T3.Vunion) with failure probability δ2: with probability ≥ 1 − δ1 − δ2,
+
+ˆVT ≤ Cdet 
+
+√Tζδ 1
+
++ m
+
+r 
+
+2σ2 
+
+> g
+
+T log 4mδ2
+
++ 2bV
+
+3 log 4mδ2
+
+
+
+. (T3.Vfinal) By a union bound over the regret event (T3.R) with failure probability δ, the expected violation Markov event with failure probability δ1, and the martingale violation event with failure probability δ2:
+
+P RT ≤ CR
+
+r
+
+T log mδ and ˆVT ≤ Cdet 
+
+√Tζδ 1
+
++ CV m
+
+r
+
+T log mδ2
+
+!
+
+≥ 1−δ−δ1 −δ2.
+
+We bound ˆVT = P
+
+> i
+
+[P 
+
+> t
+
+g(i) 
+
+> t
+
+(xt)] + (positive part AFTER summing over time). The per-round violation VT = P
+
+> t
+
+[P 
+
+> i
+
+g(i) 
+
+> t
+
+(xt)] + (positive part BEFORE sum-ming over time) is a strictly stronger quantity: neither VT ≤ ˆVT nor VT ≥ ˆVT
+
+holds universally. Specifically, P
+
+> t
+
+[ht]+ ≥ [P 
+
+> t
+
+ht]+ by convexity of [·]+. Thus VT
+
+cannot be bounded by ˆVT , and we do not claim such a bound. 
+
+## E Proof of Corollary 1 
+
+Under Assumptions 1–7, the same projected OGD as in Theorem 1 satisfies the variance-scaling refinement. x⋆F is deterministic (it minimizes the expected loss 
+
+F ), while the hindsight comparator x⋆ = arg min P 
+
+> t
+
+ft(x) from Definition 1 is random. The stochastic regret Rstoch  
+
+> T
+
+= P
+
+> t
+
+[ft(xt) − ft(x⋆F )] upper-bounds the hindsight regret RT , since P 
+
+> t
+
+ft(x⋆F ) ≥ P 
+
+> t
+
+ft(x⋆) by definition of x⋆. Thus any upper bound on Rstoch  
+
+> T
+
+is automatically an upper bound on RT . The stochastic regret decomposes as Rstoch  
+
+> T
+
+= P
+
+> t
+
+[ft(xt) − ft(x⋆F )] = ˜RT + P 
+
+> t
+
+∆t, where ˜RT =P
+
+> t
+
+[F (xt) − F (x⋆F )] is the pseudo-regret and ∆t = [ ft(xt) − F (xt)] − [ft(x⋆F ) −Noise-Adaptive High-Probability Regret Bounds for OCO 35 
+
+F (x⋆F )] . ST is bounded on E0(δ0) (budget δ0) as in Theorem 1. The pseudo-regret: 
+
+˜RT = P
+
+> t
+
+[F (xt) − F (x⋆F )] ≤ P  
+
+> tG2
+> 2αt
+
+≤ G2 
+
+> 2α
+
+(1 + log T ) (already absorbed into the 
+
+ST bound, since ˜RT ≤ ST when gradients are bounded). The stochastic part: 
+
+∆t = [ ft(xt) − F (xt)] − [ft(x⋆F ) − F (x⋆F )] . By Assumption 7, specifically (A7), evaluated at x = xt (which is Ft−1-measurable, so the conditional formulation applies directly; x⋆F is deterministic): 
+
+E[es∆ t | F t−1] ≤ es2σ2 
+
+> Vet/2
+
+, et = ∥xt − x⋆F ∥2.
+
+Define the exponential supermartingale Zt = exp( λ Pts=1 ∆s − λ2
+
+> 2
+
+Pts=1 σ2 
+
+> V
+
+es).As in Theorem 1 , E[Zt | F t−1] ≤ Zt−1. Define VT = σ2
+
+> V
+
+PTt=1 et. By Lemma 6 (L6.b), E[VT ] ≤ σ2 
+
+> V
+
+Q′(1 + log T )2. By Markov’s inequality: 
+
+P(VT > σ 2 
+
+> V
+
+Q′(1 + log T )2/δ 1) ≤ δ1.
+
+Define τ = min {t : σ2
+
+> V
+
+Pts=1 es > V } ∧ (T + 1) with V = σ2 
+
+> V
+
+Q′(1 + log T )2/δ 1.The stopped supermartingale Zt∧τ satisfies: on {t ≤ τ }, Pts=1 σ2 
+
+> V
+
+es ≤ V deter-ministically. By Markov on ZT ∧τ :
+
+P 
+
+> T∧τ
+
+X
+
+> t=1
+
+∆t ≥ log(1 /δ 2)
+
+λ + λV 
+
+2
+
+!
+
+≤ δ2.
+
+Optimizing λ = p2 log(1 /δ 2)/V : the tail bound becomes p2V log(1 /δ 2). On the event {τ > T } ∩ { supermartingale tail } (probability ≥ 1 − δ1 − δ2): 
+
+> T
+
+X
+
+> t=1
+
+∆t ≤ p2V log(1 /δ 2) = σV (1 + log T )
+
+r 2Q′
+
+δ1
+
+log 1
+
+δ2
+
+.
+
+Combining with the ST bound gives the stated result.

@@ -1,0 +1,6799 @@
+Title: Partially Performative Prediction
+
+URL Source: https://arxiv.org/pdf/2606.07890v1
+
+Published Time: Tue, 09 Jun 2026 00:20:59 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# Partially Performative Prediction 
+
+## Jaewook Lee ∗ Tijana Zrnic †
+
+## June 5, 2026 
+
+Abstract 
+
+Performative prediction studies feedback loops that arise when predictive models are deployed in con-sequential domains. In these settings, deploying a model can change the population whose patterns the model aims to predict, inducing a distribution shift that is endogenous to the learning system. This perspec-tive departs from classical treatments of distribution shift, where shifts are typically modeled as exogenous 
+
+changes in the data-generating process. Yet, in practice, distribution shift is rarely one or the other. Predic-tive models may influence future data through the decisions they support, while the world itself continues to drift for reasons beyond the learner’s control. We study partially performative prediction , a framework that captures both endogenous and exogenous sources of distribution shift. The framework generalizes performative prediction by allowing the data distribution to evolve both in response to the deployed model and according to an external, time-varying process. We extend the central notions of performative stability and performative optimality to this setting by defining their online analogues that track the evolving par-tially performative environment. We analyze practical learning heuristics, including repeated retraining, and characterize when they successfully adapt to partially performative environments. 
+
+# 1 Introduction 
+
+When prediction informs decision-making, predictive models do not merely describe a population; they can also shape it. Disease forecasts guide interventions that slow disease spread; recommendation systems influence user preferences; stock and home price forecasts a ff ect the prices that ultimately materialize. Per-formative prediction [26] formalizes this phenomenon by studying learning problems in which deploying a model changes the distribution of future observations. The core idea is that deploying a model θ induces a model-dependent distribution over observations, denoted by D(θ). The learner’s objective is to minimize the expected loss under the induced distribution, called the performative risk :PR( θ) = EZ∼D (θ)[ℓ(Z, θ )] , (1) where Z denotes an observation, typically a feature–label pair Z = ( X, Y ). The central object D(θ) is called the distribution map . Thus, the goal is not simply to choose a model that performs well on the population as currently observed, but one that performs well after the model’s impact on the population has been real-ized. Existing work studies two central solution concepts: performative stability and performative optimality ,and analyzes when retraining procedures converge to such equilibria. In particular, these procedures gener-ate a sequence of model updates θ1, θ 2, . . . , whose limit is either a performatively stable or a performatively optimal point. Performativity, therefore, surfaces as distribution shift: each model update may induce a new data distribution. What distinguishes performative distribution shift is that it is endogenous : it arises from the learner’s own actions. This contrasts with classical models of distribution shift in machine learning, which typically treat the shift as driven by exogenous factors. For example, online learning studies algorithms for adapting a sequence of actions θt to an arbitrary sequence of distributions Pt .
+
+> ∗Department of Electrical Engineering, Stanford University ( jwl99@stanford.edu ).
+> †Departments of Statistics and Management Science & Engineering, Stanford University ( tijana.zrnic@stanford.edu ).
+
+1
+
+> arXiv:2606.07890v1 [cs.LG] 5 Jun 2026
+
+The starting point of this work is the observation that, in realistic performative environments, distribu-tion shift is rarely purely endogenous. Deployed predictive systems are embedded in changing populations, markets, and platforms. Their predictions may influence future data, but so too may seasonal e ff ects, policy changes, market forces, and strategic behavior outside the learner’s control. To capture this interplay, we introduce partially performative prediction , an online model that combines endogenous and exogenous sources of distribution shift. At round t, the data distribution is 
+
+Dt (θ) = (1 − αt )D(θ) + αt Pt ,
+
+where D(θ) captures the performative response to the deployed model θ, Pt captures an exogenous distri-bution shift, and αt ∈ [0 , 1] controls their relative strength. This framework strictly generalizes the classical performative setting, recovered when αt = 0, and approaches a purely exogenous-shift setting when αt = 1. Note also that this model allows for a fixed non-performative component, obtained when Pt is constant across t.Partially performative models require a reconsideration of the learner’s objective. Since the environment is fundamentally non-stationary, the goal can no longer simply be convergence to a fixed model, as in performative stability or performative optimality. Instead, the learner must contend with a moving target whose moves are only partly induced by the learner’s own decisions. At the same time, the model highlights several new questions about the interaction between endogenous and exogenous shifts. Is a smaller value of αt always more favorable to the learner, or can a large exogenous component help? How does the rate of change of Pt aff ect the performance of learning algorithms? And how do the conditions under which retraining heuristics converge, or fail to converge, change relative to the classical performative setting (αt = 0)? 
+
+## 1.1 Our contributions 
+
+We study all the above questions and more in the partially performative setting. Our first contribution is to extend the classical solution concepts of performative prediction to non-stationary environments. In the standard setting, performative stability and performative optimality are fixed models. Under par-tial performativity, the relevant stable and optimal points may change over time. We therefore introduce regret-based analogues, which we call performative stability regret and performative optimality regret . These quantities compare the learner’s sequence of decisions to the time-varying sequence of performatively sta-ble points θPS 1 , θ PS 2 , . . . and performatively optimal points θPO 1 , θ PO 2 , . . . , respectively. We then analyze several natural learning algorithms, including repeated risk minimization [26] and gradient-based methods, under these regret notions. A key quantity in our bounds is the path length : the cumulative movement of the comparator sequence. For performative stability and performative optimality, we denote the one-step changes by 
+
+∆PS  
+
+> t
+
+= ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥ and ∆PO  
+
+> t
+
+= ∥θPO  
+
+> t
+
+− θPO 
+
+> t+1
+
+∥.
+
+The path lengths Pt ∆(·) 
+
+> t
+
+measure the degree of non-stationarity in the partially performative problem. Slowly varying exogenous distributions Pt lead to small path length, while rapidly changing Pt can lead to large path length. Our first main result bounds the stability regret of repeated risk minimization (RRM), an idealized form of retraining given by 
+
+θt+1 = arg min 
+
+> θ
+
+EZ∼D t (θt )[ℓ(Z, θ )] .
+
+Let ARRM denote the RRM algorithm. 
+
+Theorem 1.1 (Informal) . Suppose that the loss ℓ(z, θ ) is βz-smooth in z and μ-strongly convex in θ, and that the distribution map D is ϵ-Lispchitz with ϵ < μ 
+
+> (1 −αmin )βz
+
+, where αmin = min t∈[T ] αt . Then, the performative stability regret of repeated risk minimization after T steps satisfies 
+
+Reg PS  
+
+> T
+
+(ARRM ) = O
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ . (2) 2This result makes explicit a tradeo ff between endogenous and exogenous shifts. When the shifts are mostly performative ( αt ≈ 0, ∀ t), the regret has no dependence on T because the path length vanishes. The condition on performativity reduces to the standard condition ϵ < μβz from [26]. Conversely, when the shifts are mostly exogenous ( αt ≈ 1, ∀ t), there is no condition on the strength of performativity, but the regret depends on the non-stationarity of Pt . If Pt is near-constant, the regret is constant too; if Pt
+
+fluctuates rapidly, the regret could be large. Thus, retraining on the most recent data is e ff ective under mild distribution shift, but ine ff ective when shifts are unpredictable. We also prove analogous stability regret bounds for gradient-based algorithms, including those with “greedy” and “lazy” deployment schedules [20]. Our second main contribution concerns performative optimality. We study algorithms that explicitly anticipate performativity by using zeroth-order gradient estimation techniques. Such methods perturb deployed models to estimate how changes in the model a ff ect the induced distribution, and prior work has shown that related procedures can converge to performatively optimal points in the classical setting [3, 11, 18, 19, 21]. We show that, in partially performative environments, these ideas yield regret guarantees relative to the time-varying sequence of performatively optimal points. 
+
+Theorem 1.2 (Informal) . Suppose that the performative risk at step t is convex for all t. Then, there exists an algorithm A that after T steps achieves performative optimality regret of 
+
+Reg PO  
+
+> T
+
+(A) = O
+
+d √T ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ ,
+
+where d is the dimension of θ.
+
+Again, we see path length as a key quantity in the bound. Like in the previous result, we can again observe a tradeo ff between having a large endogenous and a large exogenous component. A large exogenous component might make the path length large. At the same time, a larger endogenous component can make the performative risk nonconvex, even when the loss ℓ(z, θ ) is convex. If αt ≈ 1, the performative component is weak; consequently, convexity of the loss directly implies convexity of the performative risk. Thus, exogenous variation can make the target harder to track, while endogenous feedback can make the target harder to optimize. 
+
+## 1.2 Related work 
+
+Our work contributes to the growing literature on performative prediction [26], which formalizes settings in which deploying a model changes the future data distribution. A large body of work studies algo-rithms for finding performatively stable points [4, 5, 20, 22, 24, 27, 30] and performatively optimal points [11, 16, 18, 21, 24, 31], under progressively weaker assumptions. See Hardt and Mendler-D ¨ unner [7] and Kehrenberg et al. [15] for recent surveys of the area. Most relevant to our work are extensions with stateful observation models [2, 12, 17, 19, 28], which allow prior deployments to influence the current data distribution. These models capture memory, delayed responses, and other forms of endogenous dynamics. However, they still pursue the classical notions of performative stability and performative optimality; the underlying environment is fully determined by the history of deployments. In contrast, our model allows exogenous components of the data-generating process to evolve over time, so the relevant stable and optimal points may drift. Another closely related thread studies performative regret minimization [3, 14, 25, 32], where the learner deploys models sequentially and seeks regret bounds on the accumulated performative risk. In these works, the performative risk is static: the distribution map D(θ) is fixed, and regret is measured against a fixed baseline. In our setting, the distribution map Dt (θ) may vary with time. Accordingly, we study dynamic notions of performative regret, benchmarking the learner against time-varying sequences of performatively stable or performatively optimal models. At a technical level, our model of partially performative prediction resembles the model of algorith-mic collective action [8] in the presence of selfish agents by Zhu et al. [37]. They similarly show a faster convergence rate of repeated risk minimization in the presence of a fixed, non-performative distributional 3component, which corresponds to the behavior of a coordinated collective in their case. They do not, how-ever, analyze regret guarantees or non-stationary environments. Our analysis builds on tools from online learning, in particular online convex optimization [9, 38] and zeroth-order optimization [1, 6]. We study dynamic regret, which measures performance relative to a changing sequence of optima rather than a single best baseline in hindsight. Dynamic regret originated in tracking changing experts and comparators [10, 38] and was later sharpened through path and loss varia-tion [13, 23, 33, 35]. Some of our results rely on zeroth-order optimization, where path-length-dependent dynamic regret guarantees are known [36], though existing analyses do not accommodate performative feedback. 
+
+# 2 Preliminaries 
+
+We begin by reviewing the formal setup of performative prediction, with a focus on the partially perfor-mative setting studied in this work. The learner chooses model parameters θ ∈ Θ, where Θ is a convex, compact subset of Rd of diameter DΘ . We write ΠΘ for the Euclidean projection onto Θ. Performance is measured by a loss function ℓ(z, θ ), where z denotes a data point; thus, ℓ(z, θ ) is the loss incurred by model 
+
+θ on instance z.In partially performative prediction, the data distribution after deploying model θ at time t is 
+
+Dt (θ) = (1 − αt )D(θ) + αt Pt , (3) where αt ∈ [0 , 1] is a fixed sequence of mixture coe ffi cients and Pt is an exogenous distribution that is not aff ected by the deployed model. The component D(θ) captures the performative response to model θ, while 
+
+Pt captures time-varying external shift. Setting αt = 0 recovers the standard performative prediction model [26]. When the deployed model at time t is θt , we sometimes use the shorthand Dt B Dt (θt ). The partially performative setting admits natural analogues of the central concepts from performative prediction. We define the performative risk and decoupled performative risk at time t as PR t (θ) B EZ∼D t (θ)[ℓ(Z, θ )] , DPR t (θ, θ ′ ) B EZ∼D t (θ′ )[ℓ(Z, θ )] .
+
+The performative risk evaluates a model on the distribution that it induces. The decoupled performative risk separates the model being evaluated, θ, from the model that induces the distribution, θ′ .The performatively stable point at time t is defined as the point θPS  
+
+> t
+
+∈ Θ satisfying 
+
+θPS  
+
+> t
+
+B arg min 
+
+> θ∈Θ
+
+DPR t (θ, θ PS  
+
+> t
+
+).
+
+Thus, once θPS  
+
+> t
+
+is deployed and induces the distribution Dt (θPS  
+
+> t
+
+), it minimizes the expected loss on that induced distribution. The performatively optimal point at time t is the point 
+
+θPO  
+
+> t
+
+B arg min 
+
+> θ∈Θ
+
+PR t (θ).
+
+Performative optimality jointly accounts for the loss incurred by predicting with θ and the distributional response induced by deploying θ. In general, stable and optimal points do not coincide [26]. Because the stable and optimal points may vary with time, a natural objective is to achieve low regret relative to the sequences {θPS  
+
+> t
+
+}t∈[T ] and {θPO  
+
+> t
+
+}t∈[T ]. This leads to our definitions of performative stability regret and performative optimality regret . Let A be an algorithm that outputs a possibly stochastic sequence of iterates {θt }t∈[T ]. We define the performative stability regret and the performative optimality regret of A
+
+as Reg PS  
+
+> T
+
+(A) B
+
+> T
+
+X
+
+> t=1
+
+E[PR t (θt )] − PR t (θPS  
+
+> t
+
+) ,
+
+Reg PO  
+
+> T
+
+(A) B
+
+> T
+
+X
+
+> t=1
+
+E[PR t (θt )] − PR t (θPO  
+
+> t
+
+) .
+
+4The expectation is taken over any randomness in the algorithm. Several previous works have studied regret guarantees in performative prediction [3, 5, 14, 32]. Their guarantees are given in terms of static regret, which compares the learner’s realized loss to that of a single fixed θ ∈ Θ. In the standard performative prediction model, this is natural, since the stable and optimal points do not change over time. In the partially performative setting, however, the exogenous component can make these points time-varying. We therefore study dynamic regret, which compares the learner’s performance to a sequence of models. This distinction parallels the classical di ff erence between static and dynamic regret in online learning; see, for example, [9]. Finally, we invoke several common assumptions from the performative prediction literature, including (strong) convexity and smoothness conditions on the loss ℓ(z, θ ). We say that a continuously di ff erentiable function ℓ : Z × Θ → R is μ-strongly convex in θ if 
+
+ℓ(z, θ ′ ) ≥ ℓ(z, θ ) + ⟨∇ θ ℓ(z, θ ), θ ′ − θ⟩ + μ
+
+2 ∥θ′ − θ∥2, ∀θ, θ ′ ∈ Θ, z ∈ Z , (4) and convex in θ if the above holds with μ = 0. We say that ℓ is βθ -smooth in θ if 
+
+∥∇ θ ℓ(z, θ ) − ∇ θ ℓ(z, θ ′ )∥ ≤ βθ ∥θ − θ′ ∥, ∀ θ, θ ′ ∈ Θ , z ∈ Z , (5) and βz-smooth in z if 1
+
+∥∇ θ ℓ(z, θ ) − ∇ θ ℓ(z′ , θ )∥ ≤ βz∥z − z′ ∥, ∀ z, z ′ ∈ Z , θ ∈ Θ. (6) We say that PR t (θ) is L-Lipschitz if 
+
+|PR t (θ) − PR t (θ′ )| ≤ L∥θ − θ′ ∥, ∀ θ, θ ′ ∈ Θ. (7) Here we also state one assumption specific to performative settings: sensitivity of the distribution map. We say that D is ϵ-sensitive if 
+
+W1
+
+D(θ), D(θ′ ) ≤ ϵ∥θ − θ′ ∥, ∀ θ, θ ′ ∈ Θ, (8) where W1 denotes the Wasserstein-1 distance. This condition requires the performative response to vary smoothly with the deployed model. Intuitively, ϵ measures the strength of performative e ff ects. 
+
+Remark 2.1 . When we make assumptions on the loss as a function of z, we require the assumptions to hold for all θ; for example, z 7→ ℓ(z, θ ) is βz-smooth for all θ. For the assumptions on the loss as a function of θ, however, our results hold under a weaker assumption that the expected risk R D (θ) B EZ∼D [ℓ(Z, θ )] is μ-strongly convex, βθ -smooth, etc, for all admissible distributions that could be generated by Dt (θt ). For simplicity we state the assumptions for all z ∈ Z , as in Eqs. (4), (5) and (7), however all the proofs go through if we consider the expected risk. Making assumptions on the expected risk is strictly weaker, especially if we have additional structure on the distributions that can be generated by Dt (θt ). For example, consider a simple one-dimensional coin-flip setting with a single feature where the random variable Z = ( X, Y ) ∈ {− 1, +1 }2 has a fixed distribution of X ∼ Unif( {− 1, +1 }) and only the conditional law of Y | X can change due to performative and exogenous factors. Consider 
+
+ℓ(z, θ ) = 12 (θ − y)2 − xθ 2.
+
+We have that θ 7→ ℓ(z, θ ) is nonconvex in θ for x = 1. However, if we average the loss over the distribution of ( X, Y ), we have RD (θ) = EZ∼D
+
+ 12 (θ − Y )2 − Xθ 2
+
+
+
+= EZ∼D
+
+ 12 (θ − Y )2
+
+
+
+,
+
+which is 1-strongly convex in θ. Similarly, we can also consider 
+
+ℓ(z, θ ) = 12 (θ − y)2 − x|θ|,
+
+which is non-smooth at θ = 0, but admits a 1-smooth R D (θ) under the same setup.   
+
+> 1Note that βz-smoothness is also defined using the gradient with respect to θ.
+
+53 Repeated risk minimization under partial performativity 
+
+We begin by studying repeated risk minimization (RRM) [26]. Given an initial θ1 ∈ Θ, RRM sets 
+
+θt+1 = arg min 
+
+> θ∈Θ
+
+EZ∼D t (θt )[ℓ(Z, θ )] . (RRM) We use ARRM to denote this algorithm. We start from a key technical lemma that characterizes one-step RRM updates. 
+
+Lemma 3.1. Suppose that D(θ) is ϵ-sensitive (8) and ℓ(z, θ ) is μ-strongly convex in θ (4) and βz-smooth in z (6) .Then, the iterates of ARRM satisfy 
+
+∥θt+1 − θPS  
+
+> t
+
+∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θt − θPS  
+
+> t
+
+∥.
+
+We defer the proof of Lemma 3.1 to Section B.1. We note that Lemma 3.1 is a strict generalization of Theorem 3.5 by Perdomo et al. [26], recovered when αt = 0 and θPS  
+
+> t
+
+≡ θPS for all t. Building on this lemma, we obtain the following stability regret for RRM. 
+
+Theorem 3.2. Suppose that D(θ) is ϵ-sensitive (8) , ℓ(z, θ ) is μ-strongly convex in θ (4) and βz-smooth in z (6) ,and PR t (θ) is L-Lipschitz (7) in θ. Then, if ϵ < μ 
+
+> (1 −αmin )βz
+
+, where αmin = min t∈[T ] αt , the iterates of ARRM satisfy 
+
+Reg PS  
+
+> T
+
+(ARRM ) ≤ L
+
+1 − γ ·
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ , (9) 
+
+for γ = (1 −αmin )ϵβ z 
+
+> μ
+
+.
+
+We defer the proof of Theorem 3.2 to Section B.2. 
+
+Remark 3.3 . Although we state all (strong) convexity and smoothness conditions directly in terms of the loss ℓ for simplicity, all results in the paper also hold under the corresponding conditions on the expected 
+
+loss; see Remark 2.1 for details. Also, we show in Lemma A.5 that ℓ being Lipschitz in both z and θ implies that PR t (θ) is Lipschitz. In the standard performative setting with αt ≡ 0, convergence of RRM to stability required that the contraction factor γ = ϵβ z 
+
+> μ
+
+be strictly less than one. Under the partially performative setting with possible 
+
+αt > 0, the contraction factor γ gets smaller by a factor of (1 −αt ), and thus we only need a weaker sensitivity condition γ = (1 −αmin )ϵβ z 
+
+> μ
+
+< 1, or equivalently ϵ < μ 
+
+> (1 −αmin )βz
+
+. At the same time, large exogenous shifts may lead to large gaps between subsequent stable points ∆PS  
+
+> t
+
+. To provide more intuition for ∆PS  
+
+> t
+
+, we state an upper bound on ∆PS  
+
+> t
+
+as a function of the mixture coe ffi cient αt , how fast the distribution Pt varies, and the properties of the loss function. 
+
+Proposition 3.4. Fix t ∈ N. Suppose that D(θ) is ϵ-sensitive (8) and ℓ(z, θ ) is μ-strongly convex in θ (4) and 
+
+βz-smooth in z (6) . Further, suppose that W1(D(θPS 
+
+> t+1
+
+), P t+1 ) ≤ C for some C < ∞. Then, if ϵ < μ  
+
+> (1 −αt)βz
+
+, we have 
+
+∆PS  
+
+> t
+
+≤ βz
+
+μ − βz(1 − αt )ϵ (αt W1(Pt , P t+1 ) + |αt − αt+1 |C) .
+
+We defer the proof of Proposition 3.4 to Section B.3. We observe that ∆PS  
+
+> t
+
+is driven by (i) how fast the exogenous component drifts, W1(Pt , P t+1 ); (ii) the contribution of the exogenous component αt ; and (iii) the local fluctuations in the mixture coe ffi cient, |αt −αt+1 |. In particular, ∆PS  
+
+> t
+
+is small whenever αt is consistently small or the distributions Pt do not vary significantly. As a special case, suppose that αt ≤ ct −b, for some c, b > 0, and that W1(Pt , P t+1 ) is uniformly bounded for all t. Then, if ϵ < μ/β z, we can conclude Reg PS  
+
+> T
+
+(ARRM ) = O
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+αt
+
+ .
+
+6For the case b ∈ (0 , 1), we have PT −1 
+
+> t=1
+
+αt = O(T 1−b), and therefore Reg PS  
+
+> T
+
+(ARRM ) = O(T 1−b). Similarly, for 
+
+b = 1 we have PT −1 
+
+> t=1
+
+αt = O(log T ), and for b > 1 we have PT −1 
+
+> t=1
+
+αt = O(1), each implying a regret upper bound of the same rate, respectively. 
+
+# 4 Gradient descent under partial performativity 
+
+Next, we consider several variants of gradient descent and prove their stability regret bounds. We begin by considering repeated gradient descent (RGD) with access to the full expected gradient, after which we move on to stochastic gradient descent. In the standard performative prediction setting, the former was studied by [20, 26] and the latter was studied by [4, 20], among others. 
+
+## 4.1 Repeated gradient descent 
+
+First, we consider repeated gradient descent (RGD), 
+
+θt+1 = ΠΘ
+
+θt − ηt EZ∼D t (θt )[∇ℓ(Z, θ t )] , (RGD) where ηt > 0 is a step size sequence. We denote this algorithm by ARGD .We obtain a similar rate for the stability regret bound as in the case of RRM. 
+
+Theorem 4.1. Suppose that D(θ) is ϵ-sensitive (8) , ℓ(z, θ ) is μ-strongly convex (4) and βθ -smooth (5) in θ and 
+
+βz-smooth (6) in z, and PR t (θ) is L-Lipschitz (7) in θ. Then, if ϵ < μ 
+
+> (1 −αmin )βz
+
+, where αmin = min t∈[T ] αt , the iterates of ARGD with step size 
+
+ηt = μ − (1 − αt )ϵβ z
+
+2( β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+)
+
+satisfy 
+
+Reg PS  
+
+> T
+
+(ARGD ) ≤ L
+
+1 − γ ·
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ , (10) 
+
+for γ = 1 − (μ−(1 −αmin )ϵβ z )2   
+
+> 4( β2
+> θ+(1 −αmin )2ϵ2β2
+> z)
+
+.
+
+We defer the proof of Theorem 4.1 to Section C.2. As in the case of RRM, we observe a regret upper bound of O(1 + PT −1 
+
+> t=1
+
+∆PS  
+
+> t
+
+). The dependence on the path length mirrors existing results for online gradient descent [23]. Interestingly, Mendler-D ¨ unner et al. [20] assume that the stable point lies in the interior of Θ. Our proof of Theorem 4.1 bypasses such an assumption, and thus weakens the conditions for convergence to stability in fully performative environments, obtained by taking αt ≡ 0. 
+
+## 4.2 Stochastic gradient descent: greedy and lazy deploy 
+
+We consider two variants of stochastic gradient descent. Both sequentially collect samples from the cur-rently deployed model and take a single gradient step after each. They di ff er in their data collection sched-ule: greedy deploy collects a single data point between two deployments, while lazy deploy collects multiple data points and takes multiple o ffl ine steps between two deployments. Before formally stating the algorithms and their guarantees, we introduce a standard assumption in stochastic optimization. We assume that the stochastic gradients have a quadratic-bounded variance: for all possible Dt , for some CV we have 
+
+EZ∼D t [∥∇ θ ℓ(Z, θ )∥2] ≤ σ 2 + C2 
+
+> V
+
+∥θ − θ⋆ 
+
+> Dt
+
+∥2, (11) where θ⋆ 
+
+> Dt
+
+B arg min θ EZ∼D t [ℓ(Z, θ )]. 7Greedy deploy. Consider the greedy deploy [20] variant of stochastic gradient descent (SGD): 
+
+θt+1 = ΠΘ (θt − ηt ∇θ ℓ(Zt , θ t )) , where Zt ∼ D t , (greedy SGD) which uses a single sample per each deployment. We denote the algorithm by ASGD-greedy .
+
+Proposition 4.2. Let the same assumptions as in Theorem 4.1 and the quadratic variance bound (11) hold. Then, the iterates of ASGD -greedy with step size ηt ∝ 1 
+
+> t+t0
+
+, for some constant t0 > 0, satisfy 
+
+Reg PS  
+
+> T
+
+(ASGD -greedy ) ≤ O 
+
+T 1/2 + T 1/4
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+(t + t0 + 1) 5/2(∆PS  
+
+> t
+
+)2
+
+ 
+
+> 1/2
+
+ . (12) We defer the proof of Proposition 4.2 to Section D.3. We can observe from (12) that ASGD-greedy enjoys sublinear regret whenever we have ∆PS  
+
+> t
+
+≤ Mt −b for b > 1, Reg PS  
+
+> T
+
+(ASGD-greedy ) = 
+
+
+
+O(T 2−b), if b ∈ (1 , 32 ),
+
+O(T 1/2), if b ≥ 32 .
+
+As discussed in Section 3, we can have ∆PS  
+
+> t
+
+≤ Mt −b when αt ≤ ct −b for some constant c > 0. 
+
+Remark 4.3 . Unlike the other results in Section 3 and Section 4, the upper bound in Proposition 4.2 does not guarantee sublinear regret of ASGD-greedy when ∆PS  
+
+> t
+
+≤ Mt −b decays with a rate of b ∈ (0 , 1). We leave the search for a tighter upper bound or a matching lower bound to future work. 
+
+Lazy deploy. Consider the lazy deploy [20] variant of stochastic gradient descent (SGD): 
+
+ϕt,j +1 = ΠΘ (ϕt,j − ηt,j ∇θ ℓ(Zt,j , ϕ t,j )) , (lazy SGD) where Zt,j i.i.d. 
+
+∼ Dt for j ∈ [n(t)], with ϕt, 1 = θt and ϕt,n (t)+1 = θt+1 . In other words, ϕt,j are internal iterates computed between two deployments θt and θt+1 . Within each deployment, we collect n(t) samples from 
+
+Dt , and we assume n(t) ≥ n0tr for some r > 0. We denote this algorithm by ASGD-lazy .
+
+Proposition 4.4. Suppose that the same assumptions as in Proposition 4.2 hold. Then, the iterates of ASGD -lazy 
+
+with step sizes ηt,j ∝ 1 
+
+> j+t0
+
+, for some constant t0 > 0, and n(t) ≥ n0tr with a large enough n0 satisfy 
+
+Reg PS  
+
+> T
+
+(ASGD -lazy ) ≤ O 
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+t−r/ 2 + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ . (13) We defer the proof of Proposition 4.4 to Section E.3. Summing up over t, we see that the first term in the regret is upper bounded by O(1) for r > 2, O(log T ) for r = 2, and O(T 1−r/ 2) for r ∈ (0 , 2). 
+
+# 5 Achieving optimality under partial performativity 
+
+We now turn our attention to studying performative optimality regret. Performative optimality is harder to achieve than stability because computing the gradients of PR t (θ) is rarely feasible, due to the (typically complex) dependence of PR t (θ) on θ through Dt (θ). We thus turn to zeroth-order algorithms, which only require querying PR t (θ), not its gradient. Throughout, we make a couple of mild assumptions: that |ℓ(z, θ )| ≤ F for some finite F, for all z, θ , and that Θ contains a ball of radius r centered at 0, for some r > 0. To prove that the regret vanishes, we will need PR t (θ) to be convex or strongly convex. This is not guaranteed by the convexity of ℓ(z, θ ) alone. Miller et al. [21] identify conditions that ensure convexity of the performative risk, the most important one being a so-called mixture dominance condition. Miller et al. show that this condition is satisfied by location-scale families. In the partially performative setting, con-vexity is easier to ensure, since the αt -fraction of the objective corresponding to the exogenous component is convex whenever ℓ(z, θ ) is convex. We formalize this below. 8Proposition 5.1. Suppose that D(θ) is ϵ-sensitive (8) , and ℓ(z, θ ) is μ-strongly convex in θ (4) and βz-smooth in 
+
+z (6) . Assume also the mixture dominance condition [21]. Then, PR t is (μ − 2(1 − αt )ϵβ z)-convex. 
+
+If μ − 2(1 − αt )ϵβ z is positive, then PR t (θ) is strongly convex by that amount. If μ − 2(1 − αt )ϵβ z is neg-ative, then PR t (θ) is weakly convex by that amount, meaning that adding a quadratic regularizer of that magnitude makes PR t (θ) convex. 
+
+## 5.1 Two-deployment algorithm 
+
+Consider two-point zeroth-order gradient descent (ZGD2) [1]: starting from an initial θ1 ∈ Θ, we set 
+
+θt+1 = Π(1 −ρ)Θ (θt − ηt · ˜gt ) , (ZGD2) ˜gt = PR t (θt + δu t ) − PR t (θt − δu t )ut
+
+d
+
+2δ , where ut ∼ Unif( Sd−1).
+
+Here, ηt > 0 is a step size, δ > 0 and ρ ∈ [0 , 1] are hyperparameters, and ut is sampled uniformly on the 
+
+d-dimensional unit sphere Sd−1. In other words, we deploy two models: φ+ 
+
+> t
+
+= θt + δu t and φ− 
+
+> t
+
+= θt − δu t ,observe their corresponding risks PR t (φ+ 
+
+> t
+
+) and PR t (φ− 
+
+> t
+
+), and use those values to perform an approximate gradient update on θt . Practically, one can think of the procedure as partitioning the population into two halves and deploying two di ff erent treatments φ+ 
+
+> t
+
+and φ− 
+
+> t
+
+within each. It is known that E[ ˜ gt |θt ] = ∇cPR t (θt )for cPR t (θ) B Ev [PR t (θ + δv )] with v sampled uniformly within the d-dimensional unit ball, v ∼ Unif( Bd ). We use projections to (1 − ρ)Θ with ρ ≥ δr to ensure that the perturbed iterates {φ+ 
+
+> t
+
+, φ − 
+
+> t
+
+} are in the domain, i.e., θt ± δu t ∈ Θ. We denote the algorithm by AZGD2 .Note that here we have applied a slight abuse of notation, since θt is not the actual sequence deployed 
+
+by AZGD2 ; θt is the sequence used internally for optimization. To accurately capture optimality regret, we measure it with respect to the deployed sequence {φ+ 
+
+> t
+
+, φ − 
+
+> t
+
+}:Reg PO  
+
+> T
+
+(AZGD2 ) = 
+
+> T
+
+X
+
+> t=1
+
+max    
+
+> φt∈{ φ+
+> t,φ −
+> t}
+
+E[PR t (φt )] − PR t (θPO  
+
+> t
+
+)
+
+!
+
+.
+
+Theorem 5.2. Suppose that PR t is L-Lipschitz (7) . If PR t is μ′ -strongly convex, then AZGD2 with parameters 
+
+ηt = 1  
+
+> μ′t
+
+, δ = d2L  
+
+> 6μ′T
+
+, and ρ = δr satisfies, for T ≥ d2L  
+
+> 6μ′r
+
+,
+
+Reg PO  
+
+> T
+
+(AZGD2 ) = O
+
+d2 log T + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ .
+
+If PR t is convex, then AZGD2 with parameters ηt ≡ η = DΘ 
+
+> dL √T
+
+, δ = dD Θ 
+
+> 6√T
+
+, and ρ = δr satisfies, for T ≥ d2D2 
+
+> Θ
+> 36 r2
+
+,
+
+Reg PO  
+
+> T
+
+(AZGD2 ) = O
+
+d√T ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ .
+
+We defer the proof of Theorem 5.2 to Section F.1. If we only have access to stochastic feedback, like in Section 4.2, then two-point zeroth-order gradient descent is not appropriate, since we cannot subject any one individual Zt to two di ff erent treatments φ+
+
+> t
+
+and φ− 
+
+> t
+
+. To address this challenge, in the following we analyze a one-point version of zeroth-order gradient descent and bound its optimality regret. 
+
+## 5.2 Single-deployment algorithm 
+
+Here we consider one-point zeroth-order gradient descent (ZGD) [6], which we denote by AZGD :
+
+θt+1 = Π(1 −ρ)Θ (θt − ηt gt ), (ZGD) 
+
+gt = dδ ℓ(Zt , φ t )ut , where ut ∼ Unif( Sd−1), φ t = θt + δu t , and Zt ∼ D t (φt ),
+
+9where ηt > 0 is a step size, δ > 0 and ρ ∈ [0 , 1] are hyperparameters, and ut is sampled uniformly on the 
+
+d-dimensional sphere Sd−1. Note that for one-point ZGD, we can use ℓ(Zt , φ t ) with Zt ∼ D t (φt ) instead of computing the whole population risk PR( φt ) from stochastic feedback. Similar to AZGD2 , it is known that E[gt ] = dδ Eut [PR t (θt + δu t )ut ] = ∇cPR t (θt ) for cPR t (θ) B Ev [PR t (θ + δv )] with v ∼ Unif( Bd ). As for AZGD2 , we will provide upper bounds of the optimality regret in terms of the deployed sequence {φt }t∈[T ],Reg PO  
+
+> T
+
+(AZGD ) = 
+
+> T
+
+X
+
+> t=1
+
+E[PR t (φt )] − PR t (θPO  
+
+> t
+
+).
+
+Theorem 5.3. Suppose that PR t is L-Lipschitz (7) . If PR t is μ′ -strongly convex, then AZGD with parameters 
+
+ηt = 1  
+
+> μ′t
+
+, δ ∝ d2/3( 1+log TT )1/3, and ρ = δr satisfies the following optimality regret upper bound for T = ˜Ω(d2):
+
+Reg PO  
+
+> T
+
+(AZGD ) = O
+
+d 23 T 23 (log T ) 13 + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ .
+
+If PR t is convex, then AZGD with parameters ηt ≡ η ∝ d−1/2T −3/4, δ ∝ d1/2T −1/4, and ρ = δr satisfies the following optimality regret upper bound for T = ˜Ω(d2):
+
+Reg PO  
+
+> T
+
+(AZGD ) = O
+
+d 12 T 34 ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ .
+
+We defer the proof of Theorem 5.3 to Section F.2. Given the weaker feedback signal, the regret bounds are naturally larger than that of ZGD2. 
+
+Remark 5.4 . Chen et al. [3] similarly study how to use two deployed models to construct a zeroth-order estimate of the performative risk gradient in a fully performative setting. Our result gives a new analysis of the dynamic optimality regret of the two-deployment algorithm under partial performativity. 
+
+# 6 Experiments 
+
+We conduct experiments evaluating the stability regret of the retraining algorithms considered in the pa-per. We include several main results in this section and defer further empirical results and additional experimental details to Appendix G. We use the credit scoring dataset from [34], in particular the processed version from [29]. The dataset contains demographic and socioeconomic features xi ∈ R16 , including age, education, and credit history, and labels yi indicating whether a person defaulted on their credit card payment, for 30 , 000 individuals. The learner aims to predict the individuals’ creditworthiness by minimizing a regularized logistic loss over an ℓ2 ball in d = 17 dimensions (one dimension corresponding to the intercept), after standardizing the features. The performative feedback is modeled as coming from strategic responses: an individual i
+
+responds to a deployed model θ by optimizing the score θ⊤xi (equivalently, maximizing the prediction), with an additional quadratic penalty for deviating too far from their initial features xi, 0. Only certain features are modifiable (for example, age is not), and thus the individuals only manipulate those modifiable features. We model the initial features x0 in the dataset as being drawn from a normal distribution N (m, Σ), and we fit m and Σ from 1500 data points. The individuals’ best response has a closed-form expression in this case: 
+
+x ← x0 + Aθ, 
+
+where A = a · diag( pmod ), a is a constant that captures the individuals’ utility–cost tradeo ff , and pmod in-dicates the modifiable coordinates. Putting everything together yields a distribution map D(θ) = N (Aθ +
+
+m, Σ). We set a = 0 .1. We introduce an exogenous component Pt = N (mt , Σ) with the same covariance matrix as the performa-tive component, which models a time-varying population of non-strategic individuals that do not optimize 10 0 2 4 6 
+
+> log T
+> 0
+> 2
+> 4
+> log Reg PS
+> T
+
+RRM, Pt random         
+
+> 01234567
+> log T
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5
+> log Reg PS
+> T
+
+Lazy SGD, Pt random     
+
+> 0246
+> log T
+> 0.58
+> 0.56
+> 0.54
+> 0.52
+> 0.50
+> 0.48
+> log Reg PS
+> T
+
+RRM, Pt stationary         
+
+> 01234567
+> log T
+> 0.5
+> 0.0
+> 0.5
+> 1.0
+> 1.5
+> 2.0
+> log Reg PS
+> T
+
+Lazy SGD, Pt stationary                  
+
+> t= 1.00 t=t0.25 t=t0.50 t=t1.00 t=t2.00
+
+Figure 1: Performative stability regret of ARRM (left) and ASGD-lazy with r = 1 (right) in the credit scoring experiment, for varying αt . We consider a randomly varying (top) and a stationary (bottom) exogenous component Pt .
+
+their predicted score. To capture “hard” and “easy” exogenous shifts, we consider two cases: in the first, 
+
+mt is sampled independently from a bounded ball at each round; in the second, mt is sampled once at the beginning and held fixed across t. We study the e ff ect of di ff erent values of αt ; we compare polynomial schedules αt = t−b with b ∈ { 0.25 , 0.5, 1.0, 2.0} and the constant schedule αt = 1 (or, equivalently, b = 0). In Figure 1 we plot the stability regret of repeated risk minimization (RRM) and SGD with a lazy de-ployment schedule, for random and stationary Pt . The figure shows that the e ff ect of the mixing schedule 
+
+αt depends on whether the exogenous component drifts. With random shifts, faster decay of αt suppresses the moving exogenous term and produces smaller stability regret for the displayed stability algorithms. With fixed Pt , the ordering is reversed: keeping αt larger for longer makes the observed distribution closer to a fixed, nonperformative component and yields smaller regret, αt = 1 being the most desirable scenario. This behavior is consistent with the theoretical results, as well as the path length bound from Proposition 3.4. In the random Pt case, the term Pt ∆PS  
+
+> t
+
+, which is driven by αt W1(Pt , P t+1 ), is the dominant term in the regret bound. Therefore, larger αt leads to a larger regret. In the fixed Pt case, the path length is zero, and thus the regret bound is dominated by the performative regret component, which decreases as αt grows. 
+
+# 7 Conclusion 
+
+We introduce partially performative prediction—a novel model for learning under distribution shifts that are both induced by performative feedback and exogenous variations. In this setting, we measure perfor-mance via regret relative to a sequence of performatively stable and performatively optimal points, rather than a single stable or optimal point, as in the standard performative prediction model. We prove dy-namic regret bounds for several standard algorithms, including repeated risk minimization and variants of stochastic gradient descent. Several questions remain unresolved, such as matching regret lower bounds or tighter upper bounds. As we briefly discussed, the regret rate of greedy SGD is worse than the rate of the other studied algorithms, 11 and we do now know if this gap is fundamental. It would also be valuable to study performative stability regret and performative optimality regret beyond the presented model of partial performativity. These regret notions can be defined with respect to any time-varying map Dt (θ), thus allowing natural extensions to models beyond linear mixtures. Finally, our regularity assumptions on the loss (such as convexity) and the distribution map (such as sensitivity) are still fairly restrictive; finding ways to relax those assumptions remains an open question. 
+
+# References 
+
+[1] Alekh Agarwal, Ofer Dekel, and Lin Xiao. Optimal algorithms for online convex optimization with multi-point bandit feedback. In Conference on Learning Theory (COLT) , 2010. [2] Gavin Brown, Shlomi Hod, and Iden Kalemaj. Performative prediction in a stateful world. In International confer-ence on artificial intelligence and statistics , pages 6045–6061. PMLR, 2022. [3] Yatong Chen, Wei Tang, Chien-Ju Ho, and Yang Liu. Performative prediction with bandit feedback: Learning through reparameterization. In International Conference on Machine Learning , pages 7298–7324. PMLR, 2024. [4] Dmitriy Drusvyatskiy and Lin Xiao. Stochastic optimization with decision-dependent distributions. Mathematics of Operations Research , 48(2):954–998, 2023. [5] Gabriele Farina and Juan Carlos Perdomo. The stability of online algorithms in performative prediction. arXiv preprint arXiv:2602.24207 , 2026. [6] Abraham D. Flaxman, Adam Tauman Kalai, and H. Brendan McMahan. Online convex optimization in the bandit setting: gradient descent without a gradient. In Proceedings of the Sixteenth Annual ACM-SIAM Symposium on Discrete Algorithms , 2005. [7] Moritz Hardt and Celestine Mendler-D ¨ unner. Performative prediction: Past and future. Statistical Science , 40(3): 417–436, 2025. [8] Moritz Hardt, Eric Mazumdar, Celestine Mendler-D ¨ unner, and Tijana Zrnic. Algorithmic collective action in machine learning. In International Conference on Machine Learning , pages 12570–12586. PMLR, 2023. [9] Elad Hazan. Introduction to online convex optimization. Foundations and Trends in Optimization , 2(3-4):157–325, 2016. [10] Mark Herbster and Manfred K Warmuth. Tracking the best expert. Machine learning , 32(2):151–178, 1998. [11] Zachary Izzo, Lexing Ying, and James Zou. How to learn when data reacts to your model: performative gradient descent. In International Conference on Machine Learning , pages 4641–4650. PMLR, 2021. [12] Zachary Izzo, James Zou, and Lexing Ying. How to learn when data gradually reacts to your model. In Interna-tional Conference on Artificial Intelligence and Statistics , pages 3998–4035. PMLR, 2022. [13] Ali Jadbabaie, Alexander Rakhlin, Shahin Shahrampour, and Karthik Sridharan. Online optimization: Competing with dynamic comparators. In International Conference on Artificial Intelligence and Statistics , pages 398–406. PMLR, 2015. [14] Meena Jagadeesan, Tijana Zrnic, and Celestine Mendler-D ¨ unner. Regret minimization with performative feed-back. In International Conference on Machine Learning , pages 9760–9785. PMLR, 2022. [15] Thomas Kehrenberg, Francisco Javier Sanguino Bautiste, Jose Lozano, and Novi Quadrianto. Dissecting perfor-mative prediction: A comprehensive survey. ACM Computing Surveys , 2026. [16] Michael P Kim and Juan C Perdomo. Making decisions under outcome performativity. In 14th Innovations in Theoretical Computer Science Conference (ITCS 2023) , volume 251, page 79, 2023. [17] Qiang Li and Hoi-To Wai. State dependent performative prediction with stochastic approximation. In International Conference on Artificial Intelligence and Statistics , pages 3164–3186. PMLR, 2022. [18] Licong Lin and Tijana Zrnic. Plug-in performative optimization. In International Conference on Machine Learning ,pages 30546–30565, 2024. 
+
+12 [19] Haitong Liu, Qiang Li, and Hoi To Wai. Two-timescale derivative free optimization for performative prediction with markovian data. In International Conference on Machine Learning , pages 31425–31450. PMLR, 2024. [20] Celestine Mendler-D ¨ unner, Juan Perdomo, Tijana Zrnic, and Moritz Hardt. Stochastic optimization for performa-tive prediction. Advances in Neural Information Processing Systems , 33:4929–4939, 2020. [21] John P Miller, Juan C Perdomo, and Tijana Zrnic. Outside the echo chamber: Optimizing the performative risk. In International Conference on Machine Learning , pages 7710–7720. PMLR, 2021. [22] Mehrnaz Mofakhami, Ioannis Mitliagkas, and Gauthier Gidel. Performative prediction with neural networks. In 
+
+International Conference on Artificial Intelligence and Statistics , pages 11079–11093. PMLR, 2023. [23] Aryan Mokhtari, Shahin Shahrampour, Ali Jadbabaie, and Alejandro Ribeiro. Online optimization in dynamic environments: Improved regret rates for strongly convex problems. In IEEE Conference on Decision and Control (CDC) , 2016. [24] Adhyyan Narang, Evan Faulkner, Dmitriy Drusvyatskiy, Maryam Fazel, and Lillian J Ratli ff . Multiplayer perfor-mative prediction: Learning in decision-dependent games. Journal of Machine Learning Research , 24(202):1–56, 2023. [25] Sungwoo Park, Junyeop Kwon, Byeongnoh Kim, Suhyun Chae, Jeeyong Lee, and Dabeen Lee. Parameter-free algorithms for performative regret minimization under decision-dependent distributions. arXiv preprint arXiv:2402.15188 , 2024. [26] Juan Perdomo, Tijana Zrnic, Celestine Mendler-D ¨ unner, and Moritz Hardt. Performative prediction. In Interna-tional Conference on Machine Learning , pages 7599–7609. PMLR, 2020. [27] Juan Carlos Perdomo. Revisiting the predictability of performative, social events. In International Conference on Machine Learning , pages 48948–48961. PMLR, 2025. [28] Mitas Ray, Lillian J Ratli ff , Dmitriy Drusvyatskiy, and Maryam Fazel. Decision-dependent risk minimization in geometrically decaying dynamic environments. In Proceedings of the AAAI Conference on Artificial Intelligence ,volume 36, pages 8081–8088, 2022. [29] Berk Ustun, Alexander Spangher, and Yang Liu. Actionable recourse in linear classification. In Proceedings of the Conference on Fairness, Accountability, and Transparency , page 10–19. Association for Computing Machinery, 2019. [30] Xiaolu Wang, Chung-Yiu Yau, and Hoi To Wai. Network e ff ects in performative prediction games. In International Conference on Machine Learning , pages 36514–36540. PMLR, 2023. [31] Songkai Xue and Yuekai Sun. Distributionally robust performative prediction. In Advances in Neural Information Processing Systems , volume 37, pages 55030–55052, 2024. [32] Wenjing Yan and Xuanyu Cao. Zero-regret performative prediction under inequality constraints. Advances in Neural Information Processing Systems , 36:1298–1308, 2023. [33] Tianbao Yang, Lijun Zhang, Rong Jin, and Jinfeng Yi. Tracking slowly moving clairvoyant: Optimal dynamic regret of online learning with true and noisy gradient. In International Conference on Machine Learning , pages 449–457. PMLR, 2016. [34] I-Cheng Yeh and Che-hui Lien. The comparisons of data mining techniques for the predictive accuracy of proba-bility of default of credit card clients. Expert systems with applications , 36(2):2473–2480, 2009. [35] Lijun Zhang, Tianbao Yangt, Jinfeng Yi, Rong Jin, and Zhi-Hua Zhou. Improved dynamic regret for non-degenerate functions. In International Conference on Neural Information Processing Systems , page 732–741. Curran Associates Inc., 2017. [36] Peng Zhao, Guanghui Wang, Lijun Zhang, and Zhi-Hua Zhou. Bandit convex optimization in non-stationary environments. In International conference on artificial intelligence and statistics , 2020. [37] Haiqing Zhu, Tijana Zrnic, and Celestine Mendler-D ¨ unner. Look-ahead reasoning on learning platforms. Advances in Neural Information Processing Systems , 38:82399–82422, 2025. [38] Martin Zinkevich. Online convex programming and generalized infinitesimal gradient ascent. In International Conference on Machine Learning , 2003. 
+
+13 A Auxiliary lemmas 
+
+Lemma A.1. Suppose that we have a recursive inequality of the form 
+
+Ft+1 ≤ γt Ft + ∆t .
+
+Then we have 
+
+> T
+
+X
+
+> t=1
+
+(1 − γt )Ft ≤ F1 − γT FT + 
+
+> T−1
+
+X
+
+> t=1
+
+∆t . (14) 
+
+Proof. Since we have (1 − γt )Ft ≤ Ft − Ft+1 + ∆t ,
+
+the summation of the above yields  
+
+> T−1
+
+X
+
+> t=1
+
+(1 − γt )Ft ≤ 
+
+> T−1
+
+X
+
+> t=1
+
+(Ft − Ft+1 ) +  
+
+> T−1
+
+X
+
+> t=1
+
+∆t = F1 − FT + 
+
+> T−1
+
+X
+
+> t=1
+
+∆t .
+
+We add (1 − γT )FT to both sides to obtain Eq. (14). 
+
+Lemma A.2. Suppose that we have a recursive inequality of the form 
+
+Ft+1 ≤ 1 − αt + t0
+
+!
+
+Ft + H(t + t0)−m−1
+
+for all t ∈ N, with t0 > 0 and 0 ≤ m < α ≤ 1 + t0. Let 
+
+S = max 
+
+
+
+F1(1 + t0)m, Hα − m
+
+
+
+.
+
+Then we have Ft ≤ S(t + t0)−m for all t ∈ N.Proof. For t = 1 we have F1 ≤ S(1 + t0)−m by definition. Suppose that Ft ≤ S(t + t0)−m. Then, 
+
+Ft+1 ≤ 1 − αt + t0
+
+!
+
+Ft + H(t + t0)−m−1
+
+≤ 1 − αt + t0
+
+!
+
+S(t + t0)−m + S(α − m)( t + t0)−1 · (t + t0)−m
+
+= S 1 − αt + t0
+
++ α − mt + t0
+
+!
+
+(t + t0)−m
+
+= S 1 − mt + t0
+
+!
+
+(t + t0)−m.
+
+Since Bernoulli’s inequality (for m ≥ 0 and 1 
+
+> t+t0
+
+> −1) implies 1 − mt + t0
+
+≤ 1 + 1
+
+t + t0
+
+!−m
+
+,
+
+we have 
+
+Ft+1 ≤ S 1 + 1
+
+t + t0
+
+!−m
+
+(t + t0)−m = S(t + t0 + 1) −m
+
+as desired. 14 Lemma A.3 (Lemma B.5, [20]) . For any c ∈ (0 , 1) , r > 0, and T ∈ N,
+
+> T
+
+X
+
+> t=1
+
+cT −t t−r ≤ cT (1 −2−1/r )
+
+1 − c + 2T −r
+
+1 − c .
+
+Proof. (We rewrite the proof from [20] here for completeness.) We write 
+
+> T
+
+X
+
+> t=1
+
+cT −t t−r =
+
+> MT
+
+X
+
+> t=1
+
+cT −t t−r +
+
+> T
+
+X 
+
+> t=MT+1
+
+cT −t t−r ,
+
+where we define MT B max {m ∈ N : m−r > 2T −r } (or MT = 0 if the set is empty for small T ). Then we have 
+
+> MT
+
+X
+
+> t=1
+
+cT −t t−r +
+
+> T
+
+X 
+
+> t=MT+1
+
+cT −t t−r ≤
+
+> MT
+
+X
+
+> t=1
+
+cT −t + 2 T −r ·
+
+> T
+
+X 
+
+> t=MT+1
+
+cT −t
+
+≤ cT −MT
+
+1 − c + 2T −r
+
+1 − c
+
+≤ cT (1 −2−1/r )
+
+1 − c + 2T −r
+
+1 − c ,
+
+where we use MT < 2− 1 
+
+> r
+
+· T by its definition. 
+
+Lemma A.4. Let a, b ∈ [0 , 1] and Q1, Q 2, R 1, R 2 ∈ P (Z). Then we have 
+
+W1
+
+(1 − a)Q1 + aR 1, (1 − b)Q2 + bR 2
+
+ ≤ (1 − a)W1(Q1, Q 2) + aW1(R1, R 2) + |a − b| W 1(Q2, R 2).
+
+Proof. Since W1 is convex, 
+
+W1
+
+(1 − a)Q1 + aR 1, (1 − a)Q2 + aR 2
+
+ ≤ (1 − a)W1(Q1, Q 2) + aW1(R1, R 2).
+
+We also have 
+
+W1
+
+(1 − a)Q2 + aR 2, (1 − b)Q2 + bR 2
+
+ ≤ | b − a| W 1(Q2, R 2).
+
+Assuming a ≤ b without loss of generality, this holds because the distributions (1 −a)Q2 +aR 2 and (1 −b)Q2 +
+
+bR 2 share a mass of at least 1 − b from Q2 and a from R2. Therefore the optimal transport plan from Q2 to 
+
+R2 also yields a transport plan from (1 − a)Q2 + aR 2 to (1 − b)Q2 + bR 2 for the remaining mass b − a = |b − a|.Finally, applying triangle inequality for W1 proves the given statement. Lemma A.5 shows that sensitivity inherits Lipschitz properties of ℓ to the performative risk. 
+
+Lemma A.5. Suppose that the map D(θ) is ϵ-sensitive (8) and the function ℓ(z, θ ) is Lθ -Lipschitz in θ ∈ Θ and 
+
+Lz-Lipschitz in z ∈ Z . Then, PR t (θ) is Lt -Lipschitz, where Lt = (1 − αt )ϵL z + Lθ .Proof. (The proof is similar to that of Lemma 2 of [14].) Observe that PR t (θ) = R Dt (θ)(θ) if we define RD (θ) B EZ∼D [ℓ(Z, θ )], and RDt (θ)(θ) − RDt (θ′ )(θ′ ) = (1 − αt ) RD(θ)(θ) − RD(θ′ )(θ′ ) + αt
+
+RPt (θ) − RPt (θ′ ) ,
+
+for any θ, θ ′ ∈ Θ. Note that by Lipschitzness and sensitivity of D,(1 − αt ) RD(θ)(θ) − RD(θ′ )(θ) ≤ (1 − αt )Lz · W 1(D(θ), D(θ′ )) 
+
+≤ (1 − αt )ϵL z∥θ − θ′ ∥,
+
+15 and also (1 − αt ) RD(θ′ )(θ) − RD(θ′ )(θ′ ) + αt
+
+RPt (θ) − RPt (θ′ )
+
+= (1 − αt )R D(θ′ )(θ) + αt RPt (θ) − (1 − αt )R D(θ′ )(θ′ ) + αt RPt (θ′ )
+
+= R Dt (θ′ )(θ) − RDt (θ′ )(θ′ )
+
+≤ Lθ ∥θ − θ′ ∥.
+
+Taking the sum of the two and swapping θ, θ ′ in the argument concludes the proof. 
+
+# B Proofs for repeated risk minimization 
+
+We will define and frequently use the simplified notation DPS  
+
+> t
+
+B Dt (θPS  
+
+> t
+
+) throughout the remaining parts of the appendix. 
+
+## B.1 Proof of Lemma 3.1 
+
+Here we prove Lemma 3.1, restated below for the sake of readability. 
+
+Lemma 3.1. Suppose that D(θ) is ϵ-sensitive (8) and ℓ(z, θ ) is μ-strongly convex in θ (4) and βz-smooth in z (6) .Then, the iterates of ARRM satisfy 
+
+∥θt+1 − θPS  
+
+> t
+
+∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θt − θPS  
+
+> t
+
+∥.
+
+Proof. (The proof is similar to that of Theorem 3.5 of [26]. For completeness, we provide the full proof adapted to our settings.) Define g(ϕ) = R Dt (θ)(ϕ) and g′ (ϕ) = R Dt (θ′ )(ϕ) for fixed θ, θ ′ ∈ Θ. Let G(θ) B arg min ϕ∈Θ g(ϕ) and 
+
+G(θ′ ) B arg min ϕ∈Θ g′ (ϕ). Then the first-order optimality conditions yield 
+
+∇g(G(θ)) ⊤G(θ′ ) − G (θ) ≥ 0, ∇g′ (G(θ′ )) ⊤G(θ) − G (θ′ ) ≥ 0.
+
+By strong convexity, we have 
+
+g(G(θ)) − g(G(θ′ )) ≥ ∇ g(G(θ′ )) ⊤G(θ) − G (θ′ ) + μ
+
+2 ∥G (θ) − G (θ′ )∥2,g(G(θ′ )) − g(G(θ)) ≥ ∇ g(G(θ)) ⊤G(θ′ ) − G (θ) + μ
+
+2 ∥G (θ) − G (θ′ )∥2
+
+≥ μ
+
+2 ∥G (θ) − G (θ′ )∥2,
+
+where the last inequality comes from the first-order optimality condition of G(θ) = arg min ϕ∈Θ g(ϕ). There-fore we have 
+
+−∇ g(G(θ′ )) ⊤G(θ) − G (θ′ ) ≥ μ∥G (θ) − G (θ′ )∥2.
+
+Note that 
+
+−∇ g(G(θ′ )) ⊤G(θ) − G (θ′ ) ≤ −∇ g(G(θ′ )) ⊤G(θ) − G (θ′ ) + ∇g′ (G(θ′ )) ⊤G(θ) − G (θ′ )
+
+≤ ∥∇ g(G(θ′ )) − ∇ g′ (G(θ′ )) ∥ · ∥G (θ) − G (θ′ )∥,
+
+where the first line comes from the first-order optimality condition of G(θ′ ) = arg min ϕ∈Θ g′ (ϕ). Since ∇g(ϕ) = EZ∼D t (θ)[∇θ ℓ(Z, ϕ )] and ∇g′ (ϕ) = EZ∼D t (θ′ )[∇θ ℓ(Z, ϕ )], we can observe that βz-smoothness and the Kantorovich-Rubinstein duality of the W1 distance implies that 
+
+∥∇ g(G(θ′ )) − ∇ g′ (G(θ′ )) ∥ ≤ ∥ EZ∼D t (θ)[∇θ ℓ(Z, G(θ′ ))] − EZ∼D t (θ′ )[∇θ ℓ(Z, G(θ′ ))] ∥≤ βz · W 1
+
+Dt (θ), Dt (θ′ )
+
+16 and by ϵ-sensitivity of D(θ), we have 
+
+W1(Dt (θ), Dt (θ′ )) = W1 ((1 − αt )D(θ) + αt Pt , (1 − αt )D(θ′ ) + αt Pt )
+
+≤ (1 − αt )W1 (D(θ), D(θ′ )) 
+
+≤ (1 − αt )ϵ∥θ − θ′ ∥.
+
+Therefore we have 
+
+μ∥G (θ) − G (θ′ )∥2 ≤ −∇ g(G(θ′ )) ⊤G(θ) − G (θ′ )
+
+≤ (1 − αt )ϵβ z · ∥ θ − θ′ ∥ · ∥G (θ) − G (θ′ )∥.
+
+If G(θ) = G(θ′ ), the desired inequality is trivial. Otherwise, dividing by ∥G (θ) − G (θ′ )∥ gives 
+
+∥G (θ) − G (θ′ )∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θ − θ′ ∥,
+
+for any θ, θ ′ . This immediately implies 
+
+∥θt+1 − θPS  
+
+> t
+
+∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θt − θPS  
+
+> t
+
+∥,
+
+as desired, as θt+1 = G(θt ) and θPS  
+
+> t
+
+is defined such that θPS  
+
+> t
+
+= G(θPS  
+
+> t
+
+). 
+
+## B.2 Proof of Theorem 3.2 
+
+Here we prove Theorem 3.2, restated below for the sake of readability. 
+
+Theorem 3.2. Suppose that D(θ) is ϵ-sensitive (8) , ℓ(z, θ ) is μ-strongly convex in θ (4) and βz-smooth in z (6) ,and PR t (θ) is L-Lipschitz (7) in θ. Then, if ϵ < μ 
+
+> (1 −αmin )βz
+
+, where αmin = min t∈[T ] αt , the iterates of ARRM satisfy 
+
+Reg PS  
+
+> T
+
+(ARRM ) ≤ L
+
+1 − γ ·
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ , (9) 
+
+for γ = (1 −αmin )ϵβ z 
+
+> μ
+
+.Proof. Lemma 3.1 immediately implies 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ ∥ θt+1 − θPS  
+
+> t
+
+∥ + ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θt − θPS  
+
+> t
+
+∥ + ∆PS  
+
+> t
+
+.
+
+Therefore we can use Lemma A.1 as 
+
+> T
+
+X
+
+> t=1
+
+(1 − γt )∥θt − θPS  
+
+> t
+
+∥ ≤ ∥ θ1 − θPS 1 ∥ − γT ∥θT − θPS  
+
+> T
+
+∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS  
+
+> t
+
+,
+
+with γt = (1 −αt )ϵβ z 
+
+> μ
+
+.For any choice of nonnegative weights satisfying wt ≤ 1−γt 
+
+> L
+
+, we can conclude that 
+
+> T
+
+X
+
+> t=1
+
+wt
+
+RDt (θt ) − RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) ≤
+
+> T
+
+X
+
+> t=1
+
+wt L∥θt − θPS  
+
+> t
+
+∥≤
+
+> T
+
+X
+
+> t=1
+
+(1 − γt )∥θt − θPS  
+
+> t
+
+∥≤ ∥ θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS  
+
+> t
+
+.
+
+17 Finally, we can observe that γt is decreasing in αt , and thus the expression 1−γt 
+
+> L
+
+is an increasing function of αt . Therefore, if we let αmin = min t∈[T ] αt and choose 
+
+γ = (1 − αmin )ϵβ z
+
+μ ,
+
+then choosing a constant wt ≡ w = 1−γL satisfies w ≤ 1−γt 
+
+> L
+
+for all t. Then we have Reg PS  
+
+> T
+
+(ARRM ) = 1
+
+w
+
+> T
+
+X
+
+> t=1
+
+w RDt (θt ) − RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) ≤ L
+
+1 − γ ·
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ ,
+
+as in (9). 
+
+## B.3 Proof of Proposition 3.4 
+
+Here we prove Proposition 3.4, restated below for the sake of readability. 
+
+Proposition 3.4. Fix t ∈ N. Suppose that D(θ) is ϵ-sensitive (8) and ℓ(z, θ ) is μ-strongly convex in θ (4) and 
+
+βz-smooth in z (6) . Further, suppose that W1(D(θPS 
+
+> t+1
+
+), P t+1 ) ≤ C for some C < ∞. Then, if ϵ < μ  
+
+> (1 −αt)βz
+
+, we have 
+
+∆PS  
+
+> t
+
+≤ βz
+
+μ − βz(1 − αt )ϵ (αt W1(Pt , P t+1 ) + |αt − αt+1 |C) .
+
+Proof. Let us define θ B θPS  
+
+> t
+
+, θ′ B θPS  
+
+> t+1
+
+and DPS  
+
+> t
+
+B Dt (θPS  
+
+> t
+
+), DPS  
+
+> t+1
+
+B Dt+1 (θPS 
+
+> t+1
+
+) for simplicity. By the defini-tion of performative stability, θPS  
+
+> t
+
+and θPS  
+
+> t+1
+
+are the constrained minimizers of R DPS  
+
+> t
+
+and R DPS  
+
+> t+1
+
+, respectively. The first-order optimality conditions yield 
+
+∇RDPS  
+
+> t
+
+(θ)⊤(θ′ − θ) ≥ 0, ∇RDPS  
+
+> t+1
+
+(θ′ )⊤(θ − θ′ ) ≥ 0.
+
+If θ = θ′ , the desired inequality is trivial. Otherwise, strong monotonicity of ∇RDPS  
+
+> t
+
+and the above inequal-ities imply 
+
+μ∥θ − θ′ ∥2 ≤ ∇RDPS  
+
+> t
+
+(θ′ ) − ∇ RDPS  
+
+> t
+
+(θ)⊤ (θ′ − θ)= ∇RDPS  
+
+> t
+
+(θ′ ) − ∇ RDPS  
+
+> t+1
+
+(θ′ )⊤ (θ′ − θ)+ ∇RDPS  
+
+> t+1
+
+(θ′ )⊤(θ′ − θ) − ∇ RDPS  
+
+> t
+
+(θ)⊤(θ′ − θ)
+
+≤ ∇RDPS  
+
+> t
+
+(θ′ ) − ∇ RDPS  
+
+> t+1
+
+(θ′ )⊤ (θ′ − θ)
+
+≤ ∥∇ RDPS  
+
+> t
+
+(θ′ ) − ∇ RDPS  
+
+> t+1
+
+(θ′ )∥ · ∥ θ − θ′ ∥.
+
+Dividing by ∥θ − θ′ ∥ gives 
+
+∥θ − θ′ ∥ ≤ 1
+
+μ ∥∇ RDPS  
+
+> t
+
+(θ′ ) − ∇ RDPS  
+
+> t+1
+
+(θ′ )∥,
+
+and plugging back in θ B θPS  
+
+> t
+
+and θ′ B θPS 
+
+> t+1
+
+,
+
+∆PS  
+
+> t
+
+= ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥ ≤ 1
+
+μ ∥∇ RDPS  
+
+> t
+
+(θPS 
+
+> t+1
+
+) − ∇ RDPS  
+
+> t+1
+
+(θPS 
+
+> t+1
+
+)∥.
+
+By βz-smoothness, Kantorovich-Rubinstein duality, and Lemma A.4, we have 1
+
+μ ∥∇ RDPS  
+
+> t
+
+(θPS 
+
+> t+1
+
+) − ∇ RDPS  
+
+> t+1
+
+(θPS 
+
+> t+1
+
+)∥ ≤ βz
+
+μ · W 1(DPS  
+
+> t
+
+, DPS 
+
+> t+1
+
+)= βz
+
+μ · W 1
+
+(1 − αt )D(θPS  
+
+> t
+
+) + αt Pt , (1 − αt+1 )D(θPS 
+
+> t+1
+
+) + αt+1 Pt+1 
+
+
+
+≤ βz
+
+μ
+
+(1 − αt )W1(D(θPS  
+
+> t
+
+), D(θPS 
+
+> t+1
+
+)) + αt W1(Pt , P t+1 ) + |αt − αt+1 | · W 1(D(θPS 
+
+> t+1
+
+), P t+1 ).
+
+18 Now, W1(D(θPS  
+
+> t
+
+), D(θPS 
+
+> t+1
+
+)) ≤ ϵ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥ = ϵ∆PS  
+
+> t
+
+yields 
+
+∆PS  
+
+> t
+
+≤ βz
+
+μ
+
+(1 − αt )ϵ∆PS  
+
+> t
+
++ αt W1(Pt , P t+1 ) + |αt − αt+1 | · W 1(D(θPS 
+
+> t+1
+
+), P t+1 ).
+
+Rearranging terms, we have 
+
+1 − βz
+
+μ · (1 − αt )ϵ
+
+!
+
+∆PS  
+
+> t
+
+≤ βz
+
+μ
+
+αt W1(Pt , P t+1 ) + |αt − αt+1 | · W 1(D(θPS 
+
+> t+1
+
+), P t+1 ) ,
+
+and W1(D(θPS 
+
+> t+1
+
+), P t+1 ) ≤ C yields the given statement. 
+
+# C Proofs for repeated gradient descent 
+
+## C.1 One-step inequality for RGD 
+
+Here we prove Lemma C.1, which provides a one-step inequality for RGD. 
+
+Lemma C.1. Suppose that D(θ) is ϵ-sensitive and ℓ(z, θ ) is μ-strongly convex (4) and βθ -smooth (5) in θ and 
+
+βz-smooth (6) in z. Then the iterates of ARGD satisfy 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ γt ∥θt − θPS  
+
+> t
+
+∥ + ∆PS  
+
+> t
+
+, (15) 
+
+where γt B 1 − ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+(β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+).Proof. The proof is similar to that of Proposition 2.6 in [20], but our proof relies only on the first-order optimality conditions in the definition of θPS  
+
+> t
+
+, rather than assuming ERDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) = 0, which in turn requires 
+
+θPS  
+
+> t
+
+to lie in the interior of Θ, as in [20]. By definition of θPS  
+
+> t
+
+, we can observe that 
+
+∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤(ϑ − θPS  
+
+> t
+
+) ≥ 0, ∀ϑ ∈ Θ.
+
+For any closed convex Θ, a projection y = ΠΘ (u) of u must satisfy (y − u)⊤(ϑ − y) ≥ 0, ∀ϑ ∈ Θ.
+
+for y = θPS  
+
+> t
+
+and u = θPS  
+
+> t
+
+− ηt ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+), this is equivalent to 
+
+ηt ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤(ϑ − θPS  
+
+> t
+
+) ≥ 0, ∀ϑ ∈ Θ,
+
+which is true by the definition of θPS  
+
+> t
+
+. This shows that y is a projection of u onto Θ, i.e., 
+
+θPS  
+
+> t
+
+= ΠΘ
+
+θPS  
+
+> t
+
+− ηt ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)
+
+for any ηt > 0. Therefore, by nonexpansiveness of ΠΘ ,
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ ∥ θt+1 − θPS  
+
+> t
+
+∥ + ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥
+
+= ΠΘ
+
+θt − ηt ∇RDt (θt ) − ΠΘ
+
+θPS  
+
+> t
+
+− ηt ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) + ∆PS 
+
+> t
+
+≤ θt − θPS  
+
+> t
+
+− ηt
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) + ∆PS  
+
+> t
+
+.
+
+Squaring and expanding the first norm gives 
+
+θt − θPS  
+
+> t
+
+− ηt
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) 2
+
+= ∥θt − θPS  
+
+> t
+
+∥2 − 2ηt
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+)+ η2 
+
+> t
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) 2
+
+.
+
+(16) 19 The inner product term of (16) can be decomposed as 
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+) = EZ∼D t [∇θ ℓ(Z, θ t )] − EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ PS  
+
+> t
+
+)] ⊤ (θt − θPS  
+
+> t
+
+)= EZ∼D t [∇θ ℓ(Z, θ t )] − EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ t )] ⊤ (θt − θPS  
+
+> t
+
+)+ EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ t )] − EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ PS  
+
+> t
+
+)] ⊤ (θt − θPS  
+
+> t
+
+).
+
+(17) Define the auxiliary function 
+
+ξt (z) B ∇θ ℓ(z, θ t )⊤(θt − θPS  
+
+> t
+
+),
+
+which is βz∥θt − θPS  
+
+> t
+
+∥-Lipschitz in z. The first term of the RHS of (17) satisfies 
+
+EZ∼D t [∇θ ℓ(Z, θ t )] − EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ t )] ⊤ (θt − θPS  
+
+> t
+
+) = EZ∼D t [ξt (Z)] − EZ∼D PS  
+
+> t
+
+[ξt (Z)] 
+
+≥ − βz∥θt − θPS  
+
+> t
+
+∥ · W 1(Dt , DPS  
+
+> t
+
+)
+
+≥ − βz∥θt − θPS  
+
+> t
+
+∥ · (1 − αt )ϵ∥θt − θPS  
+
+> t
+
+∥
+
+= −(1 − αt )ϵβ z∥θt − θPS  
+
+> t
+
+∥2,
+
+(18) where the first inequality follows from the fact that ξt (z) is Lipschitz, and the second inequality is by (1 − αt )ϵ-sensitivity of Dt (θ). The second term of the RHS of (17) satisfies 
+
+EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ t )] − EZ∼D PS  
+
+> t
+
+[∇θ ℓ(Z, θ PS  
+
+> t
+
+)] ⊤ (θt − θPS  
+
+> t
+
+) ≥ μ∥θt − θPS  
+
+> t
+
+∥2, (19) by μ-strong monotonicity of the gradients. Plugging (18), (19) into (17), we have 
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+) = ∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θt )⊤ (θt − θPS  
+
+> t
+
+)+ ∇RDPS  
+
+> t
+
+(θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+)
+
+≥ (μ − (1 − αt )ϵβ z) ∥θt − θPS  
+
+> t
+
+∥2.
+
+(20) The gradient-di ff erence norm term of (16) satisfies 
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) 2
+
+≤ 2 ∇RDt (θt ) − ∇ RDt (θPS  
+
+> t
+
+) 2 + 2 ∇RDt (θPS  
+
+> t
+
+) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) 2
+
+≤ 2β2 
+
+> θ
+
+∥θt − θPS  
+
+> t
+
+∥2 + 2(1 − αt )2ϵ2β2 
+
+> z
+
+∥θt − θPS  
+
+> t
+
+∥2
+
+= 2( β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+)∥θt − θPS  
+
+> t
+
+∥2,
+
+(21) by smoothness and sensitivity. Plugging (20) and (21) into (16), we have 
+
+θt − θPS  
+
+> t
+
+− ηt
+
+∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) 2
+
+≤ 1 − 2ηt (μ − (1 − αt )ϵβ z) + 2 η2 
+
+> t
+
+(β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+) ∥θt − θPS  
+
+> t
+
+∥2
+
+≤ 1 − ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+(β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+)2 ∥θt − θPS  
+
+> t
+
+∥2
+
+= γ2 
+
+> t
+
+∥θt − θPS  
+
+> t
+
+∥2,
+
+where the second inequality uses 1 − 2x ≤ (1 − x)2 for simplification. Therefore we have 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ γt ∥θt − θPS  
+
+> t
+
+∥ + ∆PS  
+
+> t
+
+,
+
+which is equivalent to (15). 20 C.2 Proof of Theorem 4.1 
+
+Here we prove Theorem 4.1, restated below for the sake of readability. 
+
+Theorem 4.1. Suppose that D(θ) is ϵ-sensitive (8) , ℓ(z, θ ) is μ-strongly convex (4) and βθ -smooth (5) in θ and 
+
+βz-smooth (6) in z, and PR t (θ) is L-Lipschitz (7) in θ. Then, if ϵ < μ 
+
+> (1 −αmin )βz
+
+, where αmin = min t∈[T ] αt , the iterates of ARGD with step size 
+
+ηt = μ − (1 − αt )ϵβ z
+
+2( β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+)
+
+satisfy 
+
+Reg PS  
+
+> T
+
+(ARGD ) ≤ L
+
+1 − γ ·
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ , (10) 
+
+for γ = 1 − (μ−(1 −αmin )ϵβ z )2   
+
+> 4( β2
+> θ+(1 −αmin )2ϵ2β2
+> z)
+
+.Proof. By Lemma C.1 (proven in Section C.1), we have 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ γt ∥θt − θPS  
+
+> t
+
+∥ + ∆PS  
+
+> t
+
+,
+
+where γt B 1 − ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+(β2 
+
+> θ
+
++ (1 − αt )2ϵ2β2 
+
+> z
+
+). Lemma A.1 yields 
+
+> T
+
+X
+
+> t=1
+
+(1 − γt )∥θt − θPS  
+
+> t
+
+∥ ≤ ∥ θ1 − θPS 1 ∥ − γT ∥θT − θPS  
+
+> T
+
+∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+≤ ∥ θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS  
+
+> t
+
+,
+
+and thus 
+
+> T
+
+X
+
+> t=1
+
+wt
+
+RDt (θt ) − RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+) ≤
+
+> T
+
+X
+
+> t=1
+
+wt L∥θt − θPS  
+
+> t
+
+∥≤
+
+> T
+
+X
+
+> t=1
+
+(1 − γt )∥θt − θPS  
+
+> t
+
+∥≤ ∥ θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS  
+
+> t
+
+,
+
+for any choice of weights satisfying wt ≤ 1−γt 
+
+> L
+
+. Therefore, if we set 
+
+γ = 1 − (μ − (1 − αmin )ϵβ z)2
+
+4( β2 
+
+> θ
+
++ (1 − αmin )2ϵ2β2 
+
+> z
+
+) ,
+
+then choosing a constant wt ≡ w = 1−γL satisfies w ≤ 1−γt 
+
+> L
+
+for all t. Then we have Reg PS  
+
+> T
+
+(ARGD ) = 1
+
+w
+
+> T
+
+X
+
+> t=1
+
+w RDt (θt ) − RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)
+
+≤ 1
+
+w
+
+∥θ1 − θPS 1 ∥ + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ ,
+
+which is equivalent to (10). 21 D Proofs for greedy SGD 
+
+## D.1 One-step inequality for greedy SGD 
+
+Here we prove Lemma D.1, which provides a one-step inequality for greedy SGD. 
+
+Lemma D.1. Suppose that D(θ) is ϵ-sensitive and ℓ(z, θ ) is μ-strongly convex (4) and βθ -smooth (5) in θ and βz-smooth (6) in z. Also, suppose that we have quadratic-bounded variance (Ass. 11). Then, the iterates of ARSGD -G
+
+satisfy 
+
+E[∥θt+1 − θPS 
+
+> t+1
+
+∥2] ≤ γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + 2 η2 
+
+> t
+
+σ 2 + 2( ∆PS  
+
+> t
+
+)2, (22) 
+
+where γ′ 
+
+> t
+
+B 1 − 2ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+C2 
+
+> V
+
+(1 + (1 −αt )ϵβ z 
+
+> μ
+
+)2 and ηt > 0 is small enough so that γ′ 
+
+> t
+
+≥ 0.Proof. We have 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥ ≤ ∥ θt+1 − θPS  
+
+> t
+
+∥ + ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥
+
+= ΠΘ (θt − ηt ∇θ ℓ(Zt , θ t )) − ΠΘ (θPS  
+
+> t
+
+) + ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥≤ ∥ θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥ + ∆PS  
+
+> t
+
+,
+
+(23) since θPS  
+
+> t
+
+= ΠΘ (θPS  
+
+> t
+
+). Also, under Eq. (11), we have (conditioned on θt )
+
+EZt ∼D t [∥∇ θ ℓ(Zt , θ t )∥2] ≤ σ 2 + C2 
+
+> V
+
+∥θt − θ⋆ 
+
+> Dt
+
+∥2
+
+≤ σ 2 + C2
+
+> V
+
+∥θt − θPS  
+
+> t
+
+∥ + ∥θPS  
+
+> t
+
+− θ⋆ 
+
+> Dt
+
+∥2
+
+≤ σ 2 + C2 
+
+> V
+
+1 + (1 − αt )ϵβ z
+
+μ
+
+!2
+
+∥θt − θPS  
+
+> t
+
+∥2
+
+(24) where the last inequality follows from Lemma 3.1. We can observe that 
+
+EZt ∼D t ∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2 ≤ ∥ θt − θPS  
+
+> t
+
+∥2 − 2ηt ∇RDt (θt )⊤(θt − θPS  
+
+> t
+
+) + η2 
+
+> t
+
+EZt ∼D t [∥∇ θ ℓ(Zt , θ t )∥2].
+
+Since we have ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤(θt − θPS  
+
+> t
+
+) ≥ 0 by the first-order optimality condition of θPS  
+
+> t
+
+, we have 
+
+∇RDt (θt )⊤(θt − θPS  
+
+> t
+
+) = ∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+) + ∇RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤(θt − θPS  
+
+> t
+
+)
+
+≥ ∇RDt (θt ) − ∇ RDPS  
+
+> t
+
+(θPS  
+
+> t
+
+)⊤ (θt − θPS  
+
+> t
+
+)
+
+≥ (μ − (1 − αt )ϵβ z) ∥θt − θPS  
+
+> t
+
+∥2,
+
+by (20) from the proof of Lemma C.1. We can also use (24) to obtain 
+
+∥θt − θPS  
+
+> t
+
+∥2 − 2ηt ∇RDt (θt )⊤(θt − θPS  
+
+> t
+
+) + η2 
+
+> t
+
+EZt ∼D t [∥∇ θ ℓ(Zt , θ t )∥2]
+
+≤ ∥ θt − θPS  
+
+> t
+
+∥2 − 2ηt (μ − (1 − αt )ϵβ z) ∥θt − θPS  
+
+> t
+
+∥2
+
++ η2
+
+> t
+
+σ 2 + C2 
+
+> V
+
+1 + (1 − αt )ϵβ z
+
+μ
+
+!2
+
+∥θt − θPS  
+
+> t
+
+∥2
+
+ .
+
+Therefore, choosing 
+
+γ′ 
+
+> t
+
+B 1 − 2ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+C2 
+
+> V
+
+1 + (1 − αt )ϵβ z
+
+μ
+
+!2
+
+to simplify as 
+
+EZt ∼D t [∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] ≤ γ′ 
+
+> t
+
+∥θt − θPS  
+
+> t
+
+∥2 + η2 
+
+> t
+
+σ 2,
+
+22 conditioned on θt , or 
+
+E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] ≤ γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + η2 
+
+> t
+
+σ 2, (25) where the expectations are now taken on the entire history. Therefore, starting from (23), we have 
+
+∥θt+1 − θPS 
+
+> t+1
+
+∥2 ≤ ∥θt − θPS  
+
+> t
+
+− ηt ∇ℓ(Zt , θ t )∥ + ∆PS 
+
+> t
+
+2 ,
+
+and therefore 
+
+E[∥θt+1 − θPS 
+
+> t+1
+
+∥2] ≤ E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] + 2 ∆PS  
+
+> t
+
+· E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥] + ( ∆PS  
+
+> t
+
+)2
+
+≤ E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] + 2 ∆PS  
+
+> t
+
+·
+
+q
+
+E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] + ( ∆PS  
+
+> t
+
+)2.
+
+Finally, we can use (25), √a + b ≤ √a + √b, and AM-GM to obtain 
+
+E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] + 2 ∆PS  
+
+> t
+
+·
+
+q
+
+E[∥θt − θPS  
+
+> t
+
+− ηt ∇θ ℓ(Zt , θ t )∥2] + ( ∆PS  
+
+> t
+
+)2
+
+≤ γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + η2 
+
+> t
+
+σ 2 + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + η2 
+
+> t
+
+σ 2 + ( ∆PS  
+
+> t
+
+)2
+
+≤ γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + η2 
+
+> t
+
+σ 2 + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + 2 ηt σ ∆PS  
+
+> t
+
++ ( ∆PS  
+
+> t
+
+)2
+
+≤ γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E[∥θt − θPS  
+
+> t
+
+∥2] + 2 η2 
+
+> t
+
+σ 2 + 2( ∆PS  
+
+> t
+
+)2,
+
+which proves the given statement. 
+
+## D.2 Upper bound on E∥θT − θPS 
+
+T ∥2 for greedy SGD 
+
+Here we prove Lemma D.2, which provides upper bounds of E∥θT − θPS  
+
+> T
+
+∥2 for a fixed T .
+
+Lemma D.2. Suppose that D : Θ → P (Z) is ϵ-sensitive and ℓ(z, θ ) is μ-strongly convex (4) and βθ -smooth (5) 
+
+in θ and βz-smooth (6) in z Also, suppose that ϵ < μ 
+
+> (1 −αmin )βz
+
+and we have quadratic-bounded variance (Ass. 11). Then, ARSGD -G with step sizes 
+
+ηt = 4
+
+A(t + t0) , t0 = max 
+
+
+
+1,
+
+ 8BA2
+
+
+
+,
+
+ 8μA
+
+ 
+
+(26) 
+
+for some constants A, B > 0 defined as 
+
+A B 2 ( μ − (1 − αmin )ϵβ z) , B B C2 
+
+> V
+
+1 + (1 − αmin )ϵβ z
+
+μ
+
+!2
+
+satisfies the following inequality for T ≥ 0,
+
+E∥θT +1 − θPS  
+
+> T+1
+
+∥2 ≤ t0 + 1 
+
+T + t0 + 1 
+
+!3/2
+
+∥θ1 − θPS 1 ∥2 + 64 σ 2
+
+A2(T + t0) + 2(T + t0 + 1) 3/2
+
+> T
+
+X
+
+> t=1
+
+(t + t0 + 1) 5/2(∆PS  
+
+> t
+
+)2.
+
+Proof. First, note that the case T = 0 is trivial, and that we have A > 0 since ϵ < μ 
+
+> (1 −αmin )βz
+
+.Let us define et = θt − θPS  
+
+> t
+
+for simplicity. We also simplify γ′ 
+
+> t
+
+using 
+
+γ′ 
+
+> t
+
+= 1 − 2ηt (μ − (1 − αt )ϵβ z) + η2 
+
+> t
+
+C2 
+
+> V
+
+1 + (1 − αt )ϵβ z
+
+μ
+
+!2
+
+≤ 1 − ηt · 2 ( μ − (1 − αmin )ϵβ z)
+
+| {z }
+
+> ≜A
+
++η2 
+
+> t
+
+· C2 
+
+> V
+
+1 + (1 − αmin )ϵβ z
+
+μ
+
+!2
+
+| {z }
+
+> ≜B
+
+C γ′ 
+
+> t
+
+, (27) 23 where αmin = min t∈[T ] αt . Recall that we use step sizes 
+
+ηt = 4
+
+A(t + t0) , t0 = max 
+
+
+
+1,
+
+ 8BA2
+
+
+
+,
+
+ 8μA
+
+ 
+
+,
+
+for time-independent constants A, B defined in (27). Since 1 + t0 > 8μA , we have 4 
+
+> A(1+ t0)
+
+< 12μ and therefore 
+
+ηt = 4 
+
+> A(t+t0)
+
+< 12μ for all t ∈ [T ], which ensures that γ′ 
+
+> t
+
+≥ γ′ 
+
+> t
+
+≥ 0 for all t.By (22) of Lemma D.1, we have 
+
+E∥et+1 ∥2 ≤ γ′ 
+
+> t
+
+E∥et ∥2 + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E∥et ∥2 + 2 η2 
+
+> t
+
+σ 2 + 2( ∆PS  
+
+> t
+
+)2,
+
+where γ′ 
+
+> t
+
+= 1 − ηt A + η2 
+
+> t
+
+B. Note that 
+
+γ′ 
+
+> t
+
+= 1 − ηt A + η2 
+
+> t
+
+B
+
+= 1 − 4
+
+t + t0
+
++ 16 BA2(t + t0)2
+
+≤ 1 − 4
+
+t + t0
+
++ 8BA2 · 2
+
+t0(t + t0)
+
+≤ 1 − 4
+
+t + t0
+
++ 2
+
+t + t0
+
+= 1 − 2
+
+t + t0
+
+.
+
+Then we have 
+
+E∥et+1 ∥2 ≤ γ′ 
+
+> t
+
+E∥et ∥2 + 2 ∆PS 
+
+> t
+
+q
+
+γ′ 
+
+> t
+
+E∥et ∥2 + 2 η2 
+
+> t
+
+σ 2 + 2( ∆PS  
+
+> t
+
+)2
+
+≤ γ′ 
+
+> t
+
+E∥et ∥2 + 2 ∆PS 
+
+> t
+
+pE∥et ∥2 + 2 η2 
+
+> t
+
+σ 2 + 2( ∆PS  
+
+> t
+
+)2
+
+≤ 1 − 2
+
+t + t0
+
+!
+
+E∥et ∥2 + 32 σ 2
+
+A2(t + t0)2 + 2( ∆PS  
+
+> t
+
+)2
+
++ 12( t + t0) E∥et ∥2 + 2( t + t0)( ∆PS  
+
+> t
+
+)2
+
+!
+
+= 1 − 3/2
+
+t + t0
+
+!
+
+E∥et ∥2 + 32 σ 2
+
+A2(t + t0)2 + 2( t + t0 + 1)( ∆PS  
+
+> t
+
+)2.
+
+For simplicity, let us define 
+
+Ft B E∥et ∥2, at B 1 − 3/2
+
+t + t0
+
+!
+
+,bt B 32 σ 2
+
+A2(t + t0)2 , dt B 2( t + t0 + 1)( ∆PS  
+
+> t
+
+)2,
+
+and write 
+
+Ft+1 ≤ at Ft + bt + dt .
+
+24 Since (1 − 3/2 
+
+> s+t0
+
+) ≤ exp( − 3/2 
+
+> s+t0
+
+), we have 
+
+> T
+
+Y
+
+> s=t+1
+
+as ≤
+
+> T
+
+Y
+
+> s=t+1
+
+exp − 3/2
+
+s + t0
+
+!
+
+= exp 
+
+−
+
+> T
+
+X
+
+> s=t+1
+
+3/2
+
+s + t0
+
+
+
+≤ exp − 32 · log T + t0 + 1 
+
+t + t0 + 1 
+
+!
+
+= t + t0 + 1 
+
+T + t0 + 1 
+
+!3/2
+
+.
+
+Also, we can observe that 64 σ 2
+
+A2(t + t0) − 1 − 3/2
+
+t + t0
+
+! 64 σ 2
+
+A2(t + t0 − 1) = 32 σ 2
+
+A2(t + t0)( t + t0 − 1) 
+
+≥ 32 σ 2
+
+A2(t + t0)2 ,
+
+and thus Nt+1 ≥ at Nt + bt for Nt = 64 σ 2 
+
+> A2(t+t0−1)
+
+. This implies that 
+
+Ft+1 − Nt+1 ≤ at (Ft − Nt ) + dt ,
+
+and therefore 
+
+FT +1 ≤ NT +1 +
+
+
+
+> T
+
+Y
+
+> t=1
+
+at
+
+ (F1 − N1) + 
+
+> T
+
+X
+
+> t=1
+
+dt
+
+
+
+> T
+
+Y
+
+> s=t+1
+
+as
+
+
+
+≤ 64 σ 2
+
+A2(T + t0) + t0 + 1 
+
+T + t0 + 1 
+
+!3/2
+
+· F1
+
++ 2 
+
+> T
+
+X
+
+> t=1
+
+(t + t0 + 1)( ∆PS  
+
+> t
+
+)2 · t + t0 + 1 
+
+T + t0 + 1 
+
+!3/2
+
+,
+
+which is equivalent to the given statement. 
+
+## D.3 Proof of Proposition 4.2 
+
+Here we prove Proposition 4.2, restated below for the sake of readability. 
+
+Proposition 4.2. Let the same assumptions as in Theorem 4.1 and the quadratic variance bound (11) hold. Then, the iterates of ASGD -greedy with step size ηt ∝ 1 
+
+> t+t0
+
+, for some constant t0 > 0, satisfy 
+
+Reg PS  
+
+> T
+
+(ASGD -greedy ) ≤ O 
+
+T 1/2 + T 1/4
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+(t + t0 + 1) 5/2(∆PS  
+
+> t
+
+)2
+
+ 
+
+> 1/2
+
+ . (12) 
+
+Proof. Using the same choice of learning rates ηt and the same auxiliary definitions (e.g., et , F t ) as in Lemma D.2, we start from the result of Lemma D.2 with T ← t − 1, 
+
+E∥et ∥2 ≤ 64 σ 2
+
+A2(t + t0 − 1) + t0 + 1 
+
+t + t0
+
+!3/2
+
+· ∥ θ1 − θPS 1 ∥2
+
++ 2(t + t0)3/2
+
+> t−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2,
+
+25 which implies 
+
+pE∥et ∥2 ≤ 8σA(t + t0 − 1) 1/2 + t0 + 1 
+
+t + t0
+
+!3/4
+
+· ∥ θ1 − θPS 1 ∥
+
++ 2(t + t0)3/4
+
+
+
+> t−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2
+
+
+
+> 1/2
+
+,
+
+since √a + b + c ≤ √a + √b + √c for a, b, c ≥ 0. We can observe that 
+
+> T
+
+X
+
+> t=1
+
+8σA(t + t0 − 1) 1/2 ≤ 16 σA (T + t0)1/2,
+
+> T
+
+X
+
+> t=1
+
+t0 + 1 
+
+t + t0
+
+!3/4
+
+· ∥ θ1 − θPS 1 ∥ ≤ 4( t0 + 1) 3/4∥θ1 − θPS 1 ∥ · (T + t0)1/4,
+
+and we can substitute the last term with an upper bound 
+
+> t−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2 ≤ 
+
+> T−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2,
+
+so that 
+
+> T
+
+X
+
+> t=1
+
+2(t + t0)3/4
+
+
+
+> t−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2
+
+
+
+> 1/2
+
+≤ 8( T + t0)1/4
+
+ 
+
+> T−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2
+
+
+
+> 1/2
+
+Finally, since PR t is L-Lipschitz, we have Reg PS  
+
+> T
+
+(ASGD-greedy ) ≤ L
+
+> T
+
+X
+
+> t=1
+
+E∥et ∥≤ L
+
+> T
+
+X
+
+> t=1
+
+pE∥et ∥2
+
+≤ 8L(T + t0)1/4
+
+(t0 + 1) 3/4∥θ1 − θPS 1 ∥ +
+
+ 
+
+> T−1
+
+X
+
+> s=1
+
+(s + t0 + 1) 5/2(∆PS  
+
+> s
+
+)2
+
+ 
+
+> 1/2
+
+ + 16 σ L A (T + t0)1/2,
+
+and therefore Reg PS  
+
+> T
+
+(ASGD-greedy ) ≤ O 
+
+T 1/2 + T 1/4
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+(t + t0 + 1) 5/2(∆PS  
+
+> t
+
+)2
+
+ 
+
+> 1/2
+
+ ,
+
+as desired. 
+
+# E Proofs for lazy SGD 
+
+## E.1 One-step inequality for lazy SGD 
+
+Here we prove Lemma E.1, which provides a one-step inequality for the iterations of lazy SGD within step 
+
+t, based on the standard SGD analysis under a fixed distribution Dt .26 Lemma E.1. Suppose that ℓ(z, θ ) is μ-strongly convex in θ and the stochastic gradient oracle has quadratic-bounded variance (11) . Then, one iteration of ASGD -lazy satisfies 
+
+E∥ϕt,j +1 − θDt ∥2 ≤ 1 − 2ηt,j μ + η2 
+
+> t,j
+
+C2
+
+> V
+
+ E∥ϕt,j − θDt ∥2 + η2 
+
+> t,j
+
+σ 2, (28) 
+
+where θDt B arg min θ RDt (θ).Proof. Similarly as in the previous proofs, we have 
+
+E∥ϕt,j +1 − θDt ∥2 ≤ E∥ϕt,j − θDt − ηt,j ∇θ ℓ(Zt,j , ϕ t,j )∥2
+
+≤ ∥ ϕt,j − θDt ∥2 − 2ηt,j ∇RDt (ϕt,j )⊤(ϕt,j − θDt ) + η2 
+
+> t,j
+
+E[ ∇θ ℓ(Zt,j , ϕ t,j ) 2]where the expectation here is over Zt,j ∼ D t conditioned on ϕt,j .Since θDt = arg min θ RDt (θ), the first-order optimality condition of θDt and μ-strong monotonicity of 
+
+∇RDt (θ) yields 
+
+∇RDt (ϕt,j )⊤(ϕt,j − θDt ) ≥ ∇RDt (ϕt,j ) − ∇ RDt (θDt )⊤ (ϕt,j − θDt )
+
+≥ μ∥ϕt,j − θDt ∥2,
+
+and by Eq. (11), we have 
+
+E[ ∇θ ℓ(Zt,j , ϕ t,j ) 2] ≤ σ 2 + C2 
+
+> V
+
+∥ϕt,j − θDt ∥2.
+
+Therefore we have 
+
+E∥ϕt,j +1 − θDt ∥2 ≤ 1 − 2ηt,j μ + η2 
+
+> t,j
+
+C2
+
+> V
+
+ ∥ϕt,j − θDt ∥2 + η2 
+
+> t,j
+
+σ 2,
+
+conditioned on ϕt,j , and thus (28) by taking expectations over the entire history. 
+
+## E.2 Upper bounds of E∥θT − θPS 
+
+T ∥2 for lazy SGD 
+
+Here we prove Lemma E.2, which provides upper bounds of E∥θT − θPS  
+
+> T
+
+∥2 for a fixed T .
+
+Lemma E.2. Suppose that D : Θ → P (Z) is ϵ-sensitive, z 7→ ℓ(z, θ ) is βz-smooth for all θ ∈ Θ, and RD (θ) is 
+
+μ-strongly convex and βθ -smooth for all D ∈ C . Also, suppose that ϵ < μ 
+
+> (1 −αmin )βz
+
+and we have quadratic-bounded variance (Ass. 11). Then ASGD -lazy with step sizes 
+
+ηt,j = 4
+
+A(j + t0) , t0 = max 
+
+
+
+1,
+
+ 8BA2
+
+
+
+,
+
+ 8μA
+
+ 
+
+, (29) 
+
+for constants A = 2 μ and B = C2 
+
+> V
+
+, and n(t) ≥ n0tr samples per deployment with large enough n0 satisfies 
+
+E∥θT +1 − θPS  
+
+> T+1
+
+∥2 ≤ ˜γT ∥θ1 − θPS 1 ∥2 + J ·
+
+
+
+˜γT (1 −2− 1  
+
+> r)
+
++ 2 T −r
+
+
+
++ (1 + τ)
+
+> T
+
+X
+
+> t=1
+
+˜γT −t (∆PS  
+
+> t
+
+)2,
+
+where τ, J > 0 and 0 < ˜γ < 1 are chosen constants independent of T .Proof. First, note that the case T = 0 is trivial. Suppose that T > 0. We start with Lemma E.1 (proved in Section E.1), which shows 
+
+E∥ϕt,j +1 − θDt ∥2 ≤ 1 − 2ηt,j μ + η2 
+
+> t,j
+
+C2
+
+> V
+
+ E∥ϕt,j − θDt ∥2 + η2 
+
+> t,j
+
+σ 2.
+
+27 Let Ft,j = E∥ϕt,j − θDt ∥2. Then we can rewrite as 
+
+Ft,j +1 ≤ (1 − ηt,j A + η2 
+
+> t,j
+
+B)Ft,j + η2 
+
+> t,j
+
+σ 2,
+
+with A = 2 μ and B = C2 
+
+> V
+
+. Similarly to the proof of Lemma D.2 in Section D.2, the choice of 
+
+ηt,j = 4
+
+A(j + t0) , t0 = max 
+
+
+
+1,
+
+ 8BA2
+
+
+
+,
+
+ 8μA
+
+ 
+
+yields 
+
+Ft,j +1 ≤ 1 − 2
+
+j + t0
+
+!
+
+Ft,j + 4σ 2
+
+μ2(j + t0)2 .
+
+By Lemma A.2 with m = 1 and α = 2, we have 
+
+Ft,j +1 ≤ S(j + t0)−1,
+
+for t0 = max {1, ⌈ 8BA2 ⌉, ⌈ 8μA ⌉} = max {1, ⌈ 2C2 
+
+> V
+> μ2
+
+⌉, ⌈ 8μA ⌉} and 
+
+S = max 
+
+
+
+F1(1 + t0), Hα − m
+
+
+
+= max 
+
+(
+
+(1 + t0)E∥θt − θDt ∥2, 4σ 2
+
+μ2
+
+)
+
+≤ (1 + t0)E∥θt − θDt ∥2 + 4σ 2
+
+μ2 .
+
+In particular, for j = n(t) we have 
+
+E∥θt+1 − θDt ∥2 ≤ 1
+
+n(t) + t0
+
+· (1 + t0)E∥θt − θDt ∥2 + 4σ 2
+
+μ2
+
+!
+
+. (30) Observe that 
+
+∥θDt − θPS  
+
+> t
+
+∥ ≤ (1 − αt )ϵβ z
+
+μ ∥θt − θPS  
+
+> t
+
+∥,
+
+and also, 
+
+∥θt − θDt ∥ ≤ ∥ θt − θPS  
+
+> t
+
+∥ + ∥θDt − θPS  
+
+> t
+
+∥ ≤ 1 + (1 − αt )ϵβ z
+
+μ
+
+!
+
+∥θt − θPS  
+
+> t
+
+∥.
+
+Therefore, from each inequality we can deduce that 
+
+E∥θDt − θPS  
+
+> t
+
+∥2 ≤ (1 − αt )ϵβ z
+
+μ
+
+!2
+
+E∥θt − θPS  
+
+> t
+
+∥2 (31) and 
+
+E∥θt+1 − θDt ∥2 ≤ 1
+
+n(t) + t0
+
+· (1 + t0)E∥θt − θDt ∥2 + 4σ 2
+
+μ2
+
+!
+
+≤ 1
+
+n(t) + t0
+
+·
+
+(1 + t0) 1 + (1 − αt )ϵβ z
+
+μ
+
+!2
+
+E∥θt − θPS  
+
+> t
+
+∥2 + 4σ 2
+
+μ2
+
+
+
+≤ 1
+
+n(t) + t0
+
+· 4(1 + t0)E∥θt − θPS  
+
+> t
+
+∥2 + 4σ 2
+
+μ2
+
+!
+
+. (32) 28 We can compute 
+
+E∥θt+1 − θPS  
+
+> t
+
+∥2 = E∥θt+1 − θDt ∥2 + 2 E h(θt+1 − θDt )⊤(θDt − θPS  
+
+> t
+
+)i + E∥θDt − θPS  
+
+> t
+
+∥2
+
+≤ E∥θt+1 − θDt ∥2 + 2 E h∥θt+1 − θDt ∥ · ∥ θDt − θPS  
+
+> t
+
+∥i + E∥θDt − θPS  
+
+> t
+
+∥2
+
+≤ E∥θt+1 − θDt ∥2 + 2 
+
+q
+
+E∥θt+1 − θDt ∥2 · E∥θDt − θPS  
+
+> t
+
+∥2 + E∥θDt − θPS  
+
+> t
+
+∥2
+
+≤ (1 + ζ)E∥θt+1 − θDt ∥2 +
+
+
+
+1 + 1
+
+ζ
+
+
+
+E∥θDt − θPS  
+
+> t
+
+∥2,
+
+for any ζ > 0, which we choose later. By Eqs. (30) to (32), we have 
+
+E∥θt+1 − θPS  
+
+> t
+
+∥2 ≤
+
+ 4(1 + t0)(1 + ζ)
+
+n(t) + t0
+
++
+
+
+
+1 + 1
+
+ζ
+
+ (1 − αt )ϵβ z
+
+μ
+
+!2 E∥θt − θPS  
+
+> t
+
+∥2 + 1 + ζn(t) + t0
+
+· 4σ 2
+
+μ2
+
+≤
+
+ 4(1 + t0)(1 + ζ)
+
+n0
+
++
+
+
+
+1 + 1
+
+ζ
+
+ (1 − αmin )ϵβ z
+
+μ
+
+!2 E∥θt − θPS  
+
+> t
+
+∥2 + 1 + ζn(t) + t0
+
+· 4σ 2
+
+μ2 ,
+
+where the last inequality is by ϵ < μ 
+
+> (1 −αmin )βz
+
+. Substituting 
+
+c = 4(1 + t0)(1 + ζ)
+
+n0
+
++
+
+
+
+1 + 1
+
+ζ
+
+ (1 − αmin )ϵβ z
+
+μ
+
+!2
+
+,
+
+we can write 
+
+E∥θt+1 − θPS  
+
+> t
+
+∥2 ≤ cE∥θt − θPS  
+
+> t
+
+∥2 + 1 + ζn(t) + t0
+
+· 4σ 2
+
+μ2 .
+
+Recall that ∆PS  
+
+> t
+
+= ∥θPS  
+
+> t
+
+− θPS 
+
+> t+1
+
+∥. By the AM-GM inequality, we have 
+
+E∥θt+1 − θPS 
+
+> t+1
+
+∥2 ≤ E∥θt+1 − θPS  
+
+> t
+
+∥2 + 2 ∆PS 
+
+> t
+
+q
+
+E∥θt+1 − θPS  
+
+> t
+
+∥2 + ( ∆PS  
+
+> t
+
+)2
+
+≤
+
+
+
+1 + 1
+
+τ
+
+
+
+E∥θt+1 − θPS  
+
+> t
+
+∥2 + (1 + τ)( ∆PS  
+
+> t
+
+)2
+
+≤ c
+
+
+
+1 + 1
+
+τ
+
+
+
+E∥θt − θPS  
+
+> t
+
+∥2 + (1 + 1 
+
+> τ
+
+)(1 + ζ)
+
+n(t) + t0
+
+· 4σ 2
+
+μ2
+
++ (1 + τ)( ∆PS  
+
+> t
+
+)2
+
+for any τ > 0, which we choose later. Let ˜ γ = c(1 + 1 
+
+> τ
+
+). Now we choose constants ζ, τ > 0 that satisfy 
+
+
+
+1 + 1
+
+τ
+
+  
+
+1 + 1
+
+ζ
+
+ (1 − αmin )ϵβ z
+
+μ
+
+!2
+
+< 1,
+
+and n0 as a large enough constant so that ˜γ =
+
+
+
+1 + 1
+
+τ
+
+  4(1 + t0)(1 + ζ)
+
+n0
+
++
+
+
+
+1 + 1
+
+ζ
+
+ (1 − αmin )ϵβ z
+
+μ
+
+!2 < 1,
+
+which is possible as we assume ϵ < μ 
+
+> (1 −αmin )βz
+
+. Then, we have 
+
+E∥θt+1 − θPS 
+
+> t+1
+
+∥2 ≤ ˜γ · E∥θt − θPS  
+
+> t
+
+∥2 + (1 + 1 
+
+> τ
+
+)(1 + ζ)
+
+n(t) + t0
+
+· 4σ 2
+
+μ2 + (1 + τ)( ∆PS  
+
+> t
+
+)2
+
+≤ ˜γ · E∥θt − θPS  
+
+> t
+
+∥2 + 4σ 2(1 + 1 
+
+> τ
+
+)(1 + ζ)
+
+n0μ2 t−r + (1 + τ)( ∆PS  
+
+> t
+
+)2,
+
+29 since n0tr ≤ n(t) ≤ n(t) + t0.Finally, by Lemma A.3, we have 
+
+E∥θT +1 − θPS  
+
+> T+1
+
+∥2 ≤ ˜γT ∥θ1 − θPS 1 ∥2 + 4σ 2(1 + 1 
+
+> τ
+
+)(1 + ζ)
+
+n0μ2
+
+> T
+
+X
+
+> t=1
+
+˜γT −t t−r + (1 + τ)
+
+> T
+
+X
+
+> t=1
+
+˜γT −t (∆PS  
+
+> t
+
+)2
+
+≤ ˜γT ∥θ1 − θPS 1 ∥2 + 4σ 2(1 + 1 
+
+> τ
+
+)(1 + ζ)
+
+n0μ2(1 − ˜γ)
+
+
+
+˜γT (1 −2− 1  
+
+> r)
+
++ 2 T −r
+
+
+
++ (1 + τ)
+
+> T
+
+X
+
+> t=1
+
+˜γT −t (∆PS  
+
+> t
+
+)2,
+
+which proves the given statement for J = 4σ 2(1+ 1   
+
+> τ)(1+ ζ)
+> n0μ2(1 −˜γ)
+
+.
+
+## E.3 Proof of Proposition 4.4 
+
+Here we prove Proposition 4.4, restated below for the sake of readability. 
+
+Proposition 4.4. Suppose that the same assumptions as in Proposition 4.2 hold. Then, the iterates of ASGD -lazy 
+
+with step sizes ηt,j ∝ 1 
+
+> j+t0
+
+, for some constant t0 > 0, and n(t) ≥ n0tr with a large enough n0 satisfy 
+
+Reg PS  
+
+> T
+
+(ASGD -lazy ) ≤ O 
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+t−r/ 2 + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ . (13) 
+
+Proof. Using the same step sizes ηt,j as in Lemma E.2, we start from the result of Lemma E.2 with T ← t −1, 
+
+E∥et ∥2 ≤ ˜γt−1∥e1∥2 + J · ˜γβ(t−1) + 2( t − 1) −r  + (1 + τ)
+
+> t−1
+
+X
+
+> s=1
+
+˜γt−s−1(∆PS  
+
+> s
+
+)2,
+
+where we define et = θt − θPS  
+
+> t
+
+and β = 1 − 2−1/r for simplicity. This implies 
+
+pE∥et ∥2 ≤ ˜γ t−12 ∥e1∥ + pJ · ˜γ β(t−1) 2 + p2J · (t − 1) −r/ 2 + √1 + τ
+
+
+
+> t−1
+
+X
+
+> s=1
+
+˜γt−s−1(∆PS  
+
+> s
+
+)2
+
+
+
+> 1/2
+
+,
+
+since √a + b + c + d ≤ √a + √b + √c + √d for a, b, c, d ≥ 0. We can immediately observe that 
+
+> T
+
+X
+
+> t=1
+
+˜γ t−12 ∥e1∥ ≤ ∥e1∥
+
+1 − ˜γ1/2 ,
+
+> T
+
+X
+
+> t=1
+
+pJ · ˜γ β(t−1) 2 ≤√J
+
+1 − ˜γβ/ 2 ,
+
+and the last term can be upper-bounded using the inequality 
+
+> t−1
+
+X
+
+> s=1
+
+˜γt−s−1(∆PS  
+
+> s
+
+)2 ≤
+
+
+
+> t−1
+
+X
+
+> s=1
+
+˜γ t−s−12 ∆PS 
+
+> s
+
+
+
+> 2
+
+,
+
+which implies 
+
+> T
+
+X
+
+> t=1
+
+
+
+> t−1
+
+X
+
+> s=1
+
+˜γt−s−1(∆PS  
+
+> s
+
+)2
+
+
+
+> 1/2
+
+≤
+
+> T
+
+X
+
+> t=1
+> t−1
+
+X
+
+> s=1
+
+˜γ t−s−12 ∆PS 
+
+> s
+
+= 
+
+> T−1
+
+X
+
+> s=1
+
+∆PS 
+
+> s
+
+
+
+> T
+
+X
+
+> t=s+1
+
+˜γ t−s−12
+
+
+
+≤ 11 − ˜γ1/2 · 
+
+> T−1
+
+X
+
+> s=1
+
+∆PS  
+
+> s
+
+.
+
+30 Therefore (recalling that e1 = θ1 − θPS 1 ) we have Reg PS  
+
+> T
+
+(ASGD-lazy ) ≤ L
+
+> T
+
+X
+
+> t=1
+
+E∥et ∥ ≤ L
+
+> T
+
+X
+
+> t=1
+
+pE∥et ∥2
+
+≤ L
+
+
+
+∥θ1 − θPS 1 ∥
+
+1 − ˜γ1/2 +
+
+√J
+
+1 − ˜γβ/ 2 + p2J 
+
+> T−1
+
+X
+
+> t=1
+
+t−r/ 2 +
+
+√1 + τ
+
+1 − ˜γ1/2 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ .
+
+Eliminating all O(1) terms, we have Reg PS  
+
+> T
+
+(ASGD-lazy ) ≤ O 
+
+ 
+
+> T−1
+
+X
+
+> t=1
+
+t−r/ 2 + 
+
+> T−1
+
+X
+
+> t=1
+
+∆PS 
+
+> t
+
+ ,
+
+as desired. 
+
+# F Proofs for zeroth-order gradient descent 
+
+As we state in Section 5, we make the following mild assumptions throughout Section F: |ℓ(z, θ )| ≤ F for all 
+
+z, θ for some F < ∞, and Θ contains a ball of radius r > 0 centered at 0. 
+
+## F.1 Proof of Theorem 5.2 
+
+Here we prove Theorem 5.2, restated below for the sake of readability. 
+
+Theorem 5.2. Suppose that PR t is L-Lipschitz (7) . If PR t is μ′ -strongly convex, then AZGD2 with parameters 
+
+ηt = 1  
+
+> μ′t
+
+, δ = d2L  
+
+> 6μ′T
+
+, and ρ = δr satisfies, for T ≥ d2L  
+
+> 6μ′r
+
+,
+
+Reg PO  
+
+> T
+
+(AZGD2 ) = O
+
+d2 log T + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ .
+
+If PR t is convex, then AZGD2 with parameters ηt ≡ η = DΘ 
+
+> dL √T
+
+, δ = dD Θ 
+
+> 6√T
+
+, and ρ = δr satisfies, for T ≥ d2D2 
+
+> Θ
+> 36 r2
+
+,
+
+Reg PO  
+
+> T
+
+(AZGD2 ) = O
+
+d√T ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ .
+
+Proof. Since we assume Θ is a bounded (convex) set, we denote the (finite) diameter of Θ by DΘ , i.e., 
+
+DΘ B sup {∥ θ − θ′ ∥ : θ, θ ′ ∈ Θ}.We first prove the strongly convex case, and then prove the convex case. 
+
+Strongly convex case. Recall that for two-point ZGD, we use ˜gt = PR t (θt + δu t ) − PR t (θt − δu t )ut · d
+
+2δ .
+
+Then, we have E[ ˜ gt ] = ∇cPR t (θt ) and 
+
+E[∥ ˜gt ∥2] ≤ d2L2, (33) since PR t and cPR t are both L-Lipschitz. 31 Then, μ′ -strong convexity of cPR t (θ) implies 
+
+E[∥θt+1 − θut ∥2] = E[∥Π(1 −ρ)Θ (θt − ηt ˜gt ) − θut ∥2]
+
+≤ E[∥θt − θut − ηt ˜gt ∥2]= E[∥θt − θut ∥2 − 2ηt ˜g⊤ 
+
+> t
+
+(θt − θut ) + η2 
+
+> t
+
+∥ ˜gt ∥2]= ∥θt − θut ∥2 − 2ηt ∇cPR t (θt )⊤(θt − θut ) + η2 
+
+> t
+
+E[∥ ˜gt ∥2],
+
+(34) for any comparator θut ∈ (1 − ρ)Θ which we choose later, since E[ ˜ gt ] = ∇cPR t (θt ). (The expectations here are conditioned on θt .) By μ′ -strong convexity of cPR t , (33), and (34), we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ ∇ cPR t (θt )⊤(θt − θut ) − μ′
+
+2 ∥θt − θut ∥2
+
+≤ 12ηt
+
+− μ′
+
+2
+
+!
+
+∥θt − θut ∥2 − 12ηt
+
+E[∥θt+1 − θut ∥2] + ηt
+
+d2L2
+
+2 ,
+
+(35) for any choice of comparators θut , θ ut+1 ∈ (1 − ρ)Θ. By triangle inequality, we have 
+
+∥θt+1 − θut ∥ ≥ ∥ θt+1 − θut+1 ∥ − ∥ θut − θut+1 ∥,
+
+and since ∥θt+1 − θut+1 ∥ ≤ DΘ , we can use 
+
+∥θt+1 − θut ∥2 ≥ ∥ θt+1 − θut+1 ∥2 − 2( θt+1 − θut+1 )⊤(θut − θut+1 ) + ∥θut − θut+1 ∥2
+
+≥ ∥ θt+1 − θut+1 ∥2 − 2DΘ ∥θut − θut+1 ∥.
+
+Plugging in ηt = 1  
+
+> μ′t
+
+and noting that 12η1 − μ′ 
+
+> 2
+
+= 0, we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ μ′ (t − 1) 2 ∥θt − θut ∥2 − μ′ t
+
+2 E[∥θt+1 − θut+1 ∥2] + μ′ DΘ t∥θut − θut+1 ∥ + ηt
+
+d2L2
+
+2 ,
+
+and taking the sum and expectations over the entire history, 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+cPR t (θt ) − cPR t (θut ) ≤ d2L2
+
+2μ′
+
+> T
+
+X
+
+> t=1
+
+1
+
+t + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥≤ d2L2
+
+2μ′ (1 + log T ) + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥.
+
+(36) Recall that φ+ 
+
+> t
+
+= θt + δu t and cPR t (θ) = Ev∼Unif( Bd )[PR t (θ + δv )]. Since PR t and cPR t are both L-Lipschitz, we have PR t (φ+ 
+
+> t
+
+) − PR t (θt ) ≤ δL, PR t (θt ) − cPR t (θt ) ≤ δL, −PR t (θut ) + cPR t (θut ) ≤ δL. 
+
+The same arguments hold when we replace φ+ 
+
+> t
+
+with φ− 
+
+> t
+
+. Therefore, for any choice of φt ∈ { φ+ 
+
+> t
+
+, φ − 
+
+> t
+
+}, we have 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+PR t (φt ) − PR t (θut ) ≤ d2L2
+
+2μ′ (1 + log T ) + 3 δLT + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥.
+
+Now choose θut = (1 − ρ)θPO  
+
+> t
+
+for all t ∈ [T ], where we can check θut ∈ (1 − ρ)Θ, and θuT +1 = θuT . Then, by convexity of PR t and 0 ∈ Θ, we have PR t (θut ) ≤ (1 − ρ)PR t (θPO  
+
+> t
+
+) + ρPR t (0) = PR t (θPO  
+
+> t
+
+) + ρPR t (0) − PR t (θPO  
+
+> t
+
+) ≤ PR t (θPO  
+
+> t
+
+) + 2 ρF. (37) 32 Therefore, taking the maximum over all possible choices of φt ∈ { φ+ 
+
+> t
+
+, φ − 
+
+> t
+
+}, we have Reg PO  
+
+> T
+
+(AZGD2 ) = 
+
+> T
+
+X
+
+> t=1
+
+max    
+
+> φt∈{ φ+
+> t,φ −
+> t}
+
+E[PR t (φt )] − PR t (θPO  
+
+> t
+
+)
+
+!
+
+≤ d2L2
+
+2μ′ (1 + log T ) + 3 δLT + 2 ρFT + μ′ DΘ (1 − ρ) 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO  
+
+> t
+
+,
+
+where the t = T term is eliminated by choosing θuT +1 = θuT .Setting ρ = δr and δ = d2L  
+
+> 6μ′T
+
+, we have 2
+
+Reg PO  
+
+> T
+
+(AZGD2 ) ≤ d2L2
+
+2μ′
+
+
+
+2 + log T + 2F
+
+3Lr 
+
+
+
++ μ′ DΘ (1 − ρ) 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO  
+
+> t
+
+= O
+
+d2 log T + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ ,
+
+and T ≥ d2L  
+
+> 6μ′r
+
+ensures that ρ = δr ≤ 1, which proves the given statement. 
+
+Convex case. Suppose that PR t and thus cPR t are convex and Lipschitz. We use ηt ≡ η, which we choose later. Since this case corresponds to μ′ = 0, from (35) and the triangle inequality argument, we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ 12η ∥θt − θut ∥2 − 12η E[∥θt+1 − θut+1 ∥2] + DΘ
+
+η ∥θut − θut+1 ∥ + η d2L2
+
+2 ,
+
+and therefore 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+cPR t (θt ) − cPR t (θut ) ≤ 12η ∥θ1 − θu 
+
+> 1
+
+∥2 + ηd 2L2T
+
+2 + DΘ
+
+η
+
+> T
+
+X
+
+> t=1
+
+∥θut − θut+1 ∥≤ D2
+
+> Θ
+
+2η + ηd 2L2T
+
+2 + DΘ
+
+η
+
+> T
+
+X
+
+> t=1
+
+∥θut − θut+1 ∥.
+
+Following the same steps as in the strongly convex case, we have Reg PO  
+
+> T
+
+(AZGD2 ) = 
+
+> T
+
+X
+
+> t=1
+
+max    
+
+> φt∈{ φ+
+> t,φ −
+> t}
+
+E[PR t (φt )] − PR t (θPO  
+
+> t
+
+)
+
+!
+
+≤ D2
+
+> Θ
+
+2η + ηd 2L2T
+
+2 + 3 δLT + 2 ρFT + DΘ (1 − ρ)
+
+η 
+
+> T−1
+
+X
+
+> t=1
+
+∆PO  
+
+> t
+
+.
+
+If we choose ρ = δr , for which we have Reg PO  
+
+> T
+
+(AZGD2 ) ≤ D2
+
+> Θ
+
+2η + ηd 2L2T
+
+2 +
+
+
+
+3L + 2 Fr
+
+
+
+δT + DΘ
+
+η
+
+
+
+1 − δr
+
+ T −1X
+
+> t=1
+
+∆PO  
+
+> t
+
+,
+
+and then choose 3
+
+η = DΘ
+
+dL √T , δ = dD Θ
+
+6√T ,
+
+then we have Reg PO  
+
+> T
+
+(AZGD2 ) ≤ 3dD Θ L√T
+
+2 + dD Θ F√T
+
+3r + dL √T 1 − dD Θ
+
+6r√T
+
+! T −1X
+
+> t=1
+
+∆PO  
+
+> t
+
+= O
+
+d√T ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ ,
+
+and T ≥ d2D2 
+
+> Θ
+> 36 r2
+
+ensures that ρ = δr ≤ 1, which proves the given statement.                      
+
+> 2We can improve the leading constant a bit by choosing δ=d2L2
+> 2μ′(3 L+ 2 Fr)−1·1+log TT, but we choose the above δfor simplicity.
+> 3We can improve the leading constant a bit by choosing (3 L+ 2 Fr)−1dD ΘL
+> 2√T, but we choose the above δfor simplicity.
+
+33 F.2 Proof of Theorem 5.3 
+
+Here we prove Theorem 5.3, restated below for the sake of readability. 
+
+Theorem 5.3. Suppose that PR t is L-Lipschitz (7) . If PR t is μ′ -strongly convex, then AZGD with parameters 
+
+ηt = 1  
+
+> μ′t
+
+, δ ∝ d2/3( 1+log TT )1/3, and ρ = δr satisfies the following optimality regret upper bound for T = ˜Ω(d2):
+
+Reg PO  
+
+> T
+
+(AZGD ) = O
+
+d 23 T 23 (log T ) 13 + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ .
+
+If PR t is convex, then AZGD with parameters ηt ≡ η ∝ d−1/2T −3/4, δ ∝ d1/2T −1/4, and ρ = δr satisfies the following optimality regret upper bound for T = ˜Ω(d2):
+
+Reg PO  
+
+> T
+
+(AZGD ) = O
+
+d 12 T 34 ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ .
+
+Proof. We first prove the strongly convex case, and then prove the convex case. 
+
+Strongly convex case. For any comparator θut ∈ (1 − ρ)Θ (which we choose later), μ′ -strong convexity of 
+
+cPR t (θ) implies 
+
+E[∥θt+1 − θut ∥2] = E[∥Π(1 −ρ)Θ (θt − ηt gt ) − θut ∥2]
+
+≤ E[∥θt − θut − ηt gt ∥2]= E[∥θt − θut ∥2 − 2ηt g⊤ 
+
+> t
+
+(θt − θut ) + η2 
+
+> t
+
+∥gt ∥2]= ∥θt − θut ∥2 − 2ηt ∇cPR t (θt )⊤(θt − θut ) + η2 
+
+> t
+
+E[∥gt ∥2],
+
+(38) since E[gt ] = ∇cPR t (θt ). Also, since gt = dδ · ℓ(Zt , θ t + δu t )ut with |ℓ(z, θ )| ≤ F and ∥ut ∥ = 1, 
+
+E[∥gt ∥2] ≤ d2F2
+
+δ2 .
+
+By μ′ -strong convexity of cPR t and (38), we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ ∇ cPR t (θt )⊤(θt − θut ) − μ′
+
+2 ∥θt − θut ∥2
+
+≤ 12ηt
+
+− μ′
+
+2
+
+!
+
+∥θt − θut ∥2 − 12ηt
+
+E[∥θt+1 − θut ∥2] + ηt
+
+d2F2
+
+2δ2 ,
+
+(39) for any choice of comparators θut , θ ut+1 ∈ (1 − ρ)Θ. By triangle inequality, we have 
+
+∥θt+1 − θut ∥ ≥ ∥ θt+1 − θut+1 ∥ − ∥ θut − θut+1 ∥,
+
+and since ∥θt+1 − θut+1 ∥ ≤ DΘ , we can use 
+
+∥θt+1 − θut ∥2 ≥ ∥ θt+1 − θut+1 ∥2 − 2( θt+1 − θut+1 )⊤(θut − θut+1 ) + ∥θut − θut+1 ∥2
+
+≥ ∥ θt+1 − θut+1 ∥2 − 2DΘ ∥θut − θut+1 ∥.
+
+Plugging in ηt = 1  
+
+> μ′t
+
+and noting that 12η1 − μ′ 
+
+> 2
+
+= 0, we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ μ′ (t − 1) 2 ∥θt − θut ∥2 − μ′ t
+
+2 E[∥θt+1 − θut+1 ∥2] + μ′ DΘ t∥θut − θut+1 ∥ + ηt
+
+d2F2
+
+2δ2 ,
+
+34 and taking the sum and expectations over the entire history, 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+cPR t (θt ) − cPR t (θut ) ≤ d2F2
+
+2δ2μ′
+
+> T
+
+X
+
+> t=1
+
+1
+
+t + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥≤ d2F2
+
+2δ2μ′ (1 + log T ) + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥.
+
+(40) Recall that φt = θt + δu t and cPR t (θ) = Ev∼Unif( Bd )[PR t (θ + δv )]. Since PR t and cPR t are both L-Lipschitz, we have PR t (φt ) − PR t (θt ) ≤ δL, 
+
+PR t (θt ) − cPR t (θt ) ≤ δL, 
+
+−PR t (θut ) + cPR t (θut ) ≤ δL, 
+
+and therefore 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+PR t (φt ) − PR t (θut ) ≤ d2F2
+
+2δ2μ′ (1 + log T ) + 3 δLT + μ′ DΘ
+
+> T
+
+X
+
+> t=1
+
+t∥θut − θut+1 ∥.
+
+Now we choose θut = (1 − ρ)θPO  
+
+> t
+
+for all t ∈ [T ], where we can check θut ∈ (1 − ρ)Θ, and θuT +1 = θuT . Then, by convexity of PR t and 0 ∈ Θ, we have PR t (θut ) ≤ (1 − ρ)PR t (θPO  
+
+> t
+
+) + ρPR t (0) = PR t (θPO  
+
+> t
+
+) + ρPR t (0) − PR t (θPO  
+
+> t
+
+)
+
+≤ PR t (θPO  
+
+> t
+
+) + 2 ρF. 
+
+(41) Therefore we have Reg PO  
+
+> T
+
+(AZGD ) = E
+
+
+
+> T
+
+X
+
+> t=1
+
+PR t (φt ) − PR t (θPO  
+
+> t
+
+)
+
+≤ d2F2
+
+2δ2μ′ (1 + log T ) + 3 δLT + 2 ρFT + μ′ DΘ (1 − ρ) 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO  
+
+> t
+
+.
+
+If we choose ρ = δr and 
+
+δ = d2F2
+
+2μ′ (1 + log T )
+
+! 13
+
+·
+
+ 
+
+3L + 2Fr
+
+
+
+T
+
+− 13
+
+,
+
+we have Reg PO  
+
+> T
+
+(AZGD ) ≤ 2 d2F2
+
+2μ′ (1 + log T )
+
+! 13
+
+·
+
+ 
+
+3L + 2Fr
+
+
+
+T
+
+ 23
+
++ μ′ DΘ 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+= O
+
+d 23 T 23 (log T ) 13 + 
+
+> T−1
+
+X
+
+> t=1
+
+t∆PO 
+
+> t
+
+ ,
+
+and T  
+
+> 1+log T
+
+≥ d2F2 
+
+> 2μ′r3
+
+(3L+ 2Fr ) ensures that ρ = δr ≤ 1, which proves the given statement. 35 Convex case. For the case when cPR t is convex, we use constant ηt ≡ η which we choose later. Since this case corresponds to μ′ = 0, from (39) and the triangle inequality argument, we have 
+
+cPR t (θt ) − cPR t (θut ) ≤ 12η ∥θt − θut ∥2 − 12η E[∥θt+1 − θut+1 ∥2] + DΘ
+
+η ∥θut − θut+1 ∥ + η d2F2
+
+2δ2 ,
+
+and therefore 
+
+E
+
+
+
+> T
+
+X
+
+> t=1
+
+cPR t (θt ) − cPR t (θut ) ≤ 12η ∥θ1 − θu 
+
+> 1
+
+∥2 + ηd 2F2T
+
+2δ2 + DΘ
+
+η
+
+> T
+
+X
+
+> t=1
+
+∥θut − θut+1 ∥≤ D2
+
+> Θ
+
+2η + ηd 2F2T
+
+2δ2 + DΘ
+
+η
+
+> T
+
+X
+
+> t=1
+
+∥θut − θut+1 ∥.
+
+Following the same steps as in the strongly convex case, we have Reg PO  
+
+> T
+
+(AZGD ) = E
+
+
+
+> T
+
+X
+
+> t=1
+
+PR t (φt ) − PR t (θPO  
+
+> t
+
+)
+
+≤ D2
+
+> Θ
+
+2η + ηd 2F2T
+
+2δ2 + 3 δLT + 2 ρFT + DΘ (1 − ρ)
+
+η 
+
+> T−1
+
+X
+
+> t=1
+
+∆PO  
+
+> t
+
+.
+
+If we choose ρ = δr , for which we have Reg PO  
+
+> T
+
+(AZGD ) ≤ D2
+
+> Θ
+
+2η + ηd 2F2T
+
+2δ2 +
+
+
+
+3L + 2 Fr
+
+
+
+δT + DΘ
+
+η
+
+
+
+1 − δr
+
+ T −1X
+
+> t=1
+
+∆PO  
+
+> t
+
+,
+
+and then choose 
+
+η =
+
+s
+
+D3
+
+> Θ
+
+dF · 13L + 2Fr
+
+T −3/4, δ =
+
+s
+
+DΘ dF 
+
+3L + 2Fr
+
+T −1/4,
+
+so that 
+
+D2
+
+> Θ
+
+2η = ηd 2F2T
+
+2δ2 = 12
+
+r
+
+DΘ dF 
+
+
+
+3L + 2Fr
+
+
+
+T 3/4,
+
+
+
+3L + 2 Fr
+
+
+
+δT =
+
+r
+
+DΘ dF 
+
+
+
+3L + 2Fr
+
+
+
+T 3/4,
+
+then we have Reg PO  
+
+> T
+
+(AZGD ) ≤ 2
+
+r
+
+DΘ dF 
+
+
+
+3L + 2Fr
+
+
+
+T 3/4 +
+
+r dF DΘ
+
+
+
+3L + 2Fr
+
+
+
+T 3/4
+
+
+
+1 − δr
+
+ T −1X
+
+> t=1
+
+∆PO 
+
+> t
+
+= O
+
+d 12 T 34 ·
+
+1 +  
+
+> T−1
+
+X
+
+> t=1
+
+∆PO 
+
+> t
+
+ ,
+
+and T ≥ ( DΘ dF r2(3L+ 2Fr ) )2 ensures that ρ = δr ≤ 1, which proves the given statement. 36 G Experimental details and further results 
+
+## G.1 Credit scoring experiment 
+
+Setup. Here we provide a more detailed description of the credit scoring experiment summarized in Section 6. We minimize the regularized logistic loss, 
+
+ℓ(z, θ ) = log 1 + e−θ⊤z + λ
+
+2 ∥θ∥2
+
+over the Euclidean ball Θ = {θ : ∥θ∥2 ≤ 1} with λ = 1, where z = yx , where y ∈ {− 1, +1 }, for features x
+
+and labels y. The environment is built from the processed credit data used in the actionable-recourse ex-periments, available as the credit dataset from https://github.com/ustunb/actionable-recourse . We first standardize each of the 17 credit features to have zero mean and unit variance. The Gaussian base distribution is also fitted to 1500 signed feature vectors xy randomly sampled without replacement, from which we compute the empirical mean m and covariance Σ. The first six feature coordinates, correspond-ing to marital-status and age indicators, are treated as non-modifiable. The remaining eleven coordinates, corresponding to education, balance, payment, spending, and overdue-history features, are treated as mod-ifiable. This modifiable features can be altered strategically. As we discuss in Section 6, the performative component can be written as 
+
+D(θ) = N (Aθ + m, Σ),
+
+where Σ is the empirical covariance and A = a diag( pmod ) with a = 0 .1. The vector pmod is zero on the non-modifiable coordinates and one on the modifiable coordinates, which implies that ∥A∥op = a = 0 .1. The exogenous component is normal with the same covariance matrix Σ as the performative component, 
+
+Pt = N (mt , Σ).
+
+For the exogenous sequence, we consider both an i.i.d. randomly varying sequence for mt in the unit Euclidean ball and the stationary sequence mt ≡ m0, where m0 is drawn once from the same bounded set. The experiments use d = 17, Tstab = 2000 for the algorithms ARRM , ARGD , and ASGD-greedy , and Tlazy = 1000 for ASGD-lazy . The αt grid consists of αt = 1 and polynomial schedules αt = α0t−b with α0 = 1 and b ∈{0.25 , 0.5, 1.0, 2.0}. For algorithms ASGD-greedy and ASGD-lazy with stochasticity, we average over 10 runs. The logistic loss is λ-strongly convex in θ, and if ∥z∥ ≤ Rz and ∥θ∥ ≤ Rθ for some finite Rz, R θ , then ℓ is 
+
+λz + R2 
+
+> z
+> 4
+
+-smooth in z and λz + Rz Rθ 
+
+> 4
+
+-smooth in θ. Since Gaussian distributions technically have unbounded support, when plotting the theoretical upper bounds later we use slightly conservative constants as a high-probability surrogate for both the smoothness constants above and the Lipschitz constants. We can also compute 
+
+W1
+
+D(θ), D(θ′ ) = ∥A(θ − θ′ )∥ ≤ 0.1∥θ − θ′ ∥.
+
+Consequently, the sensitivity condition is satisfied. 
+
+Computing the stable points. To approximate θPS  
+
+> t
+
+empirically, we solve the fixed-point problem 
+
+θPS  
+
+> t
+
+= arg min  
+
+> θ′∈Θ
+
+EZ∼D t (θPS  
+
+> t)
+
+[ℓ(Z, θ ′ )] by a bilevel fixed-point iteration heuristic. At each outer step, the inner fixed-distribution risk minimiza-tion is approximated by projected gradient descent using common random numbers. The experiment uses 20 outer iterations, 60 inner gradient steps, and inner step size 0 .2 for the fixed point iteration to com-pute θPS  
+
+> t
+
+, and use 512 Monte Carlo samples to estimate the gradient. Risk evaluations for plotting use 16384 common random samples, and these are shared across algorithms and comparator evaluations for a consistent comparison. 37 0 1 2 3 4 5 6 7
+
+log T
+
+0
+
+2
+
+4
+
+> log Reg PS
+> T
+
+RRM, Pt random 
+
+0 1 2 3 4 5 6 7
+
+log T
+
+0
+
+2
+
+4
+
+> log Reg PS
+> T
+
+RGD, Pt random 
+
+0 1 2 3 4 5 6 7
+
+log T
+
+0
+
+2
+
+4
+
+> log Reg PS
+> T
+
+Greedy SGD, Pt random 
+
+0 1 2 3 4 5 6 7
+
+log T
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+> log Reg PS
+> T
+
+Lazy SGD, Pt random                  
+
+> t= 1.00 t=t0.25 t=t0.50 t=t1.00 t=t2.00
+
+Figure 2: Performative stability regret of ARRM , ARGD , ASGD-greedy , and ASGD-lazy with r = 1 in the credit scoring experiment, for varying αt . We consider a randomly varying exogenous component Pt .0 2 4 6
+
+log T
+
+0.58 
+
+0.56 
+
+0.54 
+
+0.52 
+
+0.50 
+
+0.48 
+
+> log Reg PS
+> T
+
+RRM, Pt stationary 
+
+0 2 4 6
+
+log T
+
+0.50 
+
+0.25 
+
+0.00 
+
+0.25 
+
+0.50 
+
+0.75 
+
+> log Reg PS
+> T
+
+RGD, Pt stationary 
+
+0 2 4 6
+
+log T
+
+0
+
+1
+
+2
+
+> log Reg PS
+> T
+
+Greedy SGD, Pt stationary 
+
+0 1 2 3 4 5 6 7
+
+log T
+
+0.5 
+
+0.0 
+
+0.5 
+
+1.0 
+
+1.5 
+
+2.0 
+
+> log Reg PS
+> T
+
+Lazy SGD, Pt stationary                  
+
+> t= 1.00 t=t0.25 t=t0.50 t=t1.00 t=t2.00
+
+Figure 3: Performative stability regret of ARRM , ARGD , ASGD-greedy , and ASGD-lazy with r = 1 in the credit scoring experiment, for varying αt . We consider a stationary exogenous component Pt .
+
+38 0 1 2 3 4 5 6 7                          
+
+> log T
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> log Reg PS
+> T
+> Regret vs. Upper Bounds, RRM, Ptrandom
+> 01234567
+> log T
+> 0.0
+> 2.5
+> 5.0
+> 7.5
+> 10.0
+> 12.5
+> log Reg PS
+> T
+> Regret vs. Upper Bounds, RGD, Ptrandom
+> t= 1.00
+> t=t0.25
+> t=t0.50
+> t=t1.00
+> t=t2.00
+> Regret
+> Upper bound
+
+Figure 4: Performative stability regret vs. theoretical upper bounds of ARRM (left) and ARGD (right) in the credit scoring experiment, for varying αt . We consider a randomly varying exogenous component Pt .
+
+Results. Figure 2 shows that for the randomly varying exogenous shift, ARRM and ARGD have a clear ordering with respect to the αt schedule, with αt ∝ t−1.0 producing smaller regret than αt ∝ t−0.5, which matches the trend we can expect from the path-length dependence in Theorems 3.2 and 4.1 and our dis-cussions in Section 6. The stochastic algorithms have less separation among the decaying schedules, yet we can observe that the constant schedule remains visibly worse with a slope near 1 (i.e., linear regret) for 
+
+ASGD-greedy and ASGD-lazy as well. Figure 3 shows that for the stationary case, we have the opposite trend compared to that of the randomly varying case in general, with the constant schedule performing slightly better than the decaying schedules. The distinction is clear for ARRM and less prominent for gradient-based methods like ARGD , ASGD-greedy ,and ASGD-lazy . Note that because the reference for stability regret θPS  
+
+> t
+
+may be di ff erent from the minimizer of the performative risk θPO  
+
+> t
+
+, it is possible for the regret to decrease when the iterates θt coincidentally get close to θPO  
+
+> t
+
+.Figure 4 compares the empirical stability regret of ARRM and ARGD to the finite upper bounds we de-rive in Theorems 3.2 and 4.1. In the randomly varying case, Figure 4 again shows that αt ∝ t−1.0 produces smaller regret than αt ∝ t−0.5 for both algorithms, matching the path-length dependence in Theorems 3.2 and 4.1. We can also observe that, even though Gaussian distributions are unbounded, the finite upper bounds are still qualitatively correct in their ordering and level, which suggests that the conservative high-probability envelope is a reasonable surrogate for the Lipschitz constants in this case. Moreover, for decay-ing αt , the slopes of the log-log plots near large T of the empirical regret curves are slightly smaller than the rates predicted by the upper bounds, which leaves room for both an improvement in the path-length dependence of the upper bounds or the existence of a more carefully constructed adversarial lower bound, which we leave for future investigation. 
+
+## G.2 Further results on synthetic data 
+
+Setup. We also report an experiment on synthetic Gaussian data. We minimize the squared loss ℓ(z, θ ) =  
+
+> 12
+
+∥z −θ∥2 over Θ = [ −B, B ]d with B = 5. We use a partially performative setting similar to that of Section G.1: 
+
+Zt ∼ D t (θt ) = (1 − αt )D(θt ) + αt Pt ,
+
+D(θ) = N (Aθ + m, Σ), Pt = N (mt , ΣP ).
+
+We use ∥A∥op = ϵ = 0 .3, Σ = σ 2I, ΣP = σ 2 
+
+> P
+
+I, and σ = σP = 0 .5. The vector m is sampled once from [ −1, 1] d ,and the matrix A is sampled once and rescaled to have operator norm ϵ. The αt grid consists of the constant schedule αt = 1 and polynomial decays αt ∝ t−b with b ∈ { 0.5, 0.75 , 1.0, 1.5, 2.0}. For the exogenous sequence, we report both a shared i.i.d. randomly varying sequence in the unit Euclidean ball and the stationary sequence mt ≡ m0, where m0 is drawn once from the same bounded construction. The experiments use 
+
+d ∈ { 2, 10 }, Tstab = 100000 for the algorithms ARRM , ARGD , and ASGD-greedy and Tlazy = 1000 for ASGD-lazy .39 0 2 4 6 8 10 12                        
+
+> log T
+> 0
+> 5
+> 10
+> 15
+> log Reg PS
+> T
+> Regret vs. Upper Bounds, RRM, Ptrandom
+> 0246810 12
+> log T
+> 0
+> 5
+> 10
+> 15
+> log Reg PS
+> T
+> Regret vs. Upper Bounds, RGD, Ptrandom
+> t= 1.00 t=t0.50 t=t1.00 Regret Upper bound
+
+Figure 5: Performative stability regret vs. theoretical upper bounds of ARRM (left) and ARGD (right) in the quadratic-Gaussian experiment, for varying αt . We consider a randomly varying exogenous component Pt .
+
+The quadratic loss is 1-strongly convex in θ and 1-smooth in both θ and z. Since D(θ) and D(θ′ ) have the same covariance for any θ, θ ′ , we have 
+
+W1
+
+D(θ), D(θ′ ) = W1
+
+N (Aθ + m, Σ), N (Aθ + m′ , Σ)
+
+= ∥A(θ − θ′ )∥ ≤ ϵ∥θ − θ′ ∥.
+
+Thus D is ϵ-sensitive, and the partially performative map has sensitivity at most (1 − αt )ϵ. Since ϵ = 0 .3 <
+
+1 = μ/L z, the stability condition is satisfied. As in the previous experiment, because Gaussian distributions have unbounded support, we use slightly conservative constants as a high-probability surrogate for the Lipschitz constants that are only used to compute the theoretical upper bounds. 
+
+Computing the stable points. For the stable point, the minimizer of the squared loss under a fixed dis-tribution is its mean. Hence θPS  
+
+> t
+
+solves 
+
+θPS  
+
+> t
+
+= (1 − αt )( Aθ PS  
+
+> t
+
++ m) + αt mt ,
+
+and therefore can be evaluated in closed form as the solution to the linear system: 
+
+θPS  
+
+> t
+
+= I − (1 − αt )A−1(1 − αt )m + αt mt
+
+.
+
+Results. Figure 5 compares the empirical stability regret of ARRM and ARGD to the finite upper bounds under randomly varying shifts for αt ∝ t−0.5 and αt ∝ t−1.0 for the Gaussian experiment with dimension 
+
+d = 10. We have similar trends as in Figure 4, and the di ff erence between slopes of the empirical and upper bound curves (indicating the looseness of the upper bounds) are more pronounced in this case. Figure 6 shows the optimization iterates in the experiment in two dimensions. For the randomly varying sequence with αt ∝ t−1.0, we can visually observe that the algorithm iterates θt track the moving target θPS 
+
+> t
+
+with a slight lag. The log-distance panels on the right show that this tracking error contracts over time but is also repeatedly perturbed by the movement of the reference. 40 0.0 0.2 0.4 0.6 
+
+> (1)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> (2)
+
+Trajectory       
+
+> 0246810 12
+
+log t
+
+> 17.5
+> 15.0
+> 12.5
+> 10.0
+> 7.5
+> 5.0
+> 2.5
+> 0.0
+> log  t PS
+> t
+
+Distance to stability (log-log)    
+
+> 0.0 0.2 0.4 0.6
+> (1)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> (2)
+
+Trajectory       
+
+> 0246810 12
+
+log t
+
+> 17.5
+> 15.0
+> 12.5
+> 10.0
+> 7.5
+> 5.0
+> 2.5
+> 0.0
+> log  t PS
+> t
+
+Distance to stability (log-log)    
+
+> 0.0 0.2 0.4 0.6
+> (1)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> (2)
+
+Trajectory       
+
+> 0246810 12
+
+log t
+
+> 12
+> 10
+> 8
+> 6
+> 4
+> 2
+> 0
+> log  t PS
+> t
+
+Distance to stability (log-log)     
+
+> 0.0 0.2 0.4 0.6 0.8
+> (1)
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> 1.2
+> (2)
+
+Trajectory        
+
+> 01234567
+
+log t
+
+> 7
+> 6
+> 5
+> 4
+> 3
+> 2
+> 1
+> 0
+> log  t PS
+> t
+
+Distance to stability (log-log) 
+
+> 7
+> 6
+> 5
+> 4
+> 3
+> 2
+> 1
+> 7
+> 6
+> 5
+> 4
+> 3
+> 2
+> 1
+> 5
+> 4
+> 3
+> 2
+> 1
+> 4
+> 3
+> 2
+> 1
+
+RRM 
+
+RGD 
+
+Greedy SGD 
+
+Lazy SGD     
+
+> Init. 1
+> Init. PS 1
+> 200
+> PS 200
+> Trajectory t
+> PS reference PS
+> t
+
+Figure 6: Representative two-dimensional iterate vs. stability trajectories of ARRM , ARGD , ASGD-greedy , and ASGD-lazy 
+
+with r = 1 in the 2D quadratic-Gaussian experiment, for αt ∝ t−1.0. We consider a randomly varying exogenous com-ponent Pt . The left subfigures show the actual movement of θt and θPS 
+
+t in the 2D space for the initial 200 steps, and the right subfigures show the log-log plots of the distance ∥θt − θPS 
+
+t ∥. We consider both the raw trajectories and the moving average of the last 50 iterations in the right log-log plot. 
+
+41

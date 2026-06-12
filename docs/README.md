@@ -6,60 +6,44 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-11
-- 运行时间：2026-06-11 21:05:22 UTC
+- 最新运行日期：2026-06-12
+- 运行时间：2026-06-12 21:59:07 UTC
 - 运行状态：成功
-- 本次总论文数：12
-- 精读区：1
-- 速读区：11
+- 本次总论文数：8
+- 精读区：3
+- 速读区：5
 
 ### 今日简报（AI）
-今日推荐系统研究日报：精读1篇生成式原型表示评8分，速读3篇涵盖长序列推荐、连续图模拟及Wasserstein平滑，整体聚焦序列建模与长期预测。
-
-最值得关注方向：精读论文《Generative Archetype...》提出生成式原型增强物品表示，速读《SinkRec》用记忆门控缓解长序列语义沉降，《COGENT》结合神经ODE实现长期物理预测，三者均具创新性。
-
-建议优先精读8分论文以掌握生成式原型框架，再结合速读论文对比长序列与连续时间建模技术，后续可关注这些方法在时序推荐中的实际应用效果。
-- 详情：[/202606/11/README](/202606/11/README)
+今日精读两篇9分论文，聚焦冷启动物品推荐与在线凸优化的理论突破。最值得关注的是非对称图架构解决语义-协同鸿沟的方法，以及噪声自适应的高概率遗憾界。建议先深入冷启动推荐方案，再结合速读中的机器人辅助与时间序列工作拓展应用视野。
+- 详情：[/202606/12/README](/202606/12/README)
 
 ### 精读区论文标签
-1. [Generative Archetype-Grounded Item Representations for Sequential Recommendation](/202606/11/2606.11023v1-generative-archetype-grounded-item-representations-for-sequential-recommendation)  
+1. [Bridging the Semantic-Collaborative Gap: An Asymmetric Graph Architecture for Cold-Start Item Recommendation](/202606/12/2606.06225v1-bridging-the-semantic-collaborative-gap-an-asymmetric-graph-architecture-for-cold-start-item-recommendation)  
+   标签：评分：9.0/10、query:pred-limit
+   evidence：解决序列推荐中的冷启动问题，这是可预测性的关键限制
+2. [Noise-Adaptive High-Probability Regret Bounds for Online Convex Optimization](/202606/12/2606.08028v1-noise-adaptive-high-probability-regret-bounds-for-online-convex-optimization)  
+   标签：评分：9.0/10、query:pred-limit
+   evidence：提供噪声自适应下预测准确率的理论界
+3. [Partially Performative Prediction](/202606/12/2606.07890v1-partially-performative-prediction)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：序列推荐中的下一项预测，生成式原型基础物品表示
+   evidence：提供内源和外源性偏移下的预测理论框架，与可预测性分析相关
 
 ### 速读区论文标签
-1. [SinkRec: Mitigating Semantic State Sink in Long Sequence Recommendation with Memory-Conditioned Gated Delta Networks](/202606/11/2606.09888v1-sinkrec-mitigating-semantic-state-sink-in-long-sequence-recommendation-with-memory-conditioned-gated-delta-networks)  
+1. [GenAutoML: An Agentic Framework for Dynamic Architecture Generation and Optimization in Time-Series Analysis](/202606/12/2606.05860v1-genautoml-an-agentic-framework-for-dynamic-architecture-generation-and-optimization-in-time-series-analysis)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：缓解序列推荐中的状态沉没问题
-2. [COGENT: Continuous Graph Emulators with Neural Ordinary Differential Equations for Long-Term Physical Forecasting](/202606/11/2606.11162v1-cogent-continuous-graph-emulators-with-neural-ordinary-differential-equations-for-long-term-physical-forecasting)  
+   evidence：时间序列预测的自动化机器学习框架
+2. [Personalized and Robust Proactive Robot Assistance with Uncertainty-Guided LLM Reasoning](/202606/12/2606.08458v1-personalized-and-robust-proactive-robot-assistance-with-uncertainty-guided-llm-reasoning)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：使用神经ODE在非规则地理网格上进行长期物理预测，可应用于时间序列可预测性
-3. [Wasserstein Exponential Smoothing](/202606/11/2606.05560v1-wasserstein-exponential-smoothing)  
+   evidence：使用马尔可夫模型预测人类活动
+3. [Time-Series Foundation Model Embeddings for Remaining Useful Life Estimation](/202606/12/2606.11990v1-time-series-foundation-model-embeddings-for-remaining-useful-life-estimation)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：使用时间序列基础模型进行预测任务
+4. [Stability beyond Bounded Differences: Sharp Generalization Bounds under Finite $L_p$ Moments](/202606/12/2606.06855v1-stability-beyond-bounded-differences-sharp-generalization-bounds-under-finite-lp-moments)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：将指数平滑扩展到分布时间序列并进行理论一致性分析，为时间序列可预测性研究提供方法支持
-4. [Cluster-Aware Conformal Calibration for Spatio-Temporal Distributional Prediction](/202606/11/2606.06753v1-cluster-aware-conformal-calibration-for-spatio-temporal-distributional-prediction)  
+   evidence：弱假设下的理论泛化界，类似理论可预测性分析
+5. [One Step Closer to Ground Truth: A Multi-Scale Residual-Aware Representation Learning Pipeline for Predicting Time Series Data](/202606/12/2606.10678v1-one-step-closer-to-ground-truth-a-multi-scale-residual-aware-representation-learning-pipeline-for-predicting-time-series-data)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时空分布预测
-5. [DSFNet: Learning Dual-Domain Spectral Operators for Multi-Modality Spatio-Temporal Forecasting in Urban Transportation Systems](/202606/11/2606.07695v1-dsfnet-learning-dual-domain-spectral-operators-for-multi-modality-spatio-temporal-forecasting-in-urban-transportation-systems)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：城市交通预测属于人类移动性预测
-6. [InA-Probe: Instruction-Aware Active Probing for Time Series Forecasting with LLMs](/202606/11/2606.08601v1-ina-probe-instruction-aware-active-probing-for-time-series-forecasting-with-llms)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：利用LLM进行时间序列预测与主动探测
-7. [Towards Long-Horizon Vessel Trajectory and Destination Forecasting with Reasoning Large Language Models](/202606/11/2606.08633v1-towards-long-horizon-vessel-trajectory-and-destination-forecasting-with-reasoning-large-language-models)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：使用推理大语言模型进行长期航迹和目的港预测
-8. [Decoding Pedestrian Crossing Intention from Egocentric Vision via Vision Language Models](/202606/11/2606.09142v1-decoding-pedestrian-crossing-intention-from-egocentric-vision-via-vision-language-models)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：行人过街意图预测用于移动模式
-9. [Report the Floor: A Training-Free Conformal Interval Is a Mandatory Baseline for Probabilistic Time-Series Forecasting](/202606/11/2606.09473v1-report-the-floor-a-training-free-conformal-interval-is-a-mandatory-baseline-for-probabilistic-time-series-forecasting)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：用于概率时间序列预测的简单保形基线
-10. [Does Normalization Choice Matter for Causal Large Time-Series Models?](/202606/11/2606.09954v1-does-normalization-choice-matter-for-causal-large-time-series-models)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：归一化对因果自回归时间序列预测模型性能的影响
-11. [Structured Adaptive Tensor Prediction for Streaming Data](/202606/11/2606.10085v1-structured-adaptive-tensor-prediction-for-streaming-data)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：流式矩阵值时间序列自适应预测，与时间序列可预测性相关
+   evidence：通过显式学习残差模式改进时间序列预测
 
 
 <div class="dpr-home-promo-card">

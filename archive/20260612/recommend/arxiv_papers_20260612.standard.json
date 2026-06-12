@@ -1,0 +1,329 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-12T21:53:13.369350+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2606.06225v1",
+      "source": "arxiv",
+      "title": "Bridging the Semantic-Collaborative Gap: An Asymmetric Graph Architecture for Cold-Start Item Recommendation",
+      "abstract": "Collaborative filtering and graph-based recommendation models are highly effective because they leverage observed user interactions, but this dependence creates a fundamental cold-start challenge when newly added content has no interaction history. In Tubi's production retrieval system, this challenge is further constrained by the serving interface: new content must be assigned a standalone embedding immediately, and the model must also produce device embeddings suitable for approximate nearest-neighbor retrieval. We address this setting by formulating cold-start recommendation as an inductive graph-completion problem on a temporal bipartite device-content graph. We propose Shallow-RHS, an asymmetric link-prediction architecture in which the left-hand side (LHS) device tower leverages temporally valid watch-history message passing to capture collaborative signals, while the right-hand side (RHS) content tower is intentionally shallow with respect to the graph and encodes content solely from intrinsic features. The RHS tower does not use ID-based embeddings, content-side subgraphs, neighbor aggregation, or interaction-derived representations, forcing the content encoder to map intrinsic features into a collaborative-filtering-aware embedding space. After training, the learned content encoder generates embeddings for both warm and newly ingested content, enabling implicit graph completion through retrieval of warm surrogate neighbors. We further extend the same representation-completion principle to device cold-start by constructing cohort-based embeddings from demographic features. Large-scale online experiments demonstrate consistent relative improvements in content cold-start engagement, promotion speed, impression acquisition, and device cold-start engagement.",
+      "authors": [
+        "Anh Truong",
+        "John Trenkle",
+        "Yuanbo Chen",
+        "Honghong Zhao",
+        "Abdullah Alchihabi",
+        "Effy Fang",
+        "Michael Tamir"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-04T14:35:57+00:00",
+      "link": "https://arxiv.org/pdf/2606.06225v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "addresses cold-start problem in sequential recommendation, a key predictability limit",
+      "llm_evidence_cn": "解决序列推荐中的冷启动问题，这是可预测性的关键限制",
+      "llm_evidence": "解决序列推荐中的冷启动问题，这是可预测性的关键限制",
+      "canonical_evidence": "解决序列推荐中的冷启动问题，这是可预测性的关键限制",
+      "llm_tldr_en": "This paper proposes Shallow-RHS, an asymmetric graph architecture for cold-start item recommendation, formulating it as an inductive graph-completion problem.",
+      "llm_tldr_cn": "该论文针对推荐系统中新物品没有交互历史的冷启动挑战，提出了非对称图架构Shallow-RHS。将冷启动推荐建模为时间二分图上的归纳图补全问题，利用侧信息生成独立嵌入，同时保持协同过滤的信号。在Tubi生产系统上的实验表明，该方法在冷启动物品推荐上显著优于基线，直接提升了序列推荐在冷启动物品上的可预测性。",
+      "llm_tldr": "该论文针对推荐系统中新物品没有交互历史的冷启动挑战，提出了非对称图架构Shallow-RHS。将冷启动推荐建模为时间二分图上的归纳图补全问题，利用侧信息生成独立嵌入，同时保持协同过滤的信号。在Tubi生产系统上的实验表明，该方法在冷启动物品推荐上显著优于基线，直接提升了序列推荐在冷启动物品上的可预测性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.08028v1",
+      "source": "arxiv",
+      "title": "Noise-Adaptive High-Probability Regret Bounds for Online Convex Optimization",
+      "abstract": "We study high-probability regret bounds for online convex optimization (OCO) with strongly convex losses and establish three results that resolve open questions at the intersection of noise adaptivity, feedback structure, and constraint satisfaction. For the full-information setting with sub-Gaussian stochastic gradients, we prove a noise-adaptive high-probability regret bound in which the martingale deviation term scales with the noise level $σ$ rather than the gradient bound $G$, yielding a multiplicative improvement of $G/σ$ over the classical Azuma-Hoeffding baseline. Our analysis introduces an exponential supermartingale argument that bypasses the bounded-difference requirement of Freedman's inequality, enabling direct treatment of unbounded sub-Gaussian noise without truncation artifacts. For bandit feedback, we prove a minimax lower bound: the high-probability regret scales linearly in $\\log(1/δ)$, in contrast to the $\\sqrt{\\log(1/δ)}$ confidence cost under full information. This constitutes a formal separation in the confidence cost of strongly convex OCO across feedback models. Regarding constrained OCO with stochastic constraints satisfying a Slater condition, we provide simultaneous high-probability guarantees for both cumulative regret and long-run constraint violation, achieving $\\mathcal{O}(\\sqrt{T\\log(m/δ)})$ regret and $\\mathcal{O}(\\sqrt{T}/(ζδ) + m\\sqrt{T\\log(m/δ)})$ violation. Synthetic experiments corroborate all theoretical predictions.",
+      "authors": [
+        "Wentao Zhang",
+        "Yutong Zhang",
+        "Wentao Mo"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-06T07:40:55+00:00",
+      "link": "https://arxiv.org/pdf/2606.08028v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "provides theoretical bounds on prediction accuracy under noise adaptivity",
+      "llm_evidence_cn": "提供噪声自适应下预测准确率的理论界",
+      "llm_evidence": "提供噪声自适应下预测准确率的理论界",
+      "canonical_evidence": "提供噪声自适应下预测准确率的理论界",
+      "llm_tldr_en": "This paper proves noise-adaptive high-probability regret bounds for OCO with strongly convex losses, achieving multiplicative improvement over classical baselines.",
+      "llm_tldr_cn": "该论文针对在线凸优化中高概率遗憾界的噪声自适应问题，在强凸损失下证明了噪声自适应的界的理论结果。通过指数超鞅论证，绕过Freedman不等式的有界差分要求，使得偏差项随噪声水平而不是梯度界缩放，从而相对于经典Azuma-Hoeffding基线实现了G/σ的乘性改进。该工作为在线预测中的精度上界提供了更精细的理论刻画。",
+      "llm_tldr": "该论文针对在线凸优化中高概率遗憾界的噪声自适应问题，在强凸损失下证明了噪声自适应的界的理论结果。通过指数超鞅论证，绕过Freedman不等式的有界差分要求，使得偏差项随噪声水平而不是梯度界缩放，从而相对于经典Azuma-Hoeffding基线实现了G/σ的乘性改进。该工作为在线预测中的精度上界提供了更精细的理论刻画。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.07890v1",
+      "source": "arxiv",
+      "title": "Partially Performative Prediction",
+      "abstract": "Performative prediction studies feedback loops that arise when predictive models are deployed in consequential domains. In these settings, deploying a model can change the population whose patterns the model aims to predict, inducing a distribution shift that is endogenous to the learning system. This perspective departs from classical treatments of distribution shift, where shifts are typically modeled as exogenous changes in the data-generating process. Yet, in practice, distribution shift is rarely one or the other. Predictive models may influence future data through the decisions they support, while the world itself continues to drift for reasons beyond the learner's control. We study partially performative prediction, a framework that captures both endogenous and exogenous sources of distribution shift. The framework generalizes performative prediction by allowing the data distribution to evolve both in response to the deployed model and according to an external, time-varying process. We extend the central notions of performative stability and performative optimality to this setting by defining their online analogues that track the evolving partially performative environment. We analyze practical learning heuristics, including repeated retraining, and characterize when they successfully adapt to partially performative environments.",
+      "authors": [
+        "Jaewook Lee",
+        "Tijana Zrnic"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-06-05T22:58:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.07890v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "theoretical framework for prediction under endogenous and exogenous shifts, relevant to predictability analysis",
+      "llm_evidence_cn": "提供内源和外源性偏移下的预测理论框架，与可预测性分析相关",
+      "llm_evidence": "提供内源和外源性偏移下的预测理论框架，与可预测性分析相关",
+      "canonical_evidence": "提供内源和外源性偏移下的预测理论框架，与可预测性分析相关",
+      "llm_tldr_en": "Partially performative prediction studies prediction feedback loops where model deployment and external drift both affect the data distribution, providing theoretical insights into predictability.",
+      "llm_tldr_cn": "该论文研究预测模型部署后产生的反馈循环，其中模型自身改变数据分布（内源性漂移），同时外部环境也在变化（外源性漂移）。提出部分执行性预测框架，统一刻画这两种来源的分布偏移。通过理论分析，揭示了在联合漂移下预测准确性的界限，为理解现实世界中的可预测性提供了理论基础。",
+      "llm_tldr": "该论文研究预测模型部署后产生的反馈循环，其中模型自身改变数据分布（内源性漂移），同时外部环境也在变化（外源性漂移）。提出部分执行性预测框架，统一刻画这两种来源的分布偏移。通过理论分析，揭示了在联合漂移下预测准确性的界限，为理解现实世界中的可预测性提供了理论基础。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.05860v1",
+      "source": "arxiv",
+      "title": "GenAutoML: An Agentic Framework for Dynamic Architecture Generation and Optimization in Time-Series Analysis",
+      "abstract": "Designing neural architectures for time-series forecasting and anomaly detection remains a resource-intensive task that often requires substantial domain expertise. Traditional Automated Machine Learning (AutoML) systems typically rely on static, predefined search spaces, limiting their ability to adapt to diverse data characteristics. We present GenAutoML, an agentic framework that leverages Large Language Models (LLMs) as neural architects to bridge natural-language requirements and executable PyTorch implementations. The framework incorporates a Sandboxed Reflection Loop for autonomous code refinement and a Signature-Aware Runtime that enforces architectural consistency and execution safety. To improve robustness under non-stationary conditions, we further introduce a Dynamic Reversible Instance Normalization (Dyn-RevIN) wrapper. Experiments on the ETTh1, ETTm1, and Weather benchmarks demonstrate that GenAutoML can dynamically generate task-specific neural architectures tailored to dataset characteristics. Among the generated models, WaveInterferenceNet achieves inference latency below 0.01 ms per sample while maintaining competitive predictive performance. By emphasizing computational efficiency, architectural adaptability, and stable optimization behavior, GenAutoML enables the creation of ultra-lightweight neural networks suitable for resource-constrained and latency-sensitive Edge AI deployments.",
+      "authors": [
+        "Oleeviya Babu Poikarayil",
+        "Cédric Schockaert",
+        "Abdulrahman Nahhas",
+        "Christian Daase",
+        "Mursal Dawodi",
+        "Jawid Ahmad Baktash"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-04T08:35:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.05860v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "automated ML framework for time-series forecasting",
+      "llm_evidence_cn": "时间序列预测的自动化机器学习框架",
+      "llm_evidence": "时间序列预测的自动化机器学习框架",
+      "canonical_evidence": "时间序列预测的自动化机器学习框架",
+      "llm_tldr_en": "Proposes GenAutoML, an agentic framework using LLMs to generate and optimize neural architectures for time-series forecasting and anomaly detection, with sandboxed reflection and signature-aware runtime.",
+      "llm_tldr_cn": "针对时间序列预测和异常检测中神经网络设计依赖人工且AutoML搜索空间固化的问题，本文提出GenAutoML框架，利用大语言模型作为神经架构师，结合沙盒反射循环和签名感知运行时，实现自然语言驱动的动态架构生成与优化。实验表明该方法能自动生成高效架构，在多个时间序列数据集上取得竞争力结果。该工作减少了时间序列分析中的人工干预，提升了自动化水平。",
+      "llm_tldr": "针对时间序列预测和异常检测中神经网络设计依赖人工且AutoML搜索空间固化的问题，本文提出GenAutoML框架，利用大语言模型作为神经架构师，结合沙盒反射循环和签名感知运行时，实现自然语言驱动的动态架构生成与优化。实验表明该方法能自动生成高效架构，在多个时间序列数据集上取得竞争力结果。该工作减少了时间序列分析中的人工干预，提升了自动化水平。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.06855v1",
+      "source": "arxiv",
+      "title": "Stability beyond Bounded Differences: Sharp Generalization Bounds under Finite $L_p$ Moments",
+      "abstract": "While algorithmic stability is a central tool for understanding generalization of learning algorithms, existing high-probability guarantees typically rely on uniform boundedness or sub-Gaussian/sub-Weibull tail assumptions, which can be overly restrictive for modern settings with heavy-tailed or unbounded losses. We develop a stability-based framework that requires only a finite $L_p$ moment condition. Our first contribution is sharp concentration inequalities for functions of independent random variables under $L_p$ constraints, extending McDiarmid's bounded-differences techniques beyond the classical regime. Leveraging these results, we derive sharp high-probability generalization bounds across a range of learning paradigms, including empirical risk minimization, transductive regression, and meta-learning. These guarantees show that $L_p$ stability suffices for robust generalization even when boundedness fails, substantially weakening the standard assumptions in the stability literature.",
+      "authors": [
+        "Qianqian Lei",
+        "Soham Bonnerjee",
+        "Yuefeng Han",
+        "Wei Biao Wu"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "math.ST"
+      ],
+      "published": "2026-06-05T02:59:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.06855v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical generalization bounds under weak assumptions",
+      "llm_evidence_cn": "弱假设下的理论泛化界，类似理论可预测性分析",
+      "llm_evidence": "弱假设下的理论泛化界，类似理论可预测性分析",
+      "canonical_evidence": "弱假设下的理论泛化界，类似理论可预测性分析",
+      "llm_tldr_en": "Develops sharp generalization bounds under finite Lp moments, extending stability theory beyond bounded differences; relevant to theoretical analysis of prediction limits.",
+      "llm_tldr_cn": "针对现有稳定性泛化界依赖有界或次高斯假设的局限，提出仅需有限Lp矩条件的理论框架。推导了尖锐的浓度不等式和泛化界，覆盖经验风险最小化等学习范式。该工作为预测模型的理论误差界分析提供了新工具，与可预测性理论相关。",
+      "llm_tldr": "针对现有稳定性泛化界依赖有界或次高斯假设的局限，提出仅需有限Lp矩条件的理论框架。推导了尖锐的浓度不等式和泛化界，覆盖经验风险最小化等学习范式。该工作为预测模型的理论误差界分析提供了新工具，与可预测性理论相关。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.08458v1",
+      "source": "arxiv",
+      "title": "Personalized and Robust Proactive Robot Assistance with Uncertainty-Guided LLM Reasoning",
+      "abstract": "Proactive robot assistance in household environments requires accurate prediction of human activities and object usage under dynamic and noisy conditions. Existing approaches often rely on complex spatio-temporal models, which can be computationally expensive and sensitive to environmental variability. In this paper, we propose GLOBE, a lightweight framework that combines n-gram Markov models for capturing temporal behavioral patterns with uncertainty-guided large language model (LLM) reasoning. The framework performs sequential prediction efficiently while selectively invoking LLM reasoning only when the model confidence is low. To evaluate performance under realistic conditions, we introduce HOMER-Noise, a noisy extension of the HOMER+ dataset that simulates structured disturbances such as object movements caused by humans, pets, and toddlers. Experimental results show that GLOBE achieves competitive performance with state-of-the-art methods while improving robustness and computational efficiency across both clean and noisy settings. The framework is further validated through a proof-of-concept integration with a Stretch 3 mobile manipulator, demonstrating its potential application in real-world human-robot interaction scenarios.",
+      "authors": [
+        "Alvaro Gonzalez",
+        "M. H. Hasan Shovo",
+        "Ali Ayub"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-06-07T05:18:30+00:00",
+      "link": "https://arxiv.org/pdf/2606.08458v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "predicts human activities using Markov models",
+      "llm_evidence_cn": "使用马尔可夫模型预测人类活动",
+      "llm_evidence": "使用马尔可夫模型预测人类活动",
+      "canonical_evidence": "使用马尔可夫模型预测人类活动",
+      "llm_tldr_en": "Proposes GLOBE framework combining n-gram Markov models and LLM reasoning for proactive robot assistance by predicting human activities.",
+      "llm_tldr_cn": "该论文提出GLOBE框架，结合n-gram马尔可夫模型和不确定性引导的大语言模型推理，用于主动机器人辅助场景中的人类活动预测。在嘈杂家庭环境数据集HOMER-Noise上验证了其高效性和鲁棒性，为人类移动性预测提供了轻量级可扩展方法。",
+      "llm_tldr": "该论文提出GLOBE框架，结合n-gram马尔可夫模型和不确定性引导的大语言模型推理，用于主动机器人辅助场景中的人类活动预测。在嘈杂家庭环境数据集HOMER-Noise上验证了其高效性和鲁棒性，为人类移动性预测提供了轻量级可扩展方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.10678v1",
+      "source": "arxiv",
+      "title": "One Step Closer to Ground Truth: A Multi-Scale Residual-Aware Representation Learning Pipeline for Predicting Time Series Data",
+      "abstract": "Transformer-based models have emerged as leading paradigms in time-series forecasting in recent years, employing self-attention mechanisms to capture long-range dependencies. Despite their success, these single-stage forecasting architectures exhibit persistent systematic residual biases arising from structural discrepancies, unmodeled stochastic components, or inadequate multi-scale temporal representations. This limitation persists when residuals are treated as irreducible noise, precluding adaptive correction of structured error patterns. To address this limitation, we introduce a two-stage, model-agnostic framework that explicitly decouples forecasting and residual learning into distinct stages of representation learning. A base transformer first generates the initial predictions. Subsequently, a dedicated meta-corrector dynamically models structured error patterns across multivariate channels, preserves cross-variable dependencies, and iteratively refines the residual bias of the base transformer. By formalizing this pipeline as a hypothesis space expansion, our framework addresses approximation limitations inherent in single-stage architectures, removes reliance on restrictive assumptions, and enables end-to-end learning of complex error dynamics. Evaluated on eight popular benchmark datasets using established protocols, our approach achieves state-of-the-art performance, with significant improvements in standard metrics (MSE, MAE). The results demonstrate the framework's ability to mitigate systematic biases and enhance robustness to complex temporal dynamics, advancing the practical applicability of transformer-based forecasting models.",
+      "authors": [
+        "Amrijit Biswas",
+        "Mustafa Kamal",
+        "Robin Krambroeckers",
+        "M. M. Lutfe Elahi",
+        "Sifat Momen",
+        "Nabeel Mohammed",
+        "Shafin Rahman"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-09T10:31:54+00:00",
+      "link": "https://arxiv.org/pdf/2606.10678v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "improves time series forecasting by explicitly learning residual patterns",
+      "llm_evidence_cn": "通过显式学习残差模式改进时间序列预测",
+      "llm_evidence": "通过显式学习残差模式改进时间序列预测",
+      "canonical_evidence": "通过显式学习残差模式改进时间序列预测",
+      "llm_tldr_en": "Introduces a two-stage framework that decouples forecasting and residual learning to correct systematic errors.",
+      "llm_tldr_cn": "该论文发现单阶段时间序列预测模型常常存在系统性残差偏差，这些偏差被当作不可约噪声而忽略。为此提出两阶段框架：第一阶段进行基础预测，第二阶段专门学习残差模式并校正预测。实验表明该方法减少了系统性误差，使预测更接近真实值，从而提高了时间序列的可预测性上限。",
+      "llm_tldr": "该论文发现单阶段时间序列预测模型常常存在系统性残差偏差，这些偏差被当作不可约噪声而忽略。为此提出两阶段框架：第一阶段进行基础预测，第二阶段专门学习残差模式并校正预测。实验表明该方法减少了系统性误差，使预测更接近真实值，从而提高了时间序列的可预测性上限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.11990v1",
+      "source": "arxiv",
+      "title": "Time-Series Foundation Model Embeddings for Remaining Useful Life Estimation",
+      "abstract": "Remaining Useful Life (RUL) prediction is essential for industrial predictive maintenance, yet many learning-based approaches rely on extensive feature engineering or large labeled datasets to train task-specific sequence models. In this work, we introduce a lightweight learning approach, in which we leverage a frozen pretrained time-series foundation model (TSFM) and combine it with a small regression head for RUL estimation from multivariate sensor streams. More specifically, we use Chronos-2 as a frozen backbone to extract context window features and train a lightweight regression neural network for RUL prediction. Experiments on real-world industrial sensor data from two device types show that Chronos-2 features consistently improve over recurrent, convolutional, Transformer-based, and gradient-boosting baselines under the same preprocessing and evaluation protocol. We further analyze the impact of context length and find that performance improves significantly with longer histories, indicating that TSFM representation offer a practical and data-efficient alternative for RUL estimation in industrial settings.",
+      "authors": [
+        "Amir El-Ghoussani",
+        "Michele De Vita",
+        "Ronald Naumann",
+        "Valiseios Belagiannis"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-10T12:14:16+00:00",
+      "link": "https://arxiv.org/pdf/2606.11990v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "uses time-series foundation model for predictive tasks",
+      "llm_evidence_cn": "使用时间序列基础模型进行预测任务",
+      "llm_evidence": "使用时间序列基础模型进行预测任务",
+      "canonical_evidence": "使用时间序列基础模型进行预测任务",
+      "llm_tldr_en": "This paper leverages frozen pretrained time-series foundation model embeddings with a lightweight regression head for Remaining Useful Life prediction, achieving improved performance on industrial sensor data.",
+      "llm_tldr_cn": "该论文针对工业预测维护中剩余使用寿命（RUL）预测需要大量标注数据和特征工程的局限，提出利用预训练时间序列基础模型（如Chronos-2）的冻结嵌入，结合轻量级回归头进行RUL估计。在真实工业传感器数据上的实验表明，该方法在两种设备类型上均优于传统递归神经网络方法，展示了时间序列基础模型在预测任务中的迁移能力。",
+      "llm_tldr": "该论文针对工业预测维护中剩余使用寿命（RUL）预测需要大量标注数据和特征工程的局限，提出利用预训练时间序列基础模型（如Chronos-2）的冻结嵌入，结合轻量级回归头进行RUL估计。在真实工业传感器数据上的实验表明，该方法在两种设备类型上均优于传统递归神经网络方法，展示了时间序列基础模型在预测任务中的迁移能力。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
