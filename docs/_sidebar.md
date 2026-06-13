@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-06-13 <!--dpr-date:20260613-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202606/13/2606.06947v1-dream-dynamic-refinement-of-early-assignment-mappings" data-sidebar-item="{&quot;title&quot;: &quot;DREAM: Dynamic Refinement of Early Assignment Mappings&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2606.06947v1-dream-dynamic-refinement-of-early-assignment-mappings&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;生成式推荐中的冷启动瓶颈&quot;}">DREAM: Dynamic Refinement of Early Assignment Mappings</a>
   * 2026-06-12 <!--dpr-date:20260612-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202606/12/2606.06225v1-bridging-the-semantic-collaborative-gap-an-asymmetric-graph-architecture-for-cold-start-item-recommendation" data-sidebar-item="{&quot;title&quot;: &quot;Bridging the Semantic-Collaborative Gap: An Asymmetric Graph Architecture for Cold-Start Item Recommendation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2606.06225v1-bridging-the-semantic-collaborative-gap-an-asymmetric-graph-architecture-for-cold-start-item-recommendation&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;解决序列推荐中的冷启动问题，这是可预测性的关键限制&quot;}">Bridging the Semantic-Collaborative Gap: An Asymmetric Graph Architecture for Cold-Start Item Recommendation</a>

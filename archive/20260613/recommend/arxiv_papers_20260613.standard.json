@@ -1,0 +1,56 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-13T20:37:17.173408+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2606.06947v1",
+      "source": "arxiv",
+      "title": "DREAM: Dynamic Refinement of Early Assignment Mappings",
+      "abstract": "Generative recommendation advances item retrieval by reformulating it as autoregressive generation of Semantic IDs (SIDs), compact token sequences that encode item semantics. While SIDs offer a strong semantic prior, current SID-based methods assign each item a single static identifier through offline tokenization before sufficient user feedback is observed. For cold-start items, this one-shot commitment produces poorly discriminative codes, generating misaligned paths that remain unrefined because the associated tokens are rarely sampled during training. We identify this early static commitment, not model capacity, as the fundamental cold-start bottleneck in SID-based generative recommendation. To overcome this bottleneck and bridge the disjoint objectives of tokenization and generation, we propose DREAM (Dynamic Refinement of Early Assignment Mappings), a three-stage framework that resolves this flaw through progressive refinement. First, an intent-aware tokenizer rebuilds the SID space through counterfactual contrastive learning, generating a diverse pool of behavior-aligned candidates per cold-start item. Second, the frozen recommendation backbone serves as an evaluator, selecting the most reliable candidate based on multi-context user support without retraining. Third, a dynamic beam mechanism maintains multiple weighted SID hypotheses throughout training and inference, preventing premature collapse to a single assignment. Extensive experiments on three Amazon benchmarks show that DREAM substantially outperforms state-of-the-art generative and sequential baselines on cold-start metrics.",
+      "authors": [
+        "Liwei Guan",
+        "Huanjie Wang",
+        "Hongwei Zhang",
+        "Linxun Chen",
+        "Zhaojie Liu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR"
+      ],
+      "published": "2026-06-05T06:21:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.06947v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "cold-start bottleneck in generative recommendation",
+      "llm_evidence_cn": "生成式推荐中的冷启动瓶颈",
+      "llm_evidence": "生成式推荐中的冷启动瓶颈",
+      "canonical_evidence": "生成式推荐中的冷启动瓶颈",
+      "llm_tldr_en": "DREAM identifies early static commitment as the fundamental cold-start bottleneck in SID-based generative recommendation, and proposes dynamic refinement to improve predictability.",
+      "llm_tldr_cn": "针对生成式推荐中基于语义ID的冷启动问题，指出早期静态赋值是根本瓶颈，而非模型容量。提出DREAM方法动态精化早期赋值，在训练中逐步改善代码区分性。实验证明该方法显著提升冷启动推荐性能，揭示了可预测性的关键限制因素。",
+      "llm_tldr": "针对生成式推荐中基于语义ID的冷启动问题，指出早期静态赋值是根本瓶颈，而非模型容量。提出DREAM方法动态精化早期赋值，在训练中逐步改善代码区分性。实验证明该方法显著提升冷启动推荐性能，揭示了可预测性的关键限制因素。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

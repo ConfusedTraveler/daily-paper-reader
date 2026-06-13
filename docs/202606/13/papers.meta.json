@@ -1,0 +1,24 @@
+{
+  "label": "2026-06-13",
+  "date": "2026-06-13",
+  "generated_at": "2026-06-13T20:38:14",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202606/13/2606.06947v1-dream-dynamic-refinement-of-early-assignment-mappings",
+      "section": "quick",
+      "title_en": "DREAM: Dynamic Refinement of Early Assignment Mappings",
+      "authors": "Liwei Guan, Huanjie Wang, Hongwei Zhang, Linxun Chen, Zhaojie Liu",
+      "date": "2026-06-05",
+      "pdf": "https://arxiv.org/pdf/2606.06947v1",
+      "score": "7.0",
+      "evidence": "生成式推荐中的冷启动瓶颈",
+      "tldr": "基于语义ID的生成式推荐将物品编码为静态序列，但冷启动物品因缺乏用户反馈产生不准确编码，且相关token在训练中极少被采样，形成冷启动瓶颈。DREAM框架通过三阶段动态优化解决此问题：先利用反事实对比学习生成行为对齐的候选编码池，再冻结推荐模型作为评估器筛选最优编码，最后在训练和推理中维持多条加权编码假设。在Amazon三个数据集上，DREAM在冷启动指标上大幅超越现有生成式和序列推荐方法。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Generative recommendation advances item retrieval by reformulating it as autoregressive generation of Semantic IDs (SIDs), compact token sequences that encode item semantics. While SIDs offer a strong semantic prior, current SID-based methods assign each item a single static identifier through offline tokenization before sufficient user feedback is observed. For cold-start items, this one-shot commitment produces poorly discriminative codes, generating misaligned paths that remain unrefined because the associated tokens are rarely sampled during training. We identify this early static commitment, not model capacity, as the fundamental cold-start bottleneck in SID-based generative recommendation. To overcome this bottleneck and bridge the disjoint objectives of tokenization and generation, we propose DREAM (Dynamic Refinement of Early Assignment Mappings), a three-stage framework that resolves this flaw through progressive refinement. First, an intent-aware tokenizer rebuilds the SID space through counterfactual contrastive learning, generating a diverse pool of behavior-aligned candidates per cold-start item. Second, the frozen recommendation backbone serves as an evaluator, selecting the most reliable candidate based on multi-context user support without retraining. Third, a dynamic beam mechanism maintains multiple weighted SID hypotheses throughout training and inference, preventing premature collapse to a single assignment. Extensive experiments on three Amazon benchmarks show that DREAM substantially outperforms state-of-the-art generative and sequential baselines on cold-start metrics.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
