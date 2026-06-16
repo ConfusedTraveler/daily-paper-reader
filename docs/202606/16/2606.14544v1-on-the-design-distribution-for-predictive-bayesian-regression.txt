@@ -1,0 +1,4065 @@
+Title: On the design distribution for predictive Bayesian regression
+
+URL Source: https://arxiv.org/pdf/2606.14544v1
+
+Published Time: Mon, 15 Jun 2026 01:02:59 GMT
+
+Number of Pages: 41
+
+Markdown Content:
+# On the design distribution for predictive Bayesian regression 
+
+Wanyue Sun 1 and Edwin Fong 1∗
+
+> 1
+
+Department of Statistics and Actuarial Science, University of Hong Kong 
+
+Abstract 
+
+The predictive approach to Bayesian inference accesses the posterior distribution via a sequence of one-step-ahead predictives, enabling inference via predictive resampling without Markov chain Monte Carlo. In the random-design regression setting, an explicit specification of the predictive design distribution is required, yet the impact of this choice has received little formal attention. We study the role of this predictive design distribution in paramet-ric martingale posteriors for regression, and identify predictive notions of identifiability and design invariance that are essential for valid inference, particularly in the high-dimensional regression setting. Building on these foundations, we introduce a novel class of parametric martingale posteriors for regression that satisfies a weak form of these desiderata, and natu-rally accommodates the high-dimensional setting through regularization. We then illustrate our method through a simulation. 
+
+# 1 Introduction 
+
+1.1 Parametric martingale posteriors for regression 
+
+The predictive approach specifies the Bayesian model directly through a sequence of one-step-ahead predictives (Fortini and Petrone, 2020; Berti et al., 2023; Fong et al., 2023). A main advantage is that posterior sampling is free of Markov chain Monte Carlo, instead relying on a sequential imputation scheme known as predictive resampling. One key example is the para-metric martingale posterior (Holmes and Walker, 2023; Garelli et al., 2024; Fortini and Petrone, 2025; Fong and Yiu, 2026), which utilizes parametric predictives and stochastic gradient descent. A related approach is that of Battaglia et al. (2026) where a variational posterior predictive is utilized. We consider random-design parametric regression under the data generating process Y | X ∼
+
+Pβ∗ (· | X) and X ∼ P ∗ 
+
+> X
+
+, from which we observe data ( X1: n, Y 1: n). Predictive resampling in this setup involves first imputing future covariates ( Xi)i≥n+1 independently and identically distributed from a chosen predictive design distribution PX , which is usually the empirical distribution PX of X1: n. Next, we impute future responses ( Yi | Xi) ∼ Pi−1(· | Xi) for i ≥
+
+n + 1, where Pi−1(y | x) is the conditional predictive distribution given ( X1: i−1, Y 1: i−1). The distribution of the limit of an estimator βi = β(X1: i, Y 1: i) as i → ∞ is then termed the martingale posterior. In this paper, we formalize the validity of this predictive resampling procedure for parametric regression, which in practice must be truncated at a finite i = N .
+
+> ∗Corresponding author. Email: chefong@hku.hk
+
+1
+
+> arXiv:2606.14544v1 [stat.ME] 12 Jun 2026
+
+A key property of traditional Bayes is that the posterior of β does not depend on the design distribution under standard assumptions (Gelman et al., 2013). However, the predictive frame-work explicitly requires the specification of PX , and the effect of this choice has received little attention in the literature. In this paper, we formally investigate the role of PX during predic-tive resampling, and establish the importance of predictive notions of identifiability and design invariance, which is particularly relevant when X is high-dimensional. Building on this, we introduce a parametric martingale posterior for regression which, unlike previous works, sat-isfies a weak version of the aforementioned desiderata. Our method naturally accommodates high-dimensional regression through prior regularization. We then demonstrate our method in a simulation study. 
+
+1.2 Setup 
+
+Let PX denote the predictive design distribution, which does not contain unknown parameters, and may not equal P ∗ 
+
+> X
+
+. Next, let {Pβ (· | x) : x ∈ Rp, β ∈ Rp} denote a probability kernel with density pβ (y | x) for y ∈ Y ⊆ R. Except in Assumption 1 and Proposition 1, we specialize to the one-parameter model Pβ (· | x) = PY (· | β⊤x), where {PY (· | t) : t ∈ R} is a probability kernel with density pY (y | t). We assume that the score function r(y | t) := ( ∂/∂t ) log pY (y | t) exists and satisfies R r(y | t) PY (dy | t) = 0, and define 
+
+s(β, y | x) := ∇β log pY (y | β⊤x) = x r 
+
+
+
+y | β⊤x
+
+
+
+.
+
+Next, we write the conditional second moment of r(y | t) as 
+
+w(t) = 
+
+Z
+
+r(y | t)2 PY (dy | t)where we assume 0 < w (t) < ∞ for all t ∈ R. This framework encompasses a wide range of common models, including generalized linear models with known dispersion and Student-t
+
+regression with fixed scale. For later discussions involving martingales, we write the natural filtration as Fi = σ{(Xn+1 , Y n+1 ), . . . , (Xi, Y i)} for i ≥ n + 1, where we write Fn = {∅ , Ω} to highlight dependence on the fixed observations ( X1: n, Y 1: n). 
+
+# 2 Predictive identifiability and design invariance 
+
+2.1 Conjugate example 
+
+In this subsection, we empirically demonstrate the role of the predictive design distribution PX
+
+under predictive resampling when pi(y | x) is chosen to be the Bayesian posterior predictive density before formalizing our observations with Doob’s theorem in the next subsection. We demonstrate two key properties satisfied by the Bayesian posterior predictive: 1. Identifiability : If β is not identifiable under PX , then predictive resampling is invalid. 2. Design invariance : If β is identifiable under PX , then the posterior on β is invariant to the choice of PX .While the first point is natural, it unfortunately precludes the use of the obvious choice of PX
+
+when p > n or there is strong collinearity, as we will formalize shortly. The second point is 2Figure 1: Posteriors for one component of β through predictive resampling with (Left) PX = PX ;(Middle) PX = P ∗ 
+
+> X
+
+; (Right) PX = N (0 , I p). The analytic posterior is plotted as a baseline. desirable from a modelling perspective, which we outline in Remark 2, but achieving this for the general martingale posterior is nontrivial and forms the study of Section 3. 
+
+Example 1. Let pβ (y | x) = N (y; β⊤x, 1) and π(β) = N (β; 0 , I p). Given ( Y1: i, X 1: i), the posterior under standard settings is conjugate of the form π(β | X1: i, Y 1: i) = N (β; βi, Σi), where 
+
+βi and Σ i have well-known forms. The posterior predictive density is then 
+
+pi(y | x) = N
+
+
+
+y; β⊤ 
+
+> i
+
+x, 1 + x⊤ Σi x
+
+
+
+.
+
+We now simulate a dataset of size n = 100 , p = 400 from the data generating process X ∼
+
+P ∗ 
+
+> X
+
+= 0 .5 N (−1, I p) + 0 .5 N (1 , I p) and ( Y | X) ∼ Pβ∗ (· | X). Crucially, this places us in the high-dimensional regime as p > n . Figure 1 compares predictive resampling with the analytical posterior under three different choices of PX , where we use the posterior mean βi as the estimator. First, Figure 1 (Left) shows that when PX = PX , predictive resampling deviates from the truth. As discussed in Section F.1 of the Appendix, predictive resampling can still converge in this setting, so this discrepancy is alarming. The underlying reason for this mismatch is that PX
+
+does not satisfy an identifiability condition, as the covariance matrix of PX = PX is rank-deficient when p > n . Second, we see that once PX is identifiable, as in Figures 1 (Middle) and (Right), predictive resampling not only recovers the correct posterior, but is also invariant to the choice of PX . A key point is that PX = N (0 , I p), chosen purely for convenience, avoids the need to model P ∗ 
+
+> X
+
+.
+
+2.2 Doob’s theorem 
+
+The preceding simulation example illustrates that the limiting behavior of predictive resampling depends critically on whether the regression parameter is identifiable under the chosen covariate distribution PX . Proposition 1 formalizes this connection by specializing Doob’s consistency theorem (Doob, 1949) to the random-design regression setting introduced in Section 1.2, thereby making concrete the notions of predictive identifiability and design invariance. We begin with the case where Pβ (· | x) is a general conditional model. 
+
+Assumption 1. For any β̸ = β′, there exists a measurable set B ⊆ Rp, possibly depending on 
+
+(β, β ′), such that PX (B) > 0 and Pβ (· | x)̸ = Pβ′ (· | x) for all x ∈ B.
+
+3Proposition 1. Let Π be a prior distribution on β ∈ Rp. For i ≥ n, let Π( · | F i) denote the posterior distribution of the form Π( dβ | F i) ∝ Π( dβ ) Qij=1 pβ (Yj | Xj ), where (X1: n, Y 1: n) are fixed observations. Consider predictive resampling as follows for i ≥ n + 1 :
+
+Xi ∼ PX , (Yi | Xi) ∼ Pi−1(· | Xi), Pi−1(· | x) = 
+
+Z
+
+Pβ (· | x) Π( dβ | F i−1).
+
+Let βi = E(β | F i) and E (∥β∥ | F n) < ∞. Then (βi, Fi)i≥n+1 is a uniformly integrable martin-gale and βi → β∞ almost surely. Furthermore, under Assumption 1, we have β∞ ∼ Π( · | F n).
+
+Proposition 1 guarantees that under the identifiability assumption, predictive resampling is equivalent to posterior sampling. We now specialize to the setting where Pβ (· | x) = PY (· | β⊤x), which forms the focus of the rest of the paper. Next, we present a simple sufficient condition on the predictive design distribution PX that ensures this identifiability requirement holds. 
+
+Assumption 2. Let PX be such that EPX (XX ⊤) is finite and positive definite. 
+
+Proposition 2. Let Pβ (· | x) = PY (· | β⊤x), where the one-parameter model is identifiable, that is PY (· | t)̸ = PY (· | t′) for all t̸ = t′. Then Assumption 2 implies Assumption 1. Remark 1. Let Pβ (· | x) = PY (· | β⊤x), and suppose the support of PX lies within a proper subspace S ⊊ R p. For any nonzero w ∈ S⊥, we have ( β + w)⊤x = β⊤x for all x ∈ S, implying 
+
+Pβ (· | x) = Pβ+w(· | x) for PX -almost all x. Since w̸ = 0, this violates Assumption 1. This pathology arises immediately for the empirical distribution PX when p > n , as the rank deficiency of X1: n yields a non-zero w ∈ Null( X1: n) such that w⊤Xi = 0 for all i = 1 , . . . , n . Hence PX
+
+cannot guarantee identifiability when p > n , consistent with the discrepancy observed in Figure 1 (Left). 
+
+Remark 2. If Assumption 1 holds, then Proposition 1 implies that when using the Bayesian posterior predictive for predictive resampling, the limiting distribution of βi is invariant to the choice of PX within the identifiable class. This is shown in Figures 1 (Middle) and (Right). We term this property design invariance and turn our focus to this property in the next section. 
+
+# 3 Parametric martingale posterior 
+
+3.1 Design invariance 
+
+Design invariance is desirable in the predictive Bayesian framework, as it enables substituting 
+
+P ∗ 
+
+> X
+
+by a convenient working model such as PX = N (0 , I p), without affecting the posterior for β.This is particularly useful in the high-dimensional setting where exact modelling of P ∗ 
+
+> X
+
+is often infeasible. While this property holds for traditional Bayesian predictives, it is unfortunately not attained for general parametric martingale posteriors proposed in the literature. As an exam-ple, Holmes and Walker (2023); Fortini and Petrone (2025) introduce an update rule based on stochastic gradient descent with a plug-in predictive, which for the univariate case of Example 1 is 
+
+Xi ∼ N (0 , κ 2), (Yi | Xi) ∼ N (βi−1Xi, 1) , βi = βi−1 + i−1 Xi (Yi − βi−1Xi) . (1) Under (1), the posterior variance can be computed as Var( β∞ | F n) = κ2 P∞ 
+
+> i=n+1
+
+i−2 ≈ κ2 n−1.In this case, doubling κ2 would result in a proportional inflation of the posterior variance for 4β, despite the conditional predictive pi(y | x) being the same, making posterior uncertainty of coefficients sensitive to arbitrary rescaling of the design distribution. We also highlight that the method of Fong and Yiu (2026), which preconditions the score with the observed Fisher information computed from X1: n, is still not design invariant, and is furthermore not well-defined if p > n .
+
+3.2 Recursive update rule 
+
+We now introduce a novel class of parametric martingale posteriors that attains a weak form of design invariance, and is suitable for the p > n setting. As usual, we consider the plug-in predictive Pi(· | x) = PY (· | β⊤ 
+
+> i
+
+x), where we will only consider identifiable one-parameter models as motivated by Proposition 2. We highlight that the role of identifiability is more subtle for the martingale posterior compared to traditional Bayes; we discuss this in Section F.2 of the Appendix. We initialize βn with an estimate from the real observations ( X1: n, Y 1: n), and introduce the following novel recursive updating rule for i ≥ n + 1: 
+
+βi = βi−1 + αi−1(Xi) I−1 
+
+> i
+
+s(βi−1, Y i | Xi) (2) where s(β, y | x) is the score function, Ii is a Fisher information term, and αi(x) is a scalar correction factor. The latter two are given by 
+
+Ii =
+
+> i
+
+X
+
+> j=1
+
+w
+
+
+
+β⊤ 
+
+> n
+
+Xj
+
+
+
+Xj X⊤ 
+
+> j
+
++ D(βn), αi(x) = 
+
+" w  β⊤ 
+
+> n
+
+x
+
+w  β⊤ 
+
+> i
+
+x 1 + w
+
+
+
+β⊤ 
+
+> n
+
+x
+
+
+
+x⊤I−1 
+
+> i
+
+x
+
+#1/2
+
+and D(βn) is a chosen diagonal regularization matrix with non-negative entries to ensure invert-ibility of Ii for all i ≥ n. While the Fisher information term is familiar (now computed from 
+
+X1: i), the scalar αi(x) and diagonal matrix D(βn) are new. We provide further motivation for (2) through connections to Bayesian ridge regression in Section G of the Appendix. The scalar correction factor αi(x) is reminiscent of the posterior predictive variance in Example 1. This is no coincidence, as its sole role is to induce a weak form of design invariance by adaptively scaling the size of the update in (2) to reduce the impact of the choice of PX . We explore this notion of weak design invariance in the next subsection. We further note that αi(x)is an easily computable scalar, does not require knowledge of PX , and only depends on ( Fi, x )so it does not affect the martingale. The second new ingredient is the diagonal matrix D(βn), which acts as prior shrinkage to ensure positive definiteness of the preconditioning Fisher information term Ii in the p > n regime. We will let the regularization depend on the initial estimate βn, and we consider specific choices of 
+
+D(β) in Section 3.4 corresponding to different shrinkage priors. 
+
+3.3 Weak design invariance and asymptotic normality 
+
+In our setting, we refer to the distribution of β∞ when it exists as the martingale posterior. For general predictive schemes, it is not a simple task to ensure the martingale posterior is invariant to PX . However, it is possible to obtain a weaker condition: we define weak design invariance as the property where the posterior mean and covariance matrix of β∞ are invariant to the choice of PX . This is attained by our update (2), which we formalize below. 5Theorem 1 (Weak design invariance) . Under predictive resampling with update rule (2) and 
+
+Pi(· | x) = PY (· | β⊤ 
+
+> i
+
+x), (βi, Fi)i≥n+1 is a martingale bounded in L2 and βi → β∞ almost surely, so E(β∞ | F n) does not depend on PX . If Assumption 2 holds and w(t) is continuous and strictly positive for all t ∈ R, then Cov( β∞ | F n) also does not depend on PX .
+
+Invariance of the posterior mean follows directly from the uniformly integrable martingale, as we have E(β∞ | F n) = βn. Interestingly, the scalar correction term αi(x) is sufficient for design invariance for the full posterior covariance matrix, which follows from a Sherman-Morrison formula argument. We highlight that weak design invariance may fail without the identifiability condition given by Assumption 2; see Section F.1 in the Appendix for more details. An obvious question arises: how weak is weak design invariance? In Section 4 and Section H.4 of the Appendix, we show in practice that the above martingale posterior is indistinguishable under different choices of PX . Furthermore, we will now show that the martingale posterior is asymptotically normal, so the posterior mean and covariance matrix asymptotically characterize the full posterior. We first outline the necessary assumptions for asymptotic normality. Our first assumption is regarding convergence of the initial estimates βn and In computed from the real observations (X1: n, Y 1: n), now treated as independent and identically distributed samples from P ∗. We will then consider a sequence of martingale posteriors centered at initial estimates βn and take 
+
+n → ∞ .
+
+Assumption 3. Let the following hold P ∗∞ -almost surely: In is positive definite for all n, βn
+
+converges, and n−1 In converges to a positive definite matrix. 
+
+Next, we offer two choices of conditions on the predictive design distribution PX depending on the form of w(t) and k(t), where k(t) = R r(y | t)4 PY (dy | t)/w (t)2 is the conditional kurtosis. 
+
+Assumption 4(i). Suppose w(t) = w0 and k(t) = k0 where w0 and k0 are positive finite constants. Let PX satisfy EPX
+
+ ∥X∥4 < ∞.
+
+Assumption 4(ii). Suppose w(t) and k(t) are continuous and strictly positive for all t ∈ R.Let PX have compact support. 
+
+The forms of w(t) and k(t) in Assumption 4(i) hold for location families like the Gaussian, Laplace, and Student-t families, and also the fixed-shape Gamma family with a log link. The more general case in Assumption 4(ii) then handles models like logistic and Poisson regression. We provide further discussion on the assumptions in Section D.8 of the Appendix. 
+
+Theorem 2 (Asymptotic normality) . Suppose Assumptions 2, 3 and either 4(i) or 4(ii) hold. Let βn∞ denote the limit under predictive resampling initialized at βn as in Theorem 1. Then the posterior law of n1/2 (βn∞ − βn) converges weakly P ∗∞ -almost surely to a Gaussian as n → ∞ .
+
+We highlight that the technical machinery required in Theorem 2 is noticeably heavier than in Fong and Yiu (2026), primarily due to the more complex terms αi(x) and Ii. In particular, we must work with a weaker version of the Lindeberg condition and Doob’s maximal inequalities, where these techniques may also be useful for future results. Finally, we highlight that analo-gous versions of Theorems 1 and 2 hold in the fixed-design case where PX is replaced with a deterministic design sequence ( Xi)i≥1. We elaborate on this in Section E of the Appendix. 63.4 Initial plug-in estimate 
+
+To initialize the recursive updates of (2), we require a plug-in estimate βn and the regularization matrix D(βn) which ensures invertibility of Ii. In the low-dimensional setting, one could set βn
+
+to the maximum likelihood estimate and D(βn) = 0. In the high-dimensional setting, sparsity is typically assumed, and regularization is incorporated via shrinkage priors. In this case, we will let βn be the maximum a posteriori estimate computed from ( X1: n, Y 1: n) for the chosen prior, and D(βn) will be allowed to depend on the initial estimate βn.Under a scale mixture of Gaussians prior, D(β) can be motivated to be a diagonal precision matrix. We summarize the forms of D(β) for common priors in Table 1, with derivations deferred to Section G.2 of the Appendix. For the Bayesian LASSO (Park and Casella, 2008) and continuous spike-and-slab (George and McCulloch, 1993) priors, the diagonal entries are local shrinkage estimates computed from β. In the Gaussian continuous spike-and-slab case, 
+
+γ(j) is the posterior inclusion probability of the j-th component β(j) and takes the form 
+
+γ(j) = θ N (β(j); 0 , v 1)
+
+θ N (β(j); 0 , v 1) + (1 − θ) N (β(j); 0 , v 0)where θ ∈ (0 , 1) is the prior inclusion probability, and v0 and v1 are the spike and slab variances respectively with v0 ≪ v1.Table 1: Examples of D(β) for common shrinkage priors; β(j) is the j-th component of β.                          
+
+> Shrinkage prior Diagonal matrix D(β)Description Ridge τ I pτ= global precision LASSO Diag( τ(1) , . . . , τ (p))τ(j)=λ|β(j)|−1
+> Spike-and-slab Diag( τ(1) , . . . , τ (p))τ(j)= (1 −γ(j))v−10+γ(j)v−11
+
+3.5 Practical considerations for PX
+
+While weak design invariance ensures robustness of the posterior to the predictive design dis-tribution PX , its choice remains necessary for numerical implementation. A simple default that satisfies Assumption 2 and is straightforward to sample from is PX = N (0 , κ 2Ip) for some κ > 0. Another surprising benefit of design invariance is the freedom to specify PX based on compu-tational convenience, without affecting posterior uncertainty. Predictive resampling requires truncation at sufficiently large N such that βN has little remaining uncertainty. By increasing 
+
+κ, we can increase the expected Fisher information under PX , corresponding to more informa-tion about β per imputed sample of ( Xi, Y i). As a result, choosing κ to be sufficiently large can drastically improve the convergence of predictive resampling, thereby improving computational speed through early truncation. We investigate this in Section H.3 of the Appendix. 74 Simulation study 
+
+We illustrate our methodology in a high-dimensional robust linear regression simulation with 
+
+n = 250 and p = 500. The data generating process is P ∗ 
+
+> X
+
+= N (0 , I p) and pβ∗ (y | x) = Student-t
+
+
+
+μ = β∗⊤ x, σ = 1 , ν = 4 
+
+
+
+, where β∗ contains 5 nonzero coefficients ( −2, −2, 2, 2, −2). For the parametric martingale posterior, we use the Student-t plug-in predictive with recursive update (2). We choose D(βn) corresponding to the Gaussian continuous spike-and-slab prior as in Table 1 with θ = 0 .1, v 1 = 1, and v0 = 0 .0005, where βn is initialized to the maximum a posteriori estimate. We compare to the traditional Bayesian posterior with the equivalent likelihood and prior, where partial conjugacy in this case enables the use of a Gibbs sampler. Predictive resampling and Gibbs sampling are implemented in Julia, and run on an Apple M1 chip. We highlight that we have not utilized the inherent parallelization of predictive resam-pling, which would result in an even larger speed-up compared to Gibbs sampling. For predictive resampling, we use the same random sequence Xn+1: N drawn from PX across predictive resam-pling trajectories, as precomputed terms such as I−1 
+
+> i
+
+Xi can be reused for efficiency. This is also related to the fixed-design setting, which we discuss further in Section E. Further computational details are provided in Section H.1 of the Appendix. 
+
+Figure 2: Posteriors for selected (Left) active coefficient; (Right) inactive coefficient. PMP is the parametric martingale posterior, and κ is the standard deviation of PX = N (0 , κ 2Ip). Figure 2 illustrates that the parametric martingale posterior and Bayesian posterior are similar in terms of the posterior uncertainty for both active and inactive coefficients. We also see that weak design invariance is sufficient for robustness to the choice of PX , as rescaling PX from N (0 , I p)to N (0 , 10 2Ip) does not alter the posterior uncertainty of coefficients based on the proposed update (2). As discussed earlier, this choice is accompanied with a computational benefit, as using PX with the larger covariance κ = 10 accelerates the convergence of predictive resampling, allowing early truncation at N = p + 100 without compromising uncertainty quantification. Table 2 presents coverage and interval lengths of 95% credible intervals and run-times for 200 repeats of the simulation. The Gibbs sampler is run with 10000 burn-in iterations followed by 25000 samples, giving an effective sample size of approximately 5000 for active coefficients. Com-pared to traditional Bayes, the parametric martingale posterior achieves similar coverage and interval lengths, while requiring significantly less computation time to produce 5000 independent posterior samples. 8Table 2: Comparison of the parametric martingale posterior ( κ = 10) with traditional Bayes.                     
+
+> Gibbs PMP Set Cov Length Cov Length Active 97.4 3.4 96.4 3.2 Inactive 100.0 1.0 100.0 0.8 Max. SE 0.012 0.004 0.015 0.001 Run-time 59.63 s 0.12 s
+> Cov, coverage is reported as percent; SE, standard error. Interval lengths are multiplied by 10. Run-time is in seconds per dataset.
+
+# Acknowledgement 
+
+E. Fong receives funding from the Research Grants Council of Hong Kong through the Early Career Scheme (Grant No. 27304424) and the General Research Fund (Grant No. 17306925). 
+
+# Code 
+
+Our implementation and reproducible simulation codes are available on GitHub: https:// github.com/wys0071101/Design_Parametric_MP .
+
+# References 
+
+Alj, A., Azrak, R., and M´ elard, G. (2014). On conditions in central limit theorems for martingale difference arrays. Economics letters , 123(3):305–307. Bai, R., Rockov´ a, V., and George, E. I. (2021). Spike-and-slab meets LASSO: A review of the spike-and-slab LASSO. Handbook of Bayesian variable selection , pages 81–108. Battaglia, L., Cortinovis, S., Holmes, C., Frazier, D. T., and Jewson, J. (2026). Variational predictive resampling. arXiv preprint arXiv:2605.11168 .Berti, P., Dreassi, E., Leisen, F., Pratelli, L., and Rigo, P. (2023). Bayesian predictive inference without a prior. Statistica Sinica , 33(4):2405–2429. Berti, P., Pratelli, L., and Rigo, P. (2004). Limit theorems for a class of identically distributed random variables. Bezanson, J., Edelman, A., Karpinski, S., and Shah, V. B. (2017). Julia: A fresh approach to numerical computing. SIAM review , 59(1):65–98. Choi, T. and Ramamoorthi, R. (2008). Remarks on consistency of posterior distributions. In 
+
+Pushing the limits of contemporary statistics: contributions in honor of Jayanta K. Ghosh ,volume 3, pages 170–187. Institute of Mathematical Statistics. Doob, J. L. (1949). Application of the theory of martingales. Actes du Colloque International Le Calcul des Probabilit´ es et ses applications (Lyon, 28 Juin–3 Juillet 1948), Paris CNRS, 23–27 .9Fjelde, T. E., Xu, K., Widmann, D., Tarek, M., Pfiffer, C., Trapp, M., Axen, S. D., Sun, X., Hauru, M., Yong, P., et al. (2025). Turing.jl: a general-purpose probabilistic programming language. ACM Transactions on Probabilistic Machine Learning , 1(3):1–48. Fong, E., Holmes, C., and Walker, S. G. (2023). Martingale posterior distributions. Journal of the Royal Statistical Society Series B: Statistical Methodology , 85(5):1357–1391. Fong, E. and Yiu, A. (2025). Bayesian quantile estimation and regression with martingale posteriors. Journal of the Royal Statistical Society Series B: Statistical Methodology , :qkaf080. Fong, E. and Yiu, A. (2026). Asymptotics for a class of parametric martingale posteriors. 
+
+Biometrika , 113(2):asag007. Fortini, S. and Petrone, S. (2020). Quasi-Bayes properties of a procedure for sequential learning in mixture models. Journal of the Royal Statistical Society Series B: Statistical Methodology ,82(4):1087–1114. Fortini, S. and Petrone, S. (2025). Exchangeability, prediction and predictive modeling in Bayesian statistics. Statistical Science , 40(1):40–67. Garelli, S., Leisen, F., Pratelli, L., and Rigo, P. (2024). Asymptotics of predictive distributions driven by sample means and variances. arXiv preprint arXiv:2403.16828 .Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., and Rubin, D. B. (2013). 
+
+Bayesian Data Analysis . CRC Press. George, E. I. and McCulloch, R. E. (1993). Variable selection via Gibbs sampling. Journal of the American Statistical Association , 88(423):881–889. Hall, P. and Heyde, C. C. (1980). Martingale Limit Theory and Its Application . Probability and Mathematical Statistics. Academic Press, New York. H¨ ausler, E. and Luschgy, H. (2015). Stable convergence and stable limit theorems , volume 74. Springer. Hoffman, M. D., Gelman, A., et al. (2014). The No-U-Turn sampler: adaptively setting path lengths in Hamiltonian Monte Carlo. Journal of Machine Learning Research , 15(1):1593–1623. Holmes, C. C. and Walker, S. G. (2023). Statistical inference with exchangeability and martin-gales. Philosophical Transactions of the Royal Society A , 381(2247):20220143. Kallenberg, O. (2021). Foundations of modern probability. Probability Theory and Stochastic Modelling .K¨ uhn, F. and Schilling, R. L. (2023). Maximal inequalities and some applications. Probability Surveys , 20:382–485. Liu, D. C. and Nocedal, J. (1989). On the limited memory BFGS method for large scale optimization. Mathematical programming , 45(1):503–528. Miller, J. W. (2018). A detailed treatment of Doob’s theorem. arXiv preprint arXiv:1804.03225 .Park, T. and Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association , pages 681–686. 10 Polson, N. G., Scott, J. G., and Windle, J. (2013). Bayesian inference for logistic mod-els using P´ olya–gamma latent variables. Journal of the American Statistical Association ,108(504):1339–1349. Roˇ ckov´ a, V. and George, E. I. (2014). EMVS: The EM approach to Bayesian variable selection. 
+
+Journal of the American Statistical Association , 109(506):828–846. Rockova, V. and George, E. I. (2018). The spike-and-slab lasso. Journal of the American Statistical Association , 113(521):431–444. Sherman, J. and Morrison, W. J. (1950). Adjustment of an inverse matrix corresponding to a change in one element of a given matrix. The Annals of Mathematical Statistics , 21(1):124– 127. Ueda, N. and Nakano, R. (1998). Deterministic annealing EM algorithm. Neural Networks ,11(2):271–282. West, M. (1987). On scale mixtures of normal distributions. Biometrika , 74(3):646–648. 11 Summary of Appendix 
+
+The appendix contains the technical proofs, additional derivations and experimental results. Sections A - D cover the technical proofs of our results. Section E discusses the fixed-design case, and Section F investigates the role of identifiability. Section G provides a general motivation for our recursive update, and Section H provides additional experimental details and examples. 
+
+# Appendix A Proof of Proposition 1 
+
+Consider a joint probability space on β and the observations where we first draw β ∼ Π( · | F n), then generate Xi iid 
+
+∼ PX and ( Yi | Xi, β ) ∼ Pβ (· | Xi) for i ≥ n + 1. The joint law factorizes as 
+
+Pβ (dx, dy ) = PX (dx ) Pβ (dy | x).
+
+Since the marginal distribution PX is fixed and does not depend on β, the terms involving X1: i
+
+act as a constant factor, and Bayes’ theorem thus gives the posterior for i ≥ n + 1 as Π( dβ | F i) ∝ Π( dβ | F n)
+
+> i
+
+Y
+
+> j=n+1
+
+pβ (Yj | Xj )
+
+∝ Π( dβ )
+
+> i
+
+Y
+
+> j=1
+
+pβ (Yj | Xj ).
+
+Marginalizing over β recovers the predictive distribution Pi−1(· | Xi), 
+
+P (Yi ∈ · | F i−1, X i) = 
+
+Z
+
+Pβ (· | Xi) Π( dβ | F i−1),
+
+so this construction is equivalent to the predictive resampling scheme. We will show Proposition 1 through a specialization of Doob’s consistency theorem (Theo-rem 2.2 of Miller (2018)) for our settings. Under predictive resampling and the assumption 
+
+E (∥β∥ | F n) < ∞, it follows from usual arguments that ( βi, Fi)i≥n+1 is a uniformly integrable martingale and 
+
+βi → β∞ a.s. To identify the limit β∞, we now verify the assumptions of Theorem 2.2 of Miller (2018) for the joint model for ( X, Y ). Let Pβ denote the joint distribution of ( X, Y ) corresponding to the composition of the probability kernel Pβ (· | x) and the fixed marginal PX .For the identifiability condition, consider a pair β̸ = β′. As Y lies in a standard Borel space, we have PX -a.e. uniqueness of the regular conditional probability kernel P (· | x) for a given joint distribution, e.g. Kallenberg (2021, Theorem 8.5). From Assumption 1, there exists a measurable set B ⊆ Rp, which may depend on ( β, β ′), where PX (B) > 0 and 
+
+Pβ (· | x)̸ = Pβ′ (· | x) ∀x ∈ B. 
+
+As PX does not change with β, the above assumption must imply the joint distributions are not equal, that is Pβ̸ = Pβ′ . The joint model {Pβ : β ∈ Rp} is thus identifiable. Next, we verify measurability. By assumption, {Pβ (· | x) : x ∈ Rp, β ∈ Rp} is a valid probability kernel. The joint measure Pβ can be defined as the composition of {Pβ (· | x) : x ∈ Rp, β ∈ Rp}
+
+12 and PX , where the latter can be viewed as a constant kernel over β ∈ Rp. Kallenberg (2021, Lemma 3.3) thus ensures {Pβ (·) : β ∈ Rp} is a valid probability kernel, that is the map β 7 →
+
+Pβ (C) for any measurable C ⊆ Rp × Y is itself measurable. Hence, the joint parametric family {Pβ : β ∈ Rp} satisfies the assumption required for Miller (2018, Theorem 2.2), giving β∞ = β a.s., and since β ∼ Π( · | F n), we have β∞ ∼ Π( · | F n). 
+
+# Appendix B Proof of Proposition 2 
+
+Let β, β ′ ∈ Rp with β̸ = β′, and define 
+
+v = β − β′̸ = 0 .
+
+From Assumption 2, EPX (XX ⊤) ≻ 0, so we have that 
+
+EPX {(v⊤X)2} = v⊤ EPX (XX ⊤) v > 0.
+
+Therefore the set 
+
+Bv = {x ∈ Rp : v⊤x̸ = 0 } = {x ∈ Rp : β⊤x̸ = β′⊤ x},
+
+which depends on ( β, β ′), has positive probability under PX , that is 
+
+PX (Bv) > 0.
+
+For any x ∈ Bv, define 
+
+t = β⊤x, t′ = β′⊤ x, 
+
+where clearly t̸ = t′. By the assumed identifiability of the one-parameter family {PY (· | t) : t ∈
+
+R}, we have 
+
+PY (· | β⊤x)̸ = PY (· | β′⊤ x) ∀x ∈ Bv.
+
+The set Bv thus satisfies Assumption 1. For completion, we verify that {PY (· | β⊤x) : x ∈ Rp, β ∈ Rp} is a valid probability kernel in this case so Proposition 1 applies. From Section 1.2, {PY (· | t) : t ∈ R} is a probability kernel by assumption. Since the map ( x, β ) 7 → β⊤x is measurable, the composition {PY (· | β⊤x) : x ∈
+
+Rp, β ∈ Rp} remains a valid probability kernel. 13 Appendix C Proof of Theorem 1 
+
+In this section, let ( βi)i≥n+1 be the sequence under predictive resampling with update rule (2) and Pi(· | x) = PY (· | β⊤ 
+
+> i
+
+x). To begin, we restate the preservation of the martingale property. As αi−1(Xi) and Ii only depend on ( Fi−1, X i) and 
+
+E{s(βi−1, Y i | Xi) | F i−1, X i} = 0 ,
+
+the sequence ( βi, Fi)i≥n+1 is a martingale. As assumed in the main paper, D(βn) is chosen so that Ii is invertible for each i ≥ n. We note that Assumption 2 and the conditions on w(t) are only required in the final step in Lemma C.4. First, we compute the covariance increment, where the role of the scalar correction factor 
+
+αi−1(Xi) will become clear. 
+
+Lemma C.1 (Covariance increment) . Let Zi = βi − βi−1 be the martingale difference for i ≥
+
+n + 1 . Then we have 
+
+E
+
+
+
+Zi Z⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+= I−1 
+
+> i−1
+
+− I −1 
+
+> i
+
+.
+
+Proof. From the recursive update (2), we have 
+
+Zi = αi−1(Xi) I−1 
+
+> i
+
+Xi r
+
+
+
+Yi | β⊤
+
+> i−1
+
+Xi
+
+
+
+.
+
+Taking conditional expectations and substituting the moment condition gives 
+
+E(Zi Z⊤ 
+
+> i
+
+| F i−1, X i) = αi−1(Xi)2 w
+
+
+
+β⊤
+
+> i−1
+
+Xi
+
+
+
+I−1 
+
+> i
+
+Xi X⊤ 
+
+> i
+
+I−1 
+
+> i
+
+.
+
+Recall that 
+
+Ii =
+
+> i
+
+X
+
+> j=1
+
+w
+
+
+
+β⊤ 
+
+> n
+
+Xj
+
+
+
+Xj X⊤ 
+
+> j
+
++ D(βn),
+
+where βn and D(βn) are fixed throughout predictive resampling. By the Sherman-Morrison formula (Sherman and Morrison, 1950), Ii can be decomposed as 
+
+I−1 
+
+> i
+
+= I−1 
+
+> i−1
+
+− w  β⊤ 
+
+> n
+
+Xi
+
+ I−1 
+
+> i−1
+
+Xi X⊤ 
+
+> i
+
+I−1
+
+> i−1
+
+1 + w (β⊤ 
+
+> n
+
+Xi) X⊤ 
+
+> i
+
+I−1 
+
+> i−1
+
+Xi
+
+·
+
+which implies 
+
+I−1 
+
+> i
+
+Xi = I−1 
+
+> i−1
+
+Xi
+
+1 + w (β⊤ 
+
+> n
+
+Xi) X⊤ 
+
+> i
+
+I−1 
+
+> i−1
+
+Xi
+
+·
+
+Substituting the above expression into the covariance formula and using the definition of αi−1(Xi), the factor w(β⊤
+
+> i−1
+
+Xi) cancels out and yields 
+
+E
+
+
+
+Zi Z⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+= w  β⊤ 
+
+> n
+
+Xi
+
+ I−1 
+
+> i−1
+
+Xi X⊤ 
+
+> i
+
+I−1
+
+> i−1
+
+1 + w (β⊤ 
+
+> n
+
+Xi) X⊤ 
+
+> i
+
+I−1 
+
+> i−1
+
+Xi
+
+·
+
+Recognizing the right-hand side as the update term in the Sherman-Morrison formula for I−1 
+
+> i
+
+,we obtain the critical simplification: 
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+= I−1 
+
+> i−1
+
+− I −1
+
+> i
+
+as desired. 14 Next, the covariance increment will allow us to calculate the posterior covariance using a tele-scoping argument. 
+
+Lemma C.2 (Covariance) . The posterior covariance takes the form 
+
+Cov( βN | F n) = I−1 
+
+> n
+
+− E  I−1 
+
+> N
+
+| F n
+
+ . (C.1) 
+
+Proof. We begin with the well-known orthogonal decomposition for martingales: Cov( βN | F n) = 
+
+> N
+
+X
+
+> i=n+1
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F n
+
+
+
+.
+
+Next, express each term in the sum with the tower property as 
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F n
+
+
+
+= E
+
+n
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+| F n
+
+o
+
+which then gives Cov( βN | F n) = E
+
+( NX
+
+> i=n+1
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+| F n
+
+)
+
+.
+
+From Lemma C.1, a telescoping argument gives 
+
+> N
+
+X
+
+> i=n+1
+
+E
+
+
+
+ZiZ⊤ 
+
+> i
+
+| F i−1, X i
+
+
+
+= I−1 
+
+> n
+
+− I −1 
+
+> N
+
+.
+
+Finally, since I−1 
+
+> n
+
+is fixed (as it only depends on the fixed X1: n and βn), we have the desired result. Note that since the covariance is non-negative, we must have E  I−1 
+
+> N
+
+| F n
+
+ ⪯ I −1 
+
+> n
+
+.We can already show the martingale is bounded in L2.
+
+Lemma C.3 (Bounded in L2). The martingale (βi, Fi)i≥n+1 is bounded in L2 and thus converges a.s. and in L2 to a limit β∞.Proof. From Lemma C.2, we have 
+
+E ∥βN − βn∥2 | F n
+
+ = tr  I−1
+
+> n
+
+ − E tr  I−1
+
+> N
+
+ | F n
+
+≤ tr  I−1
+
+> n
+
+
+
+since I−1 
+
+> N
+
+is positive semidefinite with non-negative trace. It then follows that sup  
+
+> N≥n+1
+
+E ∥βN ∥2 | F n
+
+ ≤ ∥ βn∥2 + tr  I−1
+
+> n
+
+ < ∞
+
+where we have used the orthogonality of martingale increments in L2.Finally, we handle the term E(I−1 
+
+> N
+
+| F n). 
+
+Lemma C.4. Suppose Assumption 2 holds, and w(t) is continuous and strictly positive for all 
+
+t ∈ R. We then have 
+
+lim   
+
+> N→∞
+
+E(I−1 
+
+> N
+
+| F n) = 0 .
+
+15 Proof. In the following, we consider the asymptotic behavior of IN , and highlight again that the initial dataset ( X1: n, Y 1: n) and the resulting estimator βn are fixed. From Assumption 2, 
+
+EPX
+
+ XX ⊤ ≻ 0, so there must exist a sufficiently large closed ball Br = {x ∈ Rp : ∥x∥ ≤ r}
+
+such that 
+
+EPX
+
+n
+
+XX ⊤1 (X ∈ Br)
+
+o
+
+≻ 0.
+
+To see the existence of such an r, consider taking r → ∞ , where dominated convergence gives 
+
+EPX
+
+XX ⊤1 (X ∈ Br) → EPX
+
+ XX ⊤. Continuity of eigenvalues then gives the existence. Choose r sufficiently large as discussed, and consider the matrix 
+
+IBr = EPX
+
+n
+
+w(β⊤ 
+
+> n
+
+X) XX ⊤1 (X ∈ Br)
+
+o
+
+.
+
+From the continuity of w(t) and 0 < w (t) < ∞, there exist cl > 0 and cu < ∞ such that 
+
+cl ≤ w(β⊤ 
+
+> n
+
+x) ≤ cu
+
+for all x ∈ Br since β⊤ 
+
+> n
+
+x lies in a compact set. We then immediately have that 
+
+clEPX
+
+n
+
+XX ⊤1 (X ∈ Br)
+
+o
+
+⪯ I Br ⪯ cuEPX
+
+n
+
+XX ⊤o
+
+,
+
+so IBr is finite and positive definite. Now let 
+
+Ai = w
+
+
+
+β⊤ 
+
+> n
+
+Xi
+
+
+
+Xi X⊤ 
+
+> i
+
+1 (Xi ∈ Br)which are independent and identically distributed random matrices with mean EPX (Ai) = IBr .Next, 
+
+IN ⪰ I n +
+
+> N
+
+X
+
+> i=n+1
+
+Ai a.s. since w  β⊤ 
+
+> n
+
+Xi
+
+ Xi X⊤ 
+
+> i
+
+1 (Xi ∈ Bcr ) is positive semidefinite. Hence 1
+
+N IN ⪰ In
+
+N + N − nN
+
+1
+
+N − n
+
+> N
+
+X
+
+> i=n+1
+
+Ai
+
+!
+
+a.s. Next, applying the strong law of large numbers entry-wise gives 1
+
+N − n
+
+> N
+
+X
+
+> i=n+1
+
+Ai → I Br a.s. Since N −1In → 0 and ( N − n)/N → 1 as N → ∞ , and IBr ≻ 0, Weyl’s inequality gives lim inf   
+
+> N→∞
+
+λmin 
+
+ N −1 IN
+
+ > 0 a.s. Since IN is invertible for each N , the above implies 
+
+∥I −1 
+
+> N
+
+∥2 = N −1 ∥(N −1 IN )−1∥2 → 0 a.s. where ∥ · ∥ 2 is the spectral norm. Note that for all N ≥ n + 1, we have IN ⪰ I n a.s. which implies 
+
+∥I −1 
+
+> N
+
+∥2 ≤ ∥I −1 
+
+> n
+
+∥2 a.s. 16 Since In is non-singular, ∥I −1 
+
+> n
+
+∥2 is a valid integrable dominator. Therefore, by dominated convergence, we have lim   
+
+> N→∞
+
+E I−1 
+
+> N
+
+| F n
+
+ = E
+
+
+
+lim   
+
+> N→∞
+
+I−1 
+
+> N
+
+| F n
+
+
+
+= 0 as desired. Theorem 1 can now be shown. As the martingale is uniformly integrable, we immediately have 
+
+E(β∞ | F n) = βn,
+
+which is the posterior mean part of the result. Since βi → β∞ in L2, the covariance of βi
+
+converges to the covariance of β∞. Taking the limit of (C.1) gives Cov( β∞ | F n) = lim   
+
+> N→∞
+
+Cov( βN | F n) = I−1 
+
+> n
+
+.
+
+This limit is then independent of the predictive design distribution PX .
+
+# Appendix D Proof of Theorem 2 
+
+D.1 General lemmas 
+
+We begin with some useful lemmas for finite martingale difference arrays. Let ( Zni , Fni )1≤i≤Nn,n ≥1
+
+be a general square-integrable finite martingale difference array, where Zni is a scalar. As usual, we have 
+
+s2 
+
+> n
+
+=
+
+> Nn
+
+X
+
+> i=1
+
+E  Z2
+
+> ni
+
+ , V 2 
+
+> n
+
+=
+
+> Nn
+
+X
+
+> i=1
+
+E  Z2 
+
+> ni
+
+| F n,i −1
+
+ . (D.2) The first is an obvious connection between the conditional Lyapunov and Lindeberg conditions (see Alj et al. (2014)). 
+
+Lemma D.5 (Conditional Lyapunov condition) . Suppose that the following condition holds true for some δ > 0:
+
+s−(2+ δ)
+
+> nNn
+
+X
+
+> i=1
+
+E
+
+
+
+|Zni |2+ δ | F n,i −1
+
+
+
+→ 0 in probability. 
+
+Then the conditional Lindeberg condition holds true, that is 
+
+s−2
+
+> nNn
+
+X
+
+> i=1
+
+E Z2
+
+> ni
+
+1  Z2 
+
+> ni
+
+> ε 2 s2
+
+> n
+
+ | F n,i −1 → 0 in probability 
+
+for all ε > 0.Proof. Following the usual argument, Z2 
+
+> ni
+
+> ε 2 s2 
+
+> n
+
+implies 
+
+Zni 
+
+ε s n
+
+> δ
+
+> 1.
+
+17 We thus have 
+
+1  Z2 
+
+> ni
+
+> ε 2 s2
+
+> n
+
+ ≤ Zni 
+
+εs n
+
+> δ
+
+.
+
+We thus have 
+
+s−2
+
+> nNn
+
+X
+
+> i=1
+
+E Z2 
+
+> ni
+
+1  Z2 
+
+> ni
+
+> ε 2 s2
+
+> n
+
+ | F n,i −1 ≤ s−(2+ δ)
+
+> n
+
+εδNnX
+
+> i=1
+
+E
+
+
+
+|Zni |2+ δ | F n,i −1
+
+
+
+a.s. giving the result. We now consider a sufficient condition for the Lyapunov condition with δ = 2. 
+
+Lemma D.6. Let eZni = ( n + i) Zni , and suppose s−2 
+
+> n
+
+= O(n). Let 
+
+Wn = sup 
+
+> 1≤i≤Nn
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+.
+
+If the sequence (Wn)n≥1 is bounded in probability, then the conditional Lyapunov condition holds for δ = 2 .Proof. For δ = 2, the conditional Lyapunov term is proportional to 
+
+Ln = n2
+
+> Nn
+
+X
+
+> i=1
+
+(n + i)−4 E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+.
+
+We clearly have 
+
+Ln ≤ Wn n2
+
+> ∞
+
+X
+
+> i=1
+
+(n + i)−4 a.s. Since n2 P∞
+
+> i=1
+
+(n + i)−4 = O(n−1), and Wn = OP (1), we have Ln → 0 in probability. For completion, we also state a specialized form of the martingale central limit theorem used here, which is based on H¨ ausler and Luschgy (2015, Theorem 6.1). 
+
+Theorem D.1. Let (Zni , Fni )1≤i≤Nn, n ≥1 be a square-integrable finite martingale difference ar-ray, and let s2 
+
+> n
+
+and V 2 
+
+> n
+
+be defined according to (D.2). Assume that 
+
+s−4
+
+> nNn
+
+X
+
+> i=1
+
+E  Z4 
+
+> ni
+
+| F n,i −1
+
+ → 0 in probability ,
+
+and 
+
+s−2 
+
+> n
+
+V 2 
+
+> n
+
+→ 1 in probability .
+
+Under the above, we have 
+
+s−1
+
+> nNn
+
+X
+
+> i=1
+
+Zni → N (0 , 1) in distribution .
+
+Proof. We apply H¨ ausler and Luschgy (2015, Theorem 6.1) with the martingale difference as 
+
+s−1 
+
+> n
+
+Zni , then use Lemma D.5 to replace the conditional Lindeberg condition with the conditional Lyapunov condition. Finally, as η2 = 1 is a constant, its measurability is automatic; see H¨ ausler and Luschgy (2015, Theorem 6.1(b)). 18 D.2 Setup and notation 
+
+For the proofs in this section, we will tweak our notation as follows compared to the rest of the Appendix. For each n and i ≥ 1, we consider 
+
+Xi ∼ PX , (Yni | Xi) ∼ pβn,i −1 (· | Xi),βni = βn,i −1 + αn,i −1(Xi) I−1 
+
+> ni
+
+Xi r
+
+
+
+Yni | β⊤
+
+> n,i −1
+
+Xi
+
+
+
+where 
+
+Ini = In + Σ ni (D.3) 
+
+In =
+
+> n
+
+X
+
+> j=1
+
+w
+
+
+
+β⊤ 
+
+> n
+
+X∗
+
+> j
+
+
+
+X∗ 
+
+> j
+
+X∗  
+
+> j⊤
+
++ D(βn), Σni =
+
+> i
+
+X
+
+> j=1
+
+w
+
+
+
+β⊤ 
+
+> n
+
+Xj
+
+
+
+Xj X⊤ 
+
+> j
+
+,
+
+and 
+
+αni (x) = 
+
+" w  β⊤ 
+
+> n
+
+x
+
+w  β⊤ 
+
+> ni
+
+xn
+
+1 + w
+
+
+
+β⊤ 
+
+> n
+
+x
+
+
+
+x⊤ I−1 
+
+> ni
+
+x
+
+o#1/2
+
+·
+
+The index i is now indicating the imputed observations after index n, which is reflected in the notation Yni , βni , Ini and αni (x). Note that for each n, we will set βn0 = βn, In0 = In as the initial estimates. We will also write the real observations as ( X∗
+
+> 1: n
+
+, Y ∗
+
+> 1: n
+
+) to differentiate it from the imputed observations. Henceforth, we define the filtration for our array as 
+
+Fni = σ {(X1, Y n1), . . . , (Xi, Y ni )}
+
+where ( X∗
+
+> 1: n
+
+, Y ∗
+
+> 1: n
+
+) are treated as deterministic. Notice that we use the same sequence Xi for each row in the martingale array for convenience in the proof. Let ( βni , Fni )i≥1,n ≥1 denote the infinite martingale array. Since Theorem 1 holds for each n ≥ 1under our assumptions, each row ( βni , Fni )i≥1 is a martingale bounded in L2 and has an almost sure limit βn∞. In order to apply the martingale central limit theorems, we will project the vectors to scalars and utilize the Cram´ er-Wold theorem. For a fixed vector u ∈ Rp, define the scalar 
+
+Zni = u⊤ (βni − βn,i −1) (D.4) where we omit the dependence on u for notational simplicity. We will return to the multivariate case in Section D.7. Although we are interested in the infinite limit βn∞ = lim i→∞ βni , unlike in Fong and Yiu (2026), it will be convenient to first truncate each row n at a finite index Nn > n , where we will assume 
+
+Nn/n → ∞ .
+
+We will then show that the difference between the finite and infinite martingale arrays is neg-ligible in Section D.7. For the remainder of this proof, we will study the specific martingale difference array ( Zni , Fni )1≤i≤Nn,n ≥1 as defined above. 19 D.3 Proof outline 
+
+We will verify the assumptions required for Theorem D.1. Unlike Fong and Yiu (2026), who utilize an unconditional Lindeberg/Lyapunov condition, here we will require the conditional Lindeberg/Lyapunov condition so we can use the strong law of large numbers to handle the term 
+
+Ini . The verification of the variance condition also requires a delicate application of H¨ ausler and Luschgy (2015, Proposition 6.16) to bridge an enlarged filtration to the standard filtration, in order to leverage the telescoping form of the variance as given by Lemma C.1. As in Fong and Yiu (2026), we will assume a deterministic condition first, before generalizing to the a.s. case in Section D.7. Below, we have the deterministic version of Assumption 3. 
+
+Assumption D.1. Let the following hold deterministically: In ≻ 0 for all n, βn → β∗, and 
+
+n−1 In → I P ∗ 
+
+> X
+
+≻ 0.
+
+We highlight here that the limits β∗ and IP ∗ 
+
+> X
+
+are arbitrary and need not necessarily correspond to the true values. We explicitly define them here as this will be useful to refer to later on. 
+
+D.4 Intermediate lemmas 
+
+In the proofs to come, we will require control over w(t) and I−1 
+
+> ni
+
+. We give two useful lemmas here. 
+
+Lemma D.7. Under Assumptions D.1 and 4(ii), there exist constants cl > 0 and cu < ∞ such that 
+
+cl ≤ w(β⊤ 
+
+> n
+
+x) ≤ cu
+
+for all n ≥ 1 and x ∈ supp ( PX ).Proof. To begin, we note that βn → β∗ from Assumption D.1 and supp ( PX ) is compact from Assumption 4(ii), so β⊤ 
+
+> n
+
+x lies in a compact interval of R for all n ≥ 1 and x ∈ supp ( PX ). As 
+
+w(t) is continuous and satisfies 0 < w (t) < ∞ for all t ∈ R, w(β⊤ 
+
+> n
+
+x) lies in a compact interval of 
+
+R for all n ≥ 1 and x ∈ supp ( PX ). 
+
+Lemma D.8. Consider the non-negative random variable 
+
+Rni = (n + i + 1) I−1  
+
+> ni 2
+
+(D.5) 
+
+which is finite a.s. for each (n ≥ 1, i ≥ 0) . Under Assumptions 2, D.1 and either 4(i) or 4(ii), we have 
+
+sup 
+
+> n≥1,i ≥0
+
+Rni < ∞ a.s. 
+
+Proof. First, finiteness of Rni follows from Ini ⪰ I n a.s. and the fact that In ≻ 0 for each n
+
+from Assumption D.1. We now tackle the proof under the two sets of assumptions separately. 
+
+Constant w(t) = w0 case : Since ∥I −1 
+
+> ni
+
+∥2 = 1 /λ min (Ini ), we have 
+
+Rni = n + i + 1 
+
+λmin (Ini ) ·
+
+20 Next, we write for n ≥ 1 and i ≥ 1: 
+
+an = λmin (n−1 In), bi = λmin (i−1 Σi), Σi = w0
+
+> i
+
+X
+
+> j=1
+
+Xj X⊤
+
+> j
+
+and we define b0 = 0. From Assumption D.1, an > 0 for each n and an → a > 0, so there exists 
+
+ε > 0 such that 
+
+an ≥ ε for all n ≥ 1.
+
+Next, Weyl’s inequality gives λmin (Ini ) ≥ na n + ib i which gives the following for n ≥ 1 and 
+
+i ≥ 0: 
+
+Rni ≤ n + 1 
+
+nε + ib i
+
++ inε + ib i
+
+≤ 2
+
+ε + iε + ib i
+
+·
+
+Note that the above does not depend on n, so it is also a valid upper bound for sup n≥1 Rni .From Assumption 2 and the strong law of large numbers, we have bi → b > 0 a.s., so lim 
+
+> i→∞
+
+iε + ib i
+
+= 1
+
+b a.s. As i/ (ε + ib i) < ∞ for each i ≥ 0 and it converges to a bounded limit a.s., we have sup 
+
+> n≥1,i ≥0
+
+Rni < ∞ a.s. 
+
+General w(t) case : The general case under Assumption 4(ii) is a minor extension of the above. In this case, we note that Lemma D.7 gives the existence of cl > 0 such that Σni =
+
+> i
+
+X
+
+> j=1
+
+w(β⊤ 
+
+> n
+
+Xj ) Xj X⊤ 
+
+> j
+
+⪰ cliX
+
+> j=1
+
+Xj X⊤ 
+
+> j
+
+a.s. As a result, we have 
+
+Ini ⪰ I n + cliX
+
+> j=1
+
+Xj X⊤ 
+
+> j
+
+a.s. Therefore, under Assumption D.1 and Assumption 2, the proof is identical to the constant 
+
+w(t) = w0 case but with cl instead of w0.
+
+D.5 Conditional Lyapunov condition 
+
+The main result for the conditional Lyapunov condition is as follows. 
+
+Lemma D.9. Under Assumptions 2, D.1 and either 4(i) or 4(ii), the conditional Lyapunov condition with δ = 2 holds true. Proof. In our setting, we have 
+
+eZni := ( n + i) Zni = ( n + i)
+
+pw (β⊤ 
+
+> n
+
+Xi) u⊤I−1 
+
+> n,i −1
+
+Xi
+
+q
+
+1 + w (β⊤ 
+
+> n
+
+Xi) X⊤ 
+
+> i
+
+I−1 
+
+> n,i −1
+
+Xi
+
+r(Yni | β⊤
+
+> n,i −1
+
+Xi)
+
+r
+
+w
+
+
+
+β⊤ 
+
+> n,i −1
+
+Xi
+
+ (D.6) 21 where Zni is defined in (D.4). It is not too hard to show that 
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1, X i
+
+
+
+≤ ∥ u∥4R4 
+
+> n,i −1
+
+w
+
+
+
+β⊤ 
+
+> n
+
+Xi
+
+2
+
+∥Xi∥4 k
+
+
+
+β⊤
+
+> n,i −1
+
+Xi
+
+
+
+a.s. (D.7) where Rni is defined in (D.5). We now seek to apply Lemma D.6, where we note that s−2 
+
+> n
+
+= O(n)from Lemma D.10 to come. We now consider the two sets of assumptions separately to show sup 
+
+> 1≤i≤Nn
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+= Op(1) .
+
+Constant w(t) = w0 and k(t) = k0 case : We begin with verifying the conditional Lyapunov condition under Assumption 4(i). In this case, taking the expectation of (D.7) over Xi gives 
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+≤ K1 ∥u∥4 R4 
+
+> n,i −1
+
+a.s. where K1 = w20 k0 EPX (∥X∥4) < ∞ is a constant independent of n and i following Assumption 4(i). From Lemma D.8, taking the supremum over ( n, i ) gives sup 
+
+> n≥1
+
+(
+
+sup 
+
+> 1≤i≤Nn
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+)
+
+< ∞ a.s. so sup 
+
+> 1≤i≤Nn
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+= OP (1) and by Lemma D.6, the conditional Lyapunov condition holds. 
+
+General w(t) and k(t) case : We now consider the general case under Assumption 4(ii). Let 
+
+X = supp ( PX ) be the compact support. Taking the expectation of (D.7) over Xi gives 
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+≤ K2 ∥u∥4 R4 
+
+> n,i −1
+
+˜k(βn,i −1) a.s. where K2 = c2 
+
+> u
+
+sup x∈X ∥x∥4 following Lemma D.7 and ˜k(β) := sup 
+
+> x∈X
+
+k
+
+
+
+β⊤ x
+
+
+
+.
+
+We can handle the Fisher information and the kurtosis term separately as sup 
+
+> i≥1
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+≤ K2 ∥u∥4
+
+
+
+sup 
+
+> i≥0
+
+R4
+
+> ni
+
+  
+
+sup 
+
+> i≥0
+
+˜k(βni )
+
+
+
+a.s. For the Fisher information term, Lemma D.8 again gives sup n≥1,i ≥0 R4 
+
+> ni
+
+< ∞ a.s. so sup i≥0 R4 
+
+> ni
+
+=
+
+OP (1). For the kurtosis term, we note that since k(β⊤ x) is continuous in ( β, x ) and X is compact and does not depend on β, Berge’s maximum theorem gives that ˜k(β) is also continuous. Next, consider the envelope function 
+
+U (s) = sup 
+
+> ∥β∥2≤s
+
+˜k(β)22 which is finite for each s ≥ 0 from the continuity of ˜k and compactness of the closed ball. Crucially, the definition of U (s) implies sup 
+
+> i≥0
+
+˜k(βni ) ≤ U
+
+
+
+sup 
+
+> i≥0
+
+∥βni ∥2
+
+
+
+.
+
+Combining the above with the fact that U (s) is non-decreasing then gives 
+
+P
+
+
+
+sup 
+
+> i≥0
+
+˜k(βni ) > U (M )
+
+
+
+≤ P
+
+
+
+U
+
+
+
+sup 
+
+> i≥0
+
+∥βni ∥2
+
+
+
+> U (M )
+
+
+
+≤ P
+
+
+
+sup 
+
+> i≥0
+
+∥βni ∥2 > M 
+
+
+
+.
+
+From the above, to show sup i≥0 ˜k(βni ) = OP (1), it is sufficient to show that sup i≥0 ∥βni ∥2 =
+
+OP (1), which we now do using Doob’s Lp inequality. Since ( βni , Fni )i≥1 is a (vector) martingale for each n, convexity of the norm and Jensen’s inequality imply ( ∥βni ∥, Fni )i≥1 is a positive (scalar) sub-martingale for each n. We can thus apply Doob’s Lp inequality, e.g. K¨ uhn and Schilling (2023, Theorem 4.4), to get 
+
+E
+
+
+
+sup 
+
+> i≥1
+
+∥βni ∥2
+
+
+
+= E
+
+(
+
+sup 
+
+> i≥1
+
+∥βni ∥
+
+2)
+
+≤ 4 sup 
+
+> i≥1
+
+E  ∥βni ∥2
+
+where the right-most term is finite as ( βni , Fni )i≥1 is a martingale bounded in L2. The proof of Lemma C.3 further gives sup 
+
+> i≥1
+
+E  ∥βni ∥2 ≤ ∥ βn∥2 + tr  I−1
+
+> n
+
+ .
+
+From Assumption D.1, n I−1 
+
+> n
+
+→ I −1 
+
+> P∗
+> X
+
+and βn → β∗ implies 
+
+∥βn∥2 + tr  I−1
+
+> n
+
+ → ∥ β∗∥2,
+
+so sup 
+
+> n≥1
+
+E
+
+
+
+sup 
+
+> i≥1
+
+∥βni ∥2
+
+
+
+< ∞
+
+and Markov’s inequality implies sup 
+
+> i≥1
+
+∥βni ∥2 = OP (1) .
+
+As βn0 = βn is deterministic, putting all the above together gives sup 
+
+> i≥0
+
+˜k (βni ) = OP (1) ,
+
+which in turn implies sup 
+
+> 1≤i≤Nn
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+= OP (1) .
+
+By Lemma D.6, the conditional Lyapunov condition holds. 23 D.6 Variance condition 
+
+Before verifying the variance condition, a useful intermediate result is the behaviour of s2 
+
+> n
+
+as 
+
+n → ∞ .
+
+Lemma D.10. Under Assumptions 2, D.1 and either 4(i) or 4(ii), we have 
+
+n s 2 
+
+> n
+
+→ u⊤ I−1 
+
+> P∗
+> X
+
+u. 
+
+Proof. Recall that 
+
+s2 
+
+> n
+
+=
+
+> Nn
+
+X
+
+> i=1
+
+E  Z2
+
+> ni
+
+ .
+
+By Lemma C.1, we have 
+
+> Nn
+
+X
+
+> i=1
+
+E  Z2 
+
+> ni
+
+| F n,i −1, X i
+
+ = u⊤ 
+
+I−1 
+
+> n
+
+− I −1
+
+> n,N n
+
+
+
+u, (D.8) where In, 0 = In. Taking expectations, applying the tower property and multiplying by n gives 
+
+n s 2 
+
+> n
+
+= u⊤  n I−1
+
+> n
+
+ u − n E 
+
+
+
+u⊤ I−1 
+
+> n,N n
+
+u
+
+
+
+. (D.9) We now study the two terms on the right-hand side separately. First, by Assumption D.1, 
+
+u⊤  n I−1
+
+> n
+
+ u → u⊤ I−1 
+
+> P∗
+> X
+
+u. 
+
+It thus remains to show that the truncation remainder is negligible. First, we note that 
+
+∥Nn I−1 
+
+> n,N n
+
+∥2 = Nn
+
+n + Nn + 1 Rn,N n ≤ sup 
+
+> i≥0
+
+Rni 
+
+where Rni is defined in (D.5). From Lemma D.8, we have sup 
+
+> n≥1
+
+∥Nn I−1 
+
+> n,N n
+
+∥2 < ∞ a.s. Consequently, since n/N n → 0, we have 
+
+n u ⊤ I−1 
+
+> n,N n
+
+u ≤ nNn
+
+∥u∥2∥Nn I−1 
+
+> n,N n
+
+∥2 → 0 a.s. which implies n u ⊤ I−1 
+
+> n,N n
+
+u → 0 a.s. To handle the expectation, we once again invoke dominated convergence. Note that for all 
+
+Nn ≥ 1, the matrix In,N n = In + Σ n,N n satisfies In,N n ⪰ I n a.s. Consequently, for any vector u,the quadratic form is bounded by 
+
+n u ⊤ I−1 
+
+> n,N n
+
+u ≤ u⊤  n I−1
+
+> n
+
+ u a.s. By Assumption D.1, n I−1 
+
+> n
+
+→ I −1 
+
+> P∗
+> X
+
+is a deterministic convergent sequence, meaning there exists a dominating constant for u⊤ (n I−1 
+
+> n
+
+) u, thus giving 
+
+E
+
+
+
+n u ⊤ I−1 
+
+> n,N n
+
+u
+
+
+
+→ 0.
+
+Combining this with the deterministic limit of the first term in (D.9), we conclude that: 
+
+n s 2 
+
+> n
+
+→ u⊤ I−1 
+
+> P∗
+> X
+
+u. 
+
+24 We are now ready to verify the conditional variance condition. 
+
+Lemma D.11. Under Assumptions 2, D.1 and either 4(i) or 4(ii), we have 
+
+s−2 
+
+> n
+
+V 2 
+
+> n
+
+→ 1 in probability. 
+
+Proof. We highlight that while V 2 
+
+> n
+
+is challenging to work with, (D.8) is easy to work with. We will thus connect the enlarged conditioning ( Fn,i −1, X i) to V 2 
+
+> n
+
+using Proposition 6.16 of H¨ ausler and Luschgy (2015), which leverages the conditional Lindeberg condition. Consider the array of σ-algebras ( Fni )1≤i≤Nn,n ≥1 and random variables ( Uni )1≤i≤Nn,n ≥1 where 
+
+Uni =
+
+q
+
+s−2 
+
+> n
+
+E  Z2 
+
+> ni
+
+| F n,i −1, X i
+
+,
+
+and NnX
+
+> i=1
+
+U 2 
+
+> ni
+
+= n u ⊤ I−1 
+
+> n
+
+u − n u ⊤ I−1 
+
+> n,N n
+
+un s 2
+
+> n
+
+·
+
+The numerator can be handled via Lemma D.10 minus the final expectation step, so we clearly have NnX
+
+> i=1
+
+U 2 
+
+> ni
+
+→ 1 a.s. It therefore remains to verify the required regularity conditions for Uni . We first verify the square-integrability and that the sum of the conditional variances is bounded in probability. Taking expectations and applying the tower property, we have 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 2
+
+> ni
+
+ = E
+
+" NnX
+
+> i=1
+
+E  U 2 
+
+> ni
+
+| F n,i −1
+
+#
+
+= s−2
+
+> nNn
+
+X
+
+> i=1
+
+E  Z2
+
+> ni
+
+
+
+= 1 ,
+
+where the last equality follows from the definition of s2
+
+> n
+
+. Since each summand is nonnegative, each Uni is clearly square-integrable. Moreover, from the above, the sequence 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 2 
+
+> ni
+
+| F n,i −1
+
+
+
+for n ≥ 1 is bounded in L1, so it follows from Markov’s inequality that 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 2 
+
+> ni
+
+| F n,i −1
+
+ = OP (1) .
+
+We next verify the conditional Lindeberg condition for Uni . A similar argument to Lemma D.5 yields 
+
+> Nn
+
+X
+
+> i=1
+
+E U 2 
+
+> ni
+
+1 (|Uni | > ε ) | F n,i −1 ≤ ε−2
+
+> Nn
+
+X
+
+> i=1
+
+E  U 4 
+
+> ni
+
+| F n,i −1
+
+ a.s. where 
+
+U 4 
+
+> ni
+
+= s−4
+
+> n
+
+E  Z2 
+
+> ni
+
+| F n,i −1, X i
+
+ 2 .
+
+25 Using Jensen’s inequality, 
+
+E  Z2 
+
+> ni
+
+| F n,i −1, X i
+
+ 2 ≤ E  Z4 
+
+> ni
+
+| F n,i −1, X i
+
+ a.s. So 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 4 
+
+> ni
+
+| F n,i −1
+
+ ≤ s−4
+
+> nNn
+
+X
+
+> i=1
+
+E(Z4 
+
+> ni
+
+| F n,i −1) a.s. Since this is exactly the conditional Lyapunov term for δ = 2, Lemma D.9 immediately gives for all ε > 0 NnX
+
+> i=1
+
+E U 2 
+
+> ni
+
+1 (|Uni | > ε ) | F n,i −1 → 0 in probability .
+
+Proposition 6.16 of H¨ ausler and Luschgy (2015) therefore yields 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 2 
+
+> ni
+
+| F n,i −1
+
+ −
+
+> Nn
+
+X
+
+> i=1
+
+U 2 
+
+> ni
+
+→ 0 in probability .
+
+Since PNn 
+
+> i=1
+
+U 2 
+
+> ni
+
+→ 1 a.s., we have 
+
+> Nn
+
+X
+
+> i=1
+
+E  U 2 
+
+> ni
+
+| F n,i −1
+
+ → 1 in probability .
+
+Substituting the definition of Uni , we obtain 
+
+s−2
+
+> nNn
+
+X
+
+> i=1
+
+E  Z2 
+
+> ni
+
+| F n,i −1
+
+ → 1 in probability as desired. 
+
+D.7 Infinite martingale array and a.s. convergence 
+
+Given Lemmas D.9 and D.11, we can now apply Theorem D.1 to obtain 
+
+s−1 
+
+> n
+
+u⊤ (βn,N n − βn) → N (0 , 1) in distribution. Lemma D.10, Slutsky’s theorem and the Cram´ er-Wold theorem then give 
+
+n1/2 (βn,N n − βn) → N 
+
+
+
+0, I−1 
+
+> P∗
+> X
+
+
+
+in distribution. Next, we make the connection to the infinite martingale array ( βni , Fni )i≥1,n ≥1 based on a similar argument to the proof of Hall and Heyde (1980, Theorem 3.6). We first note that 
+
+E
+
+n
+
+n(βn∞ − βn,N n )( βn∞ − βn,N n )⊤o
+
+= nE 
+
+
+
+I−1
+
+> n,N n
+
+
+
+following Theorem 1. We have already shown in the proof of Lemma D.10 that Nn/n → ∞ 
+
+implies 
+
+nE 
+
+
+
+I−1
+
+> n,N n
+
+
+
+→ 026 as n → ∞ . As a result, we clearly have 
+
+n1/2(βn∞ − βn,N n ) → 0 in probability as n → ∞ , which in turn implies 
+
+n1/2 (βn∞ − βn) → N 
+
+
+
+0, I−1 
+
+> P∗
+> X
+
+
+
+in distribution. Finally, the same argument as for Fong and Yiu (2026, Theorem 3) can be applied to convert the above result to the weak convergence a.s. case under Assumption 3, thereby giving Theorem 2. 
+
+D.8 Verifying assumptions 
+
+In this subsection, we briefly provide some discussion on how to verify Assumption 3 in practice, as well as some examples of models satisfying Assumptions 4(i) and 4(ii). For Assumption 3, we note that the latter condition on the a.s. convergence of n−1In can be shown under the assumption of βn → β∗ a.s. and appropriate conditions on w(t) and P ∗
+
+> X
+
+by using a uniform law of large numbers argument. Sufficient conditions are the variants of Assumptions 2 and either 4(i) or 4(ii) where PX is replaced with P ∗ 
+
+> X
+
+. It is likely that weaker assumptions will work, but we consider these for cohesiveness. We now provide a rough outline of the argument. The constant case w(t) = w0 is obvious as we can simply rely on the strong law of large numbers. For the latter case, let us define 
+
+I∗
+
+> n
+
+(β) = 1
+
+n
+
+> n
+
+X
+
+> j=1
+
+w(β⊤X∗ 
+
+> j
+
+) X∗ 
+
+> j
+
+X∗⊤  
+
+> j
+
+, I∗(β) = EP ∗
+
+> X
+
+n
+
+w(β⊤X)XX ⊤o
+
+.
+
+To verify the conditions required for I∗
+
+> n
+
+(βn) → I ∗(β∗), we can use the decomposition 
+
+∥I ∗
+
+> n
+
+(βn) − I ∗(β∗)∥ ≤ ∥I ∗
+
+> n
+
+(βn) − I ∗(βn)∥ + ∥I ∗(βn) − I ∗(β∗)∥ .
+
+Note that since 0 < w (t) < ∞ is continuous, P ∗ 
+
+> X
+
+has compact support, and βn → β∗ P ∗∞ -a.s., we have that 0 < c l ≤ w(β⊤ 
+
+> n
+
+X∗ 
+
+> j
+
+) ≤ cu < ∞ P ∗∞ -a.s. from Lemma D.7. As a result, I∗(·) is continuous from continuity and dominance of w(t), so the second term goes to 0. The first term can be handled by a uniform strong law of large numbers, where sup 
+
+> β∈B(β∗)
+
+∥I ∗
+
+> n
+
+(β) − I ∗(β)∥ → 0 P ∗∞ -a.s. for B(β∗) as a suitable compact neighborhood of β∗, following the convergence of βn to β∗.The conditions for the uniform strong law again hold under similar continuity and dominance arguments of w(t). For Assumptions 4(i) and 4(ii), we include a few common examples to illustrate the forms of 
+
+w(t) and k(t) corresponding to the two cases. 
+
+Example 2 (Location model) . For location models, consider pY (y | t) = p0(y − t), which en-compasses many examples including the Student-t example of Section 4. Under appropriate regularity conditions, we have 
+
+r(y | t) = − p′
+
+> 0
+
+(y − t)
+
+p0(y − t)27 which gives 
+
+w(t) = 
+
+Z  p′
+
+> 0
+
+(y − t)
+
+p0(y − t)
+
+2
+
+pY (y | t) dy =
+
+Z  p′
+
+> 0
+
+(z)
+
+p0(z)
+
+2
+
+p0(z) dz 
+
+through a change of variables z = y − t. Since the above does not depend on t, we clearly have 
+
+w(t) = w0 as desired. A similar argument can be applied for the kurtosis function to show 
+
+k(t) = k0. We thus satisfy Assumption 4(i). 
+
+Example 3 (Gamma with log link) . For the Gamma family with a log link, we have PY (· | t) = Gamma {α, α exp( −t)}, where we are using the shape/rate parametrization. This then gives 
+
+r(y | t) = α {y exp( −t) − 1} ,
+
+and one can verify that 
+
+w(t) = α, k(t) = 3 + 6
+
+α
+
+which are both constant for fixed shape, so we can apply Assumption 4(i). 
+
+Example 4 (Logistic) . For logistic regression, we can verify that 
+
+w(t) = exp( t)
+
+{1 + exp( t)}2 , k(t) = 1
+
+w(t) − 3which is clearly not constant, and k(t) can be very large for large |t|. This intuitively explains the requirement of PX having compact support in Assumption 4(ii). 
+
+Example 5 (Poisson with log link) . For the Poisson family with a log link, one can show that 
+
+w(t) = exp( t), k(t) = 1
+
+w(t) + 3 where Assumption 4(ii) is again relevant. 
+
+# Appendix E Fixed-design case 
+
+As mentioned in the main paper, it is more computationally efficient to precompute required quantities such as I−1 
+
+> i
+
+Xi for a single realization of the predictive covariate sequence Xn+1: N
+
+for a sufficiently large truncation iteration N , which is then used across all parallel predictive resampling trajectories. Further computational details are provided in Section H.1. The above setting is closely related to the fixed-design formulation, where the predictive covariate sequence ( Xi)i≥n+1 is treated as a fixed deterministic sequence instead of being random samples from PX . In this case, the filtration is ( Fi)i≥n+1 where Fi = σ(Yn+1 , . . . , Y i). We again use the notation Fn = {∅ , Ω} to indicate the observed dataset ( X1: n, Y 1: n) is treated as constant. We now show that under standard regularity conditions, this fixed-design setting preserves weak design invariance, where the proof is very similar to that of Theorem 1. We highlight that the posterior covariance in the fixed-design case is also exactly the same as the random-design case as shown in the following result, so no uncertainty is lost in this setting. We begin with the fixed-design version of Assumption 2. 28 Assumption E.2. Let ˜X = ( ˜Xi)i≥1 be a deterministic covariate sequence which satisfies 
+
+lim  
+
+> N→∞
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+˜Xi ˜X⊤ 
+
+> i
+
+= Σ X ,
+
+where ΣX is finite and ΣX ≻ 0. Furthermore, we require 
+
+lim sup  
+
+> N→∞
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+∥ ˜Xi∥4 < ∞.
+
+The extra condition is required to control the tails of the deterministic sequence for the non-constant w(t) case. We now consider predictive resampling with update rule (2) and Pi(· | x) = 
+
+PY (· | β⊤ 
+
+> i
+
+x), where we set Xi = ˜Xi−n for i ≥ n + 1 as our future covariate sequence. 
+
+Corollary E.1 (Weak design invariance, fixed-design) . Under predictive resampling as described above, (βi, Fi)i≥n+1 is a martingale bounded in L2 and βi → β∞ almost surely, so E(β∞ | F n)
+
+does not depend on ˜X. If Assumption E.2 holds and w(t) is continuous and strictly positive for all t ∈ R, then Cov( β∞ | F n) also does not depend on ˜X.Proof. The update Zi = βi − βi−1 satisfies E(Zi | F i−1) = 0 since E{s(βi−1, Y i | Xi) | F i−1} = 0. Thus, ( βi, Fi)i≥n+1 is a martingale. Following the identity in Lemma C.1, the conditional covariance of the increments is 
+
+E(ZiZ⊤ 
+
+> i
+
+| F i−1) = I−1 
+
+> i−1
+
+− I −1 
+
+> i
+
+.
+
+We can thus also show a similar result to Lemma C.2 albeit without the expectation, that is Cov( βN | F n) = I−1 
+
+> n
+
+− I −1 
+
+> N
+
+.
+
+To show I−1 
+
+> N
+
+→ 0, we can follow a similar proof technique to Lemma C.4, although more work is needed to show the existence of a sufficiently large compact ball Br to control the minimum eigenvalue of N −1IN . Again for Br = {x ∈ Rp : ∥x∥ ≤ r}, let us define ΣN (r) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+˜Xi ˜X⊤ 
+
+> i
+
+1( ˜Xi ∈ Br)with Σ N := Σ N (∞). We must now show the existence of a sufficiently large r such that lim inf   
+
+> N→∞
+
+λmin {ΣN (r)} > 0.
+
+To do this, Weyl’s inequality gives 
+
+λmin {ΣN (r)} ≥ λmin (Σ N ) − λmax 
+
+(
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+˜Xi ˜X⊤ 
+
+> i
+
+1( ˜Xi ∈ Bcr )
+
+)
+
+.
+
+Since λmin (Σ N ) → λmin (Σ X ) > 0 from Assumption E.2, we only need to upper bound the latter term. Using a Rayleigh quotient argument, one can show that 
+
+λmax 
+
+(
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+˜Xi ˜X⊤ 
+
+> i
+
+1( ˜Xi ∈ Bcr )
+
+)
+
+≤ 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+∥ ˜Xi∥21
+
+
+
+∥ ˜Xi∥ > r 
+
+
+
+.
+
+29 Finally, a Lyapunov style argument gives 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+∥ ˜Xi∥21
+
+
+
+∥ ˜Xi∥ > r 
+
+
+
+≤ 1
+
+r2
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+∥ ˜Xi∥4
+
+!
+
+.
+
+From Assumption E.2, let 
+
+C = lim sup  
+
+> N→∞
+
+1
+
+N
+
+> N
+
+X
+
+> i=1
+
+∥ ˜Xi∥4 < ∞.
+
+We can then choose r sufficiently large so that 
+
+Cr2 < 12 λmin (Σ X ),
+
+which gives lim inf   
+
+> N→∞
+
+λmin {ΣN (r)} ≥ 12 λmin (Σ X ) > 0.
+
+The rest of the proof then proceeds as in Lemma C.4, where we again obtain the lower bound lim inf  
+
+> N
+
+λmin 
+
+ N −1IN
+
+ > 0.
+
+Finally, we can skip the dominance argument, and I−1 
+
+> N
+
+→ 0 implies Cov( β∞ | F n) = I−1 
+
+> n
+
+as in the random-design case. Similarly, it is possible to show a version of Theorem 2 under the case where the predictive design sequence (and potentially the observed covariate sequence) is deterministic. Again, the proof will generally be easier as we do not need to take expectations over the covariate distribution. To begin, we note that Assumptions 4(i) and 4(ii) can be easily replaced by their fixed-design counterparts, given below. Since Assumption E.2 already contains the 4th moment control, it will not be necessary for Assumption E.3(i). 
+
+Assumption E.3(i). Suppose w(t) = w0 and k(t) = k0 where w0 and k0 are positive finite constants. 
+
+Assumption E.3(ii). Suppose w(t) and k(t) are continuous and strictly positive for all t ∈ R.Let ˜X = ( ˜Xi)i≥1 satisfy sup i≥1 ∥ ˜Xi∥ < ∞.
+
+Note that Assumption 3 and D.1 can remain unchanged. The real observations may be random-design or fixed-design, where in the latter case we have a real design sequence ˜X∗ = ( ˜X∗ 
+
+> i
+
+)i≥1
+
+and P ∗∞ is now the joint law of Y ∗ 
+
+> 1: ∞
+
+which is no longer identically distributed. Analogous to Corollary E.1, the filtration we use will be ( Fni )i≥1,n ≥1 where Fni = σ (Yn1, . . . , Y ni ) and we use the same deterministic sequence ( ˜Xi)i≥1 for each row in the martingale array. We then have the following result. 
+
+Corollary E.2 (Asymptotic normality, fixed-design) . Suppose Assumptions E.2, 3 and either E.3(i) or E.3(ii) hold. Let βn∞ be the limit under predictive resampling initialized at βn as in Corollary E.1. Then the posterior law of n1/2 (βn∞ − βn) converges weakly P ∗∞ -almost surely to a Gaussian as n → ∞ .Proof. The proof structure is largely unchanged, with the fixed-design case actually simplifying much of the proof. For example, Lemma D.8 will hold deterministically instead of almost surely, 30 Lemma D.10 and Section D.7 will not require an expectation over I−1 
+
+> n,N n
+
+, and Lemma D.11 is no longer necessary since V 2 
+
+> n
+
+= s2
+
+> n
+
+.One difference is the proof of Lemma D.9 in the constant w(t) = w0 and k(t) = k0 case. As we do not take an expectation over ∥ ˜Xi∥4, we must handle this term in (D.7) differently. Instead, we will have 
+
+E
+
+ eZ4 
+
+> ni
+
+| F n,i −1
+
+
+
+≤ w20 k0 K3 ∥u∥4 ∥ ˜Xi∥4
+
+where K3 is the deterministic upper bound on sup n≥1,i ≥0 R4 
+
+> ni
+
+from the fixed-design version of Lemma D.8. To check the conditional Lyapunov condition with δ = 2, we then note that 
+
+s−4
+
+> nNn
+
+X
+
+> i=1
+
+E  Z4 
+
+> ni
+
+| F n,i −1
+
+ ≤ O(n2)
+
+> ∞
+
+X
+
+> i=1
+
+(n + i)−4∥ ˜Xi∥4.
+
+To control the above, we have 
+
+> ∞
+
+X
+
+> i=1
+
+(n + i)−4∥ ˜Xi∥4 =
+
+> ∞
+
+X
+
+> i=1
+
+∥ ˜Xi∥4
+
+Z ∞
+
+> n+i
+
+4s−5ds =
+
+Z ∞
+
+> n+1
+
+4s−5
+
+
+
+> ⌊s−n⌋
+
+X
+
+> i=1
+
+∥ ˜Xi∥4
+
+ ds. 
+
+As Assumption E.2 gives PNi=1 ∥ ˜Xi∥4 = O(N ), we have 
+
+> ∞
+
+X
+
+> i=1
+
+(n + i)−4∥ ˜Xi∥4 = O(n−3),
+
+and the conditional Lyapunov condition holds. Finally, we note that the general w(t) and k(t)case is unchanged as we rely on the boundedness of ˜Xi here. Finally, we highlight that it would be interesting to extend Doob’s consistency theorem to the fixed-design case, which is likely possible in our simplified linear setting, although we leave a proper investigation for future work. The fixed-design setting is for example, addressed in Choi and Ramamoorthi (2008, Theorem 7.7) for the linear regression model with nonparametric errors, and a potential direction is to investigate if Choi and Ramamoorthi (2008, Proposition 7.5) can be applied to our setting. 
+
+# Appendix F Identifiability 
+
+F.1 Limit under non-identifiability 
+
+In this section, we illustrate how predictive resampling can still converge under violation of Assumption 2, albeit to an incorrect limit. We consider the general parametric martingale posterior setup given in (2), as this also encompasses the Bayesian linear regression case given in Example 1. We begin by noting that both Lemmas C.2 and C.3 hold even if PX does not satisfy Assumption 2, as this property is not used in those results. As a result, ( βi, Fi)i≥n+1 is still a martingale bounded in L2, so βi still converges to β∞ a.s. under non-identifiability. However, the key issue is that the underlying parameter β is not measurable with respect to σ(X1: ∞, Y 1: ∞) under non-identifiability. Consequently, the limit β∞ fails to recover β as required in Doob’s consistency 31 theorem, thus invalidating the uncertainty quantification obtained from predictive resampling. We see the effects of this in Example 1, where we obtain a mismatched posterior to the ground truth, and discuss this further in Section F.2. It is also possible to characterize this mismatch. The identifiability condition only plays a role in the final step of the proof of Theorem 1. Although we will still have 
+
+E
+
+n
+
+(βN − βn) ( βN − βn)⊤ | F n, X n+1: N
+
+o
+
+= I−1 
+
+> n
+
+− I −1 
+
+> N
+
+,
+
+under non-identifiability, we do not generally have I−1 
+
+> N
+
+→ 0 a.s. A key side effect of violating Assumption 2 is that the distribution of β∞ will no longer be weakly design invariant. As an example, consider the linear regression model with σ = 1 and a ridge penalty, where 
+
+IN =
+
+> N
+
+X
+
+> j=1
+
+Xj X⊤ 
+
+> j
+
++ τ I, 
+
+and suppose as well that p > n and PX = PX which makes the analysis easier. This can be shown to be equivalent to Example 1; see Section G. We will still have 1
+
+N − n
+
+> N
+
+X
+
+> j=n+1
+
+Xj X⊤ 
+
+> j
+
+→ Σn = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+XiX⊤ 
+
+> i
+
+a.s. but Σ n is no longer invertible, violating Assumption 2. Next, we write 
+
+IN ≈ N Σn + τ I, 
+
+where we have used the fact that In = nΣn + τ I . Next, we note that 
+
+I−1 
+
+> N
+
+≈ τ −1δN (Σ n + δN I)−1 = τ −1 n
+
+I − (Σ n + δN I)−1 Σn
+
+o
+
+where δN = τ /N . Taking δN → 0 then gives 
+
+I−1 
+
+> N
+
+→ τ −1 
+
+I − Σ†
+
+> n
+
+Σn
+
+
+
+a.s. where Σ † 
+
+> n
+
+is the Moore-Penrose inverse of Σ n. To see the above, we can take the spectral decomposition Σ n = U ΛU ⊤, which gives lim  
+
+> δ→0
+
+(Σ n + δI )−1 Σn = U Λ0U ⊤ = Σ †
+
+> n
+
+Σn,
+
+where Λ 0 
+
+> jj
+
+= 1(Λ jj > 0). If Σ n were invertible, then the limit of I−1 
+
+> N
+
+is clearly 0. Otherwise, since we have I−1 
+
+> n
+
+= ( nΣn + τ I )−1, the limiting covariance under predictive resampling takes the form (nΣn + τ I )−1 − τ −1 
+
+I − Σ†
+
+> n
+
+Σn
+
+
+
+= ( nΣn + τ I )−1 n
+
+I − τ −1 (nΣn + τ I )
+
+
+
+I − Σ†
+
+> n
+
+Σn
+
+o 
+
+= ( nΣn + τ I )−1 Σ†
+
+> n
+
+Σn.
+
+One can verify that the above is still a valid covariance matrix, and since ( I − Σ†
+
+> n
+
+Σn) ⪰ 0, the above is clearly smaller in Loewner order than I−1 
+
+> n
+
+= ( nΣn + τ I )−1. As a result, all marginal variances will be smaller, which agrees with Figure 1 (Left) under PX = PX .Finally, we repeat the experiment from Section 4 but with PX = PX , which is illustrated in Figure F.3. As we can see, the marginal variances are again smaller than that of Bayes or the parametric martingale posterior with an identifiable PX , especially for the inactive component. This further demonstrates the importance of identifiability for weak design invariance. 32 Figure F.3: Posteriors for the Student-t example for selected (Left) active coefficient; (Right) inactive coefficient. Predictive resampling is with update rule (2) using PX = PX versus PX =
+
+N (0 , I p). 
+
+F.2 Identifiability for the parametric martingale posterior 
+
+In the main paper, we define the distribution of β∞ to be the martingale posterior, and proceed to verify properties such as existence, weak design invariance and asymptotic normality. While the practical impact of choosing a non-identifiable PX is quite visible on the parametric martingale posterior (e.g. as discussed in Section F.1), the role of identifiability in general is less clear than in traditional Bayes. For example, Theorems 1 and 2 do not explicitly rely on the one-parameter family P (· | t) being identifiable, although it is intuitively meaningful. We provide an informal outline of the importance of identifiability here. As in the proof of Proposition 1, let Pβ denote the joint distribution of ( X, Y ) where we compose 
+
+Pβ (· | x) with the fixed PX . One way to highlight the role of identifiability is to consider the functional view of the nonparametric martingale posterior (Fong et al., 2023). Since βi → β∞ a.s. under predictive resampling, we will have Pβ → Pβ∞ weakly a.s. under appropriate regularity conditions. Note that the empirical distribution Pi of ( Xi, Y i) will also have the same weak a.s. limit, e.g. Fong and Yiu (2025, Corollary 2) or Berti et al. (2004, Theorem 2.2). The functional view would then regard the distribution of functionals of Pβ∞ as the martingale posterior. Under the identifiability assumptions of Proposition 2, the mapping β → Pβ is injective, so there will exist a functional f such that β∞ = f (Pβ∞ ) a.s. This can likely be formalized (e.g. measurability of f ) using a similar argument as in Doob’s theorem (Miller, 2018, Theorems 4.1, 4.2). The interesting property is that the distribution of β∞ can still exist even if PY (· | t)is not identifiable, or if PX does not satisfy Assumption 2, although we lose the functional interpretation and arguably the validity of the resulting posterior. 
+
+# Appendix G Motivation for recursive update 
+
+In this section, we motivate our recursive update form, in particular the choice of Ii and αi(x), through looking at Bayesian linear regression. Let Pβ (· | x) = N (β⊤x, σ 2) with a conjugate prior β ∼ N (0 , τ −1I). It is well known that the posterior mean after i observations takes the 33 form 
+
+βi =
+
+
+
+> i
+
+X
+
+> j=1
+
+Xj X⊤
+
+> j
+
+σ2 + τ I 
+
+ 
+
+> −1i
+
+X
+
+> j=1
+
+Xj Yj
+
+σ2 ·
+
+A well known identity for recursive least squares is 
+
+βi = βi−1 +
+
+
+
+> i
+
+X
+
+> j=1
+
+Xj X⊤
+
+> j
+
+σ2 + τ I 
+
+
+
+> −1
+
+Xi
+
+ Yi − β⊤
+
+> i−1
+
+Xi
+
+
+
+σ2 ·
+
+It is not too hard to verify that for the linear regression model, we have 
+
+s(β, y | x) = x(y − β⊤x)
+
+σ2 , w(t) = w0 = 1
+
+σ2
+
+hence allowing us to write 
+
+βi = βi−1 + I−1 
+
+> i
+
+s(βi−1, Y i | Xi),
+
+Ii =
+
+> i
+
+X
+
+> j=1
+
+w0Xj X⊤ 
+
+> j
+
++ D
+
+where D = τ I . To motivate the scalar correction term, we note that the posterior predictive implies n 
+
+Yi − β⊤
+
+> i−1
+
+Xi
+
+
+
+| F i−1, X i
+
+o
+
+∼ N 
+
+n
+
+0, σ 2 
+
+1 + w0X⊤ 
+
+> i
+
+I−1
+
+> i−1
+
+Xi
+
+o 
+
+.
+
+Now suppose instead {(Yi − β⊤
+
+> i−1
+
+Xi) | F i−1, X i} ∼ N (0 , σ 2) as we want to use the plug-in predictive. If we scale ( Yi − β⊤
+
+> i−1
+
+Xi) by αi−1(Xi), where 
+
+αi(x) = 
+
+
+
+1 + w0 x⊤I−1 
+
+> i
+
+x
+
+1/2
+
+,
+
+then the scaled residual would match the posterior predictive case. Combining this, we obtain the update 
+
+βi = βi−1 + αi−1(Xi) I−1 
+
+> i
+
+s(βi−1, Y i | Xi).
+
+Finally, we note that unlike what one might expect for stochastic gradient descent (e.g. for the maximum a posteriori estimate), the prior regularization only enters into Ii without affecting the score function for Bayesian updating of the posterior mean. 
+
+G.1 Generalizing beyond linear regression 
+
+To generalize beyond Gaussian linear regression, the score function can easily just be replaced with that of the appropriate density. For Ii, we notice that the conditional Fisher information for the case Pβ (· | x) = PY (· | β⊤x) would take the form 
+
+E
+
+n
+
+s(β, Y | x) s(β, Y | x)⊤ | x
+
+o
+
+= w(β⊤x) xx ⊤,
+
+so it is natural to replace all occurrences of w0 with w(β⊤x). We opt to plug-in the value of the initial estimate βn here, as this is our best estimate of β∗, and do so similarly for D(βn)as we discuss in Section G.2. Although it will not make much difference in practice, we briefly consider a variant of the update in Section G.3 where w(·) may depend on updated values of 
+
+βi, and illustrate the technical challenges this poses. Finally, the role of the additional ratio term w(β⊤ 
+
+> n
+
+x)/w (β⊤ 
+
+> i
+
+x) in αi(x) can be explicitly seen in the proof of Theorem 1 to attain design invariance. 34 G.2 Generalizing the regularization matrix D
+
+In high-dimensional regression, the assumption of sparsity is often necessary, which is incor-porated through shrinkage priors in the Bayesian setting. In this subsection, we utilize this connection to inspire generalized choices of D beyond just D = τ I as motivated at the start of this section. Many classic shrinkage priors can be expressed as a scale mixture of normals (West, 1987), which takes the form 
+
+β(j) | τ (j) ∼ N (0 , 1/τ (j)), τ (j) ∼ p(τ (j) | λ), j = 1 , . . . , p 
+
+where λ are hyperparameters. For the model pβ (y | x) = N  y; β⊤x, σ 2 as considered at the start of this section, this prior choice is conjugate conditional on ( τ (1) , . . . , τ (p)), giving a conditional posterior mean of 
+
+E
+
+n
+
+β | F i,
+
+
+
+τ (1) , . . . , τ (p)o 
+
+=
+
+
+
+> i
+
+X
+
+> j=1
+
+Xj X⊤
+
+> j
+
+σ2 + D
+
+ 
+
+> −1i
+
+X
+
+> j=1
+
+Xj Yj
+
+σ2
+
+where D = Diag  τ (1) , . . . , τ (p). The above provides a clear justification for the form of Ii,where the remaining question is what to plug in for  τ (1) , . . . , τ (p).As discussed in Section 3.4, predictive resampling is initialized at the maximum a posteriori estimate βn given ( X1: n, Y 1: n) corresponding to the chosen sparse prior on β. Given this initial-ization, we propose to set  τ (1) , . . . , τ (p) as a function of the initial estimate βn by capturing its estimated sparsity, thereby justifying the notation D(βn) used in the main paper. As with 
+
+w(β⊤ 
+
+> n
+
+x) in Section G.1, we hold D(βn) fixed throughout predictive resampling. To derive appropriate plug-in estimates of  τ (1) , . . . , τ (p), we suggest leveraging the conditional posterior utilized in Gibbs samplers. One potential choice is the Gaussian conditional posterior mean 
+
+Djj (βn) = E
+
+
+
+τ (j) | F n, β = βn
+
+
+
+= E
+
+
+
+τ (j) | β(j) = β(j)
+
+> n
+
+
+
+for j = 1 , . . . , p , where we highlight that the conditional posterior of ( τ (1) , . . . , τ (p)) does not depend on the observations. The above term is often in closed form for scale mixture of normals priors; otherwise we may use the conditional maximum a posteriori estimate which can be com-puted using numerical techniques. Other plug-in estimates can be used if the above suggestions are not stable. We now derive the plug-in estimates given in Table 1 following the above construction. 
+
+Example 6 (LASSO) . The well-known Bayesian LASSO prior (Park and Casella, 2008) is a scale mixture of normals prior with 1
+
+τ (j) ∼ Exp 
+
+ λ2
+
+2
+
+
+
+where λ corresponds to the usual LASSO penalty hyperparameter and we have assumed σ2 = 1 is known. One can then show the conditional posterior is 
+
+τ (j) | β(j) ∼ Inverse-Gaussian 
+
+ λ
+
+|β(j)| , λ 2
+
+
+
+35 which has posterior mean λ/ |β(j)|, thus matching the entry in Table 1. In the case where |β(j)|
+
+is close or equal to 0, another option for the plug-in estimate is the reciprocal form 1
+
+E1/τ (j) | β(j) = λ2
+
+λ |β(j)| + 1 which can be shown from properties of the inverse-Gaussian distribution. The above is stable for small values of |β(j)|.
+
+Example 7 (Gaussian continuous spike-and-slab) . Another popular class of priors is the contin-uous spike-and-slab prior (George and McCulloch, 1993), where 
+
+τ (j) =
+
+
+
+1 − z(j)
+
+v−10 + z(j)v−11 , z(j) ∼ Bernoulli ( θ) ,
+
+where z(j) ∈ { 0, 1}, θ ∈ (0 , 1) and v0 ≪ v1. This corresponds to a Gaussian spike with variance 
+
+v0 and a slab with variance v1. It is not too hard to show that 
+
+E
+
+
+
+τ (j) | β(j)
+
+= (1 − γ(j)) v−10 + γ(j) v−11
+
+where 
+
+γ(j) = E
+
+
+
+z(j) | β(j)
+
+= θ N (β(j); 0 , v 1)
+
+θ N (β(j); 0 , v 1) + (1 − θ) N (β(j); 0 , v 0) ·
+
+We note that γ(j) is essentially the conditional posterior inclusion probability, and the above computation is also used in the EMVS algorithm of Roˇ ckov´ a and George (2014). 
+
+Example 8 (Spike-and-slab LASSO) . The continuous spike-and-slab prior with the Gaussian kernel typically requires post-hoc thresholding of posterior inclusion probabilities for variable selection (Bai et al., 2021). In contrast, the spike-and-slab LASSO prior (Rockova and George, 2018) replaces the Gaussian kernels with Laplace kernels, refining the ℓ1 penalty by allowing adaptive shrinkage tailored to the magnitude of each coefficient. In this setting, we have a slightly more complex prior, where 1
+
+τ (j) | z(j) ∼ Exp λ2
+
+> z(j)
+
+2
+
+!
+
+, λz(j) =
+
+
+
+1 − z(j)
+
+λ0 + z(j) λ1, z(j) ∼ Bernoulli( θ),
+
+where again θ ∈ (0 , 1), and λ0 ≫ λ1. Now, we have 
+
+
+
+τ (j) | β(j), z (j)
+
+∼ Inverse-Gaussian 
+
+ λz(j)
+
+|β(j)| , λ 2
+
+> z(j)
+
+
+
+,
+
+therefore giving 
+
+E
+
+
+
+τ (j) | β(j)
+
+= E
+
+n
+
+E
+
+
+
+τ (j) | β(j), z (j)
+
+| β(j)o
+
+=
+
+
+
+1 − γ(j) λ0
+
+β(j) + γ(j) λ1
+
+β(j)
+
+where the inclusion probability γ(j) can again be shown to be the form 
+
+γ(j) = θ λ 1 exp  −λ1|β(j)|
+
+(1 − θ) λ0 exp  −λ0|β(j)| + θ λ 1 exp  −λ1|β(j)| ·
+
+We make a final remark regarding the uncertainty quantification in our method, which is par-ticularly highlighted in the spike-and-slab examples. For variable selection priors, an additional layer of uncertainty arises from the uncertainty in the variable inclusion indicators z(j), which is not handled in our case as we plug in an estimated value of E(z(j) | β(j) 
+
+> n
+
+). Thus, our mar-tingale posterior framework focuses exclusively on local coefficient uncertainty, and extending the framework to quantify model selection uncertainty is an important and nontrivial future direction of research. 36 G.3 Adaptive weights w(β⊤x)
+
+As discussed in Section G.1, we briefly consider one other variant of Ii and αi(x) which allows for w(·) to depend on βi. Suppose we now have 
+
+Ii =
+
+> i
+
+X
+
+> j=1
+
+w(β⊤
+
+> j−1
+
+Xj )Xj X⊤ 
+
+> j
+
++ D, αi(x) = 
+
+n
+
+1 + w
+
+
+
+β⊤ 
+
+> i
+
+x
+
+
+
+x⊤I−1 
+
+> i
+
+x
+
+o1/2
+
+.
+
+The main difference is that Ii is no longer evaluated at a single β, instead relying on the whole sequence β1: i−1 in an online manner. In order to attempt to show weak design invariance, one can verify that the above choice gives 
+
+E[ZiZ⊤ 
+
+> i
+
+| F i−1, X i] = αi−1(Xi)2 · w(β⊤
+
+> i−1
+
+Xi)I−1
+
+> i−1
+
+XiX⊤ 
+
+> i
+
+I−1
+
+> i−1
+
+1 + w(β⊤
+
+> i−1
+
+Xi)X⊤ 
+
+> i
+
+I−1
+
+> i−1
+
+Xi 
+
+> 2
+
+= I−1 
+
+> i−1
+
+− I −1 
+
+> i
+
+,
+
+similar to Lemma C.1. We can then still show that 
+
+E
+
+n
+
+(βN − βn) ( βN − βn)⊤ | F n
+
+o
+
+= I−1 
+
+> n
+
+− E  I−1 
+
+> N
+
+| F n
+
+ .
+
+We now face the crux of the issue: we can no longer rely on a strong law of large numbers argument to show E  I−1 
+
+> N
+
+| F n
+
+ → 0, as IN depends on the random βN . We suspect this will introduce the need for stringent conditions on w(t) and PX , and will be much less general than our Theorem 1. Proving Theorem 2 will also be significantly more challenging, as we also rely on the strong law of large numbers argument here. This approach will also significantly increase the computational cost, as the dependence of Ii on βn+1: i prevents precomputation. Finally, we note that having an adaptive weight will not have much practical impact, since the target limiting covariance would still be I−1 
+
+> n
+
+if we can establish weak design invariance. 
+
+# Appendix H Additional experiments and details 
+
+H.1 Computation 
+
+This subsection outlines additional computational details on the implementation of (2). In particular, we discuss the computation of the initial estimate, the precomputation of terms involving I−1 
+
+> i
+
+, and details on potential parallelization of predictive resampling. As outlined in the main paper, all methods are implemented in Julia (Bezanson et al., 2017) for computational expediency, due to the inherent recursive nature of our methodology. Predictive resampling relies on initializing βn to the maximum a posteriori estimate correspond-ing to the appropriate prior. When the objective function is non-convex, such as for the con-tinuous spike-and-slab prior, the numerical optimization procedure requires more care to obtain a good estimate. We can resort to standard techniques such as deterministic annealing (Ueda and Nakano, 1998) or dynamic posterior exploration with a warm start which is often used in the spike-and-slab case (Rockova and George, 2018; Bai et al., 2021). For the simulation in Section 4, we implement an expectation-maximization algorithm as the base optimizer, which can be viewed as an extension of the EMVS algorithm of Roˇ ckov´ a and George (2014) with an additional continuous latent variable due to the Student-t likelihood. To carry out dynamic posterior exploration, we initialize at βn = 0 p, then gradually decrease the spike variance along 37 a ladder from v0 = 0 .5 to the target v0 = 0 .0005 using the estimate from the previous v0 value as the warm start for our expectation-maximization optimizer. As discussed in Section 4, it is computationally convenient to reuse the same (random) se-quence Xn+1: N across predictive resampling trajectories, which can be justified theoretically as in Section E. In particular, the expensive terms in (2) are the ones that involve I−1 
+
+> i
+
+. In the absence of parallelization as in Section 4, we utilize the Sherman-Morrison update to com-pute ( I−1 
+
+> i
+
+)(n+1) ≤i≤N in O{(N − n)p2} operations given the sequence Xn+1: N and initial I−1 
+
+> n
+
+.In this process, we will have precomputed the terms I−1 
+
+> i
+
+Xi and {1 + w(β⊤ 
+
+> n
+
+Xi)XiI−1
+
+> i−1
+
+Xi} for (n + 1) ≤ i ≤ N , which are exactly needed to compute I−1 
+
+> i
+
+s(βi−1, Y i | Xi) and αi−1(Xi) re-spectively when predictive resampling. We highlight that this precomputation is very similar to that of recursive least squares, so we may be able to further leverage techniques within this literature to speed up or approximate our computation, which we leave for future work. Finally, we briefly discuss the potential for parallelization. Unlike Gibbs sampling, predictive resampling is inherently parallelizable across trajectories. As a result, the run-time for predic-tive resampling (after precomputation) can be reduced to essentially the run-time of a single trajectory given sufficient parallelization. Parallelization may also be used to accelerate precom-putation, e.g. through block processing of I−1 
+
+> i
+
+for blocks of {n + 1 , . . . , N }, and also allowing for different Xn+1: N sequences across predictive resampling trajectories if desired. 
+
+H.2 Impact of correction term αi(x)
+
+We empirically demonstrate the importance of the scalar correction factor αi(x) in this subsec-tion. Figure H.4 illustrates the limit under the setting of Section 4 using recursive update (2) 
+
+without correction: 
+
+βi = βi−1 + I−1 
+
+> i
+
+s(βi−1, Y i | Xi).
+
+We see that the marginal posteriors are clearly noticeably different for PX = N (0 , I p) versus 
+
+N (0 , 10 2 Ip), highlighting the importance of the scalar correction factor for (weak) design in-variance. Without the scalar factor, we no longer have the telescoping argument required for Theorem 1. 
+
+Figure H.4: Posteriors for the Student-t example for selected (Left) active coefficient; (Right) inactive coefficient. Predictive resampling is with update rule (2) minus the correction term 
+
+αi−1(Xi), and using PX = N (0 , I p) versus PX = N (0 , 10 2 Ip). 38 H.3 Convergence rate of predictive resampling 
+
+In this subsection, we explore the impact of the scale parameter in PX = N (0 , κ 2Ip) on the convergence rate of predictive resampling under the setting of Section 4. Figure H.5 illustrates predictive resampling trajectories under different values of κ, where it is clear that increasing κ
+
+allows the trajectories to converge to their limiting values faster, with diminishing returns after 
+
+κ = 10. We also highlight a notable observation: predictive resampling will always require a truncation value of at least N ≥ p + 1 for convergence, which is not too surprising as otherwise the parameter will be non-identifiable given ( X1: N , Y 1: N ). As discussed in the main paper, a practical recommendation to avoid numerical instability is to increase κ until the predictive resampling trajectories converge sufficiently quickly as desired; we see in Figure H.5 that κ = 10 is sufficient. 
+
+Figure H.5: Trajectory plots for the Student-t example for selected (Left) active coefficient; (Right) inactive coefficient. Predictive resampling is with update rule (2) using PX = N (0 , κ 2Ip)where κ = (0 .1, 1.0, 10 .0, 30 .0). To understand why increasing κ can increase the convergence rate of predictive resampling, we look at the remaining variance at truncation N . From Theorem 1, we have 
+
+E
+
+n
+
+(β∞ − βN ) ( β∞ − βN )⊤o
+
+= E  I−1
+
+> N
+
+
+
+where the expectation is over Xn+1: N iid 
+
+∼ PX . Increasing the convergence speed of predictive resampling is thus equivalent to reducing the size of E  I−1
+
+> N
+
+, which is connected to the amount of information in each imputed sample ( Yi, X i). For the Student-t example in Section 4, the above variance term can be reduced by increasing κ as IN is approximately proportional to 
+
+PNi=1 XiX⊤ 
+
+> i
+
+.39 H.4 Main simulation and additional examples 
+
+We include additional details on the experiments in the main paper, and illustrate two additional examples to demonstrate the weak design invariance beyond the location model setting. As in the main paper, we generate B = 5000 posterior samples (or effective sample size for Markov chain Monte Carlo) for all examples. The observations are again generated from the corresponding parametric model in each experiment. For the Student-t example in Section 4, we note that the precomputation required 0.04s out of the total run-time of 0.12s for PX = N (0 , 10 2 Ip). For the case where PX = N (0 , I p), we found that N = 20000 was sufficient for truncation, where we required 1.31s for precomputation and 2.63s for predictive resampling, resulting in a run-time of 3.94s. Figure H.6 illustrates Gamma regression with a fixed shape of α = 1, a log link, and a ridge prior 
+
+N (0 , I p), where n = p = 10 with 5 active coordinates of magnitude ≈ 0.45. For the Gamma family, we have w(t) = α, so we can rely on Assumption 4(i). We see that the martingale posteriors appear identical for PX = N (0 , I p) and N (0 , 22 Ip) due to weak design invariance. Furthermore, we highlight that this design invariance holds even under clear non-Gaussianity of the martingale posterior, indicating the strength of weak design invariance. For the parametric martingale posterior, the initial maximum a posteriori estimate βn is computed using the L-BFGS optimizer (Liu and Nocedal, 1989). For predictive resampling, N = 1000 is sufficient for convergence, with a precomputation time of 0.35 ms followed by a run-time of 22 ms for 
+
+B = 5000 samples. We implement the traditional Bayesian posterior as a comparator using the No-U-Turn sampler (Hoffman et al., 2014) in the Turing.jl package (Fjelde et al., 2025) as the prior is not partially conjugate. Here we used 4000 adaptation steps, followed by 8000 samples to attain an effective sample size of B = 5000, which required 1.10 s of run-time. 
+
+Figure H.6: Posteriors for the gamma example for selected (Left) active coefficient; (Right) inactive coefficient. Predictive resampling is with update rule (2) using PX = N (0 , I p) versus 
+
+PX = N (0 , 22 Ip). Figure H.7 illustrates a logistic regression example using a ridge prior N (0 , 0.01 Ip), where n =1000 , p = 500 with 5 active coordinates of magnitude ≈ 0.45. This is an example where w(t) is not constant; see Example 4. Here we choose two options for PX with compact support [ −6, 6] p,in connection to Assumption 4(ii). All coordinates X(j) are drawn independently from the uniform distribution or the truncated normal with σ = 3 on [ −6, 6] in the two cases respectively. Again, weak design invariance is clearly preserving robustness of the martingale posterior to the choice of PX in this setting. The initial maximum a posteriori estimate βn is computed 40 using glmnet . For predictive resampling, we find that N = 5000 is sufficient for convergence, which requires a precomputation time of 0.32 s followed by a run-time of 4.83 s to generate 
+
+B = 5000 samples. As a comparison, we implement the traditional Bayesian posterior with the Gibbs sampler of Polson et al. (2013). Here we generate 6000 burn-in samples followed by another 6000 samples to achieve a mean effective sample size of B = 5000 in the active coordinates, requiring a total run-time of 151.64 s. We also highlight that a single coordinate of the maximum a posteriori estimate β(j) 
+
+> n
+
+does not necessarily align with the mode of the marginal posterior, which explains the observation in Figure H.7. 
+
+Figure H.7: Posteriors for the logistic example for selected (Left) active coefficient; (Right) inac-tive coefficient. Predictive resampling is with update rule (2) using PX = TruncNorm( −6, 6; σ =3) p versus PX = Uniform( −6, 6) p.41

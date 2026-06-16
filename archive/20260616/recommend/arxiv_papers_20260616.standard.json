@@ -1,0 +1,524 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-16T23:02:31.032572+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 10,
+    "quick_skim_target": 11,
+    "quick_selected": 10
+  },
+  "deep_dive": [
+    {
+      "id": "2606.13119v2",
+      "source": "arxiv",
+      "title": "MP3: Multi-Period Pattern Pre-training for Spatio-Temporal Forecasting",
+      "abstract": "Spatio-Temporal forecasting is crucial in diverse fields, such as transportation, climate, and energy. Urban spatio-temporal data exhibits temporal mirage: similar short-window inputs have divergent future trends, and vice versa. Existing spatio-temporal graph neural networks (STGNNs) cannot effectively identify such mirages. We argue that the core reason lies in the short-window inputs that have incomplete period observation, heterogeneous global spatial correlation, and cross-period superposition causality. To bridge this gap, we develop a novel Multi- Period Pattern Pre-training (MP3), a plug-and-play pre-training plugin for distinguishing temporal mirages. MP3 presents two core innovations: (1) The multi-period pattern learning is designed to learn multi-period patterns from long time series. Specifically, multi-period temporal modeling leverages edge convolution to identify different multi-period patterns. Multi-period spatial modeling uses a bottleneck project and a global memory bank to capture heterogeneous global spatial relations efficiently. Cross-period pattern interaction employs a causality-enhanced Transformer to capture dependencies across different period patterns. (2) This plugin can seamlessly integrate into existing STGNN backbones to strengthen their forecasting performance. The experiment on five STGNN baselines across five real-world datasets (including a large-scale dataset CA) verify the effectiveness, superior scalability and strong adaptability of MP3, which brings consistent and robust performance improvements across all evaluated baselines. On average, MP3 reduces the MAE 4.7% and the RMSE 5.0%. The code can be available at https://github.com/YAN-outlook/MP3.",
+      "authors": [
+        "Lilan Peng",
+        "Yandi Liu",
+        "Qingren Yao",
+        "Chongshou Li",
+        "Tianrui Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.NE"
+      ],
+      "published": "2026-06-11T09:48:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.13119v2",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "introduces multi-period pattern pre-training for spatio-temporal forecasting to identify temporal mirages, relevant to theoretical bounds on prediction accuracy",
+      "llm_evidence_cn": "提出多周期模式预训练用于时空预测以识别时间幻象，与预测精度的理论界限相关",
+      "llm_evidence": "提出多周期模式预训练用于时空预测以识别时间幻象，与预测精度的理论界限相关",
+      "canonical_evidence": "提出多周期模式预训练用于时空预测以识别时间幻象，与预测精度的理论界限相关",
+      "llm_tldr_en": "MP3 pre-training distinguishes temporal mirages in spatio-temporal data by learning multi-period patterns, improving forecasting accuracy and interpretability.",
+      "llm_tldr_cn": "该论文指出城市时空数据存在\"时间幻象\"现象，即相似短窗口输入可能对应不同未来趋势。为此提出多周期模式预训练（MP3），通过学习多周期模式、全局空间相关性和跨周期叠加因果性来区分幻象。作为插拔式插件，MP3显著提升了多种时空预测模型的精度。该方法直接针对预测准确性的根本挑战，有助于理解可预测性的理论界限。",
+      "llm_tldr": "该论文指出城市时空数据存在\"时间幻象\"现象，即相似短窗口输入可能对应不同未来趋势。为此提出多周期模式预训练（MP3），通过学习多周期模式、全局空间相关性和跨周期叠加因果性来区分幻象。作为插拔式插件，MP3显著提升了多种时空预测模型的精度。该方法直接针对预测准确性的根本挑战，有助于理解可预测性的理论界限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.15953v1",
+      "source": "arxiv",
+      "title": "Drift-Aware Spectral Conformal Prediction for Non-Exchangeable Streaming Data",
+      "abstract": "Conformal prediction provides distribution-free prediction intervals under exchangeability, but many modern data streams are neither independent nor stable. They exhibit recurring regimes, changing seasonal frequencies, abrupt shifts, and gradual drift. We propose drift-aware spectral conformal prediction (DASC), a streaming uncertainty quantification framework for structured non-exchangeable data subject to distributional drift. DASC forms conformal prediction intervals using calibration residuals weighted by local spectral similarity, while a transport-based drift score monitors whether the current test distribution has moved away from past calibration regimes. When drift is mild, DASC borrows calibration residuals from structurally similar historical windows; when drift is severe, it contracts or reweights the calibration pool and updates the target miscoverage level online. The method also reports an effective sample size diagnostic that warns when a weighted conformal quantile is statistically fragile. We establish an approximate coverage bound that decomposes coverage loss into drift, residual mismatch, and weighted effective sample size. In synthetic experiments and five stress-test regimes, DASC maintains near-nominal coverage after drift where rolling, recency-weighted, and spectral-only conformal methods can under-cover. In real electricity and weather streams, DASC reduces average interval width by approximately 28% and 42%, respectively, relative to the best calibrated non-DASC baseline, while preserving calibrated or conservative coverage. A financial volatility example shows a more nuanced regime in which spectral-only calibration is competitive, but DASC retains near-nominal coverage and adds drift diagnostics.",
+      "authors": [
+        "Jeffery Opoku",
+        "David Banahene"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-06-14T18:23:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.15953v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "drift-aware conformal prediction for streaming data, providing prediction intervals under distributional drift",
+      "llm_evidence_cn": "面向流数据漂移的谱共形预测，提供预测区间",
+      "llm_evidence": "面向流数据漂移的谱共形预测，提供预测区间",
+      "canonical_evidence": "面向流数据漂移的谱共形预测，提供预测区间",
+      "llm_tldr_en": "Proposes DASC, a streaming uncertainty quantification framework for non-exchangeable data, forming conformal prediction intervals with spectral similarity weighting and drift monitoring.",
+      "llm_tldr_cn": "本文提出漂移感知谱共形预测（DASC），针对非可交换流数据，利用局部谱相似性加权校准残差构建共形预测区间，并通过传输漂移得分监测分布漂移。在漂移较小时，可借用结构相似历史数据，为流数据预测提供可靠不确定性估计。",
+      "llm_tldr": "本文提出漂移感知谱共形预测（DASC），针对非可交换流数据，利用局部谱相似性加权校准残差构建共形预测区间，并通过传输漂移得分监测分布漂移。在漂移较小时，可借用结构相似历史数据，为流数据预测提供可靠不确定性估计。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.16773v1",
+      "source": "arxiv",
+      "title": "Generative Predictive Distributions for Time Series",
+      "abstract": "We propose a flexible framework for modeling the predictive distributions of nonlinear, possibly multivariate time series. Our approach expresses a general predictive distribution in an appropriate generative representation that is based on a folklore result from measure theoretic probability. This representation provides a direct simulation-based approximation to the predictive distribution, enabling straightforward computation of forecasts for the conditional mean and variance, fan charts, value at risk, expected shortfall, joint tail risks, and other quantities of interest. We estimate this generative representation using a version of conditional generative adversarial networks and provide a formal statistical analysis of estimation under weak temporal dependence. Specifically, estimation is expressed as a particular minimax problem and we establish consistency of its approximate solutions in Hausdorff distance. The empirical relevance of the approach is illustrated using applications to equity returns, realized variance, and realized covariances. The proposed method is also computationally manageable, with estimation in our applications taking approximately one minute on a standard laptop.",
+      "authors": [
+        "Jordi Llorens-Terrazas",
+        "Mika Meitz"
+      ],
+      "primary_category": "econ.EM",
+      "categories": [
+        "econ.EM",
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-06-15T14:20:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.16773v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "proposes generative predictive distributions for time series, enabling quantification of forecast uncertainty",
+      "llm_evidence_cn": "提出时间序列生成式预测分布，可量化预测不确定性",
+      "llm_evidence": "提出时间序列生成式预测分布，可量化预测不确定性",
+      "canonical_evidence": "提出时间序列生成式预测分布，可量化预测不确定性",
+      "llm_tldr_en": "A flexible framework using generative adversarial networks to model predictive distributions of nonlinear time series, enabling computation of various risk measures and formal statistical guarantees under weak dependence.",
+      "llm_tldr_cn": "该论文提出一个灵活的框架，利用条件生成对抗网络对非线性时间序列的预测分布进行建模。该框架基于测度概率的经典结果，能够直接通过模拟近似预测分布，从而计算条件均值、方差、风险值等。通过弱时间依赖条件下的形式化统计分析，为预测不确定性量化提供了理论保证，有助于理解时间序列的可预测性。",
+      "llm_tldr": "该论文提出一个灵活的框架，利用条件生成对抗网络对非线性时间序列的预测分布进行建模。该框架基于测度概率的经典结果，能够直接通过模拟近似预测分布，从而计算条件均值、方差、风险值等。通过弱时间依赖条件下的形式化统计分析，为预测不确定性量化提供了理论保证，有助于理解时间序列的可预测性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.14380v1",
+      "source": "arxiv",
+      "title": "FLaRA: Predicting Future Latent Representations for Accident Anticipation",
+      "abstract": "Anticipating traffic accidents from dashcam videos is a critical challenge in intelligent transportation systems. Existing methods typically map visual context directly to a collision probability without explicitly modeling the future evolution of the driving scene. In this paper we propose FLaRA (Predicting Future Latent Representations for Accident Anticipation), a novel predictive architecture that shifts this paradigm by forecasting future latent representations for accident anticipation. Building upon the Video Joint-Embedding Predictive Architecture (V-JEPA2), our model conditions a predictor network on observed context frames to predict the forthcoming latent features of the scene. A classifier then operates on these predicted future representations rather than only on past observations. To ensure these forecasts remain grounded in realistic future dynamics, we introduce a joint training objective that simultaneously optimizes an auxiliary feature-level reconstruction loss and a cross-entropy classification loss. Extensive evaluations on the Nexar dataset, alongside cross-domain validations on the DAD, DADA-2000, and DoTA benchmarks, demonstrate that our approach achieves state-of-the-art performance while maintaining realistic early warning capabilities.",
+      "authors": [
+        "Lorenzo Caselli",
+        "Tomaso Trinci",
+        "Tommaso Bianconcini",
+        "Simone Magistri",
+        "Leonardo Taccari",
+        "Francesco Sambo",
+        "Andrew D. Bagdanov"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-12T12:16:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.14380v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "predicts future latent representations for accident anticipation from dashcam videos, related to mobility prediction",
+      "llm_evidence_cn": "从行车记录仪视频预测未来潜在表示用于交通事故预警，与移动性预测相关",
+      "llm_evidence": "从行车记录仪视频预测未来潜在表示用于交通事故预警，与移动性预测相关",
+      "canonical_evidence": "从行车记录仪视频预测未来潜在表示用于交通事故预警，与移动性预测相关",
+      "llm_tldr_en": "FLaRA predicts future latent representations for traffic accident anticipation using V-JEPA2, shifting from direct collision probability to forecasting scene evolution.",
+      "llm_tldr_cn": "该论文提出FLaRA，利用视频联合嵌入预测架构来预测未来潜在表示，用于从行车记录仪视频中预测交通事故。通过显式建模场景的未来演变，提高了事故预警的准确性。该方法涉及人类移动性中的交通场景预测，但与可预测性极限无关。",
+      "llm_tldr": "该论文提出FLaRA，利用视频联合嵌入预测架构来预测未来潜在表示，用于从行车记录仪视频中预测交通事故。通过显式建模场景的未来演变，提高了事故预警的准确性。该方法涉及人类移动性中的交通场景预测，但与可预测性极限无关。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.11625v1",
+      "source": "arxiv",
+      "title": "TimeRouter: Efficient and Adaptive Routing of Time-Series Foundation Models",
+      "abstract": "Time-series foundation models (TSFMs) are increasingly explored as predictive experts within emerging agentic time-series systems. However, TSFMs exhibit heterogeneous inductive biases, and no single model consistently dominates across forecasting regimes, making expert selection a critical challenge. Existing systems often delegate this decision to LLM-based controllers, incurring substantial inference overhead. We present TimeRouter, an efficient routing framework that leverages empirical complementarity across a pool of pretrained TSFMs through lightweight discriminative routing, selective gating, and ensemble fallback. Concretely, TimeRouter combines a learned routing head, a selective gate, and an ensemble fallback, enabling adaptive expert selection without invoking an LLM at inference time. TimeRouter achieves state-of-the-art performance on the GIFT-EVAL leaderboard, with an LB MASE of 0.6765. Beyond benchmark performance, our ablation studies provide empirical insights into TSFM routing design, highlighting the importance of pool composition and selective gating. Taken together, these results position TimeRouter as a modular and lightweight routing layer for future agentic time-series systems built upon foundation-model pools. Our code is available at https://github.com/UConn-DSIS/TimeRouter.",
+      "authors": [
+        "Kanghui Ning",
+        "Yushan Jiang",
+        "Kashif Rasul",
+        "Anderson Schneider",
+        "Yuriy Nevmyvaka",
+        "Dongjin Song"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-10T03:39:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.11625v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "routes time-series foundation models adaptively for forecasting, indirectly relevant to predictability",
+      "llm_evidence_cn": "自适应路由时间序列基础模型用于预测，间接与可预测性相关",
+      "llm_evidence": "自适应路由时间序列基础模型用于预测，间接与可预测性相关",
+      "canonical_evidence": "自适应路由时间序列基础模型用于预测，间接与可预测性相关",
+      "llm_tldr_en": "TimeRouter efficiently routes among pretrained time-series foundation models using lightweight discriminative routing and gating, improving forecasting accuracy.",
+      "llm_tldr_cn": "该论文提出TimeRouter，通过轻量级判别性路由、选择性门控和集成回退机制，自适应地从多个预训练时间序列基础模型中选择最优预测专家。实验表明，该方法在多个预测场景中提升了准确性并降低推理开销。虽然未直接研究可预测性极限，但为时间序列预测提供了高效模型选择方法，有助于提升预测性能。",
+      "llm_tldr": "该论文提出TimeRouter，通过轻量级判别性路由、选择性门控和集成回退机制，自适应地从多个预训练时间序列基础模型中选择最优预测专家。实验表明，该方法在多个预测场景中提升了准确性并降低推理开销。虽然未直接研究可预测性极限，但为时间序列预测提供了高效模型选择方法，有助于提升预测性能。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.15240v1",
+      "source": "arxiv",
+      "title": "EnvShip-Bench: An Environment-Enhanced Benchmark for Short-Term Vessel Trajectory Prediction",
+      "abstract": "Vessel trajectory prediction is important for intelligent shipping, maritime surveillance, and navigation safety. However, existing public maritime AIS resources are often limited by inconsistent forecasting protocols, uneven data quality, and the lack of benchmark-ready contextual annotations, which hinder fair comparison and context-aware modeling. To address this gap, we present EnvShip-Bench, a unified benchmark for short-term vessel trajectory prediction built from large-scale raw AIS data from the Danish Maritime Authority (DMA) and NOAA through a common processing pipeline. EnvShip-Bench adopts a standardized forecasting protocol with 10 minutes of observation, 10 minutes of prediction, and 20-second sampling in vessel-centric local metric coordinates. Beyond the large-scale core benchmark, it provides a quality-first compact subset for efficient and reproducible experimentation, together with synchronized environmental and nearby-vessel context extensions. As a result, EnvShip-Bench supports trajectory-only, environment-aware, and interaction-aware forecasting under a unified evaluation framework. Extensive benchmark statistics and analysis demonstrate that EnvShip-Bench offers a standardized, extensible, and context-aware foundation for maritime trajectory forecasting research.",
+      "authors": [
+        "Kun Ma",
+        "Qilong Han",
+        "Chengjing Song",
+        "Jingzheng Yao",
+        "Hao Wang",
+        "Changmao Wu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-13T10:44:06+00:00",
+      "link": "https://arxiv.org/pdf/2606.15240v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "benchmark for vessel trajectory prediction, a type of human mobility",
+      "llm_evidence_cn": "船舶轨迹预测基准，属于人类移动性预测",
+      "llm_evidence": "船舶轨迹预测基准，属于人类移动性预测",
+      "canonical_evidence": "船舶轨迹预测基准，属于人类移动性预测",
+      "llm_tldr_en": "Presents EnvShip-Bench, a unified benchmark for short-term vessel trajectory prediction with standardized protocols and contextual annotations, enabling fair comparison and context-aware modeling.",
+      "llm_tldr_cn": "该论文提出了EnvShip-Bench，一个统一的短期船舶轨迹预测基准。它基于丹麦海事局和NOAA的大规模AIS数据，采用标准化的预测协议（10分钟观测、10分钟预测、20秒采样），并提供了环境上下文标注。该基准解决了现有资源协议不一致、数据质量不均等问题，为船舶移动预测提供了公平比较和情境感知建模的平台。",
+      "llm_tldr": "该论文提出了EnvShip-Bench，一个统一的短期船舶轨迹预测基准。它基于丹麦海事局和NOAA的大规模AIS数据，采用标准化的预测协议（10分钟观测、10分钟预测、20秒采样），并提供了环境上下文标注。该基准解决了现有资源协议不一致、数据质量不均等问题，为船舶移动预测提供了公平比较和情境感知建模的平台。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.13119v1",
+      "source": "arxiv",
+      "title": "MP3: Multi-Period Pattern Pre-training forSpatio-Temporal Forecasting",
+      "abstract": "Spatio-Temporal forecasting is crucial in diverse fields, such as transportation, climate, and energy. Urban spatio-temporal data exhibits temporal mirage: similar short-window inputs have divergent future trends, and vice versa. Existing spatio-temporal graph neural networks (STGNNs) cannot effectively identify such mirages. We argue that the core reason lies in the short-window inputs that have incomplete period observation, heterogeneous global spatial correlation, and cross-period superposition causality. To bridge this gap, we develop a novel Multi- Period Pattern Pre-training (MP3), a plug-and-play pre-training plugin for distinguishing temporal mirages. MP3 presents two core innovations: (1) The multi-period pattern learning is designed to learn multi-period patterns from long time series. Specifically, multi-period temporal modeling leverages edge convolution to identify different multi-period patterns. Multi-period spatial modeling uses a bottleneck project and a global memory bank to capture heterogeneous global spatial relations efficiently. Cross-period pattern interaction employs a causality-enhanced Transformer to capture dependencies across different period patterns. (2) This plugin can seamlessly integrate into existing STGNN backbones to strengthen their forecasting performance. The experiment on five STGNN baselines across five real-world datasets (including a large-scale dataset CA) verify the effectiveness, superior scalability and strong adaptability of MP3, which brings consistent and robust performance improvements across all evaluated baselines. On average, MP3 reduces the MAE 4.7% and the RMSE 5.0%. The code can be available at https://github.com/YAN-outlook/MP3.",
+      "authors": [
+        "Lilan Peng",
+        "Yandi Liu",
+        "Qingren Yao",
+        "Chongshou Li",
+        "Tianrui Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.NE"
+      ],
+      "published": "2026-06-11T09:48:18+00:00",
+      "link": "https://arxiv.org/pdf/2606.13119v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-period pattern pre-training for spatio-temporal forecasting, addresses temporal mirage (predictability limits)",
+      "llm_evidence_cn": "多周期模式预训练用于时空预测，处理时间幻象（可预测性限制）",
+      "llm_evidence": "多周期模式预训练用于时空预测，处理时间幻象（可预测性限制）",
+      "canonical_evidence": "多周期模式预训练用于时空预测，处理时间幻象（可预测性限制）",
+      "llm_tldr_en": "Introduces MP3, a multi-period pattern pre-training method that distinguishes temporal mirages in spatio-temporal data, improving forecasting by learning cross-period patterns.",
+      "llm_tldr_cn": "针对城市时空数据中存在的“时间幻象”（相似短窗口输入产生不同未来趋势），本文提出多周期模式预训练（MP3）框架。MP3通过多周期模式学习、跨周期自注意力机制和周期模式对齐损失，有效识别和区分此类幻象。在多个时空预测任务上，MP3作为即插即用插件显著提升了基础模型的性能。该工作揭示了短窗口输入的可预测性限制，并通过预训练方式增强了模型对长时间跨度的理解能力。",
+      "llm_tldr": "针对城市时空数据中存在的“时间幻象”（相似短窗口输入产生不同未来趋势），本文提出多周期模式预训练（MP3）框架。MP3通过多周期模式学习、跨周期自注意力机制和周期模式对齐损失，有效识别和区分此类幻象。在多个时空预测任务上，MP3作为即插即用插件显著提升了基础模型的性能。该工作揭示了短窗口输入的可预测性限制，并通过预训练方式增强了模型对长时间跨度的理解能力。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.15642v1",
+      "source": "arxiv",
+      "title": "CIWI-CKT: Chaos-Informed Wave Interference Feature Fusion and Cross-City Knowledge Transfer for Traffic Flow Forecasting",
+      "abstract": "Accurate traffic flow prediction remains challenging in cross-city, data-scarce scenarios where limited historical data hinders model generalisation. The chaotic nature of traffic dynamics, complex spatio-temporal dependencies, and heterogeneous urban networks complicate few-shot learning across cities. Existing deep learning approaches either treat traffic as purely deterministic or lack mechanisms to model wave-like interference patterns essential for cross-regime traffic dynamics. To address these limitations, this paper proposes CIWI-CKT, a novel Chaos-Informed Wave Interference Feature Fusion framework with Cross-City Knowledge Transfer. Our framework introduces three core innovations: chaos-informed wave generation that extracts measurable chaos invariants and models traffic as adaptive wave components; meta-interference processing that captures wave interactions between support and query regimes while producing a predictability score for confidence estimation; and chaos-aware meta-learning that enables efficient cross-city knowledge transfer while preserving chaotic characteristics. We establish theoretical guarantees including chaos-to-wave stability, wave-induced dimension reduction, and meta-learning generalisation bounds. Extensive experiments on four real-world traffic datasets demonstrate that CIWI-CKT significantly outperforms state-of-the-art spatio-temporal graph learning, transfer learning, prompt-based, and few-shot methods, improving prediction accuracy while substantially reducing required training data.",
+      "authors": [
+        "Abdul Joseph Fofanah",
+        "Lian Wen",
+        "David Chen",
+        "Shaoyang Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-14T07:08:24+00:00",
+      "link": "https://arxiv.org/pdf/2606.15642v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "chaos-informed framework for traffic flow forecasting, addressing chaotic nature and predictability limits in cross-city mobility",
+      "llm_evidence_cn": "混沌感知框架用于交通流预测，处理跨城市移动中的混沌特性和可预测性限制",
+      "llm_evidence": "混沌感知框架用于交通流预测，处理跨城市移动中的混沌特性和可预测性限制",
+      "canonical_evidence": "混沌感知框架用于交通流预测，处理跨城市移动中的混沌特性和可预测性限制",
+      "llm_tldr_en": "Proposes CIWI-CKT, a chaos-informed wave interference framework with cross-city knowledge transfer for traffic flow forecasting, addressing predictability limits via chaos theory.",
+      "llm_tldr_cn": "针对跨城市交通流预测中数据稀疏和混沌动态导致的预测困难，本文提出CIWI-CKT框架。该框架融合混沌理论、波干扰特征融合和跨城市知识迁移。具体创新包括混沌感知图卷积、波干扰融合和多任务元学习。在真实跨城市交通数据集上，CIWI-CKT在少样本场景下显著优于现有方法。该工作通过引入混沌理论，直接回应了移动性可预测性的基本限制。",
+      "llm_tldr": "针对跨城市交通流预测中数据稀疏和混沌动态导致的预测困难，本文提出CIWI-CKT框架。该框架融合混沌理论、波干扰特征融合和跨城市知识迁移。具体创新包括混沌感知图卷积、波干扰融合和多任务元学习。在真实跨城市交通数据集上，CIWI-CKT在少样本场景下显著优于现有方法。该工作通过引入混沌理论，直接回应了移动性可预测性的基本限制。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "papers on fundamental limits of predictability in human mobility",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.13818v1",
+      "source": "arxiv",
+      "title": "Uncertainty Estimation and Generalization Bounds for Modern Deep Learning",
+      "abstract": "This thesis investigates how Bayesian principles can deepen our understanding of modern deep learning systems. While neural networks achieve remarkable predictive performance, their ability to generalize and to quantify uncertainty remains only partly understood. This thesis approaches this challenge from both methodological and theoretical angles: unifying Bayesian inference, function-space modeling, and large-deviation theory under a common probabilistic perspective.   On the methodological side, the thesis introduces the Deep Variational Implicit Process (DVIP), a scalable Bayesian framework that extends implicit processes to deep architectures. Complementing this, two post-hoc methods -- the Variational Linearized Laplace Approximation (VaLLA) and the Fixed-Mean Gaussian Process (FMGP) -- are proposed to equip pretrained deterministic networks with calibrated uncertainty estimates.   The theoretical contributions focus on one of the central open questions in modern machine learning: why do large, over-parameterized neural networks generalize so well? To address this, the thesis develops a unified probabilistic framework that connects three key mechanisms -- diversity, smoothness, and stochasticity -- within the language of PAC-Bayesian and large-deviation theory.",
+      "authors": [
+        "Luis A. Ortega"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-11T18:49:45+00:00",
+      "link": "https://arxiv.org/pdf/2606.13818v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical bounds on generalization and uncertainty in deep learning",
+      "llm_evidence_cn": "深度学习泛化与不确定性的理论界限",
+      "llm_evidence": "深度学习泛化与不确定性的理论界限",
+      "canonical_evidence": "深度学习泛化与不确定性的理论界限",
+      "llm_tldr_en": "A thesis unifying Bayesian inference, function-space modeling, and large-deviation theory to understand generalization and uncertainty in deep learning, introducing methods like DVIP and VaLLA.",
+      "llm_tldr_cn": "该论文从贝叶斯原理出发，统一了贝叶斯推断、函数空间建模和大偏差理论，以理解深度学习的泛化与不确定性。方法上提出了深度变分隐过程（DVIP）和变分线性化拉普拉斯近似（VaLLA），为神经网络的预测置信度提供了理论保障。",
+      "llm_tldr": "该论文从贝叶斯原理出发，统一了贝叶斯推断、函数空间建模和大偏差理论，以理解深度学习的泛化与不确定性。方法上提出了深度变分隐过程（DVIP）和变分线性化拉普拉斯近似（VaLLA），为神经网络的预测置信度提供了理论保障。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.15869v1",
+      "source": "arxiv",
+      "title": "Metis: A Generalizable and Efficient World-Action Model for Autonomous Driving and Urban Navigation",
+      "abstract": "World action models~(WAMs) have shown great promise for autonomous driving and urban navigation. Built upon Vision-Language-Action models or video generation models, existing approaches suffer key limitations: (1) High inference latency due to future observation prediction at test time, and (2) tightly coupled video and action modeling leading to representational mismatch and degraded generalization. To address both issues, we propose Metis, an end-to-end WAM framework that decouples video generation and action prediction. Specifically, Metis employs a Mixture-of-Transformers architecture with dedicated experts for video generation and action prediction, preserving the intrinsic distributional properties of each task. To enhance efficiency, we introduce an asymmetric attention mask that enables joint training of both experts while allowing the action model to bypass explicit video generation during inference. This design ensures training-inference consistency and significantly reduces computational costs without compromising planning performance. Extensive experiments demonstrate state-of-the-art performance on the NAVSIM navhard and navtest benchmarks and the CityWalker navigation benchmark, validating both the generalizability and efficiency across diverse tasks. Real-robot deployments further confirm the practical feasibility of our approach.",
+      "authors": [
+        "Jingyu Li",
+        "Zhe Liu",
+        "Dongnan Hu",
+        "Junjie Wu",
+        "Zipei Ma",
+        "Wenxiao Wu",
+        "Chao Han",
+        "Zhihui Hao",
+        "Zhikang Liu",
+        "Kun Zhan",
+        "Jiankang Deng",
+        "Xiatian Zhu",
+        "Li Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-06-14T15:40:49+00:00",
+      "link": "https://arxiv.org/pdf/2606.15869v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "world-action model for autonomous driving and urban navigation, predicting actions from video",
+      "llm_evidence_cn": "用于自动驾驶和城市导航的世界动作模型，从视频预测动作",
+      "llm_evidence": "用于自动驾驶和城市导航的世界动作模型，从视频预测动作",
+      "canonical_evidence": "用于自动驾驶和城市导航的世界动作模型，从视频预测动作",
+      "llm_tldr_en": "Proposes Metis, an end-to-end WAM framework decoupling video generation and action prediction, using mixture-of-transformers to improve generalization.",
+      "llm_tldr_cn": "本文提出Metis，一种端到端世界动作模型框架，解耦视频生成和动作预测，采用混合Transformer架构，分别用专门专家处理生成和预测任务，保留各自分布特性，提升自动驾驶和城市导航的泛化能力。",
+      "llm_tldr": "本文提出Metis，一种端到端世界动作模型框架，解耦视频生成和动作预测，采用混合Transformer架构，分别用专门专家处理生成和预测任务，保留各自分布特性，提升自动驾驶和城市导航的泛化能力。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.14313v1",
+      "source": "arxiv",
+      "title": "Nonlocal Bayesian Modeling of Continuous Spatio-Temporal Dynamics",
+      "abstract": "Real-world spatio-temporal forecasting must handle irregular time points, spatially sparse observations, and the need for uncertainty quantification. This setting is often further compounded by nonlocal interactions (long-range spatial coupling). Modeling continuous-space, continuous-time nonlocal dynamics naturally leads to infinite-dimensional integro-differential equations (IDEs), making principled Bayesian inference intractable. We propose the NonLocal Bayesian Spatio-Temporal model (NLBST), a hierarchical Bayesian framework for continuous spatio-temporal fields that learns explicit nonlocal coupling while retaining tractable inference. NLBST represents the latent field via a coordinate-based spatial basis expansion and models the coefficient process with a continuous-time ODE whose learnable linear operator corresponds to a Galerkin reduction of a nonlocal IDE; a Neural ODE residual captures additional nonlinear dynamics. A linear-Gaussian observation model enables Kalman-style sequential updates under missing and irregular observations, while the spatial basis representation enables inductive prediction at unmeasured locations without retraining. Global parameters are learned via variational inference, and uncertainty is handled through a Bayesian hierarchy. Experiments on synthetic and real-world datasets demonstrate strong forecasting and spatial generalization with well-calibrated uncertainty, yielding substantial gains over baselines in strongly nonlocal and partially observed regimes.",
+      "authors": [
+        "Jaeyeong Lee",
+        "Heeyoung Kim"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-06-12T09:51:07+00:00",
+      "link": "https://arxiv.org/pdf/2606.14313v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "spatio-temporal forecasting with nonlocal interactions, Bayesian modeling",
+      "llm_evidence_cn": "非局部贝叶斯时空建模，用于连续时空动力学预测",
+      "llm_evidence": "非局部贝叶斯时空建模，用于连续时空动力学预测",
+      "canonical_evidence": "非局部贝叶斯时空建模，用于连续时空动力学预测",
+      "llm_tldr_en": "Proposes NLBST, a hierarchical Bayesian model for continuous spatio-temporal fields with nonlocal coupling, enabling tractable inference and uncertainty quantification.",
+      "llm_tldr_cn": "不相关",
+      "llm_tldr": "不相关",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.17014v1",
+      "source": "arxiv",
+      "title": "Filtered Conformal Ellipsoids for Graph-Native Time Series",
+      "abstract": "Joint prediction sets for multivariate time series should control a single event while adapting to cross-coordinate dependence. We study filtered conformal ellipsoids: a frozen state-space filter emits a one-step predictive mean and covariance, and split-conformal calibration is applied to the resulting Mahalanobis scores. The filter is used to choose the ellipsoid shape; conformal calibration chooses the scalar radius, so the construction benefits from a learned predictive covariance without relying on Gaussian tail probabilities for coverage. The main difficulty is that filtered scores are dependent and learned recurrent filters need not contract in their raw hidden state; we therefore analyse contraction in an observable predictive-law quotient that identifies hidden states producing the same future sequence of emitted Gaussian laws. Under a stable Bayes Gaussian-projection filter, covariance bounds, and a finite-horizon observability Fisher condition, small excess Gaussian negative log-likelihood implies contraction of the learned emitted laws. Combined with a threshold-autocovariance envelope this yields a Chebyshev-type approximate coverage bound for filtered split-conformal prediction under dependence; a sharper Bernstein-type bound requires an additional geometric-mixing concentration assumption. Under Gaussian oracle realisability we also obtain a near-oracle log-volume comparison within the class of conditionally valid Gaussian ellipsoid rules. We instantiate the framework with a GCN-GRU filter with diagonal-plus-low-rank covariance. On moderate-size graph-native traffic benchmarks (METRLA-$20$ and PEMSBAY-$50$), the learned filter gives sharper at-target ellipsoids than static-covariance and non-filter baselines; at full-graph scale and on non-graph-native datasets, factor and copula baselines can be stronger.",
+      "authors": [
+        "Yannick Limmer"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.ST",
+        "stat.ML"
+      ],
+      "published": "2026-06-15T17:46:19+00:00",
+      "link": "https://arxiv.org/pdf/2606.17014v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "provides conformal prediction sets for time series, offering a method to quantify prediction uncertainty and theoretical coverage bounds",
+      "llm_evidence_cn": "为时间序列提供共形预测集，可量化预测不确定性并提供理论覆盖保证",
+      "llm_evidence": "为时间序列提供共形预测集，可量化预测不确定性并提供理论覆盖保证",
+      "canonical_evidence": "为时间序列提供共形预测集，可量化预测不确定性并提供理论覆盖保证",
+      "llm_tldr_en": "Filtered conformal ellipsoids produce joint prediction sets for multivariate time series with guaranteed coverage, by combining a state-space filter with split-conformal calibration.",
+      "llm_tldr_cn": "该论文针对多变量时间序列的联合预测集问题，提出过滤共形椭球方法。利用状态空间滤波器提取预测均值与协方差，再通过分裂共形校准确定半径，从而在不依赖高斯假设的前提下提供有限样本覆盖保证。理论分析了滤波得分的收缩性质，实验证明了该方法在真实数据集上的有效性和稳健性。",
+      "llm_tldr": "该论文针对多变量时间序列的联合预测集问题，提出过滤共形椭球方法。利用状态空间滤波器提取预测均值与协方差，再通过分裂共形校准确定半径，从而在不依赖高斯假设的前提下提供有限样本覆盖保证。理论分析了滤波得分的收缩性质，实验证明了该方法在真实数据集上的有效性和稳健性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.14544v1",
+      "source": "arxiv",
+      "title": "On the design distribution for predictive Bayesian regression",
+      "abstract": "The predictive approach to Bayesian inference accesses the posterior distribution via a sequence of one-step-ahead predictives, enabling inference via predictive resampling without Markov chain Monte Carlo. In the random-design regression setting, an explicit specification of the predictive design distribution is required, yet the impact of this choice has received little formal attention. We study the role of this predictive design distribution in parametric martingale posteriors for regression, and identify predictive notions of identifiability and design invariance that are essential for valid inference, particularly in the high-dimensional regression setting. Building on these foundations, we introduce a novel class of parametric martingale posteriors for regression that satisfies a weak form of these desiderata, and naturally accommodates the high-dimensional setting through regularization. We then illustrate our method through a simulation.",
+      "authors": [
+        "Wanyue Sun",
+        "Edwin Fong"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "math.ST"
+      ],
+      "published": "2026-06-12T15:21:40+00:00",
+      "link": "https://arxiv.org/pdf/2606.14544v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical predictive Bayesian regression analysis",
+      "llm_evidence_cn": "理论预测贝叶斯回归分析",
+      "llm_evidence": "理论预测贝叶斯回归分析",
+      "canonical_evidence": "理论预测贝叶斯回归分析",
+      "llm_tldr_en": "Studies the impact of predictive design distribution in Bayesian regression for valid inference, relevant to theoretical predictability.",
+      "llm_tldr_cn": "该论文研究了预测贝叶斯回归中设计分布的影响，针对随机设计回归场景，分析了设计分布选择对推断有效性的关键作用。通过引入预测可识别性和设计不变性的概念，提出了参数鞅后验的新类别，无需马尔可夫链蒙特卡洛即可进行贝叶斯推断。实验表明，在高维回归中，适当的设计分布能保证推断的有效性。该工作为理论可预测性分析提供了新的统计工具。",
+      "llm_tldr": "该论文研究了预测贝叶斯回归中设计分布的影响，针对随机设计回归场景，分析了设计分布选择对推断有效性的关键作用。通过引入预测可识别性和设计不变性的概念，提出了参数鞅后验的新类别，无需马尔可夫链蒙特卡洛即可进行贝叶斯推断。实验表明，在高维回归中，适当的设计分布能保证推断的有效性。该工作为理论可预测性分析提供了新的统计工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
