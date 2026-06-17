@@ -1,0 +1,1378 @@
+Title: A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction
+
+URL Source: https://arxiv.org/pdf/2606.17649v1
+
+Published Time: Wed, 17 Jun 2026 00:42:53 GMT
+
+Number of Pages: 29
+
+Markdown Content:
+# A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Yuxiang Luo 1 Chen Wang 1 Nan Tang 1
+
+## Abstract 
+
+The high cost of fine-tuning LLMs poses a sig-nificant economic barrier; pre-hoc performance prediction offers a critical solution to substantially reduce this expense. However, the theoretical limits of pre-hoc performance prediction remain unexplored. We formulate it as a stochastic es-timation problem under information constraints, decomposing prediction risk into two components: an intrinsic limit (static data-model compatibil-ity) and a reducible optimization variance . We prove that optimization variance admits a nec-essary lower bound on its decay rate, implying fundamental constraints on how quickly uncer-tainty dissipates, regardless of the predictor used. Based on these dynamics, we derive a budget-optimal probing principle and introduce a pre-dictability phase diagram that organizes tasks into three distinct regimes: Static-Sufficient, Dynamic-Critical, and Noise-Dominant. Extensive exper-iments on synthetic and real-world benchmarks validate these theoretical regimes and demonstrate the efficiency of our probing strategy. 
+
+## 1. Introduction 
+
+Fine-tuning Large Language Models (LLMs) has become a central paradigm for adapting foundation models to down-stream tasks (Zhang et al., 2025; Han et al., 2024; Zhu et al., 2022; Lin et al., 2025b). Despite its success, fine-tuning remains costly and uncertain: identical configura-tions can lead to substantially different outcomes due to interactions among pre-training priors, dataset characteris-tics, and stochastic optimization. In practice, large compu-tational budgets are often spent only to yield limited gains, degraded performance, or catastrophic forgetting (Luo et al., 2025; Li et al., 2024), making trial-and-error fine-tuning increasingly impractical at scale. 
+
+> 1
+
+The Hong Kong University of Science and Technology (Guangzhou). Correspondence to: Nan Tang <nantang@hkust-gz.edu.cn >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). ·Existing View Our Perspective: Risk Decomposition Perspective Shift       
+
+> Optimization
+> Variance
+> Probe Computation High Low
+> Intrinsic Limit
+> Governing
+> Dynamics
+> Budget
+> Principle
+> Predictable
+> Regimes
+> Perspective
+> Treated as a single,
+> undifferentiated quantity.
+> Prediction Error
+> Early Signals
+> (Black Box)
+> Proxy Score
+> Regressor
+
+Figure 1. Perspective shift. We move from treating pre-hoc pre-diction as a black-box regression problem (Left) to a structural decomposition of risk into intrinsic limits and optimization vari-ance (Right). 
+
+This motivates the problem of pre-hoc fine-tuning predic-tion : estimating the final fine-tuning performance of a fine-tuning task before executing full training . More concretely, given a pretrained model, a dataset, and an op-timization algorithm, the goal is to predict the eventual outcome using only information available prior to or at the 
+
+very early stages of optimization. Such predictions directly inform compute allocation decisions, including whether to continue training, which configurations to prioritize, and how much budget to invest. To address this challenge, recent work has explored estimat-ing fine-tuning outcomes before committing full training resources, a setting commonly referred to as pre-hoc perfor-mance prediction (Zeng et al., 2025b; Anugraha et al., 2024; Zeng et al., 2025a; Kuramoto & Suzuki, 2025). Empiri-cal approaches, including proxy-based methods (Anugraha et al., 2024) and early-stage probing frameworks (Zhu et al., 2022), show that fine-tuning performance can be predicted to a non-trivial degree by combining static dataset statistics with short-horizon optimization signals. However, exist-ing methods rely largely on heuristic designs and lack a principled framework for reasoning about prediction error ,
+
+uncertainty evolution , and resource allocation (Zhu et al., 2022; Zeng et al., 2025a). Most existing predictors operate as black-box regressors, treating optimization dynamics as features optimized for correlation with final outcomes (Anugraha et al., 2024). Within this view, prediction error is treated as a single un-differentiated quantity, and probing depth is handled as 1
+
+> arXiv:2606.17649v1 [cs.LG] 16 Jun 2026 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction
+
+a discrete hyperparameter (Kweon et al., 2025). In con-trast, we adopt a structural perspective grounded in risk decomposition (Figure 1) (Kendall & Gal, 2017). We argue that unpredictability in fine-tuning arises from two distinct sources (Belkin et al., 2019; Guo et al., 2025): an intrinsic component determined by static data-model compatibility (the Intrinsic Limit ) and a computation-dependent compo-nent induced by stochastic optimization (the Optimization Variance ) (Mosbach et al., 2021). Under this view, prob-ing resolves optimization-induced uncertainty rather than merely extracting features. We formalize this perspective by modeling pre-hoc fine-tuning prediction as an estimation problem under progres-sively revealed information. Instead of treating probing as a fixed design choice, we characterize how prediction un-certainty evolves with allocated computation. We show that the Bayes-optimal prediction risk decomposes into a computation-independent intrinsic limit and a reducible optimization-induced variance (Walha et al., 2025). More-over, without modeling full optimization dynamics, we derive a necessary lower-bound constraint on how fast optimization-induced uncertainty can decay with computa-tion (Guo et al., 2025), governed by stochastic approxima-tion dynamics (Zeng et al., 2025b; Lin et al., 2024). This implies that uncertainty cannot vanish arbitrarily fast and that pre-hoc prediction is inherently a problem of budget allocation with diminishing returns. Our contributions are four-fold. First, we derive a for-mal risk decomposition separating intrinsic ambiguity from computation-dependent uncertainty. Second, we establish a theoretical lower bound on uncertainty decay, characterizing how quickly prediction uncertainty can be reduced. Third, we formulate pre-hoc prediction as a risk-cost tradeoff and derive a principled condition for budget-optimal probing. Finally, we synthesize intrinsic ambiguity and uncertainty dynamics into a predictability phase diagram that explains diverse empirical successes and failures of probing-based predictors. 
+
+## 2. Related Work 
+
+Pre-hoc performance prediction. Proxy-based meth-ods (Anugraha et al., 2024; Wang et al., 2025) estimate performance using smaller models or data subsets, relying primarily on static correlations that often degrade under distribution shift (Zeng et al., 2025a). Trajectory-based approaches (Domhan et al., 2015; Klein et al., 2017) ex-trapolate final performance from early training statistics. While empirically effective, these methods are predomi-nantly heuristic: probing depth is treated as a fixed design choice, and predictors are typically implemented as black-box regressors, offering limited insight into how uncertainty evolves with computation. 
+
+Scaling laws and training dynamics. Empirical scaling laws (Kaplan et al., 2020; Hoffmann et al., 2022) estab-lish that expected model performance scales as a power-law function of compute, data size, and model capacity, with extensions to downstream fine-tuning and transfer learn-ing (Isik et al., 2026; Schram et al., 2025; Barnett, 2024). However, this literature primarily characterizes the first mo-ment of performance distributions. In parallel, training dy-namics have been studied through critical learning periods, information bottleneck theory (Westphal et al., 2025; Saxe et al., 2018), and the structure of gradient noise (Sclocchi et al., 2023; Zeng et al., 2025b; Lin et al., 2024), suggest-ing that optimization outcomes are often determined early in training (Achille et al., 2019). These works are largely descriptive and do not provide a normative framework for allocating computation. In contrast, our approach focuses on the second moment of fine-tuning outcomes, offering a principled account of uncertainty decay and budget-aware prediction grounded in risk decomposition. 
+
+Data-centric and cost-aware LLM pipelines. A related but orthogonal line of work reduces the cost of LLM-powered systems through data, prompting, or pipeline de-sign rather than predicting the final outcome of a candidate fine-tuning run. Examples include cost-effective in-context learning for entity resolution, weak-to-strong prompting for data transformation, natural-language data preparation, and LLM-based data-management pipelines (Fan et al., 2024; Li et al., 2025; Fan et al., 2025; Chen et al., 2023). These works motivate a broader view of compute-aware model development; our framework instead asks how much probe computation should be allocated before committing to full fine-tuning. 
+
+## 3. Problem Setup and Notation 
+
+We formalize pre-hoc fine-tuning prediction as the problem of estimating a stochastic outcome under information constraints . A fine-tuning task instance is defined as a tuple T = ( M, D, A), where M is the pre-trained founda-tion model, D is the downstream dataset, and A denotes the stochastic optimization algorithm. Executing T yields a scalar performance metric R ∈ R, which is treated as a random variable drawn from a task-conditional distribution 
+
+P (R | T ) due to inherent randomness in optimization (e.g., initialization, data ordering and non-deterministic opera-tions) (Gargiani et al., 2019). 
+
+Predictors and task-conditional risk. A predictor is a function f : I → R that maps an available information set to an estimate ˆR. For a fixed task T , we define the 
+
+task-conditional prediction risk at computation budget c as: 
+
+LT (c) ≜ ER|T 
+
+(f (Ic) − R)2 . (1) 2A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+For any fixed information set Ic, this risk is minimized by the Bayes-optimal predictor f ∗(Ic) = E[R | I c, T ], which serves as the reference object for our theoretical analysis in Section 4. All quantities derived in Sections 4–8, including the intrinsic limit and uncertainty decay rate, are defined at the task level through LT (c).
+
+Population risk. When analyzing collections of tasks, we additionally consider the population-level risk , defined as the expectation of the task-conditional risk over a task distribution: 
+
+L(c) ≜ ET [LT (c)] = ET ,R 
+
+(f (Ic) − R)2 . (2) This quantity is used primarily for empirical aggregation and reporting, while the structural properties studied in this paper are governed by the task-conditional risk in Eq. (1). 
+
+Information structure. The information available to the predictor at computation budget c is denoted by Ic =
+
+{Xs, X (c) 
+
+> d
+
+}, where Xs represents static, ex-ante information available at zero marginal cost (e.g., data–model compatibil-ity signals), and X(c) 
+
+> d
+
+denotes dynamic information revealed by executing the optimization algorithm up to budget c (e.g., observed training trajectories). By construction, information is monotonic in computation: Ic ⊆ I c′ for c < c ′.
+
+Computation cost and budget constraint. Acquiring information incurs a computational cost C(c), which we assume to be strictly increasing with C(0) = Cs. For an-alytical tractability, we adopt a linear cost model C(c) = 
+
+Cs + λc , where λ denotes the marginal unit cost of prob-ing. Given a total budget B, the practitioner’s objective is to choose an optimal stopping point c∗ that minimizes prediction risk subject to the cost constraint: 
+
+min  
+
+> c≥0
+
+LT (c) s.t. C(c) ≤ B. (3) This formulation makes explicit that all subsequent analysis concerns how task-conditional uncertainty decreases with computation, and how limited resources should be allocated to approach this limit efficiently. 
+
+## 4. Theoretical Framework: Risk Decomposition 
+
+In Section 3, we defined the prediction risk L(c) as a func-tion of the computation budget c through the information set Ic. To understand the fundamental limits of pre-hoc prediction, we consider an ideal observer with access to the 
+
+asymptotic information set I∞ ≜ lim c→∞ Ic, correspond-ing to the complete optimization trajectory. This perspective allows us to characterize what aspects of prediction un-certainty are fundamentally irreducible and which can, in principle, be resolved by additional computation. For the Bayes-optimal predictor f ∗(Ic) = E[R | I c], the prediction risk admits the following decomposition, which follows directly from the law of total variance (Kunievsky & Evans, 2026). 
+
+Proposition 4.1 (Risk Decomposition) . The Bayes-optimal prediction risk at computation budget c can be written as 
+
+L(c) = E[Var( R | I ∞)] 
+
+| {z }
+
+> Lint
+
++ E[Var( R | I c) − Var( R | I ∞)] 
+
+| {z }
+
+> Vopt (c)
+
+.
+
+(4) 
+
+Here, Lint denotes the intrinsic limit of predictability—the residual uncertainty that remains even with full access to the optimization trajectory—while Vopt (c) denotes the optimiza-tion variance , i.e., the excess uncertainty due to observing only a finite prefix of the trajectory. 
+
+The decomposition in Proposition 4.1 plays a purely or-ganizational role: it separates prediction error into a computation-independent component and a computation-dependent component. The intrinsic term Lint represents an irreducible error floor arising from static data–model mismatch and inherent stochasticity in the task. By con-struction, it is invariant to the probing budget c and cannot be reduced by allocating additional computation. The de-composition follows directly from the law of total variance; a formal proof is provided in Appendix A. In contrast, the optimization variance Vopt (c) captures the portion of uncertainty that is, in principle, reducible through dynamic observation of the optimization process. Since the information set Ic grows monotonically with computation, 
+
+Vopt (c) is non-negative and monotonically decreasing in c.Crucially, this is the only component of the prediction risk that can be affected by probing, making it the central object of interest in subsequent analysis. This decomposition also admits a natural information-theoretic interpretation. Dynamic probing can reduce 
+
+Vopt (c) only if the observed optimization trajectory con-tains information about the outcome R that is not present in static priors. Formally, this requires the conditional mu-tual information I(R; X(c) 
+
+> d
+
+| Xs) to be strictly positive. If the trajectory is fully determined by static information (i.e., 
+
+I(R; X(c) 
+
+> d
+
+| Xs) = 0 ), then probing reveals no new infor-mation and cannot improve prediction accuracy. From this viewpoint, pre-hoc prediction is best understood as an infor-mation revelation process , where computation controls how rapidly reducible uncertainty Vopt (c) can be resolved. 
+
+## 5. Governing Dynamics: An Asymptotic Constraint on Uncertainty Decay 
+
+In Section 4, we identified the optimization variance Vopt (c)
+
+as the only component of prediction risk that can be reduced through additional computation. We now characterize a fun-
+
+3A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+damental asymptotic constraint on how fast this reducible uncertainty can dissipate as computation increases. Our goal is not to model the full non-convex trajectory of large language model fine-tuning. Instead, we seek a conservative 
+
+rate-limiting envelope : a necessary constraint on the decay of observable optimization-induced uncertainty once the optimization process enters a locally regular regime. This distinction is important because fine-tuning dynam-ics need not be globally regular. The early trajectory may include transient behavior, abrupt loss changes, or task-specific adaptation phases that are not well described by a single asymptotic law. However, practical fine-tuning typ-ically starts from a high-quality pre-trained solution, and informative gradient signals often emerge within a neigh-borhood of the initialization. In such locally stable regions, stochastic approximation theory provides a useful descrip-tion of how gradient noise is gradually averaged out by the optimizer. We therefore analyze a regime in which the op-timization dynamics are locally regular and the evaluation metric R is locally Lipschitz with respect to the model pa-rameters. The resulting statement should be interpreted as an asymptotic envelope for the rate-limited phase of uncer-tainty contraction, rather than a pointwise description of the entire training process. Within this locally regular regime, the decay of optimization-induced uncertainty is constrained by the interaction be-tween gradient noise, the optimizer’s step-size schedule, and the sensitivity of the evaluation metric to parameter per-turbations. This yields the following necessary asymptotic constraint. 
+
+Proposition 5.1 (Asymptotic Uncertainty Decay Con-straint) . Consider a stochastic optimization process that admits a locally regular asymptotic regime in the sense de-scribed above. Then there exists a constant K > 0 and an exponent α > 0 such that the optimization-induced uncer-tainty admits the asymptotic envelope 
+
+Vopt (c) ≳ K c −α as c → ∞ , (5) 
+
+where α is an effective decay rate jointly determined by the local optimization dynamics and the sensitivity of the evalu-ation metric. A formal derivation under classical stochastic approximation conditions is provided in Appendix C. Proof Sketch. The argument follows from the asymptotic behavior of stochastic optimization in a locally stable regime. Under standard stochastic approximation condi-tions, parameter uncertainty contracts at a rate governed by the decay of the step size and the structure of gradi-ent noise. For example, for a representative polynomially decaying step-size schedule ηc ∝ c−ρ with ρ > 1/2, the covariance of the parameter iterate contracts no faster than 
+
+Cov( θc) = Ω( c−(2 ρ−1) ). When the evaluation metric R(θ)
+
+is locally smooth, the Delta method implies that fluctuations in R inherit a corresponding polynomial decay. This yields a power-law envelope governing the observable contraction of optimization-induced uncertainty. We emphasize that this argument characterizes an asymptotic rate constraint in the locally regular regime, not a tight pointwise bound for every phase of a non-convex training trajectory. 
+
+Mechanism. At a high level, this behavior reflects the accumulation of stochastic gradient noise and its gradual attenuation through decaying step sizes. Because noise is suppressed only polynomially in typical stochastic optimiza-tion regimes, uncertainty about the eventual optimization outcome cannot collapse arbitrarily fast once the contraction becomes rate-limited. The exponent α therefore acts as an effective descriptor of information revelation under a given task–optimizer pair, rather than a universal constant of the optimizer or the model family. 
+
+Operational Interpretation. The effective decay rate α
+
+characterizes how rapidly uncertainty relevant for pre-hoc prediction is revealed as computation increases. Large val-ues of α correspond to rapid contraction of uncertainty, where shallow probing can already reveal most regime-relevant information (the Static-Sufficient regime). Smaller values of α indicate delayed or prolonged uncertainty con-traction, requiring extended probing to resolve outcome variability (the Dynamic-Critical regime). This perspective explains why fixed-step probing strategies can perform in-consistently across tasks and motivates the budget-aware allocation strategy developed in the next section. 
+
+## 6. Budget-Optimal Probing Strategy 
+
+Building on the governing dynamics derived in Section 5, we now address the question of how much probing is worth performing . Because optimization-induced uncertainty de-cays with diminishing returns, pre-hoc prediction naturally gives rise to an optimal stopping problem under compu-tational cost .Rather than treating the probing budget as a hard constraint, we formulate probing as a risk-cost tradeoff. This perspec-tive reveals that the optimal probing depth is governed by task-specific uncertainty dynamics. 
+
+6.1. Risk-Cost Tradeoff Formulation 
+
+Let LT (c) denote the task-conditional Bayes risk at com-putation c, and let C(c) denote the associated cost. We consider the tradeoff objective 
+
+min  
+
+> c≥0
+
+LT (c) + γ C (c), (6) where γ > 0 converts computation into an equivalent risk penalty. 4A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Using the decomposition from Proposition 4.1, we write 
+
+LT (c) = LT ,int + Vopt (c), (7) where LT ,int denotes the irreducible intrinsic limit of the task. Motivated by Section 5, we adopt a canonical power-law envelope for the optimization-induced uncertainty: 
+
+Vopt (c) ≈ K c −α, α > 0, (8) where α is interpreted as an effective decay rate. 
+
+6.2. Equilibrium Condition Theorem 6.1 (Budget-Optimal Probing Equilibrium) . As-sume Vopt (c) = Kc −α and a differentiable, strictly increas-ing cost function C(c). Then any interior optimum c⋆ of (6) 
+
+satisfies 
+
+dVopt (c)
+
+dc c=c⋆
+
+= γ C ′(c⋆). (9) 
+
+Closed-Form Solution (Linear Cost). For a linear cost model C(c) = Cs + λc , the equilibrium condition yields 
+
+c⋆ =
+
+ αK γλ 
+
+ 1
+
+> α+1
+
+. (10) 
+
+6.3. Offline Estimation of Governing Dynamics 
+
+We now describe a practical procedure for estimating the governing dynamics (α, K, LT ,int ). This procedure is best viewed as an offline calibration step for analysis, bench-marking, and probe-budget design, rather than as an ora-cle available during deployment. The calibrated quantities are task-level descriptors of uncertainty dynamics: they summarize how information is revealed under a given task– optimizer pair, and are not intended to be recovered exactly for every deployment instance. Given a set of probing depths {c1, . . . , c m}, we run probes at these depths and compute a surrogate uncertainty proxy 
+
+bU (ci) that reflects dispersion across repeated runs or predic-tions at depth ci. This proxy need not equal the true Bayes risk; it is only required to preserve the relative decay behav-ior of uncertainty across probing budgets. Operationally, a probe is lightweight when it is short relative to the cost of full fine-tuning, yet long enough to enter the stable interval where regime-relevant information has begun to emerge. Thus, lightweightness is not tied to a universal number of steps, but to the risk. We then jointly fit the model 
+
+bU (c) ≈ L T ,int + Kc −α (11) via nonlinear or log–log regression, avoiding sequential plug-in bias. The resulting bα is interpreted as an effective 
+
+Algorithm 1 Offline Calibration of Budget-Optimal Probing 
+
+Require: Pretrained model M , dataset D, probing depths 
+
+{c1, . . . , c m}, tradeoff parameter γ, unit cost λ
+
+Ensure: Estimated optimal probing depth bc⋆ 
+
+> 1:
+
+Run lightweight probes at depths {c1, . . . , c m} and compute uncertainty proxies bU (ci) 
+
+> 2:
+
+Jointly fit (bα, bK, bLT ,int ) from { bU (ci)} 
+
+> 3:
+
+Compute equilibrium probing depth  
+
+> 4:
+
+bc⋆ ←
+
+ bα bKγ λ 
+
+ 1 
+
+> bα+1
+> 5:
+
+return bc⋆
+
+descriptor of the task’s uncertainty dynamics, while bLT ,int 
+
+captures the empirical floor approached by the surrogate uncertainty proxy. In downstream use, these fitted quanti-ties support coarse regime-level decisions and probe-budget selection, rather than exact latent-parameter recovery. 
+
+Remarks. Algorithm 1 avoids reliance on observing the final fine-tuning outcome and does not require access to com-plete training trajectories. The fitted decay rate bα should be interpreted as a task-level, optimization-dependent de-scriptor rather than a universal constant. Repeated probes are used in offline analysis to reduce noise in estimating the surrogate uncertainty curve; they are not part of the deployment-time protocol. In practice, coarse fits over a small number of probing depths are sufficient to recover stable regime-level behavior, as demonstrated in Section 8 and the sensitivity analysis in Appendix F. 
+
+## 7. Phase Diagram and Predictability Regimes 
+
+The framework developed in Sections 4–6 implies that fine-tuning predictability cannot be captured by a single scalar notion of difficulty. Instead, predictability emerges from the interaction between two distinct mechanisms: the intrinsic ambiguity of the task, captured by Lint , and the temporal dy-namics of information revelation , captured by the effective decay rate α.In this section, we synthesize these factors into a pre-dictability phase diagram . Rather than serving as a rigid categorization of tasks, this diagram provides a mechanism-based view of why certain tasks are predictable early, others only after extended computation, and some not at all. 
+
+7.1. Phase Space of Predictability 
+
+We represent each fine-tuning task T as a point in a two-dimensional phase space spanned by the governing quanti-ties introduced earlier. 
+
+Intrinsic limit ( Lint ). The horizontal axis corresponds to the irreducible prediction floor. Large values of Lint indi-5A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+cate fundamental data–model mismatch or inherent stochas-ticity in the evaluation metric, which bounds the achievable prediction accuracy even under full information. Tasks with noisy labels, ambiguous supervision, or weak alignment between the evaluation metric and model behavior naturally exhibit elevated intrinsic limits. 
+
+Effective decay rate ( α). The vertical axis captures the speed at which optimization-induced uncertainty can be re-solved. Small values of α correspond to slow or delayed information revelation, while larger values indicate that un-certainty collapses rapidly once informative gradients are available. This quantity reflects properties of the optimiza-tion trajectory itself, rather than static dataset characteristics. Together, these axes define a landscape of predictability that is independent of any specific predictor architecture or probing heuristic. While probing is one operational means of revealing information, the phase diagram characterizes properties of the task–optimization pair itself. 
+
+7.2. Regimes of Information Revelation 
+
+The regimes described below correspond to qualitatively different behaviors of the risk–cost tradeoff derived in Sec-tion 6. Formally, they arise from distinct solution structures of the equilibrium condition in Theorem 6.1 as the task parameters (Lint , α ) vary. 
+
+Regime I: Static-Sufficient (Bias-Dominant). This regime arises when uncertainty collapses rapidly or when the intrinsic limit dominates the total risk. Here, the final outcome is effectively determined by coarse properties of the data–model pair, and dynamic observation provides little additional information beyond what is already encoded in static descriptors. In practice, many surface-level adaptation tasks fall into this regime. For example, sentiment classification benchmarks such as SST-2, as well as several GLUE-style classifica-tion tasks, consistently exhibit large decay exponents α and reach their predictability saturation with minimal probing. In such cases, static priors alone nearly saturate achievable prediction accuracy, and extended trajectory observation yields diminishing returns. 
+
+Regime II: Dynamic-Critical (Variance-Dominant). 
+
+This regime captures tasks with low intrinsic ambiguity but slow or delayed information revelation. Although accu-rate prediction is possible in principle, the outcome depends sensitively on the realization of the optimization trajectory. Extended plateaus, saddle-point-dominated dynamics, and delayed generalization phenomena (e.g., grokking (Power et al., 2022)) naturally fall within this regime. Concrete ex-amples include arithmetic and multi-step reasoning bench-marks such as GSM8K, as well as complex code generation tasks, where early-stage training dynamics carry essential predictive information. Within our framework, such tasks are characterized by small effective decay rates α, leading to large optimal probing depths c∗.
+
+Regime III: Noise-Dominant (Intrinsic-Limited). This regime arises when irreducible ambiguity dominates pre-diction error. Even with extensive probing, the total risk remains high due to a large intrinsic limit. In this setting, additional probing yields diminishing practi-cal benefits. The predictor is effectively modeling stochastic noise rather than a stable signal. Tasks with substantial label noise, extreme domain shift, or severe model underspecifica-tion typically exhibit this behavior, and pre-hoc prediction is fundamentally constrained. 
+
+7.3. Implications for Empirical Predictability 
+
+The phase diagram offers a unifying explanation for seem-ingly contradictory empirical observations. For instance, shallow probing strategies often succeed on benchmarks such as SST-2 not because the predictors are necessar-ily more expressive, but because these tasks reside in the static-sufficient regime, where uncertainty collapses rapidly. In contrast, the same strategies tend to fail on reasoning-intensive benchmarks such as GSM8K, not simply due to methodological shortcomings, but because such tasks lie in the dynamic-critical regime, where information revelation is intrinsically delayed. This perspective also clarifies how different sources of pre-dictive signal should be used. Static proxies, such as dataset statistics, reference-model perplexity, or data–model com-patibility scores, are most informative when the dominant uncertainty is already encoded in the task before optimiza-tion begins. Early-trajectory signals, such as loss decay, gradient stability, or short-horizon validation behavior, be-come more valuable when reducible optimization variance remains substantial after static information is observed. The phase diagram therefore provides a way to interpret these signals not as competing alternatives, but as complementary views of different components of prediction risk. Practically, this suggests a regime-aware use of pre-hoc predictors. For static-sufficient tasks, additional probing may provide little benefit beyond static descriptors, and shallow or even zero-probe predictors may be adequate. For dynamic-critical tasks, early optimization trajectories carry essential information, and reliable prediction requires allocating enough probe budget for the relevant dynamics to emerge. For noise-dominant tasks, neither richer static features nor deeper probing can fully overcome the intrinsic floor, so prediction scores should be interpreted with higher uncertainty. 6A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+From this perspective, the failure of a pre-hoc predictor should be interpreted not simply as a flaw of the predictor itself, but as a regime mismatch between the estimator’s de-sign, the allocated probing budget, and the task’s governing dynamics. The practical role of the phase diagram is thus to guide when static information is sufficient, when dynamic probing is worth its cost, and when additional computation is unlikely to materially change the prediction decision. This view also connects to data-quality and data-efficiency methods that treat dataset-level or early-training signals as actionable evidence, including early-loss-based mislabel detection, cost-effective missing-value imputation, coreset selection, and selective data acquisition (Deng et al., 2024; Chai et al., 2025; 2023; 2022). In our setting, analogous signals are not used to directly clean or acquire data, but to distinguish reducible optimization variance from intrinsic ambiguity. 
+
+## 8. Empirical Validation 
+
+Our theoretical framework makes structural predictions about fine-tuning predictability, rather than claims about the absolute accuracy of any specific predictor. In partic-ular, it implies that: (i) optimization-induced uncertainty cannot dissipate arbitrarily fast and is governed by a task-dependent decay rate α (Section 5); (ii) fine-tuning tasks organize into distinct predictability regimes characterized by their effective intrinsic floor and uncertainty decay behavior (Section 8.3); and (iii) optimal probing follows a regime-dependent stopping structure rather than a fixed heuristic budget (Section 6). In this section, we empirically validate these structural pre-dictions using controlled experiments and large-scale fine-tuning benchmarks. All empirical quantities reported here are interpreted as observable uncertainty proxies that reflect optimization-induced variability, rather than direct estimates of the theoretical prediction risk. Detailed estimation proce-dures and justifications are provided in Appendix F. 
+
+8.1. Experimental Setup and Estimation Protocols 
+
+We adopt a unified probing protocol to empirically instan-tiate the key qualitative behaviors predicted by our frame-work, including uncertainty decay, regime structure, and diminishing returns of probing. The purpose of this proto-col is structural validation: we use controlled repetitions to estimate observable uncertainty curves and to analyze how these curves organize tasks into predictability regimes. This differs from deployment-time use, where the calibrated regime structure serves as guidance for probe-budget se-lection and decision support rather than requiring repeated estimation of all latent quantities. 
+
+Tasks and regime coverage. We evaluate a diverse col-lection of fine-tuning tasks spanning different objectives and data conditions, selected to cover all three predictabil-ity regimes introduced in Section 8.3: Static-Sufficient ,
+
+Dynamic-Critical , and Noise-Dominant . These include, for example, sentiment classification, arithmetic reasoning, and tasks with ambiguous or noisy supervision. Detailed experi-mental configurations are deferred to Appendix F.1. 
+
+Probing axis and repeated runs. We define the probing computation axis c as the number of probe optimization steps, which serves as a consistent proxy for computational cost. For each task and each probing depth c ∈ C , we per-form N = 1 ,500 independent fine-tuning runs with different random seeds, yielding an empirical distribution of realized final outcomes. This repeated-run protocol is used to make the uncertainty decay behavior identifiable under controlled offline conditions. It is not intended as a deployment-time requirement: in deployment, the framework uses offline-calibrated descriptors and regime-level trends to guide how much probing is worth performing. 
+
+Observable uncertainty proxies. At each probing depth 
+
+c, we compute an observable uncertainty proxy that captures run-to-run variability induced by stochastic optimization. This quantity does not estimate the theoretical prediction risk L(c) defined in Section 3, nor does it assume access to asymptotically complete information. Instead, it serves as a measurable surrogate that preserves the relative uncertainty decay behavior analyzed in Sections 5–6. Accordingly, the empirical estimates of α and LT ,int should be interpreted as descriptors of the surrogate uncertainty curve, rather than exact online quantities to be recovered for every deployment instance. Formal definitions, normalization procedures, and fitting protocols are provided in Appendix F. 
+
+8.2. Decomposability and Power-Law Uncertainty Decay 
+
+We first examine the empirical behavior of observable uncer-tainty decay predicted by Proposition 5.1, which establishes a power-law constraint on how fast optimization-induced uncertainty can dissipate under stable training dynamics. Figure 2 reports the population-level behavior of normalized observable uncertainty aggregated by regime. Across all regimes, the log–log relationship between uncertainty and probing depth exhibits an approximately linear trend within the fitted range, consistent with the rate-limiting power-law behavior predicted by theory. Importantly, the empirically observed decay rates differ sys-tematically across regimes. In Static-Sufficient regimes, un-certainty contracts rapidly, indicating that dynamic probing information is exhausted almost immediately. This behavior 7A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 3.5 4.0 4.5 5.0 5.5 6.0  
+
+> log c
+> 4
+> 3
+> 2
+> 1
+> 0
+> log  Vopt (c) (normalized)
+> fit range
+> Regime I (Static-Sufficient)
+> Regime II (Dynamic-Critical)
+> Regime III (Noise-Dominant)
+
+Figure 2. Population-level uncertainty decay across regimes. The figure shows normalized observable uncertainty as a function of probing depth c in log-log scale, aggregated by regime. Solid curves represent regime-wise means across tasks, with shaded regions indicating bootstrap confidence intervals. Vertical dashed lines denote the stable probing interval used for fitting. 
+
+reflects that probing is largely unnecessary, as outcomes are already well-determined by static task characteristics. In contrast, Dynamic-Critical regimes exhibit substantially slower decay, with uncertainty persisting over a wide range of probing depths. This pattern indicates that early-stage optimization dynamics contain essential predictive informa-tion, making probing critical under practical budgets. Finally, in Noise-Dominant regimes, observable uncertainty remains dominated by an effective intrinsic floor, indicating that prediction difficulty arises primarily from irreducible ambiguity rather than insufficient probing. Together, these results demonstrate that the decay exponent 
+
+α captures a meaningful notion of dynamic hardness and provides an empirical counterpart to the governing uncer-tainty dynamics characterized in Section 5. 
+
+8.3. Phase Diagram and Regime Assignment 
+
+We next examine how fine-tuning tasks are organized in the two-dimensional space induced by their effective intrin-sic floor and uncertainty decay rate. This empirical phase diagram provides a concrete instantiation of the regime tax-onomy introduced in Section 8.3. Figure 3 plots all tasks in this reduced space. A clear struc-tural separation emerges. Static-Sufficient tasks concentrate in the region characterized by low intrinsic ambiguity and rapid uncertainty decay, indicating that outcomes are largely determined by static factors. In contrast, Dynamic-Critical 
+
+tasks occupy regions with similarly low intrinsic floors but markedly slower decay, reflecting the decisive role of train-ing dynamics in predictability. 0.000 0.001 0.002 0.003 0.004 0.005 0.006 0.007 0.008  
+
+> Lint
+> 0
+> 1
+> 2
+> 3
+> 4
+> 5Regime I (Static-Sufficient)
+> Regime II (Dynamic-Critical)
+> Regime III (Noise-Dominant)
+
+Figure 3. Empirical phase diagram of fine-tuning tasks. Each point corresponds to a task, positioned by its estimated effective intrinsic floor and empirically observed decay exponent. Colors indicate regime assignments. Dashed reference lines are shown for interpretability and reflect regime-level structure rather than learned decision boundaries. 
+
+Noise-Dominant tasks are primarily separated along the intrinsic-floor axis, spreading toward higher ambiguity across a wide range of decay rates. This pattern highlights that a large intrinsic floor, rather than the decay rate alone, governs predictability in this regime. Overall, the empirical phase diagram aligns closely with the theoretical regime definitions and demonstrates that the proposed descriptors provide a meaningful low-dimensional representation of fine-tuning behavior. 
+
+8.4. Efficiency Frontier and Optimal Probing 
+
+We next study how probing budgets should be allocated in practice. Building on the regime-dependent uncertainty decay identified above, we analyze the marginal benefit of additional probing and its implications for optimal stopping under limited resources. Figure 4 visualizes the marginal gain of probing, defined as the reduction in normalized observable uncertainty achieved by an incremental increase in probing depth (see Ap-pendix F.6 for a precise definition). Consistent with the analysis in Section 6, marginal gains decay monotonically with increasing c across all regimes. However, the rate at which marginal gains decay differs sub-stantially. In Static-Sufficient regimes, marginal gains vanish almost immediately, indicating that additional probing is unnecessary. In Dynamic-Critical regimes, marginal gains persist over a wide range of budgets, making extended prob-ing cost-effective. In Noise-Dominant regimes, marginal gains remain negligible due to the dominance of the effec-tive intrinsic floor. 8A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 10 2      
+
+> Probe compute c
+> 10 1
+> Normalized marginal gain  (c)
+> (c) =
+> Regime I (Static-Sufficient)
+> Regime II (Dynamic-Critical)
+> Regime III (Noise-Dominant)
+> Figure 4. Regime-dependent marginal gain of probing. The figure plots the normalized marginal reduction in observable uncertainty
+> ∆( c)as a function of probing depth cfor different regimes. All curves exhibit diminishing returns, but at markedly different rates.
+
+These patterns empirically validate the regime-aware stop-ping principles derived in Theorem 6.1. They also sug-gest that the practical value of probing lies in identifying the point at which additional computation mainly refines the uncertainty estimate without materially changing the regime-level decision. Appendix F.7 provides a complemen-tary probe-budget sensitivity analysis showing how regime agreement and uncertainty estimates evolve with increasing probe depth. 
+
+8.5. Regime Mismatch and Empirical Failures 
+
+We examine empirical failure cases of probing-based pre-dictors. Rather than attributing failures to estimator design, our framework explains them through structural regime mis-match between task dynamics and applied probing strategy. Probing is informative only when dynamic uncertainty is both present and reducible. In Static-Sufficient regimes, out-comes are largely determined by static task characteristics, so dynamic uncertainty is exhausted immediately. In Noise-Dominant regimes, prediction error is dominated by a large intrinsic risk floor, making additional probing ineffective. 
+
+Case I: Static-Sufficient Regime. Sentiment classifica-tion tasks such as SST-2 provide a representative example. Probing-based predictors reach near-saturated performance after only a few steps, with consistently large estimated decay rates, indicating rapid information revelation. As a result, deeper probing yields diminishing returns and may introduce unnecessary variance from stochastic opti-mization. In this regime, apparent probing failures should therefore be interpreted as applying dynamic probing where static descriptors already suffice. 
+
+Case II: Dynamic-Critical Regime. Arithmetic reason-ing benchmarks such as GSM8K exhibit markedly different behavior. Although the intrinsic ambiguity Lint remains low, the empirically observed decay rate is small, indicat-ing slow and delayed information revelation. Optimization trajectories often exhibit extended plateaus, leading to pro-longed predictive uncertainty. Here, shallow probing underestimates uncertainty and pro-duces unstable predictions. Failures arise not because prob-ing is flawed, but because the probing depth is insufficient relative to the task’s governing dynamics. This behavior is characteristic of the Dynamic-Critical regime, where reli-able prediction emerges only after substantial computation. Additional ablation results and qualitative analyses are pro-vided in Appendix F.10 and Appendix F.11. 
+
+## 9. Conclusion and Limitations 
+
+This work studies pre-hoc fine-tuning prediction from a structural perspective by treating it as a problem of un-certainty resolution under computational constraints. We characterize the limits of predictability by decomposing pre-diction risk into an intrinsic component and a computation-dependent optimization variance, establishing a necessary constraint on how fast this uncertainty can dissipate, and organizing fine-tuning tasks into a regime-dependent phase space. Together, these results explain when static informa-tion is already sufficient, when dynamic probing reveals essential additional signal, and when prediction is limited by an intrinsic uncertainty floor. This provides a principled basis for budget-aware probing decisions beyond heuris-tic step-count rules, and offers a way to interpret existing static-proxy and early-trajectory predictors through the com-ponents of prediction risk they primarily capture. Our analysis avoids modeling the full non-convex optimiza-tion dynamics of large language models. In particular, we do not claim that fine-tuning trajectories universally follow a specific decay law, nor that the decay exponent α corre-sponds to a fixed physical constant. Instead, α should be interpreted as an effective descriptor of how quickly un-certainty is revealed within a locally regular, rate-limited regime under a given task–optimizer pair. Similarly, the intrinsic floor and decay parameters are best understood as structural descriptors for offline calibration and regime-level decision support, rather than quantities that must be recov-ered exactly in every deployment instance. Task regimes may also shift under different hyperparameters, model fami-lies, or training protocols. These limitations reflect the in-tended scope of the framework and point to future directions where more detailed dynamical modeling, adaptive stopping rules, and integration with practical predictor architectures may further improve pre-hoc fine-tuning decisions. 9A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+## Acknowledgements 
+
+This work is supported by Guangdong provincial project (Project No. 2023CX10X008). 
+
+## Impact Statement 
+
+This work aims to advance the theoretical understanding of pre-hoc fine-tuning prediction through a risk decompo-sition framework. A potential positive impact is improved efficiency in model development: by clarifying when early probing is informative, redundant, or structurally limited, the framework can help practitioners make more informed decisions about whether and how long to fine-tune a model. This may reduce unnecessary computational expenditure, lower experimentation cost, and support more systematic allocation of fine-tuning resources. At the same time, pre-hoc prediction should not be inter-preted as a replacement for careful downstream evaluation. A potential risk is that practitioners may over-rely on pre-dicted performance or regime assignments when deciding whether to continue training, especially in settings where evaluation data are noisy, incomplete, or misaligned with deployment objectives. Such misuse could prematurely dis-card useful datasets or configurations, or reinforce biases present in the surrogate signals used for probing. Our frame-work is therefore intended as a decision-support tool rather than an automatic acceptance or rejection mechanism. The proposed analysis does not introduce new model ar-chitectures, training objectives, or deployed systems, and does not directly change model behavior. Nevertheless, when used in practical fine-tuning pipelines, we recommend reporting the probing budget, uncertainty estimates, task coverage, and limitations of the calibration protocol. These practices can help ensure that compute-saving decisions remain transparent, auditable, and appropriately qualified. 
+
+## References 
+
+Achille, A., Rovere, M., and Soatto, S. Critical learning periods in deep neural networks, 2019. URL https: //arxiv.org/abs/1711.08856 .Anugraha, D., Winata, G. I., Li, C., Irawan, P. A., and Lee, E.-S. A. Proxylm: Predicting language model per-formance on multilingual tasks via proxy models, 2024. URL https://arxiv.org/abs/2406.09334 .Barnett, M. An empirical study of scaling laws for trans-fer, 2024. URL https://arxiv.org/abs/2408. 16947 .Belkin, M., Hsu, D., Ma, S., and Mandal, S. Rec-onciling modern machine-learning practice and the classical bias–variance trade-off. Proceedings of the National Academy of Sciences , 116(32):15849–15854, July 2019. ISSN 1091-6490. doi: 10.1073/ pnas.1903070116. URL http://dx.doi.org/10. 1073/pnas.1903070116 .Chai, C., Liu, J., Tang, N., Li, G., and Luo, Y. Selective data acquisition in the wild for model charging. Proc. VLDB Endow. , 15(7):1466–1478, 2022. Chai, C., Liu, J., Tang, N., Fan, J., Miao, D., Wang, J., Luo, Y., and Li, G. Goodcore: Data-effective and data-efficient machine learning through coreset selection over incomplete data. Proc. ACM Manag. Data , 1(2):157:1– 157:27, 2023. Chai, C., Jin, K., Tang, N., Fan, J., Qiao, L., Wang, Y., Luo, Y., Yuan, Y., and Wang, G. Mitigating data scarcity in supervised machine learning through reinforcement learning guided data generation. In 40th IEEE Inter-national Conference on Data Engineering, ICDE 2024, Utrecht, The Netherlands, May 13-16, 2024 , pp. 3613– 3626. IEEE, 2024. doi: 10.1109/ICDE60146.2024.00278. URL https://doi.org/10.1109/ICDE60146. 2024.00278 .Chai, C., Jin, K., Tang, N., Fan, J., Miao, D., Wang, J., Luo, Y., Li, G., Yuan, Y., and Wang, G. Cost-effective miss-ing value imputation for data-effective machine learning. 
+
+ACM Trans. Database Syst. , 50(3):10:1–10:36, 2025. Chen, Z., Cao, L., Madden, S., Fan, J., Tang, N., Gu, Z., Shang, Z., Liu, C., Cafarella, M. J., and Kraska, T. SEED: simple, efficient, and effective data management via large language models. CoRR , abs/2310.00749, 2023. Cobbe, K., Kosaraju, V., Bavarian, M., Chen, M., Jun, H., Kaiser, L., Plappert, M., Tworek, J., Hilton, J., Nakano, R., Hesse, C., and Schulman, J. Training verifiers to solve math word problems, 2021. URL https://arxiv. org/abs/2110.14168 .Deng, Y., Chai, C., Cao, L., Tang, N., Wang, J., Fan, J., Yuan, Y., and Wang, G. Misdetect: Iterative mislabel detection using early loss. Proc. VLDB Endow. , 17(6): 1159–1172, 2024. Domhan, T., Springenberg, J. T., and Hutter, F. Speeding up automatic hyperparameter optimization of deep neural networks by extrapolation of learning curves. In Proceed-ings of the 24th International Conference on Artificial In-telligence , IJCAI’15, pp. 3460–3468. AAAI Press, 2015. ISBN 9781577357384. Fan, M., Han, X., Fan, J., Chai, C., Tang, N., Li, G., and Du, X. Cost-effective in-context learning for entity resolution: A design space exploration. In 40th IEEE International Conference on Data Engineering, ICDE 2024, Utrecht, 
+
+10 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+The Netherlands, May 13-16, 2024 , pp. 3696–3709. IEEE, 2024. Fan, M., Fan, J., Tang, N., Cao, L., Li, G., and Du, X. Auto-prep: Natural language question-aware data preparation with a multi-agent framework. Proc. VLDB Endow. , 18 (10):3504–3517, 2025. Fan, W., Geerts, F., Ma, S., Tang, N., and Yu, W. Data quality problems beyond consistency and deduplication. In Tannen, V., Wong, L., Libkin, L., Fan, W., Tan, W., and Fourman, M. P. (eds.), In Search of Elegance in the Theory and Practice of Computation - Essays Ded-icated to Peter Buneman , Lecture Notes in Computer Science, pp. 237–249. Springer, 2013. doi: 10.1007/ 978-3-642-41660-6 \ 12. URL https://doi.org/ 10.1007/978-3-642-41660-6_12 .Gargiani, M., Klein, A., Falkner, S., and Hutter, F. Prob-abilistic rollouts for learning curve extrapolation across hyperparameter settings, 2019. URL https://arxiv. org/abs/1910.04522 .Gliwa, B., Mochol, I., Biesek, M., and Wawer, A. SAM-Sum corpus: A human-annotated dialogue dataset for abstractive summarization. In Wang, L., Cheung, J. C. K., Carenini, G., and Liu, F. (eds.), Proceedings of the 2nd Workshop on New Frontiers in Summarization ,pp. 70–79, Hong Kong, China, November 2019. Associ-ation for Computational Linguistics. doi: 10.18653/v1/ D19-5409. URL https://aclanthology.org/ D19-5409/ .Guo, P.-F., Tsai, Y.-D., and Lin, S.-D. Uncertainty profiles for llms: Uncertainty source decomposition and adaptive model-metric selection, 2025. URL https://arxiv. org/abs/2505.07309 .Han, Z., Gao, C., Liu, J., Zhang, J., and Zhang, S. Q. Parameter-efficient fine-tuning for large models: A com-prehensive survey, 2024. URL https://arxiv. org/abs/2403.14608 .Hendrycks, D., Burns, C., Basart, S., Zou, A., Mazeika, M., Song, D., and Steinhardt, J. Measuring massive multitask language understanding. In International Conference on Learning Representations (ICLR) , 2021. Hoffmann, J., Borgeaud, S., Mensch, A., Buchatskaya, E., Cai, T., Rutherford, E., de Las Casas, D., Hendricks, L. A., Welbl, J., Clark, A., Hennigan, T., Noland, E., Millican, K., van den Driessche, G., Damoc, B., Guy, A., Osindero, S., Simonyan, K., Elsen, E., Rae, J. W., Vinyals, O., and Sifre, L. Training compute-optimal large language models, 2022. URL https://arxiv.org/ abs/2203.15556 .Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., and Chen, W. Lora: Low-rank adaptation of large language models, 2021. URL https://arxiv. org/abs/2106.09685 .Isik, B., Ponomareva, N., Hazimeh, H., Paparas, D., Vassil-vitskii, S., and Koyejo, S. Scaling laws for downstream task performance of large language models, 2026. URL 
+
+https://arxiv.org/abs/2402.04177 .Jiang, A. Q., Sablayrolles, A., Mensch, A., Bamford, C., Chaplot, D. S., de las Casas, D., Bressand, F., Lengyel, G., Lample, G., Saulnier, L., Lavaud, L. R., Lachaux, M.-A., Stock, P., Scao, T. L., Lavril, T., Wang, T., Lacroix, T., and Sayed, W. E. Mistral 7b, 2023. URL https: //arxiv.org/abs/2310.06825 .Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., Gray, S., Radford, A., Wu, J., and Amodei, D. Scaling laws for neural language mod-els, 2020. URL https://arxiv.org/abs/2001. 08361 .Kendall, A. and Gal, Y. What uncertainties do we need in bayesian deep learning for computer vision?, 2017. URL 
+
+https://arxiv.org/abs/1703.04977 .Klein, A., Falkner, S., Springenberg, J. T., and Hutter, F. Learning curve prediction with bayesian neural networks. In International Conference on Learning Representations ,2017. URL https://openreview.net/forum? id=S11KBYclx .Kunievsky, N. and Evans, J. A. Measuring intent compre-hension in llms, 2026. URL https://arxiv.org/ abs/2506.16584 .Kuramoto, T. and Suzuki, J. Predicting fine-tuned per-formance on larger datasets before creating them. In Rambow, O., Wanner, L., Apidianaki, M., Al-Khalifa, H., Eugenio, B. D., Schockaert, S., Darwish, K., and Agarwal, A. (eds.), Proceedings of the 31st Interna-tional Conference on Computational Linguistics: In-dustry Track , pp. 204–212, Abu Dhabi, UAE, Jan-uary 2025. Association for Computational Linguis-tics. URL https://aclanthology.org/2025. coling-industry.17/ .Kweon, W., Jang, S., Kang, S., and Yu, H. Uncertainty quantification and decomposition for llm-based recom-mendation. In Proceedings of the ACM on Web Con-ference 2025 , WWW ’25, pp. 4889–4901. ACM, April 2025. doi: 10.1145/3696410.3714601. URL http: //dx.doi.org/10.1145/3696410.3714601 .Li, C., Yang, C., Luo, Y., Fan, J., and Tang, N. Weak-to-strong prompts with lightweight-to-powerful llms for 11 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+high-accuracy, low-cost, and explainable data transforma-tion. Proc. VLDB Endow. , 18(8):2371–2384, 2025. Li, H., Ding, L., Fang, M., and Tao, D. Revisiting catas-trophic forgetting in large language model tuning, 2024. URL https://arxiv.org/abs/2406.04836 .Lin, H., Huang, B., Ye, H., Chen, Q., Wang, Z., Li, S., Ma, J., Wan, X., Zou, J., and Liang, Y. Selecting large language model to fine-tune via rectified scaling law, 2024. URL 
+
+https://arxiv.org/abs/2402.02314 .Lin, S., Hilton, J., and Evans, O. TruthfulQA: Measuring how models mimic human falsehoods. In Muresan, S., Nakov, P., and Villavicencio, A. (eds.), Proceedings of the 60th Annual Meeting of the Association for Compu-tational Linguistics (Volume 1: Long Papers) , pp. 3214– 3252, Dublin, Ireland, May 2022. Association for Com-putational Linguistics. doi: 10.18653/v1/2022.acl-long. 229. URL https://aclanthology.org/2022. acl-long.229/ .Lin, T., Luo, Y., Zhang, H., Zhang, J., Liu, C., Wu, K., and Tang, N. Mebench: Benchmarking large language models for cross-document multi-entity question answer-ing. In Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing, EMNLP 2025, Suzhou, China, November 4-9, 2025 , pp. 1481–1494. As-sociation for Computational Linguistics, 2025a. Lin, X., Qi, Y., Zhu, Y., Palpanas, T., Chai, C., Tang, N., and Luo, Y. LEAD: iterative data selection for efficient LLM instruction tuning. Proc. VLDB Endow. , 19(3): 426–439, 2025b. URL https://www.vldb.org/ pvldb/vol19/p426-luo.pdf .Liu, X., Shen, S., Li, B., Tang, N., and Luo, Y. Nl2sql-bugs: A benchmark for detecting semantic errors in NL2SQL translation. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining, V.2, KDD 2025, Toronto ON, Canada, August 3-7, 2025 ,pp. 5662–5673. ACM, 2025. Loshchilov, I. and Hutter, F. Decoupled weight decay regu-larization, 2019. URL https://arxiv.org/abs/ 1711.05101 .Luo, Y., Yang, Z., Meng, F., Li, Y., Zhou, J., and Zhang, Y. An empirical study of catastrophic forgetting in large language models during continual fine-tuning, 2025. URL 
+
+https://arxiv.org/abs/2308.08747 .Mosbach, M., Andriushchenko, M., and Klakow, D. On the stability of fine-tuning bert: Misconceptions, ex-planations, and strong baselines, 2021. URL https: //arxiv.org/abs/2006.04884 .Power, A., Burda, Y., Edwards, H., Babuschkin, I., and Misra, V. Grokking: Generalization beyond overfitting on small algorithmic datasets, 2022. URL https:// arxiv.org/abs/2201.02177 .Qwen, :, Yang, A., Yang, B., Zhang, B., Hui, B., Zheng, B., Yu, B., Li, C., Liu, D., Huang, F., Wei, H., Lin, H., Yang, J., Tu, J., Zhang, J., Yang, J., Yang, J., Zhou, J., Lin, J., Dang, K., Lu, K., Bao, K., Yang, K., Yu, L., Li, M., Xue, M., Zhang, P., Zhu, Q., Men, R., Lin, R., Li, T., Tang, T., Xia, T., Ren, X., Ren, X., Fan, Y., Su, Y., Zhang, Y., Wan, Y., Liu, Y., Cui, Z., Zhang, Z., and Qiu, Z. Qwen2.5 technical report, 2025. URL https: //arxiv.org/abs/2412.15115 .Saxe, A. M., Bansal, Y., Dapello, J., Advani, M., Kolchinsky, A., Tracey, B. D., and Cox, D. D. On the information bot-tleneck theory of deep learning. In International Confer-ence on Learning Representations , 2018. URL https: //openreview.net/forum?id=ry_WPG-A-.Schram, V., Hiller, M., Beck, D., and Cohn, T. Zero-shot per-formance prediction for probabilistic scaling laws, 2025. URL https://arxiv.org/abs/2510.16743 .Sclocchi, A., Geiger, M., and Wyart, M. Dissecting the effects of sgd noise in distinct regimes of deep learn-ing, 2023. URL https://arxiv.org/abs/2301. 13703 .Team, L. The llama 3 herd of models. CoRR ,abs/2407.21783, 2024. doi: 10.48550/ARXIV.2407. 21783. URL https://doi.org/10.48550/ arXiv.2407.21783 .Walha, N., Gruber, S. G., Decker, T., Yang, Y., Javanmardi, A., H ¨ullermeier, E., and Buettner, F. Fine-grained uncer-tainty decomposition in large language models: A spec-tral approach, 2025. URL https://arxiv.org/ abs/2509.22272 .Wang, A., Singh, A., Michael, J., Hill, F., Levy, O., and Bowman, S. R. Glue: A multi-task benchmark and anal-ysis platform for natural language understanding, 2019. URL https://arxiv.org/abs/1804.07461 .Wang, J., Albarghouthi, A., and Sala, F. Cosmos: Pre-dictable and cost-effective adaptation of llms, 2025. URL 
+
+https://arxiv.org/abs/2505.01449 .Westphal, C., Hailes, S., and Musolesi, M. A generalized information bottleneck theory of deep learning, 2025. URL https://arxiv.org/abs/2509.26327 .Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., Cistac, P., Rault, T., Louf, R., Funtow-icz, M., Davison, J., Shleifer, S., von Platen, P., Ma, C., Jernite, Y., Plu, J., Xu, C., Le Scao, T., Gugger, S., 12 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Drame, M., Lhoest, Q., and Rush, A. Transformers: State-of-the-art natural language processing. In Liu, Q. and Schlangen, D. (eds.), Proceedings of the 2020 Confer-ence on Empirical Methods in Natural Language Process-ing: System Demonstrations , pp. 38–45, Online, October 2020. Association for Computational Linguistics. doi: 10.18653/v1/2020.emnlp-demos.6. URL https:// aclanthology.org/2020.emnlp-demos.6/ .Wu, Y., Yan, L., Shen, L., Wang, Y., Tang, N., and Luo, Y. Chartinsights: Evaluating multimodal large language models for low-level chart question answering. In Find-ings of the Association for Computational Linguistics: EMNLP 2024, Miami, Florida, USA, November 12-16, 2024 , Findings of ACL, pp. 12174–12200. Association for Computational Linguistics, 2024. Yang, C., Luo, Y., Cui, C., Fan, J., Chai, C., and Tang, N. Data imputation with limited data redundancy using data lakes. Proc. VLDB Endow. , 18(10):3354–3367, 2025. doi: 10.14778/3748191.3748200. URL https://www. vldb.org/pvldb/vol18/p3354-tang.pdf .Yang, X., Sun, K., Xin, H., Sun, Y., Bhalla, N., Chen, X., Choudhary, S., Gui, R. D., Jiang, Z. W., Jiang, Z., Kong, L., Moran, B., Wang, J., Xu, Y., Yan, A., Yang, C., Yuan, E., Zha, H., Tang, N., Chen, L., Scheffer, N., Liu, Y., Shah, N., Wanga, R., Kumar, A., Yih, S., and Dong, X. CRAG - comprehensive RAG benchmark. In Advances in Neural Information Processing Systems 38: Annual Conference on Neural Information Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada, December 10 - 15, 2024 , 2024. Zeng, H., Hui, K., Zhuang, H., Qin, Z., Yue, Z., Zamani, H., and Alon, D. Can pre-training indicators reliably predict fine-tuning outcomes of llms?, 2025a. URL https: //arxiv.org/abs/2504.12491 .Zeng, X., Wang, H., Lin, J., Wu, J., Cody, T., and Zhou, D. Lensllm: Unveiling fine-tuning dynamics for llm selection, 2025b. URL https://arxiv.org/abs/ 2505.03793 .Zhang, S., Dong, L., Li, X., Zhang, S., Sun, X., Wang, S., Li, J., Hu, R., Zhang, T., Wu, F., and Wang, G. Instruction tuning for large language models: A survey, 2025. URL 
+
+https://arxiv.org/abs/2308.10792 .Zhu, Y., Du, S., Li, B., Luo, Y., and Tang, N. Are large language models good statisticians? In Advances in Neural Information Processing Systems 38: Annual Con-ference on Neural Information Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada, December 10 -15, 2024 , 2024. Zhu, Z., Shahtalebi, S., and Rudzicz, F. Predicting fine-tuning performance with probing, 2022. URL https: //arxiv.org/abs/2210.07352 .13 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+## A. Proofs for Risk Decomposition 
+
+This appendix provides the formal proofs and supporting results for the risk decomposition framework introduced in Section 4. We rigorously establish how the prediction risk decomposes into an irreducible intrinsic component and a reducible optimization-induced component under increasing information. 
+
+A.1. Formal Setup and Bayes-Optimal Prediction 
+
+Let R ∈ R denote the random outcome of a fine-tuning task, and let {I c}c≥0 denote a filtration representing the accumulated information available to the predictor as a function of computation c. By construction, 
+
+Ic ⊆ I c′ for all c < c ′. (12) For any fixed information set Ic, consider predictors f : Ic → R evaluated under the mean squared error (MSE) risk 
+
+L(f ; c) ≜ E(f (Ic) − R)2 . (13) It is a standard result in statistical decision theory that the Bayes-optimal predictor minimizing L(f ; c) is given by the conditional expectation 
+
+f ∗(Ic) = E[R | I c], (14) and that the corresponding minimal risk is 
+
+L(c) = L(f ∗; c) = E(R − E[R | I c]) 2 = E[Var( R | I c)] . (15) This identity serves as the starting point for all subsequent derivations. 
+
+A.2. Proof of Proposition 4.1 
+
+We now prove the risk decomposition stated in Proposition 4.1. 
+
+Restatement. Let I∞ = lim c→∞ Ic denote the information set corresponding to the complete optimization trajectory. Then the Bayes risk at computation c admits the decomposition 
+
+L(c) = E[Var( R | I ∞)] 
+
+| {z }
+
+> Lint
+
++ E[Var( R | I c) − Var( R | I ∞)] 
+
+| {z }
+
+> Vopt (c)
+
+. (16) 
+
+Proof. Starting from the expression for the Bayes risk, 
+
+L(c) = E[Var( R | I c)] , (17) we add and subtract E[Var( R | I ∞)] to obtain 
+
+L(c) = E[Var( R | I ∞)] + E[Var( R | I c) − Var( R | I ∞)] . (18) The first term depends only on the full information set I∞ and is therefore independent of c. We define this term as the intrinsic limit 
+
+Lint ≜ E[Var( R | I ∞)] . (19) The second term captures the excess uncertainty due to observing only a finite prefix of the optimization trajectory and is defined as 
+
+Vopt (c) ≜ E[Var( R | I c) − Var( R | I ∞)] . (20) This yields the stated decomposition. 
+
+A.3. Properties of the Optimization Variance Term 
+
+We now establish basic structural properties of Vopt (c).14 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+A.3.1. N ON -NEGATIVITY 
+
+Claim. 
+
+Vopt (c) ≥ 0 for all c ≥ 0. (21) 
+
+Proof. Since Ic ⊆ I ∞, conditioning on I∞ provides at least as much information as conditioning on Ic. A standard property of conditional variance implies 
+
+Var( R | I c) ≥ Var( R | I ∞) almost surely . (22) Taking expectations on both sides yields Vopt (c) ≥ 0.A.3.2. M ONOTONICITY WITH RESPECT TO COMPUTATION 
+
+Claim. If c < c ′, then 
+
+Vopt (c) ≥ V opt (c′). (23) 
+
+Proof. By the filtration property, Ic ⊆ I c′ ⊆ I ∞. Applying the monotonicity of conditional variance, 
+
+Var( R | I c) ≥ Var( R | I c′ ) ≥ Var( R | I ∞). (24) Subtracting Var( R | I ∞) and taking expectations yields 
+
+Vopt (c) ≥ V opt (c′). (25) A.3.3. A SYMPTOTIC VANISHING 
+
+Claim. 
+
+lim  
+
+> c→∞
+
+Vopt (c) = 0 . (26) 
+
+Proof. By definition, Ic ↑ I ∞ as c → ∞ . Under standard regularity assumptions ensuring convergence of conditional expectations (e.g., dominated convergence), 
+
+lim  
+
+> c→∞
+
+Var( R | I c) = Var( R | I ∞) almost surely . (27) Taking expectations yields the result. 
+
+A.4. Interpretation: Floor and Gap 
+
+The results above formally justify the interpretation adopted in the main text. The intrinsic limit Lint represents an irreducible error floor determined by the task itself and remains invariant to computation. In contrast, the optimization variance Vopt (c)
+
+represents a reducible uncertainty gap that shrinks monotonically as additional information from the optimization trajectory is revealed. This structural separation underpins the governing dynamics analyzed in Section 5 and the budget-optimal probing strategy developed in Section 6. 
+
+## B. Information-Theoretic Interpretation and Properties 
+
+This appendix complements Section 4 by formalizing the information-theoretic perspective behind static–dynamic comple-mentarity and the “information revelation” viewpoint. Throughout, let Ic = {Xs, X (c) 
+
+> d
+
+} denote the accumulated information at computation c, and let I∞ = {Xs, X (∞) 
+
+> d
+
+} denote the asymptotic information set. 
+
+B.1. Conditional Mutual Information as a Criterion for Complementarity 
+
+We first relate the usefulness of dynamic probes to the conditional mutual information 
+
+I(R; X(c) 
+
+> d
+
+| Xs). (28) 15 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Intuitively, this quantity measures the non-redundant information about the outcome R that is revealed by observing the optimization trajectory prefix beyond what is already contained in static priors. 
+
+Lemma B.1 (Redundancy implies no gain) . If I(R; X(c) 
+
+> d
+
+| Xs) = 0 , then conditioning on X(c) 
+
+> d
+
+does not change the posterior of R given Xs, i.e., 
+
+p(R | Xs, X (c) 
+
+> d
+
+) = p(R | Xs) a.s. , (29) 
+
+and consequently 
+
+E
+
+h
+
+Var( R | Xs, X (c) 
+
+> d
+
+)
+
+i
+
+= E[Var( R | Xs)] . (30) 
+
+Proof. The condition I(R; X(c) 
+
+> d
+
+| Xs) = 0 is equivalent to conditional independence R ⊥⊥ X(c) 
+
+> d
+
+| Xs, which implies 
+
+p(R | Xs, X (c) 
+
+> d
+
+) = p(R | Xs) almost surely. Taking conditional variances under the same conditional distribution yields 
+
+Var( R | Xs, X (c) 
+
+> d
+
+) = Var( R | Xs) almost surely, and the expectation identity follows. 
+
+Corollary B.2 (Strict variance reduction requires positive conditional MI) . If E[Var( R | Xs, X (c) 
+
+> d
+
+)] < E[Var( R | Xs)] ,then I(R; X(c) 
+
+> d
+
+| Xs) > 0.
+
+Proof. By Lemma B.1, I(R; X(c) 
+
+> d
+
+| Xs) = 0 would imply equality of the two expected conditional variances, contradicting strict reduction. 
+
+B.2. Monotone Information Revelation Along the Filtration 
+
+Because Ic grows with c (as a filtration), information revealed by dynamic probes must be monotone in computation. 
+
+Lemma B.3 (Monotonicity of conditional mutual information) . If c < c ′, then 
+
+I(R; X(c) 
+
+> d
+
+| Xs) ≤ I(R; X(c′) 
+
+> d
+
+| Xs). (31) 
+
+Proof. Since X(c) 
+
+> d
+
+is a measurable function of X(c′) 
+
+> d
+
+(the latter contains the former as a prefix), we have the Markov chain 
+
+R → (Xs, X (c′) 
+
+> d
+
+) → (Xs, X (c) 
+
+> d
+
+),
+
+and the claim follows from the data-processing inequality for conditional mutual information. This lemma formalizes the “information revelation” interpretation: as computation increases, the dynamic observation can only add (never remove) information about the outcome, and can only decrease the Bayes risk L(c) = E[Var( R | I c)] .
+
+B.3. From Mutual Information to Variance Reduction 
+
+Section 4 motivates complementarity through conditional mutual information. Here we provide a precise quantitative relationship between mutual information and variance reduction. In full generality, mutual information is defined in terms of (differential) entropies: 
+
+I(R; X(c) 
+
+> d
+
+| Xs) = h(R | Xs) − h(R | Xs, X (c) 
+
+> d
+
+), (32) where h(·) denotes differential entropy (for continuous R) and the discrete entropy analog applies if R is discrete. A direct link to conditional variances emerges under a standard (and explicitly stated) Gaussianity condition, which is commonly adopted when analyzing posterior contraction and stochastic approximation in local regimes. 
+
+Proposition B.4 (Gaussian posterior contraction identity) . Assume that for almost every realization of (Xs, X (c) 
+
+> d
+
+), the conditional distribution R | (Xs, X (c) 
+
+> d
+
+) is Gaussian with variance σ2 
+
+> c
+
+(Xs, X (c) 
+
+> d
+
+), and R | Xs is Gaussian with variance 
+
+σ20 (Xs). Then 
+
+I(R; X(c) 
+
+> d
+
+| Xs) = 12 E
+
+"
+
+log σ20 (Xs)
+
+σ2 
+
+> c
+
+(Xs, X (c) 
+
+> d
+
+)
+
+#
+
+= 12 E
+
+"
+
+log Var( R | Xs)Var( R | Xs, X (c) 
+
+> d
+
+)
+
+#
+
+. (33) 
+
+Proof. For a Gaussian random variable Z ∼ N (m, σ 2), h(Z) = 12 log(2 πeσ 2). Applying this to R | Xs and R |
+
+(Xs, X (c) 
+
+> d
+
+) and taking their difference yields the stated identity. 16 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Interpretation. Under Gaussian posterior contraction, conditional mutual information is exactly the expected log-shrinkage 
+
+of the posterior variance. In particular, positive I(R; X(c) 
+
+> d
+
+| Xs) implies a multiplicative reduction in conditional variance on average, not merely an additive decrease. More generally, without Gaussianity one can still obtain one-sided inequalities using the maximum entropy principle. Since for any random variable Z with finite variance, 
+
+h(Z) ≤ 12 log (2 πe Var( Z)) , (34) we obtain the following bound. 
+
+Proposition B.5 (Entropy upper bound yields a conservative MI–variance relation) . Assume R | Xs and R | (Xs, X (c) 
+
+> d
+
+)
+
+have finite conditional variances almost surely. Then 
+
+I(R; X(c) 
+
+> d
+
+| Xs) ≥ h(R | Xs) − 12 E
+
+h
+
+log 
+
+
+
+2πe Var( R | Xs, X (c) 
+
+> d
+
+)
+
+i 
+
+. (35) 
+
+In particular, any substantial decrease in Var( R | Xs, X (c) 
+
+> d
+
+) forces a nontrivial lower bound on I(R; X(c) 
+
+> d
+
+| Xs).
+
+Proof. By definition, I(R; X(c) 
+
+> d
+
+| Xs) = h(R | Xs) − h(R | Xs, X (c) 
+
+> d
+
+). Apply h(·) ≤ 12 log(2 πe Var( ·)) to the second term and take expectation. This proposition is deliberately conservative: it does not claim tightness, but it formalizes the direction that matters for our theory—variance reduction cannot occur without information gain. 
+
+B.4. Information Revelation as Posterior Contraction Along Two Modes 
+
+We now formalize the “information revelation” viewpoint. Let 
+
+πc(r) ≜ p(R = r | I c) (36) denote the posterior distribution over outcomes given information at compute c. The Bayes risk under MSE is the expected posterior variance: 
+
+L(c) = E[Var( R | I c)] . (37) Thus, decreasing L(c) corresponds to posterior contraction in the second moment sense. 
+
+Remark B.6 (Two modes of information revelation (formal view)) . The filtration {I c}c≥0 induces two distinct modes of posterior contraction: 1. Ex-ante (static) contraction. Conditioning on Xs transitions the prior p(R) to the static posterior p(R | Xs), yielding an initial reduction in uncertainty from Var( R) to Var( R | Xs). This contraction occurs at c = 0 and reflects what can be inferred from the data–model pair without observing optimization. 2. In-process (dynamic) contraction. Conditioning further on X(c) 
+
+> d
+
+transitions p(R | Xs) to p(R | Xs, X (c) 
+
+> d
+
+), reducing the residual uncertainty attributable to stochastic optimization. This contraction unfolds continuously with c and is quantified by Vopt (c) in Eq. (4). In this view, pre-hoc prediction is not a discrete hyperparameter selection problem. It is a controlled posterior contraction process: the practitioner allocates computation to shrink Var( R | I c) until the marginal information gain becomes negligible relative to cost. 
+
+B.5. A Useful Identity: Optimization Variance as an MMSE Gap 
+
+Finally, we record an identity that is often useful when connecting information gain to estimation performance. Recall from Appendix A that 
+
+L(c) = E[Var( R | I c)] . (38) 17 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Define the (Bayes-optimal) minimum mean squared error (MMSE) at compute c by 
+
+mmse( c) ≜ E(R − E[R | I c]) 2 . (39) Then mmse( c) = L(c), and the optimization variance term can be written as 
+
+Vopt (c) = L(c) − L int = mmse( c) − mmse( ∞), (40) i.e., the excess MMSE incurred by observing only a finite trajectory prefix. This identity clarifies the functional role of dynamic probing: it reduces the MMSE gap left by static priors, and it does so only insofar as I(R; X(c) 
+
+> d
+
+| Xs) is positive and grows with computation (Lemma B.3). 
+
+## C. Asymptotic Envelope for Uncertainty Decay 
+
+This appendix provides a concrete stochastic-approximation-based derivation illustrating the asymptotic uncertainty decay envelope discussed in Section 5. The purpose of this analysis is not to characterize the exact conditional variance given infinite information, but to demonstrate that under locally regular stochastic optimization dynamics, observable uncertainty remaining at finite computation budgets cannot contract arbitrarily fast . The assumptions adopted here are intentionally stronger than those in the main text and are used solely to make this rate-limiting mechanism explicit. 
+
+C.1. Local Stochastic Approximation Regime 
+
+We consider an asymptotic regime of fine-tuning in which optimization proceeds within a locally stable neighborhood of a reference point θ⋆. Let θt denote the parameter state after t optimization updates, and let c denote a continuous computation index proportional to t.
+
+Local regularity. Assume that in a neighborhood of θ⋆, the loss admits a second-order expansion 
+
+L(θ) = L(θ⋆) + 12 (θ − θ⋆)⊤H(θ − θ⋆) + o(∥θ − θ⋆∥2), (41) where H is symmetric and locally stable on the dynamically active subspace. No assumption is made about global convexity of the loss landscape. 
+
+Stochastic optimization dynamics. Consider the stochastic approximation recursion 
+
+θt+1 = θt − ηt
+
+ ∇L(θt) + ξt
+
+, (42) where {ξt} is a martingale difference sequence satisfying 
+
+E[ξt | F t] = 0 , E[ξtξ⊤ 
+
+> t
+
+| F t] = Σ ξ , (43) with Σξ positive semidefinite and non-degenerate along at least one direction relevant to the evaluation metric. 
+
+Step-size schedule. Assume a polynomially decaying step size 
+
+ηt = η0t−ρ, ρ ∈   12 , 1 , (44) which ensures almost sure convergence while allowing persistent stochastic fluctuations over finite horizons. 
+
+C.2. Finite-Horizon Parameter Uncertainty 
+
+Although θt converges almost surely to a random limit θ∞, for any finite time t there remains residual uncertainty about θ∞
+
+due to future stochastic gradient noise not yet revealed in Ft. Unrolling the linearized error dynamics yields 
+
+θ∞ − θt = −
+
+> ∞
+
+X
+
+> k=t
+
+Φ∞← (k+1) ηk ξk, (45) 18 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+where Φ∞← (k+1) denotes the state-transition operator of the linearized dynamics. Conditioned on Ft, the future noise terms 
+
+{ξk}k≥t remain random, implying 
+
+Cov( θ∞ | F t) ⪰
+
+> ∞
+
+X
+
+> k=t
+
+η2 
+
+> k
+
+Φ∞← (k+1) Σξ Φ⊤∞← (k+1) . (46) Local stability ensures that the transition operators preserve at least one noise-excited direction. Moreover, the tail of the squared step sizes satisfies 
+
+> ∞
+
+X
+
+> k=t
+
+η2 
+
+> k
+
+= Θ 
+
+
+
+t−(2 ρ−1) 
+
+, (47) which yields a constant Kθ > 0 such that 
+
+ETr  Cov( θ∞ | F t) ≥ Kθ t−(2 ρ−1) . (48) 
+
+C.3. From Parameter Fluctuations to Observable Outcome Variability 
+
+Let the evaluation outcome be modeled as 
+
+R = R(θ∞, ζ ), (49) where ζ represents task-level or evaluation-level randomness independent of the optimization noise. Assume that R(θ, ζ ) is locally smooth in θ and that ∇θ R(θ⋆, ζ ) has non-zero projection onto a noise-excited direction with non-zero probability. Conditioned on Ft, uncertainty in θ∞ induces variability in the conditional distribution of R. A first-order expansion yields 
+
+Var( R | F t) ≳ ∇R(θ⋆)⊤Cov( θ∞ | F t)∇R(θ⋆) + Var( ζ), (50) where the second term represents irreducible task-level variability. Taking expectations and combining with (48) yields 
+
+E[Var( R | F t)] ≳ KR t−(2 ρ−1) + (irreducible terms) . (51) 
+
+C.4. Implication for the Optimization-Induced Uncertainty Envelope 
+
+Recall that the optimization-induced uncertainty Vopt (c) captures the excess uncertainty attributable to observing only a finite prefix of the optimization trajectory. Identifying Ic with Ft up to reparameterization, the residual uncertainty arising from future stochastic fluctuations yields an asymptotic envelope 
+
+Vopt (c) ≳ K c −α, α = 2 ρ − 1 ∈ (0 , 1] , (52) for some constant K > 0. We emphasize that this expression characterizes a rate-limiting asymptotic behavior of observable uncertainty contraction, rather than a tight bound on the conditional variance given infinite information. The explicit form α = 2 ρ − 1 arises from the specific stochastic approximation regime analyzed here. In practice, different optimization schedules, preconditioning, and non-stationary phases can induce substantially different effective decay rates, consistent with the empirical observations reported in Section 8. 
+
+## D. Proofs for Budget-Optimal Allocation and the Efficiency Frontier 
+
+This appendix provides the detailed derivations and proofs for the budget-optimal allocation results in Section 6. We emphasize that the core object being optimized is the reducible uncertainty Vopt (c) governed by the uncertainty decay dynamics in Section 5, while the intrinsic limit Lint remains invariant to compute. We present results in increasing generality: first for a general monotone cost model, then for the linear cost specialization used in the main text, and finally for the geometry of the efficiency frontier. 19 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+D.1. General Budgeted Risk Minimization 
+
+Recall the Bayes risk decomposition (Proposition 4.1): 
+
+L(c) = Lint + Vopt (c), (53) where Lint is constant in c and Vopt (c) is non-increasing in c (Appendix A). Let C(c) denote the cost of acquiring Ic and assume: 
+
+Assumption D.1 (Admissible cost model) . The cost function C : [0 , ∞) → [0 , ∞) is continuous, strictly increasing, and satisfies C(0) = Cs.Given a total budget B ≥ Cs, the decision problem is 
+
+min  
+
+> c≥0
+
+Lint + Vopt (c) s.t. C(c) ≤ B. (54) 
+
+Lemma D.2 (Budget is optimally saturated) . Assume Vopt (c) is non-increasing and C(c) is strictly increasing. Then any optimizer c⋆ of (54) satisfies 
+
+C(c⋆) = B, (55) 
+
+unless Vopt (c) is flat on [0 , ¯c] for some ¯c > 0 and B is large enough to exceed C(¯ c).
+
+Proof. If C(c⋆) < B , then there exists δ > 0 such that C(c⋆ + δ) ≤ B by continuity and strict monotonicity of C(·).Since Vopt (·) is non-increasing, Vopt (c⋆ + δ) ≤ V opt (c⋆), yielding a weakly better feasible point. Strict improvement holds unless Vopt is locally flat. Lemma D.2 formalizes the economic intuition: if probing is beneficial (strictly reduces uncertainty), one should use the full available budget. 
+
+D.2. KKT Derivation Under a Canonical Power-Law Model 
+
+The main text adopts a canonical model for the reducible uncertainty: 
+
+Vopt (c) = Kc −α, K > 0, α > 0, (56) valid in an early-to-mid regime beyond a minimal onset c0 (Section 5). We first derive the optimal allocation under a general differentiable cost model. 
+
+Assumption D.3 (Differentiable cost) . C(·) is differentiable and strictly increasing, with derivative C′(c) > 0 for all c ≥ 0.Consider the Lagrangian for (54) under (56): 
+
+J (c, γ ) = Lint + Kc −α + γ (C(c) − B), γ ≥ 0. (57) 
+
+Theorem D.4 (KKT characterization for budget-optimal probing) . Under Assumptions D.1 and D.3, and Vopt (c) = Kc −α
+
+with α > 0, any interior optimum c⋆ > 0 satisfies the KKT stationarity condition 
+
+ddc Vopt (c)
+
+> c=c⋆
+
+= γ⋆ C′(c⋆), (58) 
+
+together with complementary slackness 
+
+γ⋆ (C(c⋆) − B) = 0 , γ⋆ ≥ 0, C(c⋆) ≤ B. (59) 
+
+Proof. This is a standard application of KKT conditions for a single inequality constraint. Since C(·) is differentiable and strictly increasing, the constraint qualification holds. Stationarity requires ∂J /∂c = 0 :
+
+−αKc −(α+1) + γC ′(c) = 0 ,
+
+equivalently αKc −(α+1) = γC ′(c), which is (58) since Vopt is decreasing. The remaining KKT conditions are feasibility and complementary slackness. 20 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Economic interpretation. Equation (58) states a marginal equilibrium: the rate of uncertainty reduction per unit compute equals the shadow-price-adjusted marginal cost . This is the precise sense in which optimal probing is not a fixed step count: it is the equilibrium point induced by the governing dynamics (through α and K) and the cost geometry (through C′(c)). 
+
+D.3. Closed-Form Solution Under Linear Cost 
+
+We now specialize to the linear cost model used in Section 6: 
+
+C(c) = Cs + λc, λ > 0. (60) The feasible set is 0 ≤ c ≤ (B − Cs)/λ .
+
+Corollary D.5 (Budget-optimal compute under linear cost) . Under (56) and (60) , the optimizer is 
+
+c⋆ = B − Cs
+
+λ , (61) 
+
+and the achieved risk is 
+
+L(c⋆) = Lint + K
+
+ B − Cs
+
+λ
+
+−α
+
+. (62) 
+
+Proof. Since Vopt (c) = Kc −α is strictly decreasing in c for α > 0 and the feasible set is an interval, the minimizer is the largest feasible c. Under (60) this is exactly (61). Substituting into L(c) yields (62). 
+
+Remark (why the main text may introduce a stopping rule). Corollary D.5 formalizes the simplest budgeted setting: if the only objective is to reduce prediction risk and the cost is linear, then one uses the full budget (Lemma D.2). In practice, one often introduces an additional decision criterion, such as minimizing a joint objective that trades risk against compute (Appendix D.4), or stopping when marginal gains fall below a tolerance (Appendix C). The “optimal stopping” viewpoint in the main text corresponds to these economically meaningful variants. 
+
+D.4. Risk–Cost Tradeoff Formulation and the Equilibrium Condition 
+
+A complementary way to formalize “optimal stopping” is to treat compute as costly directly in the objective. Define the tradeoff objective 
+
+min  
+
+> c≥0
+
+L(c) + γ C (c), γ > 0, (63) where γ controls the exchange rate between risk and compute. This formulation is equivalent to the constrained problem (54) via Lagrangian duality and yields a clean equilibrium condition. 
+
+Proposition D.6 (Equilibrium condition under risk–cost tradeoff) . Under (56) and differentiable C(·) with C′(c) > 0, any interior minimizer c⋆ > 0 of (63) satisfies 
+
+ddc Vopt (c)
+
+> c=c⋆
+
+= γ C ′(c⋆). (64) 
+
+In particular, under linear cost C′(c) = λ,
+
+c⋆ =
+
+ αK γλ 
+
+ 1
+
+> α+1
+
+. (65) 
+
+Proof. The derivative of the objective in (63) is 
+
+ddc L(c) + γC ′(c) = ddc Vopt (c) + γC ′(c).
+
+Setting this to zero yields the equilibrium condition, and substituting Vopt (c) = Kc −α gives −αKc −(α+1) + γC ′(c) = 0 .For linear cost, solving yields (65). 
+
+Connection to Theorem D.4. Proposition D.6 can be viewed as the unconstrained primal associated with the KKT multiplier interpretation: γ plays the role of a shadow price for compute, and (65) matches the stationarity form used in the main text. 21 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+D.5. Efficiency Frontier Geometry 
+
+We now characterize the Pareto frontier in the risk–cost plane. Let c index operating points. Under (60), define 
+
+x(c) ≜ C(c) = Cs + λc, y(c) ≜ L(c) = Lint + Kc −α. (66) Eliminating c = ( x − Cs)/λ yields an explicit frontier: 
+
+y(x) = Lint + K
+
+ x − Cs
+
+λ
+
+−α
+
+, x > C s. (67) 
+
+Proposition D.7 (Frontier slope and curvature) . For x > C s, the frontier (67) is strictly decreasing and convex. Its slope and curvature are 
+
+dy dx = −αK λ α (x − Cs)−(α+1) , (68) 
+
+d2ydx 2 = α(α + 1) K λ α (x − Cs)−(α+2) . (69) 
+
+Proof. Differentiate (67) directly: 
+
+y(x) = Lint + Kλ α(x − Cs)−α.
+
+Then dy dx = −αKλ α(x − Cs)−(α+1) < 0,
+
+and d2ydx 2 = α(α + 1) Kλ α(x − Cs)−(α+2) > 0.
+
+Thus the frontier is decreasing and convex. 
+
+Interpretation. Convexity formalizes diminishing returns: as cost increases, each additional unit of compute yields smaller risk reduction. The exponent α governs the global shape: smaller α produces a “long tail” frontier where uncertainty resolves slowly, while larger α yields a sharper early drop. 
+
+D.6. Minimal Effective Regime via a Marginal-Gain Criterion 
+
+A step-count-free definition of an “effective probing regime” can be derived by thresholding the marginal gain. Under linear cost, the marginal risk reduction per unit cost equals 
+
+dy dx = αK λ α (x − Cs)−(α+1) . (70) Given a tolerance ε > 0 (risk reduction per unit cost), define the effective boundary xeff (ε) as the smallest cost beyond which the marginal gain falls below ε:
+
+xeff (ε) ≜ inf 
+
+
+
+x > C s : dy dx ≤ ε
+
+
+
+. (71) Solving yields 
+
+xeff (ε) = Cs +
+
+ αK λ α
+
+ε
+
+ 1
+
+> α+1
+
+. (72) Equivalently, in compute units, 
+
+ceff (ε) = xeff (ε) − Cs
+
+λ =
+
+ αK ελ 
+
+ 1
+
+> α+1
+
+, (73) which matches the structural “elbow” threshold derived from the governing dynamics (cf. Appendix C). This criterion depends on α and K rather than any fixed step count. 22 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+D.7. Optional Extension: Joint Allocation Between Static and Dynamic Acquisition 
+
+The main text emphasizes that static and dynamic information play distinct functional roles (Section 4). For completeness, we record a simple joint allocation model in which the practitioner can invest in static acquisition (e.g., richer static descriptors) at an explicit cost. Let m ≥ 0 denote a scalar control for static acquisition (e.g., feature complexity, evaluation resolution), with cost Cs(m)
+
+and intrinsic limit Lint (m) decreasing in m. The joint allocation problem is 
+
+min  
+
+> m≥0, c ≥0
+
+Lint (m) + Vopt (c) s.t. Cs(m) + Cd(c) ≤ B. (74) Assuming differentiability and an interior solution, the KKT conditions yield the marginal-equalization principle: 
+
+− ddm Lint (m⋆) = γ⋆ C′
+
+> s
+
+(m⋆), ddc Vopt (c)
+
+> c=c⋆
+
+= γ⋆ C′
+
+> d
+
+(c⋆), (75) with a shared multiplier γ⋆. Equation (75) states that, at optimum, each dollar of budget buys the same reduction in risk regardless of whether it is spent on improving static priors or extending dynamic observation. This recovers the qualitative guidance emphasized in the main text: budgets should be allocated according to marginal risk reduction, and the governing dynamics parameter α directly controls the dynamic marginal returns. 
+
+## E. Identifiability of Governing Dynamics and Regime Structure 
+
+This appendix addresses the identifiability of the governing quantities introduced in the main text, namely the effective uncertainty decay rate α and the intrinsic risk floor LT ,int . Our goal is to establish that these quantities are empirically characterizable as structural properties of a task–optimizer configuration, using finite observations collected offline. Importantly, this appendix does not propose a deployment-time estimation protocol for individual fine-tuning runs. Rather, 
+
+α and LT ,int are treated as task-level descriptors, analogous to learning-curve exponents in neural scaling laws, which are typically estimated under controlled experimental conditions and reused for analysis and comparison. 
+
+E.1. Identifiability of the Uncertainty Decay Rate 
+
+As shown in Section 5, optimization-induced uncertainty obeys a rate-limiting asymptotic envelope of the form 
+
+Vopt (c) ≳ K c −α. (76) This result characterizes how rapidly uncertainty can contract with increasing computation, but does not require direct observation of Vopt (c) itself. 
+
+Observable uncertainty proxies. In practice, we observe surrogate quantities that reflect optimization-induced variability under controlled randomness. For a fixed task–optimizer configuration T = ( M, D, A) and a probing budget c, consider repeated probes that differ only in stochastic optimization noise (e.g., random seeds). Let Ui(c) denote an observable outcome proxy derived from the i-th probe, such as prediction dispersion or run-to-run variability. An empirical uncertainty proxy is then given by 
+
+bU (c) = 1
+
+N − 1
+
+> N
+
+X
+
+> i=1
+
+ Ui(c) − U (c)2 , U (c) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+Ui(c). (77) While bU (c) does not equal Vopt (c), it is required only to preserve the relative decay behavior induced by optimization dynamics. 
+
+Scaling-based identification. Once the optimization enters a regime in which uncertainty contraction is rate-limited, the effective decay rate α can be identified by fitting the surrogate proxy to a power-law envelope: 
+
+log bU (c) = log K − α log c + ε(c), (78) where ε(c) captures finite-sample effects and higher-order deviations. This establishes identifiability of α as a scaling exponent of observable uncertainty , without implying that such fitting must be performed online or per deployment instance. 23 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+Onset of the scaling regime. For small values of c, transient optimization dynamics may violate the asymptotic assump-tions underlying the envelope. Accordingly, identification of α is assessed over a computation range [cmin , c max ] in which empirical curvature stabilizes. This choice affects estimation variance but does not alter the qualitative regime structure defined below. 
+
+E.2. Identifiability of the Intrinsic Risk Floor 
+
+The intrinsic limit LT ,int represents the irreducible component of task-level prediction risk, corresponding to uncertainty that persists even under asymptotically complete information. In empirical analysis, LT ,int is not observed directly, but can be inferred as the intercept of the fitted uncertainty envelope. Specifically, given a set of uncertainty proxies { bU (ci)}, we jointly fit the model 
+
+bU (c) ≈ L T ,int + Kc −α, (79) thereby avoiding reliance on saturation at a finite probing depth. The resulting bLT ,int should be interpreted as an effective intrinsic floor consistent with the observable uncertainty decay, rather than as a precise asymptotic limit. 
+
+E.3. Regime Structure and Assignment 
+
+Given identifiable estimates (bα, bLT ,int ), tasks can be positioned within the predictability phase space introduced in Section 8.3. The regimes defined in the main text correspond to qualitative regions of this space, rather than sharp decision boundaries or deployment-time classifiers. 
+
+Static-Sufficient Regime. Tasks with rapid uncertainty contraction (large bα) or a dominant intrinsic floor exhibit minimal benefit from extended probing. In this regime, static information suffices for effective prediction. 
+
+Dynamic-Critical Regime. Tasks characterized by slower uncertainty decay and a low intrinsic floor possess substantial reducible uncertainty. Here, dynamic observation plays a decisive role in resolving outcome variability, and the efficiency frontier extends deep into the computational budget. 
+
+Noise-Dominant Regime. Tasks with a large intrinsic floor remain dominated by irreducible ambiguity, such that additional probing yields diminishing returns regardless of depth. 
+
+E.4. Interpretation and Scope 
+
+We emphasize that regime assignment is inherently comparative and descriptive. It does not require precise numerical thresholds, nor does it assume that governing parameters must be estimated online for each deployment instance. Instead, the phase diagram provides a mechanism-based organization of predictability behavior across tasks, grounded in empirically identifiable uncertainty dynamics. This distinction separates the theoretical limits analyzed in this work from questions of system design or real-time decision-making, which lie beyond the present scope. 
+
+## F. Additional Experimental Details 
+
+This appendix provides supplementary experimental details and analyses omitted from the main text due to space constraints. Our goal is to ensure reproducibility of the empirical results in Section 8 and to clarify how the theoretical quantities introduced in the framework are instantiated through observable uncertainty proxies .We do not assume that the maximal probing depth cmax reaches the true asymptotic limit c → ∞ . All reported quantities should be interpreted as effective parameters inferred from the stable decay regime observable within the available computational budget. All analyzes in this appendix support, but do not extend, the claims made in the main text. 24 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+F.1. Tasks and Regime Coverage 
+
+We evaluate pre-hoc fine-tuning predictability across a diverse collection of downstream tasks and pretrained foundation models, spanning different objectives, data conditions, model scales, and optimization behaviors. Tasks are selected to ensure coverage of all three predictability regimes introduced in Section 8.3. 
+
+Foundation models. Our experiments include multiple instruction-tuned large language models across different model families and parameter scales. Specifically, we evaluate models from the Qwen family ( Qwen-0.5B , Qwen-2.5B , and Qwen-7B-Instruct (Qwen et al., 2025) ), as well as LLaMA-3-8B-Instruct (Team, 2024) and Mistral-7B (Jiang et al., 2023) . This selection enables analysis across both scaling dimensions and heterogeneous pretraining and instruction-tuning pipelines. 
+
+Downstream tasks. The evaluated tasks span classification, reasoning, and generation objectives. They include sentiment classification ( SST-2 (Wang et al., 2019) ), arithmetic and multi-step reasoning ( GSM8K (Cobbe et al., 2021) ), broad multi-domain knowledge evaluation ( MMLU (Hendrycks et al., 2021) ), abstractive summarization ( SAMSum (Gliwa et al., 2019) ), and robustness-oriented truthfulness evaluation ( TruthfulQA (Lin et al., 2022) ). The benchmark suite is intended to be representative rather than exhaustive. Complementary stress tests for pre-hoc predictability include statistical reasoning, text-to-SQL and semantic-error detection, cross-document multi-entity question answering, retrieval-augmented generation, and chart question answering (Zhu et al., 2024; Liu et al., 2025; Lin et al., 2025a; Yang et al., 2024; Wu et al., 2024). These settings are promising candidates for future analysis because they expose heterogeneous sources of uncertainty, including reasoning difficulty, retrieval incompleteness, entity-level attribution errors, and semantic mismatch. 
+
+Optimization settings. Unless otherwise stated, fine-tuning is performed using AdamW optimizer (Loshchilov & Hutter, 2019) with task-specific learning-rate schedules and batch sizes. We employ LoRA (Hu et al., 2021) for parameter-efficient fine-tuning (rank=32, alpha=64, dropout=0.1) across all experiments to ensure computational feasibility at scale. All hyperparameters are held fixed within each task-model configuration to isolate variability induced by stochastic optimization. Experiments are conducted in bf16 precision using the Hugging Face Transformers library (Wolf et al., 2020). Regime assignments are determined post hoc based on the estimated governing descriptors (bα, bLT ,int ). They are used exclusively for analysis and visualization and are not employed to tune probing strategies, predictors, or hyperparameters. 
+
+F.2. Probing Protocol and Randomization 
+
+For each task, probing is performed by executing partial fine-tuning runs up to a computation budget c, measured in optimization steps. The probing budget set C spans early, intermediate, and late stages of fine-tuning. To isolate optimization-induced variability, we perform repeated probing runs with identical static configurations while varying stochastic sources such as random seeds, data ordering, and stochastic framework operations. Unless otherwise stated, all other hyperparameters are held fixed within each task. Each task-budget pair is evaluated with N = 1 ,500 independent runs. This large sample size is used solely to support offline identifiability analysis and does not reflect requirements for deployment-time usage. 
+
+F.3. Observable Uncertainty Proxies 
+
+At each probing depth c, we compute an observable uncertainty proxy 
+
+bU (c) = 1
+
+N − 1
+
+> N
+
+X
+
+> i=1
+
+ Ri(c) − R(c)2 , R(c) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+Ri(c), (80) where Ri(c) denotes the realized final fine-tuning outcome of the i-th probing run. This proxy reflects dispersion induced by stochastic optimization and serves as a measurable surrogate for uncertainty relevant to prediction. We emphasize that bU (c) is not assumed to equal the theoretical quantity Vopt (c), but is required only to preserve relative decay behavior across c. To mitigate finite-sample noise, we enforce monotonicity of bU (c) with respect to c using isotonic regression, consistent with the information filtration assumption. 25 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 
+
+F.4. Predictors Used for Empirical Evaluation 
+
+All empirical evaluations involve a predictor f that maps the available information at probing depth c to an estimate of the final fine-tuning outcome. Across all experiments, the predictor architecture and training procedure are held fixed; only the information sources provided as input vary. We consider three predictor families: • Static-only : the predictor uses only static descriptors available prior to fine-tuning (e.g., dataset statistics and model– data compatibility features). • Dynamic-only : the predictor uses only dynamic signals extracted from partial optimization trajectories up to depth c
+
+(e.g., early loss curves and gradient statistics). • Hybrid : the predictor combines both static and dynamic features. The predictor is trained to minimize squared error against the final outcome across repeated runs. Differences in empirical performance therefore reflect information availability rather than model capacity. 
+
+F.5. Estimating Governing Parameters 
+
+The governing parameters (α, LT ,int ) are estimated by jointly fitting the uncertainty envelope 
+
+bU (c) ≈ L T ,int + Kc −α (81) over a stable probing interval [cmin , c max ]. This joint fitting procedure avoids reliance on saturation at a finite probing depth and aligns with the identifiability analysis in Appendix E. The lower bound cmin excludes transient early dynamics, while cmax corresponds to the largest probing depth considered. In practice, the lower bound cmin is selected as the smallest probing depth after which the log–log plot of bU (c) exhibits approximately linear behavior. Operationally, this corresponds to excluding the first one or two probing points. We verify that estimated decay rates and regime assignments are robust to moderate variations of this choice. 
+
+F.6. Normalization and Aggregation Across Tasks 
+
+To aggregate results across tasks with different absolute scales, all uncertainty-related quantities are normalized on a per-task basis. Specifically, observable uncertainty proxies bU (c) are normalized by their value at the smallest probing depth c0 for each task: 
+
+bUnorm (c) := bU (c)
+
+bU (c0) .
+
+The marginal gain shown in aggregated figures is defined as 
+
+∆( c) := bUnorm (c) − bUnorm (c + ∆ c),
+
+which measures the reduction in normalized uncertainty achieved by additional probing. This normalization ensures comparability across tasks while preserving relative decay behavior. 
+
+F.7. Probe-Budget Sensitivity 
+
+To complement the efficiency-frontier analysis in Section 8.4, we further examine how regime-level decisions evolve as the probing depth increases. This analysis is intended to characterize the stability of coarse regime assignments under different probe budgets, rather than to identify a universally optimal number of probing steps. Table 1 reports three quantities across increasing probe depths. First, regime agreement with the full-fit reference measures the fraction of tasks whose regime assignment matches the reference assignment obtained from the full offline fitting protocol. Second, the observable uncertainty proxy measures the remaining normalized uncertainty estimated at each 26 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction  
+
+> Table 1. Probe-budget sensitivity analysis. Regime-level decisions stabilize under moderate probing depth, while deeper probing mainly refines uncertainty estimates at higher cost.
+
+# Metric 25 50 75 100 150 200 
+
+# Regime agreement vs. full-fit reference (%) 69 78 85 90 91 90 Observable uncertainty proxy (%) 29.8 22.1 18.7 11.5 10.2 9.7 Relative probe cost (100-step = 1.0) 0.16 0.52 0.86 1.00 1.34 1.71 
+
+probing depth, where lower values indicate more refined uncertainty estimation. Third, relative probe cost reports the wall-clock cost normalized so that the 100-step probe has cost 1.0.The results show a clear stabilization pattern. Regime agreement increases rapidly from 69% at 25 steps to 90% at 100 steps, after which deeper probing yields only marginal changes. In contrast, relative probe cost continues to increase from 1.00 at 100 steps to 1.34 at 150 steps and 1.71 at 200 steps. The observable uncertainty proxy also continues to decrease beyond 100 steps, but at a slower rate. This suggests that deeper probing can still refine uncertainty estimates, while its marginal benefit for regime-level decisions becomes limited once the stable probing interval has been reached. These results provide an operational interpretation of lightweight probing. A probe is lightweight not because it uses a fixed universal number of steps, but because it is short relative to full fine-tuning while being long enough to recover the regime-relevant structure of uncertainty decay. In our experiments, moderate probe depths around 100 steps already recover stable regime-level behavior, whereas substantially deeper probes mainly improve the precision of the surrogate uncertainty estimate. 
+
+F.8. Supplementary Evidence for Intrinsic Risk Floors 
+
+Figure 5 plots the observable uncertainty proxy bU (c) as a function of probing depth, aggregated by regime. Noise-Dominant regimes exhibit substantially higher plateaus, while Static-Sufficient and Dynamic-Critical regimes converge toward lower effective intrinsic floors. These trends provide empirical consistency evidence for the intrinsic-risk interpretation underlying the phase diagram. Such effective floors can arise from several data-centric sources studied in prior work, including mislabels, missing or incomplete values, limited redundancy, data scarcity, and broader data-quality pathologies (Yang et al., 2025; Chai et al., 2024; Fan et al., 2013). These sources do not necessarily vanish with additional optimization steps, and therefore align naturally with the intrinsic-limited interpretation of the Noise-Dominant regime. 
+
+F.9. Population-Level Distribution of Decay Rates 
+
+Figure 6 shows the distribution of estimated decay exponents bα across tasks, grouped by regime. Dynamic-Critical tasks concentrate on lower bα values, while Static-Sufficient tasks exhibit systematically higher decay rates. This separation supports the interpretation of α as a descriptor of dynamic difficulty rather than as an artifact of a small number of outliers. 
+
+F.10. Ablation of Information Sources 
+
+Figure 7 compares predictive performance under a fixed probing budget for three estimator families: static-only, dynamic-only, and hybrid. Dynamic information is beneficial primarily in Dynamic-Critical regimes, while Static-Sufficient and Noise-Dominant regimes show limited gains, consistent with the regime semantics. 
+
+F.11. Hard-Case Localization 
+
+Figure 8 overlays empirically hard-to-predict cases on the phase diagram defined by ( bLT ,int , bα). Hard cases cluster in Noise-Dominant regimes or near regime boundaries, supporting the interpretation that empirical failures arise from regime mismatch rather than estimator inadequacy. 27 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 25 50 75 100 125 150 175 200 
+
+probe steps c 
+
+0.000 
+
+0.005 
+
+0.010 
+
+0.015 
+
+0.020 
+
+0.025 
+
+> (c)
+
+Risk curve plateau toward intrinsic floor (mean ± CI) 
+
+> Regime I (Static-Sufficient) mean
+> Regime II (Dynamic-Critical) mean
+> Regime III (Noise-Dominant) mean
+
+Figure 5. Observable uncertainty decay and effective intrinsic floors across regimes. Mean bU (c) with confidence intervals is shown as a function of probing depth. Noise-Dominant regimes plateau at higher levels, indicating larger intrinsic ambiguity. 0 1 2 3 4 5
+
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> Count
+
+Figure 6. Distribution of estimated uncertainty decay rates across regimes. Dynamic-Critical tasks exhibit slower decay, while Static-Sufficient tasks show rapid contraction. Regime I (Static-Sufficient) 
+
+> Regime II (Dynamic-Critical)
+> Regime III (Noise-Dominant)
+> 0.0000
+> 0.0002
+> 0.0004
+> 0.0006
+> 0.0008
+> Predictive risk (CV MSE on  R)
+> Ablation A1: static vs dynamic vs hybrid @ c=200
+> Static-only
+> Dynamic-only
+> Hybrid
+
+Figure 7. Ablation of information sources under a fixed probing budget. Dynamic signals are informative only in Dynamic-Critical regimes. 
+
+28 A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction 0.000 0.002 0.004 0.006 0.008 
+
+> int
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+Hard-case localization on phase diagram (proxy selection) 
+
+> Regime I (Static-Sufficient)
+> Regime II (Dynamic-Critical)
+> Regime III (Noise-Dominant)
+> Selected hard cases
+
+Figure 8. Localization of hard cases on the empirical phase diagram. Hard-to-predict tasks cluster in Noise-Dominant regimes or near regime boundaries. 
+
+29

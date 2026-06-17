@@ -1,0 +1,529 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-17T22:14:35.678887+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 10,
+    "quick_skim_target": 11,
+    "quick_selected": 10
+  },
+  "deep_dive": [
+    {
+      "id": "2606.15251v1",
+      "source": "arxiv",
+      "title": "Driving, Fast or Slow? Neuro-Symbolic Guidance for Motion Prediction in Multi-Modal Ground Mobility",
+      "abstract": "Accurate and interpretable motion prediction for heterogeneous traffic spaces, including pedestrians, bicycles, cars, and trucks, is essential for safe autonomous navigation. Nevertheless, state-of-the-art approaches remain predominantly black-box, lacking explicit encoding of the regulatory and behavioral constraints of real-world mobility. We propose Trajectory Compliance-Shaping (TraCS), a neuro-symbolic framework that augments existing black-box motion prediction backbones with interpretable and probabilistic first-order logic. To do so, TraCS employs an agentic code-generation pipeline to bridge the gap between natural-language descriptions of traffic regulations and probabilistic motion prediction. Furthermore, TraCS employs a reactive data-streaming inference engine that maintains and efficiently updates compliance landscapes as scenes evolve. To prevent TraCS from overconfidently steering the backbone's predictions in the wrong direction, we propose a neural confidence rating learned as a context-aware attenuation of the compliance signal. We demonstrate on the Argoverse 2 benchmark how TraCS consistently improves state-of-the-art prediction backbones, showing that probabilistic and symbolic compliance reasoning is a broadly applicable and computationally efficient complement to purely neural motion predictors.",
+      "authors": [
+        "Simon Kohaut",
+        "Felix Divo",
+        "Julius Hahnewald",
+        "Benedict Flade",
+        "Julian Eggert",
+        "Kristian Kersting",
+        "Devendra Singh Dhami"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-06-13T11:15:04+00:00",
+      "link": "https://arxiv.org/pdf/2606.15251v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "motion prediction for multi-modal ground mobility including pedestrians",
+      "llm_evidence_cn": "多模态地面移动中的运动预测，包含行人",
+      "llm_evidence": "多模态地面移动中的运动预测，包含行人",
+      "canonical_evidence": "多模态地面移动中的运动预测，包含行人",
+      "llm_tldr_en": "Proposes TraCS, a neuro-symbolic framework for interpretable motion prediction in heterogeneous traffic spaces, augmenting black-box backbones with first-order logic constraints.",
+      "llm_tldr_cn": "当前运动预测方法多为黑箱，缺乏对真实世界交通规则和行为约束的显式编码。本文提出TraCS，一种神经符号框架，通过可解释的概率一阶逻辑增强现有黑箱运动预测主干，并使用智能体代码生成流水线连接自然语言规则与预测模型。实验表明该方法在保持准确性的同时提升了可解释性。该工作对自动驾驶中的安全导航具有重要价值。",
+      "llm_tldr": "当前运动预测方法多为黑箱，缺乏对真实世界交通规则和行为约束的显式编码。本文提出TraCS，一种神经符号框架，通过可解释的概率一阶逻辑增强现有黑箱运动预测主干，并使用智能体代码生成流水线连接自然语言规则与预测模型。实验表明该方法在保持准确性的同时提升了可解释性。该工作对自动驾驶中的安全导航具有重要价值。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.17649v1",
+      "source": "arxiv",
+      "title": "A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction",
+      "abstract": "The high cost of fine-tuning LLMs poses a significant economic barrier; pre-hoc performance prediction offers a critical solution to substantially reduce this expense. However, the theoretical limits of pre-hoc performance prediction remain unexplored. We formulate it as a stochastic estimation problem under information constraints, decomposing prediction risk into two components: an intrinsic limit (static data-model compatibility) and a reducible optimization variance. We prove that optimization variance admits a necessary lower bound on its decay rate, implying fundamental constraints on how quickly uncertainty dissipates, regardless of the predictor used. Based on these dynamics, we derive a budget-optimal probing principle and introduce a predictability phase diagram that organizes tasks into three distinct regimes: Static-Sufficient, Dynamic-Critical, and Noise-Dominant. Extensive experiments on synthetic and real-world benchmarks validate these theoretical regimes and demonstrate the efficiency of our probing strategy.",
+      "authors": [
+        "Yuxiang Luo",
+        "Chen Wang",
+        "Nan Tang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-16T08:07:42+00:00",
+      "link": "https://arxiv.org/pdf/2606.17649v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "theoretical limits of pre-hoc prediction performance, risk decomposition with lower bound on uncertainty decay",
+      "llm_evidence_cn": "预调优预测的理论极限，风险分解及不确定性衰减下界",
+      "llm_evidence": "预调优预测的理论极限，风险分解及不确定性衰减下界",
+      "canonical_evidence": "预调优预测的理论极限，风险分解及不确定性衰减下界",
+      "llm_tldr_en": "Provides a risk decomposition framework for pre-hoc fine-tuning prediction, proving that optimization variance decay has a fundamental lower bound, implying constraints on predictability that are transferable to time series.",
+      "llm_tldr_cn": "本文为预调优微调性能预测建立了风险分解框架，将预测风险分解为内在极限和可优化方差，并证明优化方差的衰减率存在必要下界，揭示了不确定性消散的根本限制。该理论框架可直接迁移至时间序列可预测性分析，对理解预测极限具有普适意义。",
+      "llm_tldr": "本文为预调优微调性能预测建立了风险分解框架，将预测风险分解为内在极限和可优化方差，并证明优化方差的衰减率存在必要下界，揭示了不确定性消散的根本限制。该理论框架可直接迁移至时间序列可预测性分析，对理解预测极限具有普适意义。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.17426v1",
+      "source": "arxiv",
+      "title": "Bounded Difference Concentration for Infinitely Exchangeable Sequences with Applications to AI Benchmark Uncertainty",
+      "abstract": "We consider the concentration properties of functions of infinitely exchangeable random variables. By conditioning on the de Finetti directing measure, we show that the deviation of any function with bounded-difference constants $c_1, \\dots, c_n$ decomposes into a conditional sampling fluctuation and a latent mixture fluctuation. When this latent mixture is $σ_{\\mathrm{mix}}^2$-subgaussian, we establish a concentration inequality with an effective variance proxy of $\\frac{1}{4}\\sum_i c_i^2 + σ_{\\mathrm{mix}}^2$. Crucially, we demonstrate that for zero-sum linear contrasts, such as the difference between a subsample mean and a full population mean, the latent mixture term cancels exactly. This cancellation yields a tight, mixture-free Hoeffding-type bound that provides a direct de Finetti mechanism for the infinite-extendibility limit of recent finite-exchangeable concentration results. We apply this framework to quantify uncertainty in composite AI benchmarks, such as MMLU, where question items naturally exhibit exchangeable dependence across domains. Our results provide both a domain-stratified hierarchical model for bounding the uncertainty of accuracy scores, and a distribution-free, cost-saving statistical guarantee for accurately estimating full benchmark scores from random subsets.",
+      "authors": [
+        "Fangyuan Lin",
+        "Spencer Frei",
+        "Victor H. de la Pena"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "math.PR"
+      ],
+      "published": "2026-06-16T02:19:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.17426v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Derives concentration inequality for exchangeable sequences, applicable to prediction error bounds",
+      "llm_evidence_cn": "推导可交换序列的浓度不等式，可应用于预测误差界限",
+      "llm_evidence": "推导可交换序列的浓度不等式，可应用于预测误差界限",
+      "canonical_evidence": "推导可交换序列的浓度不等式，可应用于预测误差界限",
+      "llm_tldr_en": "Proves a bounded-difference concentration inequality for infinitely exchangeable sequences, decomposing deviation into sampling and latent mixture components; zero-sum contrasts cancel latent variance, yielding sharper bounds useful for AI benchmark uncertainty and potentially for prediction limit analysis.",
+      "llm_tldr_cn": "该论文针对无穷可交换随机序列建立了有界差分浓度不等式，将偏差分解为条件采样波动和潜在混合波动。当潜在混合服从次高斯分布时，得到了有效方差上界。特别地，对于零和线性对比（如子样本均值与总体均值之差），潜在混合项完全抵消，从而得到更紧的界限。这一理论结果可用于推导预测误差的浓度界限，为理解预测不确定性提供理论工具。",
+      "llm_tldr": "该论文针对无穷可交换随机序列建立了有界差分浓度不等式，将偏差分解为条件采样波动和潜在混合波动。当潜在混合服从次高斯分布时，得到了有效方差上界。特别地，对于零和线性对比（如子样本均值与总体均值之差），潜在混合项完全抵消，从而得到更紧的界限。这一理论结果可用于推导预测误差的浓度界限，为理解预测不确定性提供理论工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.10243v1",
+      "source": "arxiv",
+      "title": "DUET -- Dual User Embedding Transformers for Offsite Conversion Prediction",
+      "abstract": "Offsite conversion rate (OCVR) prediction is an important ranking problem in computational recommendation systems. This task presents a modeling challenge: click signals are abundant and exhibit short temporal horizons, whereas conversion signals are inherently sparse, long-delayed, and frequently unattributed. Despite these statistical disparities, both signal types must inform models that operate within strict serving-latency constraints. Prior pre-training approaches address this heterogeneity with a single, undifferentiated encoder applied uniformly across both data streams. We propose DUET (Dual User Embedding Transformers), a framework that explicitly partitions user behavioral data into two domain-coherent streams -- clicks and conversions -- and pre-trains dedicated transformer encoders with architectures tailored to each stream's statistical characteristics: multi-layer self-attention for the dense click stream and interleaved cross- and self-attention for the sparse conversion stream. The resulting complementary embeddings are jointly consumed by a downstream ranker without exceeding serving-latency budgets. Evaluation demonstrates up to 0.38% normalized entropy (NE) reduction relative to the strongest baseline, and A/B test shows consistent improvements in OCVR prediction accuracy.",
+      "authors": [
+        "Reazul Hasan Russel",
+        "Mingwei Tang",
+        "Rostam Shirani",
+        "Xinlong Liu",
+        "Navid Madani",
+        "Leo Ding",
+        "Yawen He",
+        "Xiangyu Wang",
+        "Mustafa Acar",
+        "Ashish Katiyar",
+        "Yuhai Li",
+        "Alan Yang",
+        "Metarya Ruparel",
+        "Derek Qiang Xu",
+        "Rupert Wu",
+        "Rui Yang",
+        "Liang Tao",
+        "Xinyi Zhao",
+        "Larry Zhang",
+        "Sri Reddy",
+        "Rob Malkin"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-08T23:13:58+00:00",
+      "link": "https://arxiv.org/pdf/2606.10243v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "offsite conversion prediction in recommendation systems",
+      "llm_evidence_cn": "推荐系统中的站外转化率预测",
+      "llm_evidence": "推荐系统中的站外转化率预测",
+      "canonical_evidence": "推荐系统中的站外转化率预测",
+      "llm_tldr_en": "Presents DUET, a dual user embedding transformer for offsite conversion prediction that separately encodes click and conversion signals.",
+      "llm_tldr_cn": "针对推荐系统中点击丰富但转化稀疏的问题，提出DUET双用户嵌入变换器，将用户行为分流为点击和转化两个领域，分别编码并融合预测转化率。",
+      "llm_tldr": "针对推荐系统中点击丰富但转化稀疏的问题，提出DUET双用户嵌入变换器，将用户行为分流为点击和转化两个领域，分别编码并融合预测转化率。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.11746v1",
+      "source": "arxiv",
+      "title": "Time Series Analysis in Machine Learning",
+      "abstract": "Time series analysis is a fundamental component of machine learning, especially in astrophysics and cosmology where temporal data abound. This chapter provides a pedagogical review of time series analysis techniques from a machine learning perspective. We cover the basic concepts of time series (stationarity, autocorrelation, seasonality), classical statistical models (autoregressive, moving average, ARIMA, exponential smoothing, state-space models), and modern machine learning approaches. In particular, we discuss how traditional statistical methods lay the groundwork, and then explore machine learning methods for time series, including feature-based regression, tree-based ensemble methods, hidden Markov models, Gaussian processes, and deep learning models (recurrent neural networks, convolutional networks, transformers). Throughout, we illustrate with examples drawn from multiple domains (e.g. astronomy, weather forecasting, finance) to emphasize common principles. The goal is to equip readers with both the theoretical understanding and practical context to apply machine learning techniques for time series analysis in their research.",
+      "authors": [
+        "Antonio Pagliaro",
+        "Anna Anzalone"
+      ],
+      "primary_category": "astro-ph.IM",
+      "categories": [
+        "astro-ph.IM",
+        "stat.ML"
+      ],
+      "published": "2026-06-10T07:22:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.11746v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "time series analysis review covering predictability concepts",
+      "llm_evidence_cn": "时间序列分析综述，涵盖可预测性概念",
+      "llm_evidence": "时间序列分析综述，涵盖可预测性概念",
+      "canonical_evidence": "时间序列分析综述，涵盖可预测性概念",
+      "llm_tldr_en": "A pedagogical review of time series analysis from statistical to ML methods, covering key concepts like stationarity and autocorrelation that underpin predictability analysis.",
+      "llm_tldr_cn": "本文从机器学习视角系统回顾了时间序列分析方法，涵盖平稳性、自相关、季节性的基本概念，以及从经典ARIMA到深度学习的各类模型。虽然并非专门研究可预测性极限，但提供了理解时间序列可预测性所需的基础框架和方法论，对于研究时间序列预测的极限具有重要的教学参考价值。",
+      "llm_tldr": "本文从机器学习视角系统回顾了时间序列分析方法，涵盖平稳性、自相关、季节性的基本概念，以及从经典ARIMA到深度学习的各类模型。虽然并非专门研究可预测性极限，但提供了理解时间序列可预测性所需的基础框架和方法论，对于研究时间序列预测的极限具有重要的教学参考价值。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.13823v1",
+      "source": "arxiv",
+      "title": "A Stationarity-and-Coupling Criterion for Training-Free Time-Lagged Spectral Embeddings of Multivariate Time Series",
+      "abstract": "We study training-free fixed-length descriptors for multivariate time series and ask not merely whether such a descriptor performs well, but when it can be expected to work at all. Our object of study is $D(τ)$, built from a time-lagged correlation matrix truncated at the Marchenko-Pastur edge so that only signal-bearing eigenvalues survive and classified by cosine similarity to class centroids with zero learned parameters. The central contribution is not the descriptor but a falsifiable applicability criterion for it. Working from a stationary Gaussian VAR(1) model, we argue that $D(τ)$ separates two classes when the signals are approximately stationary and the class information lives in their cross-channel temporal coupling rather than in marginal per-channel power. We derive, semi-formally, three consequences: a distinguishability condition, why the static ($τ=0$) covariance collapses to chance, and why a stationary but power-discriminated paradigm defeats the descriptor. The criterion is operational: a two-part pre-flight test -- an augmented Dickey-Fuller stationarity check and a power-baseline saturation check -- predicts applicability before any training. We validate both halves on a mixed assortment. On four paradigms that satisfy the criterion (Sleep-EDF, BCI-IV-2a, MIT-BIH, ESC-50) the descriptor is competitive with strong baselines at a fraction of their cost, reaching $88.5\\pm4.5\\%$ under 20-subject leave-one-subject-out on Sleep-EDF on a single CPU thread. On three that violate it -- non-stationary ERPs, and financial-volatility and wearable-stress regimes that are power-discriminated -- it fails exactly as the pre-flight predicts, and these negatives are the more informative half. We are explicit that $D(τ)$ is not the most accurate representation; its value is a compact, training-free embedding whose domain of validity is known in advance.",
+      "authors": [
+        "Siddharth Pal",
+        "Viktoria Rojkova"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "eess.SP",
+        "stat.ML"
+      ],
+      "published": "2026-06-11T18:54:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.13823v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "provides a falsifiable applicability criterion for time series embeddings",
+      "llm_evidence_cn": "为时间序列嵌入提供可证伪的适用性准则",
+      "llm_evidence": "为时间序列嵌入提供可证伪的适用性准则",
+      "canonical_evidence": "为时间序列嵌入提供可证伪的适用性准则",
+      "llm_tldr_en": "Derives a stationarity-and-coupling criterion for when training-free spectral embeddings of multivariate time series work.",
+      "llm_tldr_cn": "针对训练无关的多变量时间序列描述符，本文提出可证伪的适用性准则：当信号近似平稳且类别信息存在于互通道相关时，时间滞后谱嵌入能有效分类。基于平稳高斯VAR(1)模型的理论推导，该准则为预测准确性的前提条件提供了理论依据。实验验证了准则的预测能力，有助于理解时间序列可预测性的来源。",
+      "llm_tldr": "针对训练无关的多变量时间序列描述符，本文提出可证伪的适用性准则：当信号近似平稳且类别信息存在于互通道相关时，时间滞后谱嵌入能有效分类。基于平稳高斯VAR(1)模型的理论推导，该准则为预测准确性的前提条件提供了理论依据。实验验证了准则的预测能力，有助于理解时间序列可预测性的来源。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.12997v1",
+      "source": "arxiv",
+      "title": "Reliability of Probabilistic Emulation of Physical Systems",
+      "abstract": "Two dominant approaches have emerged for generating probabilistic forecasts of physical systems: generative models, such as diffusion or flow matching; and ensembles of deterministic models with stochasticity injected, trained using the continuous ranked probability score (CRPS) loss. While both approaches have demonstrated strong predictive accuracy, the reliability of their uncertainties has not been systematically assessed. We address this gap by developing a framework to evaluate both approaches across diverse 2D spatiotemporal physical systems, under matched model size and computational budget. We assess the reliability of probabilistic emulation by inspecting the empirical coverage of predictive intervals, while also considering accuracy and computational efficiency metrics. CRPS-trained ensembles typically achieve more reliable uncertainties on both single-step prediction and autoregressive rollouts, demonstrating better coverage than the standard alternative of training generative models in a latent space. Moreover, the CRPS approach offers significantly faster inference. When generative models are trained in ambient rather than a compressed latent space, which is often infeasible for high-dimensional problems, they exhibit comparable coverage to CRPS-trained ensembles, though with substantially larger inference latency. In contrast, when CRPS-trained ensembles are trained in latent space they do not show a marked degradation in coverage with respect to ambient space. Both generative models and CRPS-trained ensembles demonstrate good predictive accuracy. To facilitate future research and application, we release AutoCast, a modular framework implementing both generative models and CRPS-trained ensembles, alongside AutoSim, a flexible dataset generation package for rapid prototyping.",
+      "authors": [
+        "Sam F. Greenbury",
+        "Radka Jersakova",
+        "Paolo Conti",
+        "Marjan Famili",
+        "Christopher Iliffe Sprague",
+        "Edwin Brown",
+        "Jason D. McEwen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-06-11T07:34:41+00:00",
+      "link": "https://arxiv.org/pdf/2606.12997v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Evaluates reliability of probabilistic forecasts via empirical coverage",
+      "llm_evidence_cn": "通过经验覆盖率评估概率预测的可靠性",
+      "llm_evidence": "通过经验覆盖率评估概率预测的可靠性",
+      "canonical_evidence": "通过经验覆盖率评估概率预测的可靠性",
+      "llm_tldr_en": "Systematically assesses reliability of probabilistic emulators for physical systems, comparing generative models and CRPS-trained ensembles on prediction interval coverage and accuracy.",
+      "llm_tldr_cn": "该论文针对物理系统概率仿真的可靠性进行了系统评估。它对比了扩散模型等生成式方法与基于CRPS损失的集成确定性模型，在多种二维时空物理系统上检验预测区间的经验覆盖率。研究发现，两种方法均能达到良好的校准性，但生成式方法在高维空间中更具计算优势。该工作为量化预测不确定性提供了实证框架，可推广至时间序列可预测性度量。",
+      "llm_tldr": "该论文针对物理系统概率仿真的可靠性进行了系统评估。它对比了扩散模型等生成式方法与基于CRPS损失的集成确定性模型，在多种二维时空物理系统上检验预测区间的经验覆盖率。研究发现，两种方法均能达到良好的校准性，但生成式方法在高维空间中更具计算优势。该工作为量化预测不确定性提供了实证框架，可推广至时间序列可预测性度量。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.13338v1",
+      "source": "arxiv",
+      "title": "Navigating the Safety-Fidelity Trade-off: Massive-Variate Time Series Forecasting for Power Systems via Probabilistic Scenarios",
+      "abstract": "Probabilistic forecasting models are increasingly deployed on multivariate systems with distinct channel physics and operational constraints, but existing benchmarks evaluate neither property at scale. Public canonical multivariate benchmarks cap out at 2,000 channels, while power-system benchmarks either lack temporal structure or probabilistic evaluation. We introduce PowerPhase, a probabilistic forecasting benchmark built on six transmission grids ranging from 2,000 to 36,964 jointly forecasted channels, more than an order of magnitude beyond popular canonical multivariate benchmarks. Each target trajectory is the output of an AC power-flow solve, and PowerPhase ships with constraint-aware metrics, including Safety_mBrier, NECV, and CVaR-alpha, that complement CRPS and Distortion. Across eight baselines and three seeds, distributional accuracy and constraint satisfaction rank models differently, a trade-off we term safety-fidelity. We further propose PowerForge, a scenario-based quantile forecaster with type-specific decoding heads and a causal bridge between variable groups, which achieves the best average rank on every grid.",
+      "authors": [
+        "Kaijie Xu",
+        "Anqi Wang",
+        "Xilin Dai"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-11T13:27:43+00:00",
+      "link": "https://arxiv.org/pdf/2606.13338v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "massive-variate probabilistic time series forecasting",
+      "llm_evidence_cn": "大规模变量概率时间序列预测",
+      "llm_evidence": "大规模变量概率时间序列预测",
+      "canonical_evidence": "大规模变量概率时间序列预测",
+      "llm_tldr_en": "Introduces PowerPhase, a massive-variate probabilistic forecasting benchmark for power systems time series, with up to 36,964 channels.",
+      "llm_tldr_cn": "提出PowerPhase基准，包含多达36,964个通道的电力系统时间序列概率预测，用于评估保真度与安全性权衡。该基准比现有基准大一个数量级。",
+      "llm_tldr": "提出PowerPhase基准，包含多达36,964个通道的电力系统时间序列概率预测，用于评估保真度与安全性权衡。该基准比现有基准大一个数量级。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.14417v1",
+      "source": "arxiv",
+      "title": "Stable Multivariate Functional Time Series Prediction for Major Geomagnetic Indices",
+      "abstract": "High\\text{--}resolution scientific data, such as geomagnetic index streams, often exhibit complex temporal dependencies that can be modeled through functional data analysis. Conventional functional time series (FTS) methods typically partition continuous processes into non-overlapping segments, which artificially fragments temporal continuity and can limit estimation efficiency and stability. This is particularly evident in geomagnetic time series prediction due to their noisy, sudden, and large\\text{--}scale changes. This study presents a robust multivariate FTS forecasting framework for multi\\text{--}dimensional time series with inter\\text{--}series correlations and the existence of exogenous predictors. We introduce an overlapping rolling\\text{--}window scheme that preserves temporal coherence and mitigates boundary information loss, thereby enriching the effective sample size for a more efficient and stable estimation. We integrate functional principal component analysis for dimension reduction with a vector autoregressive model with exogenous inputs to capture latent dynamics across correlated series. We also construct computationally efficient conformal prediction intervals for uncertainty quantification. The framework is motivated by and applied to the simultaneous forecasting of five critical geomagnetic indices, Kp, Dst, SYM\\text{--}H, SME, and SMR, using solar wind parameters as predictors. Empirical results show that this approach outperforms state\\text{--}of\\text{--}the\\text{--}art machine learning baselines, extends forecast horizons to 6\\text{--}24 hours, and provides calibrated uncertainty bounds.",
+      "authors": [
+        "Yian Yu",
+        "Shasha Zou",
+        "Tuija Pulkkinen",
+        "Yang Chen"
+      ],
+      "primary_category": "stat.AP",
+      "categories": [
+        "stat.AP"
+      ],
+      "published": "2026-06-12T12:51:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.14417v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multivariate functional time series prediction",
+      "llm_evidence_cn": "多元函数时间序列预测",
+      "llm_evidence": "多元函数时间序列预测",
+      "canonical_evidence": "多元函数时间序列预测",
+      "llm_tldr_en": "Proposes a robust multivariate functional time series forecasting framework with overlapping rolling windows for geomagnetic indices.",
+      "llm_tldr_cn": "针对地磁指数等科学数据，提出一种鲁棒的多元函数时间序列预测框架，采用重叠滚动窗口保持时间连续性，提高预测稳定性和准确性。",
+      "llm_tldr": "针对地磁指数等科学数据，提出一种鲁棒的多元函数时间序列预测框架，采用重叠滚动窗口保持时间连续性，提高预测稳定性和准确性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16023v1",
+      "source": "arxiv",
+      "title": "IBAD: Interpretable Behavioral Anomaly Detection on Human Mobility Data",
+      "abstract": "Human mobility appears highly diverse, yet much of a person's daily mobility can be explained by a small set of recurring behavioral templates, such as commuting, school-centered activities, caregiving, nightlife, or errand patterns. We present \\texttt{IBAD} (\\underline{I}nterpretable \\underline{B}ehavioral \\underline{A}nomaly \\underline{D}etection), a framework that learns interpretable daily mobility templates and represents each individual as a distribution over mixtures of these templates. Rather than focusing on specific locations, IBAD characterizes activities that individuals perform across locations. This approach first discovers global behavioral templates using Latent Dirichlet Allocation (LDA), then employs a hierarchical self-supervised model to learn normal behavior of individuals from their soft behavioral templates. We also introduce a \\emph{splicing benchmark} that creates controlled behavioral mismatches between an individual's historical profile and injected mobility patterns. Experiments on real-world and synthetic datasets show that daily behavior can be effectively decomposed into a small number of interpretable templates. Crucially, we show that the learned behavioral archetypes \\emph{transfer} across distinct geographic and demographic contexts. Furthermore, IBAD maintains a robust competitive performance across all settings. For reproducibility purposes, the code is accessible at ~\\href{https://github.com/USC-InfoLab/IBAD}{https://github.com/USC-InfoLab/IBAD}.",
+      "authors": [
+        "Bita Azarijoo",
+        "John Krumm",
+        "Cyrus Shahabi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-14T21:18:14+00:00",
+      "link": "https://arxiv.org/pdf/2606.16023v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "interpretable behavioral anomaly detection on human mobility",
+      "llm_evidence_cn": "人类移动性的可解释行为异常检测",
+      "llm_evidence": "人类移动性的可解释行为异常检测",
+      "canonical_evidence": "人类移动性的可解释行为异常检测",
+      "llm_tldr_en": "Learns interpretable daily mobility templates using LDA and self-supervised learning for anomaly detection.",
+      "llm_tldr_cn": "针对人类移动性数据，本文提出IBAD框架，通过学习全局行为模板并表示为个体混合分布，实现可解释的异常检测。该方法首先用LDA发现模板，再通过层次自监督模型识别异常。实验表明IBAD能有效解释日常移动模式并检测异常行为，为人移动性模式分析提供了结构化方法。",
+      "llm_tldr": "针对人类移动性数据，本文提出IBAD框架，通过学习全局行为模板并表示为个体混合分布，实现可解释的异常检测。该方法首先用LDA发现模板，再通过层次自监督模型识别异常。实验表明IBAD能有效解释日常移动模式并检测异常行为，为人移动性模式分析提供了结构化方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.16356v1",
+      "source": "arxiv",
+      "title": "Simulation-Augmented Multi-Step Split Conformal Prediction for Aggregated Forecasts",
+      "abstract": "We study uncertainty quantification for aggregated forecasting tasks such as annual totals and year-over-year growth rates. We propose SA-MSCP, a simulation-augmented multi-step split conformal method that generates future paths from cross-validated residuals using a block bootstrap and constructs prediction intervals from empirical quantiles. Experiments show that SA-MSCP improves empirical coverage over a simulated-path baseline for aggregated and growth-rate targets. Our results demonstrate that simulation-enhanced conformal calibration is an effective and general framework for uncertainty quantification in aggregated time-series forecasting.",
+      "authors": [
+        "Andro Sabashvili"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-15T07:52:12+00:00",
+      "link": "https://arxiv.org/pdf/2606.16356v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "simulation-augmented conformal prediction for aggregated forecasts uncertainty",
+      "llm_evidence_cn": "基于模拟增强的共形预测用于聚合预测不确定性量化",
+      "llm_evidence": "基于模拟增强的共形预测用于聚合预测不确定性量化",
+      "canonical_evidence": "基于模拟增强的共形预测用于聚合预测不确定性量化",
+      "llm_tldr_en": "Proposes SA-MSCP method using block bootstrap residuals to construct prediction intervals for aggregated forecasts, improving coverage.",
+      "llm_tldr_cn": "聚合预测任务（如年度总量）的不确定性量化面临挑战。本文提出模拟增强多步分割共形预测方法（SA-MSCP），使用交叉验证残差的块自助法生成未来路径，并构建经验分位数预测区间。实验表明该方法在覆盖率和效率上优于基线，为时间序列聚合预测的可靠性评估提供了通用框架。",
+      "llm_tldr": "聚合预测任务（如年度总量）的不确定性量化面临挑战。本文提出模拟增强多步分割共形预测方法（SA-MSCP），使用交叉验证残差的块自助法生成未来路径，并构建经验分位数预测区间。实验表明该方法在覆盖率和效率上优于基线，为时间序列聚合预测的可靠性评估提供了通用框架。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.17897v1",
+      "source": "arxiv",
+      "title": "Learn to Quantify Social Interaction with Constraints for Pedestrian Walking",
+      "abstract": "Long-term human path forecasting in crowds is critical for autonomous moving platforms (like autonomous driving cars and social robots) to avoid collision and make high-quality planning. Although the current research take into account social interactions for prediction, they don't reveal the exact kinds of social interactions happened among people and how the social interactions affect the decision-making process of pedestrians, which further limits its robustness. Social interactions in pedestrian walking are intuitively massive and hard to label and quantify. In this paper, we explore creatively to quantify and interpret how pedestrians interact with others by proposing Learn to Cluster. Our clustering social interactions is probabilistic latent variable generative, learning directly from sequential trajectory observations, scalable to arbitrary number of pedestrians. Learn to cluster is label-free and can be naturally integrated into the training process of the prediction model. The latent variables will then serve as 'labels' to categorize social interactions. Extensive experiments over several trajectory prediction benchmarks demonstrate that our method is able to learn the patterns of social interactions and effectively integrate the patterns to pedestrian trajectory prediction.",
+      "authors": [
+        "Xiaodan Shi"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-06-16T13:18:22+00:00",
+      "link": "https://arxiv.org/pdf/2606.17897v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "human path forecasting in crowds with quantified social interactions",
+      "llm_evidence_cn": "量化社交互动的人类轨迹预测",
+      "llm_evidence": "量化社交互动的人类轨迹预测",
+      "canonical_evidence": "量化社交互动的人类轨迹预测",
+      "llm_tldr_en": "Proposes a method to quantify and interpret social interactions for pedestrian trajectory prediction, using a probabilistic clustering approach to improve long-term forecasting.",
+      "llm_tldr_cn": "针对人群中的长期行人轨迹预测问题，现有方法未能明确量化社交互动。本文提出学习聚类方法，以概率隐变量方式量化并解释行人之间的社交互动类型及其对决策的影响。该方法通过约束聚类提升预测稳健性。在真实数据集上的实验表明，明确建模社交互动能显著改善长期路径预测精度。这项工作为人机交互和自动驾驶中的社会感知规划提供了新思路。",
+      "llm_tldr": "针对人群中的长期行人轨迹预测问题，现有方法未能明确量化社交互动。本文提出学习聚类方法，以概率隐变量方式量化并解释行人之间的社交互动类型及其对决策的影响。该方法通过约束聚类提升预测稳健性。在真实数据集上的实验表明，明确建模社交互动能显著改善长期路径预测精度。这项工作为人机交互和自动驾驶中的社会感知规划提供了新思路。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.18199v1",
+      "source": "arxiv",
+      "title": "Conformal Prediction Intervals with Tail-Specific Guarantees",
+      "abstract": "This paper extends classical conformal frameworks for constructing prediction intervals with global marginal coverage $1-α$ to intervals that provide explicitly calibrated guarantees for the upper and lower tails separately. Focusing on split conformal prediction, we first construct lower and upper one-sided conformal intervals that achieve marginal validity, and then derive the induced two-sided interval by intersection. Theoretical results prove both tail-specific and global marginal coverage of the induced two-sided interval. Results are presented first for the exchangeable setting, where coverage has finite-sample guarantees, and then for non-exchangeable data, where guarantees are asymptotic. Simulation studies show that the proposed approach achieves improved directional calibration relative to classical two-sided intervals, especially relevant in skewed data. Finally, the benefit of the proposed framework is showcased in a financial application, where one aims for return maximization while seeking strict control on the left tail.",
+      "authors": [
+        "Simone Cuonzo",
+        "Nina Deliu"
+      ],
+      "primary_category": "math.ST",
+      "categories": [
+        "math.ST",
+        "q-fin.RM",
+        "stat.ME",
+        "stat.ML"
+      ],
+      "published": "2026-06-16T17:29:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.18199v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "conformal prediction intervals with tail-specific guarantees",
+      "llm_evidence_cn": "尾部特定保证的保形预测区间",
+      "llm_evidence": "尾部特定保证的保形预测区间",
+      "canonical_evidence": "尾部特定保证的保形预测区间",
+      "llm_tldr_en": "Extends conformal prediction to provide separate coverage guarantees for upper and lower tails.",
+      "llm_tldr_cn": "该论文扩展了经典保形预测框架，构建具有上下尾部分别校准保证的预测区间，理论证明在交换性和非交换性数据下的覆盖性质，并通过模拟验证有效性。该方法为时间序列预测中尾部事件的可靠性提供了理论保证，对量化预测不确定性有重要意义。",
+      "llm_tldr": "该论文扩展了经典保形预测框架，构建具有上下尾部分别校准保证的预测区间，理论证明在交换性和非交换性数据下的覆盖性质，并通过模拟验证有效性。该方法为时间序列预测中尾部事件的可靠性提供了理论保证，对量化预测不确定性有重要意义。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
