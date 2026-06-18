@@ -1,0 +1,3400 @@
+Title: Toward Simultaneously Optimal Regret in U-Calibration
+
+URL Source: https://arxiv.org/pdf/2606.18527v1
+
+Published Time: Thu, 18 Jun 2026 00:16:53 GMT
+
+Number of Pages: 32
+
+Markdown Content:
+> Proceedings of Machine Learning Research vol :1–32, 2026 39th Annual Conference on Learning Theory
+
+# Toward Simultaneously Optimal Regret in U-Calibration 
+
+Rafael Frongillo RAF @COLORADO .EDU 
+
+University of Colorado Boulder 
+
+Haipeng Luo HAIPENGL @USC .EDU 
+
+University of Southern California and Google Research 
+
+Nishant A. Mehta NMEHTA @UVIC .CA 
+
+University of Victoria 
+
+Jon Schneider JSCHNEI @GOOGLE .COM 
+
+Google Research 
+
+Editors: Steve Hanneke and Tor Lattimore 
+
+Abstract 
+
+U-calibration studies online forecasting algorithms whose predictions can be consumed by any unknown downstream agent, guaranteeing sublinear regret simultaneously for all proper loss func-tions. Existing U-calibration algorithms achieve worst-case optimal O(√T ) regret for every bounded proper loss, but they fail to adapt to easier losses: as we show, even for smooth losses such as squared loss, they incur Ω( √T ) regret instead of the optimal O(log T ) regret. In this work, we show that this limitation is not inherent. Specifically, we design a single forecast algorithm that simultaneously achieves eO(√T ) regret for every bounded proper loss and 
+
+O(log T ) regret for every bounded smooth proper loss. More generally, our algorithm also at-tains logarithmic regret for losses that are smooth relative to the log-barrier, which include several non-Lipschitz examples. Our approach is based on a novel variant of Follow-the-Perturbed-Leader (FTPL) in which perturbations are applied directly in the prediction space using self-concordant noise . The resulting analysis also departs substantially from prior FTPL analyses due to the com-plex nature of this noise and may be of independent interest. 
+
+Keywords: U-calibration, proper loss function, no-regret, Follow The Perturbed Leader. 
+
+1. Introduction 
+
+In recent years, a growing literature demonstrates the feasibility of “prediction as a service” in online learning. In this paradigm, a single algorithm publishes probabilistic predictions with the intent that they will be consumed by an unknown downstream decision maker (who in turn must select an action whose utility depends on the outcome of the event being predicted). The goal of the algorithm is that their predictions should be trustworthy : the predictions should be sufficiently accurate so that any downstream decision maker should willingly trust these predictions over any simpler baselines that they may have access to. In particular, these downstream decision makers should always have low regret compared to following any static (“base rate”) prediction. More formally, consider an algorithm, that in every round t = 1 , 2, . . . , T must produce a probabilistic prediction Pt ∈ ∆K of a random outcome yt ∈ { e1, . . . , e K } taking one of K values. It can be shown that the utility of any downstream agent corresponds to some proper loss function    
+
+> © 2026 R. Frongillo, H. Luo, N.A. Mehta & J. Schneider.
+> arXiv:2606.18527v1 [stat.ML] 16 Jun 2026 FRONGILLO LUO MEHTA SCHNEIDER
+
+ℓ(p, y ) : ∆ K × { e1, . . . , e K } → R (see Section 2 for formal definition), and the regret of this downstream agent is given by 
+
+Reg ℓ =
+
+> T
+
+X
+
+> t=1
+
+ℓ(Pt, y t) − min 
+
+> p⋆∈∆K
+> T
+
+X
+
+> t=1
+
+ℓ(p⋆, y t).
+
+The goal of U-Calibration is to produce one sequence of online predictions that guarantees sublinear Reg ℓ for every (bounded) proper loss ℓ. Kleinberg et al. (2023) showed that this is in fact possible, providing an algorithm guaranteeing Reg ℓ = O(K√T ), with Luo et al. (2024) later improving the dependence on K to the worst-case optimal O(√KT ). Taken together, these results show the promise of a single prediction service that could obviate the need for each decision maker to run their own learning algorithm specifically tailored to their particular decision problem. However, these previous results elide a crucial detail: not all downstream agents necessarily must incur Ω( √T ) regret. For example, for the quadratic loss ℓ(p, y ) = ( p − y)2, it is known that 
+
+Reg ℓ = O(log T ) is achievable by simply predicting the historical average prediction so far. Such an agent may therefore be unsatisfied with the downstream guarantees of the existing U -calibration algorithms, and opt instead to run their own learning algorithm. This naturally leads to the following question: does there exist an online forecasting algorithm which achieves (asymptotically in T ) the optimal regret rate for every proper loss ℓ?
+
+1.1. Our Contributions 
+
+We give a positive answer to this question for a wide class of loss functions for which O(log T ) re-gret rates are known. Specifically, we present an efficient online prediction algorithm (Algorithm 1) which achieves the following guarantees. 
+
+Theorem 1 [Restatement of Theorem 4] For any bounded proper loss ℓ, Algorithm 1 guarantees 
+
+Reg ℓ = eO
+
+
+
+K5/4√T
+
+
+
+. Simultaneously, for any β-smooth and bounded proper loss ℓ, Algorithm 1 guarantees Reg ℓ = O(β log T + β√K log K).
+
+Here, a β-smooth proper loss is a loss that is β-smooth in its first argument, i.e., that satisfies 
+
+∇2
+
+> p
+
+ℓ(p, y ) ⪯ βI . In fact, we additionally show (in Proposition 6) that Algorithm 1 attains similar logarithmic regret guarantees for a wider class of loss functions that are β-smooth relative to log barrier (see Section 2 for a definition). In contrast to Theorem 1, all previously existing algorithms for U-calibration (i.e., those by Kleinberg et al. (2023) and Luo et al. (2024)) incur Ω( √T ) regret for smooth losses, even in the first O(√T ) rounds (Theorem 2). Many of these existing algorithms are variants of Follow-The-Perturbed-Leader, which can be interpreted as adding a number of fictional “perturbation” rounds at the beginning of the game, and then predicting the historical average from then on. Unfortunately, in order to attain O(√T ) regret bounds for any bounded loss, one needs to add at least Ω( √T )
+
+perturbation rounds at the beginning, which irrevocably ruins the regret guarantee for smooth losses. Our Algorithm 1 is also a variant of the Follow-The-Perturbed-Leader algorithm (FTPL), but with the following adaptations: • First, we sidestep the issue mentioned above by applying the perturbation not to the sequence of outcomes, but to the predictions themselves. This can be interpreted as incremental noise in     
+
+> 2TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION
+
+outcome space—the magnitude of the noise increases as the game continues, instead of being fixed throughout. This requires a fundamentally different analysis of FTPL than in the previ-ous works in U-calibration; in particular, we directly analyze the stability of an appropriate coupling of the perturbation sequence, as in Kalai and Vempala (2005). • Second, adding most common forms of noise directly to the predictions Pt has the unfortu-nate side-effect of potentially causing the predictions to leave the probability simplex (e.g., predicting negative probabilities for some outcomes). For some losses, this issue is easily ad-dressed by projecting the perturbed prediction back to the probability simplex, but it is unclear whether a single projection could weakly improve regret for all proper losses simultaneously. Instead, we address this issue by introducing a new form of noise for our perturbations that we term self-concordant noise (inspired by the properties of self-concordant barriers) which is guaranteed to never leave the probability simplex. In particular, we choose pt uniformly from an ellipsoid contained in the probability simplex centered at the empirical average prediction. The prediction-dependence of this noise makes it more complex to directly analyze, and this analysis is the key technical novelty of this paper. 
+
+1.2. Related Work Omniprediction and Online Omniprediction Strongly related to U-calibration is the concept of 
+
+omniprediction (Gopalan et al., 2022) which is the goal of producing predictions that simultaneously minimize a large class of losses. Several recent works have focused on the goal of providing online 
+
+omniprediction guarantees (Okoroafor et al., 2025; Garg et al., 2024; Bechavod et al., 2025), similar in spirit to the O(√KT ) online U-calibration guarantees mentioned above. The direct analogue of this paper would involve constructing an online omniprediction algorithm with better regret rates for more amenable losses. 
+
+Downstream Swap Regret Several recent papers have focused on obtaining the stronger guaran-tee of minimizing swap regret for all downstream agents (Roth and Shi, 2024; Hu and Wu, 2024; Lu et al., 2025) – in particular, Hu and Wu (2024) show it is possible to get eO(√T ) swap regret for all downstream agents in the binary outcome setting. Luo et al. (2025) show it is possible to get an improved bound of eO(T 1/3) swap regret simultaneously for all proper losses with a smooth univariate form p 7 → EY ∼p[ℓ(p, Y )] .We discuss some additional related work in Appendix A. 
+
+2. Setting and Preliminaries 
+
+We consider the following fundamental problem of sequential probabilistic predictions. For each time t = 1 , . . . , T , a forecaster chooses a potentially random probability distribution Pt ∈ ∆K ,where ∆K is the probability simplex over K possible outcomes. Simultaneously, an adversary de-cides an outcome yt ∈ { e1, . . . , e K } where ei is the i-th standard basis vector in RK . At the end of time t, outcome yt is revealed to the forecaster. For simplicity, we assume that the adversary is obliv-ious, that is, yt is independent of the forecaster’s previous predictions P1, . . . , P t−1. Equivalently, 
+
+> 3
+
+FRONGILLO LUO MEHTA SCHNEIDER 
+
+we can think of the adversary picking the outcome sequence y1, . . . , y T ahead of time, knowing the forecaster’s algorithm but not their randomness. 1
+
+For a loss function ℓ : ∆ K × { e1, . . . , e K } → [−1, 1] , the forecaster’s expected regret with respect to ℓ is defined as 
+
+Reg ℓ = E
+
+" TX
+
+> t=1
+
+ℓ(Pt, y t)
+
+#
+
+− inf 
+
+> p⋆∈∆K
+> T
+
+X
+
+> t=1
+
+ℓ(p⋆, y t),
+
+where the expectation is over the internal randomness of the forecaster. In words, regret compares the forecaster’s total loss to that of the best fixed prediction in hindsight. 
+
+Proper losses Throughout the paper, we focus on losses that are proper, meaning that for every distribution p ∈ ∆K , the prediction p minimizes the expected loss when the outcome is actually drawn from p; that is, p ∈ argmin p′∈∆K EY ∼p[ℓ(p′, Y )] . Note that in this case, by definition, the optimal prediction p⋆ in the regret definition is simply ¯pT , where we use ¯pt = 1
+
+> t
+
+Ptτ =1 yτ to denote the empirical average of the outcomes up to time t.We let L denote the set of all such bounded proper losses. Kleinberg et al. (2023) and Luo et al. (2024) show that a single algorithm can make predictions with guarantee Reg ℓ = O(√KT )
+
+simultaneously for all proper losses ℓ ∈ L , which is worst-case optimal. However, Luo et al. (2024) also identify a large subclass of proper losses where O(log T ) regret is possible. Our goal is to design algorithms that ensures not only Reg ℓ = O(√KT ) for all ℓ ∈ L , but also at the same time a better regret bound for a large subclass of these losses. 
+
+Smooth proper losses In particular, we consider Sβ ⊆ L , the subclass of all β-smooth proper losses with loss range [−1, 1] . Here, a loss ℓ is β-smooth (in its first argument) if for any p, q ∈ ∆K
+
+and y, we have ℓ(q, y ) − ℓ(p, y ) ≤ ⟨∇ pℓ(p, y ), q − p⟩ + β 
+
+> 2
+
+∥q − p∥22 (where ∇pℓ(p, y ) is the gradient of ℓ as a function of p). For example, the squared loss ℓ(p, y ) = 12 ∥p − y∥22 is 1-smooth (and proper). Since our domain is bounded, any ℓ ∈ S β also has to be O(β)-Lipschitz, which means that, according to Luo et al. (2024), a simple Follow-the-Leader (FTL) strategy (that is, predict 
+
+Pt = ¯ pt−1) enjoys O(β log T ) regret. On the other hand, it is well known that there exist proper losses where FTL suffers linear regret; see e.g. Luo et al. (2024, Theorem 6). In fact, our results hold beyond this particular smooth class. To illustrate the idea, we addition-ally consider the class of proper losses that are β-smooth relative to log-barrier , that is, 
+
+∇2
+
+> p
+
+ℓ(p, y ) ⪯ β · ∇ 2 −
+
+> K
+
+X
+
+> i=1
+
+log pi
+
+!
+
+= β · diag 
+
+ 1
+
+p21
+
+, . . . , 1
+
+p2
+
+> K
+
+
+
+for any p and y, where diag (a1, . . . , a K ) denotes the K by K diagonal matrix with diagonal values 
+
+a1, . . . , a K and A ⪯ B means B − A is a positive-semidefinite matrix. We use Slog  
+
+> β
+
+to denote this class and note the relation Sβ ⊂ S log  
+
+> β
+
+⊂ L . As an example, the following loss considered by Luo et al. (2024) is neither Lipschitz nor smooth, but it belongs to Slog  
+
+> β
+
+for some value of β:
+
+ℓ(p, y ) = C (α − 1) 
+
+> K
+
+X
+
+> i=1
+
+pαi − α
+
+> K
+
+X
+
+> i=1
+
+pα−1 
+
+> i
+
+yi
+
+!
+
+, (1) 
+
+> 1. All our results directly generalize to an adaptive adversary (by drawing fresh noise in each time, according to Hutter and Poland, 2005, Lemma 12); see also Footnote 2 for more details.
+
+4TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+where α ∈ (1 , 2) and C > 0 is a rescaling constant so that ℓ(p, y ) ∈ [−1, 1] for all p and y.
+
+3. Warm-up with binary outcomes 
+
+Let us begin with the simpler setting of sequential binary prediction, where an algorithm submits a random variable Pt ∈ [0 , 1] in each round, after which an adversary chooses an outcome yt ∈ { 0, 1}.Perhaps the two most natural losses to consider are 0-1 loss and squared loss. In the binary setting, squared loss can be written more simply as ℓsq (p, y ) = ( p − y)2.For 0-1 loss, it is instructive to begin with the more familiar action setting. For a set of actions 
+
+A, one can define a loss bℓ : A × { 0, 1} → R. For example, when A = {0, 1}, 0-1 loss is 
+
+bℓ0-1 (a, y ) = 1{a̸ = y}. We can easily convert any such loss to a proper loss by encoding a Bayes action ap ∈ argmin a∈A EY ∼p[bℓ(a, Y )] for each p ∈ ∆K , and defining ℓ(p, y ) = bℓ(ap, y ). For 0-1 loss, that gives us the proper loss ℓ0-1 (p, y ) = bℓ0-1 (1{p > 1/2}, y ) = 1{1{p > 1/2}̸ = y}.Every “V-shaped” loss (Kleinberg et al., 2023) can also be expressed concisely via a binary action a ∈ { 0, 1}. For γ ∈ [0 , 1] , let bℓγ be the cost-sensitive loss 
+
+bℓγ (0 , 0) = bℓγ (1 , 1) = 0 , bℓγ (0 , 1) = 1 , bℓγ (1 , 0) = γ . 
+
+Then ℓγ (p, y ) = bℓγ (1{p > p γ }, y ) is the corresponding proper loss, where pγ = γ/ (1 + γ) ≤ 1/2.(The pγ ≥ 1/2 case follows symmetrically, where now bℓγ (0 , 1) = γ and bℓγ (1 , 0) = 1 .) The main question we address in this section is the following: Does there exist an algorithm to choose Pt so that Reg ℓsq = O(log T ) and Reg ℓ0-1 = O(√T ) or even Reg ℓγ = O(√T ) for all 
+
+γ ∈ [0 , 1] ? In what follows, we first show that previous U-Calibration algorithm does not suffice, and then give a simple algorithm that does achieve both bounds simultaneously. In fact, the same algorithm satisfies Reg ℓ = O(√T ) for all ℓ ∈ L .
+
+3.1. Ω( √T ) lower bound for existing U-Calibration algorithms 
+
+Let us first see why the F ORECAST HEDGE algorithm of Kleinberg et al. (2023) does not suffice. In particular, we will show that it can suffer Θ( √T ) expected regret under squared loss, essentially because the variance of the predictions Pt is too high. 
+
+Theorem 2 For all sufficiently large T , there exists an adversarial sequence of (binary) outcomes where FORECAST HEDGE algorithm (Kleinberg et al., 2023) incurs Ω( √T ) expected regret with respect to the squared loss ℓsq (p, y ) = ( p − y)2.
+
+Proof Consider the constant sequence yt = 0 . For this sequence, the best fixed prediction in hindsight is simply p∗ = 0 , which incurs a total loss of 0. Thus, we have 
+
+Reg sq  
+
+> ℓ
+
+=
+
+> T
+
+X
+
+> t=1
+
+E[ℓsq (Pt, 0)] = 
+
+> T
+
+X
+
+> t=1
+
+E[P 2 
+
+> t
+
+] ≥
+
+> T
+
+X
+
+> t=1
+
+Pr [Pt = 1] .
+
+Recall that F ORECAST HEDGE samples Pt according to a distribution with cumulative distribution function 
+
+Pr [Pt ≤ p] = S
+
+ t − 1
+
+√T (p − ¯pt−1)
+
+
+
+, p ∈ [0 , 1) ,
+
+> 5
+
+FRONGILLO LUO MEHTA SCHNEIDER 
+
+where S(x) = 11+ e−2x . For all 2 ≤ t ≤ ⌊ √T ⌋ + 1 we have ¯pt−1 = 0 and 
+
+Pr [Pt = 1] = 1 − S
+
+ t − 1
+
+√T
+
+
+
+≥ 1 − S(1) = 11 + e2 .
+
+Thus Reg sq  
+
+> ℓ
+
+≥
+
+> T
+
+X
+
+> t=1
+
+Pr [Pt = 1] ≥ 
+
+> ⌊√T⌋+1
+
+X
+
+> t=2
+
+Pr [Pt = 1] ≥ ⌊ √T ⌋ · 11 + e2 = Ω( √T ) .
+
+Similarly, one can show that the F ORECAST FTPL algorithm of Kleinberg et al. (2023) (for the multiclass setting) as well as the algorithm of Luo et al. (2024) both also suffer the same issue (details omitted). 
+
+3.2. Achieving simultaneous optimal regret 
+
+As FTL does achieve O(log T ) expected regret for squared loss, a natural approach is therefore to choose Pt = ¯ pt−1 + Zt, where ¯pt = 1
+
+> t
+
+Pts=1 ys and the Zt’s are independent zero-mean random variables with sufficiently low variance σ2 
+
+> t
+
+. The following lemma shows that keeping the total variance to O(log T ) suffices to maintain the O(log T ) regret against squared loss. 
+
+Lemma 3 Define μt := E[Pt], σ2 
+
+> t
+
+:= Var( Pt). Then E[( Pt − yt)2] = ( μt − yt)2 + σ2 
+
+> t
+
+, and thus 
+
+Reg ℓsq = Reg ℓsq ({μt}t)+ PTt=1 σ2 
+
+> t
+
+, where Reg ℓsq ({μt}t) = PTt=1 (μt −yt)2 −PTt=1 (¯ pT −yt)2.
+
+As we will see, the key to keeping the variance low while also achieving O(√T ) expected regret for all proper losses is to use a time-varying learning rate such as ηt = 1 /√t. To motivate this choice, consider running FTPL on 0-1 loss, where the perturbations happen in action space. That is, letting ct,y := |{ s ≤ t : ys = y}| be the counts of each outcome y ∈ { 0, 1} so far, FTPL takes 
+
+at = argmax 
+
+> a∈{ 0,1}
+
+ct−1,a + 1
+
+η t
+
+Wa , (2) where W0, W 1 are i.i.d. copies of some noise random variable W . Normalize W so that Var( W ) = 1 for simplicity. For example, taking W to have a Gumbel distribution gives the well-known Hedge algorithm, which for the choice ηt = 1 /√t achieves O(√T ) regret with respect to the best fixed action in hindsight (Cesa-Bianchi and Lugosi, 2006, Section 2.3). It turns out that we can exactly implement this algorithm by taking Pt = ¯ pt−1 + Zt where 
+
+Zt = (1 /2ηt)( W1 − W0)/(t − 1) , ignoring for the moment that Zt may cause Pt to leave the interval [0 , 1] . Setting ηt = 1 /√t, we have σ2 
+
+> t
+
+:= Var( Zt) = t 
+
+> (t−1) 2
+
+, giving the desired total variance of PTt=1 σ2 
+
+> t
+
+= PTt=1 t 
+
+> (t−1) 2
+
+= Θ(log T ). This choice of Pt exactly implements FTPL for 0-1 loss from Eq. (2): 
+
+Pt ≤ 1/2 ⇐⇒ ¯pt−1 + 12ηt
+
+W1 − W0
+
+t − 1 ≤ 1/2
+
+⇐⇒ ct−1,1
+
+t − 1 + 12ηt
+
+W1 − W0
+
+t − 1 ≤ 1/2
+
+⇐⇒ 2ct−1,1 + 1
+
+ηt
+
+(W1 − W0) ≤ ct−1,0 + ct−1,1
+
+6TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+⇐⇒ ct−1,1 + 1
+
+ηt
+
+W1 ≤ ct−1,0 + 1
+
+η t
+
+W0 .
+
+In fact, this reduction to the binary-action FTPL algorithm extends to all V-shaped losses ℓγ
+
+defined above. To see this, note that using the notation above, the cumulative losses under bℓγ of action a ∈ { 0, 1} are 
+
+Lt, 0 := 
+
+> t
+
+X
+
+> s=1
+
+bℓγ (0 , y t) = 
+
+> t
+
+X
+
+> s=1
+
+1{yt = 1 } = ct, 1 ,Lt, 1 := 
+
+> t
+
+X
+
+> s=1
+
+bℓγ (1 , y t) = 
+
+> t
+
+X
+
+> s=1
+
+γ1{yt = 0 } = γc t, 0 ,
+
+and FTPL chooses 
+
+at = argmax 
+
+> a∈{ 0,1}
+
+Lt−1,a + 1
+
+η(γ)
+
+> t
+
+Wa . (3) Just as with 0-1 loss, we have 
+
+Pt ≤ pγ ⇐⇒ Lt−1,0 + 1 + γ
+
+2ηt
+
+W0 ≤ Lt−1,1 + 1 + γ
+
+2ηt
+
+W1 .
+
+Thus, V-shaped losses using these choices of Pt are exactly running FTPL with learning rate η(γ) 
+
+> t
+
+= 
+
+> 21+ γ
+
+ηt. The choice γ = 1 recovers 0-1 loss above with η(γ) 
+
+> t
+
+= ηt.Finally, let us contend with the fact that we must require Pt ∈ [0 , 1] . More precisely, we will take ePt = ¯ pt−1 + Zt and Pt = clip [0 ,1] ( ePt), where clip [0 ,1] (x) = min {max {x, 0}, 1}. For the binary action losses, one easily checks that moving from ePt to Pt = clip [0 ,1] ( ePt) does not change either decision. For squared loss, one similarly observes that clipping cannot increase the expected regret. This is because the comparator term is unchanged, and the loss suffered by the algorithm can only decrease: for all ep ∈ R, we have (clip [0 ,1] (ep) − y)2 ≤ (ep − y)2 for all y ∈ { 0, 1}. We therefore still have O(log T ) overall expected regret for squared loss by Lemma 3. In summary, in the binary setting, we have given an algorithm which achieves O(log T ) ex-pected regret for squared loss and O(√T ) expected regret for all V-shaped losses. Specifically, we take Pt = clip [0 ,1] (¯ pt−1 + Zt) where Zt = (1 /2ηt)( W1 − W0)/(t − 1) , ηt = 1 /√t, and Wa are i.i.d. Gumbel random variables with variance 1. Additionally, since Kleinberg et al. (2023) show that sup ℓ∈L Reg ℓ ≤ 2 sup γ∈[0 ,1] Reg ℓγ , this algorithm also achieves O(√T ) regret for any ℓ ∈ L .
+
+4. Multiclass setting 
+
+Similar to the case of binary prediction, our algorithm for the multi-class setting adds noise in the prediction space ∆K . A natural approach to extend our algorithm for the binary setting would be to try to perturb individual coordinates using independent Gumbel noise (or, e.g., Gaussian noise); however, it is unclear in general how to deal with perturbed probability vectors that no longer belong to the simplex. For example, consider K ≥ 3 and a perturbed probability vector p where all coordinates are in [0 , 1] but p is not in the simplex. What is the “right” projection onto the simplex? In order to assess the goodness of a projection, one would first need to extend the first argument of 
+
+7FRONGILLO LUO MEHTA SCHNEIDER 
+
+Algorithm 1 Simultaneously Optimal Multiclass U-Calibration 
+
+Initialize: σ = K3/4/√T , ¯p0 is the uniform distribution. 
+
+for t = 1 , . . . , T do 
+
+Uniformly at random sample St from σBK 
+
+> 2
+
+∩ { s ∈ RK : ⟨s, ¯pt−1⟩ = 0 }.Predict Pt = ¯ pt−1 + Zt where Zt = diag (¯ pt−1)St.Observe label yt and update the empirical average ¯pt = 1
+
+> t
+
+Ptτ =1 yτ .the loss function beyond the simplex. If the loss could be suitably extended, one would still need a single projection (for all losses) that never increases the loss. Because of these challenges, we instead take care to keep the prediction within ∆K , via a novel (to our knowledge) perturbation which we dub self-concordant noise (see Appendix A for more discussion on how this idea is connected to self-concordant barriers). We use BK 
+
+> 2
+
+to denote the K-dimensional ℓ2 unit ball and σBK 
+
+> 2
+
+for some σ > 0 to denote BK
+
+> 2
+
+scaled by σ. To perturb a given probability vector p with self-concordant noise (at scale σ), we: 1. Draw S uniformly at random from σBK 
+
+> 2
+
+intersected with the subspace orthogonal to p.2. Coordinate-wise scale S by p, giving self-concordant noise Z = diag (p)S.It is easy to verify that for any p in the simplex ∆K (including the boundary), p + Z also belongs to the simplex, as long as σ ≤ 1. Algorithm 1 formally presents our algorithm that uses such self-concordant noise and sets σ to be of order 1/√T . Our main result is the following simultaneous regret guarantees for Algorithm 1. 2
+
+Theorem 4 Algorithm 1 achieves Reg ℓ = eO
+
+
+
+K5/4√T
+
+
+
+for any bounded proper loss ℓ ∈ L and simultaneously Reg ℓ = O(β log T + β√K log K) for any smooth and bounded proper loss ℓ ∈ S β .
+
+Analysis for O(log T ) regret We start by proving the guarantee for smooth losses and restate the result below with an intermediate bound that depends on an arbitrary σ ≤ 1. The proof directly generalizes the idea from Section 3 and argues that our algorithm is not too far away from FTL. 
+
+Proposition 5 For any β > 0 and any loss function ℓ ∈ S β , Algorithm 1 achieves Reg ℓ ≤
+
+O(β log T + βσ 2T (log K)/K ) = O(β log T + β√K log K).
+
+Proof First, note that since ℓ is defined over ∆K , a space with O(1) diameter in ℓ2 norm, the fact that it is β-smooth also implies that it is O(β)-Lipschitz. Therefore, according to Luo et al. (2024), the regret of the FTL strategy (that is, predict ¯pt−1 at time t) is O(β log T ). It thus remains to analyze the difference between the loss of Algorithm 1 and that of FTL, i.e., E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(¯ pt−1, y t)
+
+i
+
+.To do so, we plug in the definition of Pt = ¯ pt−1 + Zt and use the smoothness property: 
+
+EZt [ℓ(Pt, y t) − ℓ(¯ pt−1, y t)] ≤ EZt [⟨∇ ℓp(¯ pt−1, y t), Z t⟩] + 12 βEZt
+
+∥Zt∥22
+
+          
+
+> 2. We emphasize again that our results hold even under an adaptive adversary, even though our analysis assumes an oblivious adversary. This is because the loss of the algorithm for round tdepends solely on y1, . . . , y tand St, so the extra knowledge of S1, . . . , S t−1(which are independent of Stgiven y1, . . . , y t) does not make an adaptive adversary any more powerful than an oblivious adversary.
+
+8TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+= 12 βESt
+
+∥diag (¯ pt−1)St∥22
+
+ (EZt [Zt] = 0) 
+
+≤ 12 βESt
+
+∥St∥2
+
+> ∞
+
+ .
+
+Lemma 11 in Appendix C establishes that St is a subgaussian random vector and gives the bound 
+
+ESt
+
+∥St∥2
+
+> ∞
+
+ ≤ 8 log KK−1 . Hence, we have 
+
+EZt [ℓ(Pt, y t) − ℓ(¯ pt−1, y t)] ≤ 8βσ 2 log KK − 1 = O
+
+ βσ 2 log KK
+
+
+
+.
+
+Summing over t finishes the proof. In fact, by examining the proof more carefully, one can see that the statement that our algorithm is close to FTL can be further extended to losses that are not necessarily smooth but are smooth relative to log-barrier, as show in the following proposition. 
+
+Proposition 6 For any β > 0 and any loss function ℓ ∈ S log  
+
+> β
+
+, the total loss of Algorithm 1 com-pared to that of the Follow-The-Leader strategy is bounded as E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(¯ pt−1, y t)
+
+i
+
+=
+
+O(βσ 2T ) = O(βK 3/2).
+
+Proof We plug in the definition of Pt = ¯ pt−1 + Zt and apply second-order Taylor expansion: 
+
+EZt [ℓ(Pt, y t) − ℓ(¯ pt−1, y t)] = EZt [⟨∇ pℓ(¯ pt−1, y t), Z t⟩] + 12 EZt
+
+h
+
+Z⊤ 
+
+> t
+
+∇2ℓp(ξ, y )Zt
+
+i
+
+(for some ξ between Pt and ¯pt−1)
+
+≤ 12 βEZt
+
+
+
+Z⊤ 
+
+> t
+
+diag 
+
+ 1
+
+ξ21
+
+, . . . , 1
+
+ξ2
+
+> K
+
+
+
+Z⊤
+
+> t
+
+
+
+(EZt [Zt] = 0 and relative smoothness) 
+
+≤ 12 βESt
+
+"
+
+S⊤ 
+
+> t
+
+diag ¯p2
+
+> t−1,1
+
+ξ21
+
+, . . . , ¯p2
+
+> t−1,K
+
+ξ2
+
+> K
+
+!
+
+S⊤
+
+> t
+
+#
+
+. (Zt = diag (¯ pt−1)St)Now, for each i, note that 
+
+¯pt−1,i 
+
+ξi
+
+≤ ¯pt−1,i 
+
+min {Pt,i , ¯pt−1,i } = ¯pt−1,i 
+
+min {¯pt−1,i (1 + St,i ), ¯pt−1,i } ≤ 11 − σ = O(1) .
+
+Therefore, continuing from the earlier derivation, we have 
+
+EZt [ℓ(Pt, y t) − ℓ(¯ pt−1, y t)] = O(βESt
+
+∥St∥22
+
+) = O(βσ 2).
+
+Summing over t finishes the proof. As mentioned, Luo et al. (2024) show that Follow-The-Leader achieves O(log T ) regret for Lipschitz proper losses, which implies that Algorithm 1 achieves O(log T ) regret for all losses that are Lipschitz and smooth relative to log-barrier. Moreover, Luo et al. (2024) also identify another broad class of proper losses that are not necessarily Lipschitz and for which Follow-The-Leader still achieves O(log T ) regret. One such example is Eq. (1), which, as mentioned, belongs to Slog  
+
+> β
+
+for some β, meaning that our Algorithm 1 also achieves O(log T ) regret in this case. 
+
+9FRONGILLO LUO MEHTA SCHNEIDER 
+
+Analysis for O(√T ) regret We next prove the O(√T ) regret bound of Theorem 1, again starting with a restatement of the result that includes an intermediate bound in terms of an arbitrary σ ≤ 1/2.
+
+Proposition 7 For any loss function ℓ ∈ L , Algorithm 1 achieves 
+
+Reg ℓ = eO
+
+ K2 
+
+> σ
+
++ T √Kσ 
+
+
+
+= eO
+
+
+
+K5/4√T
+
+
+
+.
+
+Unlike the O(log T ) results, due to the complex nature of our self-concordant noise, the proof for Proposition 7 no longer follows the same idea of Section 3 that establishes equivalence to ex-isting no-regret algorithms in the action space. Instead, we propose to directly analyze our algo-rithm via the typical FTPL analysis, which decomposes the regret into two terms: the first term is the loss/regret difference between FTPL and Be-the-Perturbed-Leader (BTPL), also known as the stability term, and the second term is the regret of BTPL. While the decomposition is standard, bounding each of these two terms requires significantly new ideas. Specifically, the following lemma bounds the stability term. Establishing this lemma is a major undertaking, so we sketch a proof in Section 5. A full proof can be found in Appendix D. 
+
+Lemma 8 (Stability Term) For any loss function ℓ ∈ L , under Algorithm 1, it holds that 
+
+E
+
+hPTt=1 
+
+ ℓ(Pt, y t) − ℓ(Pt+1 , y t)i
+
+= eO
+
+ K2
+
+> σ
+
+
+
+.
+
+This bound matches our intuition that the larger the variance of the noise, the more stable the algorithm is. On the other hand, the next lemma bounds the regret of BTPL (that is, an imaginary algorithm that plays Pt+1 at time t); the bound is increasing linearly in the noise level σ. Combining both lemmas proves Proposition 7. 
+
+Lemma 9 (Regret of BTPL) For any loss function ℓ ∈ L , Algorithm 1 ensures that 
+
+PTt=1 
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t) = O
+
+
+
+T √Kσ 
+
+
+
+.
+
+Note that this result holds for all realization of the noise, instead of in expectation only. We sketch the proof below and defer the full proof to Appendix E. 
+
+Proof (Sketch, of Lemma 9) First, we show that by affinely extending the loss function in its second argument, BTPL can be viewed as Be-The-Leader (BTL) using a sequence of perturbed outcomes 
+
+y′ 
+
+> t
+
+= yt + tZ t+1 − (t − 1) Zt. Applying the standard BTL lemma (e.g., Cesa-Bianchi and Lugosi 2006, Lemma 3.1) then shows that the regret of BTPL is of order PTt=1 ∥tZ t+1 − (t − 1) Zt∥1.The main work is to bound ∥Zt+1 − Zt∥1, the difficult part of which is bounding ∥St+1 − St∥2.Recall that for any t, the random variable St is uniformly distributed on the intersection σBK 
+
+> 2
+
+with the subspace {s ∈ RK : ⟨s, ¯pt−1⟩ = 0 }. Taking the standard Riemannian metric on the unit sphere in RK , there is a unique rotation matrix Rt that sends ¯pt−1/∥¯pt−1∥ to ¯pt/∥¯pt∥ by traveling along the geodesic between these vectors. We observe that RtSt and St+1 have the same law. Thus, as we assume an oblivious adversary, we can view the sequence S1, S 2, S 3, . . . as being initialized at some S1, with each successive iterate obtained via St+1 = RtSt. This view of the sequence 
+
+{St}t provides a suitable coupling which, after some basic manipulations, gives us good control on 
+
+∥St+1 − St∥2 and allows us to show that ∥Zt+1 − Zt∥1 = O
+
+√Kσ/t 
+
+
+
+.
+
+> 10
+
+TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+5. Analysis of the stability term 
+
+In this section, we sketch our novel analysis for our bound on the stability term (Lemma 8). Our starting point is the following fact (shown in Lemma 12 in Appendix D): letting Ft be the law of random variable Pt and ∥ · ∥ TV be the total variation distance, E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(Pt+1 , y t)
+
+i
+
+is at most 2 PTt=1 ∥Ft+1 − Ft∥TV .Now, for any p in the relative interior of ∆K , define the ellipsoid 
+
+E(p) = 
+
+
+
+x ∈ ∆K : PKi=1 
+
+ xi 
+
+> pi
+
+− 1
+
+2
+
+≤ σ2
+
+
+
+.
+
+It is not hard to verify that Pt is drawn from the uniform distribution over E(¯ pt−1) (when ¯pt−1 is in the relative interior). Therefore, if we can suitably bound the total variation (TV) distance between the uniform distribution on E(¯ pt−1) and E(¯ pt) for “most” rounds (where “most” is T − O(√T )
+
+with respect to T ), then the stability term will be suitably controlled. The next result bounds this TV distance. Let ct,i be the number of times outcome ei has occurred by the end of round t.
+
+Theorem 10 Assume that {p, p ′} = {¯pt−1, ¯pt}, with both p and p′ being in the relative interior of 
+
+∆K . Let d(p, p ′) be the TV distance between the uniform distribution over E(p) and the uniform distribution over E(p′). If σ ≤ 12 , t − 1 ≥ 54 K3/2 
+
+> σ
+
+, and ct−1,i t ≥ 57 Kσ , then 
+
+d(p, p ′) = O
+
+ K3/2 
+
+> σ(t−1)
+
++ Kσc t−1,i t
+
+
+
+.
+
+Our proof sketch of Theorem 10 is somewhat long, so we first sketch a proof of of Lemma 8. 
+
+Proof (of Lemma 8) Our starting point is Lemma 12. We will use Theorem 10 to bound the indi-vidual total variation terms ∥Ft+1 − Ft∥TV for most rounds t. To apply Theorem 10, we need to ensure that in most rounds, both t and ct−1,i t are suitably large. There are at most O
+
+ K3/2
+
+> σ
+
+
+
+rounds where the condition t − 1 ≥ 54 K3/2 
+
+> σ
+
+fails to hold, and there are most O
+
+ K2
+
+> σ
+
+
+
+rounds where the condition ct−1,i t ≥ 57 Kσ fails to hold; for all such rounds, we trivially bound ∥Ft+1 − Ft∥TV by 1, while for the remaining rounds, denoted by T , we apply Theorem 10 to bound ∥Ft+1 − Ft∥TV .3 Together, this leads to E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(Pt+1 , y t)
+
+i
+
+being at most 2( T − |T | ) + E P  
+
+> t∈T
+
+ℓ(Pt, y t) − ℓ(Pt+1 , y t), which is 
+
+O K2
+
+σ + K3/2
+
+σ
+
+X
+
+> t∈T
+
+1
+
+t + Kσ
+
+X
+
+> t∈T
+
+1
+
+ct−1,i t
+
+!
+
+= O K2 + K3/2 log T + K2 log TK
+
+σ
+
+!
+
+= eO
+
+ K2
+
+σ
+
+
+
+.
+
+We now sketch a proof of Theorem 10.                               
+
+> 3. Note that ¯pt−1and ¯ptmight not be in the relative interior of ∆K; however, they must be in the relative interior of ∆k
+> for some k≤K. Therefore, we can still apply Theorem 10 in the space of ∆kwhere the conditions t−1≥54 k3/2
+> σ
+> and ct−1,i t≥57 kσhold and the conclusion d(p, p ′) = O
+> k3/2
+> σt +kσc t−1,i t
+> 
+> =O
+> K3/2
+> σt +Kσc t−1,i t
+> 
+> is the same.
+
+11 FRONGILLO LUO MEHTA SCHNEIDER 
+
+Proof (Sketch, of Theorem 10) Let V (A) be the (K − 1) -dimensional volume of a set A. We abuse notation and let V (p) be shorthand for V (E(p)) (likewise for p′). Assuming V (p) ≤ V (p′) without loss of generality. First, we show that twice the total variation distance d(p, p ′) is at most 
+
+2d(p, p ′) ≤ |V (p′)−V (p)|   
+
+> max {V(p),V (p′)}
+
++ V (E(p)∆ E(p′))   
+
+> V(p)
+
+,
+
+i.e., the sum of the relative volume difference and the relative volume of the symmetric difference. The relative volume difference is the easier term to control. We can show that 
+
+V (p) = CK−1 · σK−1
+
+> K
+
+Y
+
+> i=1
+
+pi
+
+!
+
+1
+
+K
+
+> K
+
+X
+
+> i=1
+
+1
+
+p2
+
+> i
+
+!1/2
+
+,
+
+for CK−1 the volume of the unit ℓ2 ball in RK−1. For i ∈ [K], let p′ 
+
+> i
+
+= pi(1+ δi). Also, let it satisfy 
+
+yt = eit . We can show that max i̸=it |δi| ≤ 1 
+
+> t−1
+
+≤ 1
+
+> ct−1,i t
+
+and |δit | ≤ 1
+
+> ct−1,i t
+
+. Thus, p and p′ are entry-wise close in a relative sense, allowing us to show the relative volume difference is O( Kct−1,i t
+
+).Next, we explain how we control the relative volume of the symmetric difference of E(p) and 
+
+E(p′). Define Qp(x) = PKi=1 (xi/p i − 1) 2 and Qsup = sup x∈E(p)∪E(p′) |Qp′ (x) − Qp(x)|. Observe that E(p) = {x ∈ ∆K : 0 ≤ Qp(x) ≤ σ2}. It is possible to show that a scaled up version of E(p)
+
+contains E(p′) while a scaled down version of E(p) is contained in E(p) ∩ E(p′). Therefore, the symmetric difference is contained in the “shell” formed by the boundaries between the scaled up version and scaled down version of E(p). In particular, we use the shell 
+
+S(p, Q sup ) = {x ∈ ∆K : σ2 − Qsup ≤ Qp(x) ≤ σ2 + Qsup }.
+
+The relative volume of the symmetric difference therefore satisfies    
+
+> V(E(p)∆ E(p′))
+> V(p)
+
+≤ V (S(p,Q sup ))   
+
+> V(p)
+
+=
+
+
+
+1 + Qsup 
+
+> σ2
+
+(K−1) /2
+
+−
+
+
+
+1 − Qsup 
+
+> σ2
+
+(K−1) /2
+
+.
+
+Finally, using the convexity of b 7 → bK−1, we show the above to be at most e KQ sup 2σ2 · 2KQ sup  
+
+> σ2
+
+.By carefully controlling Qsup using that all i̸ = it satisfy |δi| ≤ 1 
+
+> t−1
+
+while it satisfies |δit | ≤ 
+
+> 1
+> ct−1,i t
+
+, we are able to show that KQ sup  
+
+> 2σ2
+
+≤ 1 (which controls the exponential term) and Qsup =
+
+O
+
+ √Kσ t + σct−1,i t
+
+
+
+. Basic algebra then shows that the relative volume of the symmetric difference is O
+
+ K3/2 
+
+> σt
+
++ Kσc t−1,i t
+
+
+
+, which dominates our bound on the relative volume difference and matches the stated bound. 
+
+6. Discussion and future work 
+
+Optimal dependence on K. In light of prior results from Luo et al. (2024), for general, bounded losses we do not obtain the optimal dependence on K. We initially tried to use FTPL with Gaussian perturbations, but due to issues in extending the loss and dealing with projections, we ultimately adopted self-concordant noise. If one ignores the issues with perturbed probability vectors being outside the simplex (or put differently, if one allows improper learning), then O(√T K ) regret for general losses is indeed achievable using Gaussian noise; see Appendix G for details. 
+
+12 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Simultaneous optimality. While our work establishes promising results, our initial motivating question is still wide open: does there exist an online forecasting algorithm which achieves the optimal regret rate (up to constant or logarithmic factors in T ) for every proper loss? Even setting aside such simultaneous optimality, even the question of characterizing which proper losses have which optimal regret rates is still open, as far as we know. 
+
+Acknowledgments 
+
+We thank Bobby Kleinberg and Bo Waggoner for helpful discussions. HL is supported by NSF award IIS-1943607. NM was supported by the NSERC Discovery Grant RGPIN-2025-05257. 
+
+References 
+
+Jacob D Abernethy, Elad Hazan, and Alexander Rakhlin. Competing in the dark: An efficient algorithm for bandit linear optimization. In Conference on Learning Theory , 2009. Yahav Bechavod, Jiuyao Lu, and Aaron Roth. Online omniprediction with long-term constraints. 
+
+arXiv preprint arXiv:2509.11357 , 2025. Nicolo Cesa-Bianchi and G´ abor Lugosi. Prediction, learning, and games . Cambridge University Press, 2006. Alexey Chernov and Vladimir Vovk. Prediction with expert evaluators’ advice. In International Conference on Algorithmic Learning Theory , pages 8–22. Springer, 2009. Alexey Chernov and Vladimir Vovk. Prediction with advice of unknown number of experts. In 
+
+Proceedings of the Twenty-Sixth Conference on Uncertainty in Artificial Intelligence , pages 117– 125, 2010. Sumegha Garg, Christopher Jung, Omer Reingold, and Aaron Roth. Oracle efficient online multi-calibration and omniprediction. In Proceedings of the 2024 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) , pages 2725–2792. SIAM, 2024. Parikshit Gopalan, Adam Tauman Kalai, Omer Reingold, Vatsal Sharan, and Udi Wieder. Om-nipredictors. In 13th Innovations in Theoretical Computer Science Conference (ITCS 2022) .Schloss Dagstuhl-Leibniz-Zentrum f¨ ur Informatik, 2022. Lunjia Hu and Yifan Wu. Calibration error for decision making. arXiv preprint arXiv:2404.13503 ,2024. Marcus Hutter and Jan Poland. Adaptive online prediction by following the perturbed leader. 
+
+Journal of Machine Learning Research , 6(22):639–660, 2005. URL http://jmlr.org/ papers/v6/hutter05a.html .Adam Kalai and Santosh Vempala. Efficient algorithms for online decision problems. Journal of Computer and System Sciences , 71(3):291–307, 2005. Bobby Kleinberg, Renato Paes Leme, Jon Schneider, and Yifeng Teng. U-calibration: Forecasting for an unknown agent. In The Thirty Sixth Annual Conference on Learning Theory , pages 5143– 5145. PMLR, 2023.    
+
+> 13 FRONGILLO LUO MEHTA SCHNEIDER
+
+Jiuyao Lu, Aaron Roth, and Mirah Shi. Sample efficient omniprediction and downstream swap regret for non-linear losses. arXiv preprint arXiv:2502.12564 , 2025. Haipeng Luo, Spandan Senapati, and Vatsal Sharan. Optimal multiclass U-calibration error and beyond. Advances in Neural Information Processing Systems , 37:7521–7551, 2024. Haipeng Luo, Spandan Senapati, and Vatsal Sharan. Simultaneous swap regret minimization via KL-calibration. arXiv preprint arXiv:2502.16387 , 2025. Yurii Nesterov and Arkadii Nemirovskii. Interior-point polynomial algorithms in convex program-ming , volume 13. Siam, 1994. Princewill Okoroafor, Robert Kleinberg, and Michael P Kim. Near-optimal algorithms for om-niprediction. arXiv preprint arXiv:2501.17205 , 2025. Aaron Roth and Mirah Shi. Forecasting for swap regret for all downstream agents. In Proceedings of the 25th ACM Conference on Economics and Computation , pages 466–488, 2024. Roman Vershynin. High-Dimensional Probability: An Introduction with Applications in Data Sci-ence . Not yet published (to be published by Cambridge University Press), 2nd edition, 2025. URL https://www.math.uci.edu/˜rvershyn/papers/HDP-book/HDP-2.pdf .Vladimir Vovk. A game of prediction with expert advice. Journal of Computer and System Sciences ,56(2):153–173, 1998. 
+
+Appendix A. Additional Related Work 
+
+Prediction with Expert Advice In the game of prediction with expert advice, in each round, each of a collection of experts provides the learning algorithm with advice (an action in some action space). For a finite number N of experts, Chernov and Vovk (2009, Corollary 2) showed that a single algorithm can simultaneously get O(log( N )) regret against all experts, where for each expert, the regret can be measured using a potentially different, proper, mixable (Vovk, 1998) loss function (zero-one loss and, more generally, V-shaped losses are not mixable). In contrast to their setting, in our work one can view each element of the simplex as an expert (so, in general, we have infinitely many experts, and these experts are constant experts 4). In a slightly later paper with binary outcomes — and still with finitely many experts — Chernov and Vovk (2010, Theorem 12) show that it is possible to get O(1) regret against each expert under squared loss and eO(√T )
+
+expected regret against each expert under zero-one loss, where in both cases there is a logarithmic dependence on N ; however, as we now explain, this result is not a simultaneous regret result due to an important nuance. The reason their algorithm does not fit the simultaneous regret paradigm we consider here is that, when predicting p = 1 /2 for squared loss, their algorithm is allowed submit a different (randomized in a way that the algorithm wishes) prediction for 0-1 loss; we do not have this freedom in our paradigm. Both these papers of Chernov and Vovk use the technique of defensive forecasting. Although there are large differences in the setting — for one, the bounds of Chernov and Vovk would become infinite in our setting — it is interesting that prior work over 15 years ago had considered notions close to simultaneous regret. 
+
+> 4. A constant expert is an expert whose advice does not change from round to round.
+> 14
+
+TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Self-Concordant Barriers Self-concordant barriers play a central role in convex optimization such as interior-point methods (Nesterov and Nemirovskii, 1994). Abernethy et al. (2009) showed that they can be used as a regularizer in the standard Follow-the-Regularized-Leader (FTRL) frame-work to handle the exploration issue in adversarial linear bandits. In particular, their algorithm explores the surface of a Dikin ellipsoid centered at the decision point output by FTRL. Our self-concordant noise of Algorithm 1 is closely related to this idea — it can be shown that our prediction 
+
+Pt is sampled from a scaled-down version of a Dikin ellipsoid centered at ¯pt−1 (that is, E(¯ pt−1)
+
+defined in Section 5). 
+
+Appendix B. Omitted proofs from Section 3 
+
+We prove Lemma 3. 
+
+Proof We have 
+
+E[( Pt − yt)2] = E[( Pt − μt + μt − yt)2]= ( μt − yt)2 + E[( Pt − μt)2] + E[( Pt − μt)( μt − yt)] = ( μt − yt)2 + σ2 
+
+> t
+
+,
+
+and thus 
+
+Reg ℓsq =
+
+> T
+
+X
+
+> t=1
+
+E[( Pt − yt)2] −
+
+> T
+
+X
+
+> t=1
+
+(¯ pT − yt)2
+
+=
+
+> T
+
+X
+
+> t=1
+
+(μt − yt)2 + σ2 
+
+> t
+
+−
+
+> T
+
+X
+
+> t=1
+
+(¯ pT − yt)2
+
+= Reg ℓsq ({μt}t) + 
+
+> T
+
+X
+
+> t=1
+
+σ2 
+
+> t
+
+.
+
+Appendix C. Remaining proof for β-smooth proper losses 
+
+The following lemma was used in the proof of Proposition 5. 
+
+Lemma 11 It holds that 
+
+ESt
+
+∥St∥2
+
+> ∞
+
+ ≤ 8σ2 log KK − 1 .
+
+Proof Without loss of generality, we prove the claim for σ = 1 . We write S instead of St.First, we define eS = S 
+
+> ∥S∥
+
+, which can only be larger coordinate-wise than S. Note that eS is distributed according to the uniform distribution on a great circle of the sphere SK 
+
+> 2
+
+. Therefore, an equivalent way to generate eS is to first draw a random variable X from the uniform distribution on 
+
+15 FRONGILLO LUO MEHTA SCHNEIDER 
+
+SK−12 × { 0} ⊂ RK and to then, for a suitable rotation matrix R in the special orthogonal group 
+
+SO( K), set eS = RX . With this construction, it follows that 
+
+ES
+
+∥S∥2
+
+> ∞
+
+ ≤ EX
+
+∥RX ∥2
+
+> ∞
+
+ = EX
+
+
+
+max 
+
+> j∈[K]
+
+(RX )2
+
+> j
+
+
+
+.
+
+From Theorem 3.4.5 of Vershynin (2025), X is 1 
+
+> K−1
+
+-subgaussian, meaning that for all unit vectors v ∈ RK , it holds that 
+
+Pr (⟨v, X ⟩ > u ) ≤ 2 exp 
+
+
+
+− u2(K − 1) 2
+
+
+
+.
+
+Since R is orthogonal, considering ⟨v, RX ⟩ = ⟨RT v, X ⟩, it follows that RX also 1 
+
+> K−1
+
+-subgaussian. In particular, for all j ∈ [K], the random variable (RX )j = ⟨ej , RX ⟩ is 1 
+
+> K−1
+
+-subgaussian. Let W = RX . Therefore, 
+
+Pr 
+
+
+
+max  
+
+> j∈[K]
+
+W 2 
+
+> j
+
+≥ u
+
+
+
+≤ K max  
+
+> j∈[K]
+
+Pr  W 2 
+
+> j
+
+≥ u
+
+= K max  
+
+> j∈[K]
+
+Pr  |Wj | ≥ √u
+
+≤ 2K exp 
+
+
+
+− u(K − 1) 2
+
+
+
+.
+
+Hence, for any α ≥ 0,
+
+E
+
+
+
+max  
+
+> j∈[K]
+
+W 2
+
+> j
+
+
+
+=
+
+Z ∞
+
+> 0
+
+Pr 
+
+
+
+max  
+
+> j∈[K]
+
+W 2 
+
+> j
+
+≥ u
+
+
+
+du 
+
+=
+
+Z α
+
+> 0
+
+Pr 
+
+
+
+max  
+
+> j∈[K]
+
+W 2 
+
+> j
+
+≥ u
+
+
+
+du +
+
+Z ∞
+
+> α
+
+Pr 
+
+
+
+max  
+
+> j∈[K]
+
+W 2 
+
+> j
+
+≥ u
+
+
+
+du 
+
+≤ α + 2 K
+
+Z ∞
+
+> α
+
+exp 
+
+
+
+− u(K − 1) 2
+
+
+
+du 
+
+≤ α +
+
+
+
+− 4KK − 1 exp 
+
+
+
+− u(K − 1) 2
+
+ ∞
+
+> α
+
+= α + 4KK − 1 exp 
+
+
+
+− α(K − 1) 2
+
+
+
+.
+
+Setting α = 2 log KK−1 gives the bound 
+
+2 log KK − 1 + 4
+
+K − 1
+
+which, for K ≥ 2, is at most 8 log KK−1 .
+
+16 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Appendix D. Analysis of stability term 
+
+We begin by stating the following generic stability result that was used at the start of Section 5. 
+
+Lemma 12 For all t ∈ { 1, . . . , T + 1 }, let Ft be the law of the random variable Pt. Then for any loss function taking values in [−1, 1] ,
+
+E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(Pt+1 , y t)
+
+i
+
+≤ 2 PTt=1 ∥Ft+1 − Ft∥TV ,
+
+where ∥ · ∥ TV is the total variation distance. 
+
+Proof Let ft and ft+1 be the density functions of Ft and Ft+1 respectively. Then 
+
+E [ℓ(Pt, y t) − ℓ(Pt+1 , y t)] = 
+
+Z
+
+> ∆K
+
+ℓ(p, y t)( ft(p) − ft+1 (p)) dp 
+
+≤
+
+Z
+
+> ∆K
+
+|ft(p) − ft+1 (p)|dp = 2 ∥Ft+1 − Ft∥TV .
+
+Summing over t finishes the proof. 
+
+Proof (of Theorem 10) Throughout the proof, we adopt the notation ρmin = 1 
+
+> t−1
+
+and ρmax = 1
+
+> ct−1,i t
+
+.First, for i ∈ [K], let p′ 
+
+> i
+
+= pi(1 + δi). Also, let it satisfy yt = eit . Lemma 17 implies for all 
+
+i̸ = it that |δi| ≤ ρmin , and the same lemma implies that |δit | ≤ ρmax . Observe that ρmin ≤ ρmax .Let V (A) be the (K − 1) -dimensional volume of a set A, and V (p) be a shorthand of V (E(p)) .As shown in Lemma 15, the TV distance can be bounded as: 
+
+2d(p, p ′) ≤ |V (p′) − V (p)|
+
+max {V (p), V (p′)} + V (E(p) ∆ E(p′)) min {V (p), V (p′)} .
+
+Step 1: Bounding the Relative Volume Difference As we show in Lemma 16, the volume of 
+
+E(p) is given by 
+
+V (p) = CK−1 · σK−1
+
+> K
+
+Y
+
+> i=1
+
+pi
+
+!
+
+1
+
+K
+
+> K
+
+X
+
+> i=1
+
+1
+
+p2
+
+> i
+
+!1/2
+
+,
+
+where CK−1 is the volume of the unit (K − 1) -ball. We analyze the logarithmic difference: 
+
+log V (p′)
+
+V (p) =
+
+> K
+
+X
+
+> i=1
+
+log(1 + δi) + 12 log 
+
+PKi=1 1(p′
+
+> i)2
+
+PKi=1 1
+
+> p2
+> i
+
+ .
+
+Since |δi| ≤ ρmax < 1/2, we have | log(1 + δi)| ≤ 2ρmax . Thus, PKi=1 log(1 + δi) ≤
+
+2Kρ max . Also, 
+
+1(p′
+
+> i
+
+)2 = 1(pi(1 + δi)) 2 ≤ 1(1 − ρmax )2
+
+1
+
+p2
+
+> i
+
+17 FRONGILLO LUO MEHTA SCHNEIDER 
+
+and hence 
+
+12 log 
+
+PKi=1 1(p′
+
+> i)2
+
+PKi=1 1
+
+> p2
+> i
+
+ ≤ log 11 − ρmax 
+
+= log 
+
+
+
+1 + ρmax 
+
+1 − ρmax 
+
+
+
+≤ ρ
+
+1 − ρmax 
+
+≤ 2ρmax .
+
+Therefore, log V (p′)  
+
+> V(p)
+
+≤ 2Kρ max + 2 ρmax ≤ 3Kρ max ≤ 1. The relative volume difference is thus bounded as 
+
+|V (p′) − V (p)|
+
+V (p) = elog( V (p′)/V (p)) − 1
+
+≤ e3Kρ max − 1
+
+≤ 6Kρ max .
+
+Step 2: Bounding the Volume of the Symmetric Difference Assume V (p) ≤ V (p′) without loss of generality. Let Qp(x) = PKi=1 (xi/p i − 1) 2 and Qsup = sup x∈E(p)∪E(p′) Qp′ (x) − Qp(x) .By Lemma 18, we have 
+
+Qsup ≤ 16 Kρ 2min + 36 √Kρ min σ + 38 ρmax σ
+
+≤ 1.34 σ2
+
+K (4) 
+
+≤ σ2,
+
+where the second inequality follows because ρmin ≤ σ 
+
+> 54 K3/2
+
+and ρmax ≤ σ 
+
+> 57 K
+
+. Now, we claim that the symmetric difference E(p) ∆ E(p′) is contained in the shell 
+
+S(p, Q sup ) = x ∈ ∆K : σ2 − Qsup ≤ Qp(x) ≤ σ2 + Qsup .
+
+Indeed, if x ∈ E(p)\E(p′), then Qp(x) ≤ σ2 and Qp(x) ≥ Qp′ (x)−Qsup > σ 2 −Qsup . Similarly, if x ∈ E(p′) \ E(p), then Qp(x) > σ 2 and Qp(x) ≤ Qp′ + Qsup ≤ σ2 + Qsup .This implies: 
+
+V (E(p) ∆ E(p′)) min {V (p), V (p′)} ≤ V (S(p, Q sup )) 
+
+V (p) .
+
+To proceed, we note that the relative volume of the shell is: 
+
+V (S(p, Q sup )) 
+
+V (p) =
+
+
+
+1 + Qsup 
+
+σ2
+
+(K−1) /2
+
+−
+
+
+
+1 − Qsup 
+
+σ2
+
+(K−1) /2
+
+.
+
+Using the the fact that aK−1 − bK−1 ≤ (K − 1) aK−2(a − b) due to convexity, we plug in a =q
+
+1 + Qsup  
+
+> σ2
+
+and b =
+
+q
+
+1 − Qsup  
+
+> σ2
+
+to arrive at 
+
+V (S(p, Q sup )) 
+
+V (p) ≤ (K − 1) 
+
+
+
+1 + Qsup 
+
+σ2
+
+ K  
+
+> 2−1
+
+r
+
+1 + Qsup 
+
+σ2 −
+
+r
+
+1 − Qsup 
+
+σ2
+
+!
+
+≤ Ke KQ sup 2σ2 ·
+
+> 2Qsup
+> σ2
+
+q
+
+1 + Qsup  
+
+> σ2
+
++
+
+q
+
+1 − Qsup 
+
+> σ2
+
+18 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+≤ e KQ sup 2σ2 · 2KQ sup 
+
+σ2 .
+
+Recall from (4) that Qsup ≤ 1.34 σ2 
+
+> K
+
+, and so KQ sup  
+
+> 2σ2
+
+≤ 0.67 , making e KQ sup 2σ2 = O(1) .We then have 
+
+V (E(p) ∆ E(p′)) min {V (p), V (p′)} ≤ V (S(p, Q sup )) 
+
+V (p) = O K2ρ2min 
+
+σ2 + K3/2ρmin 
+
+σ + Kρ max 
+
+σ
+
+!
+
+= O K3/2ρmin 
+
+σ + Kρ max 
+
+σ
+
+!
+
+,
+
+where the last line follows from our assumption ρmin ≤ σ 
+
+> 54 K3/2
+
+.
+
+Step 3: Conclusion Combining the bounds, we have: 
+
+d(p, p ′) = O Kρ max + K3/2ρmin 
+
+σ + Kρ max 
+
+σ
+
+!
+
+= O K3/2ρmin 
+
+σ + Kρ max 
+
+σ
+
+!
+
+,
+
+which completes the proof. 
+
+Appendix E. Regret of BTPL (Proof of Lemma 9) 
+
+We first present the following useful lemma. 
+
+Lemma 13 For any proper loss ℓ ∈ L and for any sequence Z1, . . . , Z T +1 ∈ RK satisfying 
+
+Pt ≜ ¯pt−1 + Zt ∈ ∆K , it holds that 
+
+> T
+
+X
+
+> t=1
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t) ≤ 2
+
+> T
+
+X
+
+> t=1
+
+∥tZ t+1 − (t − 1) Zt∥1.
+
+Proof Let ℓp ∈ RK be the vector satisfying ⟨ℓp, e j ⟩ = ℓ(p, e j ) for j ∈ [K]. Observe that 
+
+Pt+1 ∈ argmin 
+
+> p∈∆K
+
+⟨ℓp, ¯pt + Zt+1 ⟩ = argmin 
+
+> p∈∆K
+
+*
+
+ℓp,
+
+> t
+
+X
+
+> s=1
+
+ys + tZ t+1 
+
++
+
+= argmin 
+
+> p∈∆K
+> t
+
+X
+
+> s=1
+
+ℓp, y s + sZ s+1 − (s − 1) Zs
+
+= argmin 
+
+> p∈∆K
+> t
+
+X
+
+> s=1
+
+ℓp, y s + νs − νs−1 ,
+
+where we introduce the notation νs = sZ s+1 .
+
+19 FRONGILLO LUO MEHTA SCHNEIDER 
+
+Therefore, by the standard Be-the-Leader lemma (see e.g., Cesa-Bianchi and Lugosi 2006, Lemma 3.1), we have 
+
+> T
+
+X
+
+> t=1
+
+ℓPt+1 , y t + νt − νt−1 −
+
+> T
+
+X
+
+> t=1
+
+ℓ¯pT , y t + νt − νt−1 ≤ 0,
+
+or equivalently, 
+
+> T
+
+X
+
+> t=1
+
+ℓ(Pt+1 , y t) −
+
+> T
+
+X
+
+> t=1
+
+ℓ(¯ pT , y t) ≤
+
+> T
+
+X
+
+> t=1
+
+⟨ℓ¯pT − ℓPt+1 , ν t − νt−1⟩≤
+
+> T
+
+X
+
+> t=1
+
+∥ℓ¯pT − ℓPt+1 ∥∞ ∥νt − νt−1∥1
+
+≤ 2
+
+> T
+
+X
+
+> t=1
+
+∥νt − νt−1∥1,
+
+where the last step is because the range of ℓ is [−1, 1] .Before we use this lemma to prove Lemma 9, we need to introduce the following preliminaries. 
+
+Local rotations. Consider the unit sphere in RK , viewed as a (K − 1) -dimensional Riemannian manifold equipped with the standard Riemannian metric; any geodesic is an arc of a great circle. For any unit vectors p, q ∈ RK 
+
+> +
+
+, there is a unique geodesic from p to q. Let R(p, q ) be the element of the special orthogonal group SO( K) that is the unique rotation matrix that sends p to q by traveling along this geodesic. In particular, R(p, q ) satisfies 1. R(p, q )p = q;2. R(p, q ) rotates in the span of p and q.We then extend the definition of R to any p, q ∈ RK 
+
+> +
+
+via R(p, q ) = R
+
+ p 
+
+> ∥p∥2
+
+, q
+
+> ∥q∥2
+
+
+
+.
+
+Incrementally updated self-concordant noise. The original sampling process for self-concordant noise involved the following two steps. First, sample St by drawing it uniformly at random from the intersection of the K-dimensional ℓ2 ball with radius σ and the subspace s ∈ RK : ⟨s, ¯pt−1⟩ = 0 .Next, set Zt = diag(¯ pt−1)St. Now, consider changing the generation of the St sequence to the fol-lowing (while keeping the same formula for Zt): first, samples S1 in the same way; then for each 
+
+t, let St+1 = R(¯ pt−1, ¯pt)St. It is clear that the marginal distribution of Zt remains the same, which means it is enough to analyze this different procedure (since we assume an oblivious adversary). 
+
+Proof (of Lemma 9) From Lemma 13, it suffices to bound 
+
+> T
+
+X
+
+> t=1
+
+∥tZ t+1 − (t − 1) Zt∥1.
+
+Observe that 
+
+∥tZ t+1 − (t − 1) Zt∥1 = ∥tZ t+1 − (t − 1) Zt+1 + ( t − 1) Zt+1 − (t − 1) Zt∥1
+
+20 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+≤ ∥ Zt+1 ∥1 + ( t − 1) ∥Zt+1 − Zt∥1. (5) The first term is bounded as 
+
+∥Zt+1 ∥1 = ∥diag(¯ pt)St+1 ∥1 =
+
+> K
+
+X
+
+> j=1
+
+(¯ pt)j · | St+1 ,j | ≤ ∥ St+1 ∥∞ ≤ σ. (6) Next, let us bound ∥Zt+1 − Zt∥1 in (5). Letting Dt = diag(¯ pt), we have 
+
+∥Zt+1 − Zt∥1 = ∥DtSt+1 − Dt−1St∥1
+
+= ∥DtSt+1 − Dt−1St+1 + Dt−1St+1 − Dt−1St∥1
+
+≤ ∥ (Dt − Dt−1)St+1 ∥1 + ∥Dt−1(St+1 − St)∥1 . (7) We control the first and second terms in turn. For the first term, ∥¯pt − ¯pt−1∥∞ ≤ 1 
+
+> t
+
+implies that 
+
+∥(Dt − Dt−1)St+1 ∥ ≤ 1
+
+t ∥St+1 ∥1 ≤√Kσ t . (8) The second term in (7) requires more work. Observe that 
+
+∥Dt−1(St+1 − St)∥1 = Ej∼¯pt−1 [|(St+1 − St)j |]
+
+≤ ∥ St+1 − St∥∞
+
+≤ ∥ St+1 − St∥2 (9) Now, for any t ≥ 1, recall that we take St+1 = R(¯ pt−1, ¯pt)St. To avoid notation clutter, let ∥ · ∥ 
+
+denote the ℓ2-norm ∥ · ∥ 2. Then 
+
+∥St+1 − St∥ = ∥R(¯ pt−1, ¯pt)St − St∥≤ σ R(¯ pt−1, ¯pt) St
+
+∥St∥ − St
+
+∥St∥ . (10) Now, observe that since R(¯ pt−1, ¯pt) is a rotation matrix, we can swap St 
+
+> ∥St∥
+
+with any unit vector without changing the value of the expression. In particular, we replace it with ¯pt−1 
+
+> ∥¯pt−1∥
+
+, giving 
+
+R(¯ pt−1, ¯pt) ¯pt−1
+
+∥¯pt−1∥ − ¯pt−1
+
+∥¯pt−1∥
+
+= ¯pt
+
+∥¯pt∥ − ¯pt−1
+
+∥¯pt−1∥
+
+= ¯pt
+
+∥¯pt∥ − ¯pt
+
+∥¯pt−1∥ + ¯pt
+
+∥¯pt−1∥ − ¯pt−1
+
+∥¯pt−1∥
+
+≤ ¯pt
+
+∥¯pt∥ − ¯pt
+
+∥¯pt−1∥ + ¯pt
+
+∥¯pt−1∥ − ¯pt−1
+
+∥¯pt−1∥ . (11) We now bound the two terms in (11). 
+
+21 FRONGILLO LUO MEHTA SCHNEIDER 
+
+The first term in (11) is 
+
+¯pt
+
+∥¯pt∥ − ¯pt
+
+∥¯pt−1∥ = 1 − ∥¯pt∥∥¯pt−1∥ . (12) As shown by Lemma 14 (stated and proved after this proof), 
+
+1 − ∥¯pt∥∥¯pt−1∥ ≤ 2√Kt .
+
+The second term in (11) is 
+
+1
+
+∥¯pt−1∥ · ∥ ¯pt − ¯pt−1∥ ≤ √K · 1
+
+t . (13) Put together, this shows that (9) is of order O(√Kσ/t ). Combining everything, we have shown 
+
+> T
+
+X
+
+> t=1
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t) = O
+
+
+
+T σ + T √Kσ 
+
+
+
+= O
+
+
+
+T √Kσ 
+
+
+
+,
+
+completing the proof. 
+
+Lemma 14 It holds that 
+
+1 − ∥¯pt∥∥¯pt−1∥ ≤ 2√Kt .
+
+Proof Observe that 
+
+¯pt = (t − 1)¯ pt−1 + yt
+
+t = ¯ pt−1 + yt − ¯pt−1
+
+t .
+
+Therefore, 
+
+1 − ∥¯pt∥∥¯pt−1∥ = ∥¯pt−1∥ − ∥ ¯pt∥∥¯pt−1∥ ≤
+
+> yt−¯pt−1
+> t
+
+∥¯pt−1∥ ≤ 2
+
+t
+
+1
+
+∥¯pt−1∥ ≤ 2√Kt .
+
+Appendix F. Technical lemmas 
+
+Lemma 15 Let A and B be sets with respective volumes V (A) and V (B), and A ∆ B be their symmetric difference with volume V (A ∆ B). Let PA be the uniform distribution over A and PB be the uniform distribution over B. Then 
+
+2∥PA − PB ∥TV ≤ |V (A) − V (B)|
+
+min {V (A), V (B)} + V (A ∆ B)min {V (A), V (B)} .
+
+22 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Proof Without loss of generality, assume that V (A) ≥ V (B). Then 
+
+2∥PA − PB ∥TV =
+
+Z
+
+> A∩B
+
+ 1
+
+V (B) − 1
+
+V (A)
+
+
+
+dx + V (A \ B)
+
+V (A) + V (B \ A)
+
+V (B) .
+
+Clearly, 
+
+V (A \ B)
+
+V (A) + V (B \ A)
+
+V (B) ≤ V (A ∆ B)min {V (A), V (B)} ,
+
+and Z
+
+> A∩B
+
+ 1
+
+V (B) − 1
+
+V (A)
+
+
+
+dx ≤
+
+Z
+
+> B
+
+ 1
+
+V (B) − 1
+
+V (A)
+
+
+
+dx 
+
+= 1 − V (B)
+
+V (A)= V (A) − V (B)
+
+V (A)= |V (A) − V (B)|
+
+max {V (A), V (B)} .
+
+Combining the two bounds above finishes the proof. 
+
+Lemma 16 The volume of E(p) is given by 
+
+V (p) = CK−1 · σK−1
+
+> K
+
+Y
+
+> i=1
+
+pi
+
+!
+
+1
+
+K
+
+> K
+
+X
+
+> i=1
+
+1
+
+p2
+
+> i
+
+!1/2
+
+,
+
+where CK−1 is the volume of the unit (K − 1) -dimensional ℓ2 ball. 
+
+Proof We compute the volume of E(p) in the case of σ = 1 . The volume for general σ is obtained by multiplying by σK−1.In order to apply the standard formula for an ellipsoid, we need to put E(p) into a (K − 1) -dimensional parameterization. To do so, we start with the unit ℓ2 ball in RK , denoted as BK 
+
+> 2
+
+in RK .Next, we linearly transform the ball using a matrix D = diag (p1, . . . , p K ), to create the ellipsoid 
+
+DBK 
+
+> 2
+
+in RK . In preparation for the final step, define the hyperplane H = {x ∈ RK : ⟨1, x ⟩ = 0 }.Let U ∈ RK×(K−1) be an orthonormal basis of H. Therefore, U T U = I and U T 1 = 0 . We now do the final step by projecting the ellipsoid DBK 
+
+> 2
+
+onto the hyperplane H, leading to U U T DBK 
+
+> 2
+
+⊆
+
+RK , which is clearly a shifted version of E(p) (so that its center is at the origin). As mentioned, what we need is the (K − 1) -dimensional parameterization of this ellipsoid, which is U T DBK 
+
+> 2
+
+⊆
+
+RK−1. Equivalently, this is the (k − 1) -dimensional ellipsoid {y : y⊤(U ⊤QU )−1y ≤ 1} where 
+
+Q = D2. We now proceed to compute the volume of this ellipsoid using the standard formula 
+
+CK−1 det( U T QU )1/2. The rest of the proof shows how to compute the determinant. Let w = 1√K 1, and define an orthonormal matrix V = ( U ; w) ∈ RK×K . It will be useful to work with the matrix M = V T QV and its inverse M −1 = V T Q−1V , the latter formula holding because V is orthonormal. Before continuing, we express M and M −1 in block form as 
+
+M = V T QV =
+
+U T QU U T Qw wT QU wT Qw 
+
+
+
+23 FRONGILLO LUO MEHTA SCHNEIDER 
+
+and 
+
+M −1 = V T Q−1V =
+
+U T Q−1U U T Q−1wwT Q−1U wT Q−1w
+
+
+
+Next, we use a formula for expressing the inverse of M in terms of its cofactor matrix cof( M )
+
+and determinant: 
+
+M −1 = cof( M )T
+
+det( M ) .
+
+Now, on the one hand, (M −1)K,K = wT Q−1w, while on the other hand, (cof( M )T )K,K is equal to the determinant of the minor of M that has the last row and column of M removed, i.e., 
+
+det( U T QU ). Therefore, 
+
+wT Q−1w = det( U T QU )det( V T QV ) = det( U T QU )det( Q) ,
+
+where the second equality follows because V is an orthonormal basis. Rearranging, we have 
+
+det( U T QU ) = det( Q)wT Q−1w.Finally, 
+
+det( U T QU )1/2 = det( Q)1/2(wT Q−1w)1/2 =
+
+> K
+
+Y
+
+> i=1
+
+pi
+
+!
+
+1
+
+K
+
+> K
+
+X
+
+> i=1
+
+1
+
+p2
+
+> i
+
+!1/2
+
+.
+
+Lemma 17 Assume that {p, p ′} = {¯pt−1, ¯pt}, with both p and p′ being in the relative interior of 
+
+∆K . Then for all i̸ = it,
+
+max 
+
+ pi
+
+p′
+
+> i
+
+− 1 , p′
+
+> i
+
+pi
+
+− 1
+
+
+
+≤ 1
+
+t − 1
+
+and 
+
+max 
+
+ pit
+
+p′
+
+> it
+
+− 1 , p′
+
+> it
+
+pit
+
+− 1
+
+
+
+≤ 1
+
+ct−1,i t
+
+.
+
+Proof Let i̸ = it. Then 
+
+¯pt,i = (t − 1)¯ pt−1,i 
+
+t .
+
+Hence, 
+
+¯pt,i 
+
+¯pt−1,i 
+
+− 1 = t − 1
+
+t − 1 = 1
+
+t ,
+
+24 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+and 
+
+¯pt−1,i 
+
+¯pt,i 
+
+− 1 = tt − 1 − 1 = 1
+
+t − 1 .
+
+Next, let i = it. Then 
+
+¯pt,i = (t − 1)¯ pt−1,i + 1 
+
+t .
+
+It follows that 
+
+¯pt,i 
+
+¯pt−1,i 
+
+− 1 = t − 1 + 1¯pt−1,i 
+
+t − 1 = 
+
+> 1¯pt−1,i
+
+− 1
+
+t = 
+
+> t−1
+> ct−1,i
+
+− 1
+
+t ≤ t − 1
+
+tc t−1,i 
+
+≤ 1
+
+ct−1,i 
+
+.
+
+Also, observe that 
+
+¯pt−1,i = t¯pt,i − 1
+
+t − 1 ,
+
+so 
+
+¯pt−1,i 
+
+¯pt,i 
+
+− 1 = t − 1¯pt,i 
+
+t − 1 − 1 = 1 − 1¯pt,i 
+
+t − 1 = 
+
+> tct,i
+
+− 1
+
+t − 1 = t − ct,i 
+
+ct,i (t − 1) ≤ 1
+
+ct,i 
+
+≤ 1
+
+ct−1,i 
+
+Lemma 18 Assume that {p, p ′} = {¯pt−1, ¯pt}, with both p and p′ being in the relative interior of 
+
+∆K . Define ρmin = 1 
+
+> t−1
+
+and ρmax = 1
+
+> ct−1,i t
+
+. Assume ρmin ≤ 1/2 and ρmax ≤ σ ≤ 1/2. Define 
+
+Qp(x) = PKi=1 (xi/p i − 1) 2. We have 
+
+Qsup ≜ sup 
+
+> x∈E(p)∪E(p′)
+
+Qp′ (x) − Qp(x) ≤ 16 Kρ 2min + 36 √Kρ min σ + 38 ρmax σ. 
+
+Proof Let si = xi 
+
+> pi
+
+− 1 for i ∈ [K], so that Qp(x) = PKi=1 s2 
+
+> i
+
+. We analyze the difference 
+
+Qp′ (x) − Qp(x) for any x ∈ E(p) ∪ E(p′):
+
+Qp′ (x) − Qp(x) = 
+
+> K
+
+X
+
+> i=1
+
+ xi
+
+p′
+
+> i
+
+− 1
+
+2
+
+− s2
+
+> i
+
+=
+
+> K
+
+X
+
+> i=1
+
+ 1 + si
+
+1 + δi
+
+− 1
+
+2
+
+− s2
+
+> i
+
+=
+
+> K
+
+X
+
+> i=1
+
+(si − δi)2 − s2 
+
+> i
+
+(1 + δi)2
+
+(1 + δi)2
+
+=
+
+> K
+
+X
+
+> i=1
+
+−2siδi(1 + si) + δ2 
+
+> i
+
+(1 − s2 
+
+> i
+
+)(1 + δi)2 .
+
+25 FRONGILLO LUO MEHTA SCHNEIDER 
+
+Next, let it satisfy yt = eit . Lemma 17 implies for all i̸ = it that |δi| ≤ 1 
+
+> t−1
+
+= ρmin , and the same lemma implies that |δit | ≤ 1
+
+> ct−1,i t
+
+= ρmax .Since for all i ∈ [K], we have (1 + δi)2 ≥ (1 − ρmax )2 > 1/2, it holds that 
+
+12 · | Qp′ (x) − Qp(x)|≤
+
+> K
+
+X
+
+> i=1
+
+ 2|si| · | δi| · (1 + |si|) + δ2
+
+> i
+
+
+
+=
+
+> K
+
+X
+
+> i=1
+
+ 2|δi| · (|si| + s2 
+
+> i
+
+) + δ2
+
+> i
+
+
+
+= X
+
+> i̸=it
+
+ 2|δi| · (|si| + s2 
+
+> i
+
+) + δ2
+
+> i
+
+ + 2 |δit | · (|sit | + s2 
+
+> it
+
+) + δ2
+
+> it
+
+≤ X
+
+> i̸=it
+
+ 2ρmin · (|si| + s2 
+
+> i
+
+) + ρ2min 
+
+ + 2 ρmax · (|sit | + s2 
+
+> it
+
+) + ρ2max 
+
+≤ 2ρmin 
+
+ ∥s∥1 + ∥s∥22
+
+ + Kρ 2min + 2 ρmax 
+
+ ∥s∥2 + ∥s∥22
+
+ + ρ2max 
+
+≤ 2√Kρ min · ∥ s∥2 + 2 ρmin · ∥ s∥22 + Kρ 2min + 2 ρmax 
+
+ ∥s∥2 + ∥s∥22
+
+ + ρ2max . (14) We now turn to bound ∥s∥2. First, if x ∈ E(p), then clearly ∥s∥2 ≤ σ by definition of E(p).On the other hand, if x ∈ E(p′), then from Lemma 19, we have 
+
+∥s∥2 ≤
+
+q
+
+11 σ2 + 2 Kρ 2min .
+
+To conclude, ∥s∥2 ≤
+
+q
+
+11 σ2 + 2 Kρ 2min always holds. Using this fact, we bound the terms in (14), starting with the terms involving ρmin . We have 
+
+2√Kρ min · ∥ s∥2 + 2 ρmin · ∥ s∥22 + Kρ 2min 
+
+≤ 2√Kρ min 
+
+√11 σ + √2Kρ min 
+
+
+
++ 2 ρmin 
+
+ 11 σ2 + 2 Kρ 2min 
+
+ + Kρ 2min 
+
+≤ 4Kρ 2min + 2 √11 √Kρ min σ + 22 ρmin σ2 + 4 Kρ 3min 
+
+≤ 6Kρ 2min + 2 √11 √Kρ min σ + 22 ρmin σ2 (ρmin ≤ 1/2) 
+
+≤ 6Kρ 2min + 2 √11 √Kρ min σ + 11 ρmin σ (σ ≤ 1/2) 
+
+≤ 6Kρ 2min + 15 √Kρ min σ (K ≥ 2) .
+
+Next, we bound the terms in (14) involving ρmax as 
+
+2ρmax 
+
+ ∥s∥2 + ∥s∥22
+
+ + ρ2max 
+
+≤ 2√11 ρmax σ + 2 √2√Kρ max ρmin + 22 ρmax σ2 + 4 Kρ max ρ2min + ρ2max 
+
+≤ ρmax σ
+
+
+
+2√11 + 11 + 1 
+
+
+
++ 2 √2√Kρ max ρmin + 4 Kρ max ρ2min (ρmax ≤ σ ≤ 1/2) 
+
+≤ 19 ρmax σ + 3 √Kρ min σ + 2 Kρ 2min (ρmax ≤ 1/2) .
+
+26 TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Adding the two results gives 
+
+6Kρ 2min + 15 √Kρ min σ + 19 ρmax σ + 3 √Kρ min σ + 2 Kρ 2min 
+
+≤ 8Kρ 2min + 18 √Kρ min σ + 19 ρmax σ. 
+
+Hence, it holds that 
+
+|Qp′ (x) − Qp(x)| ≤ 16 Kρ 2min + 36 √Kρ min σ + 38 ρmax σ, 
+
+as desired. 
+
+Lemma 19 Assume that {p, p ′} = {¯pt−1, ¯pt}. Define ρmin = 1 
+
+> t−1
+
+and ρmax = 1
+
+> ct−1,i t
+
+. Let 
+
+x ∈ E(p′). Let si = xi 
+
+> pi
+
+− 1 for i ∈ [K]. Assume that ρmax ≤ σ ≤ 1/2. Then 
+
+∥s∥22 ≤ 11 σ2 + 2 Kρ 2min .
+
+Proof For all i ∈ [K], define δi such that p′ 
+
+> i
+
+= pi(1 + δi). Observe that 
+
+xi
+
+pi
+
+− 1 = xi
+
+p′
+
+> i
+
+· p′
+
+> i
+
+pi
+
+− 1
+
+= xi
+
+p′
+
+> i
+
+ p′
+
+> i
+
+pi
+
+− 1
+
+
+
++ xi
+
+p′
+
+> i
+
+− 1
+
+= xi
+
+p′
+
+> i
+
+· δi + xi
+
+p′
+
+> i
+
+− 1
+
+≤ | δi| · xi
+
+p′
+
+> i
+
+− 1 + 1 + xi
+
+p′
+
+> i
+
+− 1
+
+≤ (|δi| + 1) · xi
+
+p′
+
+> i
+
+− 1 + |δi|.
+
+Next, let it satisfy yt = eit . Lemma 17 implies for all i̸ = it that |δi| ≤ 1 
+
+> t−1
+
+= ρmin , and the same lemma implies that |δit | ≤ 1
+
+> ct−1,i t
+
+= ρmax . Consequently, for x ∈ E(p′),
+
+∥s∥22 ≤ 2 X
+
+> i̸=it
+
+(ρmin + 1) 2
+
+ xi
+
+p′
+
+> i
+
+− 1
+
+2
+
++ 2( K − 1) ρ2min 
+
++ 2( ρmax + 1) 2
+
+ xit
+
+p′
+
+> it
+
+− 1
+
+2
+
++ 2 ρ2max 
+
+≤ 2( ρmin + 1) 2σ2 + 2( K − 1) ρ2min + 2( ρmax + 1) 2σ2 + 2 ρ2max 
+
+≤ 4ρ2min σ2 + 4 σ2 + 2( K − 1) ρ2min + 4 ρ2max σ2 + 4 σ2 + 2 ρ2max 
+
+≤ 10 σ2 + 4 ρ2min σ2 + 2( K − 1) ρ2min + 4 ρ2max σ2
+
+≤ 11 σ2 + 4 ρ2min σ2 + 2( K − 1) ρ2min (ρmax ≤ σ ≤ 1/2) 
+
+≤ 11 σ2 + 2 Kρ 2min (σ ≤ 1/2) .
+
+The following lemma will be used for our results in Appendix G (on the performance of Follow-The-Perturbed-Leader with Gaussian noise). 
+
+27 FRONGILLO LUO MEHTA SCHNEIDER 
+
+Lemma 20 Let F = N (μ, σ 2Id) and F ′ = N (μ′, σ 2Id) be two d-dimensional symmetric Gaus-sians with equal variance σ2 and means such that ∥μ − μ′∥2 = δ ≤ ∆. Then the Total Variation (TV) distance between F and F ′ is bounded by T V (F, F ′) = O(∆ /σ ).
+
+Proof Note that the total variation distance between two probability measures is invariant under isometries (translations and rotations) of the underlying space. We therefore first translate the coor-dinate system by −μ. This maps our distributions to: 
+
+F → N (0 , σ 2Id)
+
+F ′ → N (μ′ − μ, σ 2Id)
+
+Next, we apply an orthogonal transformation (a rotation) R to the coordinate system such that the vector μ′ − μ is aligned with the first standard basis vector. That is, R(μ′ − μ) = ( δ, 0, . . . , 0) T ,where δ = ∥μ′ − μ∥2 ≤ ∆. Because the covariance matrix σ2Id is a multiple of the identity, the Gaussian distribution is rotationally invariant. Thus, applying R yields: 
+
+F → N (0 , σ 2Id)
+
+F ′ → N (( δ, 0, . . . , 0) T , σ 2Id)
+
+Because the covariance matrix is diagonal, these multivariate distributions can be factored into a product of independent 1-dimensional marginals: 
+
+F = N (0 , σ 2) ⊗ N (0 , σ 2)⊗d−1
+
+F ′ = N (δ, σ 2) ⊗ N (0 , σ 2)⊗d−1
+
+The TV distance between two product distributions that are identical in all but one component is simply the TV distance of that differing component. Therefore, we have successfully reduced the problem to one dimension: 
+
+T V (F, F ′) = T V 
+
+
+
+N (0 , σ 2), N (δ, σ 2)
+
+
+
+(15) Assume without loss of generality that δ > 0 (if δ = 0 , the distance is trivially 0). Let p(x) and 
+
+q(x) be the probability density functions of N (0 , σ 2) and N (δ, σ 2) respectively: 
+
+p(x) = 1
+
+√2πσ exp 
+
+
+
+− x2
+
+2σ2
+
+
+
+q(x) = 1
+
+√2πσ exp 
+
+
+
+− (x − δ)2
+
+2σ2
+
+
+
+The TV distance for continuous distributions is defined as: 
+
+T V (p, q ) = 12
+
+Z ∞−∞ 
+
+|p(x) − q(x)| dx (16) To evaluate this integral without absolute values, we find the point where p(x) = q(x). Because both distributions have the same variance, their densities cross exactly once, at the midpoint of their 
+
+> 28
+
+TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+means: x = δ/ 2. For x < δ/ 2, x is closer to 0 than to δ, meaning p(x) > q (x). For x > δ/ 2,
+
+p(x) < q (x). We can therefore rewrite the TV distance as: 
+
+T V (p, q ) = 
+
+Z δ/ 2
+
+> −∞
+
+ p(x) − q(x) dx (17) Let Φ( z) represent the cumulative distribution function (CDF) of the standard normal distribu-tion N (0 , 1) . Evaluating the integrals gives: 
+
+Z δ/ 2
+
+> −∞
+
+p(x) dx = Φ 
+
+ δ/ 2
+
+σ
+
+
+
+= Φ 
+
+ δ
+
+2σ
+
+Z δ/ 2
+
+> −∞
+
+q(x) dx = Φ 
+
+ δ/ 2 − δσ
+
+
+
+= Φ 
+
+
+
+− δ
+
+2σ
+
+
+
+Since the standard normal distribution is symmetric, Φ( −z) = 1 − Φ( z). Thus: 
+
+T V (p, q ) = Φ 
+
+ δ
+
+2σ
+
+
+
+−
+
+
+
+1 − Φ
+
+ δ
+
+2σ
+
+ 
+
+= 2Φ 
+
+ δ
+
+2σ
+
+
+
+− 1= 2 
+
+
+
+Φ
+
+ δ
+
+2σ
+
+
+
+− 12
+
+
+
+= 2 
+
+
+
+Φ
+
+ δ
+
+2σ
+
+
+
+− Φ(0) 
+
+
+
+(18) By the Mean Value Theorem, there exists some c ∈ (0 , δ 
+
+> 2σ
+
+) such that: 
+
+Φ
+
+ δ
+
+2σ
+
+
+
+− Φ(0) = δ
+
+2σ · ϕ(c)
+
+where ϕ is the standard normal PDF. Because ϕ(z) reaches its absolute maximum of 1√2π at z = 0 ,we have ϕ(c) < 1√2π .Plugging this upper bound back into our TV distance equation yields: 
+
+T V (p, q ) < 2
+
+ δ
+
+2σ · 1
+
+√2π
+
+
+
+= δ
+
+√2πσ (19) Finally, since we are given that δ ≤ ∆, we conclude: 
+
+T V (F, F ′) ≤ ∆
+
+√2πσ = O
+
+ ∆
+
+σ
+
+
+
+(20) This completes the proof. 
+
+29 FRONGILLO LUO MEHTA SCHNEIDER 
+
+Appendix G. Follow The Perturbed Leader with Gaussian Noise 
+
+Our use of self-concordant noise is essential for ensuring that the predictions made by the learner are valid probability distributions. However, many loss functions are still perfectly well defined for “improper” distributions Pt lying outside the simplex (e.g., that have negative probabilities or probabilities that do not sum to one). For example, the squared loss ℓsq (p, y ) = ∥p − y∥2 is well-defined for all p ∈ RK (not just p ∈ ∆K ). In this appendix, we show that if we allow the learners to make improper predictions, it is possible to replace the self-concordant noise in Algorithm 1 with simple Gaussian noise and obtain a slightly better dependence on K.To do so, we must work with extended variants of our previous classes of losses. We define an 
+
+extended loss ℓ to be any function ℓ : RK × { e1, e 2, . . . , e K } → R, and an extended proper loss 
+
+to be any ℓ satisfying p ∈ argmin p′∈RK EY ∼p[ℓ(p′, Y )] for all p ∈ ∆K . We will say an extended proper loss is bounded if |ℓ(p, y )| ≤ 1 for all y and for all p ∈ RK . Similarly, we say an extended proper loss is β-smooth if it satisfies the β-smooth relation for all p, q ∈ RK . Let ¯L denote the set of all bounded extended proper losses, and let ¯Sβ denote the set of all β-smooth proper losses. 
+
+Algorithm 2 Multiclass U-Calibration With Gaussian Noise 
+
+Initialize: σ > 0, ¯p0 is the uniform distribution. 
+
+for t = 1 , . . . , T do 
+
+Sample Zt ∼ N (0 , σ 2IK ).Predict Pt = ¯ pt−1 + Zt.Observe label yt and update the empirical average ¯pt = 1
+
+> t
+
+Ptτ =1 yτ .In the following theorem, we show that Follow-The-Perturbed-Leader with Gaussian noise (Al-gorithm 2) obtains O(β log T ) regret for β-smooth extended proper losses and O(√KT log T )
+
+regret for bounded extended proper losses. 
+
+Theorem 21 Against an oblivious adversary, the Follow-The-Perturbed-Leader algorithm with variance σ2 Gaussian noise (Algorithm 2) guarantees the following worst-case regret bounds: 1. For any β-smooth extended proper loss ℓ ∈ ¯Sβ , Reg ℓ = O(βKσ 2T + β log T ).2. For any bounded extended proper loss ℓ ∈ ¯L, Reg ℓ = O(σ−1 log T + σKT ).Choosing σ = p(log T )/(KT ), we obtain the guarantees: 1. For any β-smooth extended proper loss ℓ ∈ ¯Sβ , Reg ℓ = O(β log T ).2. For any bounded extended proper loss ℓ ∈ ¯L, Reg ℓ = O(√KT log T ).
+
+Establishing the first part of the theorem is a straightforward modification of Proposition 5 from our existing analysis for self-concordant noise. 
+
+Proposition 22 For any β > 0 and any extended loss function ℓ ∈ ¯Sβ , Algorithm 2 achieves 
+
+Reg ℓ = O(β log T + βKσ 2T ).
+
+> 30
+
+TOWARD SIMULTANEOUSLY OPTIMAL REGRET IN U-C ALIBRATION 
+
+Proof As before, according to Luo et al. (2024), the regret of the FTL strategy (that is, predict ¯pt−1
+
+at time t) is O(β log T ).It thus remains to analyze the difference between the loss of Algorithm 2 and that of FTL, i.e., 
+
+E
+
+hPTt=1 ℓ(Pt, y t) − ℓ(¯ pt−1, y t)
+
+i
+
+. To do so, we plug in the definition of Pt = ¯ pt−1 + Zt and use the smoothness property: 
+
+EZt [ℓ(Pt, y t) − ℓ(¯ pt−1, y t)] ≤ EZt [⟨∇ ℓp(¯ pt−1, y t), Z t⟩] + 12 βEZt
+
+∥Zt∥22
+
+
+
+= 12 βEZt
+
+∥Zt∥22
+
+ (EZt [Zt] = 0) = βKσ 2/2.
+
+Summing over t finishes the proof. As before, to show the second part of the theorem, we will first relate the regret of FTPL to BTPL (establishing stability), and then bound the regret of BTPL. To bound the gap between the regret of FTPL and BTPL, it is enough to note that the TV distance between the actions taken by FTPL and BTPL is small, and so there exists a coupling between their actions with low disagreement. 
+
+Lemma 23 (Stability) Fix an oblivious adversary and any extended proper loss ℓ ∈ ¯L. For each 
+
+t ∈ [T ], let Pt ∼ N (¯ pt−1, σ 2IK ) and Pt+1 ∼ N (¯ pt, σ 2IK ). Then 
+
+E
+
+" TX
+
+> t=1
+
+ℓ(Pt, y t) − ℓ(Pt+1 , y t)
+
+#
+
+= O(σ−1 log T ).
+
+Proof Fix an adversarially chosen sequence of outcomes y1, y 2, . . . , y T . Let Ft and Ft+1 denote the laws of Pt and Pt+1 respectively. By the same total-variation stability argument as in Lemma 8, we have 
+
+E [ℓ(Pt, y t) − ℓ(Pt+1 , y t)] ≤ 2 · ∥ Ft+1 − Ft∥TV .
+
+Since ∥¯pt − ¯pt−1∥ ≤ 2/t , Lemma 20 gives ∥Ft+1 − Ft∥TV = O(1 /(σt )) . Summing over t ∈ [T ]
+
+yields PTt=1 ∥Ft+1 − Ft∥TV = O(σ−1 log T ), and thus establishes the theorem statement. We next bound the regret of BTPL. 
+
+Lemma 24 (Regret of BTPL) Against an oblivious adversary, for any extended proper loss ℓ ∈ ¯L,the predictions {Pt+1 }Tt=1 of Algorithm 2 satisfy 
+
+> T
+
+X
+
+> t=1
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t) = O(σKT ).
+
+Proof Applying Lemma 13, we have that 
+
+> T
+
+X
+
+> t=1
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t) ≤ 2
+
+> T
+
+X
+
+> t=1
+
+∥tZ ′ 
+
+> t+1
+
+− (t − 1) Z′
+
+> t
+
+∥1
+
+31 FRONGILLO LUO MEHTA SCHNEIDER 
+
+for any sequence of random variables Z′ 
+
+> t
+
+such that each Z′ 
+
+> t
+
+has the same distribution as Zt (i.e., any coupling of the Zt). We will choose Z′ 
+
+> t
+
+by sampling a single noise vector n ∼ N (0 , σ 2IK ) and letting Z′ 
+
+> t
+
+= n for all t. We therefore have 
+
+> T
+
+X
+
+> t=1
+
+∥tZ ′ 
+
+> t+1
+
+− (t − 1) Z′
+
+> t
+
+∥1 = T ∥n∥1.
+
+Taking expectation over n and using E [∥n∥1] = O(Kσ ) results in the desired claim. We can now combine the above lemmas to prove Theorem 21. 
+
+Proof [Proof of Theorem 21] Part (1) is exactly Proposition 22. For Part (2), fix any ℓ ∈ ¯L. Let {Pt}Tt=1 denote the predictions of FTPL and let {Pt+1 }Tt=1 
+
+denote the corresponding predictions of BTPL (as in Lemma 23). Then 
+
+E
+
+" TX
+
+> t=1
+
+ ℓ(Pt, y t) − ℓ(¯ pT , y t)#
+
+= E
+
+" TX
+
+> t=1
+
+ ℓ(Pt, y t) − ℓ(Pt+1 , y t)#
+
++ E
+
+" TX
+
+> t=1
+
+ ℓ(Pt+1 , y t) − ℓ(¯ pT , y t)#
+
+≤ O(σ−1 log T ) + O(σKT ),
+
+where we applied Lemma 23 and Lemma 24. Choosing σ = p(log T )/(KT ) yields Reg ℓ =
+
+O(√KT log T ).
+
+32

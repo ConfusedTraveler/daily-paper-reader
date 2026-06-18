@@ -1,0 +1,1519 @@
+Title: Understanding Long-Term Dynamics of Individual Metro Usage: A Hidden Semi-Markov State Framework with Survival Analysis
+
+URL Source: https://arxiv.org/pdf/2606.17939v1
+
+Published Time: Wed, 17 Jun 2026 01:03:38 GMT
+
+Number of Pages: 37
+
+Markdown Content:
+# Understanding Long-Term Dynamics of Individual Metro Usage: A Hidden Semi-Markov State Framework with Survival Analysis 
+
+Bingxun Wang a,b , Valeria Maria Urbano c, Shan He a, Yang Chen d, Wei Liu e, Zhibin Jiang a, ∗, Piercesare Secchi b
+
+> aShanghai Key Laboratory of Rail Infrastructure Durability and System Safety, Tongji University, Shanghai, 201804, China
+> bMOX Laboratory - Department of Mathematics, Politecnico di Milano, Milan, 20133, Italy
+> cDepartment of Management, Economics and Industrial Engineering, Politecnico di Milano, Milan, 20156, Italy
+> dDipartimento di Elettronica, Informazione e Bioingegneria (DEIB), Politecnico di Milano, Milan, 20133, Italy
+> eTechnical Center of Shanghai Shentong Metro Group Co., Ltd., Shanghai, 201103, China
+
+Abstract 
+
+Understanding how individual metro usage evolves over multi-year horizons is essential for transit planning and passenger retention. However, existing approaches typically character-ize mobility patterns as static clusters or short-term variability, leaving the lifecycle dynamics of transit participation underexplored. This study proposes a state-based lifecycle modeling framework that integrates Hidden Semi-Markov Models (HSMM) with discrete-time survival analysis to characterize the evolution of individual metro mobility. The HSMM infers latent mobility states with explicit duration distributions and a transition matrix governing regime changes, while the survival component models exit and re-entry events via state-dependent hazard functions conditioned on mobility-state trajectories and behavioral history. Applied to four years of smart card data from the Shanghai metro system (2021–2024), the framework enables the identification of interpretable mobility states, the characterization of transition dynamics, and the quantification of state-dependent exit and re-entry processes. The anal-ysis reveals five robust mobility states with a directional transition hierarchy centered on an occasional-usage gateway state, and fundamentally different temporal mechanisms gov-erning disengagement and return: exit hazard is state-dependent but duration-independent, whereas re-entry hazard decays sharply with inactivity length. These findings provide a methodological foundation for lifecycle-oriented mobility analysis and practical guidance for transit operators to identify at-risk users and time retention interventions. 
+
+Keywords: Smart card data, Mobility lifecycle, Travel behavior dynamics, Hidden Semi-Markov Model, Survival analysis,    
+
+> ∗Corresponding author
+> Email addresses: bingxun.wang@polimi.it (Bingxun Wang), valeriamaria.urbano@polimi.it
+> arXiv:2606.17939v1 [stat.AP] 16 Jun 2026
+
+1. Introduction 
+
+Urban metro systems form the backbone of sustainable urban mobility. For transit op-erators and planners, understanding how individual usage patterns evolve over extended periods is essential for accurate ridership forecasting, effective service planning, and passen-ger retention strategies. The widespread deployment of automated fare collection (AFC) systems has generated detailed records that capture individual travel behavior at high tem-poral resolution over months or years, enabling the reconstruction of user-level mobility trajectories across multi-year horizons. Despite the availability of rich longitudinal data, existing approaches to metro mobility analysis have yet to capture long-term behavioral dynamics. Most studies focus on ag-gregated ridership statistics, station-level demand patterns, or short-term prediction tasks within bounded observation windows (Gu et al., 2022; Mo et al., 2022). Individual-level lon-gitudinal analyses typically treat mobility patterns as static clusters, classifying users into discrete types based on cross-sectional or short-term behavioral signatures (Briand et al., 2017). While effective for characterizing pattern heterogeneity at a given time, these ap-proaches do not model how individual travel behavior evolves over multi-year horizons. Individual metro usage is inherently dynamic. Over extended periods, users experience behavioral changes driven by life events such as job transitions, residential relocations, or re-sponses to external disruptions (Lu et al., 2025). A regular commuter may gradually reduce usage intensity, shift to occasional travel, temporarily disengage, or eventually return after prolonged inactivity. These processes constitute a mobility lifecycle of transit participation that unfolds through phases of engagement, disengagement, and potential recovery. Longi-tudinal evidence confirms the prevalence of such dynamics: multi-year smart card analyses find that only 55% of transit passengers are retained year-to-year, with engagement pat-terns often intermittent rather than stable (Cardell-Oliver and Olaru, 2022). Modeling this lifecycle requires capturing not only the diversity of mobility states but also their temporal persistence and the structured transitions between them. Existing methods, however, do not provide a suitable framework for representing this life-cycle in a unified manner. Static clustering captures behavioral heterogeneity but not tempo-ral evolution, while time-series methods target short-term variability rather than longer-term regime shifts. Two processes central to transit participation remain particularly underex-plored: the exit process, by which users disengage from the system, and the re-entry process, by which previously inactive users return. Survival analysis has been applied to examine transit user loyalty (Trépanier et al., 2012), and recent Markov-based approaches have begun to connect behavioral states with lifecycle events (Yu et al., 2024, 2025). These methods, however, define behavioral states as observed frequency categories rather than inferring la-tent regimes, leaving the joint modeling of state dynamics and participation hazards an open problem.         
+
+> (Valeria Maria Urbano), 2431696@tongji.edu.cn (Shan He), yang.chen@polimi.it (Yang Chen),
+> lw26star@sina.com (Wei Liu), jzb@tongji.edu.cn (Zhibin Jiang), piercesare.secchi@polimi.it
+> (Piercesare Secchi)
+
+2This study addresses these gaps by proposing a state-based lifecycle modeling framework for individual metro mobility. The framework integrates two complementary components: (i) a Hidden Semi-Markov Model (HSMM) that infers latent mobility states from longitu-dinal behavioral features while explicitly modeling state duration distributions to capture behavioral persistence; and (ii) a discrete-time survival analysis component that models exit and re-entry events via hazard functions conditioned on mobility-state trajectories, quanti-fying how disengagement risk and return probability depend on users’ behavioral histories. The contributions of this study are twofold. First, it proposes a lifecycle modeling frame-work that conceptualizes individual metro usage as a sequence of latent behavioral states with explicit duration distributions and structured transition dynamics, formally connecting mobility state inference with event-history modeling of exit and re-entry processes. Second, it develops an integrated methodology that combines Hidden Semi-Markov Model-based state inference with discrete-time survival analysis, enabling state-dependent hazard esti-mation conditioned on inferred mobility-state trajectories and behavioral history covariates. Applied to four years of smart card data from the Shanghai metro system, the framework demonstrates how latent mobility states, transition dynamics, and participation hazards can be jointly inferred from longitudinal transit data, providing a comprehensive view of the transit participation lifecycle. Beyond its methodological contributions, the proposed framework provides a lifecycle-oriented perspective on transit participation with direct operational relevance. By linking latent behavioral states to exit and re-entry risks, the framework enables transit agencies to identify users vulnerable to disengagement, understand how participation evolves over time, and design more targeted retention and reactivation strategies. Such insights can support evidence-based passenger management by shifting attention from static user segmentation toward dynamic lifecycle monitoring and intervention. The remainder of this paper is organized as follows. Section 2 reviews related work on temporal dynamics of travel behavior, behavioral evolution modeling, and transit par-ticipation analysis. Section 3 formally defines the research problem. Section 4 presents the proposed modeling framework. Section 5 describes the experimental setup. Section 6 presents and discusses the empirical findings. Section 7 concludes the paper and outlines directions for future research. 
+
+2. Related Work 
+
+This section reviews three complementary research streams that together motivate the proposed lifecycle modeling framework: the temporal dynamics of individual travel behavior, state-based approaches for modeling behavioral evolution, and survival-analysis methods for modeling participation and disengagement as event-history processes. The first stream characterizes how mobility patterns vary across timescales, the second provides tools for identifying latent behavioral regimes and their persistence, and the third offers event-history frameworks for modeling exit and re-entry. Although each stream provides valuable insights, they have largely been pursued in isolation. The review that follows identifies the resulting 3gaps and shows how they motivate the integrated lifecycle modeling framework proposed in this study. 
+
+2.1. Temporal Dynamics of Individual Travel Behavior 
+
+Research on the temporal dynamics of mobility has drawn heavily on large-scale datasets including mobile phone signaling records, smart card data, and GPS trajectories. These sources enable characterization of activity pattern variability, temporal regularity, and en-tropy in daily and weekly movement rhythms (Yue et al., 2014), with evidence that certain mobility quantities remain conserved even as individuals vary their activity locations and trip patterns (Hong et al., 2023). Mobile phone signaling studies reveal how population flows exhibit pronounced daily and weekly cycles, reflecting collective patterns of aggregation and dispersion across urban space (Wang et al., 2018), and recent work has systematized the growing range of transportation applications for such data, from mobility flow analysis to public transport planning (Urbano et al., 2026). Complementary work on temporal rhythms at destinations highlights the role of flexible scheduling and place-based temporal structures in shaping travel behavior (Dickinson et al., 2013). Longitudinal perspectives have also emerged, though typically over limited time horizons. Age-period-cohort analyses document longer-term demographic shifts in travel participation and frequency (Bartl et al., 2024), life-course approaches examine how the spatial fixity of daily activities evolves across the lifespan (Lu et al., 2025), and studies of tourist behavior using digital footprints reveal how spatio-temporal patterns evolve across years (Xiao et al., 2025). In transit specifically, multi-year smart card analyses track year-to-year behavioral changes in individual passengers using clustering approaches (Briand et al., 2017). How-ever, these efforts generally focus on seasonal or annual changes rather than reconstructing persistent individual mobility pathways measured over multiple years. Across this body of work, temporal variability is well characterized at short to mid-range timescales, from daily rhythms to seasonal fluctuations and annual cohort patterns. Yet existing research has not produced formal models of individual mobility as a long-term lifecycle process in which identifiable behavioral regimes emerge, persist, and transition over multi-year periods. 
+
+2.2. Behavioral Evolution Modeling 
+
+Research on behavioral evolution spans a spectrum of state-space models, beginning with traditional clustering approaches and extending through Hidden Markov Models (HMMs) to Hidden Semi-Markov Models (HSMMs). Early work using clustering and state-segmentation techniques primarily characterizes short-term behavioral groupings, such as temporal mo-bility segments and population-level movement clusters derived from transportation data (Jiao et al., 2021). While these approaches effectively summarize heterogeneity, they do not explicitly model temporal dependence or latent state transitions (Saputra et al., 2024). HMMs provide a more formal generative framework by introducing latent behavioral states linked through Markovian transitions. However, classical HMMs assume geomet-ric dwell-time distributions, limiting their ability to represent realistic persistence patterns 4in human behavior. HSMMs overcome this limitation by explicitly modeling state dura-tions and allowing non-geometric dwell-time distributions (Yu, 2010, 2015). Unlike standard HMMs, which model state persistence only implicitly through self-transition probabilities, HSMMs directly represent how long individuals remain in each state before transitioning (Langrock and Zucchini, 2011). This duration modeling is particularly relevant for mobility behavior, where states such as stable commuting or occasional usage naturally persist for extended periods rather than changing randomly. The HSMM framework has been extended along several methodological directions: non-parametric dwell-time estimation (Pohle et al., 2022; Malefaki et al., 2010), inhomogeneous durations that vary with contextual covariates (Koslik, 2025), hierarchical formulations for multi-scale dynamics (Baratchi et al., 2014), controlled variants for decision contexts (Cley-nen et al., 2025), and robust (Ding and Shah, 2010) and Bayesian (Haji-Maghsoudi et al., 2021) variants for outliers and longitudinal settings. These advances are supported by com-prehensive software and theoretical treatments (Peyrard and de Saporta, 2025). Applications span activity recognition (Duong et al., 2005; van Kasteren et al., 2010), mobility tracking (Yu and Kobayashi, 2003), and equipment diagnostics (Dong and He, 2007b,a), demonstrat-ing the framework’s versatility across domains with structured temporal behavior. Despite these methodological advances, applications of HSMM-family models to large-scale transit mobility remain limited. Existing transportation applications have primarily focused on short-term trajectory prediction (Gu et al., 2022), next-trip prediction using activity-based HMMs (Mo et al., 2022), or single-day pattern analysis rather than modeling long-term behavioral evolution. The potential of HSMMs to characterize temporal per-sistence, duration heterogeneity, and structured evolution in multi-year passenger mobility regimes has not been systematically explored. 
+
+2.3. Transit Participation Modeling 
+
+Transit research has examined participation dynamics using ticketing and smart card data, with recent work comparing the strengths and limitations of different data sources for transit management decisions (Urbano et al., 2025). Studies on metro and bus systems employ clustering, tensor decomposition, and segmentation to characterize seasonal, spa-tial, and temporal variations in aggregate transit demand (Nithin et al., 2024; Qi et al., 2021). Individual-level analyses extract route choices and travel patterns from smart card records (Liu et al., 2026) and characterize aggregate mobility patterns including trip dis-tance distributions (Yong et al., 2016). Fine-grained monitoring systems track station-level and segment-level ridership patterns using smart card and automated counting data (Sun et al., 2024; Huang and Huang, 2024; Burzacchi et al., 2026). Long-term engagement studies have begun to address multi-year participation dynamics. Cardell-Oliver and Olaru (2022) proposed the CIAM framework for classifying rider engagement across multiple temporal scales using five years of smart card data, finding that only 55% of passengers are retained year-to-year and that short-term behavioral snapshots are poor predictors of long-term en-gagement. However, classification approaches remain descriptive: they reveal the scale and intermittency of churn but do not model the underlying behavioral regimes generating these patterns or the transition dynamics between engagement states. More broadly, the works 5reviewed above primarily describe observed behaviors or operational flow dynamics without modeling individual retention trajectories as processes driven by latent behavioral states. Survival analysis provides an established framework for modeling participation as an event-history process. Foundational work has examined differences between continuous-time and discrete-time hazard specifications under time aggregation (ter Hofstede and Wedel, 1998), and comparison studies demonstrate how survival-based formulations capture event timing in vehicle ownership decisions (Ghasri et al., 2018). Multi-state survival models are well-developed in biomedical and engineering domains (van den Hout, 2016; Andersen and Ravn, 2023). Broader advances in survival and frailty modeling are reviewed by Govin-darajulu and D’Agostino (2020), and recent work extends these methods to multi-event prediction (Chowdhury and Ataharul Islam, 2020; Xue et al., 2020). Within public transit, Trépanier et al. (2012) applied a discrete-time hazard model to five years of smart card data to examine user loyalty, identifying how residential density, transit mode share, and demo-graphics influence retention probabilities. While this work demonstrates the applicability of survival methods to transit participation, the hazard model treats loyalty as a single bi-nary outcome without connecting the exit event to the rider’s underlying behavioral state or usage trajectory. Recent work has begun to connect state-based behavioral modeling with participation events. In transit ridership, Markov-based approaches have emerged to model behavioral sta-tus transitions as lifecycle processes. Yu et al. (2024) proposed the TripChain2RecDeepSurv framework, which combines trip chain embedding via TripChain2Vec with a self-attention transformer and recurrent deep survival analysis to predict individual-level lifecycle behav-ioral status transitions from bus smart card data. Yu et al. (2025) examined status transi-tions from entry to exit in bus riders using a longitudinal Markov chain framework, revealing a two-stage churning process in which users first decrease travel frequency before transition-ing to irregular patterns. These studies represent the closest existing attempts to connect behavioral state modeling with lifecycle event prediction in transit. Both, however, define behavioral states as observed categories derived from usage frequency rather than inferring latent behavioral regimes, and neither models state duration distributions nor conditions participation hazards on inferred state trajectories. The integration of survival analysis with mobility-state modeling thus remains an open problem: current transit participation research lacks frameworks that jointly model participation events and latent mobility states, leaving the participation lifecycle analytically isolated from underlying behavioral dynamics. 
+
+2.4. Research Gaps and Contributions 
+
+The preceding review reveals three interconnected gaps. First, temporal dynamics re-search has characterized short-term variability effectively but has not produced formal prob-abilistic models of individual mobility lifecycles over multi-year periods. Second, despite sub-stantial advances in HSMM-family models, their application to large-scale transit data has focused on short-term prediction rather than long-term behavioral evolution. Third, transit participation research treats exit and re-entry as isolated event processes, disconnected from the latent behavioral regimes that generate them. 6This study addresses these gaps by proposing an integrated framework that connects HSMM-based state inference with survival analysis for lifecycle dynamics modeling. The framework treats user mobility as a sequence of behavioral states with explicit duration and transition dynamics, and models exit and re-entry events as state-dependent processes. By linking discrete-time hazards with inferred mobility-state trajectories, the approach en-ables analysis of how participation risks depend on users’ underlying behavioral regimes, addressing questions such as whether disengagement risk differs between stable commuters and occasional travelers, and whether re-entry probability depends on the behavioral state preceding exit. 
+
+3. Problem Formulation 
+
+This section formally defines the lifecycle modeling problem for individual metro mobility. The formulation distinguishes three components: observed behavioral data, latent mobility states with temporal structure, and lifecycle events of interest. 
+
+3.1. Individual Mobility Observation 
+
+Consider a population of N transit users indexed by U = {1, 2, . . . , N }, observed over 
+
+T discrete time intervals. For each user u ∈ U and interval t ∈ { 1, 2, . . . , T }, raw trip records from the automated fare collection (AFC) system are aggregated into a behavioral feature vector x(t) 
+
+> u
+
+∈ RD, where D denotes the feature dimension. The complete longitudinal observation for user u is the sequence: 
+
+Xu =  x(1)  
+
+> u
+
+, x(2)  
+
+> u
+
+, . . . , x(T )
+
+> u
+
+ (1) Intervals with no recorded trips are encoded via an inactive indicator feature, ensuring that non-usage periods are explicitly observed rather than treated as missing data. The collection 
+
+{Xu}u∈U constitutes the observed data. 
+
+3.2. Latent Mobility States 
+
+The formulation posits that observed mobility features are generated from underlying latent states representing distinct behavioral regimes. Let s(t) 
+
+> u
+
+∈ { 0, 1, . . . , K } denote the latent mobility state of user u at interval t, where state 0 represents inactivity and states 
+
+{1, . . . , K } represent active mobility patterns differing in intensity, temporal regularity, and spatial diversity. The interval-level state sequence for user u is su = ( s(1)  
+
+> u
+
+, s (2)  
+
+> u
+
+, . . . , s (T ) 
+
+> u
+
+). Under the semi-Markov assumption, states persist across consecutive intervals, yielding a run-length struc-ture. To formalize this, let m = 1 , . . . , M u index the state segments (sojourns) experienced by user u, where Mu denotes the total number of segments. Each segment m is characterized by a state s[m] 
+
+> u
+
+and a duration d[m] 
+
+> u
+
+:
+
+su =  s[1]  
+
+> u
+
+, . . . , s [1] 
+
+> u
+
+| {z }
+
+> d[1]
+> u
+
+, s [2]  
+
+> u
+
+, . . . , s [2] 
+
+> u
+
+| {z }
+
+> d[2]
+> u
+
+, . . . , s [Mu] 
+
+> u
+
+, . . . , s [Mu]
+
+> u
+
+| {z }
+
+> d[Mu ]
+> u
+
+ (2) 7satisfying PMu 
+
+> m=1
+
+d[m] 
+
+> u
+
+= T . The two representations are equivalent: s(t) 
+
+> u
+
+= s[m] 
+
+> u
+
+for all t falling within segment m.The latent-state framework comprises three components: an emission mechanism gov-erning observed mobility features, a duration mechanism governing state persistence, and a transition mechanism governing movement between states. 
+
+State Emission. Conditioned on the latent state, the observed feature vector x(t) 
+
+> u
+
+is generated from a state-specific emission distribution p(x | s = k).
+
+State duration. Upon entering state k, the user remains for a sojourn time d[m] 
+
+> u
+
+drawn from a state-specific duration distribution p(d | s = k) over support {1, 2, . . . , d max }.
+
+State transition. At the expiration of segment m in state k, a transition to state 
+
+l̸ = k occurs with probability akl , setting s[m+1]  
+
+> u
+
+= l. The transition matrix A = [ akl ] ∈
+
+R(K+1) ×(K+1) satisfies akk = 0 and P 
+
+> l
+
+akl = 1 for all k.
+
+3.3. Lifecycle Events 
+
+Two types of lifecycle events characterize transit participation dynamics: 
+
+Exit events. An exit event for user u at interval t occurs when s(t−1)  
+
+> u
+
+∈ { 1, . . . , K } and 
+
+s(t) 
+
+> u
+
+= 0 , representing disengagement from the metro system. To quantify the duration of inactivity, define the first return interval after t as 
+
+tret  
+
+> u
+
+(t) = min 
+
+ t′ : t < t ′ ≤ T, s (t′)
+
+> u
+
+̸ = 0 ∪ { T + 1 }
+
+
+
+(3) where the sentinel value T + 1 applies when no return occurs within the observation horizon. The inactive spell length is then 
+
+ℓu(t) = tret  
+
+> u
+
+(t) − t (4) To distinguish genuine disengagement from transient gaps, a threshold ∆ is introduced, yielding the filtered exit set: 
+
+E∆ 
+
+> u
+
+= t : s(t−1) 
+
+> u
+
+̸ = 0 , s (t) 
+
+> u
+
+= 0 , ℓ u(t) ≥ ∆ (5) 
+
+Re-entry events. A re-entry event occurs when s(t−1)  
+
+> u
+
+= 0 and s(t) 
+
+> u
+
+∈ { 1, . . . , K }, rep-resenting return to active usage. Let ℓpre  
+
+> u
+
+(t) denote the length of the inactive spell preceding 
+
+t. The filtered re-entry set is: 
+
+R∆ 
+
+> u
+
+= t : s(t−1)  
+
+> u
+
+= 0 , s (t)
+
+> u
+
+̸ = 0 , ℓ pre  
+
+> u
+
+(t) ≥ ∆ (6) The destination state s(t) 
+
+> u
+
+upon return characterizes the intensity of re-engagement. 
+
+3.4. Research Tasks 
+
+Given the above formulation, this study addresses two inference tasks: 
+
+Mobility state inference. Given observed feature sequences {Xu}u∈U , estimate the latent state sequences {ˆsu}u∈U and the parameters governing state-specific emissions, dura-tions, and transitions. 
+
+Lifecycle event analysis. Given inferred state sequences {ˆsu}u∈U , characterize the dy-namics of exit events {E ∆ 
+
+> u
+
+}u∈U and re-entry events {R ∆ 
+
+> u
+
+}u∈U by quantifying how disengage-ment and re-engagement risks depend on mobility state, state persistence, and behavioral history. 84. Methodology 
+
+This section presents the proposed lifecycle modeling framework illustrated in Figure 1. The framework consists of three modules: behavioral feature extraction from longitudinal smart card data (Module A; Section 4.1), latent mobility state inference using a Hidden Semi-Markov Model (Module B; Section 4.2), and lifecycle event analysis via discrete-time survival modeling (Module C; Section 4.3). Together, these modules transform raw travel records into latent behavioral trajectories and subsequently characterize exit and re-entry dynamics. The methodological details of each module are presented in the following subsections. Module A: Behavioral Feature Extraction    
+
+> Collection of User Sequence
+> Feature Vector Construction
+> [User] [Time Interval] Discretization
+> Longitudinal Smart Card Data
+> User Observation  Intensity Features
+> Temporal Features
+> Spatial Features
+> Inactive Indicator
+> Module B: Mobility State Inference
+> Pooled Approximate HSMM Inference
+> No
+> Yes
+> Is Conv.?
+> State Dec.
+> State Sequence Re fi nement
+> Param. Upd.
+> Parameter Estimation
+> Initialization
+> Active Intervals Partitioning
+> Latent State Sequences
+> Emission Distributions
+> Duration Distributions
+> Transition Probabilities
+> Module C: Lifecycle Event Analysis
+> Exit Hazard Re-Entry Hazard Exit Survival Re-Entry Survival
+> Covariate Vector Construction
+> Mobility State
+> Duration in State
+> Behavioral History
+> Discrete-Time Survival Estimation
+> Hazard Functions
+> Survival Functions
+> Logistic Regression
+> Re-Entry Dataset
+> User-Interval Pairs in Inactive States
+> Exit Dataset
+> User-Interval Pairs in Active States
+> Exit Events
+> Active Inactive
+> fi ltered by gap
+> Re-entry Events
+> Inactive Active
+> fi ltered by gap
+
+Figure 1: Overview of the proposed lifecycle modeling framework. 
+
+4.1. Behavioral Feature Extraction 
+
+The first component constructs interval-level behavioral features from raw AFC trip records. For each user u ∈ U and time interval t ∈ { 1, . . . , T }, features are computed to capture three dimensions of mobility behavior: 
+
+Intensity features: Trip frequency n(t)
+
+u ∈ N denotes the total number of trips during interval t. Active days count d(t)
+
+u ∈ N denotes the number of distinct calendar days with at least one recorded trip. 
+
+Temporal features: Peak-hour share ρ(t)
+
+u ∈ [0 , 1] is the proportion of trips occurring during weekday peak periods. Weekday share w(t)
+
+u ∈ [0 , 1] is the proportion of trips made on weekdays. Both features capture the degree of commute-oriented travel. 
+
+Spatial features: Unique stations count v(t)
+
+u ∈ N is the number of distinct origin stations. Station entropy e(t)
+
+u ≥ 0 quantifies the diversity of station usage via Shannon entropy: 
+
+e(t)
+
+u = − X
+
+o∈O (t)
+
+> u
+
+p(t)
+
+o log p(t)
+
+o (7) 9where O(t) 
+
+> u
+
+denotes the set of stations visited by user u in interval t, and p(t) 
+
+> o
+
+denotes the proportion of trips originating from station o. Top-2 station share c(t) 
+
+> u
+
+∈ [0 , 1] is the combined proportion of trips from the two most frequently used stations. An inactive indicator i(t) 
+
+> u
+
+∈ { 0, 1} equals 1 if and only if n(t) 
+
+> u
+
+= 0 , ensuring that periods of non-usage are modeled as observed behavioral states rather than missing data. The feature vector is: 
+
+x(t) 
+
+> u
+
+= n(t) 
+
+> u
+
+, d (t) 
+
+> u
+
+, ρ (t) 
+
+> u
+
+, w (t) 
+
+> u
+
+, v (t) 
+
+> u
+
+, e (t) 
+
+> u
+
+, c (t) 
+
+> u
+
+, i (t)
+
+> u
+
+⊤ ∈ R7 × { 0, 1} (8) Prior to modeling, two preprocessing steps are applied to improve distributional regu-larity and numerical stability. Right-skewed count features ( n(t) 
+
+> u
+
+, v(t) 
+
+> u
+
+) are transformed via 
+
+log(1 + x), and all real-valued features are subsequently standardized to zero mean and unit variance, equalizing feature scales so that no single dimension dominates the emission log-likelihood. These steps improve the compatibility of the feature distributions with the Gaussian emission model adopted in Section 4.2.1, which serves as a practical approximation for capturing relative differences in feature location and dispersion across latent states. 
+
+4.2. Mobility State Inference Using HSMM 4.2.1. HSMM Model Structure 
+
+The Hidden Semi-Markov Model extends the standard Hidden Markov Model by explic-itly parameterizing state duration distributions, thereby decoupling state persistence from the transition structure. The model assumes that the latent state process {s(t) 
+
+> u
+
+}Tt=1 for each user u is governed by a semi-Markov chain, where the sojourn time in each state follows an explicit distribution rather than the implicit geometric distribution implied by standard Markovian dynamics. Let K + 1 denote the total number of mobility states, with state 0 representing inac-tivity and states 1, . . . , K representing active mobility states. The model comprises three components: 
+
+Emission distribution. To balance model flexibility, statistical robustness, and inter-pretability, the continuous behavioral features are modeled using conditionally independent Gaussian components with diagonal covariance structure, while the inactive indicator is deterministic given the latent state. For active states ( k̸ = 0 ), the inactive indicator is deterministically equal to zero, and the conditional emission density is 
+
+p(x | s = k) = 1(xD = 0) 
+
+> D−1
+
+Y
+
+> d=1
+
+N (xd | μk,d , σ 2
+
+> k,d
+
+), k̸ = 0 (9) where xD denotes the inactive-indicator component of the feature vector, and μk,d and σ2
+
+> k,d
+
+denote the mean and variance of continuous feature d under state k. For the inactive state (k = 0 ), the emission is degenerate, representing a deterministic observation pattern in which the inactive indicator is equal to one and all continuous behavioral features are fixed to zero by construction. Diagonal Gaussian emissions provide a computationally efficient approximation widely adopted in latent-state behavioral modeling (Zucchini et al., 2016; Langrock et al., 2012), 10 serving primarily to capture relative differences in feature location and dispersion across latent states rather than to represent exact marginal distributions. The diagonal covari-ance structure reduces the number of emission parameters from O(D2) to O(D) per state, improving estimation stability and mitigating overfitting risk under the limited effective sam-ple sizes per latent state that arise from heterogeneous behavioral trajectories. Although the diagonal covariance structure does not explicitly model within-state feature correlations, the latent-state representation still captures recurring multivariate behavioral configurations through shared state assignments across observations. The original engineered features are retained rather than applying principal component analysis or other latent projections, pre-serving the direct mapping between emission parameters and behavioral semantics so that each latent state can be characterized in terms of recognizable mobility attributes such as commuting regularity, usage intensity, and spatial diversity. 
+
+Duration distribution. Upon entering state k, the sojourn time d ∈ { 1, 2, . . . , d max } is drawn from a state-specific duration distribution p(d | s = k). This study adopts a negative binomial parameterization, specified by mean λk and dispersion rk:
+
+p(d | s = k) = Γ( d + rk)Γ( rk) d!
+
+ rk
+
+rk + λk
+
+rk  λk
+
+rk + λk
+
+d
+
+(10) This parametric form accommodates over-dispersion in duration data, a characteristic of behavioral persistence where the variance of dwell times typically exceeds the mean. The maximum duration dmax is set to the observation horizon for proper normalization. 
+
+Transition probability. The transition component is parameterized by a row-stochastic matrix A = [ akl ], whose elements specify the probabilities of moving between latent states upon completion of a sojourn. Under the HSMM formulation, self-transitions are excluded (akk = 0 ) because state persistence is represented explicitly through the duration model rather than repeated visits to the same state. Figure 2 illustrates the model structure for an example sequence of three state segments. Each segment state s[m] 
+
+> u
+
+draws a sojourn time from its duration distribution and transitions to the next segment via A. The interval-level states s(t) 
+
+> u
+
+inherit the segment state value, and the observed features x(t) 
+
+> u
+
+are generated through the emission distribution. 
+
+4.2.2. HSMM Inference Algorithm 
+
+Exact maximum-likelihood estimation of HSMM parameters via the EM algorithm is computationally demanding because forward-backward inference requires summation over both states and admissible durations at each time step (Yu, 2010), with per-iteration com-plexity scaling linearly in sample size N , observation length T , and maximum duration 
+
+dmax , and superlinearly in the number of states (Yu, 2015). This study employs a pooled approximate inference scheme that retains the essential structure of HSMM while achieving computational tractability. Rather than computing posterior distributions over all possible state sequences, the approximation directly identifies the most likely state path for each user via duration-aware Viterbi decoding (Rabiner, 1989; Yu, 2015), following the segmental K-means approach to approximate HMM parameter estimation (Juang and Rabiner, 1990). 11 s[1]  
+
+> u
+
+s[2]  
+
+> u
+
+s[3]  
+
+> u
+> ak1k2ak2k3
+
+· · ·                                      
+
+> p(d|s=k1)p(d|s=k2)p(d|s=k3)
+> d[1]
+> u=3 d[2]
+> u=2 d[3]
+> u=4
+> s(1)
+> us(2)
+> us(3)
+> us(4)
+> us(5)
+> us(6)
+> us(7)
+> us(8)
+> us(9)
+> u
+> x(1)
+> ux(2)
+> ux(3)
+> ux(4)
+> ux(5)
+> ux(6)
+> ux(7)
+> ux(8)
+> ux(9)
+> u
+> Duration distributions
+> Latent states
+> Observations
+> t
+> 123456789
+
+Figure 2: Schematic of the HSMM structure showing duration distributions, state transitions, and emission to observed features. 
+
+The inference procedure, summarized in Algorithm 1, proceeds iteratively. The initializa-tion stage assigns inactive intervals to state 0 deterministically and partitions active intervals into K clusters via k-means. The algorithm then alternates between a parameter update step that estimates emission distributions, transition probabilities, and duration distribu-tions from current state assignments, and a state decoding step that refines state sequences via duration-aware Viterbi decoding. The duration-aware Viterbi decoding extends the standard Viterbi algorithm (Rabiner, 1989) to hidden semi-Markov settings by scoring candidate state segments rather than indi-vidual time steps, following the segmental decoding framework of Yu (2015). For a segment spanning t1 to t2 in state k, preceded by state l, the segment score is: 
+
+ϕ(t1, t 2, l, k ) = 
+
+> t2
+
+X 
+
+> τ=t1
+
+log p x(τ ) | s = k + log p(d = t2 − t1 + 1 | s = k) + log alk (11) The three terms represent the cumulative emission log-likelihood, the duration log-probability, and the transition log-probability at the segment boundary. For the initial segment where no preceding state exists, the transition term log alk is replaced by the initial state probabil-ity log πk. The optimal state sequence is recovered via dynamic programming over segment endpoints: 
+
+V (t, k ) = max  
+
+> 1≤d≤min( dmax ,t )
+> l̸=k
+
+[V (t − d, l ) + ϕ(t − d + 1 , t, l, k )] (12) where V (t, k ) denotes the maximum log-probability of any state sequence ending in state 
+
+k at time t, and d = t − t′ is the segment duration constrained to the admissible range 
+
+[1 , d max ]. Because the duration term penalizes transitions that produce implausibly short segments, the formulation naturally yields smoother state sequences than per-step decoding. 12 Algorithm 1 Pooled Approximate HSMM Inference 
+
+Require: Feature panel X = {x(t) 
+
+> u
+
+}u,t , inactive indicators {i(t) 
+
+> u
+
+}, number of active states K, max iterations 
+
+Imax , convergence tolerance ϵ
+
+Ensure: State sequences {ˆsu}, emission parameters {(μk, Σk)}Kk=0 , duration parameters {(λk, r k)}Kk=0 ,transition matrix A
+
+1: Initialization: 
+
+2: for all user-interval pairs (u, t ) do 
+
+3: if i(t) 
+
+> u
+
+= 1 then 
+
+4: ˆs(t) 
+
+> u
+
+← 0
+
+5: end if 
+
+6: end for 
+
+7: Cluster active intervals {x(t) 
+
+> u
+
+: i(t) 
+
+> u
+
+= 0 } into K groups via k-means; assign labels ˆs(t) 
+
+> u
+
+∈ { 1, . . . , K }
+
+8: i ← 0
+
+9: repeat 
+
+10: i ← i + 1 
+
+11: Parameter Update: 
+
+12: for k = 0 to K do 
+
+13: μk ← mean ({x(t) 
+
+> u
+
+: ˆ s(t) 
+
+> u
+
+= k}); Σk ← diag (var (·)) 
+
+14: (λk, r k) ← FitNB ({d[m] 
+
+> u
+
+: ˆ s[m] 
+
+> u
+
+= k})
+
+15: end for 
+
+16: Estimate A from transition counts at segment boundaries 17: State Decoding: 
+
+18: for each user u do 
+
+19: ˆsu ← DurationViterbi (Xu, {(μk, Σk)}, A, {(λk, r k)})
+
+20: end for 
+
+21: δ ← proportion of intervals with changed labels 22: until δ < ϵ or i ≥ Imax 
+
+23: return {ˆsu}, {(μk, Σk)}Kk=0 , {(λk, r k)}Kk=0 , A
+
+13 This segment-level dynamic programming recursion follows the standard HSMM decoding formulation (Yu, 2015), adapted here for interval-level mobility trajectory inference with negative binomial duration distributions. The computational complexity per iteration is O(N T K 2 ¯d), where ¯d denotes the average segment length considered during decoding and the K2 term arises from the maximization over preceding states in the Viterbi recurrence. Since the number of mobility states K is small and fixed, decoding scales approximately linearly with sample size N and observation length T , enabling application to large-scale transit datasets. Convergence is declared when the proportion of intervals with changed assignments falls below ϵ, or when Imax iterations are reached. 
+
+4.3. Exit and Re-entry Event Modeling with Survival Analysis 
+
+Given the decoded state sequences from the HSMM, this section formulates the analysis of exit and re-entry events within a discrete-time survival framework. The objective is to quantify how the conditional risk of lifecycle events depends on users’ current mobility states, duration in state, and recent behavioral trajectories. 
+
+4.3.1. Event Extraction and Dataset Construction 
+
+Exit and re-entry events are extracted from decoded state trajectories by identifying transitions at the active–inactive boundary. Let an exit event at interval t occur when 
+
+s(t−1) ∈ { 1, . . . , K } and s(t) = 0 , and a re-entry event when s(t−1) = 0 and s(t) ∈ { 1, . . . , K }.As discussed in Section 3, a minimum inactive spell threshold ∆ distinguishes genuine dis-engagement from transient non-usage gaps. Following the person-period data formulation standard in discrete-time survival analysis (Allison, 1982; Singer and Willett, 2003), the estimation dataset is constructed by pooling all user-interval observations where the user is at risk of the event (active users for exit events, inactive users for re-entry events). For each event type e ∈ { exit , re-entry }, the resulting dataset D(e) = {(y(t) 
+
+> u
+
+, z(t) 
+
+> u
+
+)} pairs a binary outcome y(t) 
+
+> u
+
+∈ { 0, 1} indicating event occurrence with a covariate vector z(t) 
+
+> u
+
+capturing mobility state, duration in state, and behavioral history. This formulation accommodates recurrent events, allowing users to contribute multiple exit and re-entry episodes over the observation horizon. This is a necessary feature given that transit participation often involves cycles of engagement and disengagement. 
+
+4.3.2. Discrete-Time Survival Model Specification 
+
+Within the discrete-time survival framework, the hazard function and the survival func-tion serve as two complementary representations of the same underlying event process. The hazard function characterizes the conditional event risk at each interval, while the survival function aggregates these interval-level risks into cumulative event-free probabilities. Both are estimated on the user-interval datasets D(e).The discrete-time hazard function represents the conditional probability that an event occurs at interval t, given that the individual remains at risk immediately prior to t:
+
+h(e)(t | z(t)) = Pr( Te = t | Te ≥ t, z(t)) (13) 14 where Te denotes the event time and e ∈ { exit , re-entry } the event type. Because only at-risk individuals contribute to the estimation dataset, this is equivalent to Pr( y(t) = 1 | z(t)) for the binary event indicator y(t) defined on the risk set. Following the discrete-time event-history formulation (Allison, 1982; Singer and Willett, 2003), the interval-level hazard is modeled via logistic regression: logit  h(e)(t | z(t)) = log h(e)(t | z(t))1 − h(e)(t | z(t)) = β0 + β⊤z(t) (14) The covariate vector for the exit model is: 
+
+z(t) 
+
+> exit
+
+= 1[s(t) = 1] , . . . , 1[s(t) = K], d (t) 
+
+> in
+
+, m (t) 
+
+> L
+
+, g (t) 
+
+> L
+
+, η (t)⊤ (15) The first K components are mobility state indicators. The term d(t) 
+
+> in
+
+denotes the number of consecutive intervals spent in the current state, capturing duration dependence. The insta-bility measure m(t) 
+
+> L
+
+= Pt−1  
+
+> τ=t−L
+
+1[s(τ )̸ = s(τ +1) ] counts state transitions over the preceding L
+
+intervals. The activity trend g(t) 
+
+> L
+
+is defined as the slope coefficient obtained from an ordinary least squares regression fitted to {log(1 + n(τ ))}t−1 
+
+> τ=t−L
+
+, indicating whether trip frequency is increasing or decreasing. The tenure η(t) counts intervals since the user’s first observed trip. For the re-entry model, the covariate vector conditions on pre-exit behavioral context: 
+
+z(t) 
+
+> re-entry
+
+= 1[s(texit ) = 1] , . . . , 1[s(texit ) = K], d (t) 
+
+> in
+
+, m (t) 
+
+> L
+
+, d (texit ) 
+
+> pre
+
+, η (t)⊤ (16) where texit denotes the interval of the preceding exit. The first K components are pre-exit state indicators, capturing which active state the user occupied before disengagement. The term d(t) 
+
+> in
+
+is the duration of the current inactive spell. The instability measure m(t) 
+
+> L
+
+captures behavioral volatility prior to exit. The pre-exit duration d(texit ) 
+
+> pre
+
+records how long the user had been in the pre-exit state at the moment of disengagement. In the discrete-time setting, the survival function is obtained by multiplying the con-ditional probabilities of remaining event-free across successive intervals, analogous to the cumulative hazard formulation S(t) = exp  − R t 
+
+> 0
+
+h(u) du  in continuous-time survival analy-sis. Formally, S(e)(t | z(1) , . . . , z(t)) represents the probability that the event has not occurred by the end of interval t, conditioned on the covariate history: 
+
+S(e)(t | z(1) , . . . , z(t)) = 
+
+> t
+
+Y 
+
+> τ=1
+
+ 1 − h(e)(τ | z(τ )) (17) State-specific survival curves are obtained by conditioning the covariate vector on each mobility state and evaluating the product of interval-level survival probabilities derived from the estimated hazard functions. Model coefficients are estimated via ℓ2-penalized maximum likelihood. Uncertainty quan-tification employs user-level bootstrap resampling: users are resampled with replacement B
+
+times, the model is re-estimated on each replicate, and confidence intervals are constructed from the empirical distribution { ˆβ(b)
+
+}Bb=1 . The clustered bootstrap partially accounts for within-user dependence induced by recurrent event observations while avoiding parametric distributional assumptions. 15 5. Experiments 
+
+5.1. Dataset Preparation 
+
+Operated by Shanghai Shentong Metro Group Co., Ltd., the Shanghai Metro is one of the world’s largest urban rail transit systems, comprising more than 20 lines and over 500 stations and serving millions of passenger trips daily. The study uses longitudinal smart card data collected from this system between January 2021 and December 2024, a period encompassing both the COVID-19 pandemic and the subsequent recovery phase. The AFC dataset was provided by Shanghai Shentong Metro Group Co., Ltd. under permission for research purposes only, with all records anonymized prior to analysis to protect user privacy. Each record contains an anonymized card identifier, origin station identifier, destination station identifier, entry timestamp, and exit timestamp. The data undergo the following preprocessing steps: 
+
+User filtering. To ensure sufficient longitudinal observation for lifecycle analysis, users with only sporadic or erroneous records are excluded. A random sample of N = 500 users is drawn from the remaining population. 
+
+Time interval construction. Trip records are aggregated into bi-weekly intervals (2-week periods aligned to Mondays), yielding T = 105 intervals over the observation horizon. Bi-weekly resolution balances temporal granularity against data sparsity: shorter intervals increase the proportion of zero-trip periods, while longer intervals may obscure shorter-term behavioral fluctuations. 
+
+Feature computation. For each user–interval pair, the eight behavioral features de-scribed in Section 4.1 are computed and normalized following the procedure specified therein. The resulting panel is balanced to include all N × T user–interval combinations, with zero-trip intervals explicitly represented through the inactive indicator. Table 1 summarizes the characteristics of the preprocessed analysis dataset used in the main experiments. Robustness analyses based on repeated random subsampling are con-ducted separately in Section 5.3. 
+
+> Table 1: Summary statistics of the preprocessed analysis dataset.
+
+Statistic Value 
+
+Observation period Jan 2021–Dec 2024 Time interval Bi-weekly (2 weeks) Number of intervals 105 Number of users 500 Total trip records 271,746 Average trips per user 543 Share of inactive intervals 42.0% 
+
+5.2. Model Configuration 
+
+Number of states. The HSMM is configured with K = 4 active mobility states plus the inactive state (state 0), yielding a total of 5 states. The number of active states was de-16 termined by balancing statistical goodness-of-fit and behavioral interpretability. Candidate models with K ∈ { 1, . . . , 10 } active states were evaluated using the Bayesian Information Criterion (BIC). BIC improved substantially up to K = 4 , whereas larger values produced only marginal gains in fit at the cost of increased model complexity and reduced inter-pretability. Accordingly, K = 4 active mobility states were adopted for subsequent analysis. 
+
+Duration modeling. State duration distributions are parameterized as negative bino-mial distributions (Section 4.2.1), estimated via method-of-moments fitting from observed run lengths per state. The maximum modeled duration is set to dmax = 105 intervals (ap-proximately 4 years). The resulting PMF is evaluated over the full support {1, . . . , d max }
+
+and normalized to sum to one. 
+
+Inference settings. The pooled approximate HSMM inference (Algorithm 1) is ini-tialized by assigning inactive intervals to state 0 and clustering active intervals via k-means into K groups. The algorithm iterates for a maximum of Imax = 200 iterations with conver-gence declared when the proportion of intervals with changed state assignments falls below 
+
+ϵ = 0 .001 .
+
+Survival analysis settings. The lookback window for instability and trend covariates is set to L = 8 intervals (16 weeks). The minimum inactive spell threshold for exit event extraction is set to ∆ = 6 intervals (12 weeks), distinguishing genuine disengagement from transient non-usage gaps. Survival model coefficients are estimated via ℓ2-penalized logistic regression, with uncertainty quantified through user-level bootstrap resampling with B =200 replicates. 
+
+5.3. Robustness Assessment 
+
+To assess the robustness of the inferred latent states with respect to sample composition, a repeated subsampling experiment is conducted. The main reported HSMM estimation serves as the reference. Separately, Q = 20 independent user subsets of the same size (N = 500 ) are randomly drawn from the full dataset without replacement, excluding the reference-run users, and the HSMM is re-estimated on each subset using identical model configurations. Because latent-state labels are not inherently identifiable across independent estimations, active states from each repeated run must be aligned to those in the reference run before comparison. This alignment is formulated as a linear assignment problem and solved via minimum-cost bipartite matching using the Hungarian algorithm (Kuhn, 1955). The inac-tive state (State 0) is fixed by construction and excluded from matching. For each active state k, a state signature vector fk is constructed by combining three components: (i) the mean emission feature vector (Section 4.1); (ii) duration summaries comprising the mean and median observed sojourn time, and (iii) the outgoing transition probability row of the embedded transition matrix. Let f (q) 
+
+> k
+
+and f (0)  
+
+> l
+
+denote the standardized signatures of state k
+
+in repeated run q and state l in the reference run, respectively. Standardization is performed by z-scoring each component against the reference-run statistics to ensure that signatures 17 from different runs share a common scale. The pairwise alignment cost is defined as: 
+
+ψ(k, l ) = X
+
+> v∈{ em ,dur ,trans }
+
+wv f (q) 
+
+> k,v
+
+− f (0)  
+
+> l,v 2
+
+(18) where wv denotes the weight assigned to each signature component (all set to 1.0). Given the K × K cost matrix Ψ(q) = [ ψ(k, l )] , the optimal one-to-one assignment σ(q)
+
+between run-q states and reference states is obtained by minimizing the total matching cost: 
+
+C(q) = min 
+
+> σ∈ΣK
+> K
+
+X
+
+> k=1
+
+ψ k, σ (k) (19) where ΣK denotes the set of permutations over the K active states. To evaluate whether the alignment is meaningful, the optimal matching cost C(q) is com-pared with costs obtained under all K! label permutations, providing a permutation baseline against which to judge alignment quality. In addition, three indicators are computed across repeated runs after alignment: (i) the proportion of each aligned active state (composition), (ii) the mean sojourn duration of each aligned active state (persistence), and (iii) the second-largest eigenvalue magnitude |ξ2| of the embedded transition matrix (transition structure). These indicators assess the robustness and stability of the derived behavioral insights across independent samples. 
+
+6. Results and Analysis 
+
+This section presents the empirical evaluation of the proposed lifecycle modeling frame-work. The analysis is organized into two parts. First, we report the main findings cor-responding to the two inference tasks defined in Section 3, including latent mobility state identification (Section 6.1), state-transition dynamics (Section 6.2), and lifecycle event anal-ysis (Section 6.3). Second, we examine the robustness of the inferred mobility-state structure through repeated random-subsample experiments, evaluating the stability and reproducibil-ity of the identified behavioral regimes (Section 6.4). Together, these analyses provide both substantive insights into longitudinal transit participation and evidence regarding the relia-bility of the proposed framework. 
+
+6.1. Identified Mobility States 
+
+The HSMM identifies five distinct mobility states (State 0–4): State 0 represents inac-tivity, while States 1–4 represent active mobility patterns differing systematically in usage intensity, temporal regularity, and spatial diversity. Figure 3 displays the standardized be-havioral feature profiles for each state. The active states differentiate along two principal dimensions: usage intensity (trip fre-quency and active days) and modal specialization (the balance between commute-timing regularity and spatial diversity). State 1 occupies the low-intensity end; States 2, 3, and 4 share high intensity but differ in their temporal and spatial signatures. State 2 exhibits the 18 n(t)      
+
+> (trip frequency)
+> d(t)
+> (active days)
+> (t)
+> (peak-hour share)
+> w(t)
+> (weekday share)
+> v(t)
+> (unique stations)
+> e(t)
+> (station entropy)
+> c(t)
+> (top-2 station share)
+> i(t)
+> (inactive)
+> -1.8
+> -0.9
+> 0.0
+> 0.9
+> 1.8
+> State 0 State 1 State 2 State 3 State 4
+
+Figure 3: Radar plots showing the average behavioral feature profiles for each inferred mobility state. Features are standardized; larger values indicate higher feature intensity relative to the overall mean. 
+
+strongest commute-timing patterns with moderate spatial concentration, State 3 combines high frequency with the strongest spatial concentration, and State 4 displays the highest spatial diversity with moderate commute-timing signatures. The radar profiles in Figure 3 confirm that each state occupies a distinct region of this two-dimensional behavioral space. Specifically: 
+
+State 1 (Occasional usage). The lowest trip frequency and active days count among active states, with low spatial diversity and strong concentration at few stations, capturing infrequent, destination-focused travel. 
+
+State 2 (Stable commuting). High trip frequency with the highest peak-hour share and elevated weekday share, combined with moderate spatial concentration. The temporal profile is consistent with routine home–work commuting on a fixed schedule. 
+
+State 3 (Regular usage). The highest active days count among all states, with strong spatial concentration at a small set of destinations but moderate peak-hour and weekday shares, suggesting frequent metro usage that extends beyond pure commuting to include regular activities at fixed destinations. 
+
+State 4 (Diverse travel). High trip frequency with the highest spatial diversity: the most unique stations visited, highest station entropy, and lowest top-station concen-tration, capturing flexible, multi-destination travel encompassing both work-related and discretionary trips. 
+
+State 0 (Inactive). Intervals with no recorded metro usage. The inactive indicator is deterministically 1, and all other features are zero by construction. Across the observation period, 42.0% of all user-intervals are classified as State 0. Among 19 active intervals, State 1 accounts for 29.4%, State 2 for 19.4%, State 3 for 20.2%, and State 4 for 31.0%. All users experience multiple states over the four-year period, with no user remaining in a single state throughout, confirming the dynamic nature of individual mobility behavior. Figure 4 visualizes the inferred mobility-state trajectories of all 500 users across the four-year observation period, with each row corresponding to a user and colors indicating the inferred states. The resulting mosaic simultaneously reveals individual behavioral evolution, population-level temporal synchronization, and responses to major external events. To aid interpretation, users are grouped into five clusters using k-means on trajectory-level descrip-tors derived from the inferred state sequences (state occupation shares, mean state dura-tions, transition counts, and active tenure). Each cluster corresponds to a distinct mobility archetype characterized by elevated occupancy of a particular mobility state, demonstrating that the inferred states organize into coherent long-term behavioral trajectories rather than merely reflecting interval-level fluctuations. The largest cluster is predominantly inactive, while the remaining four clusters are each associated with a distinct active mobility regime: occasional usage (State 1), stable commuting (State 2), regular usage (State 3), and diverse travel (State 4). Beyond this user-level structure, the mosaic also captures population-level temporal patterns as vertical features spanning users. The mid-2022 Shanghai lockdown appears as a wide vertical band of universal inactivity, a system-wide exogenous event correctly reflected by the model. More informatively, recurring narrow vertical bands of elevated State 1 share coincide with major public holidays (Spring Festival, National Day Golden Week, and Labor Day): among active users, the share of State 1 rises from 29% during non-holiday periods to 38% during holiday intervals, while State 2 declines corre-spondingly from 21% to 13%, reflecting the temporary suspension of routine commuting in favor of infrequent, non-scheduled travel. At the individual level, trajectories exhibit het-erogeneous timing and sequencing of state transitions, reinforcing that mobility states are transient behavioral regimes rather than fixed user types. Figure 5 shows the estimated duration distributions for each mobility state under the fitted HSMM. Vertical lines indicate the corresponding mean state durations. Among active states, State 3 exhibits the longest mean duration (9.6 intervals, approximately 19 weeks), followed by State 2 (7.6 intervals) and State 4 (7.3 intervals), reflecting the persistence of fre-quent usage patterns once established. State 1 has the shortest mean duration (4.0 intervals, approximately 8 weeks), indicating that occasional usage is inherently transient: users either intensify engagement or disengage relatively quickly. State 0 exhibits substantially greater heterogeneity than the active states, with duration mass concentrated at short inactivity spells but a markedly heavier tail than the active-state distributions. This pattern suggests the coexistence of transient inactivity gaps and sustained disengagement episodes, motivat-ing the minimum inactive-duration threshold used in the subsequent survival analysis to distinguish short-term inactivity gaps from sustained inactive spells. 
+
+6.2. State Transition Patterns 
+
+Having characterized the individual mobility states and their persistence, the analysis now examines the directional structure of transitions between them. 20 2021-01 
+
+> 2021-07
+> 2022-01
+> 2022-07
+> 2023-01
+> 2023-07
+> 2024-01
+> 2024-07
+> 2025-01
+
+Time 
+
+> Users
+> Cluster 1 (n = 174)
+> Cluster 2 (n = 100)
+> Cluster 3 (n = 84)
+> Cluster 4 (n = 81)
+> Cluster 5 (n = 61)
+> State 0
+> State 1
+> State 2
+> State 3
+> State 4
+
+Figure 4: Longitudinal trajectories of inferred mobility states for all 500 users over the four-year observation period. Each row represents a user, colored by inferred state and grouped into five clusters based on trajectory-level descriptors. Black horizontal lines separate clusters. 5 10 15 20 25 30 35 40 
+
+Duration (intervals) 
+
+0% 
+
+10% 
+
+20% 
+
+30% 
+
+40% 
+
+> PMF
+> 4.0
+> 7.3 7.6  8.3
+> 9.6  State 0
+> State 1
+> State 2
+> State 3
+> State 4
+
+Figure 5: Estimated duration distributions for each mobility state under the fitted HSMM. Vertical lines indicate the mean duration for each state. 
+
+21 Figure 6 presents the estimated transition probability matrix and network visualization. The transition structure reveals a clear directional hierarchy in state evolution. State 0 
+
+> State 1
+> State 2
+> State 3
+> State 4
+
+To state                     
+
+> State 0
+> State 1
+> State 2
+> State 3
+> State 4
+> From state
+> 0.00 0.71 0.02 0.10 0.17
+> 0.61 0.00 0.17 0.06 0.15
+> 0.38 0.34 0.00 0.00 0.28
+> 0.36 0.31 0.00 0.00 0.33
+> 0.34 0.27 0.24 0.15 0.00
+
+(a) 
+
+> Transition matrix
+> State 0
+> State 1
+> State 2
+> State 3
+> State 4
+> 0.71
+> 0.10
+> 0.17
+> 0.61
+> 0.17
+> 0.15
+> 0.38
+> 0.34
+> 0.28
+> 0.36
+> 0.31
+> 0.33
+> 0.34
+> 0.27
+> 0.24
+> 0.15
+
+(b) 
+
+> Transition network
+> 0%
+> 20%
+> 40%
+> 60%
+> 80%
+> 100%
+> Transition probability
+
+Figure 6: Transition probability matrix (left) and network diagram (right) for mobility states. Arrow thickness is proportional to transition probability; only off-diagonal transitions with probability > 0.02 are shown. 
+
+Pathways to inactivity. The transition probability to State 0 decreases with usage intensity: State 1 →0 at 61.1%, State 2 →0 at 37.9%, State 3 →0 at 35.7%, and State 4 →0 at 34.3% (diagonal entries are zero by HSMM construction, as state persistence is governed by the duration distribution). This gradient indicates that users with higher engagement levels are progressively less likely to disengage, holding across different dimensions of engagement whether frequency, regularity, or spatial diversity. 
+
+Re-entry from inactivity. Users returning from State 0 predominantly re-enter State 1 (71.0%) or State 4 (17.1%), rather than immediately resuming regular commuting. Re-entry to State 2 (1.5%) is comparatively rare, while State 3 receives a moderate share (10.3%). This asymmetry identifies State 1 as a gateway state: re-engagement typically begins at low intensity before potentially intensifying through subsequent transitions. 
+
+Inter-state transitions among active states. Among active-to-active transitions, State 2 →1 (33.7%) is the most probable, suggesting potential degradation of commuting intensity. State 4 transitions are distributed across all other active states (27.2% to State 1, 23.8% to State 2, and 14.6% to State 3), reflecting the multipurpose nature of diverse travel: without a single dominant trip generator anchoring behavior, users in this regime shift fluidly among usage patterns. Figure 7 presents a flow-based visualization of population-level transitions between mo-bility states across consecutive half-year periods. The diagram confirms the directional asymmetry identified above: net flows from State 1 to State 0 consistently exceed the re-verse, while State 4 distributes more evenly across destination states. The dominant inter-state flows among active states involve transitions to and from State 1, reinforcing its role 22 as a behavioral hub connecting higher-intensity states and inactivity. The population-level impact of the mid-2022 lockdown is visible as a sharp contraction in active states and an expansion of State 0 (from under 6% to over 60% of the population). An initial re-entry wave follows in late 2022, but subsequent return flows diminish while exit flows persist, re-sulting in a continued increase in the State 0 share through 2024 (reaching 68% by the end of the observation period). This sustained shift toward inactivity is detectable only in the temporal flow view, as the aggregate transition matrix averages over the entire observation period and masks the widening gap between exit and re-entry flows. 2021-H1     
+
+> 2021-H2
+> 2022-H1
+> 2022-H2
+> 2023-H1
+> 2023-H2
+> 2024-H1
+> 2024-H2
+> 0
+> (33)
+> 1
+> (125)
+> 2
+> (74)
+> 3
+> (95)
+> 4
+> (173)
+> 0
+> (29)
+> 1
+> (69)
+> 2
+> (118)
+> 3
+> (111)
+> 4
+> (173)
+> 0
+> (293)
+> 1
+> (40)
+> 2
+> (43)
+> 3
+> (58)
+> 4
+> (66)
+> 0
+> (195)
+> 1
+> (87)
+> 2
+> (67)
+> 3
+> (71)
+> 4
+> (80)
+> 0
+> (243)
+> 1
+> (71)
+> 2
+> (56)
+> 3
+> (50)
+> 4
+> (80)
+> 0
+> (281)
+> 1
+> (59)
+> 2
+> (51)
+> 3
+> (44)
+> 4
+> (65)
+> 0
+> (313)
+> 1
+> (55)
+> 2
+> (44)
+> 3
+> (30)
+> 4
+> (58)
+> 0
+> (341)
+> 1
+> (48)
+> 2
+> (42)
+> 3
+> (30)
+> 4
+> (39)
+> 44
+> 31
+> 63
+> 68
+> 120
+> 53
+> 79
+> 33
+> 49
+> 46
+> 92
+> 55
+> 156
+> 49
+> 34
+> 29
+> 33
+> 40
+> 170
+> 39
+> 31
+> 32
+> 46
+> 228
+> 35
+> 31
+> 31
+> 49
+> 266
+> 30
+> 31
+> 39
+> 301
+> 30
+> 32
+> 31
+> State 0 State 1 State 2 State 3 State 4
+
+Figure 7: Flow-based visualization of population-level transitions between mobility states across consecutive half-year periods. Flow width is proportional to the number of transitions. 
+
+To characterize the temporal stability of the transition structure, Figure 8 displays the evolution of the spectral gap γ = 1 − | ξ2|. The eigenvalues of the transition matrix are ordered by decreasing magnitude, |ξ1| ≥ | ξ2| ≥ · · · , with |ξ1| = 1 ; thus, ξ2 denotes the eigenvalue with the second-largest magnitude. Because the embedded Markov chain is gen-erally non-reversible, the spectral gap is defined using eigenvalue magnitudes rather than real-valued ordering. A larger spectral gap indicates faster mixing, whereas a smaller gap reflects stronger state inertia and longer behavioral persistence. The spectral gap fluctuates around a mean of 0.124, indicating generally slow mixing and persistent behavioral states under normal conditions. Two departures from this baseline are notable. First, a sharp increase to approximately 0.47 during the mid-2022 lockdown reflects the collapse of stable behavioral patterns into rapid, system-wide state transitions, as the exogenous shock overrides individual-level behavioral inertia and drives a system-wide shift toward inactivity. Second, periodic fluctuations of smaller magnitude (increases during holi-day periods, decreases during commuting seasons) suggest seasonal modulation of behavioral stability, with commuting-dominated periods exhibiting stronger state persistence. 23 2021-05 
+
+> 2021-11
+> 2022-05
+> 2022-11
+> 2023-05
+> 2023-11
+> 2024-05
+> 2024-11
+
+Time window center 
+
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Eigenvalue magnitude
+
+(a) Transition eigenvalues   
+
+> |1|
+> |2|
+> 2021-05
+> 2021-11
+> 2022-05
+> 2022-11
+> 2023-05
+> 2023-11
+> 2024-05
+> 2024-11
+
+Time window center 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> Spectral gap  (1  | 2|)
+> mean = 0.124
+
+(b) Spectral gap Figure 8: Evolution of transition matrix eigenvalue magnitudes (left) and spectral gap over sliding time windows (right). The spectral gap is defined as γ = 1 − | ξ2|, where ξ2 is the eigenvalue with the second-largest magnitude. 
+
+6.3. Exit and Re-entry Dynamics 
+
+The inferred mobility states and their transition structure provide the foundation for analyzing the two lifecycle events that define transit participation: exit from and re-entry into active usage. The analysis draws on the discrete-time survival models specified in Section 4, conditioning hazard and survival functions on the state trajectories decoded by the HSMM. 
+
+6.3.1. Lifecycle Event Evolution 
+
+Figure 9 presents state-specific exit and re-entry rates over the observation period. The exit rate hierarchy mirrors the transition probabilities reported in Section 6: State 1 exhibits the highest exit rate (20.3% per interval), followed by State 2 (5.5%), State 4 (5.3%), and State 3 (4.0%). State 1 contributes 61.5% of all exit events despite accounting for only 29.4% of active intervals; this disproportionality arises from the compounding of its higher per-interval exit hazard with its shorter average duration, which together increase the cumulative probability of observing an exit from this state within any given observation window. Re-entry is dominated by transitions to State 1 (76.3% of all re-entries), with State 2 receiving only 1.0%, confirming the gateway-state role identified in the transition analysis. Two temporal patterns merit attention. First, the mid-2022 lockdown period produces sharply elevated exit rates across all active states coupled with near-zero re-entry rates, reflecting externally imposed system-wide disengagement. Second, State 2 exhibits a distinct exit-rate spike in early 2023, coinciding with Shanghai’s post-lockdown reopening and the subsequent infection wave that temporarily disrupted established commuting routines. 
+
+6.3.2. Survival Analysis 
+
+Figure 10 displays the estimated hazard functions for exit and re-entry events by mobility state. For exit events, the hazard curves reveal a clear state-dependent hierarchy: State 1 24 0.0 
+
+20.0 
+
+40.0 
+
+60.0 
+
+80.0 
+
+100.0 
+
+> Rate (%)
+
+(a) Exit rate    
+
+> State 1 State 2 State 3 State 4
+
+2021-01 
+
+2021-07 
+
+2022-01 
+
+2022-07 
+
+2023-01 
+
+2023-07 
+
+2024-01 
+
+2024-07 
+
+2025-01 
+
+Time 
+
+0.0 
+
+10.0 
+
+20.0 
+
+30.0 
+
+40.0 
+
+50.0 
+
+> Rate (%)
+
+(b) Re-entry rate    
+
+> State 1 State 2 State 3 State 4
+
+Figure 9: Lifecycle exit rates (top) and re-entry rates (bottom) over time. Exit rate for state k: proportion of users in active state k transitioning to inactive. Re-entry rate to state k: proportion of inactive users transitioning to state k.
+
+25 has the highest exit hazard ( h ≈ 0.040 per interval), approximately 2.4 × that of State 2 (h ≈ 0.017 ) and 4 × that of States 3 ( h ≈ 0.009 ) and 4 ( h ≈ 0.011 ). The narrow 95% bootstrap confidence bands indicate that these between-state differences are statistically well-resolved. All exit hazard curves are approximately flat across time-in-state, indicating weak duration dependence: disengagement risk is primarily determined by the behavioral regime itself rather than by how long the user has occupied it. This flatness is consistent with the HSMM formulation, in which state persistence is governed by the explicit sojourn-time distribution rather than by a time-varying hazard within each state. The near-constancy of the residual hazard confirms that the HSMM duration model adequately accounts for within-state temporal structure. 10 20 30 40 50 
+
+> Time in state (intervals)
+> 0%
+> 2%
+> 4%
+> 6%
+> 8%
+> 10%
+> h(t)
+
+(a) Exit hazard     
+
+> State 1
+> State 2
+> State 3
+> State 4
+> 10 20 30 40 50
+> Time in state (intervals)
+> 0%
+> 5%
+> 10%
+> 15%
+> 20%
+> h(t)
+
+(b) Re-entry hazard  
+
+> State 1
+> State 2
+> State 3
+> State 4
+> Figure 10: Hazard curves for exit events (left) and re-entry events (right) by mobility state, with 95% bootstrap confidence bands. The hazard represents the instantaneous probability of the event at each time point conditional on being at risk.
+
+For re-entry events, the competing-risks decomposition (right panel) reveals a qualita-tively different pattern: all re-entry hazards exhibit strong negative duration dependence, declining sharply as inactive duration increases. This asymmetry between exit (duration-independent) and re-entry (duration-dependent) hazards indicates fundamentally different temporal mechanisms governing the two lifecycle processes. The decay in return probability is consistent with habit dissolution: as the interval since last usage grows, established travel routines erode and alternative modes or destination adjustments become entrenched, mak-ing metro re-engagement progressively less likely. Re-entry is dominated by transitions to State 1 ( h ≈ 0.21 at t=1 ), with moderate rates to State 4 ( h ≈ 0.08 ) and State 3 ( h ≈ 0.04 ). Direct re-entry to State 2 is negligible ( h < 0.005 ), consistent with the gateway-state struc-ture observed in the transition matrix. Figure 11 presents the corresponding survival functions. The exit survival curves follow the reverse ordering of the hazard hierarchy: State 3 retains the highest survival probability at t=20 (S ≈ 0.84 ), followed by State 4 ( ≈ 0.81 ), State 2 ( ≈ 0.72 ), and State 1 ( ≈ 0.45 ). 26 The separation among the survival curves quantifies the behavioral regime effect: at t=20 ,the survival probability in State 3 is nearly twice that of State 1, highlighting substantial differences in persistence across mobility states. The re-entry survival curves capture the competing-risks structure: the State 1 curve drops rapidly to ≈ 0.18 by t=20 , indicating that approximately 82% of returning users re-enter via State 1, while the State 2 curve remains near 0.97. Among all State 0 users, approximately 58% eventually return; beyond 20 inter-vals (40 weeks) of inactivity, the probability of return diminishes substantially, establishing a practical threshold for reactivation intervention timing. 10 20 30 40 50 
+
+> Time in state (intervals)
+> 0%
+> 20%
+> 40%
+> 60%
+> 80%
+> 100%
+> S(t)
+
+(a) Exit survival     
+
+> State 1
+> State 2
+> State 3
+> State 4
+> 10 20 30 40 50
+> Time in state (intervals)
+> 0%
+> 20%
+> 40%
+> 60%
+> 80%
+> 100%
+> S(t)
+
+(b) Re-entry survival   
+
+> State 1
+> State 2
+> State 3
+> State 4
+> Figure 11: Survival curves for exit events (left) and re-entry events (right) by mobility state, with 95% bootstrap confidence bands. The survival function shows the probability of not experiencing the event through each time point.
+
+6.3.3. Covariate Effects 
+
+Figure 12 presents forest plots of odds ratios from the discrete-time survival models, where values above 1.0 indicate increased hazard and values below 1.0 indicate decreased hazard. For the exit model, mobility state is the strongest predictor of disengagement risk: State 1 carries an odds ratio above 1.0 (OR ≈ 1.20), whereas States 2–4 are well below 1.0 (OR 
+
+≈ 0.25–0.48), signifying 52%–75% lower disengagement odds for stable commuting, regular usage, and diverse travel regimes. Among behavioral covariates, a declining recent_trend 
+
+(g(t) 
+
+> L
+
+, slope of log trip frequency) signals gradual behavioral deceleration preceding exit (OR 
+
+≈ 0.90), while recent_instability (m(t) 
+
+> L
+
+, state transition count) exhibits a modest positive association with exit risk (OR ≈ 1.05), suggesting volatility and experimentation with alter-native routines. The positive coefficient for tenure (η(t), intervals since first trip; OR ≈ 1.20) indicates that long-tenured users, despite sustained activity, have accumulated greater expo-sure to life-course changes that may trigger transition into later lifecycle stages. Together, these covariates suggest that disengagement is a progressive process in which behavioral deceleration and lifecycle stage compound with the underlying mobility-state regime. 27 0.0 0.5 1.0 1.5 
+
+Odds Ratio 
+
+> time_in_state
+> recent_instability
+> recent_trend
+> tenure
+> state_1
+> state_2
+> state_3
+> state_4
+
+(a) Exit origin model    
+
+> 0.0 0.5 1.0 1.5
+
+Odds Ratio 
+
+> time_in_state
+> recent_instability
+> pre_exit_time_in_state
+> tenure
+> pre_exit_state_1
+> pre_exit_state_2
+> pre_exit_state_3
+> pre_exit_state_4
+
+(b) Re-entry destination model Figure 12: Forest plot showing odds ratios with 95% bootstrap confidence intervals for the exit (a) and re-entry (b) survival models. The vertical dashed line at 1.0 indicates no effect; values above 1.0 correspond to increased hazard and values below 1.0 to decreased hazard. 
+
+For the re-entry model, the dominant covariate is time_in_state (d(t) 
+
+> in
+
+, current inactive-spell duration; OR ≈ 0.04): each additional interval reduces re-entry odds by approximately 96%, consistent with progressive erosion of travel habits. Pre-exit state indicators are all below 1.0 (OR ≈ 0.40–0.50), with the lowest value for State 2, suggesting that users exiting from structured commuting routines face greater barriers to re-engagement. The variable 
+
+pre_exit_time_in_state (d(texit ) 
+
+> pre
+
+, pre-exit state duration) captures regime strength prior to disengagement, with longer sojourns associated with modestly lower return probability. The variable tenure (η(t); OR ≈ 0.85) slightly decreases re-entry probability, reflecting the possibility that long-tenured users have reached a terminal lifecycle stage. Together, these effects indicate that re-entry is governed primarily by the duration of disengagement, with prolonged inactivity progressively reducing the likelihood of return. 
+
+6.4. Robustness of Inferred States 
+
+The analyses above assume that the HSMM-inferred states reflect stable population-level behavioral structure rather than artifacts of a particular sample. This subsection validates that assumption through the repeated subsampling protocol described in Section 5.3. Figure 13 presents the results of the repeated subsampling robustness analysis. Across 20 independent user subsets, the state-alignment procedure described in Section 5.3 consistently produces substantially lower matching costs than the exhaustive label-permutation baseline obtained from all K! = 24 possible state correspondences. An empirical permutation test confirms that this separation is statistically significant, establishing that the inferred active states are reproducible rather than artifacts of a particular sample. This reproducibility is a necessary condition for the validity of the survival analysis: if the states were sample-dependent, the state-dependent hazard functions and covariate effects would not generalize. 28 10 20 30 40 
+
+Matching cost 
+
+0.00 
+
+0.02 
+
+0.04 
+
+0.06    
+
+> Density
+> Empirical p= 0.023
+> 19/20 optimal costs
+> <5th perc. (22.4)
+
+Matching cost 
+
+> Permutation baseline
+> Optimal mean (17.5)
+> Permutation mean (34.3)
+> Individual runs (n=20)
+
+S1 S2 S3 S4 
+
+0.10 
+
+0.12 
+
+0.14 
+
+0.16 
+
+0.18 
+
+0.20 
+
+> Proportion
+
+Composition  
+
+> Mean
+> ±1 std
+> Individual runs
+
+S1 S2 S3 S4 
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+> Mean duration (intervals)
+
+Persistence 
+
+0.64 
+
+0.65 
+
+0.66 
+
+0.67 
+
+0.68 
+
+> | 2|
+
+Transition 
+
+(a) 
+
+(b) (c) (d) Figure 13: Robustness assessment results. (a) Distribution of optimal matching costs across 20 repeated subsampling runs (blue dots) versus permutation baseline (red density). An annotation reports the empirical permutation p-value and the fraction of optimal costs below the 5th percentile of the baseline. (b) State composition: proportion of each aligned active state across runs. (c) State persistence: mean duration of each aligned active state across runs. (d) Transition structure: second-largest eigenvalue magnitude |ξ2| of the embedded transition matrix across runs. 
+
+29 Panel (a) shows that the optimal matching costs across the 20 runs cluster tightly around a mean of 17.5 (standard deviation 3.9), well below the permutation baseline mean of 34.3. The matching improvement, defined as 1 − C (q)/ ¯Cperm , averages 49.5%, indicating that the structured alignment achieves approximately half the cost of arbitrary label assignment. An empirical permutation test pooling all 20 × 24 = 480 exhaustive label permutations confirms that this separation is statistically significant ( p = 0 .023 ): 19 of 20 optimal costs fall below the 5th percentile (22.4) of the permutation baseline, and the mean optimal cost lies at approximately the 2nd percentile of the pooled null distribution. Panels (b) and (c) report the stability of state composition and persistence, respectively. The proportions of the four aligned active states exhibit low variability: State 1 at 16.3% 
+
+± 0.7%, State 2 at 10.1% ± 0.5%, State 3 at 12.2% ± 1.0%, and State 4 at 18.9% ± 1.3%. The mean durations show similarly tight distributions, with State 3 exhibiting the largest spread (7.7 ± 0.7 intervals) and State 1 the smallest (3.0 ± 0.1 intervals). The ranking of states by both proportion and duration is preserved across all runs, confirming that the behavioral differentiation identified in Section 6.1 is robust and that the state-dependent hazard hierarchy reported in Section 6.3 reflects a stable population-level property rather than a sampling artifact. Panel (d) reports the magnitude of the second-largest eigenvalue, |ξ2|, of the embedded transition matrix, where eigenvalues are ordered by decreasing magnitude. This quantity summarizes the overall transition structure and is directly related to the spectral-gap mea-sure discussed in Section 6.2. The mean value of 0.660 (standard deviation 0.009) indicates that the slow-mixing, persistence-dominated transition dynamics are highly stable across samples. The narrow spread further suggests that the directional hierarchy in state tran-sitions is a structural property of the underlying population rather than a sample-specific artifact. Together, the four panels establish that the state decomposition, duration struc-ture, and transition dynamics are all reproducible across independent samples, providing a solid empirical foundation for the lifecycle event analysis that builds upon these states. 
+
+7. Conclusion 
+
+This study proposed a state-based lifecycle modeling framework for individual metro mobility that integrates Hidden Semi-Markov Models for latent state inference with discrete-time survival analysis for exit and re-entry event modeling. Applied to four years of smart card data from the Shanghai metro system (2021–2024), the framework yielded three principal findings. First, individual metro usage decomposes into five interpretable latent states (inactive, occasional usage, stable commuting, regular us-age, and diverse travel) that differ systematically in travel intensity, temporal regularity, and spatial diversity; repeated subsampling confirms that these states are robust to sample vari-ation. Second, these states exhibit a directional transition structure: high-intensity states show longer durations and lower exit probabilities, whereas the occasional-usage state func-tions as a transient gateway, serving as both the primary entry point for re-engagement and the primary source of disengagement. Third, exit hazard is state-dependent but duration-30 independent, whereas re-entry hazard decays sharply with inactivity length, revealing fun-damentally different temporal mechanisms governing disengagement and return. These findings carry practical implications for transit management. The occasional-usage state represents a weakly attached behavioral regime whose occupants lack both the habitual anchoring of committed commuters and the entrenched disengagement of inactive users, making them simultaneously the most vulnerable to churn and the most responsive to reactivation efforts. Retention strategies should therefore prioritize this transitional pop-ulation: loyalty incentives and service personalization can reinforce marginal engagement, while targeted outreach timed before the empirically identified 40-week inactivity threshold (beyond which re-entry hazard decays sharply) can capitalize on the narrowing window for natural return. Several limitations should be noted. The approximate HSMM inference replaces full pos-terior estimation with hard state assignments, precluding uncertainty quantification at the individual level. The framework does not incorporate socio-demographic covariates or exter-nal contextual factors that may drive state transitions. While the modeling framework itself, combining HSMM state inference with survival event analysis, is broadly transferable to any longitudinal smart-card system, the specific state compositions, persistence patterns, and transition dynamics reported here are derived from a single metropolitan context (Shanghai) and may vary across cities, network configurations, and operational regimes. Future research directions include incorporating socio-demographic and contextual co-variates into both the HSMM and survival components, investigating spatial heterogeneity in lifecycle dynamics across station types and corridors, and developing predictive models that forecast individual trajectories and identify at-risk users in real time. The inferred state compositions, persistence patterns, and transition structures produced by this framework may also serve as behavioral descriptors for comparative analysis across transit systems. Comparing lifecycle dynamics across cities such as Shanghai and Milano, for instance, could reveal how network topology, fare policy, and urban form shape the structure of user en-gagement and disengagement, opening a direction toward comparative characterization of urban transit systems. 
+
+CRediT authorship contribution statement Bingxun Wang: Conceptualization, Methodology, Software, Validation, Writing - Orig-inal Draft, Writing - Review & Editing, Visualization. Valeria Maria Urbano: Concep-tualization, Methodology, Writing - Review & Editing, Supervision. Shan He: Concep-tualization, Software, Validation, Data Curation, Writing - Original Draft. Yang Chen: 
+
+Methodology, Software, Data Curation. Wei Liu: Investigation, Resources, Data Curation, Project administration. Zhibin Jiang: Conceptualization, Methodology, Resources, Writ-ing - Review & Editing, Supervision, Project administration, Funding acquisition. Pierce-sare Secchi: Conceptualization, Methodology, Validation, Formal analysis, Writing - Re-view & Editing, Supervision. 31 Declaration of competing interests 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 
+
+Acknowledgements 
+
+The work was supported by the National Natural Science Foundation of China (grant number 52372332), the China Scholarship Council (CSC), and the Shanghai Shentong Metro Group Co., Ltd. The authors express their sincere gratitude for the support. 
+
+Data availability 
+
+The authors do not have permission to share data. 
+
+References 
+
+Allison, P.D., 1982. Discrete-time methods for the analysis of event histories. Sociological Methodology 13, 61–98. doi:10.2307/270718. Andersen, P.K., Ravn, H., 2023. Models for Multi-State Survival Data: Rates, Risks, and Pseudo-Values. CRC Press. doi:10.1201/9780429029684. Baratchi, M., Meratnia, N., Havinga, P.J., Skidmore, A.K., Toxopeus, B.A., 2014. A hierar-chical hidden semi-markov model for modeling mobility data, in: Proceedings of the 2014 ACM International Joint Conference on Pervasive and Ubiquitous Computing, ACM. pp. 401–412. doi:10.1145/2632048.2636068. Bartl, E., Bauer, A., Weigert, M., Karl, M., Schmude, J., Küchenhoff, H., 2024. Dis-entangling temporal changes in travel behavior: An age-period-cohort analysis based on german travel demand. Annals of Tourism Research Empirical Insights 5, 100155. doi:10.1016/j.annale.2024.100155. Briand, A.S., Come, E., Trépanier, M., Oukhellou, L., 2017. Analyzing year-to-year changes in public transport passenger behaviour using smart card data. Transportation Research Part C: Emerging Technologies 79, 274–289. doi:10.1016/j.trc.2017.03.021. Burzacchi, A., Urbano, V.M., Arena, M., Azzone, G., Secchi, P., Vantini, S., 2026. Spatio-temporal analysis of public transportation ridership: leveraging APC data for a compre-hensive evaluation of usage rates. Public Transport doi:10.1007/s12469-025-00416-8. Cardell-Oliver, R.M., Olaru, D., 2022. CIAM: A data-driven approach for classifying long-term engagement of public transport riders at multiple temporal scales. Transportation Research Part A: Policy and Practice 165, 321–336. doi:10.1016/j.tra.2022.09.002. 32 Chowdhury, R.I., Ataharul Islam, M., 2020. Prediction of risks of sequence of events us-ing multistage proportional hazards model: a marginal-conditional modelling approach. Statistical Methods and Applications 29, 141–171. doi:10.1007/s10260-019-00460-2. Cleynen, A., de Saporta, B., Rossini, O., Vernay, A., 2025. Controlled hidden semi-markov models, in: A Comprehensive Guide to HSMM: Theory, Software, and Advanced Exten-sions. Wiley. chapter 6. doi:10.1002/9781394427581.ch6. Dickinson, J.E., Filimonau, V., Cherrett, T., Davies, N., Norgate, S., Speed, C., Winstanley, C., 2013. Understanding temporal rhythms and travel behaviour at destinations: potential ways to achieve more sustainable travel. Journal of Sustainable Tourism 21, 1070–1090. doi:10.1080/09669582.2013.802328. Ding, J., Shah, S.P., 2010. Robust hidden semi-markov modeling of array cgh data, in: 2010 IEEE International Conference on Bioinformatics and Biomedicine (BIBM), IEEE. pp. 603–608. doi:10.1109/BIBM.2010.5706637. Dong, M., He, D., 2007a. Hidden semi-markov model-based methodology for multi-sensor equipment health diagnosis and prognosis. European Journal of Operational Research 178, 858–878. doi:10.1016/j.ejor.2006.01.041. Dong, M., He, D., 2007b. A segmental hidden semi-markov model (hsmm)-based diagnostics and prognostics framework and methodology. Mechanical Systems and Signal Processing 21, 2248–2266. doi:10.1016/j.ymssp.2006.10.001. Duong, T.V., Bui, H., Phung, D., Venkatesh, S., 2005. Activity recognition and abnormality detection with the switching hidden semi-markov model, in: 2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR 2005), IEEE. pp. 838– 845. doi:10.1109/CVPR.2005.61. Ghasri, M., Rashidi, T.H., Saberi, M., 2018. Comparing survival analysis and discrete choice specifications simulating dynamics of vehicle ownership. Transportation Research Record 2672, 34–45. doi:10.1177/0361198118791911. Govindarajulu, U.S., D’Agostino, R.B., 2020. Review of current advances in survival analysis and frailty models. Wiley Interdisciplinary Reviews: Computational Statistics 12, e1504. doi:10.1002/wics.1504. Gu, J., Jiang, Z., Fan, W.W., Chen, J., 2022. Short-term trajectory prediction for individual metro passengers integrating diverse mobility patterns with adaptive location-awareness. Information Sciences 599, 25–43. doi:10.1016/j.ins.2022.03.074. Haji-Maghsoudi, S., Bulla, J., Sadeghifar, M., Roshanaei, G., Mahjub, H., 2021. Generalized linear mixed hidden semi-markov models in longitudinal settings: A bayesian approach. Statistics in Medicine 40, 2373–2388. doi:10.1002/sim.8908. 33 ter Hofstede, F., Wedel, M., 1998. A monte carlo study of time aggregation in continuous-time and discrete-time parametric hazard models. Economics Letters 58, 149–156. doi:10.1016/S0165-1765(97)00265-6. Hong, Y., Martin, H., Xin, Y., Bucher, D., Reck, D.J., Axhausen, K.W., Raubal, M., 2023. Conserved quantities in human mobility: From locations to trips. Transportation Research Part C: Emerging Technologies 146, 103979. doi:10.1016/j.trc.2022.103979. van den Hout, A., 2016. Multi-State Survival Models for Interval-Censored Data. CRC Press. doi:10.1201/9781315374321. Huang, C., Huang, Y., 2024. A novel approach for real-time monitoring and counting of metro passenger and vehicle flow. International Journal of Sensor Networks 46, 176–185. doi:10.1504/IJSNET.2024.142514. Jiao, P.P., Zhao, X., Zhang, Y., Yin, B.C., 2021. Review of human mobility pattern analysis based on big transportation data. China Journal of Highway and Transport 34, 1–18. doi:10.19721/j.cnki.1001-7372.2021.12.014. Juang, B.H., Rabiner, L.R., 1990. The segmental K-means algorithm for estimating pa-rameters of hidden Markov models. IEEE Transactions on Acoustics, Speech, and Signal Processing 38, 1639–1641. doi:10.1109/29.60082. van Kasteren, T.L., Englebienne, G., Krose, B.J., 2010. Activity recognition using semi-markov models on real world smart home datasets. Journal of Ambient Intelligence and Smart Environments 2, 311–325. doi:10.3233/AIS-2010-0070. Koslik, J.O., 2025. Hidden semi-markov models with inhomogeneous state dwell-time distributions. Computational Statistics and Data Analysis 209, 108171. doi:10.1016/j.csda.2025.108171. Kuhn, H.W., 1955. The Hungarian method for the assignment problem. Naval Research Logistics Quarterly 2, 83–97. doi:10.1002/nav.3800020109. Langrock, R., King, R., Matthiopoulos, J., Thomas, L., Fortin, D., Morales, J.M., 2012. Flexible and practical modeling of animal telemetry data: hidden Markov models and extensions. Ecology 93, 2336–2342. doi:10.1890/11-2241.1. Langrock, R., Zucchini, W., 2011. Hidden markov models with arbitrary state dwell-time distributions. Computational Statistics and Data Analysis 55, 715–724. doi:10.1016/j.csda.2010.06.015. Liu, X., Zou, G., Duan, Z., Li, W., 2026. Individual-level metro route extraction and travel behavior pattern mining. Journal of Transportation Engineering and Information 24, 45–58. doi:10.19961/j.cnki.1672-4747.2025.07.026. 34 Lu, J., Zhou, S., Xu, Y., 2025. How spatial fixity of individual daily activities evolves in the long-term: A life course and multi-scale behavior explanation. Applied Geography 178, 103609. doi:10.1016/j.apgeog.2025.103609. Malefaki, S., Trevezas, S., Limnios, N., 2010. An em and a stochastic version of the em algorithm for nonparametric hidden semi-markov models. Communications in Statistics: Simulation and Computation 39, 240–261. doi:10.1080/03610910903411185. Mo, B., Zhao, Z., Koutsopoulos, H.N., Zhao, J., 2022. Individual mobility prediction in mass transit systems using smart card data: An interpretable activity-based hidden markov approach. IEEE Transactions on Intelligent Transportation Systems 23, 12014–12026. doi:10.1109/TITS.2021.3109428. Nithin, K., Mulangi, R., Sharma, R., Baishya, H., Panth, P., Mohtashim, M., 2024. Vi-sualisation and assessment of seasonal variations in bus passenger mobility pattern, in: Technologies for Sustainable Transportation Infrastructures. Springer. volume 529, pp. 307–315. doi:10.1007/978-981-97-4852-5_24. Peyrard, N., de Saporta, B., 2025. A Comprehensive Guide to HSMM: Theory, Software, and Advanced Extensions. Wiley. doi:10.1002/9781394427581. Pohle, J., Adam, T., Beumer, L.T., 2022. Flexible estimation of the state dwell-time distri-bution in hidden semi-markov models. Computational Statistics and Data Analysis 172, 107479. doi:10.1016/j.csda.2022.107479. Qi, G., Ceder, A.A., Huang, A., Guan, W., 2021. A methodology to attain pub-lic transit origin-destination mobility patterns using multi-layered mesoscopic anal-ysis. IEEE Transactions on Intelligent Transportation Systems 22, 6256–6274. doi:10.1109/TITS.2020.2990719. Rabiner, L.R., 1989. A tutorial on hidden Markov models and selected applications in speech recognition. Proceedings of the IEEE 77, 257–286. doi:10.1109/5.18626. Saputra, R., Suprapto, S., Sihabuddin, A., 2024. Mobility prediction using markov models: A survey, in: Proceedings of the 7th International Conference on Informatics and Compu-tational Sciences (ICICoS), IEEE. pp. 508–513. doi:10.1109/ICICoS62600.2024.10636860. Singer, J.D., Willett, J.B., 2003. Applied Longitudinal Data Analysis: Mod-eling Change and Event Occurrence. Oxford University Press, New York. doi:10.1093/acprof:oso/9780195152968.001.0001. Sun, L., Zhao, J., Zhang, F., Zhang, R., Ye, K., 2024. Fmsys: Fine-grained passenger flow monitoring in a large-scale metro system based on afc smart card data, in: Advances in Knowledge Discovery and Data Mining. Springer. volume 14649 of Lecture Notes in Computer Science , pp. 336–349. doi:10.1007/978-981-97-2262-4_27. 35 Trépanier, M., Habib, K.M., Morency, C., 2012. Are transit users loyal? revelations from a hazard model based on smart card data. Canadian Journal of Civil Engineering 39, 610–618. doi:10.1139/l2012-048. Urbano, V.M., Arena, M., Azzone, G., 2025. Big data for decision-making in public transport management: A comparison of different data sources. Research in Transportation Business & Management 59, 101298. doi:10.1016/j.rtbm.2025.101298. Urbano, V.M., Arena, M., Azzone, G., Cecconi, L., 2026. Aggregated mobile phone data in transportation: A literature review. Transportation Research Procedia 95, 121–128. doi:10.1016/j.trpro.2026.02.016. Wang, D., Zhong, W., Yin, Z., Xie, D., Luo, X., 2018. Spatio-temporal dynamics of popula-tion in shanghai: A case study based on cell phone signaling data, in: Big Data Support of Urban Planning and Management: The Experience in China. Springer. Advances in Geographic Information Science, pp. 239–254. doi:10.1007/978-3-319-51929-6_13. Xiao, Y., Jiang, S., Zhang, Z., 2025. Spatio-temporal tourist behavior (sttb) under digital footprints: a systematic literature review. Information Technology and Tourism 27, 517– 545. doi:10.1007/s40558-025-00322-6. Xue, Y., Zhou, D., Du, N., Dai, A.M., Xu, Z., Zhang, K., Cui, C., 2020. Deep state-space generative model for correlated time-to-event predictions, in: Proceedings of the 26th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, ACM. pp. 1552–1562. doi:10.1145/3394486.3403206. Yong, N., Ni, S., Shen, S., 2016. A preliminary study of mobility patterns in urban subway, in: Social, Cultural, and Behavioral Modeling. Springer. volume 9708 of Lecture Notes in Computer Science , pp. 61–70. doi:10.1007/978-3-319-39931-7_7. Yu, C., Lin, H., Dong, W., Fang, S., Yuan, Q., Yang, C., 2024. TripChain2RecDeepSurv: A novel framework to predict transit users’ lifecycle behavior status transitions for user management. Transportation Research Part C: Emerging Technologies 167, 104818. doi:10.1016/j.trc.2024.104818. Yu, C., Yang, C., Dong, W., Chen, Y., Yuan, Q., 2025. Retaining bus riders: A lifecycle lon-gitudinal analysis of behavioral status transitions from entry to exit. International Journal of Transportation Science and Technology 18, 176–192. doi:10.1016/j.ijtst.2024.06.004. Yu, S.Z., 2010. Hidden semi-markov models. Artificial Intelligence 174, 215–243. doi:10.1016/j.artint.2009.11.011. Yu, S.Z., 2015. Hidden Semi-Markov Models: Theory, Algorithms and Applications. Else-vier. doi:10.1016/C2014-0-02508-7. 36 Yu, S.Z., Kobayashi, H., 2003. A hidden semi-markov model with missing data and multiple observation sequences for mobility tracking. Signal Processing 83, 235–250. doi:10.1016/S0165-1684(02)00378-X. Yue, Y., Lan, T., Yeh, A.G., Li, Q.Q., 2014. Zooming into individuals to understand the collective: A review of trajectory-based travel behaviour studies. Travel Behaviour and Society 1, 69–78. doi:10.1016/j.tbs.2013.12.002. Zucchini, W., MacDonald, I.L., Langrock, R., 2016. Hidden Markov Models for Time Series: An Introduction Using R. 2nd ed., Chapman and Hall/CRC. doi:10.1201/b20790. 37

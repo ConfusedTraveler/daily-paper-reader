@@ -6,59 +6,47 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-17
-- 运行时间：2026-06-17 22:25:06 UTC
+- 最新运行日期：2026-06-18
+- 运行时间：2026-06-18 21:00:17 UTC
 - 运行状态：成功
-- 本次总论文数：13
-- 精读区：3
-- 速读区：10
+- 本次总论文数：9
+- 精读区：5
+- 速读区：4
 
 ### 今日简报（AI）
-今日精读两篇9分论文：多模态运动预测的神经符号引导，及预调优风险分解框架；速读涵盖离站转化预测与时滞谱嵌入。最值得关注方向：神经符号方法提升运动预测可解释性，以及风险分解优化模型鲁棒性。下一步建议重点研读时间序列分析中无监督特征提取技术。
-- 详情：[/202606/17/README](/202606/17/README)
+今日共推荐9篇论文，精读5篇，其中两篇达9分高分。最值得关注的是U-Calibration的最优遗憾均衡策略与第一人称视频中多模态行人轨迹预测。建议读者优先精读这两篇，可深入理解在线校准与行人建模的前沿进展。
+- 详情：[/202606/18/README](/202606/18/README)
 
 ### 精读区论文标签
-1. [Driving, Fast or Slow? Neuro-Symbolic Guidance for Motion Prediction in Multi-Modal Ground Mobility](/202606/17/2606.15251v1-driving-fast-or-slow-neuro-symbolic-guidance-for-motion-prediction-in-multi-modal-ground-mobility)  
+1. [Toward Simultaneously Optimal Regret in U-Calibration](/202606/18/2606.18527v1-toward-simultaneously-optimal-regret-in-u-calibration)  
    标签：评分：9.0/10、query:pred-limit
-   evidence：多模态地面移动中的运动预测，包含行人
-2. [A Risk Decomposition Framework for Pre-Hoc Fine-Tuning Prediction](/202606/17/2606.17649v1-a-risk-decomposition-framework-for-pre-hoc-fine-tuning-prediction)  
+   evidence：在线预测中同时实现最坏情况和光滑损失下的最优遗憾
+2. [Where Will They Go? Modelling Multimodal Pedestrian Manoeuvres from Ego-centric Videos](/202606/18/2606.18824v1-where-will-they-go-modelling-multimodal-pedestrian-manoeuvres-from-ego-centric-videos)  
    标签：评分：9.0/10、query:pred-limit
-   evidence：预调优预测的理论极限，风险分解及不确定性衰减下界
-3. [Bounded Difference Concentration for Infinitely Exchangeable Sequences with Applications to AI Benchmark Uncertainty](/202606/17/2606.17426v1-bounded-difference-concentration-for-infinitely-exchangeable-sequences-with-applications-to-ai-benchmark-uncertainty)  
+   evidence：行人轨迹预测
+3. [Understanding Long-Term Dynamics of Individual Metro Usage: A Hidden Semi-Markov State Framework with Survival Analysis](/202606/18/2606.17939v1-understanding-long-term-dynamics-of-individual-metro-usage-a-hidden-semi-markov-state-framework-with-survival-analysis)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：推导可交换序列的浓度不等式，可应用于预测误差界限
+   evidence：建模长期人类移动性动态
+4. [Do Time Series Foundation Model Benchmarks Hide Regime-Dependent Failures? Evidence from Traffic Speed Forecasting](/202606/18/2606.18367v1-do-time-series-foundation-model-benchmarks-hide-regime-dependent-failures-evidence-from-traffic-speed-forecasting)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：揭示不同交通状态下预测失败，直接涉及可预测性极限
+5. [Smoothness-Based Derandomization of PAC-Bayes Bounds](/202606/18/2606.19105v1-smoothness-based-derandomization-of-pac-bayes-bounds)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：确定性预测器的理论泛化界
 
 ### 速读区论文标签
-1. [DUET -- Dual User Embedding Transformers for Offsite Conversion Prediction](/202606/17/2606.10243v1-duet----dual-user-embedding-transformers-for-offsite-conversion-prediction)  
+1. [SpikF-GO: Spiking Fourier Graph Operators for Multivariate Time Series Forecasting](/202606/18/2606.13901v1-spikf-go-spiking-fourier-graph-operators-for-multivariate-time-series-forecasting)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：推荐系统中的站外转化率预测
-2. [A Stationarity-and-Coupling Criterion for Training-Free Time-Lagged Spectral Embeddings of Multivariate Time Series](/202606/17/2606.13823v1-a-stationarity-and-coupling-criterion-for-training-free-time-lagged-spectral-embeddings-of-multivariate-time-series)  
+   evidence：多变量时间序列预测方法
+2. [Congestion-Aware Robot Tour Planning in Crowded Environments](/202606/18/2606.19031v1-congestion-aware-robot-tour-planning-in-crowded-environments)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：为时间序列嵌入提供可证伪的适用性准则
-3. [Time Series Analysis in Machine Learning](/202606/17/2606.11746v1-time-series-analysis-in-machine-learning)  
+   evidence：预测人类轨迹以进行拥堵感知规划
+3. [Audited Conformal Prediction for Classification under Unknown Distribution Shift](/202606/18/2606.14909v1-audited-conformal-prediction-for-classification-under-unknown-distribution-shift)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列分析综述，涵盖可预测性概念
-4. [Reliability of Probabilistic Emulation of Physical Systems](/202606/17/2606.12997v1-reliability-of-probabilistic-emulation-of-physical-systems)  
+   evidence：为分布漂移下的预测提供理论覆盖保证
+4. [One Sequential Recommendation Model Pretrained from Synthetic Priors Predicts Multiple Datasets](/202606/18/2606.15752v1-one-sequential-recommendation-model-pretrained-from-synthetic-priors-predicts-multiple-datasets)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：通过经验覆盖率评估概率预测的可靠性
-5. [Navigating the Safety-Fidelity Trade-off: Massive-Variate Time Series Forecasting for Power Systems via Probabilistic Scenarios](/202606/17/2606.13338v1-navigating-the-safety-fidelity-trade-off-massive-variate-time-series-forecasting-for-power-systems-via-probabilistic-scenarios)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：大规模变量概率时间序列预测
-6. [Stable Multivariate Functional Time Series Prediction for Major Geomagnetic Indices](/202606/17/2606.14417v1-stable-multivariate-functional-time-series-prediction-for-major-geomagnetic-indices)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：多元函数时间序列预测
-7. [IBAD: Interpretable Behavioral Anomaly Detection on Human Mobility Data](/202606/17/2606.16023v1-ibad-interpretable-behavioral-anomaly-detection-on-human-mobility-data)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：人类移动性的可解释行为异常检测
-8. [Simulation-Augmented Multi-Step Split Conformal Prediction for Aggregated Forecasts](/202606/17/2606.16356v1-simulation-augmented-multi-step-split-conformal-prediction-for-aggregated-forecasts)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：基于模拟增强的共形预测用于聚合预测不确定性量化
-9. [Learn to Quantify Social Interaction with Constraints for Pedestrian Walking](/202606/17/2606.17897v1-learn-to-quantify-social-interaction-with-constraints-for-pedestrian-walking)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：量化社交互动的人类轨迹预测
-10. [Conformal Prediction Intervals with Tail-Specific Guarantees](/202606/17/2606.18199v1-conformal-prediction-intervals-with-tail-specific-guarantees)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：尾部特定保证的保形预测区间
+   evidence：序列推荐预测模型
 
 
 <div class="dpr-home-promo-card">
