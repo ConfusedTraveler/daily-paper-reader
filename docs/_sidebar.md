@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-06-19 <!--dpr-date:20260619-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202606/19/2606.17996v1-multiple-cyclicity-and-wavelet-decomposition-with-channel-correlation-for-long-term-time-series-forecasting" data-sidebar-item="{&quot;title&quot;: &quot;Multiple cyclicity and Wavelet Decomposition with Channel Correlation for Long-term Time Series Forecasting&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2606.17996v1-multiple-cyclicity-and-wavelet-decomposition-with-channel-correlation-for-long-term-time-series-forecasting&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;面向长期时间序列预测的周期和趋势建模&quot;}">Multiple cyclicity and Wavelet Decomposition with Channel Correlation for Long-term Time Series Forecasting</a>
   * 2026-06-18 <!--dpr-date:20260618-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202606/18/2606.18527v1-toward-simultaneously-optimal-regret-in-u-calibration" data-sidebar-item="{&quot;title&quot;: &quot;Toward Simultaneously Optimal Regret in U-Calibration&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2606.18527v1-toward-simultaneously-optimal-regret-in-u-calibration&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;在线预测中同时实现最坏情况和光滑损失下的最优遗憾&quot;}">Toward Simultaneously Optimal Regret in U-Calibration</a>
