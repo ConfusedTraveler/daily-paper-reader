@@ -1,0 +1,2379 @@
+Title: Generalized nonparametric regression in reproducing kernel Hilbert spaces: Consistency and rates of convergence
+
+URL Source: https://arxiv.org/pdf/2606.22993v1
+
+Published Time: Tue, 23 Jun 2026 02:48:54 GMT
+
+Number of Pages: 31
+
+Markdown Content:
+# Generalized nonparametric regression in reproducing kernel Hilbert spaces: Consistency and rates of convergence 
+
+Ioannis Kalogridis School of Mathematics and Statistics, University of Glasgow, United Kingdom June 23, 2026 
+
+Abstract 
+
+We develop a comprehensive theory for regularized M-estimation in reproducing kernel Hilbert spaces. Under mild conditions on the loss we establish existence and measurability of the estimator, covering a wide range of convex and non-convex losses, including bounded robust losses. We further prove sharp rates of convergence with an explicit bias-variance decomposition governed by a novel complexity measure. We show that the variance is independent of misspecifi-cation, while the bias depends on a source condition parameter known in the learning literature. For tensor product Sobolev spaces we obtain new rates that connect to spaces of functions with dominating mixed smoothness, substantially extending existing results and explaining why these estimators circumvent the curse of dimensionality. Our methodology, combining elements from both functional analysis and empirical process theory, allows for an asymptotic linearisation of the objective function that avoids both closed-form solutions and global Lipschitz assumptions, and may be of independent interest. The estimators are implemented in C++ and theory is supported by numerical experiments. 
+
+Keywords: reproducing kernel Hilbert spaces, M-estimation, robustness, regularization, domi-nating mixed smoothness. MSC 2020: 62G08, 62G35, 62G20. 
+
+# 1 Introduction 
+
+Given independently sampled observations {(xi, y i)}ni=1 ⊂ X × R where X ⊂ Rd, consider the multivariate nonparametric regression model 
+
+yi = f0(xi) + ϵi, (i = 1 , . . . , n ), (1) 1
+
+> arXiv:2606.22993v1 [math.ST] 22 Jun 2026
+
+where f0 : Rd → R is the unknown regression function and {ϵi}ni=1 are independent and identically distributed additive error terms. When little is known a priori about f0, a natural strategy is to estimate it by minimizing a regularized empirical risk over a reproducing kernel Hilbert space (RKHS) H, that is, 
+
+bfn = argmin  
+
+> f∈H
+
+"
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ρ(yi − f (xi)) + λ∥f ∥2
+
+> H
+
+#
+
+, (2) where ρ : R → R is a convex loss function and λ > 0 is a regularization parameter balancing fidelity to the data and smoothness. This formulation provides a broad estimation framework incorporating seamlessly multiple predictor variables. Moreover, the user has the freedom to specify the loss function depending on the characteristics of the data and goals of the analysis. Examples include not only robust loss functions, e.g., ρk(x) = ( x2/2)1( |x| ≤ k) + k(|x| − k/ 2)1( |x| > k ) for k > 0, aimed at reducing the influence for outlying observations on the estimates, but also asymmetric loss functions, such as the quantile loss ρτ (x) = x(τ − 1( x < 0)), aimed at extracting additional information from the sample. The estimator bfn is called the regularized M-estimator and is the object of our study. We refer to the monographs (Huber and Ronchetti, 2009; Maronna et al., 2019) for introductions and illustrative examples of M-estimation. While the special case of (2) with ρ(x) = x2/2, the least-squares estimator, is by now a staple in the modern machine learning literature having been studied in numerous works, for example, in (Cucker and Zhou, 2005; Caponnetto and De Vito, 2007; Steinwart and Scovel, 2012; Fischer and Steinwart, 2020; Zhang et al., 2023), the treatment of the general estimator (2) has received signif-icantly less attention. This disparity is surprising, as numerous practically important procedures, including quantile, expectile and robust regression, arise as special cases of (2). Moreover, these methods are often preferable to least-squares estimation either due to their robustness to outlying observations or their ability to estimate features of the conditional distribution beyond the mean, such as quantiles or expectiles. The relative scarcity of theoretical results is largely explained by the technical difficulties posed by general loss functions. Unlike the least-squares estimator, regularized M-estimators do not admit explicit representations in terms of integral operators and kernel eigenfunctions, compare, e.g., with equation (21) in (Fischer and Steinwart, 2020). As a consequence, many of the spectral techniques underlying modern RKHS theory are no longer directly applicable and one needs to argue in terms of the objective function in order to establish theoretical properties. To the best of our knowledge, no unifying framework has emerged and the literature remains fragmented with only a few particular combinations of losses and kernels having been investigated. Quantile regression in RKHS was studied by Li et al. (2007), who obtained rates of convergence under restrictive assumptions including boundedness of both the response variables and the RKHS. Subsequently, Eberts and Steinwart (2013) investigated least-squares and quantile regression in Gaussian RKHSs 2under Besov smoothness assumptions on the target function, while Farooq and Steinwart (2019) considered expectile regression, still in Gaussian RKHSs, and sharpened the rate obtained by Eberts and Steinwart (2013). Rather than focusing on specific loss functions and RKHSs, this manuscript fills the gap by developing a theoretical framework for the analysis of (2) in full generality. Our framework covers all commonly used convex absolutely continuous losses ρ (fully worked out examples are given in Section 2.2) and all RKHSs, even RKHSs on non-Euclidean domains such as spheres (see Section 2.1 for specific examples). The main mathematical insight of this paper is that the variance of the regularized M-estimators is governed by a novel complexity measure N∞(λ), depending on λ, that we call spectral complexity . The principle applies very broadly yielding explicit rates of convergence. We apply it, in particular, on the intriguing tensor product Sobolev space Hm([0 , 1]) ⊗d extending existing results and establishing the optimality of a large family of estimators. We summarise the main contributions of this work below. 1. We establish the theoretical existence and measurability of the regularized M-estimator bfn
+
+under exceptionally mild conditions: Proposition 1 requires only that ρ is continuous and bounded from below. 2. We prove consistency and sharp rates of convergence for the regularized M-estimator bfn
+
+defined in (2) with an explicit bias-variance decomposition (Theorem 1). In particular, 
+
+Z
+
+> X
+
+{ bfn(x) − f0(x)}2v(dx ) = OP
+
+ N∞(λ)
+
+n
+
+
+
++ OP(λβ ),
+
+where v is the distribution of the xi. The first term on the right represents the variance; it is governed by the spectral complexity N∞(λ) (introduced in Definition 1) and is indepen-dent of misspecification. The second term represents the squared bias and depends on the source condition parameter β ∈ (0 , 1] (introduced by Steinwart and Scovel (2012)). Explicit bounds on N∞(λ) are derived for several important kernels, including Gaussian, (tensor and multivariate) Sobolev and zonal kernels. 3. For tensor Sobolev spaces Hm([0 , 1]) ⊗d (defined and discussed in Section 4), we obtain new rates of convergence (Theorem 2) that hold for a broad family of loss functions and vastly extend the least-squares analysis of Lin (2000). We also establish a direct connection with Sobolev spaces with dominating mixed smoothness widely used in approximation theory; this connection provides insight into why tensor-product-based estimators appear to sidestep the curse of dimensionality. 4. Our methodology, combining functional analysis and empirical processes, is novel and widely applicable. We linearise the objective function around the population counterpart of the estimator (the abstract regularized interpolant, see the appendix). The remainder of this 3linearisation is handled with symmetrisation and contraction. Our analysis, requiring neither smoothness of the loss function nor global Lipschitz behaviour, recovers and extends existing results to useful loss functions that have not been hitherto studied (popular examples are worked out in detail in Section 2.2). Taken together, these contributions provide a flexible, robust, and theoretically sharp framework for nonparametric regression in RKHS that significantly broadens the scope of existing results while delivering explicit and optimal rates of convergence. 
+
+Notation : In what follows, Lpv(X), p ∈ [1 , ∞], will denote the space of p-integrable functions on a domain X ⊂ Rd with respect to a nonnegative measure v. When v is omitted, Lp(X) will refer to the space of p-integrable functions with respect to Lebesgue measure on X. C(X) will denote the space of continuous functions on X. The RKHS will be denoted with H, the dependence on the kernel K being implicit but clear from context. Inner products and norms will be denoted with the traditional notation ⟨· , ·⟩ and ∥ · ∥ respectively. When we need to emphasize the type of inner product or norm used, these will be accompanied with subscripts, e.g., ⟨· , ·⟩ H for the standard inner product on H.
+
+# 2 Framework and assumptions 
+
+2.1 Reproducing kernel Hilbert spaces and spectral complexity 
+
+Let H denote a reproducing kernel Hilbert space (RKHS) of real-valued functions on a domain 
+
+X ⊂ Rd with a continuous positive definite kernel K : X × X → R, that is, for all N ∈ N, all sets of pairwise distinct points {w1, . . . , w N } ⊂ X and all a ∈ Rn,
+
+> N
+
+X
+
+> j=1
+> N
+
+X
+
+> k=1
+
+aj akK(wj , w k) > 0.
+
+It is known that bounded, translation invariant kernels in L1(Rd) are positive definite if, and only if, their Fourier transform is nonnegative and non-vanishing (Wendland, 2005, Theorem 6.11); this result covers the commonly used Mat´ ern and Gaussian kernels. The two characteristic features of the RKHS H are (i) x 7 → K(x, y ) ∈ H for every y ∈ X and (ii) f (x) = ⟨f, K (x, ·)⟩H. The reader is referred to (Sch¨ olkopf and Smola, 2002; Berlinet and Thomas-Agnan, 2004; Wendland, 2005; Steinwart and Christmann, 2008) for introductions to RKHS and learning theory. Throughout, we shall impose the following assumption on X and the distribution (push-forward measure) of the predictor variables {xi}ni=1 , v. We recall that a measure v is supported on all of X
+
+if, and only if, for every non-empty relatively open O ⊂ X, v(O) > 0. 4(A1) X is a compact subset of Rd and the predictors {xi}ni=1 are independent and identically distributed random vectors with distribution v supported on all of X.Assumption (A1) is a clean sufficient condition ensuring that the identity mapping I : H → L 2
+
+> v
+
+(X)is injective, which is a necessary and sufficient condition for Mercer’s theorem to hold. It is satisfied, for example, if X = [0 , 1] d and v has Lebesgue density bounded away from zero and infinity, or, if 
+
+X = Sd−1 (a sphere in Rd) and v is the canonical surface measure. This level of generality is highly desirable, as it allows for the modelling of non-Euclidean data. With assumption (A1) in place, Mercer’s theorem, see, e.g., (Wainwright, 2019, Theorem 12.20) or (Steinwart and Scovel, 2012, Corollary 3.5), applies and the kernel K may be expanded as 
+
+K(x, y ) = 
+
+> ∞
+
+X
+
+> j=1
+
+μj ϕj (x)ϕj (y), (x, y ) ∈ X × X, (3) where {(μj , ϕ j )}∞ 
+
+> j=1
+
+are eigenvalue and eigenfunction pairs of the Hilbert-Schmidt integral operator 
+
+TK : L2
+
+> v
+
+(X) → L 2
+
+> v
+
+(X) defined as TK (f )( x) = R 
+
+> X
+
+K(x, y )f (y)v(dy ) for f ∈ L 2
+
+> v
+
+(X). The convergence of the series in (3) is absolute and uniform on X × X. The positive definiteness of K is inherited by TK (see, e.g. Hsing and Eubank, 2015, Theorem 4.6.4), so that μj > 0 and μj → 0 as j → ∞ , as Hilbert-Schmidt operators are compact with zero the only accumulation point for their eigenvalues. By the spectral theorem (see, e.g., Hsing and Eubank, 2015, Theorem 4.2.4) the eigenfunctions 
+
+{ϕj }∞ 
+
+> j=1
+
+provide a complete orthonormal system (a basis) for L2
+
+> v
+
+(X). This observation combined with Mercer’s theorem (3) allows the characterization of H as 
+
+H =
+
+f ∈ L 2
+
+> v
+
+(X) : f =
+
+> ∞
+
+X
+
+> j=1
+
+fj ϕj ,
+
+> ∞
+
+X
+
+> j=1
+
+f 2
+
+> j
+
+μj
+
+< ∞
+
+ . (4) That is, H ⊂ L 2
+
+> v
+
+(X) consists of L2
+
+> v
+
+(X)-functions whose Fourier series converges sufficiently fast (recall that μj → 0). Moreover, the inner product of the RKHS H is given by 
+
+⟨f, g ⟩H =
+
+> ∞
+
+X
+
+> j=1
+
+fj gj
+
+μj
+
+, f, g ∈ H .
+
+The associated norm is ∥f ∥H := p⟨f, f ⟩H. With these definitions, it can be seen that ⟨ϕi, ϕ j ⟩L2  
+
+> v(X)
+
+=
+
+δij and ⟨ϕi, ϕ j ⟩H = δij μ−1 
+
+> i
+
+where δij denotes Kronecker’s delta, i.e., δij = 1 for i = j and δij = 0 otherwise. Moreover, {√μj ϕj }∞ 
+
+> j=1
+
+is a complete orthonormal system for H. The interested reader is referred to (Steinwart and Scovel, 2012) for insightful discussions and counterexamples. Before we investigate rates of convergence for the regularized M-estimator bfn defined in (2), we settle the basic questions of existence and measurability; Proposition 1 covers all commonly used loss functions. 5Proposition 1. Suppose that (A1) is satisfied, ρ : R → R is continuous and bounded from below, i.e., inf x∈R ρ(x) ≥ C for some C ∈ R, and λ > 0. Then, bfn is well-defined as an element of H and measurable. Proof. Let Ln : H → R denote the objective function, i.e., 
+
+Ln(f ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ρ (yi − f (xi)) + λ∥f ∥2
+
+> H
+
+.
+
+The infimum inf f ∈H Ln(f ) is finite, as Ln is bounded from below by C. Let {fk}k be any minimizing sequence such that Ln(fk) → inf f ∈H Ln(f ), as k → ∞ . The minimizing sequence {fk}k is bounded, for, if that were not true and there was a subsequence {fkm }m such that ∥fkm ∥H → ∞ , then 
+
+Ln(fkm ) → ∞ and at the same time Ln(fkm ) → inf f ∈H Ln(f ). This is impossible, as the infimum is finite. Hilbert spaces are reflexive, hence, given that {fk}k is bounded, there exists a weakly convergent subsequence, which, after relabelling, we still denote with {fk}k. Thus, fk ⇀ g for some g ∈ H . The norm is weakly lower semicontinuous with respect to weak convergence, so 
+
+∥g∥2 
+
+> H
+
+≤ lim inf k→∞ ∥fk∥2
+
+> H
+
+. Moreover, by the reproducing property and weak convergence fk(xi) = 
+
+⟨fk, K (xi, ·)⟩H → ⟨ g, K (xi, ·)⟩H = g(xi) for all i = 1 , . . . , n . The continuity of ρ now implies that 
+
+Ln is weakly lower semicontinuous and inf   
+
+> f∈H
+
+Ln(f ) ≤ Ln(g) ≤ lim inf  
+
+> k→∞
+
+Ln(fk) = inf   
+
+> f∈H
+
+Ln(f ),
+
+showing that the infimum is attained in H. Call the argmin bfn.The representer theorem (Steinwart and Christmann, 2008, Theorem 5.5) ensures that bfn ∈
+
+Vn := Span {K(xi, ·), i = 1 , . . . , n }, which is an at most n-dimensional subspace that is isomorphic to a subspace of Rn. The measurability of the minimizer bfn follows from the fact that the objective function Ln : Ω × Vn:
+
+Ln(ω, f ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ρ (yi(ω) − f (xi(ω))) + λ∥f ∥2
+
+> H
+
+,
+
+is a Carath´ eodory function: ω 7 → Ln(ω, f ) is measurable for every f ∈ Vn and f 7 → Ln(ω, f ) is continuous for every ω ∈ Ω, by the finite-dimensionality of Vn. In the terminology of (Example 14.29 Rockafellar and Wets, 1998), Ln is a normal integrand. Hence, by Theorem 14.37 of these authors, the argmin bfn is measurable. It is worth noting that, for convex ρ, the strict convexity of f 7 → ∥ f ∥2 
+
+> H
+
+(recall that Hilbert spaces are uniformly convex) makes Ln strictly convex on H. Therefore, bfn is unique even when 
+
+ρ is convex but not strictly convex, e.g., the quantile loss; this need not be the case for general penalty functionals possessing non-trivial null spaces arising, e.g., in smoothing spline estimation. 6But beyond convex losses, the proposition applies to very robust bounded loss functions, such as the Tukey or Hampel losses, guaranteeing the existence of a measurable minimizer, though in this case uniqueness for finite samples cannot be assured. Since our goal is to derive rates of convergence with respect to the L2
+
+> v
+
+(X)-norm it is convenient to equip H with a different inner product that captures the effect of the penalization. The inner product most suited for our analysis is given by 
+
+⟨f, g ⟩H,λ := ⟨f, g ⟩L2  
+
+> v(X)
+
++ λ⟨f, g ⟩H, f, g ∈ H , (5) for each λ > 0. The associated norm is ∥f ∥H,λ := p⟨f, f ⟩H,λ . Thus, ⟨· , ·⟩ H,λ and ∥ · ∥ H,λ depend on n, via λ. While at a first glance the norm ∥ · ∥ H,λ may appear to induce a different topology on H relative to ∥ · ∥ H, this is not the case, as these norms are equivalent. Specifically, on the one hand, it is clear that λ1/2∥f ∥H ≤ ∥ f ∥H,λ and, on the other hand, H embeds continuously (even compactly) into L2
+
+> v
+
+(X) (see, e.g., Steinwart and Scovel, 2012, Lemma 2.6) and so there exists c0 > 0such that ∥f ∥2  
+
+> L2
+> v(X)
+
+≤ c0∥f ∥2 
+
+> H
+
+for all f ∈ H . Combining these two bounds, λ1/2∥f ∥H ≤ ∥ f ∥H,λ ≤
+
+(c0 +λ)1/2∥f ∥H, for all f ∈ H , establishing the equivalence of the norms and the induced topologies. The equivalence of the norms ∥ · ∥ H and ∥ · ∥ H,λ implies that H equipped with ⟨· , ·⟩ H,λ is an RKHS on its own right (the evaluation functionals are still continuous) and thus there exists a unique kernel Kλ : X × X → R (depending on λ) such that f (x) = ⟨Kλ(x, ·), f ⟩H,λ for all f ∈ H .Recalling that the eigenfunctions {ϕj }∞ 
+
+> j=1
+
+appearing in (3) “diagonalize” both ⟨· , ·⟩ L2  
+
+> v(X)
+
+and ⟨· , ·⟩ H,it is straightforward to verify that Kλ may be written as 
+
+Kλ(x, y ) = 
+
+> ∞
+
+X
+
+> j=1
+
+ϕj (x)ϕj (y)1 + λγ j
+
+, (6) where γj = 1 /μ j and for each λ > 0 the series converges, similarly to (3), absolutely and uniformly. In particular, Kλ, as the uniform limit of continuous functions, is continuous on X × X.Continuity of Kλ on the compact X implies the compact embedding H ,→ C (X), see, e.g., (Steinwart and Christmann, 2008, Proposition 4.30). The smallest possible embedding constant is critical in our analysis and we propose to call it spectral complexity .
+
+Definition 1 (Spectral complexity) . For each λ ∈ (0 , ∞), the spectral complexity N∞(λ) ∈ (0 , ∞)is defined as 
+
+N∞(λ) := sup   
+
+> f∈H ,f ̸=0
+
+∥f ∥2
+
+> ∞
+
+∥f ∥2
+
+> H,λ
+
+.
+
+The spectral complexity is not to be confused with the effective dimension widely used in the learning literature, e.g., in (Fischer and Steinwart, 2020), and typically denoted with N (λ); in our notation, N (λ) = P∞
+
+> j=1
+
+(1 + λγ j )−1. To clarify the distinction, let us observe that, us-7ing (6), by monotone convergence and the L2
+
+> v
+
+(X)-orthonormality of {ϕj }∞
+
+> j=1
+
+, we have N (λ) = 
+
+R 
+
+> X
+
+Kλ(x, x )v(dx ). By the reproducing property and the Schwarz inequality, we obtain ∥f ∥2  
+
+> L2
+> v(X)
+
+=
+
+R 
+
+> X
+
+|⟨ f, K λ(x, ·)⟩H,λ |2v(dx ) ≤ N (λ)∥f ∥2
+
+> H,λ
+
+, for every f ∈ H , as Kλ(x, x ) = ∥Kλ(x, ·)∥2
+
+> H,λ
+
+. By contrast, Definition 1 gives ∥f ∥2 
+
+> ∞
+
+≤ N ∞(λ)∥f ∥2
+
+> H,λ
+
+, for every f ∈ H . Thus, while N (λ) yields 
+
+L2
+
+> v
+
+(X)-control, N∞(λ) yields uniform control in the unit ball {f ∈ H : ∥f ∥H,λ ≤ 1}. This distinc-tion is essential for the analysis of general convex losses whose subgradient may not be a linear function, but only a locally linear one at the population level, see assumption (A4) and the proof of Theorem 1 below. From this perspective, the spectral complexity N∞(λ) is the natural complexity measure for the class of estimators considered in this paper. It may be verified that N∞(λ) is well-defined and finite for each λ > 0; in particular, the following crucial relation holds. 
+
+Proposition 2. For each λ ∈ (0 , ∞), the spectral complexity is well-defined and 
+
+N∞(λ) = sup 
+
+> x∈X
+
+Kλ(x, x ) < ∞.
+
+Proof. By homogeneity, the result of the proposition is equivalent to N∞(λ) = sup ∥f ∥H,λ =1 ∥f ∥2 
+
+> ∞
+
+=sup x∈X Kλ(x, x ). The reproducing property entails |f (x)|2 = |⟨ f, K λ(x, ·)⟩H,λ |2. Interchanging suprema and using the dual norm on H equipped with ⟨· , ·⟩ H,λ , we obtain sup  
+
+> ∥f∥H,λ =1
+
+sup 
+
+> x∈X
+
+|f (x)|2 = sup 
+
+> x∈X
+
+sup  
+
+> ∥f∥H,λ =1
+
+|⟨ f, K λ(x, ·)⟩H,λ |2 = sup 
+
+> x∈X
+
+∥Kλ(x, ·)∥2
+
+> H,λ
+
+,
+
+as sup ∥f ∥H,λ =1 |⟨ f, K λ(x, ·)⟩H,λ |2 = ∥Kλ(x, ·)∥2
+
+> H,λ
+
+. But, by the symmetry of Kλ and the reproducing property, ⟨Kλ(x, ·), K λ(x, ·)⟩H,λ = Kλ(x, x ), hence sup  
+
+> ∥f∥H,λ =1
+
+∥f ∥2 
+
+> ∞
+
+= sup 
+
+> x∈X
+
+Kλ(x, x ).
+
+Therefore, N∞(λ) = sup x∈X Kλ(x, x ). For λ > 0 the supremum is finite, as x 7 → Kλ(x, x ) is continuous and X is compact. Inspection of our main results in Theorems 1 and 2 below reveals the second reason for the importance of spectral complexity: it determines the asymptotic variance, even under misspecifi-cation. Thus, in order to obtain sharp, explicit rates of convergence, we need to be able to bound 
+
+N∞(λ) effectively. While this may be a difficult task, in general, the examples below show that we can often determine the behaviour of N∞(λ) as λ → 0, which is all that is required for asymptotic rates of convergence. Before we give specific examples, let us note that if there exists an α ∈ (0 , 1) such that sup x∈X
+
+P∞ 
+
+> j=1
+
+μαj ϕ2 
+
+> j
+
+(x) < ∞ (under our assumptions this is always the case when α = 1) 8then 
+
+N∞(λ) = sup 
+
+> x∈X
+> ∞
+
+X
+
+> j=1
+
+μ1−αj
+
+μj + λ μαj ϕ2 
+
+> j
+
+(x) ≤ sup 
+
+> t> 0
+
+t1−α
+
+t + λ sup 
+
+> x∈X
+> ∞
+
+X
+
+> j=1
+
+μαj ϕ2 
+
+> j
+
+(x) = O(λ−α),
+
+but this polynomial bound may be loose when the eigenvalues decay very fast. 
+
+Example K1 (Kernels with uniformly bounded eigenfunctions) . Suppose that the integral operator 
+
+TK possesses uniformly bounded eigenfunctions, that is, sup j ∥ϕj ∥∞ ≤ M . Then, by Proposition 2, N∞(λ) ≤ M 2 P∞
+
+> j=1
+
+(1 + λγ j )−1. If for large j, μj = O(j−α) for some α > 1 then, by integral approximation, N∞(λ) = O(λ−1/α ). If for large j, μj = O(e−cj 1/d 
+
+) for some c > 0 and d ≥ 1 then 
+
+N∞(λ) = O([log(1 /λ )] d) as λ → 0. Examples of kernels with uniformly bounded eigenfunctions are the Sobolev kernel on [0 , 1] with v Lebesgue measure, see, e.g., (Hsing and Eubank, 2015, p. 60) and the references therein, and translation invariant kernels on [0 , 1] based on 1-periodic functions with v again Lebesgue measure, see (Wainwright, 2019, pp. 397–398) 
+
+Example K2 (Gaussian kernel) . Suppose X = [0 , 1] d, K(x, y ) = e−∥ x−y∥2  
+
+> Rd/h
+
+for h > 0 and v
+
+has Lebesgue density bounded away from zero and infinity. It is known that μj = O(e−cj 1/d 
+
+) and 
+
+∥ϕj ∥∞ ≤ bj 2 for some b, c > 0 (see Theorem 7 of (Dommel and Pichler, 2025)). Therefore, by Proposition 2, N∞(λ) = O([log(1 /λ )] 5d), as λ → 0. 
+
+Example K3 (Zonal kernels on spheres) . Let X = Sd−1 and consider the kernel K(x, y ) = (2 −⟨x, y ⟩Rd )−1 for x, y ∈ Sd−1. It is known, see Table 1 in (Scetbon and Harchaoui, 2021) and (Wend-land, 2005, Lemma 17.3 and Proposition 17.6), that μj = O(2 −j ) and sup x∈Sd−1 ϕ2 
+
+> j
+
+(x) = O(jd−2), as j → ∞ . Therefore, N∞(λ) = O([log(1 /λ )] d−1), as λ → 0. 
+
+Example K4 (Sobolev kernels on Rd). Sobolev kernels on X ⊂ Rd with d > 1, in general, do not possess uniformly bounded eigenfunctions, but we can still estimate N∞(λ) as follows. Assume that v has Lebesgue density bounded away from zero and infinity and recall that the Sobolev space 
+
+Hm(X) consists of functions in L2(X) having all weak derivatives of order ≤ m in L2(X). It is well-known that Hm(X) is an RKHS if, and only if, 2 m > d . Moreover, up to equivalent norms, 
+
+Hm(X) is the RKHS induced by the restriction of the Mat´ ern kernel with parameter v = m − d/ 2to X (see, e.g. Wendland, 2005, Corollary 10.48). Suppose λ ∈ (0 , 1]. By Sobolev’s inequality (Agmon, 1965, Theorem 3.9) (taking r = λ−1 ≥ 1 in Agmon’s theorem), there exists a universal 
+
+c0 > 0 such that, for every f ∈ H m(X), 
+
+∥f ∥2 
+
+> ∞
+
+≤ c0λ−d/ (2 m)(∥f ∥2  
+
+> L2
+> v(X)
+
++ λ∥f ∥2
+
+> Hm(X)
+
+) = c0λ−d/ (2 m)∥f ∥2
+
+> Hm(X),λ
+
+.
+
+For f̸ = 0, dividing and taking the supremum yields N∞(λ) = O(λ−d/ (2 m)) for all λ ∈ (0 , 1]. Example K1 shows that in the presence of uniformly bounded eigenfunctions the spectral com-plexity N∞(λ) behaves like the effective dimension N (λ), as λ → 0. But, as examples K2–K4 9demonstrate, uniformly bounded eigenfunctions are not necessary for our analysis and estimates of 
+
+N∞(λ) as λ → 0 can be obtained even when sup j ∥ϕj ∥∞ = ∞. To obtain such estimates one may use Proposition 2 (Examples K2–K3) or the very definition of N∞(λ) (Example K4), whichever is more practical in any given setting. 
+
+2.2 Assumptions on the loss function 
+
+We now present and discuss the assumptions imposed on the loss function ρ. Our assump-tions comprise two weak regularity conditions and one Fisher consistency condition that is widely satisfied, as we show by means of several examples. (A2) The loss function ρ : R → R is convex and absolutely continuous with derivative ψ existing almost everywhere. (A3) There exist constants κ, M 1 > 0 such that for all |y| ≤ κ
+
+|ψ(x + y) − ψ(x)| ≤ M1,
+
+uniformly in x ∈ R.(A4) The errors {ϵi}ni=1 are i.i.d., independent of the predictor vectors {xi}ni=1 , satisfy E[ψ(ϵ1)] = 0, 
+
+E[|ψ(ϵ1)|2] < ∞ and there exists a γ > 0 such that 
+
+E [ψ(ϵ1 + t)] = γt + o(t),
+
+as t → 0. Assumption (A2) ensures that the fundamental theorem of calculus holds in the Lebesgue sense, i.e., that we can write ρ(x) = ρ(0) + R x 
+
+> 0
+
+ψ(t)dt . This representation is used repeatedly in our proofs. The assumption is fulfilled by all commonly used loss functions, including loss functions that are not continuously differentiable, such as the quantile loss. Assumption (A3) is due to Bai and Wu (1994) and has been referred to as uniformly bounded local increments . It is similarly a general assumption that is fulfilled by all commonly used losses, sufficient conditions including either uniform continuity or merely boundedness of ψ. For example, it is fulfilled by both ψ(x) = x and ψ(x) = sign( x). Assumption (A4) is placed jointly on ψ and the distribution of the errors {ϵi}ni=1 . The first part, namely the independence of errors and predictors, is standard in regression analysis. The moment conditions E[ψ(ϵ1)] = 0 and E[|ψ(ϵ1)|2 < ∞ are widely used in M-estimation, see, e.g., (Maronna et al., 2019, Section 10.6), and generalize the classical Gauss–Markov conditions. For bounded score functions ψ, the second moment condition is automatically satisfied whereas a sufficient (but by no means necessary) condition ensuring E[ψ(ϵ1)] = 0 is that ψ is bounded and odd and the distribution of ϵ1 is symmetric about zero, e.g., any t-distribution with positive degrees of freedom. 10 The second part of assumption (A4) requires that g(t) := E[ψ(ϵ1 + t)] is differentiable at 0 with strictly positive derivative γ. This is a necessary condition for the minimizer to be well-separated in the limit and can be shown to hold for a wide variety of loss functions under appropriate, loss-specific, conditions on the error. In particular, it is trivial for ρ(x) = x2/2 provided that E[ϵ1] = 0 and E[ϵ21] < ∞. We now give several other interesting examples; throughout, we use F to denote the cumulative distribution function of the error ϵ1, i.e., F (t) = Pr( ϵ1 ≤ t). 
+
+Example L1 (Absolute loss and quantiles) . Consider first the absolute loss ρ(x) = |x|. We assume (i) F has median at 0, i.e., F (0) = 1 /2, and (ii) F has Lebesgue density f in a neighbourhood about 0 with f (0) > 0. Then, direct calculation yields 
+
+E[ψ(ϵ1 + t)] = −
+
+Z
+
+> x+t< 0
+
+F (dx ) + 
+
+Z
+
+> x+t≥0
+
+F (dx ) = 1 − 2F (−t) = 2 f (0) t + o(t),
+
+as t → 0. Thus, (A4) is satisfied with γ = 2 f (0) > 0. More generally, for the quantile loss 
+
+ρτ (x) = x(τ − 1( x < 0)) with τ ∈ (0 , 1) we have E[ψτ (ϵ + t)] = τ − F (−t−) where F (x−) denotes the limit from the left at x. Therefore, (A4) is satisfied with γ = f (0) provided that ϵ1 has CDF 
+
+F satisfying (i) F (0) = τ and (ii) F has Lebesgue density f in a neighbourhood about 0 satisfying 
+
+f (0) > 0. 
+
+Example L2 (Vapnik’s δ-insensitive loss) . Fix δ ≥ 0 and consider the convex loss function ρδ(x) = max( |x| − δ, 0). We assume (i) F (δ) + F (−δ) = 1 (ii) F has Lebesgue density f in a neighborhood of −δ and δ and (iii) f (−δ) + f (δ) > 0. Then, 
+
+E[ψδ(ϵ1 + t)] = 
+
+Z
+
+> |x+t|≥ δ
+
+sign( x + t)F (dx ) = 1 − F (δ − t) − F (−δ − t) = {f (δ) + f (−δ)}t + o(t),
+
+as t → 0. Hence, (A4) holds with γ = f (δ) + f (−δ) > 0. For δ = 0, ρδ(x) reduces to ρ(x) = |x|
+
+and our assumptions reduce to f (0) > 0, as in the previous example. 
+
+Example L3 (Huber loss) . Fix k > 0 and consider the Huber loss ρk(x) = ( x2/2)1( |x| ≤ k) + 
+
+k(|x| − k/ 2)1( |x| > k ) blending absolute and square losses. We assume (i) F is symmetric about 0 and (ii) F is continuous at {− k, k }. Then, integration by parts yields 
+
+E[ψk(ϵ1 + t)] = 
+
+Z
+
+> |x+t|≤ k
+
+(x + t)F (dx ) + k
+
+Z
+
+> |x+t|>k
+
+sign( x + t)F (dx )=
+
+Z k−t
+
+> −k−t
+
+xF (dx ) + t{F (k − t) − F (−k − t)} + k(1 − F (k − t)) − kF (−k − t)= −
+
+Z k−t
+
+> −k−t
+
+F (x)dx + k = (2 F (k) − 1) t + o(t),
+
+as t → 0. Note that 2 F (k) > 1, because k > 0 and F (0) = 1 /2. Thus, (A4) is satisfied with 
+
+γ = 2 F (k) − 1. 11 Example L4 (Expectile loss) . Fix α ∈ (0 , 1) and consider the expectile loss ρα(x) = x2/2|α−1( x < 
+
+0) |. It is clear that ρα is continuously differentiable with derivative ψα(x) = αx 1( x > 0) + x(1 −
+
+α)1( x ≤ 0). We assume (i) the error has α-expectile equal to zero, i.e., E[ψα(ϵ1)] = 0, (ii) E[ϵ21] < ∞
+
+and (iii) F is continuous at 0. Under these assumptions we obtain 
+
+E[ψα(ϵ1 + t)] = α
+
+Z ∞−t
+
+xF (dx ) + αt (1 − F (−t)) + (1 − α)
+
+Z −t
+
+> −∞
+
+xF (dx ) + (1 − α)tF (−t)= α
+
+Z ∞−t
+
+xF (dx ) −
+
+Z ∞
+
+> 0
+
+xF (dx )
+
+
+
++ (1 − α)
+
+Z −t
+
+> −∞
+
+xF (dx ) −
+
+Z 0
+
+> −∞
+
+xF (dx )
+
+
+
++ αt (1 − F (0)) + (1 − α)tF (0) + o(t) = {α + (1 − 2α)F (0) }t + o(t),
+
+as t → 0, by the continuity of F at 0. Observe that for α > 0 the term inside the curly brackets is strictly positive and so assumption (A4) is satisfied with γ = α + (1 − 2α)F (0). The reader will have noticed the underlying principle in the previous examples: our assumptions are general enough to permit score functions with a finite number of discontinuities so long as F is absolutely continuous in a neighbourhood about these discontinuities. Score functions ψ that are continuous but not everywhere differentiable, e.g., Huber and expectile losses, are easier to deal with requiring essentially that F is continuous at the points of non-differentiability of ψ, i.e., these points are not atoms of F . In both cases, smoothness can be traded between ψ and F allowing for our conditions to be satisfied very broadly. Assumption (A4) and our proofs can be adapted to cover independent but non-identically distributed {ϵi}ni=1 at the cost of more cumbersome notation. In that case, assumption (A4) would read E[ψ(ϵi)] = 0, sup n max i≤n E[|ψ(ϵi)|2] < ∞ and sup 
+
+> n
+
+max  
+
+> i≤n
+
+|E[ψ(ϵi + t)] − γit| = o(t),
+
+as t → 0, with {γi}ni=1 satisfying 0 < inf n min i≤n γi ≤ sup n max i≤n γi < ∞.
+
+# 3 Main results for general RKHS 
+
+We aim to present bounds for the L2
+
+> v
+
+(X)-distance between bfn and f0 both in the case f0 ∈ H and 
+
+f0 /∈ H . We are primarily interested in the case in which f0 is less smooth than functions from H
+
+(the smoothness of these functions being determined by the smoothness of K, see, e.g., (Wendland, 2005, Theorem 10.45)). For this reason, we will assume that f0 lies in an intermediate space with functions that are smoother than those in L2
+
+> v
+
+(X) (which are technically not even functions) but no smoother than those in H. In particular, and in line with previous works (Steinwart and Scovel, 2012; Fischer and Steinwart, 2020; Zhang et al., 2023), we assume that f0 lies in the β-power space of functions [ H]β .12 (A5) There exists a β ∈ (0 , 1] such that 
+
+f0 ∈ [H]β := 
+
+
+
+> ∞
+
+X
+
+> j=1
+
+fj μβ/ 2 
+
+> j
+
+ϕj :
+
+> ∞
+
+X
+
+> j=1
+
+|fj |2 < ∞
+
+ .
+
+The space [ H]β corresponds to the range of the linear operator f 7 → P∞ 
+
+> j=1
+
+μβ/ 2 
+
+> j
+
+fj ϕj for f = P 
+
+> j
+
+fj ϕj
+
+with P 
+
+> i
+
+|fi|2 < ∞, i.e., f ∈ L 2
+
+> v
+
+(X). Equipped with the β-power inner product 
+
+ ∞X
+
+> j=1
+
+fj μβ/ 2 
+
+> j
+
+ϕj ,
+
+> ∞
+
+X
+
+> j=1
+
+gj μβ/ 2 
+
+> j
+
+ϕj
+
+
+
+> β
+
+:= 
+
+> ∞
+
+X
+
+> j=1
+
+fj gj ,
+
+the space [ H]β is isometrically isomorphic to the sequence space ℓ2(N) and as such a separable Hilbert space on its own right. The limiting cases β = 0 and β = 1 are of great interest, as they correspond, on the one hand, to the space L2
+
+> v
+
+(X) and, on the other hand, to H (recall the equivalent definition (4)). Since μj → 0, increasing β dampens high frequencies fj ϕj bringing about smoother functions. Thus, by allowing β ∈ (0 , 1] we can capture different degrees of smoothness and misspecification on a continuous scale. A technical condition required in our analysis is the existence of an α ∈ (0 , β ) such that [ H]α is continuously embedded into L∞ 
+
+> v
+
+(X), the space of v-essentially bounded functions on X.(A6) There exists an α ∈ (0 , β ) such that the inclusion [ H]α ,→ L ∞ 
+
+> v
+
+(X) is continuous. Assumption (A6) is the critical assumption (EMB) in (Fischer and Steinwart, 2020) with α < β ;it is not needed when β = 1 in which case our analysis only requires (A1)–(A4). With these definitions, our main result for this section is as follows. 
+
+Theorem 1. Suppose that assumptions (A1)–(A6) are satisfied and λ → 0 in such a way that 
+
+N 2
+
+> ∞
+
+(λ)/n → 0 and λβ N∞(λ) → 0, as n → ∞ . Then, 
+
+Z
+
+> X
+
+{ bfn(x) − f0(x)}2v(dx ) = OP
+
+ N∞(λ)
+
+n
+
+
+
++ OP(λβ ),
+
+as n → ∞ .
+
+Theorem 1 establishes an asymptotic decomposition of the L2
+
+> v
+
+(X)-error into two terms, which correspond to the asymptotic variance and the squared penalization bias respectively. It is interest-ing to observe that the variance N∞(λ)/n is unaffected by misspecification, i.e., by β < 1. Instead, misspecification only affects the penalization bias λβ . Given that λ → 0, the latter is larger for smaller β ∈ (0 , 1]. To illustrate the result with concrete rates of convergence, consider first the Sobolev space Hm(X) discussed in Example K4. The variance term is ( nλ d/ 2m)−1 and is balanced with the squared bias λβ when λ ≍ n−2m/ (2 mβ +d) leading to the rate n−2mβ/ (2 mβ +d). By (Fischer 13 and Steinwart, 2020, Theorem 2) this is the optimal (minimax) rate of convergence. Consider next the zonal kernel from Example K2. The best rate of convergence is [log( n)] d−1/n obtained when 
+
+λ ≍ n−1/β [log( n)] (d−2) /β . Owing to the smoothness of the kernel, the rate is almost parametric and is unaffected by misspecification. The minimax rates for exponentially decaying eigenvalues are not known, but we conjecture that, up to a logarithmic power, this rate is optimal. It is worth emphasizing that, while the learning literature has overwhelmingly focused on the least-squares estimator with ρ(x) = x2/2, Theorem 1 holds for all loss functions satisfying (A2)– (A4). As noted, the main technical hurdle in the analysis of these estimators is the lack of closed-form solution upon which most theoretical results to date are based, see, e.g., (Smale and Zhou, 2005; Zhang et al., 2023). The dependence on this closed form solution means that none of those arguments carries over to the general situation. We overcome this difficulty by developing an asymptotic linearisation of the objective function, which is delicate, as we do not assume that ρ is smooth. We study the objective function in a shrinking neighbourhood of the abstract regularized interpolant (defined in the appendix) and show that there exists a minimizer in the interior, which by strict convexity can only be bfn. The interested reader is referred to the appendix for the complete argument. The present treatment is novel even compared to the modern analysis of penalized M-estimators with empirical process theory (see, e.g., van de Geer, 2000, Chapter 12) in two important ways. First, we do not require that ρ should be Lipschitz. The Lipschitz condition is widely used to estimate the Rademacher complexity by contraction, an elegant step simplifying many proofs, but excluding widely used losses such as expectile and Lp losses with p > 1. We take a different approach by using the more general (A2) and (A3) to decompose the objective function. We apply the contraction principle on the remainder of the linearisation rather than on the standard symmetrised empirical process. Secondly, our approach leads to an informative error decomposition as opposed to a single rate n−s one typically obtains through empirical process theory alone. We believe that such an error decomposition is valuable, as, on the one hand, it makes the bias-variance trade-off explicit, and on the other hand, it is the first step towards second order inference, namely the construction of confidence bands for f0.
+
+# 4 Tensor product RKHS and dominating mixed smoothness 
+
+Having established the general asymptotic properties of regularized M-estimators on an RKHS 
+
+H with domain X, we now turn to the intriguing tensor construction allowing one to model data on Cartesian domains X × X . . . × X. While the general recipe to be described applies to any RKHS, even with multidimensional domain X, we focus here on the Sobolev space Hm(X) with X ⊂ R
+
+due to its connection with flexible modelling. A particularly appealing feature of tensor Sobolev spaces is their ability to naturally incorporate interaction effects between variables; the interested reader is referred to (Lin, 2000) for insightful discussions and results for ρ(x) = x2/2. Here, we 14 briefly describe the tensor construction and illustrate how our methodology applies and yields new results recovering and vastly extending those of (Lin, 2000). Our precise setting is as follows. Let X ⊂ R be compact and connected, say X = [0 , 1] without loss of generality. The standard Sobolev space Hm([0 , 1]) (with its usual inner product and norm) is an RKHS for all m ∈ N with kernel K : [0 , 1] × [0 , 1] → R. As discussed in Example K1, the eigenfunctions of K, {ϕj }∞
+
+> j=1
+
+, form a complete orthonormal system for L2([0 , 1]) and {μ1/2 
+
+> j
+
+ϕj }∞
+
+> j=1
+
+is a complete orthonormal system for Hm([0 , 1]). The d-dimensional Sobolev tensor product space 
+
+Hm([0 , 1]) ⊗d is defined as 
+
+Hm([0 , 1]) ⊗d := 
+
+f : [0 , 1] d → R : f = X
+
+> i1,...i d
+
+fi1,...,i d ϕi1 (x1) . . . ϕ id (xd), X
+
+> i1,...,i d
+
+|fi1,...,i d |2
+
+μi1 . . . μ id
+
+< ∞
+
+ ,
+
+where each of the d sums runs over N. This space results from the closure of the linear span of the products {ϕi1 . . . ϕ id }i1,...,i d under the inner product ⟨ϕi1 . . . ϕ id , ϕ j1 . . . ϕ jd ⟩Hm(X)⊗d := Qdk=1 
+
+> δik jk
+> μik
+
+extended to finite sums. It can be shown that Hm([0 , 1]) ⊗d is isometrically isomorphic to ℓ2(Nd)and as such separable and complete. It is also an RKHS with kernel 
+
+eK(x, y ) := 
+
+> d
+
+Y
+
+> i=1
+
+K(xi, y i), x, y ∈ [0 , 1] d,
+
+(see, e.g., Steinwart and Christmann, 2008, Lemma 4.6). Moreover, when K is positive definite on [0 , 1], then, by a well-known theorem of I. Schur, so is eK on [0 , 1] d.As previously, it is convenient to equip Hm([0 , 1]) ⊗d with a penalty-weighted inner product: 
+
+⟨f, g ⟩Hm([0 ,1]) ⊗d,λ := ⟨f, g ⟩L2([0 ,1] d) +λ⟨f, g ⟩Hm([0 ,1]) ⊗d . The reproducing kernel for this inner product is 
+
+eKλ(x, y ) = X
+
+> i1,...,i d
+
+ϕi1 (x1) . . . ϕ id (xd)ϕi1 (y1) . . . ϕ id (yd)1 + λ Qdj=1 γij
+
+, x, y ∈ [0 , 1] d, (7) where γij = μ−1 
+
+> ij
+
+and the series converges absolutely and uniformly for each λ > 0. Our main result for this section is presented in Theorem 2 below. 
+
+Theorem 2. Suppose that H = Hm([0 , 1]) ⊗d and the predictors {xi}ni=1 are i.i.d. vectors on [0 , 1] d
+
+with distribution v having Lebesgue density bounded away from zero and infinity. Suppose also that assumptions (A2)–(A6) are satisfied and λ → 0 in such a way that λ−1/m [log(1 /λ )] 2( d−1) /n → 0
+
+and λβ−1/(2 m)[log(1 /λ )] d−1 → 0. Then, 
+
+Z
+
+> [0 ,1] d
+
+{ bfn(x) − f0(x)}2dx = OP
+
+log   1
+
+> λ
+
+ d−1
+
+nλ 12m
+
+!
+
++ OP(λβ ),
+
+15 as n → ∞ .
+
+To appreciate how striking this result is, recall that by Example K4 and Theorem 1, had our target been in Hm([0 , 1] d) (the standard isotropic Sobolev space on [0 , 1] d), the variance term of the RKHS estimator would have been ( nλ d/ (2 m))−1, and this is, in general, unimprovable. By contrast, for an Hm([0 , 1]) ⊗d target, the variance of the tensor RKHS estimator is, up to a log term, (nλ 1/(2 m))−1. The latter is substantially smaller as λ → 0, even though the domains are the same. In this light, Theorem 2 appears to suggest that nonparametric regression in tensor RKHS avoids the curse of dimensionality. However, the reality is more subtle, because Hm([0 , 1]) ⊗d consists of substantially smoother functions than those in H([0 , 1] d). The crucial observation explaining this puzzling phenomenon is that Hm([0 , 1]) ⊗d can be iden-tified, up to equivalent norms, with the Sobolev space with dominating mixed smoothness on [0 , 1] d
+
+of order m, well-known in approximation theory (Triebel, 2019). In particular, when the domain is 
+
+Rd this identification is the subject of Theorem 2.1 in (Sickel and Ullrich, 2009); the identification on [0 , 1] d follows by combining the extension operator in (Triebel, 2019, Proposition 1.25) with the fact that bounded linear extension and restriction operators lead to equivalent norms (argue as in the proof of Corollary 10.48 in (Wendland, 2005)). Using this identification, we have the continuous inclusion 
+
+Hdm ([0 , 1] d) ⊂ H m([0 , 1]) ⊗d,
+
+which is the best possible. Therefore, we may heuristically view Hm([0 , 1]) ⊗d as “almost” equal to 
+
+Hdm ([0 , 1] d) and should expect an asymptotic variance of order ( nλ d/ (2 dm ))−1 = ( nλ 1/(2 m))−1. Up to a log-term, this is precisely the variance obtained in Theorem 2. To the best of our knowledge, the connection between tensor Sobolev spaces and Sobolev spaces with dominating mixed smoothness had not been drawn previously in the either the learning or statistics literatures. Specializing Theorem 2 to the case f0 ∈ Hm([0 , 1]) ⊗d, that is, β = 1, and taking λ ≍{n[log( n)] (1 −d)}−2m/ (2 m+1) , we obtain 
+
+Z
+
+> [0 ,1] d
+
+{ bfn(x) − f0(x)}2dx = OP
+
+n
+
+n[log( n)] 1−do− 2m
+
+> 2m+1
+
+
+
+,
+
+which is in agreement with the rate in (Lin, 2000, Theorem 1.2) derived for the special case ρ(x) = 
+
+x2/2, also assuming that v possesses Lebesgue density bounded away from zero and infinity. That author also proved that this is the minimax (optimal) rate of convergence (Lin, 2000, Theorem 1.1). Hence, greatly extending existing results, Theorem 2 establishes the minimax optimality of an entire family of tensor RKHS estimators under mild assumptions. 16 5 Practical implementation 
+
+The estimators can be readily implemented using the representer theorem, which guarantees the finite-dimensional representation bfn(·) = Pni=1 K(xi, ·)βi, cf. Proposition 1. Its squared H-norm 
+
+∥ bfn∥2 
+
+> H
+
+can be shown from first principles to equal β⊤Kβ where K ∈ Rn×n with Kij = K(xi, x j ). Plugging this representation into the objective function (2), we need only determine 
+
+bβn = argmin 
+
+> β∈Rn
+
+"
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ρ(yi − K⊤ 
+
+> i
+
+β) + λβ ⊤Kβ 
+
+#
+
+,
+
+thereby transforming (2) to a finite-dimensional problem. For each given λ > 0, the coefficient vec-tor bβn may be identified through the well-established iteratively reweighted least-squares (IRLS) algorithm, see, e.g., (Maronna et al., 2019, Chapter 9). For convex losses, the algorithm is guar-anteed to converge to bβn, but requires that lim x→0 ρ′(x)/x exists, which is not the case for the quantile loss ρτ (x) = x(τ − 1( x < 0)), τ ∈ (0 , 1). For this reason, we replace ρτ with its local quadratic approximation about 0 proposed by Nyckha et al. (1995), viz, 
+
+eρτ,ϵ (x) = 
+
+
+
+ρτ (x), |x| > ϵ, τ x 2/ϵ, 0 ≤ x ≤ ϵ, 
+
+(1 − τ )x2/ϵ, −ϵ ≤ x ≤ 0.
+
+Here, ϵ > 0 is a (small) tuning parameter. It is clear that ∥eρτ,ϵ − ρτ ∥∞ = ϵ max( τ, (1 − τ )) /4 and so smaller values of ϵ provide better approximations to ρτ ; we take ϵ = 10 −3 in our implementations. The IRLS is applicable for eρτ,ϵ and, in our experience, converges fast to the minimizer bβn.−1 012        
+
+> 0.00 0.25 0.50 0.75 1.00 −1 012
+> 0.00 0.25 0.50 0.75 1.00
+
+Figure 1: 20 estimates with β = 0 .5 and Gaussian errors of the least squares (left) and least absolute deviations (right) estimators. The solid black line represents the true regression function. 17 To select the penalty parameter λ > 0, we propose to minimize the robust leave-one-out cross-validation criterion given by RCV( λ) = 
+
+> n
+
+X
+
+> i=1
+
+wi(λ)r2 
+
+> i
+
+(λ)(1 − hi(λ)) 2 ,
+
+where ri(λ) are the residuals: ri(λ) = yi − K⊤ 
+
+> i
+
+bβn(λ), wi(λ) are weights defined as wi(λ) = 
+
+ρ′(ri(λ)) /r i(λ) and hi(λ) are the diagonal elements of the weighted hat matrix obtained upon convergence of the IRLS algorithm, that is, H(λ) = K(KW (λ)K + nλK )−1KW (λ) where W (λ) = diag( w1(λ), . . . , w n(λ)). Note that K is positive definite, so we may rewrite this as H(λ) = 
+
+K(W (λ)K + nλ In×n)−1W (λ). If wi(λ) = 1 for all i = 1 , . . . , n , RCV( λ) reduces to the commonly used leave-one-out cross-validation. Fast implementations of the least-squares, least absolute devi-ations and Huber estimators as well as R-scripts reproducing the tables and figures of this paper may be found at https://github.com/ioanniskalogridis/Generalized-nonparametric-reg ression-in-RKHS .−1 012        
+
+> 0.00 0.25 0.50 0.75 1.00 −1 012
+> 0.00 0.25 0.50 0.75 1.00
+
+Figure 2: 20 representative estimates with β = 0 .5 and t2 errors of the least squares (left) and least absolute deviations (right) estimators. The solid black line represents the true regression function. 
+
+# 6 Numerical illustrations 
+
+In our numerical experiments, we study the effects of (i) heavy-tailed errors {ϵi}ni=1 (ii) target function roughness and (iii) dimensionality on the estimates. The estimators to be compared are 
+
+• The least-squares estimator with ρ(x) = x2 in (2), abbreviated as LS. 
+
+• The least absolute deviations estimator with ρ(x) = |x| in (2), abbreviated as LAD. 18 • The Huber estimator with ρk(x) = ( x2/2)1( |x| ≤ k) + k(|x| − k/ 2)1( |x| > k ) with k = 1 .345 in (2), abbreviated as Huber. To ensure that the estimators are comparable we have implemented them ourselves with an R-interface (R Core Team, 2026), but with a C++ back-end for enhanced computational efficiency. We begin with the one-dimensional setting. Here, the observations have been generated according to 
+
+yi =
+
+> 50
+
+X
+
+> j=1
+
+j−2β j−2/3√2 cos(2 π(j − 1) xi) + ϵi, (i = 1 , . . . , n ),
+
+with {xi}ni=1 
+
+> iid
+
+∼ Unif[0 , 1] and Gaussian or student t2 errors {ϵi}ni=1 . The parameter β > 0 controls the decay of Fourier coefficients and hence the smoothness of the regression function. We estimate the regression function f0(x) := P50  
+
+> j=1
+
+j−2β j−2/3 cos(2 π(j − 1) x) using the Mat´ ern kernel with 
+
+v = 2 .5 corresponding, up to equivalent norms, to the Sobolev space H2([0 , 1]), see Example K4. A useful spectral heuristic is μj ≍ j−4 and so we consider values of β ∈ { 0.5, 0.75 , 1} reflecting severe misspecification ( β = 0 .5), mild misspecification ( β = 0 .75) and correct specification ( β = 1), respectively. We evaluate performance with the mean-squared error MSE = 300 −1 P300 
+
+> j=1
+
+( bfn(ti) −
+
+f0(ti)) 2 where the {ti}300  
+
+> i=1
+
+are equidistant within [0 , 1]. LS LAD Huber 
+
+d β Noise MSE SE MSE SE MSE SE 
+
+d = 1 
+
+β = 0 .50 Gaussian 0.3617 0.0101 0.5945 0.0145 0.3850 0.0099 
+
+t2 2.3087 0.1902 0.8076 0.0216 0.5509 0.0137 
+
+β = 0 .75 Gaussian 0.2979 0.0121 0.6070 0.0160 0.3115 0.0099 
+
+t2 3.3263 1.1597 0.7836 0.0207 0.4628 0.0154 
+
+β = 1 .00 Gaussian 0.2671 0.0096 0.5807 0.0149 0.2907 0.0104 
+
+t2 1.8748 0.0976 0.7585 0.0233 0.4338 0.0145 
+
+d = 2 
+
+β = 0 .50 Gaussian 1.2275 0.0173 1.4504 0.0165 1.2409 0.0140 
+
+t2 3.1226 0.1074 1.6950 0.0246 1.4827 0.0202 
+
+β = 0 .75 Gaussian 1.2153 0.0180 1.4523 0.0174 1.2738 0.0135 
+
+t2 3.2979 0.1204 1.7609 0.0241 1.6425 0.0215 
+
+β = 1 .00 Gaussian 1.2353 0.0185 1.5179 0.0178 1.3370 0.0163 
+
+t2 3.2482 0.1211 1.8422 0.0266 1.7667 0.0213 Table 1: Mean-squared errors and associated standard errors ( ×10) of the estimators over 500 replications. We construct an analogous two-dimensional model using tensor-product Fourier bases. In par-19 ticular, we generate data according to 
+
+yi = 2 
+
+> 50
+
+X
+
+> j=1 50
+
+X
+
+> k=1
+
+(jk )−2β (jk )−2/3 sin(2 πjx i1) sin(2 πkx i2) + ϵi, (i = 1 , . . . , n )with {xi}ni=1 
+
+> iid
+
+∼ Unif[0 , 1] 2 and Gaussian or t2 errors {ϵi}ni=1 . The regression function is estimated using a tensor-product Mat´ ern kernel on [0 , 1] 2 with v = 2 .5, as described in Section 4. We again consider β ∈ { 0.5, 0.75 , 1} and evaluate performance with the mean-squared error MSE = 50 −2 P50 
+
+> j=1
+
+P50 
+
+> k=1
+
+( bfn(tj , t k) − f0(tj , t k)) 2 where the {tj }50  
+
+> j=1
+
+are equidistant within [0 , 1]. Table 1 reports the results from 500 replications. Table 1 lends itself to several interesting findings the most notable of which is the deterioration in performance of the LS estimator with heavy-tailed errors. In the case of light-tailed Gaussian errors, the LS estimator outperforms the robust estimators LAD and Huber, though the latter only by a small margin. However, under heavy-tailed t2 errors, the performance of the LS estimator deteriorates nearly 10-fold and the robust estimators convincingly outperform it. The vulnerability of the LS estimator to heavy-tailed observations can also be attested visually, as in Figures 1–4. Comparing the robust estimators in detail, it may be seen that the Huber estimator is more efficient than the LAD estimator under light-tailed Gaussian errors, the inefficiency of the latter under such errors being well-known. Under t2 errors, LAD and Huber perform roughly similarly with the latter having a slight edge due to the symmetry of the t2-distribution. 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 
+
+> 0.00 0.25 0.50 0.75 1.00
+> −1.0 −0.5 0.0 0.5 1.0
+
+Figure 3: Contours of the two-dimensional true regression function (left) and representative least squares (middle) and least absolute deviation estimates (right) for β = 0 .5 and Gaussian errors. As predicted by the theory, a larger β improves performance for all estimators, but its effect is less notable for d = 2. An explanation for this phenomenon is that, for multidimensional data and 20 moderate sample sizes, it is the variance that is the main driver of the mean-squared error, itself an approximation of the L2-error, rather than the bias, which is the quantity affected by β.0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 
+
+> 0.00 0.25 0.50 0.75 1.00
+> −1.0 −0.5 0.0 0.5 1.0
+
+Figure 4: Contours of the two-dimensional true regression function (left) and representative least squares (middle) and least absolute deviation estimates (right) for β = 0 .5 and t2 errors. 
+
+# 7 Discussion 
+
+The results of this paper provide theoretical and practical justification for the use of a broad class of regularized estimators that include the least-squares estimator as a special case. Our analysis extends and unifies existing literature through the novel concept of spectral complexity while treating loss functions that have received little attention in the literature. Several promising directions remain open. Most immediately, the methodology developed in this work can be extended to conditionally positive definite kernels, such as Duchon’s thin-plate splines (Duchon, 1977), which are widely used in scattered data approximation and spatial statistics. Another natural avenue is the application to functional and longitudinal data analysis, where one can construct novel regularized estimators for location and dispersion from discretely sampled functional data, building upon and extending existing work (e.g., Kalogridis and Van Aelst, 2023). 
+
+# 8 Appendix: Detailed proofs 
+
+To lighten the notation in the course of our proofs we use c0 to denote generic positive con-stants whose precise value is unimportant. Thus, the value of c0 may change from appearance to appearance. We will occasionally use inequalities of the form A ≤ B for A, B random variables defined on the same probability space (Ω , A, P). These inequalities are to be interpreted pointwise, 21 i.e., A(ω) ≤ B(ω) for all ω ∈ Ω. The proof of Theorem 1 uses the abstract regularized interpolant of f0, which we now recall. Let SK : L2
+
+> v
+
+(X) → H denote the integral operator 
+
+SK (f )( s) = 
+
+Z
+
+> X
+
+K(s, t )f (t)v(dt ), f ∈ L 2
+
+> v
+
+(X).
+
+Note that when the range of the integral operator is taken to be in L2
+
+> v
+
+(X), this operator is typically denoted with TK (as we have also done in the main text). Let S⋆K : H → L 2
+
+> v
+
+(X) denote its Hilbert adjoint, which is the inclusion operator I, see Lemma 2.2 of (Steinwart and Scovel, 2012) or Proposition 10.28 of (Wendland, 2005). Assumption (A1) ensures that the inclusion operator I
+
+is injective so ker( I) = {0}, which implies Ran( SK ) = ker( I)⊥ = H.Define the operator CK := SK S⋆K mapping H into itself. The abstract regularized interpolant is defined as 
+
+fλ = ( CK + λ)−1SK (f0),
+
+and satisfies fλ ∈ H even when f0 /∈ H . This interpolant has been studied extensively, e.g., by Smale and Zhou (2005) and Fischer and Steinwart (2020). The following lemma collects three properties relevant to our development; for a proof of these statements the reader is referred to Lemma 14 and Corollary 15 of (Fischer and Steinwart, 2020). 
+
+Lemma 1. Under assumptions (A5) and (A6), for all λ ∈ (0 , 1] the abstract regularized interpolant 
+
+fλ satisfies the following properties: 1. Controlled explosion in H: ∥fλ∥2 
+
+> H
+
+≤ c0λ−(1 −β).2. Uniform convergence in X: ∥fλ − f0∥2 
+
+> ∞
+
+≤ c0λβ−α.3. Convergence in L2
+
+> v
+
+(X): ∥fλ − f0∥2  
+
+> L2
+> v(X)
+
+≤ c0λβ .
+
+We now present the proof of Theorem 1. 
+
+Proof of Theorem 1. Write Ri = f0(xi) − fλ(xi) for i = 1 , . . . , n and let Ln denote the objective function, that is, 
+
+Ln(f ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ρ (yi − f (xi)) + λ∥f ∥2
+
+> H
+
+, f ∈ H .
+
+Let Cn = N∞(λ)/n + λβ . It will be shown that lim  
+
+> D→∞
+
+lim inf  
+
+> n→∞
+
+Pr 
+
+
+
+inf   
+
+> ∥f∥H,λ =D
+
+Ln(fλ + C1/2 
+
+> n
+
+f ) > L n(fλ)
+
+
+
+= 1 . (8) 22 The convexity of ρ from assumption (A2) and the strict convexity f 7 → ∥ f ∥2 
+
+> H
+
+in combination with (8) guarantee the existence of a unique minimizer bfn such that ∥ bfn − f0∥H,λ = OP(C1/2 
+
+> n
+
+) , see, e.g., (Kalogridis, 2022, Lemma 1). By definition of the norm ∥ · ∥ H,λ , this implies 
+
+∥ bfn − fλ∥L2  
+
+> v(X)
+
+≤ ∥ bfn − fλ∥H,λ = OP(C1/2 
+
+> n
+
+).
+
+Minkowski’s inequality now gives 
+
+∥ bfn − f0∥L2  
+
+> v(X)
+
+≤ ∥ bfn − fλ∥L2  
+
+> v(X)
+
++ ∥fλ − f0∥L2  
+
+> v(X)
+
+≤ OP(C1/2 
+
+> n
+
+) + O(λβ/ 2) = OP(C1/2 
+
+> n
+
+),
+
+where the last equality is due to the definition of Cn. From this it follows that in order to prove the result, we need to establish (8). We establish this critical result by applying (A3) and the fundamental theorem of calculus for Lebesgue integrals to decompose 
+
+Ln(fλ + C1/2 
+
+> n
+
+f ) − Ln(fλ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{ψ (ϵi + t) − ψ (ϵi)} dt 
+
++ C1/2
+
+> n
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ (ϵi) f (xi) + λC n∥f ∥2 
+
+> H
+
++ 2 λC 1/2 
+
+> n
+
+⟨f, f λ⟩H
+
+= I1(f ) + I2(f ) + I3(f ),
+
+where 
+
+I1(f ) := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{ψ (ϵi + t) − ψ (ϵi)} dt + λC n∥f ∥2
+
+> H
+
+I2(f ) := C1/2
+
+> n
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ(ϵi)f (xi)
+
+I3(f ) := 2 λC 1/2 
+
+> n
+
+⟨f, f λ⟩H.
+
+We will show that there exists a strictly positive c0 with the property that inf   
+
+> ∥f∥H,λ =D
+
+E[I1(f )] ≥ c0D2Cn + O(1) DC n (9) sup  
+
+> ∥f∥H,λ ≤D
+
+|I1(f ) − E[I1(f )] | = OP(1) DC n (10) sup  
+
+> ∥f∥H,λ ≤D
+
+|I2(f )| = OP(1) DC n (11) sup  
+
+> ∥f∥H,λ ≤D
+
+|I3(f )| = O(1) DC n. (12) If (9)–(12) were to hold, then (8) would follow, as for every ϵ > 0 we would be able to find a large 23 enough D = Dϵ > 1 (so that the quadratic term dominates) and let n → ∞ to obtain lim inf  
+
+> n→∞
+
+Pr 
+
+
+
+inf   
+
+> ∥f∥H,λ =D
+
+Ln(fλ + C1/2 
+
+> n
+
+f ) > L n(fλ)
+
+
+
+≥ 1 − ϵ. 
+
+As this holds for every ϵ > 0, the double limit in (8) may be deduced. For improved clarity, assertions (9)–(12) are proven separately in Lemmas 2–5 below. 
+
+Lemma 2. Under the conditions of Theorem 1, there exists a strictly positive c0 such that 
+
+inf   
+
+> ∥f∥H,λ =D
+
+E[I1(f )] ≥ c0D2Cn + O(1) DC n,
+
+as n → ∞ , i.e., (9) holds. Proof. Define the D-ball in H: BD := {f ∈ H : ∥f ∥H,λ ≤ D}. We begin by observing that, by Proposition 2, the reproducing kernel Kλ satisfies sup 
+
+> x∈X
+
+∥Kλ(x, ·)∥2 
+
+> H,λ
+
+= sup 
+
+> x∈X
+
+Kλ(x, x ) = N∞(λ).
+
+Our limit assumptions ensure that N∞(λ)Cn = N∞(λ)( N∞(λ)/n + λβ ) → 0, as n → ∞ . Hence, for every f ∈ B D, using the reproducing property and the Schwarz inequality, 
+
+C1/2 
+
+> n
+
+max  
+
+> 1≤i≤n
+
+|f (xi)| ≤ DC 1/2 
+
+> n
+
+sup 
+
+> x∈X
+
+∥Kλ(x, ·)∥H,λ = DC 1/2
+
+> n
+
+pN∞(λ) → 0, (13) uniformly in BD. At the same time, appealing to Lemma 1, we have max  
+
+> 1≤i≤n
+
+|Ri| ≤ sup 
+
+> x∈X
+
+|f0(x) − fλ(x)| ≤ c0λβ−α → 0, (14) since α < β and λ → 0. From (13) and (14) it follows that the domain of integration shrinks to zero. Taking expectations with respect to the errors {ϵi}ni=1 , that is, conditionally on {xi}ni=1 , and using their independence contained in assumption (A4), we find 
+
+Eϵ
+
+"
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{ψ (ϵi + t) − ψ (ϵi)} dt 
+
+#
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+E[{ψ (ϵ1 + t) − ψ (ϵ1)}]dt 
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{γt + o(t)}dt, 
+
+where to obtain this equality we have used (A4) and the shrinking limits of integration. Evaluating 24 this integral, we find that this may be bounded from below by 
+
+γC n
+
+2n
+
+> n
+
+X
+
+> i=1
+
+|f (xi)|2(1 + o(1)) − γC 1/2
+
+> n
+
+n
+
+> n
+
+X
+
+> i=1
+
+|f (xi)|| Ri|(1 + o(1)) .
+
+The o(1)-term is non-random and does not depend on {xi}ni=1 , by the uniformity in (13) and (14). Taking expectations with respect to {xi}ni=1 using the law of iterated expectations, we obtain 
+
+E[I1(f )] ≥ γ
+
+2 Cn
+
+Z
+
+> X
+
+|f (t)|2v(dt )(1 + o(1)) − γC 1/2
+
+> n
+
+Z
+
+> X
+
+|f (t)|| fλ(t) − f0(t)|v(dt )(1 + o(1)) + λC n∥f ∥2
+
+> H
+
+.
+
+Applying the Schwarz inequality on the second integral along with Lemma 1, we find R 
+
+> X
+
+|f (t)|| fλ(t)−
+
+f0(t)|v(dt ) ≤ ∥ f ∥L2 
+
+> v(X)
+
+∥fλ − f0∥L2  
+
+> v(X)
+
+≤ C1/2 
+
+> n
+
+∥f ∥L2 
+
+> v(X)
+
+, as ∥fλ − f0∥L2  
+
+> v(X)
+
+= O(λβ/ 2) = O(C1/2 
+
+> n
+
+). Moreover, for all large n, 1 /2 ≤ 1 + o(1) ≤ 3/2, hence 
+
+E[I1(f )] ≥ γ
+
+4 Cn∥f ∥2  
+
+> L2
+> v(X)
+
+− 3γ
+
+2 Cn∥f ∥L2  
+
+> v(X)
+
++ λC n∥f ∥2 
+
+> H
+
+≥ min 
+
+ γ
+
+4 , 1
+
+
+
+Cn∥f ∥2 
+
+> H,λ
+
+− 3γ
+
+2 Cn∥f ∥H,λ ,
+
+because, by definition, ∥f ∥2 
+
+> H,λ
+
+= ∥f ∥2  
+
+> L2
+> v(X)
+
++ λ∥f ∥2 
+
+> H
+
+≥ ∥ f ∥2 
+
+> L2
+> v(X)
+
+. Taking the infimum, inf   
+
+> ∥f∥H,λ =D
+
+E[I1(f )] ≥ c0CnD2 − c1CnD, 
+
+for all large n with c0 = min( γ/ 4, 1) and c1 = 3 γ/ 2. The proof is complete. 
+
+Lemma 3. Under the conditions of Theorem 1, 
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+|I1(f ) − E[I1(f )] | = OP(1) DC n,
+
+i.e., (10) holds. Proof. The proof is by symmetrization and contraction. Write 
+
+I1(f ) − E[I1(f )] = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{ψ (ϵi + t) − ψ (ϵi)} dt −−E
+
+"Z Ri−C1/2  
+
+> nf(xi)
+> Ri
+
+{ψ (ϵi + t) − ψ (ϵi)} dt 
+
+#) 
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+{Ui(f (xi)) − E[Ui(f (xi))] } ,
+
+with Ui(f (xi)) = R Ri−C1/2   
+
+> nf(xi)
+> Ri
+
+{ψ(ϵi +t)−ψ(ϵi)}dt . These processes are independent and identically 25 distributed for each given n. By symmetrization (van der Vaart and Wellner, 1996, Lemma 2.3.1), 
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+|I1(f ) − E[I1(f )] |
+
+#
+
+≤ 2E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξiUi(f (xi)) 
+
+#
+
+,
+
+where {ξi}ni=1 are i.i.d. Rademacher random variables taking values {− 1, 1} with probability 1 /2each and are also independent of ( xi, ϵ i). It is clear that Ui(0) = 0 for all i = 1 , . . . , n . We show that the function f 7 → Ui(f (xi)) is Lipschitz with Lipschitz constant M1C1/2 
+
+> n
+
+. Indeed, recalling that, by the proof of Lemma 2, in particular, (13) and (14), the domain of integration shrinks to zero, assumption (A3) may be applied to obtain 
+
+|Ui(f1(xi)) − Ui(f2(xi)) | =
+
+Z Ri−C1/2  
+
+> nf2(xi)
+> Ri−C1/2
+> nf1(xi)
+
+{ψ(ϵi + t) − ψ(ϵi)}dt ≤ M1C1/2 
+
+> n
+
+|f1(xi) − f2(xi)|,
+
+as claimed. Besides, by the definition of N∞(λ) and homogeneity, sup ∥f ∥H,λ ≤D ∥f ∥∞ = DpN∞(λ) <
+
+∞. Conditionally on {(ϵi, x i)}ni=1 , the conditions of Theorem 4.12 of (Ledoux and Talagrand, 1991) are satisfied and so, by the contraction inequality given there, valid for all n ∈ N,
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξiUi(f (xi)) 
+
+#
+
+≤ M1C1/2 
+
+> n
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξif (xi)
+
+#
+
+.
+
+To complete the proof we bound the expectation appearing on the right side of this inequality. By the reproducing property, the linearity of the inner product and the definition of the dual norm on H, we have 
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξif (xi)
+
+#
+
+= E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξi⟨f, K λ(xi, ·)⟩H,λ 
+
+#
+
+= DE
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξiKλ(xi, ·)
+
+> H,λ
+
+ .
+
+Using the inequality E[|X|] ≤ pE[X2] and the independence of {ξi}ni=1 from {xi}ni=1 , we obtain 
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξif (xi)
+
+#
+
+≤ D
+
+vuuutE
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ξiKλ(xi, ·)
+
+> 2
+> H,λ
+
+ = Dn
+
+vuut
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+E[Kλ(xi, x j )] E [ξiξj ]= D
+
+√n
+
+sZ
+
+> X
+
+Kλ(x, x )v(dx ) ≤ D
+
+√n
+
+r
+
+v(X) sup 
+
+> x∈X
+
+Kλ(x, x ) = DO 
+
+r N∞(λ)
+
+n
+
+!
+
+.
+
+26 But, by definition of Cn, N∞(λ)/n ≤ Cn, therefore 
+
+E
+
+"
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+|I1(f ) − E[I1(f )] |
+
+#
+
+= O(1) DC n,
+
+and the proof is completed by an appeal to Markov’s inequality. 
+
+Lemma 4. Under the conditions of Theorem 1, 
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+|I2(f )| = OP(1) DC n,
+
+i.e., (11) holds. Proof. Using the reproducing property and the definition of the dual norm, we find sup  
+
+> ∥f∥H,λ ≤D
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ (ϵi) f (xi) = D 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ (ϵi) Kλ(xi, ·)
+
+> H,λ
+
+.
+
+Squaring and taking expectations recalling that, by assumption (A4), the {ϵi}ni=1 are i.i.d., inde-pendent of the {xi}ni=1 , E[ψ(ϵ1)] = 0 and E[|ψ(ϵ1)|2] < ∞, we have 
+
+E
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ (ϵi) Kλ(xi, ·)
+
+> 2
+> H,λ
+
+ = 1
+
+n2
+
+> n
+
+X
+
+> i=1
+> n
+
+X
+
+> j=1
+
+E[Kλ(xi, x j )] E[ψ(ϵi)ψ(ϵj )] = E[|ψ(ϵ1)|2]
+
+n E [Kλ(x1, x 1)] 
+
+≤ c0
+
+sup x∈X Kλ(x, x )
+
+n = c0
+
+N∞(λ)
+
+n = O(Cn),
+
+by Proposition 2. The result follows by Markov’s inequality. 
+
+Lemma 5. Under the conditions of Theorem 1, 
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+|I3(f )| = O(1) DC n,
+
+i.e., (12) holds. Proof. By definition of the norm ∥ · ∥ H,λ , λ1/2∥f ∥H ≤ ∥ f ∥H,λ , hence, by the Schwarz inequality in 
+
+H,sup  
+
+> ∥f∥H,λ ≤D
+
+|I3(f )| ≤ 2λ1/2∥fλ∥HC1/2 
+
+> n
+
+sup  
+
+> ∥f∥H,λ ≤D
+
+λ1/2∥f ∥H ≤ 2λ1/2∥fλ∥HC1/2 
+
+> n
+
+D. 
+
+27 By Lemma 1, ∥fλ∥H = O(λ−(1 −β)/2), so sup  
+
+> ∥f∥H,λ ≤D
+
+|I3(f )| = DO (λ1/2C1/2 
+
+> n
+
+λ−(1 −β)/2) = DO (λβ/ 2C1/2 
+
+> n
+
+) = DC nO(1) ,
+
+given that λβ ≤ Cn; the proof is complete. 
+
+Proof of Theorem 2. Most of the proof of Theorem 1 goes through after an estimate for N∞(λ) as 
+
+λ → 0 is obtained. For this, we recall that there exists a finite M > 0 such that sup j ∥ϕj ∥∞ ≤ M
+
+and, by properties of the univariate Sobolev space Hm([0 , 1]), γj ≍ j2m for all large j (see, e.g., Hsing and Eubank, 2015, Theorem 2.8.3). Consequently, using (7) and Proposition 2 and taking advantage of the product structure, we find 
+
+N∞(λ) ≤ M 2d X
+
+> i1,...,i d
+
+11 + Qdj=1 γij
+
+≤ dM 2d + M 2d
+
+Z ∞
+
+> 1
+
+. . . 
+
+Z ∞
+
+> 1
+
+dx 1 . . . dx d
+
+1 + λx 2m 
+
+> 1
+
+. . . x 2md
+
+,
+
+with the second inequality following from integral approximation on each coordinate. Change variables according to z1 = x1, z 2 = x1x2, . . . , z d = Qdj=1 xj mapping (1 , ∞)d bijectively to {1 <z1 < z 2 < . . . < z d < ∞} . The absolute Jacobian of this transformation is Qd−1 
+
+> j=1
+
+z−1 
+
+> j
+
+, so 
+
+Z ∞
+
+> 1
+
+. . . 
+
+Z ∞
+
+> 1
+
+dx 1 . . . dx d
+
+1 + λx 2m 
+
+> 1
+
+. . . x 2md
+
+=
+
+Z ∞
+
+> 1
+
+. . . 
+
+Z z2
+
+> 1
+
+dz 1 . . . dz d
+
+z1 . . . z d−1(1 + λz 2md ) = 1(d − 1)! 
+
+Z ∞
+
+> 1
+
+[log( zd)] d−1
+
+1 + λz 2md
+
+dz d
+
+≤ λ−1/(2 m)
+
+(d − 1)! 
+
+Z ∞
+
+> 0
+
+[(2 m)−1 log   1
+
+> λ
+
+ + log( w)] d−1
+
+1 + w2m dw 
+
+= O 1
+
+λ 12m
+
+
+
+log 
+
+ 1
+
+λ
+
+ d−1!
+
+,
+
+where the second equality is obtained from R zd 
+
+> 1
+
+. . . R z2
+
+> 1
+
+Qd−1 
+
+> i=1
+
+z−1 
+
+> i
+
+dz 1 . . . dz d−1 = [log( zd)] d−1/(d − 1)!, which may be proved by induction on d ≥ 1. The inequality results from changing variables according to w = λ1/(2 m)zd and extending the lower limit of integration to 0. To pass to the last equality we have used λ → 0 and the observation that R ∞ 
+
+> 0
+
+|[log( w)] d−1/(1 + w2m)|dw < ∞ for all 
+
+d, m ≥ 1. Thus N∞(λ) = O(λ−1/(2 m)[log(1 /λ )] d−1), as λ → 0. Lemma 1 remains valid in the present setting, as do Lemmas 3–5. Moreover, since, by assump-tion, v has Lebesgue density h bounded away from zero and infinity on [0 , 1] d, repeating the steps in the proof of Lemma 2, it may be verified that there exist positive constants c1 and c2 such that 
+
+E[I1(f )] ≥ c1
+
+γ
+
+4 Cn∥f ∥2 
+
+> L2([0 ,1] d)
+
+− c2
+
+3γ
+
+2 Cn∥f ∥L2([0 ,1] d) + λC n∥f ∥2 
+
+> Hm([0 ,1]) ⊗d
+
+,
+
+for all large n. This implies that the infimum over the D-sphere in ∥f ∥2 
+
+> Hm([0 ,1]) ⊗d
+
+is lower bounded 28 by the product of Cn and a quadratic function of D with a strictly positive coefficient on D2. Thus, lim  
+
+> D→∞
+
+lim inf  
+
+> n→∞
+
+Pr inf   
+
+> ∥f∥Hm([0 ,1]) ⊗d,λ =D
+
+Ln(fλ + C1/2 
+
+> n
+
+f ) > L n(fλ)
+
+!
+
+= 1 ,
+
+completing the proof. 
+
+# References 
+
+Agmon, S. (1965). Lectures on Elliptic Boundary Value Problems , D. Van Nostrand Company, Princeton. Bai, Z.D. and Wu, Y. (1994). Limiting behavior of M-estimators of regression coefficients in high dimensional linear models I. Scale-dependent case J. Multivariate Anal. (51), 211–239. Berlinet, A. and Thomas-Agnan, C. (2004). Reproducing Kernel Hilbert Spaces in Probability and Statistics , Springer. Cucker, F. and Zhou, D.X. (2005). Learning Theory: An Approximation Theory Viewpoint , Cam-bridge University Press. Caponnetto, A. and De Vito, E. (2007). Optimal rates for the regularized least-squares algorithm, Found. Comput. Math. (7), 331–368. Dommel, P. and Pichler, A. (2025). On the approximation of kernel functions, J. Mach. Learn. Res. (26), 1–30. Duchon, J. (1977) Splines minimizing rotation-invariant semi-norms in Sobolev spaces, in: Schempp, W. and Zeller, K. (eds), Constructive Theory of Functions of Several Variables, Lecture Notes in Mathematics (571), Springer, Berlin, Heidelberg. doi:10.1007/BFb0086566 .Eberts, M. and Steinwart, I. (2013). Optimal regression rates for SVMs using Gaussian kernels, Electron. J. Stat. (7), 1–42. Farooq, M. and Steinwart, I. (2019). Learning rates for kernel-based expectile regression, Mach. Learn. (108), 203–227. Fischer, S. and Steinwart, I. (2020). Sobolev norm learning rates for regularized least-squares algorithms, J. Mach. Learn. Res. (21), 1–38. Hsing, T. and Eubank, R. (2015). Theoretical Foundations of Functional Data Analysis, with an Introduction to Linear Operators , Wiley. 29 Huber, P.J. and Ronchetti, E.M. (2009). Robust Statistics , 2nd edition, Wiley. Kalogridis, I. (2022). Asymptotics for M-type smoothing splines with non-smooth objective func-tions, TEST (31), 373–389. Kalogridis, I. and Van Aelst, S. (2023). Robust optimal estimation of location from discretely sampled functional data, Scand. J. Stat (50), 411–451. Ledoux, M. and Talagrand, M. (1991). Probability in Banach Spaces: Isoperimetry and Processes .Springer, Berlin. Li, Y., Liu, Y. and Zhu, J. (2007). Quantile regression in reproducing kernel Hilbert spaces, J. Amer. Statist. Assoc. (102), 255–268. Lin, Y. (2000). Tensor product space ANOVA models, Ann. Statist. (28), 734–755. Maronna, R.A., Martin, D.R., Yohai, V.J. and Salibi´ an-Barrera, M. (2019). Robust Statistics: Theory and Methods (with R) , 2nd edition, Wiley. Nyckha, D., Gray, G., Haaland, P., Martin, D. and O’Connell, M. (1995). A nonparametric re-gression approach to syringe grading for quality improvement, J. Amer. Statist. Assoc. (90), 1171–1178. R Core Team (2026). R: A Language and Environment for Statistical Computing, R Foundation for Statistical Computing, Vienna, Austria, https://www.R-project.org/ .Rockafellar, R.T. and Wets, R. J.-B. (1998). Variational Analysis , Springer. Scetbon, M. and Harchaoui, Z. (2021). A spectral analysis of dot-product kernels, Proc. Mach. Learn. Res. (130), 3394–3402. Sch¨ olkopf, B. and Smola, A.J. (2002). Learning with Kernels: Support Vector Machines, Regular-ization, Optimization, and Beyond , MIT Press. Sickel, W. and Ullrich, T. (2009). Tensor products of Sobolev–Besov spaces and applications to approximation from the hyperbolic cross, J. Approx. Theory (161), 748–786. Smale, S. and Zhou, D.-X. (2005). Shannon sampling II: Connections to learning theory, Appl. Comput. Harmon. Anal. (19), 285–302. Steinwart, I. and Christmann, A. (2008). Support Vector Machines , Springer. Steinwart, I. and Scovel, C. (2012). Mercer’s theorem on general domains: On the interaction between measures, kernels and RKHSs, Constr. Approx. (35), 363–417. 30 Triebel, H. (2019). Function Spaces with Dominating Mixed Smoothness , European Mathematical Society. van de Geer, S. (2000). Empirical Processes in M-estimation , Cambridge University Press. van der Vaart, A.W. and Wellner, J.A. (1996). Weak Convergence and Empirical Processes .Springer. Wainwright, M.J. (2019). High-Dimensional Statistics: A Non-Asymptotic Viewpoint , Cambridge University Press. Wendland, H. (2005). Scattered Data Approximation , Cambridge University Press. Zhang, H., Li, Y., Lu, W. and Lin, Q. (2023). On the optimality of misspecified kernel ridge regression, Proc. Mach. Learn. Res. (202), 41331–41353. 31

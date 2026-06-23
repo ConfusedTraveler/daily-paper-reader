@@ -1,0 +1,290 @@
+Title: Uncovering commuting flows in Bike Sharing Systems
+
+URL Source: https://arxiv.org/pdf/2606.23054v1
+
+Published Time: Tue, 23 Jun 2026 02:53:45 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Uncovering commuting flows in Bike Sharing Systems 
+
+Mohamadou Salifou 1,2∗
+
+> 1
+
+Univ. de Toulouse, Univ. Toulouse 2, CNRS, LISST, 5 Allées Antonio Machado, TOULOUSE CEDEX 9, Toulouse 31058, France. 
+
+> 2
+
+Univ. de Toulouse, Fédération ENAC ISAE SUPAERO ONERA, 7 avenue Edouard Belin, Toulouse Cedex 4, Toulouse 31055, France. *mohamadou.salifou@univ-tlse2.fr 
+
+# Introduction 
+
+Since the 2000s, Bike Sharing Systems (BSS) have experienced rapid expansion in cities around the world. They are now a central component of sustainable mobility policies, providing a flexible and active travel solution that complements public transportation. Among the different BSS models, one way systems ( O → D) in which users can borrow a bicycle from one station and return it to another are the most widespread [5, 3]. This configuration generates complex flows between stations, whose analysis has been made possible by the availability of large scale datasets describing each trip individually. A significant portion of the literature has therefore focused on the global determinants of BSS usage, examining the spatio-temporal variations in demand, as well as the influence of wea-ther conditions, the urban environment, and the socio-demographic characteristics of neigh-borhoods [5, 3, 13]. However, these aggregated approaches often overlook the fine structure of flows between station pairs, and in particular the dynamics of loop trips, even though these represent a valuable indicator of individual behaviors and their regularities [11, 14]. Although they represent a relatively small share of the total volume (ranging from 5% to 20% depen-ding on the city), such trips are far from anecdotal [2, 15, 7]. They are often associated with recreational or tourist uses, but several studies have shown that they may also correspond to commuting or repeated utilitarian trips, particularly among regular subscribers [12, 2, 15, 8]. This distinction is, however, difficult to establish in O → D systems, because the absence of individual identifiers prevents confirming with certainty that an outward trip and a return trip are performed by the same user. This methodological difficulty explains why some studies simply exclude loop trips [10, 7], while others attempt to infer their meaning using spatial or contextual proxies such as the environmental characteristics of stations [16, 9]. As a result, the unders-tanding of round-trip behaviors in BSS remains incomplete. In recent work, [6] showed that modeling trip durations using mixture models, particularly log-normal mixtures, makes it possible to highlight behavioral heterogeneity within station pairs. By explicitly distinguishing the two directions O → D and D → O, one observes not only ho-mogeneous or heterogeneous station pairs, but also pairs exhibiting directional asymmetry in the very structure of trip duration distributions. From the same perspective, how can the heterogeneity of trip duration distributions ob-served jointly in both directions between a pair of stations be exploited to identify temporally organized mobility structures ? More specifically, can the dominant components of mixture mo-dels be used to reveal regular and constrained usage patterns, compatible with commuting behaviors, without relying on individual or survey data ? To address this question, we propose an approach based on the joint exploitation of tempo-ral and directional dimensions to identify station pairs likely to support commuting flows. This 1
+
+> arXiv:2606.23054v1 [math.ST] 22 Jun 2026
+
+approach makes it possible to connect the statistical analysis of duration distributions with a behavioral interpretation of observed flows, without requiring individual-level data. In a distinct framework, the second part of the article introduces a probabilistic model ex-plicitly linking morning and evening flows. By exploiting the structural dependence between these two periods using a Hurdle Poisson - Binomial framework [1, 4] , we propose a direct es-timation method for the proportion of morning trips that result in a return trip on the same day. This approach, based on aggregated flows rather than mixture model components, provides a complementary tool for quantifying the relative importance of commuting movements and for exploring predictive applications, particularly in the operational management of BSS. Once this proportion has been estimated, it can be used for predictive purposes. More specifically, knowledge of the proportions of morning trips ( O → D, O ∈ V ), that lead to an effective return at the end of the day makes it possible to predict the number of bicycle uses expected in the late afternoon departing from station D. Thus, the information extracted from the flows observed in the morning is used to anticipate future demand across the network, station by station. One of the major advantages of this approach lies in the possibility of direct empirical validation : the predicted volumes of trips in the second part of the day can be com-pared with the actual observations in the data, thereby allowing the relevance and robustness of the proposed model to be assessed. 
+
+# 1 Methodology 
+
+1.1 Data description and preprocessing 
+
+The data used in this study come from the BSS of Toulouse for the year 2022. They include the departure and arrival stations, the start and end durations of each trip, as well as the cor-responding date. Of the 3 983 301 trips initially recorded, we excluded those with a duration exceeding thirty minutes (121 522 trips), in order to eliminate potentially atypical uses, such as bikes left stationary for long periods instead of being actively used. We also removed trips where the origin and destination stations were identical (136 809 trips, representing 3.43% ), due to the absence of individual level data, which prevents us from determining whether these were round trips made by the same user or two distinct trips by different users. After this filte-ring process, the final dataset includes 3 208 952 valid trips. Each station pair ( O, D ) is considered as a unit of analysis. In addition to the variables available for individual trips, we created the following : direction of trip ( O → D ou D → O), day type (weekday or weekend), and time of day (night, morning, midday, evening). To establish a consistent and observation independent trip direction, stations were ordered according to their distance from the city center, represented by Place du Capitole. For each station pair, the station closest to the Capitole is systematically designated as station O, while the farthest station is designated as station D. This convention allows a unique geographic orientation for each pair and makes it possible to distinguish the trip directions. Trips are then classified as 
+
+O → D or D → O depending on whether the departure station corresponds to station O or station D, respectively. We retained only station pairs with at least 100 trips in each direction over the year. In total, 9 176 round-trip pairs were included in the analyses. 
+
+1.2 Statistical signatures of commuting trips 
+
+We model the distribution of trip durations in each direction using a log-normal mixture model and retain the station pairs for which heterogeneous behaviors are observed in both di-rections. As shown by [6], the first component of the mixture model typically corresponds to the reference itinerary, which is consistent with the fastest route suggested by OpenStreetMap. For 2each observed trip, we therefore compute the posterior probability of belonging to the mixture component associated with this typical route. These posterior probabilities are then modeled as a function of contextual variables using a logistic regression framework : 
+
+Pr( Z = 1) = β0+β1Morning +β2Midday +β3Evening +β4Weekend +β5Direction +interaction terms .
+
+where Z = 1 denotes membership in the short (or fast) trip component. A pair of stations is considered a potential candidate for commuting flows if it simultaneously satisfies the following statistical criteria. 
+
+Strong morning and evening effects on weekdays : The coefficients associated with peak commuting hours satisfy 
+
+βMorning > 0 and βEvening > 0,
+
+and are statistically significant. In contrast, the nighttime period (taken as the reference category) is associated with a low probability of belonging to the fast trip component. 
+
+Negative or negligible weekend effect : The coefficient associated with weekends satisfies 
+
+βWeekend < 0,
+
+and is statistically significant. The reduction of such trips during weekends is consistent with utilitarian mobility patterns rather than recreational usage. 
+
+Directional asymmetry between morning and evening : The most discriminative feature of commuting flows lies in the interaction between time of day and trip direction. In particular, we consider interaction terms of the form Morning × Direction , Evening × Direction .
+
+For typical commuting patterns, we expect 
+
+βMorning ×Direction > 0, βEvening ×Direction < 0.
+
+This pattern reflects the characteristic temporal reversibility of commuting flows, with flows concentrated in one direction during the morning and in the opposite direction during the eve-ning. 
+
+Weakly structured midday period : Finally, the coefficient associated with the midday per-iod typically satisfies 
+
+βMidday ≈ 0
+
+or is not statistically significant. This indicates that midday trips tend to be more heteroge-neous and less structured than peak commuting trips. 31.3 Morning and evening flow model 
+
+We propose a model that makes it possible to estimate the proportion of morning trips that lead to a return trip in the evening in a BSS. In addition, we sometimes observe no activity during the morning, resulting in so called structural zeros. These may correspond to public holi-days, school vacations, exceptional weather conditions, or temporary station closures (inactive stations). Such zeros don’t reflect mobility behavior but rather the absence of the underlying mobility process. To model this phenomenon, we use a Poisson Hurdle model [1, 4]. 
+
+1.3.1 Morning flow model 
+
+We introduce an indicator variable 
+
+Zi =
+
+(
+
+1 if the station pair is active on day i, 
+
+0 otherwise (structural zero). We assume 
+
+P (Zi = 1) = π. 
+
+Thus, π represents the probability that a day is active for the station pair. The variable Ni, representing the number of morning trips between stations O and D, is defined as 
+
+Ni =
+
+(
+
+0 if Zi = 0 , with probability 1 − πYi if Zi = 1 , with probability π
+
+where 
+
+Yi ∼ Poisson (λ) truncated at 0.
+
+Thus, Ni follows a Poisson Hurdle model. For a zero-truncated Poisson distribution, we have 
+
+E[Yi] = λ
+
+1 − e−λ ,V ar (Yi) = λ
+
+1 − e−λ
+
+
+
+1 − λe −λ
+
+1 − e−λ
+
+
+
+.
+
+Consequently, 
+
+E[Ni] = π λ
+
+1 − e−λ .V ar (Ni) = π λ
+
+1 − e−λ
+
+
+
+1 − λe −λ
+
+1 − e−λ
+
+
+
++ π(1 − π)
+
+ λ
+
+1 − e−λ
+
+2
+
+.
+
+The estimates of π and λ are 
+
+ˆπ = number of days with Ni > 0
+
+total number of days = n+
+
+n .
+
+For active days, we compute the empirical mean (parameter of the truncated Poisson) 4¯N+ = 1
+
+n+
+
+X
+
+> Ni>0
+
+Ni
+
+The parameter λ is the solution of 
+
+¯N+ = λ
+
+1 − e−λ ,
+
+which is solved numerically. 
+
+1.3.2 Evening flow model 
+
+Among morning trips, a proportion p corresponds to individuals returning in the evening : 
+
+Ri | Ni ∼ Binomial (Ni, p ).
+
+Trips independent of the morning flow may also occur in the evening : 
+
+Xi ∼ Poisson (μ), Xi ⊥ Ni.
+
+The total evening flow is therefore 
+
+Mi = Ri + Xi.
+
+1.3.3 Estimator of p
+
+By linearity of covariance, 
+
+Cov (Ni, M i) = Cov (Ni, R i) + Cov (Ni, X i).
+
+Since Xi is independent of Ni, we obtain 
+
+Cov (Ni, M i) = Cov (Ni, R i).
+
+Conditionally on Ni, we have 
+
+Ri | Ni ∼ Binomial (Ni, p ),
+
+which implies 
+
+E[Ri | Ni] = pN i.
+
+Using the law of total covariance, 
+
+Cov (Ni, R i) = Cov  Ni, E[Ri | Ni] + ECov (Ni, R i | Ni).
+
+Since Ni is constant conditionally on itself, 
+
+Cov (Ni, R i | Ni) = 0 .
+
+Therefore, 
+
+Cov (Ni, R i) = Cov (Ni, pN i) = p V ar (Ni).
+
+Consequently, 
+
+Cov (Ni, M i) = p V ar (Ni).
+
+5Hence, a method of moments estimator for the parameter p is 
+
+ˆp = dCov (Ni, M i)
+
+dV ar (Ni) .
+
+More explicitly, 
+
+ˆp = dCov (Ni, M i)
+
+π λ
+
+> 1−e−λ
+
+
+
+1 − λe −λ
+
+> 1−e−λ
+
+
+
++ π(1 − π)
+
+ λ
+
+> 1−e−λ
+
+2 .
+
+Once ˆp is estimated, the evening flow independent of the morning is given by 
+
+ˆμ = ¯M − ˆp ¯N . 
+
+The estimator ˆp therefore remains interpretable as the proportion of morning trips that lead to an evening return trip, even in the presence of days with no observed flow. 
+
+# 2 Results 
+
+2.1 Overview of the regression analysis 
+
+2.1.1 Global statistical patterns 
+
+Across the entire system, several systematic temporal patterns emerge. Table 1 reports the proportion of station pairs exhibiting significant effects for each expla-natory variable. TABLE 1 – Proportion of station pairs exhibiting significant temporal effects. Variable Number of pairs Percentage Morning peak effect 4784 52.14% Evening peak effect 4089 44.56% Negative weekend effect 5984 65.21% Directional asymmetry 3457 37.67% These results indicate that peak-hour effects are widespread across the system, while strong directional asymmetry remains more localized. 
+
+2.1.2 Typology of station pairs 
+
+Based on the regression results, station pairs can be grouped into four main categories. TABLE 2 – Typology of station pairs based on regression signatures. Type of pair Criteria Number of pairs Strong commuting flows all criteria satisfied 1180 Probable commuting morning + evening peaks 2050 Leisure oriented trips positive weekend effect 1700 Diffuse mobility no clear pattern 4246 This classification highlights the coexistence of structured commuting flows and more flexible leisure mobility within the system. We observe that 1 185 out of 9 176 pairs (approximately 12.91 %) exhibit a strong pattern of commuter flows. When the criteria are relaxed, this num-ber increases to 3 238 pairs (about 35.28 %). Trips that are more related to leisure activities 6characterized by a predominance of weekend trips and an absence of structured morning and evening usage account for 18.54 % of the pairs. 
+
+2.1.3 Spatial structure of commuting flows 
+
+Mapping the identified commuting pairs reveals a clear spatial organization (see figure 1). 
+
+FIGURE 1 – Spatial structure of commuting flows. The red points correspond to the stations of the BSS, while the blue segments connect pairs of stations between which trips have been observed. The figure represents the spatial structure of station pairs identified as supporting commu-ting flows. A strong concentration of connections can be observed in the central area of the city, indicating that this zone acts as a major mobility hub. This suggests that many users living in the city center use the system to travel to their places of activity. Indeed, several stations located in the central districts appear to be highly connected, which indicates that they function as hubs in the network, concentrating a large number of departures and arrivals. Moreover, many segments link peripheral neighborhoods to the city center, forming a glo-bally radial structure that is typical of daily urban mobility patterns. These spatial corridors suggest the presence of regular flows between residential areas located on the outskirts of the city and activity or employment zones situated in the central districts. It can also be observed that some connections extend along major urban axes, which may reflect the influence of the road network configuration or the location of major activity centers. Overall, the figure highlights a strongly centralized spatial organization of the BBS, consistent with commuting mobility pat-terns in which users travel from residential areas to central districts during working periods and return in the opposite direction at the end of the day. 72.2 Estimated proportion of round trips 0.00 0.25 0.50 0.75    
+
+> center−center center−periphery periphery−center periphery−periphery
+> Station geographical category
+> Proportion (morning–evening)
+
+FIGURE 2 – Distribution of the proportion p of morning trips that result in a return trip in the evening, according to the geographical category of the origin and destination stations. Clear differences appear across the different types of trips. Trips from the periphery to the city center exhibit the highest median values of p, indicating that a large share of morning trips in this configuration is followed by a return trip in the evening. This pattern is consistent with a commuting dynamic in which cyclists travel toward central urban areas in the morning and return toward peripheral areas at the end of the day. Trips from the center to the periphery and trips within the center show intermediate proportions, suggesting more heterogeneous mobility behaviors where morning trips don’t systematically correspond to a daily round trip. In contrast, trips between peripheral stations display the lowest values of p, indicating that morning trips in these areas are less frequently associated with an evening return. Overall, these results highlight a spatial structure in cycling mobility in which trips involving the city center are more strongly associated with daily round trip commuting patterns. 
+
+# 3 Conclusion and recommendations 
+
+In conclusion, this study proposes two methodological approaches. First, it uses statistical patterns in trip durations distributions to identify station pairs for which the fastest trip com-ponent likely reflects commuting behavior. Second, it introduces an estimator of the proportion of morning trips that result in a return trip in the evening, even in the absence of individual level data that would allow users to be directly identified. The results provide several implications for the operational management of BBS. The ana-lysis of the posterior probability of belonging to the component associated with the fastest route durations shows that these trips occur more frequently at specific times of the day and depending on the type of day. This suggests that the fastest component can reasonably be in-terpreted as representing utilitarian trips. These findings can help operators anticipate spatial and temporal imbalances in bicycle availability across stations. For instance, stations located 8in residential areas may experience high demand during morning peak hours, while stations near employment centers may become more congested upon users’ arrival. Anticipating these directional flows could therefore improve bicycle redistribution strategies. The proposed probabilistic framework allows the inference of mobility patterns even when individual trip identifiers are unavailable. This approach could be applied to other bike-sharing systems with similar aggregated data. 
+
+# Acknowledgements 
+
+This research was supported by Région Occitanie (n° DOMSUB23003131) and Université de Toulouse (n°155 2024). 
+
+# Références 
+
+[1] Caroline Bayart and Patrick Bonnel. Intérêt du modèle «hurdle» pour la comparaison des comportements de mobilité déclarée dans un protocole d’enquête mixte. Recherche Transports Sécurité , 28(1) :33–45, 2012. [2] Maria Bordagaray, Luigi Dell’Olio, Achille Fonzone, and Ángel Ibeas. Capturing the condi-tions that introduce systematic variation in bike-sharing travel behavior using data mining techniques. Transportation research part C : emerging technologies , 71 :231–248, 2016. [3] Cyrille Médard de Chardon. The contradictions of bike-share benefits, purposes and outcomes. Transportation research part A : policy and practice , 121 :401–419, 2019. [4] Cindy Xin Feng. A comparison of zero-inflated and hurdle models for modeling zero-inflated count data. Journal of statistical distributions and applications , 8(1) :8, 2021. [5] Tianqi Gu, Inhi Kim, and Graham Currie. To be or not to be dockless : Empirical analysis of dockless bikeshare development in china. Transportation Research Part A : Policy and Practice , 119 :122–147, 2019. [6] Bertrand Jouve, Paul Rochet, and Mohamadou Salifou. Cyclists route choice modeling from trip duration data in urban areas. Preprint , 2025. [7] Zhaoyu Kou, Xi Wang, Shun Fung Anthony Chiu, and Hua Cai. Quantifying green-house gas emissions reduction from bike share systems : a model considering real-world trips and transportation mode choice patterns. Resources, Conservation and Recycling ,153 :104534, 2020. [8] Sunjae Lee and So-Hyun Park. Measuring bicycle daily activity spaces and analyzing usage patterns in seoul-focusing on round-trip data from seoul’s public bike-sharing sys-tem, ddareungi. Journal of the Architectural Institute of Korea , 41(2) :241–250, 2025. [9] Hung-Chi Liu and Jen-Jia Lin. Associations of built environments with spatiotemporal patterns of public bicycle use. Journal of transport geography , 74 :299–312, 2019. [10] Xinwei Ma, Ruiming Cao, and Yuchuan Jin. Spatiotemporal clustering analysis of bicycle sharing system with data mining approach. Information , 10(5) :163, 2019. [11] Samuel Nello-Deakin and Marco te Brömmelstroet. Scaling up cycling or replacing dri-ving ? triggers and trajectories of bike–train uptake in the randstad area. Transportation ,48(6) :3239–3267, 2021. 9[12] Oliver O’brien, James Cheshire, and Michael Batty. Mining bicycle sharing data for ge-nerating insights into sustainable transport systems. Journal of Transport Geography ,34 :262–273, 2014. [13] James Todd, Oliver O’Brien, and James Cheshire. A global comparison of bicycle sharing systems. Journal of Transport Geography , 94 :103119, 2021. [14] Florian Wilkesmann, Danique Ton, Rik Schakenbos, and Oded Cats. Determinants of station-based round-trip bikesharing demand. Journal of Public Transportation ,25 :100048, 2023. [15] Ying Zhang, Mark JG Brussel, Tom Thomas, and Martin FAM van Maarseveen. Mining bike-sharing travel behavior data : An investigation into trip chains and transition activities. 
+
+Computers, Environment and Urban Systems , 69 :39–50, 2018. [16] Jinbao Zhao, Jian Wang, and Wei Deng. Exploring bikesharing travel time and trip chain by gender and day of the week. Transportation Research Part C : Emerging Technologies ,58 :251–264, 2015. 10

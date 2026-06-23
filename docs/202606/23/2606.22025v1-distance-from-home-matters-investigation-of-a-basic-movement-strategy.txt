@@ -1,0 +1,595 @@
+Title: Distance from home matters: Investigation of a basic movement strategy
+
+URL Source: https://arxiv.org/pdf/2606.22025v1
+
+Published Time: Tue, 23 Jun 2026 01:40:25 GMT
+
+Number of Pages: 18
+
+Markdown Content:
+## Distance from home matters: Investigation of a basic movement strategy 
+
+Mohsen Ghasemi Nezhadhaghighi and Yahya Khalili 
+
+Department of Physics, College of Science, Shiraz University, Shiraz 71454, Iran 
+
+Behafarid Hemmatpour ∗
+
+IMDEA Networks Institute, Universidad Carlos III de Madrid, Madrid, Spain 
+
+Abolfazl Ramezanpour †
+
+Department of Physics, College of Science, Shiraz University, Shiraz 71454, Iran and Leiden Academic Centre for Drug Research, Faculty of Mathematics and Natural Sciences, Leiden University, PO Box 9500-2300 RA Leiden, The Netherlands 
+
+## Abstract 
+
+Discovering the fundamental dynamical rules that generate the main statistical features of human mobility is essential for understanding the mechanisms underlying such processes. A prominent example is the exploration and preferential return model and its generalizations, which successfully reproduce several empirical findings. Here, we exploit another observation: the endpoint distances of a trip from the trajectory’s starting point are strongly correlated. We consider a movement process in which each user performs a sequence of trips to satisfy a set of demands, given a spatial distribution of suppliers on a two-dimensional lattice. In each trip, destinations are chosen with a probability that depends on the ratio of the initial and final distances from the user’s origin (home). We show that even a single agent with uniformly distributed demands and suppliers qualitatively reproduces key empirical statistics, such as the power-law distribution of traveled distances. The results are also robust to introducing interactions between agents via queues and incorporating more realistic demand and supplier distributions.  
+
+> ∗
+
+Work done while the author was affiliated with Shiraz University.  
+
+> †
+
+aramezanpour@gmail.com 
+
+1 
+
+> arXiv:2606.22025v1 [physics.soc-ph] 20 Jun 2026 I. INTRODUCTION
+
+Human trajectories exhibit a broad range of spatial movements and providing an accurate statistical description of these displacements remains a challenging task. A quantitative understanding of human mobility patterns is essential due to their applications in urban planning, transportation management, and epidemiology [1–3]. Human mobility is described using several fundamental metrics, including displacement and waiting time distributions, exploration rates, and visitation frequencies. Empirical observations have shown that many of these quantities follow power-law distributions, indicating the existence of universal scaling relationships underlying human mobility patterns [4, 5]. Remarkable advancements in location-tracking technologies using the mobile phone data, GPS navigation, and internet based platforms (e.g. Foursquare and Yelp check-ins) have enabled large scale empirical studies of mobility patterns [6, 7]. These datasets provide detailed spatiotemporal dynamics of urban movements offering valuable insights into the underlying structure and dynamics of cities [8]. Empirical studies have revealed that tra-jectories of individuals within these systems follow consistent scaling patterns across diverse spatial and social contexts [9–12]. Human movement exhibits a wide range of step lengths, influenced by factors such as transportation constraints and individual social preferences [13]. Although human mobility shares some superficial similarities with continuous time random walk models, it significantly deviates from the assumptions of random movement due to behavioral and spatial complex-ities [14–17]. This has motivated studies that are based on exploration of new locations and preferential return to familiar sites in order to describe movement processes [18, 19]. Gener-alizations of this model have considered more details to better reflect the movement patterns and social interactions [20, 21]. These studies however mostly ignore the mechanisms and primary motivations that are behind such movement processes [22–25]. For instance, we know that human mobility patterns are influenced not only by external factors such as so-cioeconomic conditions but also by internal constraints, particularly a relatively constant energy expenditure by human body or vehicle [26, 28]. Individuals tend to maintain a fixed daily energy budget for travel, leading to universal patterns in trip distribution [26, 27]. In this paper, we introduce a minimal mobility model based on the empirical observation that the initial and final distances of a trip from the trajectory’s starting point (home) are 210 1 10 3 10 5                  
+
+> ra,O
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> rb, O
+> (a1) user 23
+> 10 110 310 5
+> ra,O
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> rb, O
+> (b1) user 63
+> 10 110 310 5
+> ra,O
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> rb, O
+> (c1) user 94
+> 10 110 310 5
+> ra,O
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> 10 6
+> rb, O
+> (a2) user 136
+> 10 010 210 410 6
+> ra,O
+> 10 0
+> 10 2
+> 10 4
+> 10 6
+> rb, O
+> (b2) user 142
+> 10 010 210 410 6
+> ra,O
+> 10 0
+> 10 2
+> 10 4
+> 10 6
+> rb, O
+> (c2) user 153
+
+FIG. 1. Empirical data for (Euclidean) distances rb,O , r a,O (in meters) from origin O in a single trip from location a to b. The data are from [30–32]. For each user we take the trips in all the recorded trajectories for that user. The dashed lines show the linear function rb,O = ra,O . In all reported data the Pearson correlation coefficient between the two variables ( ra,O , r b,O ) is greater than 0 .99. 
+
+strongly correlated (see Fig. 1). Similar correlations have also been reported in Ref. [29], where the authors show that the size of modules in a trajectory network increases with the distance of the module from home position. Motivated by these findings, we propose a dynamical rule for selecting a destination in a trip, instead of imposing a power-law distribu-tion for travel distances a priori. This study aims to demonstrate that a simple movement dynamic can reproduce several key statistical features of human mobility, including the distributions of travel distances, visitation frequencies, and exploration rates [18]. While we do not expect this rule to capture every aspect of human movement, it can be readily incorporated into more comprehensive models of these processes. The paper is structured as follows: Section II introduces the mobility model, describing its dynamics and the main statistical quantities of interest. In Sec. III, we present an effective 3model of a single agent to focus on the sole impact of the movement strategy on the main quantities of the process. In Sec. IV, we study the effects of interactions and distribution of suppliers in a more detailed model of interacting agents and report the results of numerical simulations. Finally, Sec. V summarizes the main conclusions of the study.  
+
+> II. PROBLEM STATEMENT
+
+In this section we provide a general statement of the problem. More details are given later where we study more specific models. The key point that we are going to exploit in this work is displayed in Fig. 1. We use the empirical data from the trips in the GPS trajectory dataset which was collected in Geolife project [30–32]. See Appendix A for more details. Given a user trajectory, we take the initial and final distances of all trips from the starting point (or origin O) in that trajectory. We observe significant positive correlations between (Euclidean) distances rb,O and ra,O in a trip from position a to b. The fact that distance of the next stop from origin in a trip is proportional to distance of the initial site is somehow expected; it is more likely to have a large distance from home if a user is already away from home. Therefore, we shall assume that the probability of going from a to b is a function of the ratio rb,O /r a,O .We consider a two-dimensional square lattice of linear size L, consisting of N = L × L
+
+sites. The population distribution is generated using the growth model of Ref. [33]. The model starts with a seed of population at the center of the lattice. At each time step, a unit of population is added to a random position of population ma with probability ∝ (ma + C)only if there exists a populated site at distance less than R0 from site a. In the following, we set C = 1, R0 = 1. The process continues as long as the population density is less than 
+
+ρ = M/N . At the end of this growth process, we have ma units of population (agents or users) at sites a and total population M = PNa=1 ma = ρN . This distribution defines the origin (or home) Oi of the agents for i = 1 , . . . , M .Each user i has a list of demands Di which is a subset of the list of possible demands denoted by D. Each site a supplies a list of demands Da which is again a subset of D,depending possibly on the population and demand distributions. The users leave their origins at time step t = 0 to fulfill their demands. At each time step (trip) t, user i at site 
+
+a selects randomly one of its demands d ∈ Di and chooses a site b which could supply that 4abO
+
+> ra,O
+> rb,O
+> abO
+> ra,O
+> rb,O
+
+(a) (b) 
+
+Pwait 
+
+1 − Pwait 
+
+τaFIG. 2. Illustration of the movement strategy. The probability of going from a to b in a trip 
+
+Pa→b ∝ exp( −J rb,O +1   
+
+> ra,O +1
+
+) depends on the ratio of distances rb,O , r a,O from origin O (home). Panel (a): a single agent moves according the above rule with no waiting time. Panel (b): the agents, depending on their waiting time τa in the queue, either remain in the queue with probability 
+
+Pwait = e−γτ a/τ 0 to satisfy a given demand or move to another location for this purpose. 
+
+demand (i.e., d ∈ Db) with probability ∝ exp 
+
+
+
+−J(d) rb,O i +1  
+
+> ra,O i+1
+
+
+
+, see Fig. 2 (panel (a)). This is the main ingredient of the models that are studied in this work. The constant 1 in the ratio is added to avoid division by zero. We assume that the energy cost of moving from a → b
+
+is directly proportional to the distance, i.e., ∆ Eab = ∆ rab . A demand which is supplied at site b may not satisfy the user and there could be an associated waiting time τb. The total travel time of an agent ti is used for the sum of waiting times in all its trips. The question is how much of the observed behaviors of movement processes can be re-covered from the above model? The main quantities which we study in the following are time dependence of the mean-square of displacements, distribution of distances traveled in a trip, visitation frequencies, and the relation between probability of exploration and number of distinct visited sites [18]. 
+
+III. AN EFFECTIVE MODEL 
+
+In this section, we consider a single user to focus mainly on the impact of the movement strategy on the statistical behaviors of the process. The agent starts its movement from the origin O of a two-dimensional square lattice of 5size N = L × L. At each step (trip) t the user selects a demand d with probability Pt(d)from a list of D distinct demands. Here we assume that all sites are able to supply any demand d. The probability of going from site a to b is 
+
+Wt(a → b) ∝ X
+
+> d
+
+Pt(d) exp [ −J(d)
+
+ rb,O + 1 
+
+ra,O + 1 
+
+
+
+], (1) where O is the starting point (origin) and J(d) controls the closeness of destination b to the origin. Intuitively, small J makes all destinations almost equally likely (the agent ventures far from home), while a large J favors destinations closer to home than the current location. An illustration of the movement is presented in Fig. 2 (panel (a)). All distances here are Manhattan distances in the two dimensional lattice. In the following we simply take 
+
+Pt(d) = 1 /D that is the demands are chosen randomly and uniformly. The probability of finding the user at site a evolves with time step t as follows 
+
+Pt+1 (a) = 
+
+> N
+
+X
+
+> b=1
+
+Wt(b → a)Pt(b). (2) In this way, the probability distribution of the distance ∆ r traveled in step t is given by 
+
+Pt(∆ r) = X
+
+> a
+
+X
+
+> b
+
+Pt(a)Wt(a → b)δ∆r, ∆rab . (3) We solve the above equations numerically in a lattice of linear size L = 50 for T = 5 L
+
+time steps with the number of demands D = L. The qualitative behaviors of the results are not very sensitive to values of L, D and T , for sufficiently large values of these quantities. The form of function J(d) is however relevant here and can change the main statistical features of the process. For simplicity, we take J(d) = J that is independent of the chosen demand. Figure 3 (panel (a1)) displays P (∆ r) = PTt=1 Pt(∆ r) which is obtained from numerical solution of the above equations. We see that by varying the magnitude of J, P (∆ r) displays very different behaviors ranging from nearly Poisson for small J < 1, to power-law for J ≃ 3. The empirical data suggest a power-law scaling P (∆ r) ∝ ∆r−1−αr of exponent 0 < α r ≤ 2[18]. This occurs for larger values of J, where the agent tends to exhibit a sub-diffusion movement. As Fig. 3 (panel (a2)) shows the mean-square displacement ⟨r2⟩ initially grows as tν with exponent ν < 1 for J > 3. In fact, for very small J, all destination sites b
+
+have nearly the same probability which results in super-diffusion whereas for very large J,610 0 10 1 10 2
+
+r                    
+
+> 10 15
+> 10 12
+> 10 9
+> 10 6
+> 10 3
+> 10 0
+> 10 3
+> P( r)
+> (a1) L= 50, D=L,T= 5 D
+> r3.5
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+> 10 010 110 2
+
+V                
+
+> 10 2
+> 10 1
+> 10 0
+> Pexplor
+> (b1) L= 50, D=L,T= 5 D
+> V0.8
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+> 10 010 1
+
+f                 
+
+> 10 2
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> P(f)
+> (c1) L= 50, D=L,T= 5 D
+> f1.9
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+> 10 010 110 2
+
+t               
+
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> r2
+> (a2) L= 50, D=L,T= 5 D
+> t1.2
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+> 10 010 110 2
+
+t               
+
+> 10 1
+> 10 0
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> E
+> (b2) L= 50, D=L,T= 5 D
+> t1.8
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+> 10 010 110 2
+
+rf                
+
+> 10 2
+> 10 1
+> 10 0
+> P(rf )
+> (c2) L= 50, D=L,T= 5 D
+> (rf )1
+> J= 1
+> J= 2
+> J= 3
+> J= 4
+> J= 5
+
+FIG. 3. Main quantities of the effective model for T = 5 L time steps with L = 50 , D = L. Panel (a1): probability distribution of trip distances ∆ r. Panel (b1): probability of exploration vs the number of distinct visited sites V . Panel (c1): probability distribution of visit frequencies f . Panel (a2): mean-square displacement vs time step t. Panel (b2): consumed energy vs time step t. Panel (c2): number of sites visited f times from distance r vs the product rf . The results are obtained by numerical solution of the equations given in Sec. III. The dashed lines are shown for reference alongside the results. 
+
+destinations that have smaller distances rb,O are dominated and we observe a sub-diffusion. Real data however suggest an ultra-slow diffusion where the mean-squared displacement scales with the logarithm of time steps [18]. Next we write a recursive relation for the probability Pt,a (fa) that site a has been visited 
+
+fa times at time step t:
+
+Pt+1 ,a (fa) = Pt,a (fa)(1 − Pt+1 (a)) + θ(fa)Pt,a (fa − 1) Pt+1 (a). (4) 
+
+θ(x) is the step function which equals 1 for x > 0, otherwise it is zero. Given all the 7probabilities we’ve established, we can now obtain the probability of exploration, 
+
+P explor t = X
+
+> a
+
+Pt(a)Pt−1,a (fa = 0) , (5) 
+
+Vt = X
+
+> a
+
+(1 − Pt,a (fa = 0)) , (6) in which fa = 0 means that the number of times that site a is visited must be zero to have an exploration. Vt is the average number of distinct sites visited by the user up to time step 
+
+t. Figure 3 (panel (b1)) shows how exploration probability P explor decays with the number of visited sites V . For large V we observe a power-law tail P explor ∝ V −αe with exponents 
+
+αe ≃ 0.8 around J ≃ 3. Smaller exponents are observed for smaller values of J. Again, empirical data suggest αe ≃ 0.2 [18]. From the probability Pt,a (f ) we can obtain the average number of sites with frequency of visits f at time step t = T , that is P (f ) = P 
+
+> a
+
+PT,a (f ). From real data we expect a power-law P (f ) ∝ f −(1+1 /α f ) of exponent αf ≃ 1.2 [18]. This function is reported in Fig. 3 (panel (c1)). For J = 3 we get (1 + 1 /α f ) ≃ 1.9. We also look at the average number of sites that are at distance r from the origin and are visited f times, 
+
+P (r, f ) = X
+
+> a
+
+δr,r a,O PT,a (f )/r. (7) This is computed at time step t = T and is scaled with r. The universal visitation law of Ref. [20] states that P (r, f ) ∝ (rf )−αu with exponent αu ≃ 2. Figure 3 (panel (c2)) displays the sum of probabilities P (r, f ) for a given value of rf . Here for J ≃ 1 we observe a nearly power-law relation with exponent αu ≃ 1. Finally we consider the consumed energy ⟨E⟩ and compare it with the number of visited sites V and mean-squared displacement ⟨r2⟩ to characterize efficiency of the process [34, 35]. The consumed energy, which here is sum of the trip distances ∆ rab , grows quickly as t2
+
+at the beginning where still larger trip distances appear in the movement process. In the stationary state, the trip distances are of the same order and the energy increases nearly linearly with t. Let us define the two measures of efficiency as 
+
+ηv = V
+
+⟨E⟩, (8) 
+
+ηr =
+
+s
+
+⟨r2⟩⟨E⟩ . (9) 80 2 4            
+
+> J
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> v = V/ E
+> (a) D=L,T= 5 D
+> L=30
+> L=40
+> L=50
+> 024
+> J
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> 0.35
+> r = r2 / E
+> (b) D=L,T= 5 D
+> L=30
+> L=40
+> L=50
+
+FIG. 4. Efficiencies of the effective model for T = 5 L time steps with L = 30 , 40 , 50 , D = L.The average number of visited sites V and mean-squared displacement ⟨r2⟩ are compared with the average consumed energy ⟨E⟩. Optimal values of J occur where both efficiencies are considerable. The results are obtained by numerical solution of the equations given in Sec. III. 
+
+For a given value of consumed energy, higher values of these quantities correspond to a larger number of visited sites and larger distances traveled by the agent. Figure 4 shows that ηv increases and ηr decreases with J, as expected. The behaviors change around J = 2 suggesting an optimal interval for the parameter J ∈ (1 , 4), where both the measures have considerable values. This is the same region of the parameter that we observe power-law behaviors for the main distributions reported in Fig. 3. 
+
+IV. NUMERICAL SIMULATIONS: INTERACTING AGENTS 
+
+As shown in the previous section, although interactions among agents are neglected in the effective model, power-law behavior is still observed in different properties of the system, including the distribution functions. In this section, we investigate in greater detail the dynamics of demand satisfaction and examine how the correlation between the distance rb,O 
+
+and ra,O affects the outcomes in a set of agents that interact through queue formation. We consider an urban dynamics where each resident leaves home with a set of tasks to complete and therefore must visit various locations throughout the city to satisfy their daily needs. Service providers comprising a broad range of shops, stores, and public institutions are dispersed across the urban area, and individuals may interact with several of them over 9the course of a day. At each of these locations, a visitor may spend a non-negligible dwell time, which depends on multiple factors, including the number of individuals simultaneously seeking service at that facility. Reference [37] has shown that service providers themselves exhibit a nontrivial spatial distribution across the urban environment. Using Foursquare data from the city of Bologna, they show that the probability distribution of Points of Interest (POIs) across cities exhibit clear power-law scaling when analyzed at city scale. As previously mentioned, the distribution of population in cities also follows a power-law distribution. Therefore, the distribution of urban service providers can also be modeled using the framework presented in Sec. II. There are some distinct categories for POIs across the city i.e. Business and Professional Services, Community and Government, Dining and Drinking, Health and Medicine, Retail, and Travel and Transportation. Here we assume there are D categories of POIs in the city, where n1, n 2, . . . , n D are the number of each service provider that have been distributed across the city. In this simulation, as mentioned earlier, we used the model of Ref. [33] to generate a random and spatially heterogeneous distribution for each class of service providers across the city. Specifically, the model parameters were set to C = 1 and R0 = 3. Note that increasing the value of R0 leads to a broader spatial spread of the distribution of service providers throughout the urban area. Here we consider again a two-dimensional square lattice of linear size L = 70, with the population distribution described in Sec. II. The population density is fixed to ρ = M/N =10. Each agent starts from its home and moves according to the dynamical rule described in Sec. II, in order to satisfy some demands which are selected randomly and uniformly from the set of D categories of POIs. When an agent randomly samples a location ra capable of fulfilling demand type da, the site may already host a queue of length τa. This queue emerges due to the structural im-balance between the number of demand-satisfying sites ND = PDj=1 nj and the significantly larger population size M , with M ≫ ND. In our simulations, the total number of service providers in the city is given by ND = L2. The number of service providers in each category is nj = ND/D , where D denotes the number of distinct service categories. After observing 
+
+τa, the agent proceeds according to a probabilistic decision rule, see Fig. 2 (panel (b)). The 10 10 1 10 3     
+
+> t
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> E
+> t1.0
+> t0.8
+> (a1)
+> J=0.0 J=1.0 J=2.0 J=3.0
+> 10 110 3
+> t
+> 10 1
+> r2
+> t0.2
+> t0.6
+> (b1)
+> 10 110 3
+> t
+> 10 1
+> 10 2
+> V
+> t0.9
+> t0.5
+> (c1)
+> 10 110 3
+> t
+> 10 1
+> 10 2
+> 10 3
+> 10 4
+> E
+> t1.0
+> t0.8
+> (a2)
+> J=0.0 J=1.0 J=2.0 J=3.0
+> 10 110 3
+> t
+> 10 1
+> r2
+> t0.1
+> t0.5
+> (b2)
+> 10 110 3
+> t
+> 10 1
+> 10 2
+> V
+> t0.9
+> t0.5
+> (c2)
+
+FIG. 5. The mean consumed energy ⟨E⟩, the mean-squared displacement p⟨r2⟩ and average number of visited sites V versus time t after T = 10 L number of steps with L = 70 and D = 20. Top panels: Results for the case in which agents remain in the queue to satisfy a given demand, regardless of their waiting time. Bottom panels: Results for the case in which agents, depending on their waiting time in the queue, either remain in the queue with probability Pwait to satisfy a given demand or move to another location for this purpose. The reference lines with the mentioned exponents serve as a guide to the eye. 
+
+probability of remaining in the queue is prescribed by 
+
+Pwait = e−γ τa τ0 , (10) where τ0 = M/N D. The parameter γ sets how strongly a long queue discourages waiting, and τ0 is a reference queue length. With the complementary probability 1 − Pwait , the agent selects an alternative site that satisfies the same demand and relocates according to the transition probability ∝ exp 
+
+
+
+−J rb,O +1  
+
+> ra,O +1
+
+
+
+. Note that when γ = 0, the queue length does not affect the agent’s decision; the agent remains in the queue until it is served and its demand is satisfied. 11 10 1 10 2                             
+
+> V
+> 10 2
+> 10 1
+> 10 0
+> Pexplor
+> V1.1
+> V0.1
+> (a1)
+> J=0.0 J=1.0 J=2.0 J=3.0
+> 024
+> J
+> 0.4 0.6 0.8 1.0
+> r2 / E
+> (b1)
+> t= 200
+> t= 400
+> t= 600
+> 024
+> J
+> 0.05 0.10 0.15
+> V/ E
+> (c1)
+> t= 200
+> t= 400
+> t= 600
+> 10 110 210 3
+> V
+> 10 1
+> 10 0
+> Pexplor
+> V1.1
+> V0.3
+> (a2)
+> J=0.0 J=1.0 J=2.0 J=3.0
+> 024
+> J
+> 0.2 0.4 0.6 0.8
+> r2 / E
+> (b2)
+> t= 200
+> t= 400
+> t= 600
+> 024
+> J
+> 0.05 0.10 0.15
+> V/ E
+> (c2)
+> t= 200
+> t= 400
+> t= 600
+
+FIG. 6. Exploration probability Pexplor as a function of V and different measures of efficiencies 
+
+ηr = p⟨r2⟩/⟨E⟩ and ηv = V / ⟨E⟩ as a function of control parameter J. Optimal values of J occur where both efficiencies are considerable. All distribution functions are obtained after T = 10 L
+
+number of steps with L = 70 and D = 20. Top panels: Results for the case in which agents remain in the queue to satisfy a given demand, regardless of their waiting time. Bottom panels: Results for the case in which agents, depending on their waiting time in the queue, either remain in the queue with probability Pwait to satisfy a given demand or move to another location for this purpose. The reference lines with the mentioned exponents serve as a guide to the eye. 
+
+These coupled mechanisms produce a mobility process in which both spatial and temporal components jointly determine the user’s trajectory. Such a formulation is consistent with empirical characteristics of intra-urban movements, where the perceived cost of travel reflects both physical distance and queue-induced delays. The user’s decision-making dynamics can thus be interpreted as minimizing an effective cost function C ∼ P
+
+> l
+
+(Aτ l + B∆rl), where τl
+
+and ∆ rl represent the waiting time and jump length during each transition. In the following, we examine the results obtained from numerical simulations of the above model. Figure 5 shows the key quantities used to compare the dynamics of the model under variation of different parameters. One of the most important measures is the consumed energy ⟨E⟩, which is proportional to the total path length traveled in satisfying the demands. 12 10 1                           
+
+> r
+> 10 3
+> 10 1
+> CDF ( r)
+> 1/ r4.0
+> (a1)
+> J=1.0 J=2.0 J=3.0
+> 10 210 3
+> 10 3
+> 10 2
+> 10 1
+> CDF ( )
+> 1/ 1.5
+> (b1)
+> J=1.0 J=2.0 J=3.0
+> 010000 20000 30000
+> V
+> 10 2
+> 10 1
+> CDF (V)
+> exp( 0.8 V/N)
+> (c1)
+> J=1.0 J=2.0 J=3.0
+> 10 1
+> r
+> 10 3
+> 10 1
+> CDF ( r)
+> 1/ r4.0
+> (a2)
+> J=1.0 J=2.0 J=3.0
+> 10 210 3
+> 10 3
+> 10 2
+> 10 1
+> CDF ( )
+> 1/ 1.5
+> (b2)
+> J=1.0 J=2.0 J=3.0
+> 020000 40000
+> V
+> 10 2
+> 10 1
+> CDF (V)
+> exp( 0.6 V/N)
+> (c2)
+> J=1.0 J=2.0 J=3.0
+
+FIG. 7. Cumulative distribution functions for travel distance ∆ r, waiting time τ and visitation frequency V . All distribution functions are obtained after T = 10 L number of steps with L = 70 and D = 20. Top panels: Results for the case in which agents remain in the queue to satisfy a given demand, regardless of their waiting time. Bottom panels: Results for the case in which agents, depending on their waiting time in the queue, either remain in the queue with probability 
+
+Pwait to satisfy a given demand or move to another location for this purpose. The reference lines with the mentioned exponents serve as a guide to the eye. 
+
+Other relevant quantities include the mean squared displacement from the origin ⟨r2⟩ and the number of distinct visited sites V .As observed, all these quantities exhibit power-law behavior within a certain range of the parameter J, which characterizes the relative importance of the destination–home distance 
+
+rb,O compared to the origin–home distance ra,O . It should be noted that, due to finite-size effects, the mean distance from the origin tends to saturate at a constant value. Similarly, the number of distinct visited sites is expected to approach a constant value at long times. In Fig. 5 we compare the case in which the waiting time in the queue does not affect the dynamics ( γ = 0) with the case where the waiting time is relevant ( γ = 1). In the latter case, the agent may leave the queue by comparing it with a characteristic threshold τ0 and satisfy the same demand at another location. We see that the value of γ does not change 13 significantly the scaling exponents in this regime. For nonzero γ, the quantity most affected in terms of its power-law behavior is the mean-squared distance from the origin. Figure 6 shows the exploration probability as a function of the mean number of distinct visited sites. The tails exhibit power-law behavior, with exponents that vary with J. The same figure also presents efficiency metrics: (i) the ratio of the distance from the origin to the consumed energy ηr, and (ii) the ratio of the number of distinct visited sites to the consumed energy ηv, both evaluated over time for different values of the control parameter. These quantities exhibit behaviors that are similar to those observed in the single-particle dynamics. An optimal regime emerges within a specific range of the parameter J ∼ 2. The cumulative distribution functions of step length ∆ r, waiting times τ , and the number of distinct visited sites V for the two cases γ = 0 and γ = 1 are shown in Fig. 7. As can be seen, the dominant behavior for distributions of ∆ r and τ is close to power-law, with exponents that depend on the control parameter J. For the number of visited sites V we observe an exponential distribution with a decay rate that is smaller as expected for γ = 1. Moreover, the qualitative behavior is not very sensitive to interactions that are induced by the waiting times for different values of γ = 0 , 1.  
+
+> V. CONCLUSION
+
+We showed that key statistical features of human trajectories can be reproduced by a simple dynamical rule that depends on the ratio of the initial and final distances of a trip from the trajectory’s starting point (home). This hypothesis is supported by empirical data, which reveal a strong correlation between the two distances in a trip. We used a system of interacting agents that are to satisfy a list of demands and studied the impact of interactions and distributions of suppliers on the statistics of the trajectories. The above rule for accepting a trip can be readily incorporated into any movement model alongside other relevant dynamical mechanisms. For example, exploratory trips or returns to previously visited locations can be accepted with a probability that depends on the ratio of the endpoint distances from home (or a reference position). In the present work, we assumed that the available energy resources are unconstrained. It would be also interesting to investigate how imposing energetic constraints on mobility would modify the results. Because each trip carries a distance-proportional cost, the same rule offers a natural setting 14 to study the energy efficiency of urban movement [34–36]. 
+
+> ACKNOWLEDGMENTS
+
+This work was performed using the ALICE compute resources provided by Leiden Uni-versity. 
+
+> Appendix A: Details of the empirical data
+
+The GPS trajectory data used in this section were obtained from the GeoLife project by Microsoft Research Asia [30–32]. The dataset was collected by 182 users between April 2007 and August 2012 and consists of 17,621 individual trajectories with a total travel distance of approximately 1 .29 × 10 6 kilometers and a total duration of 50,176 hours. Each trajectory is represented as a sequence of GPS points recorded along the movement path, with each point containing latitude, longitude, and altitude information. The dataset captures a wide range of outdoor human mobility behaviors, including daily routines such as commuting between home and work, as well as entertainments and physical activities like shopping, sightseeing, dining, hiking, and cycling. Although the trajectories are distributed across more than 30 cities in China and several locations in the United States and Europe, the majority of the data were collected in Beijing, China. For this study, each trajectory was processed to obtain two basic measures: for each step n which is defined by two successive GPS points ( a, b ), we obtain the radial distances 
+
+ra,O , r b,O of points a, b from the starting location O of the trajectory. These quantities allow us to study how local movement steps change with distance from the origin along real human trajectories. The data and codes we used in this study are available at [38].      
+
+> [1] M. C. Gonzalez, C. A. Hidalgo, and A. L. Barab´ asi, “Understanding individual human mobility patterns,” Nature 453 , 779 (2008). [2] M. Batty, The New Science of Cities (MIT Press, 2013). [3] M. U. Kraemer et al. , “The effect of human mobility and control measures on the covid-19 epidemic in china,” Science 368 , 493 (2020).
+
+15 [4] L. Bettencourt, Introduction to Urban Science: Evidence and Theory of Cities as Complex Systems (MIT Press, 2021). [5] D. Rybski and M. C. Gonz´ alez, “Cities as complex systems—Collection overview,” PLoS ONE 
+
+17 , e0262964 (2022). [6] H. Barbosa et al. , “Human mobility: Models and applications,” Phys. Rep. 734 , 1 (2018). [7] L. Pappalardo, E. Manley, V. Sekara, and L. Alessandretti, “Future directions in human mobility science,” Nat. Comput. Sci. 3, 588 (2023). [8] M. Barthelemy, The Structure and Dynamics of Cities (Cambridge University Press, 2016). [9] G. Chowell, J. M. Hyman, S. Eubank, and C. Castillo-Chavez, “Scaling laws for the movement of people between locations in a large city,” Phys. Rev. E 68 , 066102 (2003). [10] D. Brockmann, L. Hufnagel, and T. Geisel, “The scaling laws of human travel,” Nature 439 ,462 (2006). [11] L. Alessandretti, P. Sapiezynski, S. Lehmann, and A. Baronchelli, “Multi-scale spatio-temporal analysis of human mobility,” PLoS ONE 12 , e0171686 (2017). [12] L. Alessandretti, U. Aslak, and S. Lehmann, “The scales of human mobility,” Nature 587 ,402 (2020). [13] L. M. A. Bettencourt, J. Lobo, D. Helbing, C. K¨ uhnert, and G. B. West, “Growth, innovation, scaling, and the pace of life in cities,” Proc. Natl. Acad. Sci. U.S.A. 104 , 7301 (2007). [14] R. Metzler and J. Klafter, “The random walk’s guide to anomalous diffusion: a fractional dynamics approach,” Phys. Rep. 339 , 1 (2000). [15] I. Rhee, M. Shin, S. Hong, K. Lee, S. J. Kim, and S. Chong, “On the Levy-walk nature of human mobility,” IEEE/ACM Trans. Netw. 19 , 630 (2011). [16] K. Zhao, M. Musolesi, P. Hui, W. Rao, and S. Tarkoma, “Explaining the power-law distribu-tion of human mobility through transportation modality decomposition,” Sci. Rep. 5, 9136 (2015). [17] R. Gallotti, A. Bazzani, S. Rambaldi, and M. Barthelemy, “A stochastic model of randomly accelerated walkers for human mobility,” Nat. Commun. 7, 12600 (2016). [18] C. Song, T. Koren, P. Wang, and A.-L. Barab´ asi, “Modelling the scaling properties of human mobility,” Nat. Phys. 6, 818 (2010). [19] L. Pappalardo, F. Simini, S. Rinzivillo, D. Pedreschi, F. Giannotti, and A.-L. Barab´ asi, “Re-turners and explorers dichotomy in human mobility,” Nat. Commun. 6, 8166 (2015). 
+
+16 [20] M. Schl¨ apfer et al. , “The universal visitation law of human mobility,” Nature 593 , 522 (2021). [21] L. Zhong, L. Dong, Q. Wang, C. Song, and J. Gao, “Switching exploration modes in human mobility,” arXiv:2503.10969 (2025). [22] L. Wu, Y. Zhi, Z. Sui, and Y. Liu, “Intra-urban human mobility and activity transition: Evidence from social media check-in data,” PLoS ONE 9, e97010 (2014). [23] M. Lee and P. Holme, “Relating land use and human intra-city mobility,” PLoS ONE 10 ,e0140152 (2015). [24] V. Baumann, J. Dambacher, M. F. L. Ruitenberg et al. , “Towards a characterization of human spatial exploration behavior,” Behav. Res. 57 , 65 (2025). [25] Q. Li et al. , “Slower searching yields higher efficiency: A case study of taxi drivers,” Proc. Natl. Acad. Sci. U.S.A. 122 , e2502965122 (2025). [26] R. K¨ olbl and D. Helbing, “Energy laws in human travel behaviour,” New J. Phys. 5, 48 (2003). [27] R. K¨ olbl and M. Kozek, “A physiological model of human mobility: A global study,” Humanit. Soc. Sci. Commun. 8, 1 (2021). [28] W. Wang and T. Osaragi, “Daily human mobility: A reproduction model and insights from the energy concept,” ISPRS Int. J. Geo-Inf. 11 , 219 (2022). [29] L. Zhong, L. Dong, Q. Wang, C. Song, and J. Gao, “Universal spatial inflation of human mobility,” arXiv:2406.06889 (2024). [30] Y. Zheng, L. Zhang, X. Xie, and W.-Y. Ma, “Mining interesting locations and travel sequences from GPS trajectories,” in Proceedings of the 18th International Conference on World Wide Web (WWW 2009) (ACM, New York, 2009), p. 791. [31] Y. Zheng, Q. Li, Y. Chen, X. Xie, and W.-Y. Ma, “Understanding mobility based on GPS data,” in Proceedings of the 10th International Conference on Ubiquitous Computing (Ubi-Comp 2008) (ACM, New York, 2008), p. 312. [32] Y. Zheng, X. Xie, and W.-Y. Ma, “GeoLife: A collaborative social networking service among user, location and trajectory,” IEEE Data Eng. Bull. 33 , 32 (2010). [33] R. Li et al. , “Simple spatial scaling rules behind complex cities,” Nat. Commun. 8, 1841 (2017). [34] I. Biazzo and A. Ramezanpour, “Efficiency and irreversibility of movements in a city,” Sci. Rep. 10 , 1 (2020). [35] I. Biazzo, M. Ghasemi Nezhadhaghighi, and A. Ramezanpour, “Entropy production of self-
+
+17 ish drivers: implications for efficiency and predictability of movements in a city,” J. Phys. Complex. 2, 035026 (2021). [36] M. Ghasemi Nezhadhaghighi and A. Ramezanpour, “Efficiency of energy-consuming random walkers: Variability in energy helps,” Phys. Rev. E 111 , 014301 (2025). [37] E. Andreotti, U. Marquis, and R. Gallotti, “Scale-free points-of-interest distribution in a city emerging from homogeneous Poissonian point processes,” arXiv:2509.01699 (2025). [38] ”https://github.com/aramezanpour/distance-from-home-matters/”. 
+
+18

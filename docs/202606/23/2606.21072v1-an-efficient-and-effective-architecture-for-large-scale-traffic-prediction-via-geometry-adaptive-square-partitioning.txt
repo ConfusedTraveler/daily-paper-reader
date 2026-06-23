@@ -1,0 +1,1221 @@
+Title: An Efficient and Effective Architecture for Large-Scale Traffic Prediction via Geometry-Adaptive Square Partitioning
+
+URL Source: https://arxiv.org/pdf/2606.21072v1
+
+Published Time: Tue, 23 Jun 2026 00:31:09 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# An Efficient and Effective Architecture for Large-Scale Traffic Prediction via Geometry-Adaptive Square Partitioning 
+
+# Yongfeng Su 
+
+Zhejiang University, China yfsu@zju.edu.cn 
+
+# Hongwen Li 
+
+Southeast University, China hwli@seu.edu.cn 
+
+# Zijian Zhang 
+
+Zhejiang University, China zijian45@zju.edu.cn 
+
+# Ziquan Fang 
+
+Zhejiang University, China zqfang@zju.edu.cn 
+
+# Lu Chen 
+
+Zhejiang University, China luchen@zju.edu.cn 
+
+# Christian S. Jensen 
+
+Aalborg University, Denmark csj@cs.aau.dk 
+
+## Abstract 
+
+Traffic prediction is a core task in intelligent transportation systems (ITS) and urban-scale decision making. Despite the effectiveness of mainstream neural-network based methods, their deployment in real-world settings with thousands of traffic sensors is jeopardized severely by their poor computational scalability. To address this, the community has attempted to incorporate spatial database parti-tioning techniques (e.g., Grid, Quadtree, and K-D Tree) to improve model scalability. However, these approaches rely on handcrafted geometric heuristics and often produce irregular or imbalanced data partitions, leading to boundary fragmentation, excessive padding overheads, and degraded model accuracy. In this paper, we propose SqLinear , an efficient and effective ar-chitecture for large-scale traffic prediction. First, we design Square Partition , a geometry-adaptive algorithm that partitions massive traffic sensors into balanced, non-overlapping, and near-square spatial regions. Unlike existing heuristic-based designs, Square Par-tition is theoretically grounded and provides provable guar-antees on aspect ratio, balance, and partition utilization, estab-lishing a high-quality foundation for downstream spatiotemporal modeling. Next, we propose a Hierarchical Linear Interaction (HLI) module that abandons the costly attention mechanisms com-monly used in Transformer-based spatio-temporal models. HLI efficiently captures both local intra-region dynamics and global inter-region dependencies through a lightweight linear interaction scheme, enabling effective spatiotemporal modeling with linear computational complexity. Extensive experiments on four large-scale traffic datasets and 10 baselines show that SqLinear reduces MAE by 2.30% on average under the standard setting and by 5.81% under extreme scalability settings, while reducing training runtime by 13.27%–30.84% in spatial- and horizon-scaling scenarios. 
+
+## Keywords 
+
+Large-scale traffic forecasting, spatio-temporal data mining 
+
+## 1 Introduction 
+
+Traffic prediction plays a foundational role in urban computing applications, with the primary objective of predicting critical traf-fic parameters including flow, speed, and occupancy, through the analysis of historical traffic data [ 10 , 40 , 48 ]. Traffic prediction is im-portant for maintaining an efficient transportation system and also helps mitigate urban congestion [ 22 , 33 , 36 ]. As a result, spatio-temporal traffic prediction attracts considerable attention in both academia and industry [21, 63, 65]. The research community has developed approaches to traffic modeling that employ different neural architectures, spanning re-current neural networks (RNNs) [25, 29, 57], convolutional neural networks (CNNs) [ 7 , 55 , 60 ], multi-layer perceptrons (MLPs) [ 19 ,47 , 59 ], graph neural networks (GNNs) [ 27 , 49 , 54 ], and the Trans-former architectures [ 15 , 18 , 67 ]. While these methods can capture complex spatio-temporal dependencies, their deployment faces scal-ability pressure along both the sensor dimension and the forecasting dimension: real-world systems must process city-scale sensor networks and support forecasts beyond short-step prediction .However, previous studies often assume small-scale or regional traf-fic systems, overlooking the massive scale of real-world transporta-tion systems. A prominent example is California’s traffic monitoring system, which incorporates nearly 20,000 sensor nodes 1. At this scale, mainstream Spatio-Temporal Graph Neural Networks (STGNNs) and Transformer-based models become computa-tionally infeasible : modeling global interactions among 20k nodes at quadratic complexity results in hundreds of millions of pairwise interactions per time step, and the cost is further multiplied across long historical windows and forecasting horizons, leading to pro-hibitive GPU memory consumption. As a consequence, it is difficult to deploy these models in city-scale transportation systems. To address scalability challenges in large-scale prediction set-tings, spatial database partitioning is a widely adopted strat-egy [ 13 , 62 ]. Existing techniques generally fall into two categories: 
+
+Road Network-based Methods that cluster traffic sensors based on topological connectivity, and Free Space-based Methods that partition traffic sensors according to geographic coordinates. Road network-based approaches explicitly preserve graph structure, but they often incur substantial computational overhead and generate highly irregular subgraphs with skewed sizes and shapes. Such irregularity complicates parallel processing and capacity-bounded modeling, limiting their scalability in practice [ 9, 20 ]. Consequently, recent studies [ 2, 61 ] have shifted toward Free Space-based strate-gies (e.g., Grid [ 5 ], Quadtree [ 44 ], K-D Tree [ 4]), which originate from the data management literature and offer lightweight means of grouping large numbers of traffic sensors into compact spatial regions suitable for scalable spatiotemporal modeling. In this study, we also focus on the free space setting, as it represents a funda-mental and widely adopted abstraction for large-scale spatial data management. Importantly, our approach is not restricted to free space and can be applied to road network settings (see Sec. 3.5 ). Despite previous efforts on leveraging spatial partitioning to enhance prediction efficiency, we observe critical limitations. As shown in Figs. 1(a) and (b), Grid-based and Quadtree-based meth-ods yield partitions with both imbalanced node distributions and excessive empty regions. As shown in Fig. 1(c), despite their adap-tive splitting strategy, K-D Tree-based methods generate elongated patches that fail to preserve the spatial neighborhood structures of           
+
+> 1https://pems.dot.ca.gov
+> arXiv:2606.21072v1 [cs.LG] 19 Jun 2026 Su et al. (a) Grid (b) Quadtree (c) K-D Tree (d) Square Partition
+> ✘Imbalance ✘Elongate ✘Empty
+> ✔Balance
+> ✔Non-overlapped
+> ✔Compact SD
+> (0.7k)
+> GBA
+> (2.3k)
+> GLA
+> (3.8k)
+> CA
+> (8.6k)
+> 0
+> 10
+> 20
+> 30
+> 40
+> hour
+> Node
+> (e) Spatial Cost Scaling
+> SqLinear
+> STID
+> PatchSTG
+> BigST
+> 48 96 192 672
+> 0
+> 3
+> 6
+> 9
+> 12
+> hour
+> Step
+> (f) Horizon Cost Scaling
+> SqLinear
+> STID
+> PatchSTG
+> BigST
+
+Figure 1: Top: spatial partitioning quality; Bottom: training cost scaling with node count and prediction horizon. 
+
+traffic nodes [ 45 ]. These deficiencies not only reduce the potential computational benefits but also reduce the abilities of models to cap-ture complex spatial dependencies. Overall, achieving effective spatial partitioning has emerged as a fundamental require-ment for realizing efficient large-scale traffic prediction. This requirement leads us to identify two key challenges below. 
+
+Challenge I: How to generate high-quality spatial parti-tions to improve spatio-temporal modeling efficiency? While existing partitioning approaches show promise for large-scale data processing, employing these methods directly for traffic prediction is suboptimal due to their rigid geometric partitioning schemes. As shown in Fig. 1, whether Grid, Quadtree, or K-D Tree based, they use splitting strategies that are unable to contend well with the underlying traffic data distribution characteristics . Specifically, (i) Grid-based methods enforce uniform partitions regardless of node density varia-tions, (ii) Quadtree-based methods employ fixed midpoint quadrant divisions, and (iii) K-D tree-based methods implement alternating median splits along the coordinate axes. While some solutions [ 13 ]utilize padding operations, this introduces undesirable computa-tional overheads without addressing the core shape irregularity problem. For example, PatchSTG’s [ 13 ] implementation on the CA dataset [ 35 ] requires padding 8,600 nodes across 512 patches to a uniform size of 24, resulting in a 43% computational overhead. More importantly, these suboptimal partitions can weaken local spatial context, creating a bottleneck for prediction performance. According to the First Law of Geography [50 ], traffic patterns are most strongly correlated within compact local neighborhoods. This insight motivates compact spatial patches that preserve short-range locality while still supporting efficient tensorization. The key chal-lenge is to achieve a geometry-adaptive partitioning scheme that simultaneously achieves i) balanced node distribution across patches, ii) elimination of the need for padding, and iii) compact spatial layouts that reduce severe elongation. 
+
+Challenge II: How to enable scalable spatio-temporal traffic prediction? Although spatial partitioning reduces the number of modeling units from 𝑁 to 𝑃 (𝑁 and 𝑃 denote the number of traffic nodes and partitions, respectively), there are three modeling chal-lenges. (i) Topology recovery . Since partitions are primarily based on geometric coordinates rather than road networks, continuous arterial corridors may be split across partitions, or topologically un-related road segments may appear in the same partition. As a result, the model must implicitly reconstruct these severed topological con-nections globally while separating physically close but topologically distant flows, all without relying on expensive graph computations. (ii) Patch-scale computation. Even after partitioning, large-scale networks can generate hundreds to thousands of patches 𝑃 , pos-ing significant computational challenges for Transformer-based models. For instance, PatchSTG [ 13 ] attempts to implicitly recon-struct severed topological connections between patches via global self-attention, which has quadratic complexity 𝑂 (𝑃 2). With the CA dataset partitioned into 𝑃 = 512 patches, each attention layer must compute and store 𝑃 × 𝑃 = 262 , 144 pairwise attention scores. As further illustrated in Fig. 1(e), with increasing numbers of traffic nodes, existing approaches incur high computational costs due to their quadratic complexity. (iii) Temporal scalability. Beyond spatial scale, practical forecasting often extends from short-step prediction to longer forecasting ranges. However, as reported in Fig. 1(f), existing methods exhibit a significant drop in efficiency as the prediction horizon scales up. A scalable model should therefore preserve robust spatio-temporal representations without relying on increasingly costly attention or graph propagation modules. Overall, the key challenge is to develop a scalable spatio-temporal modeling framework that i) effectively captures both local dynamics (handling merged links) and global relations (reconnecting split arteries), ii) op-erates with sub-quadratic complexity to scale efficiently to thousands of spatial patches, and iii) maintains favorable accuracy-efficiency trade-offs under extended forecasting ranges. 
+
+In this paper, we propose SqLinear, an effective and efficient Linear architecture for large-scale traffic forecasting via geometry-adaptive Sq uare partitioning. To overcome Challenge I , we design 
+
+Square Partition as a traffic-oriented spatial patching scheme rather than directly employing a general-purpose spatial index. It selects splitting axes dynamically according to maximum span dimensions and chooses capacity-aware split positions to balance node counts across patches. As shown in Fig. 1(d), this design en-courages compact, non-overlapping spatial patches without re-quiring padding, providing scalable tensor units for downstream traffic forecasting. To address Challenge II , we develop a Hier-archical Linear Interaction (HLI) module, a computationally efficient neural architecture alternative to attention mechanisms. By decomposing spatial dependencies into global inter-patch (long-range) interactions and local intra-patch (short-range) refinements through purely linear operations, HLI reduces quadratic complex-ity to linear complexity while maintaining modeling capacity. In summary, this paper makes the following contributions: 
+
+• High-Quality Partitioning. We propose a traffic-oriented spa-tial patching scheme that organizes irregular sensor nodes into balanced, non-overlapping, and compact patches without per-forming padding operations like existing methods, establishing a scalable data layout for large-scale traffic prediction. 
+
+• Hierarchical Linear Modeling. We develop a hierarchical lin-ear interaction module that efficiently captures both inter-patch SqLinear 
+
+Table 1: Comparison of SqLinear with related studies.                                    
+
+> Model Large-Scale Input Spatial Management Scalability Analysis Node Scalability AGCRN [ NIPS 20] ✘✘✘𝑂 (𝑁 2)
+> D2STGNN [ VLDB 22] ✘✘✘𝑂 (𝑁 2)
+> BigST [ VLDB 24] ✔✘✘𝑂 (𝑁 )
+> PatchSTG [13] ✔✔✘𝑂 (𝑁 √𝑁 )
+> SqLinear ✔✔✔𝑂 (𝑁 )
+
+and intra-patch spatio-temporal interactions, reducing the qua-dratic complexity of attention-based approaches to linear com-plexity while maintaining modeling fidelity. 
+
+• Theoretical Analysis. We analyze the partition utilization, node balance, compactness, and computational complexity of SqLinear, clarifying why the proposed data layout and linear interaction design support scalable forecasting. 
+
+• Extensive Experiments. We evaluate SqLinear on four large-scale datasets and 10 competitive baselines. The results demon-strate SqLinear’s state-of-the-art accuracy, favorable accuracy-efficiency trade-offs, and superiority when scaling along both sensor-network size and prediction length. 
+
+## 2 Related Work 
+
+A comprehensive review of related work on spatio-temporal pre-diction and patching strategies in deep learning is deferred to 
+
+Appendix A . To facilitate quick comparison, Table 1 highlights the main distinctions between our approach and the most closely related methods. 
+
+## 3 Preliminaries 
+
+A traffic monitoring system consists of 𝑁 fixed sensor nodes dis-tributed over a road network, where each node corresponds to a physical observation point such as a loop detector, camera station, or road segment sensor. 
+
+Definition (Spatio-Temporal Data) . At each discrete time step, every sensor records 𝐷 traffic variables, such as traffic flow, average speed, and occupancy. We represent the resulting spatio-temporal observations as a tensor 𝑋 ∈ R𝑇 ×𝑁 ×𝐷 , where 𝑇 is the number of time steps and 𝑋 𝑡,𝑛, : denotes the traffic state observed by sensor node 𝑛 at time step 𝑡 . Each sensor node is associated with geospatial coordinates, specified by its latitude 𝐿𝑎𝑡 and longitude 𝐿𝑛𝑔 .
+
+Problem Formulation (Traffic Prediction) Given a histori-cal traffic sequence of the past 𝐻 time steps, denoted as 𝑋 𝐻 =
+
+[𝑋 𝑡 −𝐻 +1, 𝑋 𝑡 −𝐻 +2, . . . , 𝑋 𝑡 ] ∈ R𝐻 ×𝑁 ×𝐷 , the objective is to learn a mapping function 𝑓 (·) parameterized by learnable parameters 𝜃 .The function forecasts the traffic sequence for the next 𝐹 time steps, denoted as 𝑌 𝐹 = [𝑌 𝑡 +1, 𝑌 𝑡 +2, . . . , 𝑌 𝑡 +𝐹 ] ∈ R𝐹 ×𝑁 ×𝐷 . This process can be expressed as follows. 
+
+[𝑋 𝑡 −𝐻 +1, 𝑋 𝑡 −𝐻 +2, . . . , 𝑋 𝑡 ] 𝑓 (·) 
+
+−−−→ 
+
+> 𝜃
+
+[𝑌 𝑡 +1, 𝑌 𝑡 +2, . . . , 𝑌 𝑡 +𝐹 ], (1) where each 𝑋 𝑖 ∈ R𝑁 ×𝐷 or 𝑌 𝑖 ∈ R𝑁 ×𝐷 represents the traffic states of all 𝑁 sensor nodes at one time step. Note that, given historical observations from all sensor nodes, the model predicts the future traffic state of each sensor node rather than an aggregate value for a road network or geographic area. 
+
+## 4 METHODOLOGY 
+
+SqLinear’s architecture, depicted in Fig. 2, encompasses four main modules: (a) Spatio-Temporal Embedding Layer, (b) Geometry-Adaptive Square Partition, (c) Hierarchical Linear Interaction, and (d) Output Layer. We proceed to first elaborate on each module and then present a theoretical analysis of the method. 
+
+## 4.1 Spatial-Temporal Embedding Layer 
+
+The Spatial-Temporal Embedding Layer is illustrated in Fig. 2(a). First, we embed tokens through pointwise convolution. Specifically, the input data 𝑋 𝐻 is transformed into the embedding 𝐸 𝐻 ∈ R𝑁 ×𝑑 ℎ :
+
+𝐸 𝐻 = PConv (𝑋 𝐻 ; Θℎ ), (2) where PConv denotes pointwise convolution with a 1 × 1 kernel, 𝑁 
+
+is the number of nodes, 𝑑 ℎ is the hidden dimensionality of 𝐸 𝐻 , and 
+
+Θℎ denotes the learnable parameters of the pointwise convolution. To preserve the temporal information in the tokens, we utilize a linear layer to encode the input data into separate temporal embed-dings for the hour-of-day and day-of-week. We perform absolute positional encoding for each traffic data at the “day” and “week” resolutions, obtaining positional encodings 𝑋 𝑑𝑎𝑦 ∈ R𝑁 ×𝑇 𝑑 and 
+
+𝑋 𝑤𝑒𝑒𝑘 ∈ R𝑁 ×𝑇 𝑤 . The hour-of-day embedding 𝐸 𝑑 𝑇 ∈ R𝑁 ×𝑑 𝑑 and day-of-week embedding 𝐸 𝑤 𝑇 ∈ R𝑁 ×𝑑 𝑤 are calculated as follows. 
+
+𝐸 𝑑 𝑇 = 𝑊 𝑑𝑎𝑦 (𝑋 𝑑𝑎𝑦 ), 𝐸 𝑤 𝑇 = 𝑊 𝑤𝑒𝑒𝑘 (𝑋 𝑤𝑒𝑒𝑘 ), (3) where 𝑊 𝑑𝑎𝑦 ∈ R𝑇 𝑑 ×𝑑 𝑑 and 𝑊 𝑤𝑒𝑒𝑘 ∈ R𝑇 𝑤 ×𝑑 𝑤 are the learnable pa-rameter embeddings for the hour-of-day and day-of-week, respec-tively. Here, 𝑇 𝑑 is the number of hours in a day, 𝑇 𝑤 is the number of days in a week, and 𝑑 𝑑 and 𝑑 𝑤 are the numbers of dimensions of the respective temporal embeddings. To represent spatial correlations, we design an adaptive embedding of tokens 𝐸 𝑆 ∈ R𝑁 ×𝑑 𝑠 :
+
+𝐸 𝑆 = 𝜎 (𝑊 𝑠 · 𝑋 𝐻 + 𝑏 𝑠 ), (4) where 𝜎 denotes the activation function, 𝑊 𝑠 and 𝑏 𝑠 are the learnable parameters, and 𝑑 𝑠 is the hidden dimensionality for the spatial embedding. Finally, we concatenate the above embeddings to obtain the spatio-temporal embedding: 
+
+˜𝑋 = 𝐸 𝐻 || 𝐸 𝑑 𝑇 || 𝐸 𝑤 𝑇 || 𝐸 𝑆 , (5) where ˜𝑋 ∈ R𝑁 ×𝑑 , 𝑑 = 𝑑 ℎ +𝑑 𝑑 +𝑑 𝑤 +𝑑 𝑠 , and || denotes concatenation along the feature dimension. 
+
+## 4.2 Geometry-Adaptive Square Partition 
+
+We propose the Geometry-Adaptive Square Partition to organize spatial nodes into distinct sub-patches recursively. “ Geometry-adaptive ” means the splitting axis and splitting position are deter-mined by the distribution of sensor nodes, rather than by fixed grid boundaries, Quadtree midpoints, or alternating K-D Tree axes. The process begins with an entire region containing a total of 
+
+𝑁 𝑛 nodes and continues to partition it until the number of nodes in any resulting sub-patch is at most a predefined leaf node capacity 
+
+𝐶 . For instance, the example in Fig. 2(b) shows an initial region of 
+
+𝑁 𝑛 =6 nodes being processed with capacity 𝐶 = 2. This method is designed to encourage compact spatial patches while keeping node counts balanced, thereby reducing severe elongation and padding Su et al. Intra-Patch Interaction 
+
+... 
+
+(c) Hierarchical Linear Interaction (a) Spatio-Temporal Embedding Layer                                                     
+
+> Δlon
+> Δ lat
+> a
+> b
+> c
+> d
+> e
+> f
+> c
+> d
+> e
+> f
+> a
+> b
+> 𝐀 𝐀
+> abcdef
+> efacd
+> Sort
+> 𝐀 𝐀
+> b
+> 𝐀 𝐀 ←𝐀 ×𝐀 𝐀
+> 𝐀 /𝐀
+> a
+> b
+> c
+> d
+> e
+> f
+> 𝐀 𝐀
+> 𝐀 𝐀 abcdef
+> efabcd
+> cdab
+> 𝐀 𝐀
+> 𝐀 𝐀
+> Max(Δlat, Δlon)
+> abcdef
+> Sort
+> ↓
+> Split Axis
+> Traffic Data 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 ×𝐀
+> Step 1 Step 2Step 3
+> (b)  Geometry-
+> adaptive Square
+> Partition
+> ...
+> ...
+> Linear MLP
+> Norm
+> Norm
+> RConv
+> 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 𝐀
+> 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 𝐀
+> 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 𝐀
+> 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 𝐀
+> 𝐀 𝐀𶀀𶀀𱠀
+> 𝐀 𝐀𱐀𝐀
+> 𝐀 𝐀
+> PConv
+> 𝐀 ∈ℝ𝐀 ×𝐀 ×𝐀 Prediction 𝐀 𝐀 ∈ℝ𝐀 ×𝐀 ×𝐀
+> 𝐀 ∈ℝ𝐀 ×𝐀
+> Linear MLP
+
+Inter-Patch Interaction 
+
+(d) Output Layer 
+
+> Unpatch
+
+Figure 2: The architecture and workflow of SqLinear. 
+
+overhead in downstream tensor processing. The algorithm proceeds in three main steps, as detailed below. 
+
+Step 1 : Determination of the Splitting Axis. Given a set of nodes 𝑁 within a defined region, where each node 𝑛 ∈ 𝑁 has coor-dinates (𝑛 𝐿𝑛𝑔 , 𝑛 𝐿𝑎𝑡 ), the spatial extent in longitude and latitude is first computed. The longitudinal span Δ𝐿𝑛𝑔 , and the latitudinal span 
+
+Δ𝐿𝑎𝑡 , are defined as Δ𝐿𝑎𝑡 = max 𝑛 ∈𝑁 (𝐿𝑎𝑡 𝑛 ) − min 𝑛 ∈𝑁 (𝐿𝑎𝑡 𝑛 ), Δ𝐿𝑛𝑔 =
+
+max 𝑛 ∈𝑁 (𝐿𝑛𝑔 𝑛 ) − min 𝑛 ∈𝑁 (𝐿𝑛𝑔 𝑛 ), where 𝐿𝑎𝑡 𝑛 and 𝐿𝑛𝑔 𝑛 are the lat-itude and longitude of a node 𝑛 , respectively. The axis with the larger span is selected as the splitting axis for the current partition: 
+
+SplitAxis =
+
+(
+
+Longitude 𝑖 𝑓 ΔLng ≥ ΔLat 
+
+Latitude 𝑒𝑙𝑠𝑒 (6) It splits along the region’s longest dimension to reduce severe elongation and encourage compact patches; it does not impose a universal aspect-ratio guarantee for arbitrary sensor distributions. 
+
+Step 2 : Identification of the Splitting Hyperplane. Once the splitting axis is determined, a capacity-aware splitting position is established along this axis to partition the nodes into two subsets with controlled size imbalance. The nodes are organized via a single-key sorting operation, arranged in ascending order of their scalar coordinate values along the splitting axis. The split point 𝑆 𝑝 , which corresponds to an index in the sorted list of nodes, is calculated as follows. 
+
+𝑆 𝑝 = 𝐶 ·
+
+ ⌈𝑁 𝑛 /𝐶 ⌉
+
+2
+
+
+
+, (7) where ⌈·⌉ is the ceiling function. This formulation sets one child patch to contain 𝑆 𝑝 nodes and the other to contain 𝑁 𝑛 − 𝑆 𝑝 nodes. The resulting split imbalance is bounded by a constant controlled by the leaf capacity 𝐶 (specifically, below 2𝐶 as analyzed in The-orem C.4 ), thus achieving a high degree of balance for recursive tensor construction. If 𝑁 𝑛 ≤ 𝐶 , the region is not partitioned further and constitutes a leaf node. 
+
+Step 3 : Recursive Subdivision. The node set of the current patch is divided into two patches based on the position of the splitting hyperplane. This process is then applied recursively to each of the newly formed patches, independently determining their respective splitting axes and hyperplanes. The recursion continues until the number of nodes in each patch is at most the specified capacity 𝐶 , at which point the spatial partitioning is complete. The overall process is formulated as follows. 
+
+Index = BFS (𝑆𝑞𝑢𝑎𝑟𝑒 (𝐿𝑎𝑡, 𝐿𝑛𝑔, 𝐶 )) , (8) where 𝐼𝑛𝑑𝑒𝑥 ∈ R𝑁 is the resulting index, 𝑆𝑞𝑢𝑎𝑟𝑒 (·) and BFS (·) 
+
+denote the Square Partition construction and breadth-first search operation, and 𝐿𝑎𝑡 and 𝐿𝑛𝑔 represent the sets of latitude and longi-tude coordinates of all nodes. Using the constructed balanced and non-overlapping spatial patch indices, the spatio-temporal embedding ˜𝑋 undergoes a patch-ing operation defined as follows. 
+
+¯𝑋 = Patching (Index , ˜𝑋 ) (9) The patching operation only reorders and groups the node dimen-sion according to Index ; it does not split the concatenated historical, temporal, and spatial feature dimensions. In our experimental set-tings, 𝐶 is selected such that 𝑁 = 𝑃𝐶 , yielding the padding-free tensor ¯𝑋 ∈ R𝐶 ×𝑃 ×𝑑 , where 𝐶 denotes the number of nodes within each patch and 𝑃 denotes the number of patches. See Appendix B 
+
+for the complete workflow pseudocode of Square Partition. 
+
+Theoretical Analysis. We next present the main theoretical guarantees of Square Partition. For brevity, we provide only the key results here, while complete proofs of all theorems are deferred to 
+
+Appendix C . Square Partition is conceptually related to balanced k-d trees [ 4] and balanced-aspect-ratio (BAR) trees, but differs fundamentally in both splitting and optimization objective. i) Unlike classic k-d trees, which alternate the splitting axis ac-cording to tree depth regardless of the region geometry and may repeatedly partition the shorter side, Square Partition always splits along the longest-span axis. Consequently, it never subdivides the shorter dimension and therefore avoids systematically amplify-ing geometric elongation. This property is formally established in 
+
+Theorem C.6 .ii) Compared with BAR-trees, which control aspect ratios through recursive “donut” cuts at the expense of node-count balance, Square Partition integrates longest-axis splitting with capacity-aware split-point selection (Eq. 7). This design simultaneously guarantees bounded partition imbalance (see Theorem C.4 ), padding-free tensorization (see Theorem C.2 ), and non-amplification of spatial elongation (see Theorem C.6 ). SqLinear 
+
+Figure 3: Low-rank measurement. 
+
+iii) More importantly, unlike general-purpose spatial indexing structures designed for range and 𝑘 NN queries, Square Partition is specifically tailored for tensorized trajectory forecasting. By enforc-ing a capacity constraint on every leaf node, each partition can be directly mapped to a padding-free tensor in R𝐶 ×𝑃 ×𝑑 , thereby align-ing the partitioning objective with the computational requirements of downstream forecasting models. 
+
+## 4.3 Hierarchical Linear Interaction 
+
+To efficiently model the complex spatial dependencies in traffic flow data, we propose a novel Hierarchical Linear Interaction (HLI) Block. As illustrated in Fig. 2(c), this block captures spatial depen-dencies at two levels. First, it performs Inter-Patch Interaction 
+
+between different regions to capture global, long-range dependen-cies. Second, it performs Intra-Patch Interaction within a single region to capture local, short-range dependencies. This modeling approach, which proceeds from a macro level to a micro level, al-lows the model to capture the spatio-temporal dynamics of a traffic network comprehensively at low computational cost. The Hierarchical Linear Interaction blocks are stacked in 𝐿 struc-turally identical layers. We therefore describe the computational process at the 𝑙 -th layer ( 1 ≤ 𝑙 ≤ 𝐿 ). 
+
+4.3.1 Inter-Patch Interaction. This module captures global depen-dencies between patches. It first aligns corresponding nodes across all patches and processes initial feature interactions via a linear MLP: 
+
+𝐻 (𝑙 ) 
+
+> inter
+
+= LinearMlp (𝑙 ) 
+
+Norm (𝑙 ) ( ¯𝑋 (𝑙 −1) )
+
+
+
+, (10) where Norm (𝑙 ) is layer normalization, LinearMlp (𝑙 ) is a multi-layer perceptron with linear transformations, 𝐻 (𝑙 ) 
+
+> inter
+
+denotes the output from LinearMlp (𝑙 ) , and ¯𝑋 (𝑙 −1) denotes the output from layer 𝑙 − 1.Large-scale traffic systems often exhibit spatial redundancy, as nearby areas may share synchronized temporal dynamics, suggest-ing that patch-wise dependency matrices can be well approximated by low-rank structures. To examine this, we performed spectral analysis on the patch-wise dependency matrices of four real-world datasets. As shown in Fig. 3 (left), the singular values display a distinct long-tail distribution with rapid decay. Furthermore, the cu-mulative variance plots in Fig. 3 (right) show that the top few latent components account for over 90% of the total spatial variance. These observations suggest empirically that the patch-wise dependencies are highly redundant and can be modeled compactly. Motivated by this, in order to capture the global relationships among a large number of patches 𝑃 , we model their influence weights using a low-rank projection: 
+
+¯𝐻 (𝑙 ) 
+
+> inter
+
+= 𝑓 
+
+
+
+𝐻 (𝑙 )
+
+> inter
+
+; Θ(𝑙 )
+
+> inter
+
+
+
+, (11) where 𝑓 (·) denotes the linear transformation parameterized by 
+
+Θ(𝑙 ) 
+
+> inter
+
+that consists of two low-rank matrices Θ(𝑙 )  
+
+> 𝑟 1
+
+∈ R𝑃 ×𝑟 and 
+
+Θ(𝑙 )  
+
+> 𝑟 2
+
+∈ R𝑟 ×𝑃 . This factorization, with predefined rank 𝑟 < 𝐶 <
+
+𝑃 , provides a compact inter-patch communication operator with complexity linear in 𝑃 for fixed 𝑟 . Theorem C.7 characterizes the approximation capacity of this factorized projection. The global context is integrated via a residual connection and a feed-forward network: 
+
+𝐻 (𝑙 ) 
+
+> out
+
+= ¯𝑋 (𝑙 −1) + FFN (𝑙 )  ¯𝐻 (𝑙 )
+
+> inter
+
+
+
+, (12) producing globally-aware representations 𝐻 (𝑙 ) 
+
+> out
+
+∈ R𝐶 ×𝑃 ×𝑑 , where FFN (𝑙 ) denotes the feed-forward network. 
+
+4.3.2 Intra-Patch Interaction. This module captures local depen-dencies within each patch. Using and reshaping 𝐻 (𝑙 ) 
+
+> out
+
+from global processing, it applies per-patch feature refinement: 
+
+𝐻 (𝑙 ) 
+
+> intra
+
+= LinearMlp (𝑙 ) 
+
+Norm (𝑙 ) (𝐻 (𝑙 )
+
+> out
+
+)
+
+
+
+, (13) where the output 𝐻 (𝑙 ) 
+
+> intra
+
+holds the locally refined patch features. The local details are fused with the global context: 
+
+¯𝑋 (𝑙 ) = 𝐻 (𝑙 ) 
+
+> out
+
++ FFN (𝑙 ) 
+
+𝐻 (𝑙 )
+
+> intra
+
+
+
+, (14) thereby producing layer 𝑙 ’s refined output ¯𝑋 (𝑙 ) ∈ R𝐶 ×𝑃 ×𝑑 enriched with local spatial information. 
+
+Approach Analysis . Although HLI adopts a feed-forward struc-ture, it differs fundamentally from the traditional MLP-Mixer. First, the Mixer assumes fixed-size patches, whereas Square Par-tition yields capacity-bounded, geometry-adaptive regions with heterogeneous node layouts; HLI therefore aligns nodes by relative spatial position, a mechanism absent in vision mixing. Second, HLI decouples local and global modeling, pairing intra-region linear mixing with a low-rank global projection motivated by the inherently low-rank nature of patch-level traffic correlations. Third, unlike the Mixer’s dense all-token mixing, HLI is confined to the geometry-adaptive patch structure, reducing cost and enabling per-patch parallelism. This constraint sacrifices no expressiveness: its low-rank inter-patch operator provably subsumes the per-layer spatial mixing of linear baselines such as RPMixer ( Theorem C.8 ), while the additional intra-patch operator makes HLI strictly more ex-pressive. These differences make HLI a novel interaction operator tailored for large-scale spatiotemporal analytics. 
+
+## 4.4 Output Layer 
+
+We proceed to leverage the output ¯𝑋 (𝐿 ) from the Hierarchical Linear Interaction module to predict future traffic, as illustrated in Fig. 2(d). We unpatch ¯𝑋 (𝐿 ) by processing each root node as follows. 
+
+˜𝑌 = Unpatch (𝐼𝑛𝑑𝑒𝑥, ¯𝑋 (𝐿 ) ), (15) where Unpatch denotes the depth-first search operation, and ˜𝑌 ∈
+
+R𝑁 ×𝑑 contains node representations restored to their original in-dexing. Finally, we design a regression convolution to predict the traffic features 𝑌 𝐹 of the following 𝐹 timesteps: 
+
+𝑌 𝐹 = RConv ( ˜𝑌 ; Θ𝑟 ), (16) Su et al. 
+
+where RConv denotes regression convolution and Θ𝑟 are the learn-able parameters for this layer. 
+
+## 4.5 Topology-Aware Extension 
+
+A potential concern with coordinate-based partitioning is that it may merge topologically disconnected links or separate continu-ous roadways. To address this issue, the Square Partition can be extended to operate directly on road networks. 
+
+4.5.1 Geometry-First Road Partitioning. We can constrain the Square Partition algorithm to operate on nodes sharing the same Road ID, which ensures that a patch never mixes sensors from different high-ways. The overall process, which replaces the original Eq. 8, is formulated as follows. 
+
+Index = BFS (𝑆𝑞𝑢𝑎𝑟𝑒 (( 𝐿𝑎𝑡, 𝐿𝑛𝑔 ) | 𝑖𝑑, 𝐶 )) (17) Here, 𝑖𝑑 denotes a road identifier, and ( 𝐿𝑎𝑡 , 𝐿𝑛𝑔 ) represent the coor-dinates of nodes belonging to the road identified by id. This strategy recursively partitions long roads into smaller, well-balanced seg-ments without cross-contamination from geometrically adjacent but topologically distinct roads. 
+
+4.5.2 Topology-First Road Grouping. When road segments are short and uniformly structured, or when topological coherence is prioritized over geometric proximity, SqLinear can bypass coordi-nates entirely and construct patches purely based on road affiliation. The overall process that replaces Eq. 8 is formulated as follows. 
+
+𝐼𝑛𝑑𝑒𝑥 = 𝐺𝑟𝑜𝑢𝑝𝐵𝑦 (𝑖𝑑 ), (18) where 𝐺𝑟𝑜𝑢𝑝𝐵𝑦 assigns all nodes sharing the same road id into one group without any further geometric subdivision. This strategy minimizes structural disruption along the same road and preserves the inherent topological continuity. 
+
+## 5 Experiments 
+
+We evaluate SqLinear through the following research questions: 
+
+RQ1 (Effectiveness): How does SqLinear perform compared with state-of-the-art baselines under standard forecasting settings? 
+
+RQ2 (Long-Horizon Forecasting): Can SqLinear maintain strong performance under substantially extended forecasting horizons? 
+
+RQ3 (Efficiency): How efficient and scalable is SqLinear in terms of computational cost and resource consumption? 
+
+RQ4 (Ablation): What is the contribution of each key component? 
+
+RQ5 (Hyperparameter Sensitivity): How sensitive is SqLinear to different hyperparameter settings? 
+
+RQ6 (Partition Analysis): How do different spatial partitioning strategies affect forecasting performance? 
+
+RQ7 (Case Study): What insights can be obtained from the spatial dependencies learned by SqLinear? 
+
+## 5.1 Experimental Setup 
+
+We conduct extensive experiments on four large-scale traffic fore-casting benchmarks, namely SD, GBA, GLA, and CA. SqLinear is compared against ten representative state-of-the-art baselines covering graph-based, transformer-based, and linear forecasting paradigms. Detailed descriptions of the datasets , data preprocess-ing procedures , evaluation protocols , implementation details ,and baseline configurations are provided in Appendix D.1 .
+
+## 5.2 Overall Performance Comparison (RQ1) 
+
+Table 2 reports the forecasting results under the standard 12-step setting. SqLinear consistently achieves the best performance across all datasets and evaluation metrics , demonstrating that its scalable design does not compromise predictive accuracy. Com-pared with the strongest competing method on each dataset, Sq-Linear reduces MAE by an average of 2.30% and MAPE by 5.89%. Specifically, we have the following main observations. 
+
+(i) Comparison with Existing Forecasting Paradigms. Ta-ble 2 reports three paradigms: graph-based models, attention-based models, and linear architectures. While graph-based methods (e.g., D2STGNN and DSTAGNN) achieve competitive accuracy by ex-plicitly modeling sensor interactions, several of them fail to scale to the larger datasets due to the high cost of graph propagation. Attention-based methods improve representation capacity but often incur substantial computational overhead as the number of sensors increases. Linear models, such as STID and BigST, offer superior efficiency, yet their simplified architectures may limit their ability to capture complex spatial dependencies. SqLinear combines the strengths of these paradigms by employing scalable spatial partitioning and hierarchical linear interaction, achieving both superior forecasting accuracy and scalability .
+
+(ii) Benefits of Spatial Partitioning. A notable observation is that methods incorporating spatial patching outperform conventional graph- or sequence-based architectures on large-scale datasets. This trend suggests that appropriately organizing spatial sensors into structured local regions is crucial for large-scale traffic forecasting. By generating balanced and compact patches, the proposed Square Partition preserves local spatial correlations while avoiding the irregular structures and excessive padding introduced by existing partitioning strategies. This provides a more effective foundation for subsequent spatiotemporal modeling. 
+
+(iii) Benefits of Hierarchical Linear Interaction. Among all methods, PatchSTG is the strongest baseline, highlighting the effec-tiveness of patch-level spatial modeling. Nevertheless, SqLinear consistently outperforms PatchSTG . This improvement demon-strates that, given a well-structured spatial partition, hierarchical linear interactions are sufficient to capture both local and global spatial dependencies without relying on expensive attention opera-tions. The results suggest that the combination of structured parti-tioning and lightweight interaction mechanisms offers a promising direction for scalable traffic forecasting. 
+
+## 5.3 Long-Horizon Generalization (RQ2) 
+
+To evaluate the robustness of SqLinear under extended forecasting horizons, we increase the prediction length from the standard 12-step setting to 48, 96, 192, and 672 steps while using 96 historical observations as input. Fig. 4 compares SqLinear with representative scalability-oriented baselines across four large-scale datasets. As observed, SqLinear consistently achieves the lowest MAE in all 16 dataset–horizon combinations. Compared with the strongest competing method in each setting, SqLinear reduces MAE by an average of 5.81%, with improvements ranging from 3.51% to 8.04%. Due to space limitations, detailed results in terms of MAE, RMSE, and MAPE are provided in Appendix D.2 .SqLinear 
+
+Table 2: The overall performance comparison of large-scale traffic forecasting. Bold indicates the best performance, and underline denotes the second best performance. The “-” marker indicates unavailable results. Method SD GBA GLA CA MAE RMSE MAPE MAE RMSE MAPE MAE RMSE MAPE MAE RMSE MAPE 
+
+GWNET 18.17 30.31 12.15 20.84 33.43 17.81 21.36 33.78 13.79 21.17 33.51 16.92 AGCRN 18.48 33.04 13.63 20.62 34.02 16.12 20.69 36.33 13.05 - - -DSTAGNN 21.89 34.77 14.46 23.90 37.41 20.24 24.20 38.23 15.13 - - -D2STGNN 17.91 29.59 11.60 20.78 33.72 15.11 - - - - - -STID 17.62 29.02 11.53 20.28 33.55 16.46 19.79 34.02 12.33 18.40 31.86 13.86 BigST 18.86 31.80 13.00 22.02 35.62 18.59 22.16 36.08 14.62 20.39 33.54 15.97 RPMixer 25.31 42.65 17.70 27.86 47.81 23.91 27.94 49.08 17.72 25.16 44.88 19.55 STAEformer 19.02 31.78 12.65 21.30 34.56 17.63 - - - - - -STWave 18.28 30.18 12.25 20.87 33.85 15.82 21.02 33.59 12.75 19.75 31.67 14.64 PatchSTG 17.40 29.55 12.13 19.67 33.38 15.14 18.90 32.09 11.55 17.75 30.11 13.77 
+
+SqLinear 16.48 28.32 10.71 19.31 32.77 14.38 18.84 31.99 11.29 17.44 29.95 12.48 48 96 192 672 
+
+(a) SD dataset    
+
+> 20
+> 24
+> 28
+> 32
+> MAE
+> 48 96 192 672
+
+(b) GBA dataset    
+
+> 20
+> 24
+> 28
+> 32
+> MAE
+> 48 96 192 672
+
+(c) GLA dataset    
+
+> 20
+> 24
+> 28
+> 32
+> MAE
+> 48 96 192 672
+
+(d) CA dataset 
+
+> 20
+> 24
+> 28
+> 32
+> MAE
+
+STID RPMixer BigST PatchSTG SqLinear 
+
+Figure 4: Performance comparison under long-horizon forecasting settings. 
+
+A notable observation is that the performance gap generally remains stable as the forecasting horizon increases. This result suggests that SqLinear does not merely fit short-term traffic dynamics but can effectively capture longer-range spatiotem-poral dependencies . We attribute this robustness to two key fac-tors. First, Square Partition organizes sensors into compact and balanced spatial regions, providing a stable spatial representation that remains effective across different prediction horizons. Second, the hierarchical linear interaction mechanism simultaneously mod-els local intra-patch and global inter-patch dependencies, enabling information propagation across multiple spatial scales without in-troducing the optimization challenges and computational overhead of attention-based architectures. Overall, the results demonstrate that SqLinear generalizes effectively from short- to long-horizon forecasting scenarios, making it suitable for large-scale traffic fore-casting tasks requiring both accuracy and temporal robustness. 
+
+## 5.4 Efficiency and Scalability Evaluation (RQ3) 
+
+Fig. 5 summarizes accuracy, runtime, and peak GPU memory under the standard setting. As observed, SqLinear consistently occupies a favorable region of the accuracy-efficiency spectrum, achieving the lowest forecasting error while maintaining low runtime and moderate memory consumption. These results indicate that the performance improvements of SqLinear are not obtained through excessive model complexity or resource usage. 
+
+Scaling Behavior. We further investigate how the computa-tional cost of SqLinear evolves when scaling along two key dimen-sions: forecasting horizon and sensor-node count. Fig. 6 reports 0 100 200 300 400 500 600  
+
+> Training Speed (s/ epoch)
+> 16
+> 18
+> 20
+> 22
+> 24
+> 26
+> MAE
+> GWNET
+> 4.6E3, 154s
+> AGCRN
+> 7.1E3, 87s
+> DSTAGNN
+> 1.2E4, 274s
+> BigST
+> 7.8E2, 30s
+> D2STGNN
+> 4.2E4, 586s
+> RPMixer
+> 8.0E2, 55s
+> STWave
+> 2.1E4, 411s PatchSTG
+> 1.6E3, 62s
+> SqLinear
+> 4.8E2, 24s
+> SD dataset 4E4
+> 1.5E4
+> 2E3
+> Memory-Usage
+
+(a) SD dataset 0 200 400 600 800 1000   
+
+> Training Speed (s/ epoch)
+> 19.0
+> 19.5
+> 20.0
+> 20.5
+> 21.0
+> 21.5
+> 22.0
+> MAE
+> GWNET
+> 1.5E4, 396s AGCRN
+> 2.7E4, 389s
+> BigST
+> 2.5E3, 92s STWave
+> 3.5E4, 1034s
+> PatchSTG
+> 7.6E3, 326s
+> SqLinear
+> 1.5E3, 64s
+> GBA dataset
+> 4E4
+> 1.5E4
+> Memory-Usage
+> 2E3
+
+(b) GBA dataset 
+
+Figure 5: Accuracy-efficiency bubble plots under the stan-dard setting. The x-axis reports training runtime, the y-axis reports MAE, and bubble size indicates peak GPU memory. 48 96 192 672 
+
+> 30
+> 60
+> 90
+> ms/sample
+
+(a) CA Dataset / Horizon Scale 
+
+> SD
+> 0.7k
+> GBA
+> 2.3k
+> GLA
+> 3.8k
+> CA
+> 8.6k
+> 0
+> 30
+> 60
+> 90
+> ms/sample
+
+(b) 672-step / Node Scale     
+
+> STID RPMixer BigST PatchSTG SqLinear
+
+Figure 6: Per-sample training time comparison. 
+
+the per-sample training time under long-horizon forecasting set-tings. On the largest CA dataset, SqLinear achieves the shortest per-sample training time across all prediction horizons and reduces per-sample training time by 46.78% on average compared with the most efficient baseline in each setting. Under the most chal-lenging 672-step forecasting scenario, SqLinear consistently ranks first across all datasets and achieves an average speedup of 17.04%. Su et al. 
+
+Table 3: Computational cost on the largest CA dataset. Method 48-step 96-step 192-step 672-step                      
+
+> B. G. P. B. G. P. B. G. P. B. G. P. STID 64 7.0 0.77 64 7.8 0.78 64 9.9 0.79 64 22.2 0.87 BigST 64 20.7 0.36 64 20.8 0.37 64 21.0 0.39 64 31.5 0.52 RPMixer 64 23.8 7.81 64 24.4 7.83 64 25.6 7.85 64 36.5 7.99 PatchSTG 32 26.9 1.85 32 27.3 1.86 32 28.3 1.87 32 34.5 1.95
+> SqLinear 64 25.2 1.23 64 25.8 1.24 64 27.7 1.25 64 31.4 1.06
+
+Table 4: Computational cost vs. longest 672-step prediction. Method SD GBA GLA CA                                                                                    
+
+> B. G. P. B. G. P. B. G. P. B. G. P. GWNET 32 28.8 0.89 ---------AGCRN 32 38.9 0.80 ---------DSTAGNN 16 23.5 6.22 ---------STID 64 1.9 0.37 64 6.1 0.47 64 9.9 0.57 64 22.2 0.87 BigST 64 2.7 0.26 64 8.8 0.32 64 14.4 0.36 64 31.5 0.52 RPMixer 64 3.1 1.69 64 10.0 2.47 64 16.3 3.46 64 36.5 7.99 STAEformer 428.4 16.34 ---------PatchSTG 64 6.6 2.42 64 28.7 3.29 64 25.1 1.80 32 34.5 1.95
+> SqLinear 64 2.4 0.59 64 9.1 0.71 64 15.0 0.77 64 31.4 1.06
+
+These results demonstrate that the proposed Square Partition and Hierarchical Linear Interaction effectively control computational growth as both temporal and spatial scales increase. In particu-lar, the partition-based design avoids expensive dense interactions among all sensor nodes, enabling efficient information aggregation while maintaining strong predictive performance. 
+
+Resource Consumption. Tables 3 and 4 provide a detailed com-parison of resource consumption under long-horizon forecasting settings, where B., G., and P. denote batch size, GPU memory usage (GB), and parameter count (M), respectively. The “-” marker indi-cates out-of-memory results. Although SqLinear is not always the smallest model in terms of parameter count, its model size remains compact, requiring no more than 1.25M parameters across all evalu-ated settings. More importantly, its memory consumption remains well controlled under large-scale scenarios. For example, under 672-step forecasting on the CA dataset, SqLinear requires 31.4GB of GPU memory, which is lower than PatchSTG and RPMixer, while supporting a larger batch size than PatchSTG. This observation suggests that the proposed architecture utilizes computational re-sources more effectively than competing approaches. Overall, the runtime, memory, and scalability analyses consis-tently show that SqLinear achieves a favorable accuracy-efficiency trade-off. The results confirm that the proposed partition-based linear framework scales gracefully to large traffic networks and long forecasting horizons without sacrificing predictive accuracy. 
+
+## 5.5 Ablation Study (RQ4) 
+
+We proceed to perform ablation studies on the GBA and CA datasets. Similar results were observed on other datasets. We assess the contribution of key design choices by comparing the full SqLinear model with eight variants: (1) w/ Grid , (2) w/ Quadtree , and (3) 
+
+w/ K-D Tree replace square partitioning with Grid, Quadtree, and K-D Tree structures (using leaf padding); (4) w/ AlterAxis uses  
+
+> (a) GBA dataset (b) CA dataset
+
+Figure 7: Ablation study. 
+
+alternating axes instead of Eq. 6; (5) w/ MedianSplit uses the median split point instead of Eq. 7; (6) w/o Inter and (7) w/o Intra 
+
+remove inter- and intra-patch interactions, respectively; (8) w/ Attn 
+
+replaces the linearMLP with standard attention. As shown in Fig. 7, we make the following key observations. 
+
+Effectiveness of Square Partition . For a fair comparison, the K-D Tree variant adopts the same leaf capacity 𝐶 as Square Par-tition. Since Grid and Quadtree do not have an explicit leaf ca-pacity, we tune their grid resolution and tree depth such that the number of samples per leaf cell is approximately comparable to 
+
+𝐶 . Experimental results validate our partitioning strategy from multiple perspectives. First, conventional spatial partitioning meth-ods, including Grid, Quadtree, and K-D Tree, lead to substantial performance degradation. This is mainly due to the generation of imbalanced or geometrically irregular patches, where excessive padding with artificial entries may dilute feature representations. Moreover, the inferior performance of AlterAxis and MedianSplit further demonstrates the importance of our design choices in se-lecting both the splitting axis and split point, which are crucial for producing balanced patch indices and enabling padding-free tensorization under a fixed capacity constraint. 
+
+Effectiveness of Hierarchical Linear Interaction . The pro-posed HLI is both effective and efficient. The performance drops observed in w/o Inter and w/o Intra indicate that both inter-patch and intra-patch interactions are essential; removing either compo-nent weakens the model’s ability to capture spatial dependencies. In addition, the w/ Attn variant not only fails to outperform HLI but also introduces additional computational overhead. These results suggest that, given well-structured partitioned inputs, a lightweight linear architecture is sufficient for modeling spatio-temporal de-pendencies, whereas more complex attention-based designs may incur unnecessary computational cost without performance gains. 
+
+## 5.6 Additional Experiments (RQ5, RQ6, RQ7) 
+
+Finally, we study hyperparameters in Appendix D.3 , visualize and compare spatial partitioning strategies in Appendix D.4 , and present a case study of learned spatial dependencies in Appendix D.5 .
+
+## 6 CONCLUSION 
+
+We presented SqLinear, a novel linear architecture designed to improve the accuracy and efficiency of traffic forecasting. By em-ploying adaptive square partitioning with hierarchical linear inter-action, SqLinear captures complex spatiotemporal dependencies while avoiding the quadratic overhead of existing methods. SqLinear 
+
+## References 
+
+[1] Evangelos C Alexopoulos. 2010. Introduction to multivariate regression analysis. 
+
+Hippokratia 14, Suppl 1 (2010), 23. [2] Bang An, Xun Zhou, Amin Vahedian, Nick Street, Jinping Guan, and Jun Luo. 2024. LISA: Learning-Integrated Space Partitioning Framework for Traffic Acci-dent Forecasting on Heterogeneous Spatiotemporal Data. In IEEE International Conference on Data Mining . 11–20. [3] Lei Bai, Lina Yao, Can Li, Xianzhi Wang, and Can Wang. 2020. Adaptive graph convolutional recurrent network for traffic forecasting. In Neural Information Processing Systems . 17804–17815. [4] Jon Louis Bentley. 1975. Multidimensional binary search trees used for associative searching. Commun. ACM 18, 9 (1975), 509–517. [5] Jon Louis Bentley and Jerome H. Friedman. 1979. Data Structures for Range Searching. Comput. Surveys 11, 4 (1979), 397–409. [6] George EP Box and David A Pierce. 1970. Distribution of residual autocorrelations in autoregressive-integrated moving average time series models. Journal of the American statistical Association 65, 332 (1970), 1509–1526. [7] Defu Cao, Yujing Wang, Juanyong Duan, Ce Zhang, Xia Zhu, Congrui Huang, Yunhai Tong, Bixiong Xu, Jing Bai, Jie Tong, and Qi Zhang. 2020. Spectral Tem-poral Graph Neural Network for Multivariate Time-series Forecasting. Neural Information Processing Systems (2020), 17766–17778. [8] Peng Chen, Yingying ZHANG, Yunyao Cheng, Yang Shu, Yihang Wang, Qingsong Wen, Bin Yang, and Chenjuan Guo. 2024. Pathformer: Multi-scale Transformers with Adaptive Pathways for Time Series Forecasting. In International Conference on Learning Representations .[9] Wei-Lin Chiang, Xuanqing Liu, Si Si, Yang Li, Samy Bengio, and Cho-Jui Hsieh. 2019. Cluster-GCN: An efficient algorithm for training deep and large graph convolutional networks. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 257–266. [10] Zheng Dong, Renhe Jiang, Haotian Gao, Hangchen Liu, Jinliang Deng, Qingsong Wen, and Xuan Song. 2024. Heterogeneity-Informed Meta-Parameter Learning for Spatiotemporal Time Series Forecasting. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 631–641. [11] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xi-aohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al . 2020. An Image is Worth 16x16 Words: Trans-formers for Image Recognition at Scale. In International Conference on Learning Representations . 1–22. [12] James Durbin. 1959. Efficient estimation of parameters in moving-average models. 
+
+Biometrika 46, 3/4 (1959), 306–316. [13] Yuchen Fang, Yuxuan Liang, Bo Hui, Zezhi Shao, Liwei Deng, Xu Liu, Xinke Jiang, and Kai Zheng. 2025. Efficient Large-Scale Traffic Forecasting with Trans-formers: A Spatial Data Management Perspective. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 307–317. [14] Yuchen Fang, Hao Miao, Yuxuan Liang, Liwei Deng, Yue Cui, Ximu Zeng, Yuyang Xia, Yan Zhao, Torben Bach Pedersen, Christian S. Jensen, Xiaofang Zhou, and Kai Zheng. 2025. Unraveling Spatio-Temporal Foundation Models via the Pipeline Lens: A Comprehensive Review. arXiv preprint arXiv:2506.01364 .[15] Yuchen Fang, Yanjun Qin, Haiyong Luo, Fang Zhao, Bingbing Xu, Liang Zeng, and Chenxing Wang. 2023. When spatio-temporal meet wavelets: Disentangled traffic forecasting via efficient spectral graph attention networks. In IEEE International Conference on Data Engineering . 517–529. [16] Jerome H. Friedman, Jon Louis Bentley, and Raphael Ari Finkel. 1977. An Al-gorithm for Finding Best Matches in Logarithmic Expected Time. ACM Trans. Math. Software 3, 3 (1977), 209–226. [17] Han Gao, Xu Han, Jiaoyang Huang, Jian-Xun Wang, and Liping Liu. 2022. Patchgt: Transformer over non-trainable clusters for learning graph representations. In 
+
+Learning on Graphs Conference . 1–27. [18] Shengnan Guo, Youfang Lin, Ning Feng, Chao Song, and Huaiyu Wan. 2019. Attention based spatial-temporal graph convolutional networks for traffic flow forecasting. In AAAI Conference on Artificial Intelligence . 922–929. [19] Jindong Han, Weijia Zhang, Hao Liu, Tao Tao, Naiqiang Tan, and Hui Xiong. 2024. BigST: Linear Complexity Spatio-Temporal Graph Neural Network for Traffic Forecasting on Large-Scale Road Networks. In Proceedings of the VLDB Endowment . 1081–1090. [20] Xiaoxue Han, Zhuo Feng, and Yue Ning. 2024. A topology-aware graph coars-ening framework for continual graph learning. Neural Information Processing Systems 37 (2024), 132491–132523. [21] Jiahao Ji, Jingyuan Wang, Chao Huang, Junjie Wu, Boren Xu, Zhenhe Wu, Junbo Zhang, and Yu Zheng. 2023. Spatio-temporal self-supervised learning for traffic flow prediction. In AAAI Conference on Artificial Intelligence . 4356 – 4364. [22] Jiahao Ji, Wentao Zhang, Jingyuan Wang, and Chao Huang. 2025. Seeing the Un-seen: Learning Basis Confounder Representations for Robust Traffic Prediction. In ACM International Conference on Information and Knowledge Management .577–588. [23] Guangyin Jin, Yuxuan Liang, Yuchen Fang, Zezhi Shao, Jincai Huang, Junbo Zhang, and Yu Zheng. 2023. Spatio-temporal graph neural networks for predictive learning in urban computing: A survey. IEEE Transactions on Knowledge and Data Engineering (2023), 5388–5408. [24] Weiyang Kong, Kaiqi Wu, Sen Zhang, and Yubao Liu. 2025. GraphSparseNet: A Novel Method for Large Scale Traffic Flow Prediction. Proceedings of the VLDB Endowment 18, 7 (2025), 2295–2307. [25] Xiangjie Kong, Wenfeng Zhou, Guojiang Shen, Wenyi Zhang, Nali Liu, and Yao Yang. 2023. Dynamic graph convolutional recurrent imputation network for spatiotemporal traffic missing data. Knowledge-Based Systems 261 (2023), 110188. [26] Dilfira Kudrat, Zongxia Xie, Yanru Sun, Tianyu Jia, and Qinghua Hu. 2025. Patch-wise Structural Loss for Time Series Forecasting. arXiv preprint arXiv:2503.00877 
+
+(2025). [27] Shiyong Lan, Yitong Ma, Weikang Huang, Wenwu Wang, Hongyu Yang, and Pyang Li. 2022. DSTAGNN: Dynamic spatial-temporal aware graph neural network for traffic flow forecasting. In International Conference on Machine Learning . 11906–11917. [28] Fuxian Li, Jie Feng, Huan Yan, Guangyin Jin, Fan Yang, Funing Sun, Depeng Jin, and Yong Li. 2023. Dynamic graph convolutional recurrent network for traffic prediction: Benchmark and solution. ACM Transactions on Knowledge Discovery from Data (2023), 1–21. [29] Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. 2018. Diffusion Convolutional Recurrent Neural Network: Data-Driven Traffic Forecasting. In International Conference on Learning Representations .[30] Zhonghang Li, Lianghao Xia, Jiabin Tang, Yong Xu, Lei Shi, Long Xia, Dawei Yin, and Chao Huang. 2024. UrbanGPT: Spatio-Temporal Large Language Models. In 
+
+ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 5351–5362. [31] Yuxuan Liang, Haomin Wen, Yuqi Nie, Yushan Jiang, Ming Jin, Dongjin Song, Shirui Pan, and Qingsong Wen. 2024. Foundation models for time series analysis: A tutorial and survey. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 6555–6565. [32] Chenxi Liu, Kethmi Hirushini Hettige, Qianxiong Xu, Cheng Long, Shili Xiang, Gao Cong, Ziyue Li, and Rui Zhao. 2025. ST-LLM+: Graph Enhanced Spatio-Temporal Large Language Models for Traffic Prediction. IEEE Transactions on Knowledge and Data Engineering 37, 8 (2025), 4846–4859. [33] Chenxi Liu, Sun Yang, Qianxiong Xu, Zhishuai Li, Cheng Long, Ziyue Li, and Rui Zhao. 2024. Spatial-temporal large language model for traffic prediction. In 
+
+IEEE International Conference on Mobile Data Management . 31–40. [34] Hangchen Liu, Zheng Dong, Renhe Jiang, Jiewen Deng, Jinliang Deng, Quanjun Chen, and Xuan Song. 2023. Spatio-temporal adaptive embedding makes vanilla transformer sota for traffic forecasting. In ACM International Conference on Information and Knowledge Management . 4125–4129. [35] Xu Liu, Yutong Xia, Yuxuan Liang, Junfeng Hu, Yiwei Wang, Lei Bai, Chao Huang, Zhenguang Liu, Bryan Hooi, and Roger Zimmermann. 2024. LargeST: A benchmark dataset for large-scale traffic forecasting. In Neural Information Processing Systems . 75354–75371. [36] Zhi Liu, Yang Chen, Feng Xia, Jixin Bian, Bing Zhu, Guojiang Shen, and Xiangjie Kong. 2023. TAP: Traffic Accident Profiling via Multi-Task Spatio-Temporal Graph Representation Learning. ACM Transactions on Knowledge Discovery from Data 17, 4 (2023), 1–25. [37] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. 2021. Swin transformer: Hierarchical vision transformer using shifted windows. In IEEE/CVF International Conference on Computer Vision .10012–10022. [38] Ilya Loshchilov and Frank Hutter. 2017. Decoupled weight decay regularization. 
+
+arXiv preprint arXiv:1711.05101 (2017). [39] Tinghui Luo, Ziquan Fang, Kaixuan Duan, Lu Chen, Panpan Feng, and Mingfan Lu. 2025. Towards Online Spatio-Temporal Prediction: A Knowledge Distillation Driven Continual Learning Approach. In IEEE International Conference on Data Engineering . 2642–2655. [40] Tengfei Lyu, Weijia Zhang, Jinliang Deng, and Hao Liu. 2025. AutoSTF: Decou-pled Neural Architecture Search for Cost-Effective Automated Spatio-Temporal Forecasting. In ACM SIGKDD Conference on Knowledge Discovery and Data Min-ing . 985–996. [41] Moin Hussain Moti, Panagiotis Simatis, and Dimitris Papadias. 2022. Waffle: A workload-aware and query-sensitive framework for disk-based spatial indexing. 
+
+Proceedings of the VLDB Endowment 16, 4 (2022), 670–683. [42] Yuqi Nie, Nam H Nguyen, Phanwadee Sinthong, and Jayant Kalagnanam. 2023. A Time Series is Worth 64 Words: Long-term Forecasting with Transformers. In 
+
+International Conference on Learning Representations .[43] Namuk Park and Songkuk Kim. 2022. How do vision transformers work? arXiv preprint arXiv:2202.06709 (2022). [44] Hanan Samet. 1984. The quadtree and related hierarchical data structures. ACM Computing Surveys (CSUR) 16, 2 (1984), 187–260. [45] Hanan Samet. 2006. Foundations of multidimensional and metric data structures .Morgan Kaufmann. [46] Zezhi Shao, Fei Wang, Yongjun Xu, Wei Wei, Chengqing Yu, Zhao Zhang, Di Yao, Tao Sun, Guangyin Jin, Xin Cao, Gao Cong, Christian S. Jensen, and Xueqi Cheng. 2025. Exploring Progress in Multivariate Time Series Forecasting: Comprehensive Benchmarking and Heterogeneity Analysis. IEEE Transactions on Knowledge and Data Engineering 37, 1 (2025), 291–305. Su et al. 
+
+[47] Zezhi Shao, Zhao Zhang, Fei Wang, Wei Wei, and Yongjun Xu. 2022. Spatial-temporal identity: A simple yet effective baseline for multivariate time series forecasting. In ACM International Conference on Information and Knowledge Management . 4454–4458. [48] Zezhi Shao, Zhao Zhang, Fei Wang, and Yongjun Xu. 2022. Pre-training Enhanced Spatial-temporal Graph Neural Network for Multivariate Time Series Forecasting. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 1567–1577. [49] Zezhi Shao, Zhao Zhang, Wei Wei, Fei Wang, Yongjun Xu, Xin Cao, and Chris-tian S Jensen. 2022. Decoupled dynamic spatial-temporal graph neural network for traffic forecasting. In Proceedings of the VLDB Endowment . 2733–2746. [50] Waldo R Tobler. 1970. A computer movie simulating urban growth in the Detroit region. Economic geography 46 (1970), 234–240. [51] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. 2017. Attention is all you need. Neural Information Processing Systems 30 (2017). [52] Senzhang Wang, Jiannong Cao, and S Yu Philip. 2020. Deep learning for spatio-temporal data mining: A survey. IEEE transactions on knowledge and data engi-neering 34, 8 (2020), 3681–3700. [53] Yuxuan Wang, Haixu Wu, Jiaxiang Dong, Yong Liu, Mingsheng Long, and Jianmin Wang. 2024. Deep time series models: A comprehensive survey and benchmark. 
+
+arXiv preprint arXiv:2407.13278 (2024). [54] Zonghan Wu, Shirui Pan, Guodong Long, Jing Jiang, Xiaojun Chang, and Chengqi Zhang. 2020. Connecting the dots: Multivariate time series forecasting with graph neural networks. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 753–763. [55] Zonghan Wu, Shirui Pan, Guodong Long, Jing Jiang, and Chengqi Zhang. 2019. Graph wavenet for deep spatial-temporal graph modeling. In International Joint Conference on Artificial Intelligence . 1907–1913. [56] Zhenda Xie, Yutong Lin, Zhuliang Yao, Zheng Zhang, Qi Dai, Yue Cao, and Han Hu. 2021. Self-supervised learning with swin transformers. arXiv preprint arXiv:2105.04553 (2021). [57] Haiqiang Yang, Zihan Li, and Yashuai Qi. 2024. Predicting traffic propagation flow in urban road network with multi-graph convolutional network. Complex & Intelligent Systems 10, 1 (2024), 23–35. [58] Yueyang Yao, Xingyuan Dai, and Yisheng Lv. 2025. Leveraging Heterogeneous Experts with Advantageous Pattern Memory Learning for Traffic Prediction. In 
+
+IEEE International Conference on Data Engineering . 3342–3355. [59] Chin-Chia Michael Yeh, Yujie Fan, Xin Dai, Uday Singh Saini, Vivian Lai, Prince Osei Aboagye, Junpeng Wang, Huiyuan Chen, Yan Zheng, Zhongfang Zhuang, et al . 2024. RPMixer: Shaking Up Time Series Forecasting with Random Projections for Large Spatial-Temporal Data. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 3919–3930. [60] Bing Yu, Haoteng Yin, and Zhanxing Zhu. 2018. Spatio-Temporal Graph Con-volutional Networks: A Deep Learning Framework for Traffic Forecasting. In 
+
+International Joint Conference on Artificial Intelligence . 3634–3640. [61] Yuan Yuan, Jingtao Ding, Jie Feng, Depeng Jin, and Yong Li. 2024. UniST: A Prompt-Empowered Universal Model for Urban Spatio-Temporal Prediction. In 
+
+ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 4095–4106. [62] Zhuoning Yuan, Xun Zhou, and Tianbao Yang. 2018. Hetero-ConvLSTM: A deep learning approach to traffic accident prediction on heterogeneous spatio-temporal data. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 984–992. [63] Zhihao Zeng, Ziquan Fang, Yuting Huang, Qilong Wang, Lu Chen, and Yunjun Gao. 2025. Heterogeneous-Aware Traffic Prediction: A Privacy-Preserving Feder-ated Learning Framework . In IEEE International Conference on Data Engineering .419–432. [64] Cheng Zhang, Haocheng Wan, Xinyi Shen, and Zizhao Wu. 2022. Patchformer: An efficient point transformer with patch attention. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition . 11799–11808. [65] Weijia Zhang, Le Zhang, Jindong Han, Hao Liu, Yanjie Fu, Jingbo Zhou, Yu Mei, and Hui Xiong. 2024. Irregular Traffic Time Series Forecasting Based on Asynchronous Spatio-Temporal Graph Convolutional Networks. In ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 4302–4313. [66] Yiji Zhao, Zihao Zhong, Ao Wang, Haomin Wen, Ming Jin, Yuxuan Liang, Huaiyu Wan, and Hao Wu. 2026. FaST: Efficient and Effective Long-Horizon Forecasting for Large-Scale Spatial-Temporal Graphs via Mixture-of-Experts. In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1. 1975–1986. [67] Chuanpan Zheng, Xiaoliang Fan, Cheng Wang, and Jianzhong Qi. 2020. Gman: A graph multi-attention network for traffic prediction. In AAAI Conference on Artificial Intelligence . 1234–1241. [68] Qi Zheng, Zihao Yao, and Yaying Zhang. 2025. ST-ReP: Learning Predictive Representations Efficiently for Spatial-Temporal Forecasting. In AAAI Conference on Artificial Intelligence , Vol. 39. 13419–13427. SqLinear 
+
+## Appendix Directory 
+
+Appendix A Related Work 11 
+
+Appendix B Algorithm 12 
+
+Appendix C Theoretical Analysis 12 C.1 Analysis of Spatial Partition . . . . . . . . . . . . . . . . 12 C.2 Analysis of Low-rank Projection . . . . . . . . . . . . 13 C.3 Complexity Analysis . . . . . . . . . . . . . . . . . . . . . . . 14 
+
+Appendix D Additional Experiment 14 D.1 Detailed Experimental Setup . . . . . . . . . . . . . . . . 14 D.2 Long-Horizon Scalability Metrics . . . . . . . . . . . . 14 D.3 Hyperparameter Study (RQ5) . . . . . . . . . . . . . . . 14 D.4 Partition Strategy Analysis (RQ6) . . . . . . . . . . . . 15 D.5 Case Study (RQ7) . . . . . . . . . . . . . . . . . . . . . . . . . . 16 D.6 Limitations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 
+
+## A Related Work 
+
+We cover related studies on spatio-temporal traffic prediction and commonly used patching strategies in deep learning. 
+
+## A.1 Spatio-Temporal Prediction 
+
+Spatio-temporal traffic prediction aims to forecast traffic flow, speed, and occupancy. Early approaches primarily relied on statistical models, including moving average models [ 12 ], AutoRegressive Integrated Moving Average (ARIMA) [ 6], and multivariate regres-sion [ 1 ]. To model non-linear and complex spatio-temporal depen-dencies, numerous deep learning-based spatio-temporal prediction methods [26, 39, 58, 66, 68] have emerged. We proceed to highlight the most relevant state-of-the-art meth-ods, while more categories of existing spatio-temporal prediction models are covered by surveys [ 23 , 52 , 53 ]. In general, these meth-ods employ sequence-oriented architectures (e.g., RNNs, LSTMs) to capture temporal correlations and convolutional architectures (e.g., CNNs, GNNs) to capture spatial dependencies. Spatio-Temporal Graph Neural Networks (STGNNs) represent the dominant par-adigm, combining graph-based spatial modeling with temporal processing modules. These networks employ architectures that generally fall into two categories: recurrent-based approaches, such as DCRNN [ 29 ] and DGCRN [ 28 ], that use RNN variants to model temporal dynamics, and convolutional-based methods, such as GWNET [ 55 ] and AGCRN [ 3], that use temporal convolutional networks. Inspired by the success of the Transformer architecture [ 51 ], researchers have explored attention-based spatio-temporal predic-tion models, such as ASTGCN [ 18 ] and STWave [ 15 ], to improve prediction accuracy. These improvements come at high computa-tional costs, with graph convolution operations typically having quadratic complexity in terms of node count, and with the attention mechanisms introducing high complexity. To improve model scalability, simplified architectures have been explored. MLP-based models such as STID [ 47 ] and RPMixer [ 59 ], demonstrate that carefully designed multilayer perceptrons can achieve competitive performance, while linear architectures like BigST [ 19 ] and GSNet [ 24 ] show that properly normalized lin-ear projections can capture spatio-temporal patterns effectively. However, these efficiency gains often come at the expense of ex-plicit spatial reasoning, particularly for modeling non-local depen-dencies that are critical in transportation networks. As shown in Table 1, compared with previous efficiency- or scalability-oriented methods, the proposed SqLinear method supports large-scale inputs, provides spatial management, and includes scalability-oriented theoretical analysis while achieving lin-ear complexity. 
+
+The success of large language models (LLMs) has inspired an-other line of studies. Foundation models such as Unist [ 61 ] and Ur-banGPT [ 30 ] attempt to adapt LLM architectures to spatio-temporal settings, while hybrid systems like ST-LLM+ [ 32 ] combine tradi-tional forecasting modules with transformer backbones. As covered comprehensively [ 14 ], these approaches represent promising but preliminary efforts toward general-purpose spatio-temporal learn-ing, which is beyond the scope of this paper. 
+
+## A.2 Patching Strategies in Deep Learning 
+
+The partitioning of complex and massive data sets has emerged as a fundamental paradigm for enhancing computational efficiency of machine learning models [ 31 , 43 , 56 , 64 ]. Patching strategies vary across data modalities. For regularly structured data like images and video, fixed-size spatial aggregation dominates, as exemplified by Vision Transformers [ 11 ] that decomposes images into uniform patches and by Swin Transformers [ 37 ] that employ hierarchical patch merging. The methods PatchTST [ 42 ] and Pathformer [ 8] develop patch-based strategies for time series forecasting. However, these meth-ods patch only in the time dimension and lack spatial modeling capabilities. Further, they are designed for small-scale time series data as opposed to large-scale spatio-temporal data processing. In contrast, irregular spatial data, particularly from traffic sensor networks, present unique spatiotemporal challenges due to the het-erogeneous spatial layouts and skewed node distributions of the networks. LISA [ 2] introduces a partitioning framework that itera-tively learns sub-regions based on prediction accuracy. However, its expansion-based process is computationally intensive and is primar-ily optimized for sparse accident prediction scenarios, which limits its applicability to general traffic forecasting tasks. To contend with general irregular graphs, PatchGT [ 17 ] utilizes non-trainable spec-tral clustering to segment graphs. However, this approach often fails to adapt to dynamic data distributions and evolving spatial pat-terns. More recent methods such as PatchSTG [ 13 ] adopt leaf-level K-D Tree partitioning to balance node distributions across parti-tions. While effective at mitigating node imbalance, K-D Trees come with inherit intrinsic geometric limitations, including unavoidable patch elongation and mandatory padding operations. Such artifacts introduce additional computational overhead and spatial distortion, as illustrated in Fig. 1. In contrast to existing studies [ 13 , 16 , 41 ], Square Partition is tailored to traffic forecasting rather than general spatial indexing: it (i) uses capacity-aware split positions to control leaf sizes, (ii) uses coordinate-adaptive axis selection to encour-age compact spatial patches, and (iii) produces padding-free patch representations for downstream spatio-temporal modeling. Su et al. 
+
+## B Algorithm 
+
+Algorithm 1 details the Square Partition algorithm. The algorithm begins by checking whether the input node set 𝑁 𝑙 satisfies the base case, i.e., whether its size does not exceed a predefined capacity threshold 𝐶 (lines 2–4). If the base case is not satisfied, the algo-rithm selects the split axis (latitude or longitude) by comparing the spatial spans along each dimension (lines 5–11). It then calculates a capacity-aware split point for balanced recursive subdivision (line 13). Based on the split point, the node set 𝑁 𝑙 is partitioned into two subsets, 𝑁 𝑙 +11 and 𝑁 𝑙 +12 , and the algorithm is applied recursively to each subset. The final output is the set of the recursively partitioned results (lines 14–18). 
+
+Algorithm 1 The Square Partition Algorithm 
+
+Require: nodeset 𝑁 𝑙 : nodes with coordinates. LeafCapacity 𝐶 :Number of nodes per leaf patch. 
+
+Ensure: 𝑃 : a set of patches.  
+
+> 1:
+
+function SqarePartition (𝑁 𝑙 ) 
+
+> 2:
+
+if |𝑁 𝑙 | ≤ 𝐶 then ⊲ Node count is within capacity  
+
+> 3:
+
+return 𝑁 𝑙  
+
+> 4:
+
+end if 
+
+⊲ Step 1: Determine splitting axis  
+
+> 5:
+
+Δ𝐿𝑎𝑡 ← max 𝑛 ∈𝑁 𝑙 (𝐿𝑎𝑡 𝑛 ) − min 𝑛 ∈𝑁 𝑙 (𝐿𝑎𝑡 𝑛 ) 
+
+> 6:
+
+Δ𝐿𝑛𝑔 ← max 𝑛 ∈𝑁 𝑙 (𝐿𝑛𝑔 𝑛 ) − min 𝑛 ∈𝑁 𝑙 (𝐿𝑛𝑔 𝑛 ) 
+
+> 7:
+
+if Δ𝐿𝑛𝑔 ≥ Δ𝐿𝑎𝑡 then ⊲ Calculate SplitAxis  
+
+> 8:
+
+𝑆𝑝𝑙𝑖𝑡𝐴𝑥𝑖𝑠 ← Longitude  
+
+> 9:
+
+else  
+
+> 10:
+
+𝑆𝑝𝑙𝑖𝑡𝐴𝑥𝑖𝑠 ← Latitude  
+
+> 11:
+
+end if  
+
+> 12:
+
+Sort 𝑁 𝑙 based on the coordinates of 𝑆𝑝𝑙𝑖𝑡𝐴𝑥𝑖𝑠 .
+
+⊲ Step 2: Identify splitting position  
+
+> 13:
+
+𝑆 𝑝 ← 𝐶 ×
+
+l ⌈ | 𝑁 𝑙 |/ 𝐶 ⌉
+
+> 2
+
+m
+
+⊲ Calculate split point 
+
+⊲ Step 3: Partition and recurse  
+
+> 14:
+
+𝑁 𝑙 +11 ← 𝑁 𝑙 [1 . . . 𝑆 𝑝 ] ⊲ 1𝑠𝑡 subset  
+
+> 15:
+
+𝑁 𝑙 +12 ← 𝑁 𝑙 [𝑆 𝑝 + 1 . . . |𝑁 𝑙 |] ⊲ 2𝑛𝑑 subset  
+
+> 16:
+
+𝑃 1 ← SqarePartition (𝑁 𝑙 +11 ) ⊲ Partition 1𝑠𝑡 set  
+
+> 17:
+
+𝑃 2 ← SqarePartition (𝑁 𝑙 +12 ) ⊲ Partition 2𝑛𝑑 set  
+
+> 18:
+
+return 𝑃 1 ∪ 𝑃 2 
+
+> 19:
+
+end function 
+
+Algorithm 2 outlines the complete workflow of SqLinear, from initial data embedding to final prediction. The process begins with the Spatio-Temporal Embedding Layer, where a unified feature rep-resentation ˜𝑋 is constructed by generating and concatenating the historical embeddings 𝐸 𝐻 , temporal embeddings 𝐸 𝑑 𝑇 and 𝐸 𝑤 𝑇 , and spatial embedding 𝐸 𝑆 . SquarePartition first produces node indices according to sensor coordinates and capacity 𝐶 , and the Patching operation then groups the node representations in ˜𝑋 into the patch tensor ¯𝑋 without modifying feature dimensions. At the core of SqLinear, the Hierarchical Linear Interaction block processes the data iteratively across 𝐿 layers. In each layer 𝑙 , an Inter-Patch mod-ule first processes ¯𝑋 (𝑙 −1) to capture dependencies across patches, resulting in 𝐻 (𝑙 )
+
+> out
+
+. Then, the Intra-Patch module models internal rela-tionships within each patch, updating the patch representations to 
+
+¯𝑋 (𝑙 ) . Finally, the Output Layer reconstructs the full spatio-temporal graph ˜𝑌 from the final-layer patch representations ¯𝑋 (𝐿 ) via the Unpatch operation, and applies reverse convolution (RConv) to obtain the final prediction 𝑌 𝐹 .
+
+Algorithm 2 The SqLinear Algorithm 
+
+Require: input data 𝑋 𝐻 , nodeset 𝑁 0, leaf capacity 𝐶 , number of layers 𝐿 
+
+Ensure: predicted traffic features 𝑌 𝐹 
+
+⊲ Spatio-Temporal Embedding Layer  
+
+> 1:
+
+𝐸 𝐻 ← PConv (𝑋 𝐻 ; Θℎ ) ⊲ Historical embedding  
+
+> 2:
+
+𝐸 𝑑 𝑇 ← 𝑊 𝑑𝑎𝑦 (𝑋 𝑑𝑎𝑦 ) ⊲ Hour-of-day embeddings  
+
+> 3:
+
+𝐸 𝑤 𝑇 ← 𝑊 𝑤𝑒𝑒𝑘 (𝑋 𝑤𝑒𝑒𝑘 ) ⊲ Day-of-week embedding  
+
+> 4:
+
+𝐸 𝑆 ← 𝜎 (𝑊 𝑠 · 𝑋 𝑃 + 𝑏 𝑠 ) ⊲ Spatial embedding  
+
+> 5:
+
+˜𝑋 ← 𝐸 𝐻 || 𝐸 𝑑 𝑇 || 𝐸 𝑤 𝑇 || 𝐸 𝑆 ⊲ Combine all embeddings 
+
+⊲ Spatial Partition  
+
+> 6:
+
+Index ← SquarePartition (𝑁 0, 𝐶 ) ⊲ Generate node grouping indices  
+
+> 7:
+
+¯𝑋 ← Patching (Index , ˜𝑋 ) ⊲ Group node representations 
+
+⊲ Hierarchical Linear Interaction  
+
+> 8:
+
+for 𝑙 ← 1 to 𝐿 do 
+
+⊲ Inter-Patch Interaction  
+
+> 9:
+
+𝐻 (𝑙 ) 
+
+> inter
+
+← LinearMlp (𝑙 ) (Norm (𝑙 ) ( ¯𝑋 (𝑙 −1) ))  
+
+> 10:
+
+¯𝐻 (𝑙 ) 
+
+> inter
+
+← LowRankProj (𝑙 ) (𝐻 (𝑙 )
+
+> inter
+
+) 
+
+> 11:
+
+𝐻 (𝑙 ) 
+
+> out
+
+← ¯𝑋 (𝑙 −1) + FFN (𝑙 ) ( ¯𝐻 (𝑙 )
+
+> inter
+
+)
+
+⊲ Intra-Patch Interaction  
+
+> 12:
+
+𝐻 (𝑙 ) 
+
+> intra
+
+← LinearMlp (𝑙 ) (Norm (𝑙 ) (𝐻 (𝑙 )
+
+> out
+
+))  
+
+> 13:
+
+¯𝑋 (𝑙 ) ← 𝐻 (𝑙 ) 
+
+> out
+
++ FFN (𝑙 ) (𝐻 (𝑙 )
+
+> intra
+
+) 
+
+> 14:
+
+end for 
+
+⊲ Output Layer  
+
+> 15:
+
+˜𝑌 ← Unpatch ( ¯𝑋 (𝐿 ) ) ⊲ Reconstruct from patches  
+
+> 16:
+
+𝑌 𝐹 ← RConv ( ˜𝑌 ; Θ𝑟 ) ⊲ Generate final prediction  
+
+> 17:
+
+return 𝑌 𝐹 
+
+## C Theoretical Analysis 
+
+We provide a concise analysis of the properties that directly support scalable traffic forecasting. In the Square Partition approach, the key theoretical function is to generate capacity-bounded tensor units that achieve high utilization and controlled split imbalance, whereas compactness is treated as a distribution-dependent prop-erty—encouraged by the longest-span splitting rule and validated empirically. We then analyze the approximation capacity of the low-rank inter-patch projection, and conclude with the original complexity analysis. 
+
+## C.1 Analysis of Spatial Partition 
+
+We analyze Square Partition from the perspective of downstream tensor processing. A good spatial partition for SqLinear should (i) avoid padded or empty tokens, (ii) keep recursive splits balanced to avoid skewed patch workloads, and (iii) encourage compact spatial neighborhoods without claiming a universal near-square guarantee for arbitrary sensor distributions. 
+
+Definition C.1 ( Patch Utilization ). Let 𝑃 be the number of gen-erated leaf patches, let 𝐶 be the patch capacity, and let 𝑁 be the SqLinear 
+
+total number of sensor nodes. We define patch utilization as 
+
+𝜂 = 𝑁 𝑃 × 𝐶 , (19) where larger 𝜂 indicates fewer padded or unused tensor entries during patch-based modeling. 
+
+Theorem C.2 ( Padding-Free Tensorization ). If 𝐶 is se-lected such that 𝑁 = 𝑃𝐶 and each split point is a multiple of 𝐶 ,Square Partition produces 𝑃 leaf patches with exactly 𝐶 nodes each. Thus, the patch tensor has no padded sensor entries and satisfies 𝜂 = 1.Proof sketch. Since 𝑁 = 𝑃𝐶 , the initial node set consists of an integer number of capacity blocks. Equation 7 always chooses split points at multiples of 𝐶 , so both child subsets also contain an integer number of capacity blocks. By induction over the recursive partition tree, every terminal subset has exactly 𝐶 nodes. Consequently, the patched representation ¯𝑋 ∈ R𝐶 ×𝑃 ×𝑑 contains only real sensor nodes and requires no padding. 
+
+Definition C.3 ( Node Balance Degree ). For a region containing 
+
+𝑁 traffic nodes, after a partitioning operation, let 𝐿 and 𝑅 (𝐿 + 𝑅 =
+
+𝑁 ) denote the number of nodes in the left and right subregions, respectively. The node balance degree 𝛿 is defined as follows. 
+
+𝛿 = |𝐿 − 𝑅 |, (20) where a smaller 𝛿 indicates a more balanced split. A large 𝛿 is undesirable because it creates skewed recursive trees, uneven patch workloads, and possible padding overhead. 
+
+Theorem C.4 ( Split Balance ). In Square Partition, the node balance degree of each split satisfies 
+
+𝛿 < 2𝐶, (21) 
+
+where 𝐶 is the predefined patch capacity. Proof sketch. Let 𝑘 = ⌈𝑁 /𝐶 ⌉ and let 𝐿 = 𝐶 ⌈𝑘 /2⌉ be the split index. Since 𝑁 = 𝑘𝐶 − 𝑟 for some 0 ≤ 𝑟 < 𝐶 , we have 𝛿 = |2𝐿 −
+
+𝑁 | = |2𝐶 ⌈𝑘 /2⌉ − ( 𝑘𝐶 − 𝑟 )| . If 𝑘 is even, 𝛿 = 𝑟 < 𝐶 ; if 𝑘 is odd, 
+
+𝛿 = 𝐶 + 𝑟 < 2𝐶 . Thus, each split keeps the two child regions balanced up to a constant controlled by the patch capacity. 
+
+Definition C.5 ( Region Aspect Ratio ). For a generated spatial region, the aspect ratio 𝛼 is defined as 
+
+𝛼 = max (ΔLng , ΔLat )
+
+min (ΔLng , ΔLat ) , (22) where ΔLng and ΔLat are the longitude and latitude spans. This metric is used as an empirical compactness diagnostic rather than as a universal guarantee. 
+
+Theorem C.6 ( Non-Amplification of Elongation ). Con-sider any region with axis spans Δmax ≥ Δmin . Square Partition always splits along the Δmax axis, hence it only ever shrinks the current longest dimension and never subdivides the shorter one. Consequently, a sin-gle split cannot reduce Δmin , the source of elongation amplification. In contrast, an alternating-axis k-d tree splits along a depth-determined axis; whenever the forced axis is the shorter one and the split re-duces its span by a factor 𝜌 ∈ ( 0, 1), the child aspect ratio becomes 
+
+𝛼 child = Δmax /( 𝜌 Δmin ) ≥ 𝛼 , i.e., it strictly amplifies elongation. Proof. By Eq. 6, Square Partition selects the axis with the larger span, so the shorter span Δmin is preserved by every split until it becomes the longer axis; thus no split shrinks the already-shorter dimension. For the alternating k-d tree, the split axis is a function of depth, independent of (Δmax , Δmin ). When this axis coincides with the shorter one, the longer span Δmax is unchanged while the shorter span shrinks to 𝜌 Δmin , giving 𝛼 child = 𝛼 /𝜌 > 𝛼 .
+
+Theorem C.6 explains why Square Partition encourages compact patches: unlike alternating-axis k-d trees, which tend to amplify elongation, Square Partition never cuts the already-shorter dimension, thereby avoiding elongation-amplifying behavior. Ta-ble 7 empirically supports this compactness claim on the largest CA dataset, where Square Partition achieves a lower p90 aspect ratio than K-D Tree while maintaining perfect balance and full utilization. 
+
+## C.2 Analysis of Low-rank Projection 
+
+We analyze the low-rank projection in the Inter-Patch Interaction from two angles: its approximation error on low-rank dependen-cies, and the expressiveness of its function class relative to linear baselines. 
+
+Theorem C.7 ( Low-Rank Approximation Capacity ). Let 
+
+𝑀 ∈ R𝑃 ×𝑃 be an ideal global dependency matrix with singular values 
+
+𝜎 1 ≥ 𝜎 2 ≥ · · · ≥ 𝜎 𝑃 ≥ 0. Among all rank-𝑟 matrices expressible as ˆ𝑀 = Θ𝑟 1Θ𝑟 2, where Θ𝑟 1 ∈ R𝑃 ×𝑟 and Θ𝑟 2 ∈ R𝑟 ×𝑃 , the minimum Frobenius approximation error is 
+
+min   
+
+> Θ𝑟 1,Θ𝑟 2
+
+∥𝑀 − Θ𝑟 1Θ𝑟 2 ∥𝐹 =
+
+vut 𝑃 ∑︁  
+
+> 𝑘 =𝑟 +1
+
+𝜎 2 
+
+> 𝑘
+
+(23) 
+
+This result means that the factorized projection can represent the best rank-𝑟 approximation of 𝑀 ; when the empirical singular spectrum decays rapidly, the discarded tail energy is small. Proof sketch. Since ˆ𝑀 is the product of two matrices with in-ner dimensionality 𝑟 , rank ( ˆ𝑀 ) ≤ 𝑟 . By the Eckart-Young-Mirsky theorem, the best rank-𝑟 approximation of 𝑀 is its truncated SVD 
+
+𝑀 𝑟 = Í𝑟 𝑖 =1 𝜎 𝑖 𝑢 𝑖 𝑣 ⊤ 
+
+> 𝑖
+
+. The residual satisfies 
+
+∥𝑀 − 𝑀 𝑟 ∥2 
+
+> 𝐹
+
+=
+
+> 𝑃
+
+∑︁  
+
+> 𝑘 =𝑟 +1
+
+𝜎 𝑘 𝑢 𝑘 𝑣 ⊤
+
+> 𝑘
+> 2
+> 𝐹
+
+=
+
+> 𝑃
+
+∑︁  
+
+> 𝑘 =𝑟 +1
+
+𝜎 2
+
+> 𝑘
+
+because the singular vectors are orthonormal. 
+
+Theorem C.8 ( Subsumption of Baseline Spatial Mix-ing ). The low-rank projection realizes the operator family FLR (𝑟 ) =
+
+{Θ𝑟 1Θ𝑟 2 }, which is exactly the rank-≤ 𝑟 matrices in R𝑃 ×𝑃 . The per-layer spatial mixers of RPMixer [ 59 ] (a frozen Gaussian projection of width 𝑛 rand ) and BigST [ 19 ] (random-feature linear attention with feature dimension 𝑠 ) are linear maps of rank at most 𝑛 rand and 𝑠 .Hence FLR (𝑟 ) ⊇ F RPMixer ∪ F BigST for 𝑟 ≥ max (𝑛 rand , 𝑠 ).Proof sketch. Since rank (Θ𝑟 1Θ𝑟 2) ≤ 𝑟 and every rank-≤ 𝑟 matrix admits such a factorization, FLR (𝑟 ) is exactly the rank-𝑟 set. Both baselines factor node mixing through an inner width 𝑘 ∈ { 𝑛 rand , 𝑠 },giving rank ≤ 𝑘 , so they lie in FLR (𝑟 ) once 𝑟 ≥ 𝑘 .
+
+These two results clarify why HLI is effective rather than merely efficient . The low-rank projection is not a lossy shortcut: as the inter-patch communication operator, it already covers the spatial-mixing function classes of the strongest linear baselines Su et al.                 
+
+> (a) 𝐶 on GBA (b) 𝐿 on GBA (c) 𝑘 on GBA
+> (d) 𝐶 on CA (e) 𝐿 on CA (f) 𝑘 on CA
+
+Figure 8: Hyperparameter sensitivity analysis. Table 5: Dataset statistics.                     
+
+> Datasets #Nodes #Edges #TimeSlices Timespan SD 716 17,319 525,888 01/01/2017–12/31/2021 GBA 2,352 61,246 525,888 01/01/2017–12/31/2021 GLA 3,834 98,703 525,888 01/01/2017–12/31/2021 CA 8,600 201,363 525,888 01/01/2017–12/31/2021
+
+(Theorem C.8 ), while its residual error is bounded by the small tail energy √︃ Í𝑘 >𝑟 𝜎 2 
+
+> 𝑘
+
+observed in Fig. 3 ( Theorem C.7 ). HLI then goes strictly beyond these baselines because, on top of this inter-patch projection, it applies an intra-patch dense operator that a single global mixer lacks. Consequently, one HLI layer is at least as expressive as RPMixer- and BigST-type spatial mixing while retaining 𝑂 (𝑁𝑑 2) cost, and the rank 𝑟 serves as a provable accuracy– efficiency dial. “‘ 
+
+## C.3 Complexity Analysis 
+
+We denote the number of nodes, the number of nodes within each patch, the number of patches, the rank in the low-rank projection, and the hidden dimensionality by 𝑁 , 𝐶 , 𝑃 , 𝑟 , and 𝑑 , respectively. Square Partition has 𝑂 (𝑁 · ( 𝑙𝑜𝑔𝑁 )2) time complexity. Thus, con-structing the balanced binary tree can be done efficiently in a pre-processing step. Next, we analyze the time and space complexity of SqLinear, focusing on the Hierarchical Linear Interaction (HLI) block. 
+
+Time Complexity. The time complexity of the HLI block is primarily determined by the LinearMLP operations. The Intra-Patch 
+
+module applies a LinearMLP within each of the 𝑃 patches, each of size 𝐶 , resulting in a complexity of 𝑂 (𝑃 · 𝐶 · 𝑑 2). The Inter-Patch 
+
+module also involves a LinearMLP, also with complexity 𝑂 (𝑃 ·𝐶 ·𝑑 2).In addition, the Inter-Patch module includes a low-rank projection mechanism for global communication, with the significantly lower complexity of 𝑂 (𝑑 · 𝑃 · 𝑟 ). Since 𝑟 < 𝐶 < 𝑃 , the dominant term is 
+
+𝑂 (𝑃 ·𝐶 ·𝑑 2). Using 𝑁 = 𝑃 ·𝐶 , the time complexity becomes 𝑂 (𝑁 ·𝑑 2).Thus, SqLinear scales linearly with respect to the number of nodes. 
+
+Space Complexity. The space complexity is governed by the largest tensors stored during the forward pass, which are of dimen-sionality 𝑁 × 𝑑 . Hence, the space complexity is 𝑂 (𝑁 · 𝑑 ).
+
+## D Additional Experiments D.1 Detailed Experimental Setup 
+
+D.1.1 Datasets Description. We conduct experiments on four large-scale benchmark datasets, SD, GBA, GLA, and CA, whose graph sizes range from 716 to 8,600 sensor nodes. Following established traffic forecasting protocols, each dataset is split chronologically into training, validation, and testing sets with a 6:2:2 ratio. The standard forecasting setting uses 12 historical steps to predict the next 12 steps. To examine temporal scalability, we additionally use 96 historical steps and forecast 48, 96, 192, and 672 future steps on SD, GBA, GLA, and CA. Dataset statistics are summarized in Table 5. 
+
+D.1.2 Implementation Details. SqLinear is trained using the AdamW optimizer [ 38 ] with an initial learning rate of 0.001 and a weight decay of 0.0001. We follow the official baseline configurations [ 35 ]and only adjust the input and prediction windows to match the corresponding forecasting protocol. Scalability experiments are implemented on the BasicTS [46] framework. All experiments are implemented in PyTorch and conducted on an NVIDIA RTX A40 GPU with 48 GB of memory. For efficiency analysis, runtime de-notes the measured training wall-clock time of a run, and inference latency denotes the measured evaluation latency. 
+
+D.1.3 Baselines. For the standard setting, we compare SqLinear with 10 SOTA baselines from three families. (i) The GNN-based group includes GWNET [ 55 ], AGCRN [ 3 ], D2STGNN [ 49 ], and DSTAGNN [ 27 ]. (ii) The linear-model group includes STID [ 47 ], BigST [ 19 ], and RPMixer [ 59 ]. (iii) The attention-based group 
+
+includes STAEformer [ 34 ], STWave [ 15 ], and PatchSTG [ 13 ]. For the long-horizon study, we choose strong or lightweight scalability-oriented representatives, including STID, RPMixer, BigST, and Patch-STG, so that the comparison directly tests temporal scalability with-out overcrowding the main text. 
+
+## D.2 Long-Horizon Prediction Performance 
+
+Table 6 reports the detailed MAE, RMSE, and MAPE values for the long-horizon scalability study. SqLinear achieves the best perfor-mance on all three metrics across all 16 dataset-horizon combina-tions, reducing MAE, RMSE, and MAPE by an average of 5.77%, 4.19%, and 8.59%, respectively, over the strongest baseline in each column. The gains remain stable as the prediction length increases: even under the longest 96 ⇒672 setting, SqLinear still reduces MAE by 3.50%–5.91% and MAPE by 6.33%–7.55% across the four datasets. These results confirm that SqLinear preserves accurate spatiotempo-ral forecasting when the temporal horizon is substantially enlarged. 
+
+## D.3 Hyperparameter Study (RQ5) 
+
+We study key hyperparameters on GBA and CA, as shown in Fig. 8. Similar results were observed on other datasets. 
+
+The number of nodes per patch 𝐶 . Performance peaks when the number of nodes per patch 𝐶 and the number of patches 𝑃 
+
+are numerically balanced. SqLinear obtains the best accuracy with 
+
+𝐶 = 48 on GBA and 𝐶 = 86 on CA. This pattern reflects a trade-off between intra-patch and inter-patch modeling: larger patches enrich local context, while too-large patches reduce the granularity of global interaction. 
+
+The number of layers 𝐿 . The optimal depth depends on graph scale. Larger networks such as CA require deeper interaction layers to propagate information across broader spatial regions, whereas SqLinear 
+
+Table 6: Detailed long-horizon scalability results. Bold indicates the best performance and underline denotes the second best performance. The notation 96 ⇒48 means using the past 96 time steps to predict the next 48 steps; MAPE is reported in percentage. Improvement is computed relative to the strongest baseline in each column. 
+
+Data Method 96 ⇒48 96 ⇒96 96 ⇒192 96 ⇒672 
+
+MAE RMSE MAPE MAE RMSE MAPE MAE RMSE MAPE MAE RMSE MAPE SD STID 20.89 39.14 14.67 22.71 42.81 15.90 24.77 46.91 17.59 27.14 50.71 19.28 RPMixer 21.78 37.71 14.99 23.80 41.68 16.77 25.91 47.18 18.35 28.08 52.68 20.67 BigST 21.98 37.43 16.41 24.64 42.92 18.66 26.90 47.77 20.46 29.63 52.29 22.47 PatchSTG 20.60 39.45 14.23 23.21 45.10 16.17 26.06 49.99 17.91 28.16 53.78 19.48 
+
+SqLinear 19.31 33.99 12.59 20.89 36.78 13.74 23.46 42.39 15.85 26.19 48.84 17.91 
+
+Improvement 6.26% 9.19% 11.52% 8.01% 11.76% 13.58% 5.29% 9.64% 9.89% 3.50% 3.69% 7.11% 
+
+GBA STID 22.03 38.96 18.94 23.58 41.46 20.57 25.50 44.45 22.66 27.73 47.59 24.66 RPMixer 23.47 40.18 19.36 24.03 41.27 20.61 25.92 44.78 22.10 27.94 47.69 25.02 BigST 24.03 39.61 21.52 25.39 41.53 23.49 27.48 44.70 25.62 29.50 48.11 27.56 PatchSTG 21.78 37.56 17.62 24.36 43.45 20.83 26.16 46.37 22.53 28.52 49.99 24.63 
+
+SqLinear 20.99 37.13 17.02 22.20 39.31 18.39 23.77 41.97 20.25 26.09 46.06 22.77 
+
+Improvement 3.63% 1.14% 3.41% 5.85% 4.75% 10.60% 6.78% 5.58% 8.37% 5.91% 3.21% 7.55% 
+
+GLA STID 22.34 40.52 15.25 23.98 43.64 16.68 26.21 47.02 18.86 28.91 51.16 20.83 RPMixer 22.91 38.13 15.84 23.65 40.86 16.16 25.82 44.09 18.04 28.56 48.76 19.91 BigST 24.43 41.01 18.09 25.79 43.27 19.85 28.15 46.76 21.72 30.76 50.95 24.17 PatchSTG 21.75 39.55 14.59 23.80 43.33 16.41 26.49 48.62 18.32 29.51 53.01 20.86 
+
+SqLinear 20.83 36.80 13.42 22.42 40.27 14.97 24.29 43.43 16.52 26.89 47.63 18.57 
+
+Improvement 4.23% 3.49% 8.02% 5.20% 1.44% 7.36% 5.93% 1.50% 8.43% 5.85% 2.32% 6.73% 
+
+CA STID 20.61 37.67 16.38 22.09 40.09 17.96 24.29 43.88 20.09 26.54 47.29 22.00 RPMixer 21.31 35.97 17.39 21.96 37.63 17.59 23.86 41.16 19.14 26.11 45.44 21.32 BigST 22.32 37.74 18.60 24.24 40.69 21.08 26.38 43.63 23.22 28.38 47.32 24.72 PatchSTG 20.67 37.99 16.38 22.64 41.76 18.04 24.51 44.73 20.13 28.42 50.94 23.20 
+
+SqLinear 19.30 35.27 14.82 20.53 37.40 15.95 21.98 39.19 17.27 24.79 44.55 19.97 
+
+Improvement 6.36% 1.95% 9.52% 6.51% 0.61% 9.32% 7.88% 4.79% 9.77% 5.06% 1.96% 6.33%  
+
+> (a) GBA dataset (b) CA dataset
+
+Figure 9: Partition strategy analysis. 
+
+shallower models are sufficient for smaller graphs. Excessive depth can add unnecessary computation and may lead to overfitting on smaller datasets. 
+
+The low-rank dimension 𝑘 . A moderate low-rank dimension is enough to encode latent spatial relations. Increasing 𝑘 initially improves representation capacity, but overly large values introduce redundancy and increase memory usage without clear accuracy gains. 
+
+## D.4 Partition Strategy Analysis (RQ6) 
+
+Topology-Aware Extension. We compare Square Partition with Geometry-First Road Partitioning (GFRP) and Topology-First Road Grouping (TFRG), whose definitions are provided in Section 4.5. Fig. 9 shows that Square Partition consistently achieves better fore-casting accuracy. Although GFRP and TFRG explicitly preserve road topology, they can generate irregular or unbalanced groups that are less suitable for efficient tensorized modeling. This result indicates that SqLinear benefits more from compact and balanced spatial patches than from hard-coded topological grouping. Square Partition provides local spatial context in each patch, while the Hierarchical Linear Interaction module learns long-range cross-region relations from data. This division of labor makes the overall architecture more flexible for large-scale traffic forecasting. 
+
+Empirical partition quality. Table 7 empirically grounds the partition properties analyzed in Section C.1 on the representative CA dataset, reporting the three quantities defined there: patch utilization 𝜂 (Definition C.1 ), the patch-size coefficient of vari-ation (CV) as a normalized measure of node balance degree 𝛿 
+
+(Definition C.3 ), and region aspect ratio 𝛼 (Definition C.5 ) for compactness. Square Partition is the only method that attains both full utilization ( 𝜂 = 1) and perfect balance ( CV = 0) on every dataset, matching the guarantees of Theorem C.2 (𝜂 = 1 under 𝑁 = 𝑃𝐶 )and Theorem C.4 (𝛿 < 2𝐶 ). For compactness, its longest-span splitting rule keeps the p90 aspect ratio strictly below that of the K-D Tree on all four datasets (e.g., 13 .47 vs. 21 .89 on SD and 5.68 vs. 
+
+9.56 on GLA), because it never subdivides the already-shorter side, whereas the alternating-axis rule can amplify elongation in the tail. Grid and Quadtree occasionally achieve a lower aspect ratio on small datasets, but only by packing nodes into a few oversized cells, which harms both balance (CV up to 1.59 ) and utilization Su et al. (a) Weights of the Inter-Patch                   
+
+> 1.00 0.24 0.06 0.17
+> 0.24 1.00 0.61 0.53
+> 0.06 0.61 1.00 0.24
+> 0.17 0.53 0.24 1.00
+> 473 rd Node
+> 118 th
+> 118 th Patch
+> (b) Correlations on Intra-Patch (c) Diagram of 118 tℎPatch and
+> 473 rd Node
+> flow direction
+> 473 rd
+> 0.2
+> 0.1
+> 0.0
+> -0.1
+
+Figure 11: Visualization of learned spatial dependencies. Table 7: Empirical partition quality on the four datasets. Bold marks the best per column within each dataset. 
+
+Dataset Method Util. ↑ Balance ↓ Aspect Ratio ↓
+
+𝜂 CV median p90 SD Grid 0.260 0.866 1.83 5.44 
+
+Quadtree 0.630 0.404 2.76 14.87 K-D Tree 0.932 0.088 4.00 21.89 
+
+Square 1.000 0.000 2.65 13.47 GBA Grid 0.327 0.836 1.27 2.29 Quadtree 0.445 0.561 1.56 6.65 K-D Tree 0.993 0.012 1.86 5.47 
+
+Square 1.000 0.000 1.85 4.62 
+
+GLA Grid 0.161 1.594 2.24 14.63 Quadtree 0.488 0.503 2.22 10.73 K-D Tree 0.998 0.005 2.11 9.56 
+
+Square 1.000 0.000 1.68 5.68 
+
+CA Grid 0.172 1.483 1.55 4.53 
+
+Quadtree 0.413 0.609 1.47 5.36 K-D Tree 0.988 0.006 2.06 4.66 
+
+Square 1.000 0.000 1.70 4.54 (a) Grid (b) Quadtree (c) K-D Tree (d) Square Partition  
+
+> ✘Imbalance ✘Elongate ✘Empty
+
+Figure 10: Visualization of partitioning results. 
+
+(down to 0.16 ). These measurements confirm that Square Partition realizes the utilization and balance guarantees of the analysis while remaining the most compact among capacity-balanced partitions in practice. 
+
+## D.5 Case Study (RQ7) 
+
+To provide an intuitive understanding of SqLinear, we present a case study visualizing the partitioning and the patterns learned by the method. While this study is based on the SD dataset, the key observations and learned patterns also apply to the other datasets. 
+
+Visual Analysis of Spatial Partitioning. Fig. 10 displays the partitioning results, while comparing also with the Grid, Quadtree, and K-D Tree approaches. The blue annotations highlight the limi-tations of the Grid, Quadtree, and K-D Tree approaches. The case study illustrates that Square Partition consistently generates con-tiguous, balanced, strictly non-overlapping, and approximately square spatial patches without requiring padding. 
+
+Interpretability of Hierarchical Interaction. Fig. 11(a) vi-sualizes the learned weights of the inter-patch interaction layer, while Fig. 11(b) shows the weight distribution within the intra-patch interaction layer for the 118 th patch. Fig. 11(c) shows the real-world locations of the 118 th patch and the 473 rd node, pro-viding geographical context. Given that the core architecture of the method is based on linear layers, the learned weight matrices offer transparent means of interpreting the internal operational mechanisms of SqLinear. A key observation is that the 118 th patch, which corresponds to a major arterial intersection, is assigned a high importance weight. Furthermore, within this patch, the central 473 rd node assigns substantially higher weights to its downstream nodes than to others. This pattern aligns closely with real-world traffic propagation dynamics, thereby validating the model’s ability to capture meaningful spatiotemporal dependencies. 
+
+## D.6 Limitations and Future Work 
+
+While SqLinear achieves state-of-the-art performance across four large-scale datasets, limitations suggest promising directions for future research. The linear interaction module is optimized for efficiency, but it may have limited capacity to model abrupt and highly nonlinear dynamics, such as those caused by traffic accidents. Consequently, investigating hybrid linear–nonlinear architectures that balance computational efficiency and expressive power is a critical avenue for enhancing model robustness.
