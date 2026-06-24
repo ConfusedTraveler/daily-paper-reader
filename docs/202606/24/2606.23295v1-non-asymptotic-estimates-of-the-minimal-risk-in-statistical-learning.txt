@@ -1,0 +1,3878 @@
+Title: Non-asymptotic estimates of the minimal risk in statistical learning
+
+URL Source: https://arxiv.org/pdf/2606.23295v1
+
+Published Time: Tue, 23 Jun 2026 03:08:37 GMT
+
+Number of Pages: 42
+
+Markdown Content:
+NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK IN STATISTICAL LEARNING 
+
+LIMING WU AND SEN YANG 
+
+Abstract. In this paper we prove some concentration inequalities for two types of error probabilities in the Empirical Risk Principle (ERP) in statistical learning, which provide a lower bound and an upper bound of the minimal risk (in terms of the minimal empirical risk) with non-asymptotic high confidence. The usual boundedness condition of the empirical risk function is relaxed to the Gaussian or exponential integrability condition. The confidence of the lower bound of the minimal risk is shown to be independent of the number of training parameters and the dimension of the input vectors, signifying that we can quickly verify the deficiency of a learning machine; and the confidence of the upper bound of the minimal risk is proved to be high provided that the sample size n is much greater than the box dimension of the parameter set Θ in the Orlicz metric dψ1 associated with the risk functions. Our work is based on Talagrand’s concentration inequalities (the sharp versions by Bousquet and Klein-Rio), transport-entropy inequalities and the recent progress in the theory of empirical processes and statistical learning. 
+
+AMS 2020 Subject classifications: Primary 60E15; Secondary 60F10; 68Q32. 
+
+Key words and Phrases: large deviations; transport-entropy inequalities; neural net-works; machine learning. 1. Introduction 
+
+1.1. Two error probabilities in Empirical Risk Principle (ERP) in statistical learning. Learning machines (such as (deep) neural networks) are furnished with a special class of functions 
+
+F = {f (z, θ ); θ ∈ Θ}
+
+where Θ ⊂ RN is a domain of RN , N being the number of training parameters which is often huge 1, and (a) in the regression problem where y = f (x)+ η where η is the centered noise, z = ( x, y )and f (z, θ ) = f (x, θ ) is designed to approximate the unknown function f (x); (b) in the maximum likelihood problem f (z, θ ) is designed to approximate the likelihood 
+
+g(z) or the log-likelihood log g(z) of the (unknown) distribution μ(dz ) = g(z)dz of the state variable (high dimensional vector) Z.
+
+Date : June 23, 2026. 
+
+> 1
+
+N ≍ 10 9 to 10 13  
+
+> 1
+> arXiv:2606.23295v1 [cs.LG] 22 Jun 2026 2LIMING WU AND SEN YANG
+
+To quantify what is meant by the “best way”, introduce a risk (or loss) function 
+
+Q(z, θ ) = 
+
+
+
+|y − f (x, θ )|2 or 
+
+|y − f (x, θ )| both in the regression problem 
+
+− log f (z, θ ) in the Maximum Likelihood problem or others The true (but unknown) risk for a given θ is 
+
+R(θ) = EQ(Z, θ ), (1.1) and its infimum R∗ := inf θ R(θ) characterizes the theoretical minimal risk of the learning machine. When Q(z, θ ) = |y − f (x, θ )|2 and Z = ( X, Y ) in the (nonlinear) regression, the theoretical risk for a given θ is 
+
+R(θ) = E|Y − f (X, θ )|2 = E|Y − f0(X)|2 + E|f0(X) − f (X, θ )|2
+
+where f0(x) = E(Y |X = x) is the conditional expectation, known as the non-linear regression function. Then the theoretical minimal risk of the learning machine is inf  
+
+> θ∈Θ
+
+R(θ) = E|Y − f0(X)|2 + inf  
+
+> θ∈Θ
+
+E|f0(X) − f (X, θ )|2. (1.2) The first term at the right hand side (r.h.s.) cannot be diminished by any learning machine (because of the ”random” dependence assumption of Y upon X), and the least-square error inf  
+
+> θ∈Θ
+
+E|f0(X) − f (X, θ )|2.
+
+quantifies the theoretical efficiency of the learning machine. It is known today that when 
+
+X is of uniform distribution on [0 , 1] d and f0 is smooth enough, if the neural network is sufficiently wide and/or deep, inf  
+
+> θ∈Θ
+
+E|f0(X) − f (X, θ )|2 can be made arbitrarily small (known as universal approximation theorem); see [16, 39] and the references therein. One main purpose of machine learning is to minimize the empirical risk function 
+
+RE,n (θ) = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+Q(Zk, θ ) (1.3) among all θ ∈ Θ, i.e. to find the minimizers of arg min  
+
+> θ∈Θ
+
+RE,n (θ) = {ˆθn ∈ Θ | RE,n (ˆθn) ⩽ RE,n (θ), ∀θ ∈ Θ}. (1.4) This is called ”training the parameters” in machine learning. Here RE,n is the empirical risk, whereas R is the unknown true risk. In the language of statistical learning theory, the basic problem is to quantify how close the minimal empirical risk inf θ RE,n (θ) is to the true minimal risk inf θ R(θ).
+
+By the law of large numbers, 
+
+RE,n (θ) → R(θ) := EQ(Z, θ )where the true risk R(θ) is usually unknown. NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 3
+
+Empirical Risk Principle (ERP in short), laid by Vapnik [46] as a basic first principle for statistical learning theory, means that 
+
+p+(n, ε ) := P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) > inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε
+
+
+
+p−(n, ε ) := P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) < inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε
+
+ (1.5) both tend to zero for any ε > 0. In the classical approach, this is deduced from (uniform) law of large numbers for empirical processes, namely from the control of sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)|.
+
+This is exactly the point of view of the Glivenko–Cantelli theory developed in the classic theory of empirical processes [46, 45] and it is a theoretical basis of statistical learning [29, 10, 48]. When |Q(z, θ )| ⩽ M is bounded, a necessary and sufficient condition for the Glivenko–Cantelli theorem in terms of the VC entropy number is known ([46, §2.3.4, Theorem 2.3]). The first error probability p+(n, ε ) gives an upper bound of the theoretical minimal risk: 
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩽ inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε
+
+
+
+= 1 − p+(n, ε )(1 − p+(n, ε ) is the so-called confidence level); whereas the second error probability 
+
+p−(n, ε ) gives a lower bound of the theoretical minimal risk: 
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε
+
+
+
+= 1 − p−(n, ε ).
+
+In other words, p+(n, ε ) quantifies the efficiency of a learning machine; p−(n, ε ) quanti-fies the non-efficiency or the deficiency of a learning machine, both based on the minimal empirical risk inf θ∈Θ RE,n (θ). Thus, the control of p+(n, ε ) and p−(n, ε ) may be viewed as a quantitative form of the generalization problem at the level of minimal risks. Es-timating the two error probabilities p+(n, ε ) and p−(n, ε ) is then a basic question in statistical learning. In modern learning problems, models often have very large parameter sets while the available dataset remains finite; this combination can lead to overfitting [39, p. 7]. Therefore quantitative non-asymptotic estimates become essential. However, the classical limit theorems such as Donsker’s invariance principle (i.e. uniform central limit theorem, see [30], [45]), the large and moderate deviation principles ([52], [51]), which are only asymptotic (when n → +∞), cannot be applied directly, because the available sample size n cannot be much greater than the number N of parameters in practice, and the dimension d of the input vector Z is often very high (for example, a photo with 256 × 256 pixels). For non-asymptotic estimates of the error probabilities, there has been substantial progress both in probability and in statistics in the last thirty years, largely initiated by Talagrand’s concentration inequalities [40, 41, 42]. 4 LIMING WU AND SEN YANG 
+
+1.2. Bousquet’s and Klein-Rio’s sharp versions of Talagrand’s concentration inequality. Talagrand ([40, 41, 42]) investigated in depth the concentration phenom-ena on product measure spaces and renewed the theory of empirical processes. Ledoux [31] (see also his lecture course [32] for a pedagogic and systematic study) gave a much simpler proof of Talagrand’s concentration inequality by means of the log-Sobolev in-equality, and the proof of Ledoux was refined considerably by Massart [36] for finding explicit constants in Talagrand’s concentration inequality. The following versions with sharp constants of Talagrand’s concentration inequality are due to Bousquet [11, The-orem 2.11] and Klein-Rio [26] (see also the books [29, 10]). 
+
+Theorem 1.1. (Bousquet’s inequality) Given (1) a sequence of i.i.d. r.v.’s (Zk)k⩾1 valued in some Polish space S equipped with the Borel σ-field, of common law μ;(2) an at most countable class H of upper bounded measurable functions h on S
+
+such that h − μ(h) ⩽ b (resp. |h − μ(h)| ⩽ b) for some positive constant b;let 
+
+Ln = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+δZk (1.6) 
+
+be the empirical distribution of the i.i.d. sample Zi, 1 ⩽ i ⩽ n (δz being the Dirac measure at point z), 
+
+U = sup 
+
+> h∈H
+
+1
+
+n
+
+> n
+
+X
+
+> k=1
+
+(h(Zk)−Eh(Z)) = sup 
+
+> h∈H
+
+(Ln(h)−μ(h)) (resp. U = sup 
+
+> h∈H
+
+1
+
+n
+
+> n
+
+X
+
+> k=1
+
+[h(Zk) − μ(h)] )
+
+and 
+
+σ2(H) = sup 
+
+> h∈H
+
+Var μ(h). (1.7) 
+
+Then for any n ⩾ 1, x > 0,
+
+P U > EU +
+
+r2 ( σ2(H) + 2 bEU ) xn + bx 
+
+3n
+
+!
+
+⩽ e−x. (1.8) 
+
+Theorem 1.2. (Klein-Rio’s inequality) In the framework of Theorem 1.1, assume that |h| ⩽ b, for the two types suprema U of empirical processes given in Theorem 1.1, 
+
+P U < EU −
+
+"r 2 ( σ2(H) + 2 bEU ) xn + bx n
+
+#! 
+
+⩽ e−x, ∀x > 0. (1.9) Applying it to H = {Q(z, θ ) − R(θ); θ ∈ Θ} and assuming that Q(z, θ ) − EQ(Z, θ )is bounded in absolute value by L, separable in θ (for circumventing the countable condition in the theorem above), we get (in a simple and rough way) max {p+(n, ε ), p −(n, ε )} ⩽ P
+
+
+
+| inf  
+
+> θ∈Θ
+
+RE,n (θ) − inf  
+
+> θ∈Θ
+
+R(θ)| > ε 
+
+
+
+⩽ P
+
+
+
+sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| > ε 
+
+
+
+⩽ e−x, x > 0NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 5
+
+where 
+
+ε = ε(n, x ) = EU +
+
+r2 ( σ2(H) + 2 LEU ) xn + Lx 
+
+3n (1.10) and U = sup θ∈Θ |RE,n (θ) − R(θ)|. Except the bias 
+
+E sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)|,
+
+the other terms controlling the random fluctuation of sup θ∈Θ |RE,n (θ) − R(θ)|, are in-dependent of d and N (depending only upon the maximal variance σ2(Θ)). For further generalizations of Talagrand’s inequality to the non-i.i.d. case, see Klein and Rio [26]; to the unbounded case, see Adamczak [1]. See the excellent book [10] by Boucheron, Lugosi and Massart for the developments and applications of Talagrand’s concentration inequalities in many areas. 1.3. Estimate of the bias in terms of the VC dimension. Let vc( H) be the VC (Vapnik-Chervonenkis) dimension m = vc( H) of H = {Q(z, θ ); θ ∈ Θ} (see [45, 46, 47, 48]). The following concentration inequality in Vapnik [46, §3.1, Theorem 3.1] is well known to specialists: 
+
+E sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| ⩽ C
+
+rm(log nm + 1) 
+
+n
+
+for some explicit absolute constant C, when |Q(z, θ )| ⩽ 1. This is considerably improved in 
+
+Theorem 1.3 ([10, Theorem 13.7], [47, Theorem 8.3.23]) . Assume that a ⩽ h ⩽ b for all h ∈ H and the VC dimension vc( H) of H is finite (the so-called VC class). Then 
+
+E sup 
+
+> h∈H
+
+|Ln(h) − μ(h)| ⩽ K
+
+rvc( H)
+
+n (b − a). (1.11) 
+
+where K > 0 is an absolute constant (see [10, Theorem 13.7] for explicit constants version). 
+
+It implies, together with Bousquet’s concentration inequality, that when |Q(Z, θ )|, θ ∈
+
+Θ are bounded by some constant, if the sample size 
+
+n ⪰ 1
+
+ε2 vc( H), (1.12) the minimal empirical risk inf θ RE,n (θ) will approach the theoretical minimal risk inf θ R(θ)within precision ε with quantitative high probability. In other words, this bias estimate transforms the dependence on N, d into the depen-dence upon the VC dimension of the risk functions H = {Q(z, θ ); θ ∈ Θ}.For the neural networks, tight estimates of the maximal VC dimension of {f (z, θ ); θ ∈
+
+Θ} in neural networks were obtained recently by Bartlett et al. in [6] after a series of efforts (see [6] for related references): the VC dimension is Θ( N U ), where U is the number of nonlinear units, and is between Ω( N L log( N/L )) and O(N L log N ), where 
+
+L is the number of layers. Although VC-dimension bounds are classical, they are not 6 LIMING WU AND SEN YANG 
+
+necessarily informative in the deep-learning setting, and closing the gap between theory and empirical evidence remains an active area of research [39, p. 390]. 1.4. Some recent progress. Recent developments in statistical learning theory in-dicate that a central issue is to obtain quantitative non-asymptotic bounds and to understand the localized phenomena associated with empirical minimization. Besides the classical VC dimension, an important development in modern statisti-cal learning theory is to complement distribution-free complexity measures by data-dependent quantities. Bartlett and Mendelson [7] gave a systematic treatment of Rademacher and Gaussian complexities as data-dependent measures of function-class complexity, establishing risk bounds and structural results for model classes, while Bartlett, Bousquet and Mendelson [5] showed that local Rademacher complexities, based on a subset of functions with small empirical error, may yield much sharper bounds. Those results explain why, for ERP, one should not only study the whole class H = {Q(z, θ ); θ ∈ Θ} globally, but also the localized part selected by empirical minimization. Another line of work is devoted to a direct study of the empirical risk minimiza-tion (ERM) algorithm. Bartlett and Mendelson [8] showed that a direct analysis of the ERM algorithm yields significantly better bounds than those obtained from global com-parisons, and that these bounds are essentially sharp, while Mendelson [37] established lower bounds showing that, without further assumptions, the uniform error rate of ERM cannot in general be faster than 1 /√n, where n is the sample size. Bousquet–Elisseeff [12] developed the stability approach to obtaining generalization bounds. Recently, Feldman and Vondrak [20, 21], Bousquet et al. [13] obtained sharp bounds of uni-formly stable algorithms, improved later by Klochkov and Zhivotovskiy [27] when the theoretical risk R is strictly convex in θ. Escande [17] studied concentration inequali-ties for the distance between the set of empirical minimizers and the set of theoretical minimizers, rather than only the excess risk. Related localization and oracle-inequality phenomena for empirical risk minimization were studied by Koltchinskii [28], who de-rived excess-risk bounds in terms of localized empirical and Rademacher complexities. These works confirm that, beyond asymptotic limit theorems, one needs quantitative non-asymptotic estimates for the deviations of the minimal empirical risk, and, if pos-sible, for the minimizers themselves. For a systematic and pedagogic account of oracle inequalities and excess-risk bounds in empirical risk minimization, we refer to the lecture notes of Koltchinskii [29] at the 
+
+Ecole d’Et´ e de Probabilit´ es de St Flour .Recent developments in high-dimensional probability show that the error probabilities depend often on the dimension d and the number N of parameters. For example if one uses the L1-Wasserstein distance W1, Fournier and Guillin [22] (2015) showed that if the sample Zk is valued in Rd,
+
+W1(Ln, μ ) ≍ 1
+
+n1/d , if d ⩾ 3 (1.13) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 7
+
+with high probability under fairly general conditions, where 
+
+Ln = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+δZk (δ· being the Dirac point measure at point ·)is the empirical distribution of the sample. Their result generalizes a discovery of M. Ajtai, J. Koml´ os, G. Tusn´ ady [3] for the uniform distribution μ on [0 , 1] d. This result has recently attracted much attention, especially in the critical case d = 2. See Ambrosio et al. [2], Talagrand [44] in the i.i.d. case, Wang [49] in the diffusion case and the references therein. See the book [47] (2018) by Vershynin on high-dimensional probability for a state-of-the-art account and references therein. For the theory and applications of statistical learning to deep learning and neural networks, the reader is referred to the books [48] (2019) by Wainwright, [4] (2024) by Bach, [39] (2025) by Spiliopoulos, Sowers and Sirignano and references therein. 1.5. Purposes of this work. The lower-bound problem p−(n, ε ) and the upper-bound problem p+(n, ε ) are of different natures. While the former can often be reduced to a concentration estimate for a single (suitably chosen) observable, the latter requires a more delicate localized control of the empirical-risk fluctuations along suitable risk layers. The purpose of this paper is threefold: (1) to establish a dimension-free sharp Bernstein’s concentration inequality for p−(n, ε ); and as an application we show that we can verify the non-efficiency of a learning machine with a sample size n that is independent of N and d and need not be very large (to the best of our knowledge, this is not discussed in the current literature); (2) to remove the boundedness assumption, which is indispensable, for instance, when the noise is Gaussian; (3) to present some estimates of p+(n, ε ) ensuring the efficiency of a learning ma-chine, in particular by replacing the VC dimension vc( H) by a distribution-dependent metric entropy, and the associated box-dimension, generalizing slightly the known results presented in [29, 10, 48] to the unbounded case. Here we use the Bernstein concentration inequalities as in [10], instead of the symmetrization technique and the classical results on Rademacher sequences in the theory of empirical processes ([45]) or in statistical learning theory [7, 5, 29, 10, 48]. The proof of the upper bound is based on a risk-level localization (peeling argument) of the empirical process. 1.6. Organization. The paper is organized as follows. In Section 2, we develop non-asymptotic dimension-free estimates for p−(n, ε ), which yield lower bounds for the the-oretical minimal risk via Bernstein concentration inequalities for the empirical risk: the main new contribution here is a Bernstein’s concentration inequality with sharp con-stant without boundedness. Section 3 is devoted to upper bounds in terms of the dψ1 -metric entropy and risk-level localization, yielding non-asymptotic estimates of p+(n, ε )under suitable entropy assumptions. In Sections 4 and 5, we present the proofs of several main theorems. Several technical lemmas are collected in the Appendix. 8 LIMING WU AND SEN YANG 
+
+Notations. 
+
+• For x, y ∈ Rd, |x| is the Euclidean norm, x · y = ⟨x, y ⟩ is the Euclidean inner product. 
+
+• Id is the identity matrix of size d × d.
+
+• μ(f ) = R f dμ for a function f and a measure μ on the same measurable space. 
+
+• for two sequences of positive numbers an, b n,(1) an ⪰ bn or bn ⪯ an means that an ⩾ Cb n for some big constant C for all 
+
+n ⩾ n0;(2) an ≳ bn or bn ≲ an means that an ⩾ Cb n for some constant C for all n;(3) an ≍ bn means that C−1bn ⩽ an ⩽ Cb n for some constant C.
+
+• the constant C may change from one line to another, only used in Corollaries or Remarks for explaining the main results. 2. Bernstein-type concentration inequalities and lower bounds of the risk 
+
+2.1. Framework. We will work in the mathematical framework of the theory of em-pirical processes, but motivated by the problems of statistical learning. The following assumption will be imposed throughout the paper. 
+
+(H1) 
+
+(a) (Z1, · · · , Z n) is a sample of i.i.d. random variables valued in some Polish space 
+
+S equipped with the Borel σ-field B, of distribution μ of some S-valued ran-dom variable Z, defined on some complete probability space (Ω , F, P); and the empirical distribution of the sample is 
+
+Ln = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+δZk ;
+
+(Ln is a random element of the space M1(S) of probability measures on (S, B).) (b) a non-empty subset Θ ⊂ RN ;(c) a family of measurable functions H = {Qθ : S → R : Qθ(z) = Q(z, θ ), θ ∈ Θ}
+
+(interpreted as risk functions), contained in L2(S, B, μ ) =: L2(μ), such that 
+
+(Qθ := Q(z, θ )) θ∈Θ, regarded as stochastic process indexed by θ ∈ Θ defined on the probability space (S, B, μ ), is separable in the sense of Doob (see [45] for definition). 
+
+Here we remove the boundedness assumption on the risk functions Qθ. In reality when learning the log-likelihood function log g(z), the risk functions are usually unbounded, as well as in the linear or non-linear regression problems when X, Y are unbounded. Under the separability assumption in (H1) , the empirical risk function 
+
+RE,n (θ) = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+Q(Zk, θ ), θ ∈ Θregarded as stochastic process indexed by θ ∈ Θ, is again separable. NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 9
+
+We denote by 
+
+σ2(Θ) = sup 
+
+> θ∈Θ
+
+σ2(θ), σ2(θ) := Var μ(Q(·, θ )) = 
+
+Z
+
+> S
+
+Q(z, θ )2μ(dz ) − R(θ)2, (2.1) the maximal variance of H, where R(θ) = EQ(Z, θ ) = R 
+
+> S
+
+Q(z, θ )μ(dz ) is the theoretical risk for the given parameter θ.2.2. Some known results about Bernstein’s concentration inequality. We be-gin with the well-known Bernstein inequalities. Let 
+
+H(ν|μ) = 
+
+( R  
+
+> S
+
+h log hdμ ; if ν = hμ 
+
++∞, otherwise (2.2) be the relative entropy of ν ∈ M1(S) w.r.t. μ.We begin with a particular case of a general result of Gozlan and L´ eonard [24] (see also their survey [25]), relating the concentration inequalities with the transport-entropy inequality. 
+
+Theorem 2.1. (Gozlan-L´ eonard [24] ) Given the constants cB > 0, M ⩾ 0 and a μ
+
+exponentially integrable function f on S, i.e. 
+
+∃δ > 0 : 
+
+Z
+
+> S
+
+eδ|f |dμ < +∞, (2.3) 
+
+the following properties are equivalent: (1) The log-Laplace transform of f (X) satisfies 
+
+Λ( λ) := log Eeλ[f (X)−μ(f )] ⩽ cB λ2
+
+2(1 − λM ), λ ∈ (0 , 1/M ); (2.4) 
+
+(2) for any r > 0 and n ⩾ 1,
+
+P (Ln(f ) − μ(f ) > r ) ⩽ exp 
+
+−n 2r2
+
+cB
+
+q 
+
+1 + 2M r cB + 1 
+
+2
+
+ , r > 0; (2.5) 
+
+(3) for any x > 0 and n ⩾ 1,
+
+P Ln(f ) − μ(f ) >
+
+r2cB xn + M xn
+
+!
+
+⩽ e−x; (2.6) 
+
+(4) the following transport-entropy inequality holds: 
+
+ν(f ) − μ(f ) ⩽ p2cB H(ν|μ) + M H (ν|μ), (2.7) 
+
+for all ν ∈ M1(S) such that ν ≪ μ and ν(|f |) < +∞.In particular, when (2.4) holds, then the normalized sum 
+
+Wn(f ) = 1
+
+√n
+
+> n
+
+X
+
+> k=1
+
+(f (Zk) − μ(f )) 10 LIMING WU AND SEN YANG 
+
+satisfies 
+
+log EeλW n(f ) ⩽ cB λ2
+
+2(1 − λM/ √n), λ ∈ (0 , √n/M ), (2.8) 
+
+and the following Bernstein’s concentration inequality holds: 
+
+P (Wn(f ) > r ) ⩽ exp 
+
+
+
+− r2
+
+2( cB + ( M/ √n)r)
+
+
+
+, r > 0. (2.9) The usual version of Bernstein’s inequality is (2.9), the refined versions (2.5), (2.6) are more commonly encountered in research papers. By the second order limit expansion of Taylor-Young at λ = 0+ in (2.4), we see that the Bernstein concentration constant cB satisfies 
+
+cB ⩾ Var μ(f ) = μ(f 2) − (μ(f )) 2. (2.10) If we don’t care about the estimates of involved constants cB , M (just for their exis-tence), it is well known ([47]) that each of the inequalities above in Theorem 2.1 for both f and −f (i.e. two sided Bernstein’s inequality) is equivalent to the exponential integrability condition (2.3) of f .Notice also that when M = 0, the Bernstein concentration inequality becomes Ho-effding’s Gaussian concentration inequality for which the existence of cB for both ±f
+
+is equivalent to the Gaussian integrability of f (X) ([15]). A first problem addressed in this work is to determine the constants cB , M in (2.4), so that cB is close to the optimal one: Var μ(f ). When cB is arbitrarily close to Var μ(f ), the Bernstein concentration inequality becomes sharp in moderate deviations ([14], [38]): lim 
+
+> n→+∞
+
+1
+
+a(n)2 log P
+
+ √na(n) (Ln(f ) − μ(f )) > r 
+
+
+
+= − r2
+
+2Var μ(f ), r > 0 (2.11) for any given sequence of positive numbers ( a(n)) n∈N such that 1 ≪ a(n) ≪ √n.Such a sharp Bernstein’s inequality is well known if f is bounded or just upper bounded ([14], [38], [47]): 
+
+Theorem 2.2. If f ⩽ b is upper bounded and μ-square integrable where b > 0, (2.4) 
+
+holds with 
+
+cB = μ(f 2), M = b
+
+3. (2.12) It becomes sharp when μ(f ) = 0 because cB = μ(f 2) = Var μ(f ). Usually one proves the Bernstein concentration inequality via the control of Laplace transform as in the above argument. Completely different from this classic method of Laplace transform, Bolley-Villani [9], generalizing Djellout et al. [15], proved the corre-sponding transport-entropy inequality (weighted CKP inequality), and their constants are improved by Gozlan-L´ eonard [24]. For stating their result, recall at first the Orlicz norm of a measurable function f on S, associated with the convex function 
+
+ψp(x) = e|x|p
+
+− 1 (2.13) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 11 
+
+where p ⩾ 1. The Orlicz norm of f in ψp is defined by 
+
+∥f ∥ψp := inf {C > 0; 
+
+Z
+
+> S
+
+ψp
+
+|f |
+
+C
+
+
+
+⩽ 1}. (2.14) The following Bernstein’s inequality due to Bolley-Villani and Gozlan-L´ eonard will be one of our main tools. 
+
+Theorem 2.3. ( Bolley-Villani [9, Theorem 1(i)] , Gozlan-L´ eonard [24, Corollary 3] ) If f is μ-exponentially integrable, i.e. ∥f ∥ψ1 < +∞, then the transport-entropy inequality (2.7) holds with 
+
+cB = 2 ∥f ∥2 
+
+> ψ1
+
+, M = ∥f ∥ψ1 . (2.15) Let us recall some references and works on the transport-entropy inequalities and Bernstein’s inequalities. 
+
+Remark 2.4. The transport-entropy inequalities were introduced by Marton [34, 35] and Talagrand [43], and turn out to be a powerful tool for quantitative study of measure concentration even in the dependent case, as well illustrated by Ledoux [32, 33]. The reader is also referred to [15] and the survey [25] for history and references. 
+
+Remark 2.5. For the sharp Bernstein concentration inequalities for continuous time symmetric Markov processes, see Gao et al. [23]; for the (not-sharp) Bernstein con-centration inequalities for discrete time Markov chains, see Wang and the first named author [50]. For sharp Bennett or Hoeffding’s concentration inequalities for martingales, see de la Pena et al. [14], Rio [38] and the references therein. 
+
+Remark 2.6. Bernstein’s inequality does not give an estimate of good order for large deviations. For finer large deviation estimates the reader is referred to Fan-Grama-Liu [19] and the references therein. Now we are ready to present the main results of this paper on p−(n, ε ). 2.3. Bernstein’s concentration inequality under Gaussian or exponential in-tegrability. Our first result refines the estimate of Bernstein’s constant cB in Theorem 2.3. 
+
+Theorem 2.7. (1) If f is Gaussian integrable: 
+
+∃δ > 0 : Eeδf (Z)2
+
+=
+
+Z
+
+> S
+
+eδf 2(z)μ(dz ) < +∞
+
+then for any ε ∈ (0 , δ ), (2.6) holds with 
+
+cB = Var μ(f ) + 13L(ε), M =
+
+r 23ε, (2.16) 
+
+where 
+
+L(ε) = 1
+
+ε log 
+
+Z
+
+> S
+
+eε( ˜f 2−μ( ˜f 2)) dμ, ˜f := f − μ(f ) (2.17) 12 LIMING WU AND SEN YANG 
+
+satisfies for all 0 < ε < 1   
+
+> ∥˜f2−μ( ˜f2)∥ψ1
+
+,
+
+L(ε) ⩽ ε∥ ˜f 2 − μ( ˜f 2)∥2
+
+> ψ1
+
+1 − ε · ∥ ˜f 2 − μ( ˜f 2)∥ψ1
+
+. (2.18) 
+
+Moreover for all n ⩾ 1, x > 0 such that 0 < x ⩽ n 
+
+> 2
+
+, we have 
+
+P
+
+Ln(f ) − μ(f ) >
+
+r
+
+2Var μ(f ) xn + 2 
+
+s√2∥ ˜f 2 − μ( ˜f 2)∥ψ1
+
+3
+
+ xn
+
+3/4
+
+ ≤ e−x. (2.19) 
+
+(2) If f ∈ L2(S, μ ) and the positive part f +(x) = max {f (x), 0} is (only) exponen-tially integrable, i.e. 
+
+∃δ > 0 : Eeδf +(Z) =
+
+Z
+
+> S
+
+eδf +(z)μ(dz ) < +∞,
+
+then for any L > 0, setting ε(L) := ∥f − f ∧ L∥ψ1 , the Bernstein’s concentration inequality (2.6) holds with 
+
+
+
+cB = Var μ(f ) + 2 ε(L)p2Var μ(f ) + 2 ε(L)2
+
+⩽ (1 + ε(L))Var μ(f ) + 2( ε(L) + ε2(L)) 
+
+M = L 
+
+> 3
+
++ ε(L).
+
+(2.20) Its proof is postponed in Section 4. 
+
+Remark 2.8. (1) Under the Gaussian integrability condition, the constants cB , M 
+
+in (2.16) and (2.19) are quite explicit, especially cB is sharp. Moreover (2.19) gives a deviation inequality with variance Var μ(f ) as the exact constant, which is sharp in moderate deviations. (2) Notice that ε(L) = ∥f −f ∧L∥ψ1 → 0 as L → +∞, the concentration constant cB
+
+given by (2.20) becomes sharp in moderate deviations, too. A point in Theorem 2.7(2) worth mentioning is that we do not require the exponential integrability of f for the one-sided Bernstein’s concentration inequality, which is quite natural as seen from Theorem 2.2. (3) Our approach for this theorem will be based on large deviations and on weighted Csisz´ ar-Kullback-Pinsker’s (CKP in short) transport-entropy inequality, devel-oped in [9, 15, 24]. (4) For comparison with the previously known Bernstein type inequality of Adam-czak [1] in the unbounded case, see Remark 3.11. 2.4. Dimension-free lower bound of the minimal risk: sharp Bernstein’s inequalities. We now apply the previous Bernstein’s concentration inequalities to dimension-free estimates of p−(n, ε ), i.e. an estimate for the lower bound of the theo-retical minimal risk inf θ∈Θ R(θ). We begin with the upper boundedness or the uniform Gaussian integrability case. 
+
+Theorem 2.9. Assume (H1) and 
+
+M := argmin θ∈Θ R(θ)̸ = ∅ (2.21) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 13 
+
+i.e. the optimal parameters exist. (1) (Under the local upper-boundedness) If there is some constant b > 0 such that for all θ0 ∈ M,
+
+Q(z, θ 0) ⩽ b, μ − a.s. 
+
+then for any x > 0, n ⩾ 1,
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε(n, x )
+
+
+
+⩾ 1 − e−x (2.22) 
+
+or equivalently, 
+
+p−(n, ε (n, x )) = P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) < inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε(n, x )
+
+
+
+⩽ e−x, (2.23) 
+
+where 
+
+ε(n, x ) := inf  
+
+> θ0∈M
+
+∥Qθ0 ∥L2(μ)
+
+r2xn + b
+
+3 · xn. (2.24) 
+
+(2) (Under the local Gaussian integrability) If {Qθ0 ; θ0 ∈ M} is of uniform Gaussian integrability: 
+
+∃λ0 > 0 : sup 
+
+> θ0∈M
+
+Eeλ0Q(Z,θ 0)2
+
+= sup 
+
+> θ0∈M
+
+Z
+
+> S
+
+eλ0Q(z,θ 0)2
+
+μ(dz ) < +∞ (2.25) 
+
+then for any x > 0, n ⩾ 1, and 
+
+0 < δ < min 
+
+(
+
+λ0, 12 sup θ0∈M ∥ eQ2 
+
+> θ0
+
+− μ( eQ2 
+
+> θ0
+
+)∥ψ1
+
+)
+
+,
+
+we have 
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε(n, x )
+
+
+
+⩾ 1 − e−x (2.26) 
+
+where σ2(θ0) = Var( Qθ0 ) and 
+
+ε(n, x ) := 
+
+2
+
+
+
+inf θ0∈M σ2(θ0) + 2δ 
+
+> 3
+
+sup θ0∈M ∥ ˜Q2 
+
+> θ0
+
+− μ( ˜Q2 
+
+> θ0
+
+)∥2
+
+> ψ1
+
+
+
+xn
+
+
+
+> 1/2
+
++
+
+r 23δxn.
+
+(2.27) 
+
+Moreover for all n ⩾ 1, x > 0 such that 0 < x ⩽ n 
+
+> 2
+
+, we have 
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε(n, x )
+
+
+
+⩾ 1 − e−x, (2.28) 
+
+where 
+
+ε(n, x ) := inf 
+
+> θ0∈M
+
+σ(θ0)
+
+r2xn + 2 
+
+s√2∥ ˜Q2 
+
+> θ0
+
+− μ( ˜Q2 
+
+> θ0
+
+)∥ψ1
+
+3
+
+ xn
+
+3/4
+
+ . (2.29) 14 LIMING WU AND SEN YANG 
+
+Remark 2.10. (1) Part (1) above is an easy consequence of the classical result: Theorem 2.2. In fact let θ0 ∈ M be an arbitrary minimizer of R(θ), i.e., R(θ0) ⩽
+
+R(θ), ∀θ ∈ Θ. In that case 
+
+p−(n, ε ) = P
+
+
+
+inf  
+
+> θ∈Θ
+
+RE,n (θ) > inf  
+
+> θ∈Θ
+
+R(θ) + ε
+
+
+
+⩽ P (RE,n (θ0) > R (θ0) + ε)which reduces to the estimate of a single observable Q(z, θ 0) for which Theorem 2.2 is applicable and gives us part (1). (2) Part (2) with a singleton Θ generalizes Theorem 2.2. It gives a sharp Bernstein concentration inequality without the (upper) boundedness assumption of Q,which is new to the best of our knowledge. (3) Under the Gaussian integrability, using the transport-entropy inequality ap-proach (as in [9], [15], [24]), we can derive a Hoeffding’s concentration inequal-ity. But unfortunately the constant cB (with M = 0) does not involve σ2(θ0), which is weaker (for small x) than the results in Theorem 2.9 in the minimal risk problem. 
+
+Proof of Theorem 2.9. Part (1) has been established in Remark 2.10. For Part (2), by (H1) , inf θ∈Θ RE,n (θ), n ⩾ 1 are random variables. Let θ0 ∈ M be an arbitrary minimizer of R(θ) over Θ. We have 
+
+p−(n, ε ) := P
+
+
+
+inf  
+
+> θ∈Θ
+
+RE,n (θ) > inf  
+
+> θ∈Θ
+
+R(θ) + ε
+
+
+
+⩽ P (RE,n (θ0) > R (θ0) + ε) .
+
+For this fixed θ0 ∈ M, for δ ∈ (0 , λ 0) let 
+
+L(θ0, δ ) := 1
+
+δ log 
+
+Z
+
+eδ( ˜Q 2    
+
+> θ0−μ( ˜Q2
+> θ0))
+
+dμ, ˜Qθ0 := Q(z, θ 0) − R(θ0). (2.30) Then for all 0 < δ < 12 sup θ0∈M ∥ ˜Q 2 
+
+> θ0
+
+− μ( ˜Q 2 
+
+> θ0
+
+)∥ψ1
+
+,
+
+by (2.18) we have 
+
+L(θ0, δ ) ⩽ δ∥ ˜Q 2 
+
+> θ0
+
+− μ( ˜Q 2 
+
+> θ0
+
+)∥ 2
+
+> ψ1
+
+1 − δ∥ ˜Q 2 
+
+> θ0
+
+− μ( ˜Q 2 
+
+> θ0
+
+)∥ψ1
+
+⩽ 2δ∥ ˜Q 2 
+
+> θ0
+
+− μ( ˜Q 2 
+
+> θ0
+
+)∥ 2 
+
+> ψ1
+
+. (2.31) Applying Theorem 2.7 to the r.h.s., we get the two concentration inequalities (2.26) and (2.28). □
+
+Since the Bernstein’s inequality is equivalent to the exponential integrability, we now generalize Theorem 2.9 to the exponential integrability case. 
+
+Theorem 2.11. Assume (H1) and M̸ = ∅. If the positive parts 
+
+Q+(z, θ 0) = max {Q(z, θ 0), 0}, θ0 ∈ MNON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 15 
+
+are uniformly exponentially integrable, i.e. 
+
+∃λ0 > 0 : sup 
+
+> θ0∈M
+
+Eeλ0Q+(Z,θ 0) = sup 
+
+> θ0∈M
+
+Z
+
+> S
+
+eλ0Q+(z,θ 0)μ(dz ) < +∞, (2.32) 
+
+then for any L > 0, x > 0 and n ⩾ 1, setting 
+
+ε(θ, L ) := ∥Qθ − Qθ ∧ L∥ψ1 , ε(L) := sup 
+
+> θ0∈M
+
+ε(θ0, L )
+
+the following Bernstein’s concentration inequality holds 
+
+P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε(n, x )
+
+
+
+⩾ 1 − e−x (2.33) 
+
+where 
+
+ε(n, x ) := 
+
+q2 inf θ0∈M cB (θ0)xn + M xn
+
+cB (θ0) = (1 + ε(L))Var μ(Q2 
+
+> θ0
+
+) + 2( ε(L) + ε(L)2)
+
+M = L 
+
+> 3
+
++ ε(L).
+
+(2.34) 
+
+Proof of Theorem 2.11. As in the proof of Theorem 2.9, we have for any θ0 ∈ M,
+
+p−(n, ε ) := P
+
+
+
+inf  
+
+> θ∈Θ
+
+RE,n (θ) > inf  
+
+> θ∈Θ
+
+R(θ) + ε
+
+
+
+⩽ P (RE,n (θ0) > R (θ0) + ε) .
+
+By Theorem 2.7 (2), we can obtain the desired Bernstein’s concentration inequality (2.34) by optimizing over θ0 ∈ M.
+
+□
+
+Remark 2.12. The main difference from Bousquet’s inequality and Klein-Rio’s in-equality (usually essential for sharp estimates of p+(n, ε )) is that only the minimal variance inf θ0∈M Var μ(Qθ0 ) in the localized minimizer set M is used here, instead of the maximal variance σ2(Θ) over Θ, in the leading term of ε(n, x ). 2.5. We can quickly verify the non-efficiency of a learning machine. To verify if a learning machine does not work efficiently for approximating a given function y =
+
+f (x), fix the risk function Q(z, θ ) = |y − f (x, θ )|2 or Q(z, θ ) = |y − f (x, θ )|. Usually 
+
+Q(z, θ ) = |y − f (x, θ )| satisfies the Gaussian integrability condition, Q(z, θ ) = |y −
+
+f (x, θ )|2 satisfies the exponential integrability condition. Assume one of them. Given a small error probability level α ∈ (0 , 0.5) and a tolerance error ε0 > 0, we take a sample of 
+
+Yi = f (Xi), 1 ⩽ i ⩽ n
+
+where the sample size n satisfies 
+
+ε
+
+
+
+n, log 1
+
+α
+
+
+
+⩽ ε0.
+
+Here ε(n, x ) are given in Theorem 2.9 or 2.11. Roughly 
+
+n ≳ inf θ0∈M σ2(θ0)
+
+ε20
+
+log 1
+
+α ,16 LIMING WU AND SEN YANG 
+
+which is dimension-free and slightly greater than the famous asymptotic ”three-sigma” rule n ⩾ 9σ2/ε 20, corresponding approximately to a 99 .7% confidence level under the central limit theorem. Then by Theorem 2.9 or 2.11, the minimal risk inf θ∈Θ R(θ) of the learning machine satisfies inf  
+
+> θ∈Θ
+
+R(θ) ⩾ inf  
+
+> θ∈Θ
+
+RE,n (θ) − ε0
+
+with confidence level ⩾ 1 − α.
+
+Conclusion: if inf θ∈Θ RE,n (θ) is not small with a sample size n ≳ inf θ0∈M σ2(θ0)
+
+> ε20
+
+log 1
+
+> α
+
+(dimension-free), then the learning machine is most probably not efficient for the ap-proximation of a deterministic function y = f (x).
+
+3. Upper bound of the minimal risk in terms of dψ1 -metric entropies 
+
+As recalled in the Introduction, if H = {Q(z, θ ); θ ∈ Θ} is bounded in L∞(μ), one should work with a sample size 
+
+n ⪰ 1
+
+ε20
+
+vc( H)(i.e. much greater than 1
+
+> ε20
+
+vc( H)), for verifying the efficiency of a learning machine (within precision ε0), if we use the VC dimension. Recent progress consists in replacing vc( H) by distribution dependent or even data-driven metric entropy, see [29, 10, 48] and the references therein. 3.1. Packing number and metric entropy. For the reader’s convenience (also for stating our results), we recall the following notions. 
+
+Definition 3.1. (covering number, packing number and metric entropy) Fix a semi-metric d on Θ (i.e. ”semi” means that d(θ1, θ 2) = 0 may hold for two different points of Θ), ε > 0.(1) An ε-net of Θ is a subset N of Θ such that 
+
+∀θ ∈ Θ, ∃θk ∈ N such that d(θ, θ k) ⩽ ε. 
+
+The smallest possible cardinality N (Θ , d, ε ) of ε-nets of Θ is also the smallest number of closed balls of d-radius ε, whose union covers Θ. N (Θ , d, ε ) is called the covering number of Θ.(2) A subset D of Θ is called ” ε-separated”, if the distance between each pair of points in D is strictly larger than ε. The maximal possible cardinality of ε-separated subsets of Θ is called the packing number of Θ, denoted by P(Θ , d, ε ).(3) Their logarithms 
+
+log N (Θ , d, ε ), log P(Θ , d, ε )
+
+are called metric entropies .NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 17 
+
+It is well known that (see e.g. [45, p. 98] or [47, Lemma 4.2.8]) 
+
+N (Θ , d, ε ) ⩽ P(Θ , d, ε ) ⩽ N (Θ , d, ε/ 2) . (3.1) And (Θ , d ) is totally bounded if and only if for any ε > 0, both the covering number 
+
+N (Θ , d, ε ) and the packing number P(Θ , d, ε ) are finite. On Θ we consider the following two semi-metrics 
+
+d2(θ1, θ 2) = ∥Q(·, θ 1) − Q(·, θ 2)∥2
+
+dψ1 (θ1, θ 2) = ∥Q(·, θ 1) − Q(·, θ 2)∥ψ1
+
+(3.2) By Taylor’s expansion of ex − 1 at x = 0, we have immediately 
+
+d2(θ1, θ 2) ⩽ √2dψ1 (θ1, θ 2), ∀θ1, θ 2 ∈ Θ. (3.3) 3.2. Lψ1 -estimates of empirical risk in terms of metric entropy. We will directly study the concentration of the normalized empirical process 
+
+Wn(θ) = 1
+
+√n
+
+> n
+
+X
+
+> k=1
+
+(Q(Zk, θ ) − R(θ)) = √n(RE,n (θ) − R(θ)) (3.4) as in the studies on the central limit theorem of empirical processes. We introduce 
+
+(H2) H = {Qθ = Q(·, θ ); θ ∈ Θ} is bounded in Lψ1 (μ), i.e. 
+
+sup 
+
+> θ∈Θ
+
+∥Qθ∥ψ1 < +∞. (3.5) Let Diam(Θ , d ) = D(Θ , d ) := sup {d(θ1, θ 2); θ1, θ 2 ∈ Θ}
+
+be the diameter of Θ in the pseudo metric d. It is necessarily finite under (3.5) for d
+
+being one of two metrics given in (3.2). We begin with 
+
+Lemma 3.2. (essentially contained in [10, Lemma 13.1] ) Assume (H1) and (H2) .Then the following estimate holds. For any n ⩾ 1,
+
+E sup 
+
+> θ∈Θ
+
+Wn(θ) ⩽ 12 √2
+
+Z D(Θ ,d ψ1 )/20
+
+q
+
+log P(Θ , d ψ1 , ε ) dε + 12 
+
+√n
+
+Z D(Θ ,d ψ1 )/20
+
+log P(Θ , d ψ1 , ε ) dε. 
+
+(3.6) 
+
+Proof of Lemma 3.2. Below we verify the condition in [10, Lemma 13.1]. By Theorem 2.3 applied to Qθ1 − Qθ2 , we have log Eeλ( eQθ1 − eQθ2 ) ⩽ 2dψ1 (θ1, θ 2)2λ2
+
+2 (1 − λd ψ1 (θ1, θ 2)) , λ ∈ (0 , 1/d ψ1 (θ1, θ 2)) .
+
+This implies, by (2.8) in Theorem 2.1, that log Eeλ(Wn(θ1)−Wn(θ2)) ⩽ 2dψ1 (θ1, θ 2)2λ2
+
+2 (1 − λd ψ1 (θ1, θ 2)/√n), λ ∈  0, √n/d ψ1 (θ1, θ 2) .
+
+The condition in [10, Lemma 13.1] is verified, and (3.6) follows. 18 LIMING WU AND SEN YANG 
+
+□
+
+The following result may be interesting in the theory of empirical processes. 
+
+Theorem 3.3. Assume (H1) and (H2) (i.e. H is bounded in Lψ1 (μ)). Then, for the normalized empirical process (Wn(θ), θ ∈ Θ) given in (3.4) , the follow-ing estimates hold for any sample size n ⩾ 2.(1) For any θ0 ∈ Θ, if ± ˜Qθ0 satisfy the Bernstein inequality (2.4) with constants 
+
+(cB (θ0), M (θ0)) , then 
+
+∥Wn(θ0)∥ψ1 ⩽ max 
+
+(
+
+2
+
+s
+
+cB (θ0)log 2 , 4M (θ0)
+
+√n
+
+)
+
+. (3.7) 
+
+In particular, for cB (θ0) = 2 ∥Qθ0 ∥2 
+
+> ψ1
+
+, M (θ0) = ∥Qθ0 ∥ψ1 (by Theorem 2.3), 
+
+∥Wn(θ0)∥ψ1 ⩽ 2
+
+r 2log 2 · ∥ Qθ0 ∥ψ1 . (3.8) 
+
+(2) 
+
+∥ sup 
+
+> θ∈Θ
+
+|Wn(θ)|∥ ψ1 ⩽ 2
+
+r 2log 2 · inf  
+
+> θ0∈Θ
+
+∥Qθ0 ∥ψ1 + 8√6log 2 
+
+Z D(Θ ,d ψ1 )0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε 
+
++ 48 (log 2) √n
+
+Z D(Θ ,d ψ1 )0
+
+log(1 + P(Θ , d ψ1 , ε )) dε. 
+
+(3.9) 
+
+(3) 
+
+E sup 
+
+> θ∈Θ
+
+|Wn(θ)| ⩽ inf  
+
+> θ0∈Θ
+
+σ(θ0) + 8√6log 2 
+
+Z D(Θ ,d ψ1 )0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε 
+
++ 48 (log 2) √n
+
+Z D(Θ ,d ψ1 )0
+
+log(1 + P(Θ , d ψ1 , ε )) dε. 
+
+(3.10) 
+
+(4) For any δ, η > 0,
+
+∥ sup  
+
+> θ,θ ′∈Θ: dψ1(θ,θ ′)⩽δ
+
+|Wn(θ) − Wn(θ′)|∥ ψ1
+
+⩽ 2√6log 2 
+
+
+
+16 
+
+Z η
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε + δ
+
+q
+
+log(1 + P(Θ , d ψ1 , η )2)
+
+
+
++ 12 (log 2) √n
+
+
+
+16 
+
+Z η
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε + δ log(1 + P(Θ , d ψ1 , η )2)
+
+
+
+(3.11) Its proof is postponed in Section 5. Let us make some comments on this theorem. 
+
+Remark 3.4. (1) For a general centered stochastic process ( X(θ); θ ∈ Θ) satisfying the ”sub-Gaussian” condition w.r.t. a semi-metric d on Θ, 
+
+P(|X(θ1) − X(θ2)| > x ) ⩽ 2e−x2/(2 d2(θ1,θ 2)) , (3.12) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 19 
+
+(here the constants 2, 1 /2 have no importance), then we have the following well-known Dudley’s inequality ([47]) 
+
+E sup 
+
+> θ∈Θ
+
+X(θ) ⩽ K
+
+Z D(Θ ,d )0
+
+plog(1 + P(Θ , d, ε )) dε 
+
+for some absolute constant K, and also (3.11) for X(θ) (instead of Wn(θ)), without the extra term 
+
+K
+
+√n
+
+Z D(Θ ,d )0
+
+log(1 + P(Θ , d, ε )) dε 
+
+([45, Theorem 2.2.4 and Corollary 2.2.8]). For n = 1, Wn(θ) = ˜Qθ satisfies the ”sub-Gaussian” condition (3.12) w.r.t. the semi-metric 
+
+dψ2 (θ1, θ 2) := ∥ ˜Qθ1 − ˜Qθ2 ∥ψ2 .
+
+In fact by Chebyshev’s inequality and the fact that E exp  X2/∥X∥2
+
+> ψ2
+
+ ⩽ 2, we have 
+
+P (|X| > x ) ⩽ 2 exp  −x2/∥X∥2
+
+> ψ2
+
+ , ∀x > 0.
+
+Applying it to X = ˜Qθ1 − ˜Qθ2 , we obtain the sub-Gaussian condition (3.12) with 
+
+d(θ1, θ 2) = ∥ ˜Qθ1 − ˜Qθ2 ∥ψ2 .But unfortunately it is very difficult to prove that Wn(θ) satisfies the sub-Gaussian condition w.r.t. a reasonable metric d except for the Rademacher sequence (guaranteed by Hoeffding’s inequality), for general n ⩾ 2. Here ”rea-sonable” means that the involved metric d is independent of the sample size 
+
+n, and the packing number P(Θ , d, ε ) should be computable and controllable. That is why the symmetrization technique based on Rademacher sequence is important in the theory of empirical processes (see [45] and also the later works [7, 5, 28]). Theorem 3.3 is new for general n ⩾ 2 in the exponentially integrable case. Its proof will be based again on the classical chaining technique, with the help of Bernstein’s inequalities in Theorem 2.3 and Theorem 5.1, replacing the sub-Gaussian condition and the classic symmetrization technique. This approach was developed by Boucheron-Lugosi-Massart [10, Corollary 2.6, Lemma 13.1] for obtaining the estimate of the expectation of supremum of empirical processes. (2) The first term K R η
+
+> 0
+
+plog(1 + P(Θ , d ψ1 , ε )) dε in (3.9) and (3.11) comes from the Gaussian regularization of Wn(θ), the extra term K√n
+
+R D(Θ ,d ψ1 )0 log(1+ P(Θ , d ψ1 , ε )) dε 
+
+can be interpreted as the discrepancy from the Gaussian regularization. (3) The bound (3.11) in part (4) with δ = η = Diam(Θ , d ψ1 ) gives (3.9) with an extra constant term D(Θ , d ψ1 ) log 2. We state (3.9) separately to make the proof clearer. (4) Typically, classical results of the form stated in Theorem 3.3 contain non-explicit absolute constants. In this work, we render all involved constants explicit. 20 LIMING WU AND SEN YANG 
+
+3.3. Estimates of empirical risk in terms of the box-dimension. Recall the 
+
+Minkowski or box dimension of (Θ , d ) ([18]): dim B (Θ , d ) = lim sup 
+
+> ε→0+
+
+log(1 + N (Θ , d, ε )) 
+
+− log ε = lim sup 
+
+> ε→0+
+
+log(1 + P(Θ , d, ε )) 
+
+− log ε . (3.13) 
+
+Corollary 3.5. In the framework of Theorem 3.3, assume that dB := dim B (Θ , d ψ1 ) <
+
++∞. Then there is some constant C > 0 such that for all n ⩾ 2:
+
+E sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| ⩽ 1
+
+√n inf  
+
+> θ0∈Θ
+
+σ(θ0) + 8√6log 2 
+
+pCD (1 + dB )
+
+!
+
++ 48 CD (1 + dB )(log 2) n .
+
+(3.14) 
+
+and for any x > 0, n ⩾ 2,
+
+P
+
+
+
+sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| >x
+
+"
+
+2
+
+r 2
+
+n log 2 inf  
+
+> θ0∈Θ
+
+∥Qθ0 ∥ψ1 + 8√6log 2 
+
+rCD (1 + dB )
+
+n + 48 CD (1 + dB )(log 2) n
+
+!#! 
+
+⩽ 2e−x.
+
+(3.15) 
+
+Here the constant C is determined by (3.17) below and D := D(Θ , d ψ1 ) is the diameter. 
+
+The uniform estimate (3.15) implies that if 
+
+n ≳ 1 + dim B (Θ , d ψ1 )
+
+ε20
+
+(3.16) (instead of vc( H) recalled in Introduction), we have a non-asymptotic but non-explicit (because of the presence of the constant C) estimate of the error probabilities p±(n, ε 0), which are small. The above corollary generalizes Theorem 1.3 in two aspects: the VC dimension is replaced by the Minkowski dimension; and the boundedness assumption is replaced by the exponential ( Lψ1 -)integrability condition. 
+
+Proof. Write dB = dim B (Θ , d ψ1 ) for simplicity. To begin with, by the definition of the box dimension, log(1 + P(Θ , d ψ1 , ε )) ⩽ C1(dB + 1) log 1
+
+ε , ∀ε ∈ (0 , 1/e ),
+
+for some positive constant C1. Therefore, for some constant C > 0 (depending on C1
+
+and D), we have 
+
+Z D
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε ⩽ CD (1 + dB )
+
+Z D
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε ⩽ pCD (1 + dB )(3.17) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 21 
+
+(the latter follows from the first by Cauchy-Schwarz inequality, after enlarging C if necessary). Noting that 
+
+RE,n (θ) − R(θ) = 1
+
+√nWn(θ),
+
+by (3.10) we have 
+
+E sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| ⩽ inf θ0∈Θ σ(θ0)
+
+√n + 8√6(log 2) √n
+
+Z D
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε 
+
++ 48 (log 2) n
+
+Z D
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε 
+
+⩽ 1
+
+√n inf  
+
+> θ0∈Θ
+
+σ(θ0) + 8√6log 2 
+
+pCD (1 + dB )
+
+!
+
++ 48 CD (1 + dB )(log 2) n .
+
+Therefore, we obtain (3.14). By Chebyshev’s inequality and the definition of Orlicz norm ∥ · ∥ ψ1 , we have 
+
+P
+
+
+
+sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)| > x · ∥ sup 
+
+> θ∈Θ
+
+|RE,n (θ) − R(θ)|∥ ψ1
+
+
+
+⩽ 2e−x, x > 0.
+
+Since ∥ sup θ∈Θ |RE,n (θ) − R(θ)|∥ ψ1 = 1√n ∥ sup θ∈Θ |Wn(θ)|∥ ψ1 , applying (3.9) and (3.8) we obtain (3.15). □
+
+Remark 3.6. Assume that θ → Qθ is Lipschitzian from Θ ⊂ RN to Lψ1 : ∃L > 0 such that 
+
+∥Qθ1 − Qθ2 ∥ψ1 ⩽ L|θ1 − θ2|, ∀θ1, θ 2 ∈ Θand Θ is bounded (that is not a real restriction, because in applications we can take Θ = {θ|R(θ) ⩽ b} for some great risk level b, which is usually bounded). In that case we have P(Θ , d ψ1 , ε ) ⩽ P(Θ , | · | , ε/L ) and then dB = dim B (Θ , d ψ1 ) ⩽ N .Furthermore the sharp estimates of the packing number P(Θ , | · | , ε ) are classic results (for example P(B(0 , R ), | · | , ε ) ⩽ (1 + 2 R/ε )N for any 0 < ε < R , for the ball B(0 , R )centered at 0 of radius R). 3.4. Talagrand’s concentration inequality for p+(n, ε ): upper bound of the minimal risk in the lower bounded case. A natural question is to sharpen the ex-ponential concentration inequality (3.15) into a much better Gaussian one for moderate 
+
+x = o(n), as in Bernstein’s or Talagrand’s concentration inequality. This is the purpose of this subsection. Let 
+
+R∗ = inf  
+
+> θ∈Θ
+
+R(θ)be the theoretical true minimal risk, and set 
+
+R∗ = sup 
+
+> θ∈Θ
+
+R(θ).
+
+Under (H2) , both quantities are finite. In this paragraph we assume that the risk functions are uniformly lower bounded: 
+
+Qθ(z) = Q(z, θ ) ⩾ −L, z ∈ S, θ ∈ Θ, (3.18) 22 LIMING WU AND SEN YANG 
+
+for some constant L > 0. This is the case, for instance, when Q(z, θ ) = |y − f (x, θ )|α.Our estimate of p+(n, ε ) is based on the following risk-level decomposition (say, peel-ing argument). For any δ > 0, let 
+
+M := min 
+
+n
+
+m ∈ N : R∗ + √m + 1 δ ⩾ R∗
+
+o
+
+.
+
+Define for 0 ⩽ k ⩽ M ,
+
+Mk := 
+
+n
+
+θ ∈ Θ : R∗ + √kδ ⩽ R(θ) ⩽ R∗ + √k + 1 δ
+
+o
+
+(3.19) (hence M0 = {θ ∈ Θ|R(θ) ⩽ R∗ + δ}). Then Θ = 
+
+> M
+
+[
+
+> k=0
+
+Mk and inf  
+
+> θ∈Θ
+
+RE,n (θ) = min  
+
+> 0⩽k⩽M
+
+inf 
+
+> θ∈Mk
+
+RE,n (θ)where the convention inf ∅ = + ∞ is used. Hence 
+
+p+(n, ε ) = P
+
+
+
+R∗ > inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε
+
+
+
+⩽
+
+> M
+
+X
+
+> k=0
+
+P
+
+
+
+R∗ > inf 
+
+> θ∈Mk
+
+RE,n (θ) + ε
+
+
+
+⩽ P
+
+
+
+R∗ > inf 
+
+> θ∈M0
+
+RE,n (θ) + ε
+
+
+
++
+
+> M
+
+X
+
+> k=1
+
+P
+
+
+
+inf 
+
+> θ∈Mk
+
+R(θ) − inf 
+
+> θ∈Mk
+
+RE,n (θ) > √kδ + ε
+
+
+
+⩽ P
+
+
+
+sup 
+
+> θ∈M0
+
+(R(θ) − RE,n (θ)) > ε 
+
+| {z }
+
+> (Π 0)
+
++
+
+> M
+
+X
+
+> k=1
+
+P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > √kδ + ε
+
+| {z } 
+
+> (Π k)
+
+.
+
+(3.20) For each error probability (Π k), we will apply Bousquet’s inequality. To this end, we first estimate the bias on each risk-level subclass Mk. For every 0 ⩽ k ⩽ M such that Mk̸ = ∅, set 
+
+Dk := Diam( Mk, d ψ1 ).
+
+Then Lemma 3.2 gives 
+
+E sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) 
+
+⩽ 12 
+
+r 2
+
+n
+
+Z Dk /20
+
+q
+
+log P(Mk, d ψ1 , ε )dε + 12 
+
+n
+
+Z Dk /20
+
+log P(Mk, d ψ1 , ε )dε 
+
+=: b(n, Mk).
+
+(3.21) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 23 
+
+If Mk = ∅, we set 
+
+Dk := 0 , b(n, Mk) := 0 .
+
+Set 
+
+ηk(n, x ) := 
+
+r2 ( σ2(Θ) + 2( L + R∗)b(n, Mk)) xn + (L + R∗)x
+
+3n (3.22) which is the random fluctuation bound given in Bousquet’s inequality. 
+
+Theorem 3.7. (upper bound for the minimal risk) Assume (H1) and (H2) .Suppose moreover the lower boundedness condition (3.18) , and assume that b(n, Mk)
+
+are finite for all 0 ⩽ k ⩽ M .Then, for every n ∈ N∗, δ > 0 and x > 0, provided that 
+
+√kδ ⩾ b(n, Mk) − b(n, M0) + ηk(n, kx ) − η0(n, x ), 1 ⩽ k ⩽ M, (3.23) 
+
+the following non-asymptotic estimate holds: for 
+
+ε := ε(n, δ, x ) = b(n, M0) + η0(n, x ),
+
+we have 
+
+p+(n, ε ) = P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) > inf  
+
+> θ∈Θ
+
+RE,n (θ) + b(n, M0) + η0(n, x )
+
+
+
+⩽ e−x + e−x
+
+1 − e−x . (3.24) 
+
+Remark 3.8. Let 
+
+dB := dim B (Θ , d ψ1 ).
+
+Then, for some constant C > 0, log (1 + P(Θ , d ψ1 , s )) ⩽ C(1 + dB ) log 1
+
+s , s ∈ (0 , 1/e ).
+
+Assume that 
+
+n ≳ 1 + dB
+
+δ2 , (3.25) and fix x > 0 such that e−x + e−x 
+
+> 1−e−x
+
+⩽ α ∈ (0 , 1/2), where 1 − α is the fixed confidence level. As max k⩽M b(n, Mk) ≲
+
+q1+ dB 
+
+> n
+
+and ηk(n, kx ) ≲
+
+qkx n , the risk-level condition (3.23) is satisfied for all k ⩾ N0 where N0 is independent of δ.For k = 0 , . . . , N 0, suppose that the minimizer set M of the true risk function R is a singleton and that, in the typical case, Dk ≲ δβ for k = 0 , · · · , N 0 and for some β > 0. Then, for all sufficiently small δ > 0, 
+
+b(n, Mk) ≲
+
+r1 + dB
+
+n δβ log 1
+
+δ ≲ δ1+ β log 1
+
+δ
+
+by Lemma 3.2 and condition (3.25). The condition (3.23) is satisfied for all k ⩾ 1 and for all δ ∈ (0 , δ 0], where δ0 ⩽ 1/e is sufficiently small. The same conclusion remains valid when M is finite, with a little more effort. Consequently under the condition (3.25), Theorem 3.7 gives 
+
+p+(n, ε (n, δ, x )) ⩽ e−x + e−x
+
+1 − e−x ⩽ α24 LIMING WU AND SEN YANG 
+
+where 
+
+ε(n, δ, x ) ≲
+
+r1 + dB
+
+n δβ log 1
+
+δ +
+
+rx [σ2(Θ) + C(1 + dB )δ1+ β log(1 /δ )] 
+
+n . (3.26) 
+
+Remark 3.9. Let us compare Theorem 3.7 with the localized excess-risk bounds in Koltchinskii [29, Chapters 1 and 4]. The results therein concern the excess risk of an empirical minimizer, 
+
+R(ˆθn) − R∗, ˆθn ∈ argmin θ∈Θ RE,n (θ),
+
+and localize the empirical process on risk-level sets. For r > 0, put Θr := {θ ∈ Θ : R(θ) − R∗ ⩽ r}, Q(r) := {Qθ − Qθ′ : θ, θ ′ ∈ Θr}.
+
+The localized complexity and diameter are then of the form 
+
+ϕn(r) := E sup 
+
+> h∈Q (r)
+
+|(Ln − μ)( h)| , Dρμ (r) := sup 
+
+> θ,θ ′∈Θr
+
+ρμ(Qθ, Q θ′ ),
+
+where ρμ is a pseudo-metric on L2(μ) such that 
+
+ρ2
+
+> μ
+
+(f, g ) ⩾ Var μ(f − g), f, g ∈ L2(μ).
+
+The resulting scale is described by a fixed-point argument for finding the maximal risk level r∗ satisfying the inequality 
+
+r ⩽ ϕn(r) + 
+
+r xn
+
+
+
+D2 
+
+> ρμ
+
+(r) + 2 ϕn(r)
+
+
+
++ xn.
+
+The results in [29, Chapters 1 and 4] on the excess-risk problem give the non-asymptotic estimate of P(ˆθn ∈ Θr∗ ) = P(R(ˆθn) − R∗ ⩽ r∗). By contrast, Theorem 3.7 estimates the deviation probability p+(n, ε ) of the minimal empirical risk, which is a different problem. Our prerequisite condition (3.23) is inspired by the excess-risk results in [29, Chapter 4]. The present approach gives a direct non-asymptotic estimate for the deviation of the minimal empirical risk, without solving a fixed-point equation. For related progress on algorithmic stability, see Bousquet–Elisseeff [12] and Bousquet 
+
+et al. [13]. For concentration inequalities for empirical minimizers, see Escande [17] and the references therein. 3.5. Talagrand’s concentration inequality for the upper bound of the minimal risk in the exponentially integrable case. In this paragraph we remove the lower boundedness assumption of the risk functions Qθ in Theorem 3.7. We impose the following envelope condition on the negative part of the risk function Qθ:
+
+(H3) There exists a measurable function Q∗ : S → [0 , +∞) such that 
+
+Qθ(z)− = max {− Qθ(z), 0} ⩽ Q∗(z), ∀z ∈ S, ∀θ ∈ Θ,
+
+(Q∗ is an envelope of {Q− 
+
+> θ
+
+; θ ∈ Θ}) and 
+
+∥Q∗∥ψ1 < +∞.
+
+For the unbounded case, we use the same risk-level sets Mk, 0 ⩽ k ⩽ M , and the entropy bias bounds b(n, Mk) defined in (3.21). NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 25 
+
+For L > 0, define 
+
+QLθ := ( −L) ∨ Qθ, RL(θ) := μ(QLθ ), RL 
+
+> ∗
+
+:= inf  
+
+> θ∈Θ
+
+RL(θ), χL := Q∗1{Q∗>L }.
+
+For x > 0, set 
+
+τn(x, L ) := μ(χL) + 2 ∥χL∥ψ1
+
+r xn + ∥χL∥ψ1
+
+xn. (3.27) For fixed δ ∈ (0 , 1], 0 ⩽ k ⩽ M and x > 0, set 
+
+ηk,L (n, x ) := 
+
+s
+
+2  σ2(Θ) + 2  R∗ + L + δ
+
+> 4
+
+ b(n, Mk) xn +
+
+ R∗ + L + δ
+
+> 4
+
+ x
+
+3n . (3.28) 
+
+Theorem 3.10. Assume (H1) , (H2) and (H3) . Let δ ∈ (0 , 1] , L > 0 and x > 0, and assume that b(n, Mk) is finite for every 0 ⩽ k ⩽ M . Suppose that 
+
+2( L + ∥Q∗∥ψ1 ) exp 
+
+
+
+− L
+
+∥Q∗∥ψ1
+
+
+
+⩽ δ
+
+4 (3.29) 
+
+(which implies μ(χL) ⩽ δ 
+
+> 4
+
+) and that the peeling condition 
+
+√kδ − δ
+
+4 ⩾ b(n, Mk) − b(n, M0) + ηk,L (n, kx ) − η0,L (n, x ), 1 ⩽ k ⩽ M, (3.30) 
+
+holds. Then, for 
+
+ε = ε(n, δ, x, L ) := 2 max {b(n, M0) + η0,L (n, x ), τ n(x, L )} , (3.31) 
+
+we have 
+
+p+(n, ε ) = P
+
+
+
+inf  
+
+> θ∈Θ
+
+R(θ) > inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε
+
+
+
+⩽ 2e−x + e−x
+
+1 − e−x . (3.32) 
+
+Remark 3.11. Let us compare Theorem 3.10 with Adamczak’s Talagrand inequality [1, Theorem 4] in the unbounded case. For α ∈ (0 , 1], ψα = e|x|α
+
+− 1 (which is not convex when 0 < α < 1), define ∥X∥ψα in the same way. If 
+
+sup 
+
+> θ∈Θ
+
+|Qθ(Z)|
+
+> ψα
+
+< +∞,
+
+letting Wn := √n sup θ∈Θ |RE,n (θ) − R(θ)|, then for any η, δ ∈ (0 , 1), there is some constant C = C(α, η, δ ) > 0 such that for any n ⩾ 1, r > 0
+
+P (Wn > (1 + η)EWn + r) ⩽ exp 
+
+
+
+− r2
+
+2(1 + δ)σ2(Θ) 
+
+
+
++ 3 exp − r√nC ∥max i⩽n sup θ∈Θ |Qθ(Zi)|∥ ψα
+
+!α!
+
+.
+
+Adamczak’s result has the advantage of being applicable under the more general 
+
+ψα-integrability condition, with α ∈ (0 , 1], and hence includes tails heavier than the exponential case when α < 1. 26 LIMING WU AND SEN YANG 
+
+In the present ψ1 framework, however, the truncation argument gives a slightly sharper tail treatment when α = 1. Indeed, after setting 
+
+QLθ := ( −L) ∨ Qθ, χL := Q∗1{Q∗>L },
+
+we have 0 ⩽ QLθ − Qθ ⩽ χL.
+
+Thus the tail part is controlled by a scalar Bernstein inequality for the single observable 
+
+χL, rather than by an unbounded empirical-process inequality. This gives the remainder 
+
+τn(x, L ) = μ(χL) + 2 ∥χL∥ψ1
+
+r xn + ∥χL∥ψ1
+
+xn.
+
+In particular, the remainder tail term is only 
+
+∥χL∥ψ1
+
+xn.
+
+By contrast, applying Adamczak’s inequality directly to the centered tail class would involve a term of the form 
+
+xn max  
+
+> 1⩽i⩽n
+
+|χL(Zi) − μ(χL)| ψ1
+
+,
+
+which is bounded, up to a universal constant, by 
+
+∥χL∥ψ1
+
+x log(1 + n)
+
+n .
+
+Hence, in the exponential-integrability case α = 1, under (H3) , our truncation argu-ment controls the tail by the single variable χL and avoids the extra factor log(1 + n), while Adamczak’s inequality remains more general for ψα tails with α ∈ (0 , 1]. 4. Proof of Theorem 2.7 
+
+We now prove Theorem 2.7, which is crucial for our estimates of 1 − p−(n, ε ) on the lower bounds of the true risk, in Theorems 2.9 and 2.11. 
+
+Proof of Theorem 2.7. (1). By Theorem 2.1, it is enough to prove that 
+
+Z
+
+> S
+
+f d (ν − μ) ⩽
+
+s
+
+2H(ν|μ)
+
+
+
+Var μ(f ) + 13L(ε)
+
+
+
++
+
+r 23εH(ν|μ), ∀ν. (4.1) Below we follow the elementary and beautiful method of [9, Proof of Theorem 1(ii)], with some necessary changes for our purpose. Without loss of generality assume that dν = hdμ = (1 + u)dμ (u = h − 1) and 
+
+μ(f ) = 0. Setting 
+
+φ(u) = (1 + u) log(1 + u) − u, 
+
+we have by the second-order Taylor’s formula with integral remainder 
+
+H(ν|μ) = 
+
+Z
+
+> S
+
+φ(u)dμ =
+
+Z
+
+> S
+
+Z 10
+
+u2(x)(1 − t)1 + tu (x) dtμ (dx ).NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 27 
+
+We have by Cauchy-Schwarz inequality 
+
+Z 10
+
+(1 − t)dt 
+
+Z
+
+> S
+
+f d (ν − μ) = 
+
+Z
+
+> S
+
+Z 10
+
+(1 − t)f udtdμ 
+
+⩽
+
+sZ
+
+> S
+
+Z 10
+
+u2(x)(1 − t)1 + tu (x) dtμ (dx )
+
+Z
+
+> S
+
+Z 10
+
+(1 − t)(1 + tu (x)) f 2(x)dtμ (dx )= √HC 
+
+where H = H(ν|μ) and 
+
+C =
+
+Z
+
+> S
+
+Z 10
+
+(1 − t)(1 + tu (x)) f 2(x)dtμ (dx )= 12μ(f 2) + 16
+
+Z
+
+> S
+
+u(x)f 2μ(dx )= 12μ(f 2) + 16
+
+Z
+
+> S
+
+(f 2 − μ(f 2)) hμ (dx ).
+
+By the variational formula of relative entropy, 
+
+Z
+
+> S
+
+(f 2 − μ(f 2)) hμ (dx ) ⩽ 1
+
+ε
+
+
+
+H(ν|μ) + log 
+
+Z
+
+> S
+
+eε(f 2−μ(f 2)) dμ 
+
+
+
+= L(ε) + 1
+
+ε H. 
+
+Substituting those two estimates into the previous inequality, we obtain 
+
+Z
+
+> S
+
+f d (ν − μ) ⩽
+
+s
+
+4H
+
+12Var μ(f ) + 16L(ε) + 16εH
+
+
+
+⩽
+
+s
+
+2H
+
+
+
+Var μ(f ) + 13L(ε)
+
+
+
++
+
+r 23εH
+
+(4.2) which is the desired (4.1) (where we have applied the elementary inequality √a + b ⩽
+
+√a + √b for a, b ⩾ 0). The bound (2.18) of L(ε) follows from Theorem 2.3. Combining (2.18) and the first inequality in (4.2), and optimizing over ε ⩽ 12∥ ˜f 2−μ( ˜f 2)∥ψ1
+
+,we get: if H = H(ν|μ) ⩽ 12 ,
+
+Z
+
+> S
+
+f d (ν − μ) ⩽
+
+vuut4H 12Var μ(f ) + 
+
+√2∥ ˜f 2 − μ( ˜f 2)∥ψ1
+
+3
+
+√H
+
+!
+
+⩽
+
+q
+
+2Var μ(f )H + 2 
+
+s√2∥ ˜f 2 − μ( ˜f 2)∥ψ1
+
+3 H3/4.
+
+(4.3) This transport-entropy inequality implies (2.19), by Gozlan-L´ eonard [24, Theorem 2]. 28 LIMING WU AND SEN YANG 
+
+(2). Approximating f by max {f ∧ L, −L} with L → +∞, we may assume without loss of generality that f is exponentially integrable. We will combine the well-known Theorem 2.2 with Theorem 2.3. For any L > 0, let fL = f ∧ L = min {f, L }. Notice that Var μ(fL) ⩽ Var μ(f ). By Theorem 2.2 and Theorem 2.1, for any ν ∈ M1(S) such that H = H(ν|μ) < +∞ and ν(|f |) < +∞,
+
+ν(fL) − μ(fL) ⩽
+
+q
+
+2Var μ(fL)H + L
+
+3 H ⩽
+
+q
+
+2Var μ(f )H + L
+
+3 H. 
+
+On the other hand by Theorem 2.3, 
+
+ν(f − fL) − μ(f − fL) ⩽ ∥f − fL∥ψ1
+
+
+
+2√H + H
+
+
+
+.
+
+Writing ε(L) = ∥f − fL∥ψ1 and taking the sum of the above two inequalities, we obtain 
+
+ν(f ) − μ(f ) ⩽
+
+q 
+
+2Var μ(f ) + 2 ε(L)
+
+ √H +
+
+L
+
+3 + ε(L)
+
+
+
+H
+
+⩽
+
+s
+
+2
+
+
+
+Var μ(f ) + 2 
+
+q
+
+2Var μ(f )ε(L) + 2 ε(L)2
+
+
+
+H +
+
+L
+
+3 + ε(L)
+
+
+
+H
+
+which implies the desired (2.20), by Theorem 2.1. □
+
+5. Proofs of the upper bounds 
+
+5.1. Proof of Theorem 3.3. We begin with a classic result. 
+
+Theorem 5.1. ([45, Lemma 2.2.10] ) Let Xi, 1 ⩽ i ⩽ m be real random variables satisfying the Bernstein’s inequality: 
+
+P(|Xi| > x ) ⩽ 2 exp 
+
+
+
+− x2
+
+2( cB + M x )
+
+
+
+,
+
+for all x (and i) and fixed cB , M > 0. Then there are universal constants K1, K 2 > 0
+
+such that 
+
+∥ max  
+
+> 1⩽i⩽m
+
+|Xi|∥ ψ1 ⩽ K1
+
+pcB log(1 + m) + K2M log(1 + m). (5.1) In [45, Lemma 2.2.10], K1, K 2 are two absolute constants, not explicit. We will prove (5.1) with the explicit constants 
+
+K1 = 2√3log 2 , K2 = 12 log 2 . (5.2) in the Appendix. We are ready to prove Theorem 3.3, by means of the important ” chaining ” technique combined with the Bernstein’s inequality in Theorem 2.3. 
+
+Proof of Theorem 3.3. First, without loss of generality we may and will assume that Θ is finite. We divide its proof into 5 steps. NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 29 
+
+Step 1. By the i.i.d. property of ( Zk), we have log EeλW n(θ0) ⩽ λ2cB
+
+2
+
+
+
+1 − M√n |λ|
+
+, if |λ| <
+
+√nM (5.3) where cB = cB (θ0), M = M (θ0) are the constants in the Bernstein’s inequality satisfied by ± ˜Qθ0 (both). We may assume that ˜Qθ0 is not zero a.s.. If ∥Wn(θ0)∥ψ1 ⩾ 4M√n , λ0 := ∥Wn(θ0)∥−1 
+
+> ψ1
+
+verifies 2 λ0 ⩽ √n 
+
+> 2M
+
+and then 2 log 2 ⩽ log Ee2λ0|Wn(θ0)| (Cauchy-Schwarz) 
+
+⩽ log  Ee2λ0Wn(θ0) + Ee−2λ0Wn(θ0)
+
+⩽ log 2 + 4 λ20cB ( by (5.3) ) which yields: once ∥Wn(θ0)∥ψ1 ⩾ 4M√n ,
+
+∥Wn(θ0)∥ψ1 ⩽ 2
+
+r cB
+
+log 2 . (5.4) That proves (3.7) in part (1) of Theorem 3.3. Applying (3.7) with cB = 2 ∥Qθ0 ∥2 
+
+> ψ1
+
+, M = ∥Qθ0 ∥ψ1 (by Theorem 2.3), we obtain (3.8), because for n ⩾ 2 > 2 log 2, the first term in the maximum of (3.7) is larger than the second one. The proof of part (1) is completed. 
+
+Step 2. By Bolley-Villani and Gozlan-L´ eonard’s Theorem 2.3, 
+
+P
+
+
+
+Wn(θ1) − Wn(θ2) > d ψ1 (θ1, θ 2)
+
+
+
+2√x + x
+
+√n
+
+ 
+
+⩽ e−x, x > 0 (5.5) which implies 
+
+P (|Wn(θ1) − Wn(θ2)| > x ) ⩽ 2 exp 
+
+
+
+− x2
+
+2( cB + M x )
+
+
+
+, x > 0with 
+
+cB = 2 dψ1 (θ1, θ 2)2, M = dψ1 (θ1, θ 2)
+
+√n .
+
+By Theorem 5.1, we obtain: for any ε > 0 and for any m couples ( θ1(i), θ 2(i)) , 1 ⩽ i ⩽ m
+
+such that dψ1 (θ1(i), θ 2(i)) ⩽ ε,
+
+∥ max  
+
+> 1⩽i⩽m
+
+|Wn(θ1(i)) − Wn(θ2(i)) |∥ ψ1 ⩽ K1εp2 log(1 + m) + K2
+
+√nε log(1 + m). (5.6) 
+
+Step 3 (chaining, proof of (3.9) ). For any η > 0, let us set the dyadic scale 
+
+εk = η2−k, k ∈ N
+
+and nested subsets Θ 0 ⊂ Θ1 ⊂ · · · ⊂ ΘK = Θ such that each Θ k is εk-separated (in the metric dψ1 ) and maximal in the sense that if one adds one point θ to Θ k, Θ k
+
+S{θ} is no longer εk-separated. By the definition of packing number, the number #(Θ k) of points in Θ k verifies #(Θ k) ⩽ P(Θ , d ψ1 , ε k).30 LIMING WU AND SEN YANG 
+
+For every θk+1 ∈ Θk+1 , link it to a single point θk ∈ Θk such that dψ1 (θk+1 , θ k) ⩽ εk.Then each θk+1 ∈ Θk+1 is connected to a point θ0 ∈ Θ0 by a chain θk+1 , θ k, · · · , θ 0.Thus for each θ = θK ∈ ΘK = Θ, we have the following telescopic sum 
+
+Wn(θ) = Wn(θ0) + 
+
+> K−1
+
+X
+
+> k=0
+
+(Wn(θk+1 ) − Wn(θk)) . (5.7) Thus we obtain sup 
+
+> θ∈Θ
+
+|Wn(θ)| ⩽ max 
+
+> θ0∈Θ0
+
+|Wn(θ0)| +
+
+> K−1
+
+X
+
+> k=0
+
+sup 
+
+> θk+1 ∈Θk+1
+
+|Wn(θk+1 ) − Wn(θk)|. (5.8) Since dψ1 (θk+1 , θ k) ⩽ εk, by the key inequality (5.6) in Step 2, we get 
+
+∥ sup 
+
+> θk+1 ∈Θk+1
+
+|Wn(θk+1 ) − Wn(θk)|∥ ψ1
+
+⩽ K1εk
+
+p2 log(1 + #(Θ k+1 )) + K2
+
+√nεk log(1 + #(Θ k+1 )) 
+
+⩽ K1εk
+
+q
+
+2 log(1 + P(Θ , d ψ1 , ε k+1 )) + K2
+
+√nεk log(1 + P(Θ , d ψ1 , ε k+1 )) .
+
+(5.9) Since for a non-increasing function f on (0 , +∞), 
+
+Z εk+1 
+
+> εk+2
+
+f (ε)dε ⩾ f (εk+1 )( εk+1 − εk+2 ) = 14f (εk+1 )εk
+
+we obtain from (5.9) 
+
+> K−1
+
+X
+
+> k=0
+
+∥ sup 
+
+> θk+1 ∈Θk+1
+
+|Wn(θk+1 ) − Wn(θk)|∥ ψ1
+
+⩽ 4√2K1
+
+Z η
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε + 4K2
+
+√n
+
+Z η
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε. 
+
+(5.10) Now taking η = D = Diam(Θ , d ψ1 ), and beginning the nested subsets with Θ 0 being a singleton {θ0} (θ0 is an arbitrary fixed point), we obtain (3.9) by the inequality above and (5.8). We have so proved part (2) of Theorem 3.3. 
+
+Step 4 (proof of (3.10) ). In Step 3, taking η = D = Diam(Θ , d ψ1 ), Θ 0 is reduced to a singleton {θ0}. Instead of (5.8), we have by (5.7), sup 
+
+> θ∈Θ
+
+|Wn(θ)| ⩽ |Wn(θ0)| +
+
+> K−1
+
+X
+
+> k=0
+
+sup 
+
+> θk+1 ∈Θk+1
+
+|Wn(θk+1 ) − Wn(θk)|
+
+Since EWn(θ0) = 0 and E|Wn(θ0)| ⩽ pVar( Wn(θ0)) = σ(θ0), we obtain (3.10) by (5.10) (as in Step 3). We have so completed the proof of part (3) of Theorem 3.3. 
+
+Step 5 (proof of (3.11) in part (4): forward and backward double chaining by following [45, Proof of Theorem 2.2.6] ). In the chaining in Step 3, for any η > 0NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 31 
+
+and for any θ = θK , θ ′ = θ′ 
+
+> K
+
+∈ ΘK = Θ , let 
+
+θK , · · · , θ 0; θ′ 
+
+> K
+
+, · · · , θ ′
+
+> 0
+
+;be the two chains linking θK , θ ′ 
+
+> K
+
+to θ0, θ ′ 
+
+> 0
+
+in Θ 0. Since 
+
+|(Wn(θ) − Wn(θ0)) − (Wn(θ′) − Wn(θ′
+
+> 0
+
+)) |
+
+⩽
+
+> K−1
+
+X
+
+> k=0
+
+|(Wn(θk+1 ) − Wn(θk)) | +
+
+> K−1
+
+X
+
+> k=0
+
+|(Wn(θ′
+
+> k+1
+
+) − Wn(θ′
+
+> k
+
+)) |,
+
+by (5.10), we obtain 
+
+∥ max  
+
+> θ,θ ′∈Θ
+
+|(Wn(θ) − Wn(θ0)) − (Wn(θ′) − Wn(θ′
+
+> 0
+
+)) |∥ ψ1
+
+⩽ 2
+
+> K−1
+
+X
+
+> k=0
+
+∥ sup 
+
+> θk+1 ∈Θk+1
+
+|Wn(θk+1 ) − Wn(θk)|∥ ψ1
+
+⩽ 8√2K1
+
+Z η
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε + 8K2
+
+√n
+
+Z η
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε. 
+
+(5.11) Then 
+
+∥ max   
+
+> θ,θ ′∈Θ: dψ1(θ,θ ′)⩽δ
+
+|Wn(θ) − Wn(θ′)|∥ ψ1
+
+is bounded by the r.h.s. of (5.11) plus ∥ max θ0,θ ′ 
+
+> 0
+
+|Wn(θ0) − Wn(θ′
+
+> 0
+
+)|∥ ψ1 , where the maximum is taken over all pairs of endpoints of the chains starting from θ, θ ′ with 
+
+dψ1 (θ, θ ′) ⩽ δ. For every such pair of endpoints θ0, θ ′
+
+> 0
+
+, choose exactly one ( θK , θ ′ 
+
+> K
+
+) with 
+
+dψ1 (θK , θ ′ 
+
+> K
+
+) ⩽ δ such that the chains starting from θK , θ ′ 
+
+> K
+
+end at θ0, θ ′ 
+
+> 0
+
+respectively. The cardinality of the set Θ( δ) of all such pairs ( θK , θ ′ 
+
+> K
+
+) is ⩽ #(Θ 0)2 ⩽ P(Θ , d ψ1 , η )2.Thus by (5.6) in Step 2, 
+
+∥ max   
+
+> (θK,θ ′
+> K)∈Θ( δ)
+
+|Wn(θK ) − Wn(θ′ 
+
+> K
+
+)|∥ ψ1
+
+⩽ K1δ
+
+q
+
+2 log(1 + P(Θ , d ψ1 , η )2) + K2
+
+√nδ log(1 + P(Θ , d ψ1 , η )2).
+
+Using this control and the elementary inequality 
+
+|Wn(θ0) − Wn(θ′
+
+> 0
+
+)| ⩽ |(Wn(θK ) − Wn(θ0)) − (Wn(θ′ 
+
+> K
+
+) − Wn(θ′
+
+> 0
+
+)) | + |Wn(θK ) − Wn(θ′ 
+
+> K
+
+)|
+
+we obtain by (5.11), 
+
+∥ max   
+
+> θ,θ ′∈Θ: dψ1(θ,θ ′)⩽δ
+
+|Wn(θ) − Wn(θ′)|∥ ψ1
+
+⩽ 2
+
+
+
+8√2K1
+
+Z η
+
+> 0
+
+q
+
+log(1 + P(Θ , d ψ1 , ε )) dε + 8K2
+
+√n
+
+Z η
+
+> 0
+
+log(1 + P(Θ , d ψ1 , ε )) dε 
+
+
+
++ K1δ
+
+q
+
+2 log(1 + P(Θ , d ψ1 , η )2) + K2
+
+√nδ log(1 + P(Θ , d ψ1 , η )2)(5.12) which gives us the desired (3.11). The proof of Theorem 3.3 is completed. □32 LIMING WU AND SEN YANG 
+
+5.2. Proof of Theorem 3.7. We begin by estimating the bias terms. 
+
+Lemma 5.2. Assume (H1) and (H2) . For 0 ⩽ k ⩽ M such that Mk is non-empty, let 
+
+Dk := Diam( Mk, d ψ1 ).
+
+Then 
+
+E sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) ⩽ 12 
+
+r 2
+
+n
+
+Z Dk /20
+
+q
+
+log P(Mk, d ψ1 , ε ) dε 
+
++ 12 
+
+n
+
+Z Dk /20
+
+log P(Mk, d ψ1 , ε ) dε. 
+
+(5.13) 
+
+Proof of Lemma 5.2. Assume that Mk̸ = ∅. Applying Lemma 3.2 to the class 
+
+{− Qθ : θ ∈ Mk},
+
+we obtain 
+
+E sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) = E sup 
+
+> θ∈Mk
+
+(Ln(−Qθ) − μ(−Qθ)) 
+
+⩽ 12 
+
+r 2
+
+n
+
+Z Dk /20
+
+q
+
+log P(Mk, d ψ1 , ε ) dε 
+
++ 12 
+
+n
+
+Z Dk /20
+
+log P(Mk, d ψ1 , ε ) dε, 
+
+(5.14) where 
+
+Dk = Diam( Mk, d ψ1 ).
+
+This proves (5.13). □
+
+Proof of Theorem 3.7. We estimate the probabilities (Π 0) and (Π k), 1 ⩽ k ⩽ M , in the decomposition (3.20). By the lower boundedness assumption (3.18), for every θ ∈ Θ, 
+
+−Qθ ⩽ L. 
+
+Moreover, since R(θ) ⩽ R∗ for every θ ∈ Θ, we have 
+
+R(θ) − Qθ ⩽ L + R∗.
+
+Thus, on each class Mk, the one-sided boundedness constant b in Bousquet’s inequality can be chosen as L + R∗.For every 0 ⩽ k ⩽ M such that Mk is non-empty, applying Bousquet’s inequality in Theorem 1.1 to the class 
+
+{R(θ) − Qθ : θ ∈ Mk} ,NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 33 
+
+and using Lemma 5.2, we obtain, for every y > 0, 
+
+P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > b (n, Mk) + ηk(n, y )
+
+
+
+⩽ P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > b (n, Mk)+
+
+r2 ( σ2(Θ) + 2( L + R∗)b(n, Mk)) yn + (L + R∗)y
+
+3n
+
+!
+
+⩽ e−y.
+
+(5.15) Here, if Mk = ∅, the corresponding probability is understood to be zero. Taking k = 0 and y = x in (5.15), we get (Π 0) = P
+
+
+
+sup 
+
+> θ∈M0
+
+(R(θ) − RE,n (θ)) > ε 
+
+
+
+= P
+
+
+
+sup 
+
+> θ∈M0
+
+(R(θ) − RE,n (θ)) > b (n, M0) + η0(n, x )
+
+
+
+⩽ e−x.
+
+(5.16) For 1 ⩽ k ⩽ M with Mk̸ = ∅, taking y = kx in (5.15) yields 
+
+P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > b (n, Mk) + ηk(n, kx )
+
+
+
+⩽ e−kx . (5.17) By the assumption (3.23) and the definition 
+
+ε = b(n, M0) + η0(n, x ),
+
+we have, for every 1 ⩽ k ⩽ M with Mk̸ = ∅,
+
+√kδ + ε = √kδ + b(n, M0) + η0(n, x ) ⩾ b(n, Mk) + ηk(n, kx ).
+
+Therefore, by (5.17), (Π k) = P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > √kδ + ε
+
+
+
+⩽ P
+
+
+
+sup 
+
+> θ∈Mk
+
+(R(θ) − RE,n (θ)) > b (n, Mk) + ηk(n, kx )
+
+
+
+⩽ e−kx .
+
+(5.18) Combining (5.16) and (5.18) with the decomposition (3.20), we obtain 
+
+p+(n, ε ) ⩽ e−x +
+
+> M
+
+X
+
+> k=1
+
+e−kx ⩽ e−x + e−x
+
+1 − e−x .
+
+This proves (3.24). □34 LIMING WU AND SEN YANG 
+
+5.3. Proof of Theorem 3.10. 
+
+Proof of Theorem 3.10. For L > 0, set 
+
+QLθ := ( −L) ∨ Qθ, RL(θ) := μ(QLθ ),RLE,n (θ) := Ln(QLθ ), RL 
+
+> ∗
+
+:= inf  
+
+> θ∈Θ
+
+RL(θ).
+
+Recall that 
+
+χL := Q∗1{Q∗>L }.
+
+By the definition of the ψ1-norm, for every t > 0, 
+
+P(Q∗ > t ) ⩽ 2 exp 
+
+
+
+− t
+
+∥Q∗∥ψ1
+
+
+
+.
+
+Therefore, 
+
+μ(χL) = LP(Q∗ > L ) + 
+
+Z +∞
+
+> L
+
+P(Q∗ > t ) dt 
+
+⩽ 2 ( L + ∥Q∗∥ψ1 ) exp 
+
+
+
+− L
+
+∥Q∗∥ψ1
+
+
+
+⩽ δ
+
+4,
+
+(5.19) where the last inequality follows from the condition (3.29). 
+
+Step 1. Truncation estimates and decomposition. By (H3) , for every θ ∈ Θ, 0 ⩽ QLθ − Qθ ⩽ χL. (5.20) Consequently, 0 ⩽ RL(θ) − R(θ) ⩽ μ(χL), 0 ⩽ RLE,n (θ) − RE,n (θ) ⩽ Ln(χL). (5.21) In particular, 
+
+R∗ ⩽ RL 
+
+> ∗
+
+⩽ R∗ + μ(χL), (5.22) and 0 ⩽ inf  
+
+> θ∈Θ
+
+RLE,n (θ) − inf  
+
+> θ∈Θ
+
+RE,n (θ) ⩽ Ln(χL). (5.23) By (5.22) and (5.23), if 
+
+RL 
+
+> ∗
+
+⩽ inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2and 
+
+Ln(χL) ⩽ ε
+
+2,
+
+then 
+
+R∗ ⩽ RL 
+
+> ∗
+
+⩽ inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2
+
+⩽ inf  
+
+> θ∈Θ
+
+RE,n (θ) + Ln(χL) + ε
+
+2
+
+⩽ inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε. NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 35 
+
+Consequently, 
+
+R∗ > inf  
+
+> θ∈Θ
+
+RE,n (θ) + ε
+
+
+
+⊂
+
+
+
+RL 
+
+> ∗
+
+> inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2
+
+
+
+∪
+
+n
+
+Ln(χL) > ε
+
+2
+
+o
+
+.
+
+Therefore, 
+
+p+(n, ε ) ⩽ P
+
+
+
+RL 
+
+> ∗
+
+> inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2
+
+
+
++ P
+
+
+
+Ln(χL) > ε
+
+2
+
+
+
+. (5.24) It remains to estimate the truncated minimal-risk term and the empirical tail term. 
+
+Step 2. The truncated minimal-risk term. We repeat the peeling argument in the proof of Theorem 3.7 for the truncated class {QLθ : θ ∈ Θ} on the original risk-level sets Mk, 0 ⩽ k ⩽ M .Since the truncation map u 7 → (−L) ∨ u is 1-Lipschitz, for every θ, θ ′ ∈ Θ, 
+
+∥QLθ − QLθ′ ∥ψ1 ⩽ ∥Qθ − Qθ′ ∥ψ1 .
+
+Moreover, using the independent-copy representation of the variance, we have Var μ(QLθ ) ⩽ Var μ(Qθ), θ ∈ Θ.
+
+Thus, on every non-empty set Mk, the entropy bias is bounded by b(n, Mk); namely, 
+
+E sup 
+
+> θ∈Mk
+
+ RL(θ) − RLE,n (θ) ⩽ b(n, Mk). (5.25) By (5.21) and (5.19), 
+
+RL(θ) ⩽ R(θ) + μ(χL) ⩽ R∗ + δ
+
+4.
+
+Since QLθ ⩾ −L, it follows that 
+
+RL(θ) − QLθ ⩽ R∗ + L + δ
+
+4, θ ∈ Θ. (5.26) Therefore, Bousquet’s inequality gives, for every 0 ⩽ k ⩽ M such that Mk is non-empty and every y > 0, 
+
+P
+
+
+
+sup 
+
+> θ∈Mk
+
+ RL(θ) − RLE,n (θ) > b (n, Mk) + ηk,L (n, y )
+
+
+
+⩽ e−y. (5.27) For k = 0, the definition of ε gives 
+
+ε
+
+2 ⩾ b(n, M0) + η0,L (n, x ).
+
+Since 
+
+RL 
+
+> ∗
+
+⩽ inf 
+
+> θ∈M0
+
+RL(θ),36 LIMING WU AND SEN YANG 
+
+we have 
+
+RL 
+
+> ∗
+
+> inf 
+
+> θ∈M0
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⊂
+
+
+
+sup 
+
+> θ∈M0
+
+ RL(θ) − RLE,n (θ) > ε
+
+2
+
+
+
+.
+
+Hence, applying (5.27) to M0 with y = x, we obtain 
+
+P
+
+
+
+RL 
+
+> ∗
+
+> inf 
+
+> θ∈M0
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⩽ e−x. (5.28) For 1 ⩽ k ⩽ M with Mk̸ = ∅, (5.22) and (5.19) imply inf 
+
+> θ∈Mk
+
+RL(θ) − RL 
+
+> ∗
+
+⩾ inf 
+
+> θ∈Mk
+
+R(θ) − R∗ − μ(χL)
+
+⩾ √kδ − δ
+
+4.
+
+Hence 
+
+P
+
+
+
+RL 
+
+> ∗
+
+> inf 
+
+> θ∈Mk
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⩽ P
+
+
+
+sup 
+
+> θ∈Mk
+
+ RL(θ) − RLE,n (θ) > √kδ − δ
+
+4 + ε
+
+2
+
+
+
+.
+
+(5.29) By (3.30) and the definition of ε,
+
+√kδ − δ
+
+4 + ε
+
+2 ⩾ b(n, Mk) − b(n, M0) + ηk,L (n, kx ) − η0,L (n, x )+ b(n, M0) + η0,L (n, x )= b(n, Mk) + ηk,L (n, kx ).
+
+Therefore, applying (5.27) with y = kx , we obtain 
+
+P
+
+
+
+RL 
+
+> ∗
+
+> inf 
+
+> θ∈Mk
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⩽ e−kx . (5.30) Since Θ = SMk=0 Mk, with empty sets omitted, 
+
+
+
+RL 
+
+> ∗
+
+> inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⊂
+
+> M
+
+[
+
+> k=0
+
+
+
+RL 
+
+> ∗
+
+> inf 
+
+> θ∈Mk
+
+RLE,n (θ) + ε
+
+2
+
+
+
+.NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 37 
+
+Combining the estimates over the non-empty sets Mk, 0 ⩽ k ⩽ M , gives 
+
+P
+
+
+
+RL 
+
+> ∗
+
+> inf  
+
+> θ∈Θ
+
+RLE,n (θ) + ε
+
+2
+
+
+
+⩽ e−x +
+
+> M
+
+X
+
+> k=1
+
+e−kx 
+
+⩽ e−x + e−x
+
+1 − e−x .
+
+(5.31) 
+
+Step 3. The empirical tail term. Since χL ⩽ Q∗ and ∥Q∗∥ψ1 < +∞, we have 
+
+∥χL∥ψ1 < +∞. Applying Theorem 2.3 together with (2.6) to the single observable χL,we obtain 
+
+P
+
+
+
+Ln(χL) − μ(χL) > 2∥χL∥ψ1
+
+r xn + ∥χL∥ψ1
+
+xn
+
+
+
+⩽ e−x.
+
+Equivalently, 
+
+P (Ln(χL) > τ n(x, L )) ⩽ e−x. (5.32) By (3.31), 
+
+τn(x, L ) ⩽ ε
+
+2. (5.33) Consequently, 
+
+P
+
+
+
+Ln(χL) > ε
+
+2
+
+
+
+⩽ e−x. (5.34) 
+
+Step 4. Conclusion. Combining (5.24), (5.31) and (5.34), we obtain 
+
+p+(n, ε ) ⩽ 2e−x + e−x
+
+1 − e−x .
+
+This proves (3.32). □
+
+6. Appendix 
+
+In this section, we will specify the absolute constants K1, K 2 mentioned in Theorem 5.1. The proof is based on van der Vaart and Wellner’s methods with a new technique. First, let us recall a lemma which is needed in the proof. 
+
+Lemma 6.1 (Lemma 2.2.1 [45]) . Let X be a random variable with P(|X| > x ) ⩽ Be −Cx p
+
+for every x, for constants B and C, and for p ≥ 1. Then its Orlicz norm satisfies 
+
+∥X∥ψp ⩽ ((1 + B)/C ) 1 
+
+> p
+
+.
+
+Lemma 6.2. If max 1⩽i⩽m ∥Xi∥ψp ⩽ A, where A is a positive constant, then 
+
+∥ max  
+
+> 1⩽i⩽m
+
+|Xi|∥ ψp ⩽ A
+
+log(1 + m)log 2 
+
+ 1
+
+> p
+
+. (6.1) 38 LIMING WU AND SEN YANG 
+
+Proof of Lemma 6.2. By the definition of Orlicz norm, ∥Xi∥ψp ⩽ A implies 
+
+E[exp(( |Xi|/A )p) − 1] ⩽ 1.
+
+Let Y := exp((max i |Xi|/A )p) − 1. Then, 
+
+Y = max  
+
+> i
+
+(exp(( |Xi|/A )p) − 1) ⩽
+
+> m
+
+X
+
+> i=1
+
+[exp(( |Xi|/A )p) − 1] ,
+
+which leads to 
+
+E exp((max  
+
+> i
+
+|Xi|/A )p) = EY + 1 ⩽ 1 + m. 
+
+For α ∈ (0 , 1], by Jensen’s inequality, 
+
+E exp( α(max  
+
+> i
+
+|Xi|/A )p) ⩽ [E exp((max  
+
+> i
+
+|Xi|/A )p)] α ⩽ (1 + m)α.
+
+Set α = log 2 log(1+ m) which belongs to (0 , 1], 
+
+E[exp( α(max  
+
+> i
+
+|Xi|/A )p) − 1] ⩽ (1 + m)α − 1 = 1 .
+
+Therefore, 
+
+∥ max  
+
+> i
+
+|Xi|∥ ψp ⩽ Aα − 1 
+
+> p
+
+= A
+
+log(1 + m)log 2 
+
+ 1
+
+> p
+
+.
+
+□
+
+Incorporating lemma 6.2 into van der Vaart and Wellner’s results [45, Proof of Lemma 2.2.10] yields a new proof of Theorem 5.1. 
+
+Proof of Theorem 5.1. The proof is divided into two steps. 
+
+Step 1. The condition implies the upper bound 2 exp( −x2/(4 cB )) on P(|Xi| > x )for x ⩽ cB 
+
+> M
+
+, and the upper bound 2 exp( −x/ (4 M )) for other positive x. Consequently, the same upper bounds hold for all x > 0 for the probabilities P(|Xi|1{| Xi|⩽cB /M } > x )and P(|Xi|1{| Xi|>c B /M } > x ), respectively. By Lemma 6.1, this implies that 
+
+∥| Xi|1{| Xi|⩽cB /M }∥ψ2 ⩽ ((1 + 2)4 cB )12 = √12 cB
+
+and 
+
+∥| Xi|1{| Xi|>c B /M }∥ψ1 ⩽ ((1 + 2)4 M ) = 12 M. 
+
+Also, from Jensen’s inequality we have for 1 ⩽ p ⩽ q and for any r.v. X (see [45, p. 95 and Problem 2.2.5] for a similar result), 
+
+∥X∥ψp ⩽ ∥X∥ψq (log 2) 1   
+
+> q−1
+> p
+
+. (6.2) NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 39 
+
+In fact, let the concave function ϕ satisfy that ϕ(ψq((log 2) 1/q x)) = ψp(x(log 2) 1/p ) and 
+
+ϕ(1) = 1 for q ⩾ p ⩾ 1. Hence, ϕ is nondecreasing and 
+
+ϕ
+
+
+
+Eψq
+
+ |X|(log 2) 1/q 
+
+∥X∥ψp (log 2) 1/p 
+
+ 
+
+⩾ Eϕ
+
+
+
+ψq
+
+ |X|(log 2) 1/q 
+
+∥X∥ψp (log 2) 1/p 
+
+ 
+
+= Eψp
+
+ |X|(log 2) 1/p 
+
+∥X∥ψp (log 2) 1/p 
+
+
+
+= 1 ,
+
+which implies (6.2). Taking p = 1 and q = 2, we get ∥X∥ψ1 ⩽ ∥X∥ψ2 (log 2) − 12 .
+
+Step 2. By Lemma 6.2, we get 
+
+∥ max  
+
+> i
+
+|Xi|∥ ψ2 ⩽
+
+log(1 + m)log 2 
+
+12
+
+max  
+
+> i
+
+∥Xi∥ψ2 , ∥ max  
+
+> i
+
+|Xi|∥ ψ1 ⩽ log(1 + m)log 2 max  
+
+> i
+
+∥Xi∥ψ1 .
+
+Consequently, 
+
+∥ max  
+
+> i
+
+|Xi|∥ ψ1 ⩽ ∥ max  
+
+> i
+
+|Xi|1{| Xi|⩽cB /M }∥ψ1 + ∥ max  
+
+> i
+
+|Xi|1{| Xi|>c B /M }∥ψ1
+
+⩽ 1
+
+√log 2 ∥ max  
+
+> i
+
+|Xi|1{| Xi|⩽cB /M }∥ψ2 + ∥ max  
+
+> i
+
+|Xi|1{| Xi|>c B /M }∥ψ1
+
+⩽ 1
+
+√log 2 
+
+log(1 + m)log 2 
+
+12
+
+max  
+
+> i
+
+∥| Xi|1{| Xi|⩽cB /M }∥ψ2
+
++ log(1 + m)log 2 max  
+
+> i
+
+∥| Xi|1{| Xi|>c B /M }∥ψ1
+
+⩽ 2√3log 2 
+
+pcB log(1 + m) + 12 log 2 M log(1 + m),
+
+which implies that K1 = 2√3log 2 , K 2 = 12 log 2 . □
+
+Acknowledgements. We are grateful to Arnaud Guillin for the communication of the recent reference [17]. Part of this joint work was carried out while the second-named author was a visiting Ph.D. student at LMBP, Universit´ e Clermont-Auvergne, from July 2024 to July 2025. He expresses his gratitude to LMBP and to Prof. H. Djellout for the warm hospitality. 
+
+References 
+
+[1] R. Adamczak. A tail inequality for suprema of unbounded empirical processes with applications to Markov chains. Electronic Journal of Probability , 13:1000–1034, 2008. [2] L. Ambrosio, F. Stra, and D. Trevisan. A PDE approach to a 2-dimensional matching problem. Probability Theory and Related Fields , 173:433–477, 2019. 
+
+https://doi.org/10.1007/s00440-018-0837-x .[3] M. Ajtai, J. Koml´ os, and G. Tusn´ ady. On optimal matchings. Combinatorica , 4:259–264, 1984. [4] F. Bach. Learning Theory from First Principles. The MIT Press , 2024. 40 LIMING WU AND SEN YANG 
+
+[5] P. L. Bartlett, O. Bousquet, and S. Mendelson. Local Rademacher complexities. The Annals of Statistics , 33(4):1497–1537, 2005. [6] P. L. Bartlett, N. Harvey, C. Liaw and A. Mehrabian. Nearly-tight VC-dimension and pseudo-dimension bounds for piecewise linear neural networks. Journal of Machine Learning Research ,20:1–17, 2019. [7] P. L. Bartlett and S. Mendelson. Rademacher and Gaussian complexities: Risk bounds and struc-tural results. Journal of Machine Learning Research , 3:463–482, 2002. [8] P. L. Bartlett and S. Mendelson. Empirical minimization. Probability Theory and Related Fields ,135(3):311–334, 2006. [9] F. Bolley and C. Villani. Weighted Csisz´ ar-Kullback-Pinsker inequality and applications to trans-portation inequalities. Annales de la Facult´ e des Sciences de Toulouse. Math´ ematiques , 14(3):331– 352, 2005. [10] S. Boucheron, G. Lugosi, and P. Massart. Concentration inequalities: a nonasymptotic theory of independence. Oxford University Press , 2013. [11] O. Bousquet. Concentration inequalities and empirical processes theory applied to the analysis of learning algorithms. Ph.D. thesis, Department of Applied Mathematics, Ecole Polytechnique, 
+
+2002. [12] O. Bousquet and A. Elisseeff. Stability and generalization. Journal of Machine Learning Research ,2:499–526, 2002. [13] Olivier Bousquet, Yegor Klochkov, and Nikita Zhivotovskiy. Sharper bounds for uniformly stable algorithms. In Conference on Learning Theory, pages 610–626, 2020. 
+
+[14] V. H. de la Pe˜ na, T. L. Lai, and Q. M. Shao. Self-Normalized Processes: Limit Theory and Statistical Applications . Springer-Verlag, Berlin Heidelberg, 2009. [15] H. Djellout, A. Guillin, and L. Wu. Transportation cost-information inequalities for random dy-namical systems and diffusions. The Annals of Probability , 32(3B):2702–2732, 2004. [16] Weinan E. A mathematical perspective of machine learning. International Congress of Mathe-maticians . European Mathematical Society–EMS Publishing House GmbH, 914–954, 2023. [17] P. Escande. On the concentration of the minimizers of empirical risks. Journal of Machine Learning Research , 25(251):1–53, 2024. [18] K. Falconer. Techniques in Fractal Geometry. John Wiley & Sons , 1997. [19] X. Fan, I. Grama, and Q. S. Liu. Sharp large deviation results for sums of independent random variables. Science China Mathematics , 58(9):1939–1958, 2015. [20] V. Feldman and J. Vondrak. Generalization bounds for uniformly stable algorithms. In Advances in Neural Information Processing Systems, volume 31, 2018. 
+
+[21] V. Feldman and J. Vondrak. High probability generalization bounds for uniformly stable algo-rithms with nearly optimal rate. In Conference on Learning Theory, pages 1270–1279, 2019. 
+
+[22] N. Fournier and A. Guillin. On the rate of convergence in Wasserstein distance of the empirical measure. Probability Theory and Related Fields , 162:707–738, 2015. [23] F. Q. Gao, A. Guillin, and L. Wu. Bernstein-type concentration inequalities for symmetric Markov processes. SIAM. Theory of Probability and its Applications , 58(3):358–382, 2014. [24] N. Gozlan and C. L´ eonard. A large deviation approach to some transportation cost inequalities. 
+
+Probability Theory and Related Fields , 139:235–283, 2007. [25] N. Gozlan and C. L´ eonard. Transport inequalities. A survey. Markov Processes and Related Fields ,16(4):635–736, 2010. [26] T. Klein and E. Rio. Concentration inequality around the mean for maxima of empirical processes. 
+
+The Annals of Probability , 33(3):1060–1077, 2005. doi:10.1214/009117905000000044 .[27] Yegor Klochkov and Nikita Zhivotovskiy. Stability and deviation optimal risk bounds with con-vergence rate O(1/n). In Advances in Neural Information Processing Systems , 34: 5065–5076, 2021. [28] V. Koltchinskii. Local Rademacher complexities and oracle inequalities in risk minimization. The Annals of Statistics , 34:2593–2656, 2006. NON-ASYMPTOTIC ESTIMATES OF THE MINIMAL RISK 41 
+
+[29] V. Koltchinskii. Oracle inequalities in empirical risk minimization and sparse recovery problems. 
+
+Ecole d’Et´ e de Probabilit´ es de Saint-Flour XXXVIII-2008, Lecture Notes in Mathematics , Vol. 2033. Springer, 2011. [30] M. Ledoux and M. Talagrand. Probability in Banach Spaces. Isoperimetry and Processes . Ergeb-nisse der Mathematik und ihrer Grenzgebiete (3), Vol. 23, Springer-Verlag, Berlin, 1991. [31] M. Ledoux. Talagrand deviation inequalities for product measures. ESAIM: Probability and Sta-tistics , 1:63–87, 1996. [32] M. Ledoux. Concentration of measure and logarithmic Sobolev inequalities. S´ eminaire de Proba-bilit´ es XXXVI , Lecture Notes in Mathematics, Vol. 1709, 120–216, Springer-Verlag, Berlin, 1999. [33] M. Ledoux. The Concentration of Measure Phenomenon. American Mathematical Society , Provi-dence, RI, 2001. [34] K. Marton. A measure concentration inequality for contracting Markov chains. Geometric and Functional Analysis , 6:556–571, 1996. [35] K. Marton. Bounding ¯d-distance by informational divergence: a way to prove measure concentra-tion. The Annals of Probability , 24:857–866, 1996. [36] P. Massart. About the constants in Talagrand’s concentration inequalities for empirical processes. 
+
+The Annals of Probability , 28(2):863–884, 2000. [37] S. Mendelson. Lower bounds for the empirical minimization algorithm. IEEE Transactions on Information Theory , 54(8):3797–3803, 2008. [38] E. Rio. Th´ eorie asymptotique des processus al´ eatoires faiblement d´ ependants. Math´ ematiques et Applications , Vol. 31. Springer, Paris, 2000. [39] K. Spiliopoulos, R. B. Sowers, and J. Sirignano. Mathematical foundations of deep learning models and algorithms. American Mathematical Society , Vol. 252, 2025. [40] M. Talagrand. Sharper bounds for Gaussian and empirical processes. The Annals of Probability ,22(1):28–76, 1994. [41] M. Talagrand. Concentration of measure and isoperimetric inequalities in product spaces. Publi-cations Math´ ematiques de l’I.H.E.S. , 81:73–205, 1995. [42] M. Talagrand. New concentration inequalities in product spaces. Inventiones Mathematicae ,126:505–563, 1996. [43] M. Talagrand. Transportation cost for Gaussian and other product measures. Geometric and Functional Analysis , 6:587–600, 1996. [44] M. Talagrand. Scaling and non-standard matching theorems. Comptes Rendus Math´ ematique, Acad´ emie des Sciences Paris , 356(6):692–695, 2018. [45] A. W. van der Vaart and J. A. Wellner. Weak convergence and empirical processes: with appli-cations to statistics. Springer Series in Statistics . Springer New York, NY, 1996. [46] V. N. Vapnik. The nature of statistical learning theory. Springer , Second Edition, 1999. [47] Roman Vershynin. High-dimensional probability: an introduction with applications in data sci-ence. Cambridge Series in Statistical and Probabilistic Mathematics . Cambridge University Press, 2018. [48] M. J. Wainwright. High-dimensional statistics: a non-asymptotic viewpoint. Cambridge University Press , 2019. [49] F. Y. Wang. Convergence in Wasserstein distance for empirical measures of Dirichlet diffusion processes on manifolds. Journal of the European Mathematical Society , 25:3695–3725, 2023. [50] N. Y. Wang and L. Wu. Transport-information inequalities for Markov chains. The Annals of Applied Probability , 30(3):1276–1320, 2020. [51] R. Wang, X. Y. Wang, and L. Wu. Sanov’s theorem in the Wasserstein metric: a necessary and sufficient condition. Statistics and Probability Letters , 80:505–512, 2010. [52] L. Wu. Large deviations, moderate deviations and LIL for empirical processes. The Annals of Probability , 22(1):17–27, 1994. 42 LIMING WU AND SEN YANG 
+
+Liming Wu. Laboratoire de Math´ ematiques Blaise Pascal, CNRS-UMR 6620, Univer-sit´ e Clermont-Auvergne (UCA), 63000 Clermont-Ferrand, France. 
+
+Email address : li-ming.wu@uca.fr 
+
+Sen Yang. IASM, Harbin Institute of Technology, China 
+
+Email address : syang8734@gmail.com

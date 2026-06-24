@@ -1,0 +1,961 @@
+Title: Importance Sampling for Event Discovery via Guesswork
+
+URL Source: https://arxiv.org/pdf/2606.24537v1
+
+Published Time: Wed, 24 Jun 2026 01:00:30 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# Importance Sampling for Event Discovery via Guesswork 
+
+Asaf Cohen 
+
+School of Electrical and Computer Engineering Ben-Gurion University of the Negev Beer-Sheva Email: coasaf@bgu.ac.il 
+
+Abstract —Traditional importance sampling (IS) is designed to estimate rare-event probabilities by minimizing estimator variance. However, many applications prioritize rapid discovery: the generation of a trajectory within a rare set An. This requires a shift from ensemble-based estimation to a design principle focused on the hitting time τAn := inf {t ≥ 1 : Y nt ∈ An}.We formalize a Quality of Discovery problem as the problem of minimizing the description length (surprisal) of the discovered trajectory under the nominal model p. We prove that minimizing this description length is equivalent to minimizing the nomi-nal rank exponent Jrank (qn) := lim n→∞ 1 
+
+> n
+
+log Gn(Y n), where 
+
+Gn(xn) is the guesswork of sequence xn. For i.i.d. models and type-defined rare sets Γ, we show that while classical IS targets the mass-dominating type Q∗ 
+
+> IS
+
+∈ arg min Q∈Γ D(Q∥p), discovery optimality is achieved by Q∗ 
+
+> GW
+
+∈ arg min Q∈Γ[H(Q) + D(Q∥p)] .This framework identifies a fundamental rule: minimizing the guesswork exponent ensures the discovered sequence is the "least surprising" representative of the set relative to the nominal model’s search order. We further demonstrate that under bud-getary constraints, this exponent serves as a lexicographic tie-breaker when the hitting-time minimizer is not unique. This establishes H(Q) + D(Q∥p) as a natural objective for discovery-based importance sampling, providing a formal bridge between randomized sampling and systematic search. 
+
+I. I NTRODUCTION 
+
+Importance sampling (IS) is a powerful variance-reduction technique traditionally used to estimate the probability of rare events. By introducing an alternative sampling distribution qn,IS allows for the efficient representation of the probability mass of a rare set An, which would otherwise require an exponential number of samples to observe under a nominal distribution pn. In many modern applications, however, the primary objective shifts from probability estimation to rapid discovery : the generation of a specific trajectory within a rare set as quickly as possible. This shift to a discovery-based goal requires a design principle focused on the hitting time τAn := inf {t ≥ 1 : Y nt ∈
+
+An}, where Jhit (qn) := lim sup n→∞ 1 
+
+> n
+
+log Eqn [τAn ] is the hitting-time exponent. Rapid discovery necessitates a different proposal distribution Q∗, centered on discovery speed rather than variance minimization. We formalize this as the Quality of Discovery , which seeks to hit the target set in subexponential time (ensuring Jhit (qn) = 0 ) while optimizing the qualitative nature of the discovered trajectory. Searching for a distribution that efficiently hits a target connects importance sampling to the field of guesswork .Guesswork centers on the search effort required to identify a realization of a random vector through sequential queries. The guesswork exponent, governed by the nominal rank Gn(xn),measures the number of queries required to identify xn when searching in decreasing order of probability. Notably, this guesswork exponent is achievable not only through such a deterministic search but also through randomized guessing strategies, where samples are drawn independently according to a specified proposal distribution [1]. To refine our choice among potential discovery proposals, we introduce a minimal description length criterion. This approach seeks the trajectory that is most consistent with the nominal model: the "least surprising" representative of the rare set. We prove that minimizing the expected description length (surprisal) under the nominal model is equivalent to minimizing the guesswork exponent. This provides a concrete and new optimization problem: minimize 
+
+> qn
+
+Eqn
+
+
+
+− 1
+
+n log pn(Y n) | Y n ∈ An
+
+
+
+subject to Jhit (qn) = 0 .
+
+(1) For i.i.d. models and type-defined sets Γ, we show that the solution is the guesswork-guided proposal Q∗ 
+
+> GW
+
+=arg min Q∈Γ[H(Q) + D(Q∥p)] .The contributions of this paper are summarized as follows. We formalize the Quality of Discovery as a performance met-ric for importance sampling focused on individual trajectory properties. We prove the equivalence between minimizing the description length of a discovered trajectory and minimizing its nominal rank exponent . We derive the guesswork-guided proposal Q∗ 
+
+> GW
+
+as the optimal solution for discovery in i.i.d. models. Finally, we demonstrate that the guesswork exponent serves as a lexicographic tie-breaker in constrained discovery settings where multiple proposals yield identical hitting times. 
+
+> arXiv:2606.24537v1 [cs.IT] 23 Jun 2026
+
+A. Importance Sampling 
+
+The references most relevant to this work are at the intersec-tion of classical rare-event importance sampling, modern path-space sampling, and recent "make rare typical" constructions. While these distinct lines of research focus predominantly on optimizing estimation accuracy (minimizing variance), our approach shifts the focus toward optimizing discovery speed and the qualitative representativeness of trajectories through a guesswork criterion. Early foundations in importance sampling were primarily concerned with sequential analysis and stopping times. [2] provided a classical treatment in this area; however, this work tunes the change of measure for accurate probability estima-tion rather than rapid discovery. [3] is a standard reference for exponential tilting and large-deviations-based proposal design. While we utilize similar change-of-measure language, we replace this variance-efficiency metric with expected hitting time. Similarly, [4] formalized asymptotically efficient Monte Carlo estimation. While this work also studied exponential rates, our work centers on a search exponent driven by guess-work rather than a second-moment efficiency exponent. [5] further explored conditional estimators from an information-theoretic viewpoint. We maintains this proposal-design em-phasis but, again, evaluates proposals based on the mass they place on the target set rather than estimator variance. The connection between importance sampling, large devi-ations, and control was established in [6], viewing optimal proposals as a game between change of measure and large deviation. Similarly, [7] developed state-dependent schemes for heavy-tailed random walks. Although they target hitting events, their optimization objective remains estimator effi-ciency rather than direct hitting-time cost. In the realm of alternative algorithms, trajectory biasing and making the rare typical, [8] enhanced adaptive multilevel splitting, where one multiplies certain (favorable) trajectories and excludes others. Still, the focus is on estimation of (very) rare events. More recent literature has moved toward forcing rare transitions to occur more frequently. [9] modified dynamics through optimal nonequilibrium forcing to sample rare transitions efficiently. While conceptually close to our goal of making rare events visible, we derive the preferred bias from nominal-probability ranking and guesswork. The recent review [10] considered the broader landscape of variational path-sampling, also searching for a biased distribution, which minimizes the statistical distance to the true rare-event dis-tribution, yet making the improbable events appear typical in simulation. This philosophy is shared in [11], where an explicit con-struction modifies dynamics under which rare trajectories become typical. Our work expresses this same intuition within an information-theoretic, guesswork-based framework for dis-crete sequence models. In a similar vein [12] used variational methods to approximate Doob-transformed dynamics for rare path sampling. While their target is conditioned path sampling, ours is hitting-time optimization for discovery. Modern computational approaches have also incorporated machine learning. [13] utilized reinforcement learning to learn proposal dynamics. Our approach differs by changing the underlying criterion being learned from estimator quality to discovery speed. 
+
+B. Guesswork 
+
+The study of guesswork centers on the search effort re-quired to identify a realization of a random n-vector Xn
+
+through sequential queries. It is well established that the optimal strategy for minimizing guesswork moments involves querying candidates in descending order of their likelihood. This framework has its roots in early research on sequential decoding [14], [15] and the discovery of codewords under specific structural constraints [16]. A cornerstone of the field is the work by Arıkan, which proved that the asymptotic growth rate of guesswork moments is governed by the source’s Rényi entropy [15]. While much focus has been on these large deviations and asymptotic limits [17], [18], recent investigations have produced non-asymptotic converse results that clarify the behavior at finite block lengths [19]. Information-theoretic perspectives further link guesswork to one-shot or fixed-to-variable source coding without prefix constraints [20]–[23]. In these models, the objective of or-dering sequences by probability of appearance is functionally equivalent to the guesswork optimization problem. More so-phisticated models incorporate additional parameters, such as side information, which can significantly lower the required search effort [15], [17], [24]–[26]. Furthermore, to address constraints like memory limitations or lack of agent syn-chronization, researchers have explored randomized guessing strategies [1], [27]–[29]. In these setups, guesses are drawn independently according to a specified distribution rather than following a deterministic list. Finally, note that the i.i.d. setting provides a clear conceptual proof-of-concept rather than a final computational goal. It allows us to isolate the guesswork exponent (discovery) from the large-deviations exponent (probability) in the simplest possible environment. While this distinction is often hidden in complex models, where rare events are defined by intricate paths and proposals are restricted to specific dynamics, the i.i.d. analysis identifies the correct objective. We view this as a fundamental blueprint: when mathematical solutions are out of reach in high-dimensional systems, this framework guides us to choose proposals that target the most "discoverable" trajectories rather than just the most probable regions. II. P RELIMINARIES 
+
+A. Notation 
+
+Throughout, X denotes a finite alphabet, and X n the set of all length-n sequences over X . Elements of X are denoted by a, while sequences are written as xn = ( x1, . . . , x n) ∈ X n.Random variables are denoted by uppercase letters, such as X, and their realizations by lowercase letters, such as x.Random sequences are written as Xn = ( X1, . . . , X n), where each Xi takes values in X . Probability distributions on X are denoted by P, Q, p, q , according to context. For a sequence xn ∈ X n, its empirical distribution, or type ,is the probability mass function ˆPxn on X . For a type Q on X ,the associated type class is T (Q) := {xn ∈ X n : ˆPxn = Q}.We write Pn(X ) for the set of all n-types on X .Throughout this paper, we use the notation an
+
+.
+
+= bn to denote that an is exponentially equivalent to bn, namely, 
+
+lim 
+
+> n→∞
+
+1
+
+n log an = lim 
+
+> n→∞
+
+1
+
+n log bn.
+
+B. Classical Importance Sampling 
+
+Let pn be a probability distribution on X n. In many applications, one is interested in a rare event An ⊆ X n,whose probability under pn is exponentially small. Direct Monte Carlo estimation of pn(An) is inefficient when An is rare, since the number of samples required to observe even a single occurrence scales as 1/p n(An), which is typically exponential in n. Importance sampling addresses this problem by introducing an alternative sampling distribution qn on X n,such that samples are drawn according to qn, rather than pn.The probability pn(An) can then be written as 
+
+pn(An) = Eqn
+
+
+
+1{Xn ∈ An} · pn(Xn)
+
+qn(Xn)
+
+
+
+, Xn ∼ qn.
+
+This yields the unbiased estimator 
+
+ˆpN (An) = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+1{Xni ∈ An} · pn(Xni )
+
+qn(Xni ) , Xnii.i.d. 
+
+∼ qn.
+
+The key design problem in importance sampling is there-fore: How should one choose qn so that the estimator has low variance? C. Optimal and Near-Optimal Choices 
+
+The optimal (zero-variance) choice is q⋆n(xn) = 
+
+> pn(xn)
+> pn(An)
+
+1{xn ∈ An}, which yields a deterministic estimator. Yet, this choice requires knowledge of pn(An), and identification of each trajectory in An. Practical schemes therefore aim to approximate q⋆n, typically by tilting the nominal distribution pn toward the set An. Thus, classical importance sampling is concerned with estimating the probability pn(An), designing qn so that samples from qn
+
+efficiently represent the mass of An, and controlling the variance of the resulting estimator. In particular, the quality of qn is judged by how well it captures the total probability mass of An.
+
+D. Guesswork 
+
+Let {xn
+
+> (k)
+
+} denote the ordering of X n such that pn(xn
+
+> (1)
+
+) ≥
+
+pn(xn
+
+> (2)
+
+) ≥ · · · . The guesswork of a sequence xn is defined as 
+
+Gn(xn) := # {yn ∈ X n : pn(yn) ≥ pn(xn)}.
+
+Equivalently, Gn(xn) is the rank of xn in decreasing pn-order. The quantity Gn(xn) depends only on the probability level 
+
+pn(xn), and induces a monotone ranking of X n. Thus, guess-work defines a geometry on path space in which sequences with larger pn(xn) are easier to discover. For a set An ⊆ X n, define Gn(An) := min xn∈An Gn(xn).Then 
+
+Gn(An) = # 
+
+n
+
+yn : pn(yn) ≥ max 
+
+> xn∈An
+
+pn(xn)
+
+o
+
+.
+
+For a set An, the relevant quantity is not pn(An), but rather 
+
+max xn∈An pn(xn), i.e., the most likely element of An. Ac-cordingly, Gn(An) measures the discovery complexity of An
+
+through its most accessible trajectories. III. G UESSWORK AND IMPORTANCE SAMPLING 
+
+A. From Hitting Time to Minimal Surprisal Discovery 
+
+In many settings, the goal of importance sampling is not merely to estimate pn(An), but to generate samples in An, i.e., to actually observe rare trajectories. This shift from estimation to generation leads to a different performance metric: the 
+
+hitting time 
+
+τAn := inf {t ≥ 1 : Y nt ∈ An}, Y nti.i.d. 
+
+∼ qn,
+
+for which the expected value is Eqn [τAn ] = 1 
+
+> qn(An)
+
+. Thus, instead of minimizing estimator variance, one is led to a design problem focused on discovery speed: choose qn to maximize 
+
+qn(An), or equivalently, to ensure the hitting-time exponent 
+
+Jhit (qn) := lim sup n→∞ 1 
+
+> n
+
+log Eqn [τAn ] is minimized. However, in the asymptotic regime, the constraint 
+
+Jhit (qn) = 0 is often easy to satisfy. For any rare set An
+
+defined by a set of types Γ, any proposal qn = Q⊗n with 
+
+Q ∈ Γ ensures that the event is typical, resulting in discovery in subexponential time. Since many proposals can satisfy this requirement, we require a secondary criterion to ensure the 
+
+quality of the discovered trajectory. Specifically, we propose to select, among all proposals that achieve fast discovery, the one that minimizes the individual description length (surprisal) of the discovered trajectory under the nominal model pn, as given in (1). This ensures that the discovery is a "normal" representative of the rare set rather than a statistical outlier. 
+
+a) Connection to Guesswork: For i.i.d. nominal models 
+
+pn = P ⊗n and product-form proposals qn = Q⊗n, the objective function has a clean information-theoretic limit. By the law of large numbers for types, a trajectory Y n sampled from Q⊗n and conditioned on An will have a type close to 
+
+Q. The objective then satisfies [30]: 
+
+lim  
+
+> n→∞
+
+EQ
+
+
+
+− 1
+
+n log pn(Y n)
+
+
+
+= H(Q) + D(Q∥P ). (2) This expression is the fundamental exponent of guesswork ,governing the nominal rank Gn(xn) = # {yn : pn(yn) ≥
+
+pn(xn)}. This identity reveals that the "least surprising" tra-jectories are also the "most discoverable" ones: it is the specific type that appears earliest (compared to ˆPxn ) in a deterministic search ordered by the nominal model. Thus, the guesswork-optimal proposal Q∗ 
+
+> GW
+
+= arg min Q∈Γ[H(Q)+ D(Q∥P )] pro-vides the most efficient bridge between randomized sampling and systematic search. 
+
+B. Pathwise guesswork exponent for a fixed sequence 
+
+We first establishe g(Q) below as the pathwise quantity that connects the proposal-design problem in importance sampling to the deterministic search in guesswork. While this pathwise analysis is the primary focus for importance sampling, we also demonstrate how this characterization recovers the classical statistical limits of guesswork. Specifically, when the target sequence Xn is random and distributed according to p⊗n,the average of the pathwise exponent g(QXn ) coincides with Arıkan’s guesswork exponent. The proofs are in [30]. 
+
+Proposition 1. Assume pn = p⊗n. Let xn ∈ X n have type 
+
+Qn = ˆPxn , and suppose Qn → Q ∈ P (X ). Then 
+
+Gn(xn) = X 
+
+> Q′∈P n(X):
+> H(Q′)+ D(Q′∥p)≤H(Qn)+ D(Qn∥p)
+
+|T (Q′)|.
+
+Consequently, lim n→∞ 1 
+
+> n
+
+log Gn(xn) = g(Q), where 
+
+g(Q) := sup   
+
+> Q′∈P (X): H(Q′)+ D(Q′∥p)≤H(Q)+ D(Q∥p)
+
+H(Q′).
+
+Corollary 1. Assume pn = p⊗n and let Γ ⊆ P (X ) be a set of types. For the target set An(Γ) = {yn ∈ X n : ˆPyn ∈ Γ},the set-guesswork satisfies 
+
+Gn(An(Γ)) .
+
+= exp 
+
+
+
+n inf  
+
+> Q∈Γ
+
+g(Q)
+
+
+
+. (3) For completeness we show how this pathwise characteriza-tion recovers Arıkan’s classical guesswork exponent when the target sequence is random and distributed according to p⊗n.[30] includes the complete proof. 
+
+Proposition 2 (Recovering Arikan’s Exponent) . Let Xn be an i.i.d. sequence drawn according to p⊗n. Let g(Q) be the pathwise guesswork exponent for a sequence of type Q.Then, the asymptotic growth of the ρ-th moment of guesswork satisfies: 
+
+lim 
+
+> n→∞
+
+1
+
+n log Epn [Gn(Xn)ρ] = sup  
+
+> Q∈P (X)
+
+[ρg (Q) − D(Q|p)] .
+
+Furthermore, this optimization recovers Arikan’s Exponent: 
+
+sup  
+
+> Q∈P (X)
+
+[ρg (Q) − D(Q|p)] = ρH 11+ ρ (p),
+
+where Hβ (p) = 11−β log P 
+
+> a∈X
+
+p(a)β is the Rényi entropy of order β.C. Guesswork-Guided Importance Sampling Design 
+
+We can now state the optimality of guesswork-guided sampling. 
+
+Theorem 1. Assume a nominal i.i.d. model pn = p⊗n
+
+and a rare event An(Γ) defined by a set of target types 
+
+Γ ⊆ P (X ). Let q∗ 
+
+> n
+
+= ( Q∗
+
+> GW
+
+)⊗n be the proposal distribution where Q∗ 
+
+> GW
+
+∈ arg min Q∈Γ g(Q). Then, the discovery process defined in Algorithm 1 below achieves the following: 
+
+1) Subexponential Hitting Time: The hitting-time exponent 
+
+Jhit (q∗
+
+> n
+
+) satisfies 
+
+Jhit (q∗
+
+> n
+
+) := lim sup 
+
+> n→∞
+
+1
+
+n log Eq∗ 
+
+> n
+
+[τAn ] = 0 .
+
+Consequently, the expected number of samples required for discovery grows at most polynomially with n.
+
+2) Asymptotic Rank Optimality: The nominal rank 
+
+Gn(Y n) of the discovered trajectory Y n satisfies 
+
+lim 
+
+> n→∞
+
+1
+
+n log Gn(Y n) = inf  
+
+> Q∈Γ
+
+g(Q) almost surely. Furthermore, this value coincides with the set-guesswork exponent α(Γ) = inf Q∈Γ[H(Q)+ D(Q∥p)] , which is the fundamental lower bound on the search depth required to encounter any element of An(Γ) .Proof. The hitting time τAn for a sequence of i.i.d. trials 
+
+Y nt ∼ q∗ 
+
+> n
+
+follows a geometric distribution with success probability πn = q∗
+
+> n
+
+(An(Γ)) . The expected hitting time is given by Eq∗ 
+
+> n
+
+[τAn ] = 1 /π n. By the property of the optimal proposal q∗ 
+
+> n
+
+= ( Q∗
+
+> GW
+
+)⊗n, where Q∗ 
+
+> GW
+
+∈ Γ, the law of large numbers for types implies that the event An(Γ) is typical under 
+
+q∗
+
+> n
+
+. Specifically, by Sanov’s Theorem: 
+
+− lim 
+
+> n→∞
+
+1
+
+n log q∗
+
+> n
+
+(An(Γ)) = inf  
+
+> Q∈Γ
+
+D(Q∥Q∗
+
+> GW
+
+) = 0 ,
+
+since Q∗ 
+
+> GW
+
+∈ Γ. Therefore, the hitting-time exponent is: 
+
+Jhit (q∗
+
+> n
+
+) = lim sup 
+
+> n→∞
+
+1
+
+n log 1
+
+q∗
+
+> n
+
+(An(Γ)) = 0 .
+
+Let Y n be the trajectory discovered by Algorithm 1. By construction, Y n is a sample from (Q∗
+
+> GW
+
+)⊗n conditioned on the event { ˆPY n ∈ Γ}. As n → ∞ , the conditional distribution of the type ˆPY n concentrates on the point in Γ that is closest in KL-divergence to the proposal Q∗
+
+> GW
+
+. Since Q∗ 
+
+> GW
+
+∈ Γ, this point is Q∗ 
+
+> GW
+
+itself. Thus, ˆPY n → Q∗ 
+
+> GW
+
+almost surely. [30, Theorem 2] solves this rigorously even when Q is not allowed to be in Γ. Applying Proposition 1, the normalized nominal rank of Y n satisfies: 
+
+lim 
+
+> n→∞
+
+1
+
+n log Gn(Y n) = g(Q∗
+
+> GW
+
+) = min  
+
+> Q∈Γ
+
+g(Q).
+
+To show this coincides with the search exponent α(Γ) ,note that since g(Q) is a non-decreasing function of 
+
+C(Q) := H(Q) + D(Q∥p), the minimum is achieved by the same Q that minimizes C(Q). Thus arg min Q∈Γ g(Q) = arg min Q∈Γ[H(Q) + D(Q∥P )] = α(Γ) .
+
+Algorithm 1 Guesswork-Guided Event Discovery  
+
+> 1:
+
+Input: Nominal distribution p, target set Γ, pathwise exponent g(Q). 
+
+> 2:
+
+Output: Discovered trajectory Y n ∈ An(Γ) .
+
+▷ Step 1: Solve the Discovery Optimization  
+
+> 3:
+
+Find Q∗ 
+
+> GW
+
+∈ arg min Q∈Γ g(Q)                         
+
+> (Note: lim n→∞ 1
+> nlog Gn(An(Γ)) = g(Q∗
+> GW ))
+> ▷Step 2: Construct the Proposal
+> 4: Define qn(yn) = Qni=1 Q∗
+> GW (yi)
+> ▷Step 3: Importance Sampling for Discovery
+> 5: repeat
+> 6: Sample Yn∼(Q∗
+> GW )⊗n
+> 7: until ˆPYn∈Γ
+> 8: return Yn
+
+Remark 1. Note the distinction between classical IS and the guesswork approach. While any Q ∈ Γ renders the rare event typical under the proposal distribution, Q∗ 
+
+> GW
+
+ensures that the discovered trajectory is also early in the nominal probability order. The classical proposal Q∗ 
+
+> IS
+
+∈ arg min D(Q∥p) may incur a strictly larger rank exponent, i.e., g(Q∗
+
+> IS
+
+) > α (Γ) ,corresponding to a higher search-depth cost. To illustrate, consider p = [0 .8, 0.2] and two failure modes: 
+
+QA = [0 .6, 0.4] , a “likely but messy” mode, and QB =[0 .99 , 0.01] , a “rarer but simple” mode. IS minimizes D(Q∥p),yielding D(QA∥p) ≈ 0.151 bits and D(QB ∥p) ≈ 0.265 
+
+bits, and therefore selects QA. Guesswork-guided sampling minimizes the surprisal H(Q) + D(Q∥p), yielding 1.122 bits for QA and 0.346 bits for QB . Thus, GW selects QB , since its significantly lower entropy reduces the effective search volume, placing it much earlier in the probability-ordered search despite its higher KL cost. 
+
+D. Constrained Discovery and Symmetry Breaking 
+
+In practical applications, the ability to shift the nominal distribution is often limited by a budget δ > 0, requiring the proposal to satisfy D(Q∥p) ≤ δ. If δ < inf Q∈Γ D(Q∥p), the rare event An(Γ) remains rare under any feasible proposal, and the hitting-time exponent Jhit is strictly positive. In this regime, the design problem is often ill-posed under classical criteria. If multiple proposals achieve the same minimum distance to the rare set, the mass-based objective min D(Q∥p)
+
+provides no guidance on which "direction" to take. Guesswork serves as a fundamental lexicographic tie-breaker. 
+
+Remark 2. For p = [0 .8, 0.2] , Γ = {q < 0.75 } ∪ { q >
+
+0.84704 }, and δ = 0.05 , the boundary of the rare set then contains two types, Q2 = [0 .75 , 0.25] , and Q1 =[0 .84704 , 0.15296] , which are exactly equidistant in KL. Clas-sical importance sampling is therefore indifferent. In contrast, the guesswork criterion strictly prefers the right boundary point Q1. Moreover, under the budget constraint the guesswork optimizer moves further into the right component, selecting 
+
+Q∗ 
+
+> GW
+
+≈ [0 .89745 , 0.10255] . Thus, rather than merely select-ing among KL-equivalent boundary points, guesswork breaks the symmetry and drives the solution toward the type that minimizes search depth within the admissible set. We define the optimal constrained discovery proposal as the solution to a lexicographic optimization problem. Let Q∗ 
+
+> δ
+
+be the set of proposals that minimize the discovery delay Jhit 
+
+within the budget δ:
+
+Qδ = arg min 
+
+> Q:D(Q|| p)≤δ
+
+
+
+inf  
+
+> R∈Γ
+
+D(R|| Q)
+
+
+
+. (4) The guesswork-refined proposal QGW is then chosen to maximize the quality of the discovered trajectory: Q∗ 
+
+> GW
+
+=arg min Q∈Q ∗δ g(Qproj ), where Qproj is the asymptotic type in 
+
+Γ targeted by the proposal Q.
+
+Corollary 2 (Guaranteed Quality Gain) . Let Y n 
+
+> GW
+
+be the tra-jectory discovered by Q∗ 
+
+> GW
+
+and Y n 
+
+> IS
+
+be a trajectory discovered by any other proposal in Q∗ 
+
+> δ
+
+. Both trajectories share the same discovery speed, yet the guesswork-guided choice satisfies: 
+
+lim 
+
+> n→∞
+
+1
+
+n log Gn(Y n 
+
+> IS
+
+)
+
+Gn(Y n
+
+> GW
+
+) = g(Qproj, IS ) − inf  
+
+> R∈Γ
+
+g(R) ≥ 0.
+
+This result guarantees that even when discovery speed is prioritized or limited by a budget, the guesswork framework identifies the "entry points" of the rare set. IV. C ONCLUSION 
+
+In this paper, we redefined the objective of importance sampling for discovery-based tasks. While traditional methods focus on estimating the collective probability of a rare set, many practical applications, such as security audits or stress-testing, require generating a single, "believable" trajectory as quickly as possible. We demonstrated that the fastest way to hit a target set is not necessarily the best way to understand it. We introduced a "Quality of Discovery" metric based on the principle of minimal surprisal (or description length). We proved that the most meaningful discovery is the trajectory that is easiest to find and describe under the system’s original rules. This guesswork-guided design principle ensures that a sim-ulation targets easily discoverable and best-explained trajec-tories of the rare set. This framework provides a rigorous bridge between randomized sampling and systematic search (e.g., list-based guesswork), ensuring that discovered events (for example, failures in a system) are not just fast to find, but are the most representative examples. REFERENCES [1] S. Salamatian, W. Huleihel, A. Beirami, A. Cohen, and M. Médard, “Why botnets work: Distributed brute-force attacks need no synchro-nization,” IEEE Transactions on Information Forensics and Security ,pp. 1–12, 2019. [2] D. Siegmund, “Importance sampling in the monte carlo study of sequen-tial tests,” The Annals of Statistics , pp. 673–684, 1976. [3] J. A. Bucklew, Introduction to rare event simulation . Springer, 2004. [4] J. S. Sadowsky and J. A. Bucklew, “On large deviations theory and asymptotically efficient monte carlo estimation,” IEEE Transactions on Information Theory , vol. 36, no. 3, pp. 579–588, 1990. [5] J. Bucklew, “Conditional importance sampling estimators,” IEEE Trans-actions on Information Theory , vol. 51, no. 1, pp. 143–153, 2005. [6] P. Dupuis and H. Wang, “Importance sampling, large deviations, and differential games,” Stochastics and Stochastic Reports , vol. 76, pp. 481– 508, 2004. [7] J. Blanchet and P. Glynn, “Efficient rare-event simulation for the maxi-mum of heavy-tailed random walks,” The Annals of Applied Probability ,vol. 18, no. 4, pp. 1351–1378, 2008. [8] F. Cérou and A. Guyader, “Adaptive multilevel splitting for rare event analysis,” Stochastic Analysis and Applications , vol. 25, no. 2, pp. 417– 443, 2007. [9] C. Hartmann and C. Schütte, “Efficient rare event simulation by optimal nonequilibrium forcing,” Journal of Statistical Mechanics: Theory and Experiment , p. P11004, 2012. [10] A. N. Singh, A. Das, and D. T. Limmer, “Variational path sampling of rare dynamical events,” Annual Review of Physical Chemistry , 2025, in press / early view; see PDF. [11] F. Carollo, J. P. Garrahan, I. Lesanovsky, and C. Pérez-Espigares, “Making rare events typical in markovian open quantum systems,” 
+
+Physical Review A , vol. 98, p. 010103(R), 2018. [12] Y. Du, M. Plainer, R. Brekelmans, C. Duan, F. Noé, C. P. Gomes, A. Aspuru-Guzik, and K. Neklyudov, “Doob’s lagrangian: A sample-efficient variational approach to transition path sampling,” in Advances in Neural Information Processing Systems (NeurIPS) , 2024. [13] D. C. Rose, J. F. Mair, and J. P. Garrahan, “A reinforcement learning approach to rare trajectory sampling,” New Journal of Physics , vol. 23, p. 013013, 2021. [14] J. M. Wozencraft, “Sequential decoding for reliable communication,” Ph.D. dissertation, Research Laboratory of Electronics, Massachusetts Institute of Technology, May 1957. [15] E. Arikan, “An inequality on guessing and its application to sequential decoding,” IEEE Transactions on Information Theory , vol. 42, no. 1, pp. 99–105, January 1996. [16] C. E. Pfister and W. G. Sullivan, “Rényi entropy, guesswork moments, and large deviations,” IEEE Transactions on Information Theory , vol. 50, no. 11, pp. 2794–2800, November 2004. [17] M. M. Christiansen, K. R. Duffy, F. du Pin Calmon, and M. Médard, “Guessing a password over a wireless channel (on the effect of noise non-uniformity),” in 2013 Asilomar Conference on Signals, Systems and Computers , November 2013, pp. 51–55. [18] M. M. Christiansen and K. R. Duffy, “Guesswork, large deviations, and shannon entropy,” IEEE Transactions Information Theory , vol. 59, no. 2, pp. 796–802, February 2013. [19] T. A. Courtade and S. Verdú, “Variable-length lossy compression and channel coding: Non-asymptotic converses via cumulant generating functions,” in 2014 IEEE International Symposium on Information Theory , June 2014, pp. 2499–2503. [20] W. Szpankowski and S. Verdú, “Minimum expected length of fixed-to-variable lossless compression without prefix constraints,” IEEE Transac-tions on Information Theory , vol. 57, no. 7, pp. 4017–4025, July 2011. [21] I. Kontoyiannis and S. Verdú, “Optimal lossless data compression: Non-asymptotics and asymptotics,” IEEE Transactions on Information Theory , vol. 60, no. 2, pp. 777–795, February 2014. [22] T. A. Courtade and S. Verdú, “Cumulant generating function of code-word lengths in optimal lossless compression,” in 2014 IEEE Interna-tional Symposium on Information Theory , June 2014, pp. 2494–2498. [23] O. Kosut and L. Sankar, “Asymptotics and non-asymptotics for universal fixed-to-variable source coding,” IEEE Transactions on Information Theory , vol. 63, no. 6, pp. 3757–3772, June 2017. [24] R. Sundaresan, “Guessing under source uncertainty with side informa-tion,” in 2006 IEEE International Symposium on Information Theory ,July 2006, pp. 2438–2440. [25] S. Salamatian, A. Beirami, A. Cohen, and M. Médard, “Centralized vs. decentralized multi-agent guesswork,” in Information Theory (ISIT), 2017 IEEE International Symposium on . IEEE, 2017, pp. 2258–2262. [26] I. Sason and S. Verdú, “Improved bounds on lossless source coding and guessing moments via Rényi measures,” IEEE Transactions on Information Theory , vol. 64, no. 6, pp. 4323–4346, June 2018. [27] S. Salamatian, W. Huleihel, A. Beirami, A. Cohen, and M. Médard, “Centralized vs decentralized targeted brute-force attacks: Guessing with side-information,” IEEE Transactions on Information Forensics and Security , vol. 15, pp. 3749–3759, 2020. [28] N. Merhav and A. Cohen, “Universal randomized guessing with appli-cation to asynchronous decentralized brute–force attacks,” IEEE Trans-actions on Information Theory , vol. 66, no. 1, pp. 114–129, 2020. [29] A. Cohen and N. Merhav, “Universal randomized guessing subject to distortion,” IEEE Transactions on Information Theory , vol. 68, no. 12, pp. 7714–7734, 2022. [30] A. Cohen, “Importance sampling for event discovery via guesswork,” 
+
+Available on arXiv , 2026. APPENDIX AGUESSWORK PROOFS 
+
+A. Proof of Proposition 1 
+
+All sequences in the same type class T (Q′) have nominal probability 
+
+pn(yn) = exp  −n[H(Q′) + D(Q′∥p)] , yn ∈ T (Q′).
+
+Hence the guesswork rank of xn counts exactly those type classes whose nominal probability is at least pn(xn), which gives the first identity. Using the type-class estimate |T (Q′)| .
+
+=
+
+enH (Q′) and the fact that the number of n-types grows only polynomially in n, the exponential growth rate is given by the largest entropy among types satisfying the same nominal-probability constraint. Continuity of H(·) and D(·∥ p) then yields the limit along Qn → Q.
+
+B. Proof of Corollary 1 
+
+By definition, the guesswork of a set is determined by its most likely element: 
+
+Gn(An(Γ)) = min  
+
+> xn∈An(Γ)
+
+Gn(xn). (5) From the pathwise characterization of guesswork for a single sequence of type Q in Proposition 1 , we obtain 
+
+Gn(An(Γ)) = min   
+
+> Q∈Γ∩P n(X)
+
+Gn(xn : ˆPxn = Q) (6) 
+
+.
+
+= exp 
+
+
+
+n inf  
+
+> Q∈Γ
+
+g(Q)
+
+
+
+. (7) 
+
+C. Proof of Proposition 2 
+
+Group the expectation by types. If ˆPxn = Q, then Proposi-tion 1 gives Gn(xn) .
+
+= eng (Q). Hence, for any ρ > 0,
+
+Epn
+
+Gn(Xn)ρ = X 
+
+> Q∈P n(X)
+
+X 
+
+> xn∈T(Q)
+
+pn(xn) Gn(xn)ρ
+
+.
+
+= X 
+
+> Q∈P n(X)
+
+exp  n[ρg (Q) − D(Q∥p)] .
+
+because |T (Q)| .
+
+= enH (Q) and pn(xn) = exp( −n[H(Q) + 
+
+D(Q∥p)]) for every xn ∈ T (Q). Since the number of n-types is subexponential in n,
+
+lim 
+
+> n→∞
+
+1
+
+n log Epn
+
+Gn(Xn)ρ = sup  
+
+> Q∈P (X)
+
+ρg (Q) − D(Q∥p).
+
+We wish to show that this is, in fact, Arikan’s exponent. To this end, define the cross-entropy level 
+
+C(Q) := H(Q) + D(Q∥p),
+
+and let 
+
+ϕ(c) := sup   
+
+> R∈P (X): C(R)≤c
+
+H(R).
+
+Then g(Q) = ϕ(C(Q)) . Therefore 
+
+ρg (Q) − D(Q∥p) = ρϕ (C(Q)) − D(Q∥p)= ρϕ (C(Q)) − C(Q) + H(Q)
+
+≤ (ρ + 1) ϕ(C(Q)) − C(Q),
+
+where the last inequality is since, by definition of ϕ, H(Q) ≤
+
+ϕ(C(Q)) . As a result, 
+
+sup 
+
+> Q
+
+{ρg (Q) − D(Q∥p)}≤ sup 
+
+> Q
+
+{(ρ + 1) ϕ(C(Q)) − C(Q)}≤ sup 
+
+> c
+
+{(ρ + 1) ϕ(c) − c}
+
+= sup 
+
+> c
+
+{(ρ + 1) sup  
+
+> R:C(R)≤c
+
+H(R) − c}
+
+= sup 
+
+> c
+
+{ sup  
+
+> R:C(R)≤c
+
+{(ρ + 1) H(R) − c}} 
+
+= sup 
+
+> c
+
+{ sup  
+
+> R:C(R)≤c
+
+{(ρ + 1) H(R) − C(R)}} ≤ sup 
+
+> R
+
+{(ρ + 1) H(R) − C(R)}
+
+= sup 
+
+> R
+
+{ρH (R) − D(R∥p)}.
+
+For the reverse inequality, since R is feasible in the defini-tion of ϕ(C(R)) , we have 
+
+ρg (R) − D(R∥p) ≥ ρH (R) − D(R∥p).
+
+Taking the supremum over R gives 
+
+sup 
+
+> Q
+
+{ρg (Q) − D(Q∥p)} ≥ sup 
+
+> R
+
+{ρH (R) − D(R∥p)},
+
+hence 
+
+sup  
+
+> Q∈P (X)
+
+ρg (Q) − D(Q∥p) = sup  
+
+> R∈P (X)
+
+ρH (R) − D(R∥p).
+
+(8) The solution to the optimization in (8) is well known. Define 
+
+Pρ(a) := p(a)1/(1+ ρ)
+
+P 
+
+> b∈X
+
+p(b)1/(1+ ρ) , a ∈ X .
+
+A direct calculation yields 
+
+ρH (R) − D(R∥p) = ( ρ + 1) log X
+
+> a∈X
+
+p(a)1/(1+ ρ)
+
+− (ρ + 1) D(R∥Pρ).
+
+Hence the supremum over R is attained at R = Pρ, and 
+
+sup  
+
+> R∈P (X)
+
+ρH (R) − D(R∥p) = ( ρ + 1) log X
+
+> a∈X
+
+p(a)1/(1+ ρ)
+
+= ρH 1/(1+ ρ)(p).
+
+This is precisely Arıkan’s exponent. APPENDIX BASYMPTOTIC ANALYSIS OF THE DISCOVERY OBJECTIVE 
+
+In this appendix, we derive the formal limit for the expected description length (surprisal) under the nominal model for a trajectory generated by a product-form proposal qn = Q⊗n.This result establishes the link between the discovery objective and the pathwise guesswork exponent. 
+
+Theorem 2 (Asymptotic Discovery Quality) . Let pn = P ⊗n
+
+be the nominal i.i.d. model and Y n be a trajectory sampled according to the proposal qn = Q⊗n, conditioned on the rare event Y n ∈ An(Γ) . The expected nominal surprisal (Quality of Discovery) satisfies: 
+
+lim  
+
+> n→∞
+
+Eqn
+
+
+
+− 1
+
+n log pn(Y n) | Y n ∈ An(Γ) 
+
+
+
+=
+
+(
+
+H(Q) + D(Q∥P ) if Q ∈ Γ
+
+H(R∗) + D(R∗∥P ) if Q / ∈ Γ (9) 
+
+where R∗ = arg min R∈Γ D(R∥Q).Proof. For any sequence xn, its surprisal is f (xn) =
+
+H(Pxn ) + D(Pxn ∥P ). The conditional expectation is: 
+
+Eqn [f (Y n) | Y n ∈ An] = 
+
+P 
+
+> R∈Γ∩P n
+
+qn(T (R)) f (R)
+
+qn(An(Γ)) . (10) Since qn(T (R)) .
+
+= e−nD (R∥Q), we have qn(An(Γ)) .
+
+=exp ( −n inf R∈Γ D(R∥Q)) and 
+
+X
+
+> R∈Γ∩P n
+
+e−nD (R∥Q)f (R) .
+
+= exp 
+
+
+
+−n inf  
+
+> R∈Γ
+
+D(R∥Q)
+
+
+
+f (R∗)
+
+where R∗ = arg min R∈Γ D(R∥Q). We distinguish between two cases: 
+
+a) Q ∈ Γ: In this case inf R∈Γ D(R∥Q) = 0 , achieved at R∗ = Q. In this case, the rare event becomes typical under the proposal distribution. Consequently: 
+
+lim  
+
+> n→∞
+
+Eqn [f (Y n) | Y n ∈ An] = f (Q) = H(Q) + D(Q∥P ).
+
+(11) This confirms that when a proposal makes discovery fast (Jhit = 0 ), the quality of the discovery is governed solely by the cross-entropy of the proposal with respect to the nominal model. 
+
+b) Q /∈ Γ: If Q is outside Γ, the probability Qn(Γ) 
+
+is dominated by the type R∗ = arg min R∈Γ D(R∥Q). The hitting time is exponentially large. The limit becomes: 
+
+lim  
+
+> n→∞
+
+Eqn [f (Y n) | Y n ∈ An] = H(R∗) + D(R∗∥P ). (12) In this regime, the quality of discovery is determined not by the proposal Q itself, but by the "closest" point in the target set Γ that Q is able to reach.
