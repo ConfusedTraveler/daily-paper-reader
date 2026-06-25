@@ -1,0 +1,541 @@
+Title: Cellular Predictions on the Move: What about Data?
+
+URL Source: https://arxiv.org/pdf/2606.25709v1
+
+Published Time: Thu, 25 Jun 2026 01:00:52 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+> JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 1
+
+# Cellular Predictions on the Move: What about Data? 
+
+Natalia Vesselinova and Pauliina Ilmonen 
+
+Abstract —Mobile cellular load forecasting is native to network resource optimization and delivery of services with reliability, latency and quality guarantees. The mainstream of machine learning research in the area is focused primarily on developing powerful learning structures for improved prediction accuracy. The data used for forecasting traditionally belong to the cellular domain and at most contain exogenous information about the surroundings of the base stations. We approach the prediction task from the perspective of data as a vital component of any data learning process. We hypothesize that substantial improvements could be achieved when the data inform on the processes that create the cellular load. Specifically, we propose to characterize the population dynamics—the potential number of cellular traffic sources and their mobility—in addition to employing historical time series of mobile data traffic. We validate our hypothesis for the rarely examined highway scenario. Comprehensive experi-ments show forecasting improvements on the order of 60% due to the use of these data alone. 
+
+Index Terms —Mobile cellular networks, forecasting, data, deep learning, traffic, population dynamics. 
+
+I. I NTRODUCTION 
+
+# CONNECTED and automated mobility services are aimed at supporting autonomous vehicles and cooperative driv-ing as part of greener transportation systems. Such solutions are developed with the intent to reduce traffic accidents and congestion, and the associated harmful emissions and costs. They are designed to enhance mobility by ensuring smooth, efficient and secure movement within and across national borders. Highways are identified as major terrestrial transport paths for national and international mobility of people, commerce, and freight transport. Therefore, they have received special attention on the path to seamless connectivity. Specifically, several large European Union (EU) initiatives have funded 5G trials of connected and automated mobility services on highways, the provisioning of which is aligned with major EU sustainability goals. Mobile cellular load forecasting is native to network re-source optimization and delivery of services with quality guarantees. In effect, connected and automated mobility is supported by safety-critical applications, which demand very low latency and high reliability. Cellular load predictions are vital for guaranteeing these demands. Both load prediction and resource reservation occur at three different time scales [1]. Long-term and mid-term forecasting assist the management and orchestration domain in deciding on the placement of (virtual) resources and on resource scaling at a coarse gran-ularity (from hours to tens of minutes, respectively). On the other hand, short-term forecasting supports the orchestration of 
+
+> The authors gratefully acknowledge the support received from Academy of Finland via the Centre of Excellence in Randomness and Structures, decision number 346308 and the computational resources provided by the Aalto Science-IT project.
+
+radio access network resources—optimization and allocation of resources—at fast time scales (on the order of seconds to a couple of minutes). Forecasting gains further relevance on highways, where vehicular speeds are the highest and flow fluctuations are the fastest. This motivates our focus on short-term resource forecasting on highways. In recent years, the primary focus of the mainstream re-search in the area of mobile cellular forecasting has been on the design of advanced machine learning structures. Few fore-casting studies examine the role and usefulness of data. Other than cellular network key performance indicators (KPIs), the main interest has been in additional information that can describe the environment within which a base station (BS) operates. Typically, the BS context is characterized by the distribution of points of interest (PoI). The latest research in the area introduces knowledge graphs (KGs). In their essence, KGs are an extension to the PoI, where the environmental information about the BS surroundings is enriched further. Contrastingly, we propose to learn the intrinsic forces that govern the mobile cellular traffic generation. We hypothesize that this will scale up significantly the forecasting accuracy. Specifically, in addition to cellular time series, we propose to employ population dynamics data. We model the potential sources of cellular load and their mobility on highways with vehicular flow and speed. In summary, our contributions are:  
+
+> •
+
+To the best of our knowledge, this is the first approach designed to capture the variables inherent to the mobile traffic generation process. We employ vehicular metrics to model population dynamics on highways and roads.  
+
+> •
+
+We develop a methodology to generate mobile cellular data based on road measurements, which overcomes the limitations imposed by mobile data privacy concerns.  
+
+> •
+
+We extensively evaluate and validate our hypothesis for an existing highway featuring highly fluctuating road traffic and mobile load, as well as seasonal changes.  
+
+> •
+
+We examine highways and address short-term mobile cellular traffic predictions in contrast to the extensively studied urban scenario and long-term forecasting. This article builds upon our previous work. In [2], we introduce the idea of employing data that inform on the sources of radio access load and their mobility for improved forecasting of cellular traffic. As a proof-of-concept study [2], the idea is evaluated under controlled conditions—specific call intensities, handover rates and radio range. Further, the concept is verified in [3] under diverse road and cellular conditions with very few control parameters as our goal is to mimic real cellular conditions. The application of our concept for supporting adaptive network slicing in 5G is described in [4]. In this study, which addresses the short-term forecasting problem on highways (Section II) too, we   
+
+> arXiv:2606.25709v1 [cs.LG] 24 Jun 2026 JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 2
+> Fig. 1. Schematic overview of the concept: background, motivation and our approach. Prior art employs pure cellular data, or at most external factors that shape the mobile data profile. Human activitivities are imprinted in the use of the cellular networks—there is a strong correlation between the presence of users and mobile data traffic. We propose to learn from data that informs the model on the variables that create the load on the mobile system.
+
+review the existing state-of-the-art from the perspective of data, survey research that employs mobile cellular records for modeling population dynamics, elaborate on the concept and the data used to validate our approach (Section III). We reinforce our earlier results by investigating the concept under different probability distributions (Section IV), examining the effect of the distribution on the prediction accuracy. This study also brings new and deeper insights into the obtained results and observed trends (Section V), emphasizes the impact of our approach (Section VI), and concludes with future prospects (Section VII). Figure 1 presents the conceptual framework of the study. II. C ELLULAR PREDICTIONS : P ROBLEM FORMULATION 
+
+Cellular traffic is characterized by temporal variations and spatial correlations: user activity varies in time and the load in one BS might have an effect on the BSs in its vicinity or those apart but otherwise connected (such as through a fast transportation connection) BSs. When making short-term predictions, the impact of correlations is confined to the adjacent BSs. In this study we account for this phenomenon by the incoming vehicular flow and speed. Mathematically, we denote by xτ ∈ R p a random variable comprising historical measurements of p metrics relevant to a given cell: cellular traffic volume or cellular load and road traffic volume and speed measurements. Given a time sequence of M such historical observations {xτ −M +1 , . . . , xτ }, our objective is to learn a prediction model F that can forecast the future call load ˆx in the cell during the next time step: 
+
+ˆxτ +1 = F(xτ −M +1 , . . . , xτ ), so that the prediction error 
+
+L(ˆ x, x ) is minimized. The loss function L(·) measures the difference between the estimated ˆx and observed x mobile cellular traffic load. III. W HAT ABOUT DATA ?The latest advancements in enhancing existing and design-ing new learning methods for mobile cellular traffic forecasting are surveyed in [5] and [6]. In Section III-A, we explore the state-of-the-art from the perspective of data because the existing surveys do not question what data would suit best the purposes of the prediction task. In Section III-B, we turn our attention to how the data inherently generated and saved by mobile operators for billing, management and optimization tasks—primarily, the call detail records (CDRs)—have been used so far. We build upon the same premise as these studies— not only the human circadian cycle but virtually all human ac-tivities are imprinted in the mobile cellular use, Section III-C. 
+
+A. Cellular Forecasting: Data 1) Cellular KPIs: Mobile cellular network operators are reticent about sharing the data collected in their networks because of privacy concerns 1. This limitation has shaped to a large extent the type of data used in the published research. The Telecom Italia Big Data Challenge [8] is open access and thereby, the predominantly used data set (even nowadays [9], [10], [11]). It comprises calls, SMS and Internet traffic. Therefore, the majority of the deep learning contributions continue to measure cellular load with the number of calls. Studies that fuel their models with private mobile cellular data are yet rare. Among them, the majority uses the volume of data to measure the BS load on a BS. The fluctuating radio environment, can be modeled by incorporating radio KPIs into the data, [12]. Alternatively, the load in a cell is measured by physical resource blocks [13].                
+
+> 1The relevance of open data sets for making technological and scientific progress, together with the publicly available mobile cellular network data are discussed in [7]. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 3
+> TABLE I USE OF CALL DETAIL RECORDS .
+> Focus on / Purpose Studies
+> Dynamic population distribution modeling [14], [15], [16], [17], [18], [19] [20], [21] Understanding daily flow of people [22], [23] Computing urban mobile landscapes [24] Monitoring real-time urban population density [18] Defining a city [25] Effect of major events on human mobiltiy [26], [27], [28] Functional role of urban parks [29] Urban inequalities [30] Road traffic estimation [23], [31], [32], [33] Impact of commuting on rush hour [34]
+
+2) PoI: In a series of articles [14], [35], [15], [36], the traffic patterns of thousands of cellular towers in a large urban environment (Shanghai) are distilled into 4 basic temporal patterns. It is shown that each traffic profile can be mapped to a specific type of urban region and hence, the region can reveal the traffic profile of the serving BS. PoI (such as museums, hospitals or other urban centers) express the context of their geographical location and their distribution is representative for the area whithin which a BS operates. This together with the conclusion that the BS’s surroundings are crucial exogenous factor that shape the BS’s traffic profile [36] has motivated the inclusion of PoI information in the forecasting process: [37] and [38] are an earlier and a contemporary instances of the use of PoI for mobile data prediction. 
+
+3) KGs: Recently introduced into cellular traffic forecasting by [39] and [36], KGs [40] empower learning models with a comprehensive view on the urban contex. A spatial KG [39] models the static environment of the BSs. Specifically, it embeds BSs spatial information, proximity, functional, (cel-lular traffic) pattern, and (cellular) volume and fluctuation rate similarity between BSs. This spatial KG is augmented to urban KG [39], [36] by combining expert knowledge and urban specifics: information on regions (urban spaces delineated by major road transportation paths), business areas (clusters of economic and social activities), PoI and categories as well as with information on spatial, subordinate and functional relationships between entities. In order to learn from its rich information, a knowledge graph representation learning module is designed [39], [36] to generate representations of the BSs that capture the network’s spatial structure and nodes’ functionality. Similar to these two works, [41] incorporates semantic relationships between BSs. In summary, PoI and KGs aim to enrich the cellular time series input with information on the static BS environment. 
+
+B. CDRs: Use 
+
+The mobile phones have been regarded as the best agent to monitor human mobility traces and the cellular networks—as sensing platforms of unprecedented scale, high resolution and low cost. The assumption that there is a strong correlation between population dynamics and mobile cellular traffic is initially validated by ground truth data in [15], [16], [20], [23], [31], [33], [34], [42], [43], [44]. Contemporary studies [19], [25] point out the high mobile phone use and nearly 100 % global cellular coverage as the basis for inferring metrics of interest from CDRs. Furthermore, a study of population fluctuations in Helsinki metropolitan area [21] shows that cen-sus surveys under- or over-estimate population density during times of the day and locations in the city when contrasted with estimates from CDRs. Since the mobile cellular networks reliably capture the dynamic human behaviour, CDRs are seen as universal, consistent, and standardized data that serves as a proxy to the total population activities—density and dynamics in an area as well as socio-economic interaction. This explains their varied use, Table I, in the development of sustainable and resilient cities. Among these studies, [23], [31], [32], [33] show that the mobile cellular systems can be an alternative to transportation monitoring systems, as road traffic parameters can be estimated from cellular data, which also reveals the interrelation between vehicular and cellular traffic. 
+
+C. Employing Population and Cellular Traffic Time-Series 1) Our perspective: We base our forecasting approach on the premise that there is a strong correlation between the presence of mobile cellular users and the communication load placed on the mobile cellular network. This view is explored extensively in population dynamics research (summarized in Section III-B). Data are a vital component of any data learning process. Therefore, our prime interest is in employing input from which the learning model can gain insights into the core processes that generate the mobile cellular traffic. Specifically, in addition to cellular KPIs, we incorporate estimates of the fluctuating number of mobile cellular load sources. 
+
+Contrasting with existing prior art. Among the published deep learning contributions devoted to mobile data forecasting, there are few we share the concept of modeling population dynamics with. [45] and [46] explicitly try to model users’ movement based on the supposition that handover rates can capture to some extent user mobility and traffic dynamics. The combined effect of the devised model [46] and the handover frequencies is evaluated [45], [46], but the pure effect of incorporating handover rates is not quantified. In our work [3] we do examine the impact of handover rates inclusion in the input on prediction accuracy. However, our results are not conclusive as they do not show consistent performance im-provement. In [38], user movement is not predicted but traced via the number of active mobile phone users (a KPI available at BSs). The ablation study in [38] shows that the number of active users better expresses the dynamic characteristics of the mobile traffic and that this variable is more critical for mobile data forecasting than the static PoI distribution information. This result corraborates our hypothesis. 
+
+2) Data: We examine a scenario of connected vehicles on a highway. The load on the BSs that serve the highway is exclu-sively generated by the road traffic on that highway (services used by the autonomous driving vehicles and their passengers). To model the highway’s population dynamics, we employ two road variables—vehicular flow and speed—on each segment of the highway. These are measured on a real highway, see Section IV-A1 and Figure 2. Due to the limitations of JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 4                                                              
+
+> Fig. 2. A map of the section of US50-E El Dorado County freeway used in the study (in gray). The red dots indicate the approximate location of the PeMS detectors on that segment, from Pollock Pines to Lake Tahoe Airport. TABLE II PEMS US50-E DETECTORS USED IN THE STUDY ,THEIR SPECIFICATIONS AND THE DISTANCE BETWEEN CONSECUTIVE ONES .BASE STATIONS (BS S)ARE DENOTED WITH THE SAME IDENTIFICATION NUMBER AS THE PEMS DETECTORS .
+> PeMS detectors terrain population design speed road width distance / BS limit in mph in ft range in miles Mainline VDS 3086071 –50EB JWO Sly Park EB mountainous rural 70 24 7.67 Mainline VDS 3086081 –50EB at Riverton Barn CCTV mountainous rural 60 24 1.62 Mainline VDS 320287 –50EB at Ice House mountainous rural 50 12 13.27 Mainline VDS 320280 –Wrights Lake Rd mountainous rural 50 11 13.41 Mainline VDS 317706 –Echo Summit mountainous rural 50 12 3.89 Mainline VDS 3054051 –50EB into Luther 50/89 R. mountainous rural 40 12 0.99 Mainline VDS 3410061 –50EB JEO Pioneer Trl rolling rural 40 12 3.22 Mainline VDS 317715 –F St flat urban 40 32 1.46
+
+collecting cellular data, we simulate cellular KPIs following the methodology developed in [3], see Section IV-A2. Below we discuss the profile of the simulated cellular load time-series and the correlation between the variables used to simulate the mobile cellular load and the simulated load. 
+
+Profile. The road data for the studied segment of the high-way and time period, shows highly fluctuating traffic volumes over space and time. We emulate the vehicles’ arrivals by a random process (Poisson) during each 5-minute time slot [3] as the measured vehicular flow is aggregated over 5-minute time windows. For each vehicle, the call arrivals are simulated by a random probabilistic process (Poisson [3]) too. The resulting BS’s call volumes fluctuate sharply across short and long time scales. This is in-line with empirical data from urban scenarios where the greatest peak-valley mobile data ratio is observed in the city’s transport hubs when contrasted with other urban functional regions [14], [35]. Figure 3 depicts the normalized cellular load on Mondays during two different weeks for each of the BSs providing coverage to the highway’s segment. Cellular traffic profiles and volumes often differ vastly between BSs (location) as well as at the same BS, day and time window but during different weeks. The large traffic variability in fine-grained (minutes and hours) and coarse-grained (days and weeks) time-scales, and across BSs is evidenced in real mobile cellular networks in cities [15] and on highways [12]. 
+
+Correlation. The correlation between the different variables fluctuates substantially in time and between the different seg-ments of the highway: strongly inverse, reciprocal or lacking any linear association. Figure 4 unveils that the vehicular– cellular linear association is non-deterministic along the 24-week period even at the same location, day and time. At BS 320287, the correlation between flow and calls during the 4 pm – 5 pm hour is ρ = 0 .76 in week 15, ρ = −0.69 
+
+in week 26, and ρ ≈ 0 in weeks 17 and 24, for instance. Likewise, at BS 3054051 it could vary from ρ ≈ 0.9 through 
+
+ρ = 0 to ρ = −0.32 .The flow–speed correlation depends on the capacity of the road segment, vehicular flow, terrain, location and time. Increased cellular volumes during road traffic incidents or jams are evidenced in practice [12]. Our data set truthfully reflects this phenomenon too. Figure 5 illustrates this. The simulated call load is inversely related to the speed whenever the road gets congested, as the vehicle’s dwell time on the road is prolonged and with it, the probability of initiating a new call. 
+
+Probabilistic processes. The generation of call requests JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 50 4 8 12 16 20 24                                           
+
+> hour
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Calls
+> BS 3086071
+> week 18
+> week 28 04812 16 20 24
+> hour
+> BS 3086081 04812 16 20 24
+> hour
+> BS 320287 04812 16 20 24
+> hour
+> BS 320280 04812 16 20 24
+> hour
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Calls
+> BS 317706 04812 16 20 24
+> hour
+> BS 3054051 04812 16 20 24
+> hour
+> BS 3410061 04812 16 20 24
+> hour
+> BS 317715
+
+Fig. 3. Normalized cellular load on Mondays during weeks 18 and 28. flow                                                                                                                           
+
+> calls ho new
+> 0.04 0.30 0.76 0.26 0.09 0.31 0.12 -0.18 -0.27 0.31 0.41 0.07 -0.34 -0.69 0.33 0.32 0.53 0.36 -0.30 0.18 0.45 0.16 0.60 0.33
+> 0.72 0.55 0.89 0.52 0.36 0.31 0.02 0.37 -0.25 0.32 0.56 0.34 0.48 -0.13 0.68 0.52 0.76 0.33 0.07 0.65 0.77 0.34 0.74 0.53
+> -0.40 -0.10 0.22 0.07 -0.13 0.22 0.14 -0.43 -0.13 0.25 0.15 -0.23 -0.43 -0.68 -0.06 0.15 0.09 0.25 -0.41 -0.17 0.01 0.04 -0.42 0.13 flow
+> calls ho new
+> 0.89 0.83 0.57 -0.00 0.03 0.28 0.56 0.28 0.33 0.31 -0.21 -0.17 -0.32 0.13 0.39 -0.14 -0.25 0.16 0.33 -0.03 0.38 0.55 0.29 0.54
+> 0.99 0.88 0.49 -0.12 0.48 0.28 0.60 -0.06 -0.06 0.27 0.09 -0.25 -0.39 0.11 0.44 0.14 -0.29 0.15 0.32 0.00 0.49 0.83 0.30 0.55
+> -0.10 -0.03 0.47 0.47 -0.49 0.04 -0.15 0.41 0.39 0.24 -0.45 0.32 0.11 0.12 0.05 -0.53 0.08 0.03 0.21 -0.12 -0.13 -0.37 0.12 0.04
+
+Fig. 4. Correlation between flow and new calls, handover calls, and (total number of) calls on Tuesdays, between 4 pm and 5 pm for weeks 13 to 36 at (left ) BS 320280 and ( right ) BS 3054051. 
+
+follows a probabilistic process. Therefore, the cellular load would be different even when the flow, speed, and road conditions remain the same. We highlight that the input to the learning model comprises the incoming new flow, not the total number of vehicles that would be in a cell during a 5-minute time slot. In contrast, the new load on a BS (consisting of handed over and new calls) is determined not only by the calls placed by the incoming vehicles but also by those that have arrived at the BS during earlier time slots and are still served by that BS. This applies especially to BSs with long range. Conversely, when a BS serves a short road segment— implying short dwell times in the cell—not all vehicles request service from that BS. In summary, the sharply oscillating load volumes and vastly different correlations in time and space, result from the probabilistic processes that guide the vehicular flow and the generation of cellular traffic. These make the prediction task quite challenging too. IV. E XPERIMENTS 
+
+A. Setting 1) A highway scenario: We consider a sector of the US50-E freeway in El Dorado County, California; specifically, the one shown in Figure 2. The California Department of Trans-portation (Caltrans) detectors, whose measurements are used in the study, are listed in Table II in sequential order together with the distance between each two consecutive detectors. The density of the PeMS detectors seems to be guided by similar principles—long-term density of the vehicular traffic— as the placement of BSs—population density and the particu-larities of the terrain. Thereby, we choose the range of the BSs to match the distance between sensors. This provides us with a variety of use cases. The road segments exhibit diverse capacity, average vehicular density and propensity for congestion, which conditions together with the different BSs’ ranges model dynamic, time- and location-varying call volumes. For simplicity, we make the assumption that the vehicular traffic is unidirectional, flowing from Pollac Pines to South Lake Tahoe. 
+
+2) Input variables’ values: Real road traffic data from Caltrans loop detectors on the US50-E highway are used in the experiments. The considered time period is 24-week-long, from March 28, 2022 to September 9, 2022 (week 13 to week 36 of 2022). The data comprise the weekly flow and speed from Mondays to Fridays. There are 288 data points per day due to the 5-minute granularity. We generate the network statistics following the methodol-ogy developed in [3] and input values as follows. For each vehicle, new calls are generated with arrival rate λ = 1 /5,
+
+one call per 5-minute interval on average, according to a Poisson process. When defining the mean call duration and its variance, we are guided by [47] and [48]. We set the mean call duration to μ = 1 minute for exponentially distributed calls and to μ1 = 1 and μ2 = 10 minutes for a mixture of two log-normally distributed calls, each with equal weight. The JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 61.0                                                      
+
+> 0.5
+> 0.0
+> 0.0
+> 0.5
+> 1.0
+> Normalized flow, speed and calls
+> Mon Tue Wed Thu Fri
+> Calls Flow Speed Mon Tue Wed Thu Fri
+> Calls Flow Speed 561 145 52.7
+> 188 61.8 492
+> Mon
+> 673 149 45.5
+> 191 62.8 465
+> Tue
+> 688 146 38.3
+> 193 62.6 459
+> Wed
+> 751 148 34.9
+> 189 61.4 460
+> Thu
+> 676 151 44.7
+> 187 61.3 436
+> Week 15
+> Fri 192 65 68.2
+> 76 67.9 22
+> Mon
+> 63 14 64.7
+> 22 65.0 56
+> Tue
+> 82 32 60.9
+> 32 60.9 82
+> Wed
+> 84 16 63.7
+> 29 63.4 70
+> Thu
+> 161 43 63.4
+> 50 64.8 154
+> Week 16
+> Fri
+> Fig. 5. BS 320287 ( left ) week 15 and ( right ) week 16. ( top ) Flow, speed and calls. Calls are mirrored over the horizontal axis for at-a-glance silhouette recognition. ( bottom ) The maximum call load during a work day, followed by the value of the flow and speed at that instant of time (first row). The maximum flow during the same day and the corresponding average speed and calls volume (second row). The maximum daily call load is observed when the speed reaches its daily minimum during week 15. In contrast, during week 16—when the flow volumes are low compared to week 15—the speed does not have any perceptible effect on the flow nor calls. Then, the maximum call volume is defined by the maximum flow.
+
+variance of the log-normal calls is 3 times larger than their mean [47], namely σ21 = 3 and σ22 = 30 , correspondingly. The speed is discretized as in [2]. The range of the BSs is listed in Table II. The data are visualized and explored in the preceding Section III-C2. 
+
+B. Machine learning model 1) Choice: The classic long short-term memory (LSTM) model has been broadly applied to time-series forecasting either as a singular learning structure or as a basic component of more complex models. Furthermore, LSTM is shown to excel in very short-term cellular forecasting [49]. 
+
+2) Structure: The model we construct is composed by an LSTM layer, followed by a fully connected feedforward neural network (a multilayer perceptron). This dense layer consists of a single unit and no activation function. It is a linear trans-formation that maps the final LSTM state into a single target value—the estimated number of calls in a BS. Mathematically, the model can be represented as two functions f (g), where g(·)
+
+is the LSTM learning structure, which transforms the input data into new features. The representation function f (·) maps the learned features into a cellular traffic load prediction for the BS under consideration. 
+
+3) Implementation: Our model has a single LSTM layer with 16 cells. In the training phase, we use the root mean square propagation and mean squared error (MSE) loss for optimizing the models parameters. We set the length of the historical series to six samples (30 min). The prediction horizon is the next 5-minute interval. The 24 weeks of data are split 12:6:6 chronologically into training, validation, and testing after which data are shuffled. 
+
+C. Evaluation 1) Methodology: We assess the efficacy of our proposed approach by training the learning model with historical cellular data together with versus without incorporating road traffic data. Since our goal is to assess the effectiveness of employing data intrinsic to mobile cellular volume generation, we contrast the prediction performance of the implemented machine learn-ing model when cellular KPIs are used (the baseline) with the model’s performance when these same data are enriched with vehicular flow and speed metrics. We evaluate the predictions over a comprehensive set of highway and cellular conditions. Similar methodology for assessing the impact of data on prediction accuracy is followed in [39] when examining the efficacy of incorporating exogenous data and in [38] when examining the impact of PoI information and the effect of the number of active mobile users on the forecasting performance. 
+
+2) Protocol: We measure the forecasting performance with the typically used mean absolute error (MAE), mean absolute percentage error (MAPE), MSE and root mean squared error (RMSE). To have a common basis for comparison and to fairly attribute any performance deviations to the data set employed in learning, we train and evaluate the model with the same hyper-parameters Section IV-B using data from the same period and location but with different features: either containing purely network metrics or a set of network and road traffic metrics. We measure the improvement in prediction as the percentage difference in error by ( ErrM net −
+
+ErrM net &road )/ErrM net , where ErrM is the selected error measure. V. R ESULTS 
+
+We perform evaluations to answer the research questions:  
+
+> •
+
+RQ1 : What is the impact of data on performance?  
+
+> •
+
+RQ2 : Do vehicular flow and average speed reliably model population dynamics on highways?  
+
+> •
+
+RQ3 : How flow estimation errors affect predictions? 
+
+A. Performance 1) Main outcome: Comprehensive results from four differ-ent data sets are summarized in Table III—Table V. The call duration is modeled by 1) a mixture of two log-normally dis-tributed random variables or by 2) an exponentially distributed JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 7
+
+TABLE III PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+A M IXTURE OF TWO LOG -N ORMALLY DISTRIBUTED CALL DURATION TIMES 
+
+24 W EEKS , 12:6:6 D ATA SPLIT 
+
+Calls Flow Speed Calls BS MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max 
+
+3086071 .282 .283 .287 .154 .155 .157 820.8 837.2 880.6 .392 .393 .396 .187 .187 .187 .067 .067 .068 506.8 515.6 523.9 .259 .259 .261 
+
+3086081 .394 .396 .399 .317 .318 .319 335.2 347.4 365.4 .563 .564 .565 .339 .340 .342 .237 .238 .238 293.2 298.3 305.9 .487 .487 .488 
+
+320287 .066 .067 .067 .009 .009 .009 86.70 87.0 88.30 .094 .094 .094 .051 .052 .054 .005 .006 .006 64.60 66.60 67.70 .073 .075 .076 
+
+320280 .080 .081 .097 .013 .013 .015 54.00 54.60 57.30 .112 .114 .121 .065 .066 .070 .008 .008 .009 47.30 47.7 49.10 .090 .091 .094 
+
+317706 .155 .156 .158 .058 .059 .060 127.5 128.4 137.8 .241 .242 .244 .129 .13 .135 .038 .039 .040 107.4 110.8 112.0 .196 .198 .199 
+
+3054051 .434 .434 .439 .485 .492 .503 116.0 118.0 128.3 .697 .702 .709 .364 .369 .377 .341 .347 .354 84.3 90.10 93.10 .584 .589 .595 
+
+3410061 .404 .404 .407 .389 .391 .397 696.4 725.7 757.9 .624 .626 .63 .354 .356 .358 .309 .31 .316 484.8 494.5 503.2 .556 .557 .562 
+
+317715 .321 .324 .325 .242 .243 .246 103.5 109.3 117.3 .492 .493 .496 .295 .297 .300 .208 .210 .218 87.40 92.40 92.80 .456 .459 .467 
+
+> a
+
+The three values listed per error type are the minimum, median and maximum. The MAPE values are in percentage. 
+
+TABLE IV PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+EXPONENTIALLY DISTRIBUTED CALL DURATION TIME 
+
+24 W EEKS , 12:6:6 D ATA SPLIT 
+
+Calls Flow Speed Calls BS MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max 
+
+3086071 .282 .283 .283 .151 .152 .152 2085 2108 2113 .389 .389 .389 .187 .187 .189 .066 .066 .066 1347 1377 1388 .257 .257 .257 
+
+3086081 .396 .398 .402 .315 .315 .318 103.9 105.0 106.4 .561 .561 .564 .327 .331 .334 .217 .218 .222 87.5 88.0 93.7 .466 .467 .471 
+
+320287 .058 .058 .059 .007 .007 .007 55.5 56.3 58.3 .082 .082 .084 .041 .041 .042 .003 .003 .004 42.4 43.0 43.5 .058 .059 .060 
+
+320280 .073 .082 .086 .011 .012 .012 38.3 38.6 39.9 .103 .109 .111 .049 .053 .055 .005 .005 .005 26.2 27.1 28.7 .068 .070 .071 
+
+317706 .159 .162 .164 .064 .066 .069 127.4 132.2 135.7 .254 .258 .262 .100 .103 .109 .024 .027 .038 80.30 82.10 84.70 .154 .164 .194 
+
+3054051 .483 .493 .500 .584 .600 .607 129.7 135.9 141.6 .764 .775 .779 .317 .319 .336 .231 .234 .246 82.50 85.30 92.80 .480 .484 .496 
+
+3410061 .398 .402 .408 .335 .343 .349 104.6 109.7 116.9 .579 .586 .59 .295 .297 .300 .187 .188 .189 72.5 73.0 73.6 .432 .433 .434 
+
+317715 .270 .274 .278 .147 .151 .152 108.0 110.1 113.0 .384 .388 .389 .207 .207 .210 .086 .087 .087 77.10 77.60 80.40 .294 .295 .296 3086071 3086081 320287 320280 317706 3054051 3410061 317715        
+
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE
+
+Fig. 6. Improvement in prediction when employing calls vs calls, flow and speed data: ( left ) a mixture of two log-normally distributed calls and (right ) exponentially distributed call duration. 
+
+random variable. For each distribution we compile two data sets: 1) calls (denoting total number of calls—the sum of new and handover calls) only; and 2) flow, speed and calls. To convey the shape and hence, provide a clearer picture on the distribution of errors, for each error metric Table III— Table V show the minimum, median and maximum of the 5 simulation runs conducted for each data set and BS. 
+
+Employing data that captures the processes intrinsic to mobile cellular traffic generation consistently improves cellular load prediction performance (RQ1). All BSs experience improvements in all their forecasting measures when learning from both network and road traffic data. The prediction error reduction among all BSs, when considering the case of log-normally distributed calls, is between 8.4% 
+
+and 33 .9% (MAE), 13 .3% and 56 .5% (MSE), 12 .5% and 
+
+38 .4% (MAPE), and 6.9% and 34% (RMSE) when in addition to (total number of) calls, also flow and speed are employed, and when comparing the medians of all BSs, see Figure 6 (left). Similar improvement trends are recorded for the min-imum and maximum errors, Table III. For the exponentially distributed calls, the decrease in error due to use of population dynamics is between 16 .89% and 35 .74% (MAE), 30 .67% and 
+
+61 .02% (MSE), 16 .16% and 37 .92% (MAPE), and 16 .73% 
+
+and 37 .57% (RMSE) for the medians, see Figure 6 (right). The trends remain similar for the minimum and maximum errors. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 8
+
+TABLE V PREDICTION PERFORMANCE WITH GAUSSIAN NOISE ADDED TO THE FLOW 
+
+A M IXTURE OF TWO LOG -N ORMALLY DISTRIBUTED CALL DURATION TIMES (LEFT ) 
+
+> AND
+
+EXPONENTIALLY DISTRIBUTED CALL DURATION TIME (RIGHT )24 W EEKS , 12:6:6 D ATA SPLIT                                                                                                                                                                                                                                               
+
+> Flow Speed Calls Flow Speed Calls BS MAE MSE MAPE RMSE MAE MSE MAPE RMSE
+> min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max
+> 3086071 .205 .205 .206 .077 .077 .078 594.5 599.4 602.1 .278 .278 .279 .204 .204 .205 .075 .075 .076 1474 1483 1498 .274 .274 .275
+> 3086081 .346 .349 .35 .244 .245 .247 293.1 315.5 320.6 .494 .495 .497 .336 .338 .339 .224 .225 .226 87.9 88.60 91.00 .474 .475 .476
+> 320287 .057 .057 .058 .006 .006 .006 71.70 72.90 74.80 .079 .080 .080 .046 .047 .048 .004 .004 .005 44.20 45.10 46.50 .064 .065 .068
+> 320280 .070 .072 .074 .009 .009 .010 50.5 50.90 51.10 .096 .097 .098 .060 .061 .066 .006 .007 .007 30.90 31.50 32.20 .079 .081 .084
+> 317706 .134 .136 .138 .040 .042 .043 110.0 111.3 119.5 .200 .205 .207 .108 .109 .110 .027 .027 .028 86.3 87.60 88.7 .163 .165 .168
+> 3054051 .369 .371 .375 .348 .354 .358 84.0 85.9 87.8 .590 .595 .598 .323 .324 .333 .235 .237 .244 85.6 86.40 93.2 .485 .487 .493
+> 3410061 .360 .361 .365 .313 .318 .327 481.2 495.0 514.7 .56 .564 .572 .306 .307 .316 .195 .195 .197 73.2 74.10 77.3 .441 .442 .444
+> 317715 .301 .303 .306 .214 .214 .224 88.5 91.0 96.4 .462 .463 .473 .216 .216 .217 .093 .093 .094 78.7 80.00 81.0 .304 .305 .306 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE
+
+Fig. 7. Flow estimated with errors. Improvement in prediction when employing calls vs calls, flow estimated with errors and speed data: ( left ) a mixture of two log-normally distributed calls and ( right ) exponentially distributed call duration. 
+
+Road traffic indicators can capture the processes under-lying mobile cellular load generation (RQ2). We employ flow and speed as a means to characterize the underlying population dynamics in highways and through them the data generation process. The flow captures the number of potential call generation sources. The speed can indicate dynamics in the vehicular density and can also serve as a gauge for road traffic congestion; hence, for increased cellular load. 
+
+2) Sensitivity to road metrics accuracy ( RQ3 ): To assess the sensitivity of the mobile cellular predictions to estimation errors in the road predictions, we introduce estimation errors in the flow measured by the PeMS detectors. Specifically, we assume a prediction error of 5% in the number of vehicles per 5-minute intervals. We model the error by adding Gaussian noise to the real PeMS measurements ˆv = v + ϵ, ϵ ∼ N (0 , σ ),
+
+where v denotes the real PeMS flow data and ˆv is the estimated flow. Whereas the input to our learning model accounts for the estimated value of the flow variable ˆv, we generated the mobile cellular traffic load with the true PeMS measurement v value. The results are reported in Table V and show that although the noise in the flow variable decreases cell load prediction accuracy, employing road data remains largely beneficial. Overall, across all error measures and all BSs and the 2 data sets, the prediction improvement when considering the mixture of the log-normally distributed calls is between 9.20% 
+
+and 49 .94% , Figure 7 (left), and for the exponentially dis-tributed call duration, it is between 15 .07% and 60 .57% , Fig-ure 7 (right), for the medians when using estimated (namely, with errors) road traffic time-series data. 
+
+B. Analysis 1) Variability in BS performance: The BSs in the studied scenario differ in range (miles covered), exhibited call load, observed handover statistics, capacity of the road segment served by a BS, experienced vehicular flow and measured average speed as well as in the variables’ daily and weekly patterns. Thereby, they also perform differently in terms of prediction accuracy. Notably, for all error measures but MAPE, the BSs can be ranked in the same order independent of whether a purely network data or a heterogeneous set combin-ing road and call data is used for training 2. This fact evinces a general trend—best to worst performance is determined by an amalgam of cell characteristics and the phenomena that occur there. We improve with data the model’s prediction performance on top of this trend. We also look at the magnitude of improvement brought by employing population dynamics, Figure 6. For the exponential call duration case, the largest decrease in prediction error is observed for BS 3054051, which exhibits the worst prediction 
+
+> 2
+
+When BSs are ranked based on their MAPE score, the order is different from the ranking when using the other three measures of error, yet it remains independent from data. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 93086071 3086081 320287 320280 317706 3054051 3410061 317715                      
+
+> BSs
+> 125
+> 100
+> 75
+> 50
+> 25
+> 0
+> 25
+> 50
+> Difference (%)
+> MAE
+> MSE
+> MAPE
+> RMSE 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 20
+> 0
+> 20
+> 40
+> 60
+> Difference (%)
+> MAE
+> MSE
+> MAPE
+> RMSE 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE 3086071 3086081 320287 320280 317706 3054051 3410061 317715
+> BSs
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> Improvement (%)
+> MAE
+> MSE
+> MAPE
+> RMSE
+
+Fig. 8. Data—weeks: 27 to 33, split: 3:2:2 (first two) and 4:1:2 (last two plots). Difference in prediction performance when contrasting the homogeneous (calls) with heterogeneous (calls, flow and speed) data sets for a mixture of two log-normally distributed call duration times (first and third plots) and exponential call duration (second and last plots) per BS. 
+
+performance among the BSs. It is also the BS with the shortest radio coverage. When the call duration is modeled with a mixture of two log-normally distributed random variables, the largest improvement is experienced by BS 3086071, which is among the least performing BSs and the one without handovers (as it is the first in our scenario). The results from this study validate an observation made in [2]—cells with larger highway coverage tend to achieve higher prediction accuracy. This can be intuitively explained by the vehicles’ dwell time, which is longer there and hence, the vehicles have a higher probability of placing at least one call on their serving BS. Then, the number of vehicles provides a lower bound on the number of calls. This might gauge the learning model towards more accurate forecasting. 
+
+2) Call distribution: Employing flow and speed, leads to significant improvements in prediction capacity independent of the call duration distribution. However, the scale of im-provement depends on the distribution. The reduction in error is more substantial in the memoryless, exponential case (from 
+
+16 .16% to 61 .02% ) than in the mixture of two log-normally distributed variables (from 6.89% to 56 .51% ). 
+
+3) Data split: The results summarized in Section V-A show the performance of the learning model when trained with the first 12 weeks, validated on the subsequent 6 weeks and tested on the last 6 weeks of the data set. When the time series span is shorter, in some instances we observe departures from the general trends described in Section V-A. We examine the performance of BS 320287 when the data set consists of weeks 27–33 and the data is chronologically split into 3:2:2 for training, validation and testing. Figure 8 illustrates the difference in the overall prediction performance for the two call distribution cases (first two plots). Across the 10 test days, the overall MSE and RMSE prediction errors are larger when employing the heterogeneous data. However, when the same weeks 27–33 are partitioned into 4:1:2, the results are consistent with what we report above—decreased prediction errors across all performance measures and BSs when employing flow and speed time-series in addition to call time-series data, Figure 8 (last two plots). These results suggest that the learning model is not able to capture all of the underlying patterns when retaining 3 instead of 4 training weeks from the heterogeneous 6-week data set. A detailed look into the data and performance results supports our understanding as explained below. Figure 9 illustrates the PeMS measured average speed during the studied time period and indicates the threshold that divides the speed into two speed levels. Recall that we discretize the speed as in [2]. Specifically, speeds above 60 mph correspond to a speed level different from those belonging to the 50–60 mph interval. Notice that the speed level is constant during weeks 27–29 and hence, it does not bring any information to the LSTM model during training. In contrast, during the subsequent 30–33 weeks—on Wednesday (week 30) and on all Fridays—the speed level does change, Figure 9. When examining the model’s performance on a per day level— Table VI and Table VIII—the prediction errors are larger on Fridays but smaller on all other days when contrasting the heterogeneous with the homogeneous data. This is hinted by the MSE and RMSE results shown in Figure 8 as these measures penalize large errors, and are sensitive to outliers. The results reported in Table VI to Table IX are from 10 simulation runs. In summary, when the model is trained with weeks 27–29 of the heterogeneous data, it is not exposed to varying speed levels and hence, cannot learn the interrelation between flow, speed and calls. Thereby, the large prediction errors evidenced on Fridays when the speed level does drop, Table VI and Table VIII. Contrarily, when the LSTM model is trained with one more week—week 30 during which speed level alterations are registered—the model learns the correlation between the three variables and makes more accurate predictions than by call time series alone, Table VII and Table IX. Overall, the results from this study highlight the relevance of data when learning from data—a fundamental principle, sometimes neglected or traded for larger and complex learning structures. VI. D ISCUSSION 
+
+A. Novelty 
+
+Our principal interest is in employing data that brings infor-mation about the number of potential sources of cellular load and their mobility. The fundamental premise is that substantial rather than incremental improvements in prediction accuracy could be achieved with data describing the cellular load generation process. In contrast to exogenous information (PoI and KG), such intrinsic data fosters sustainable solutions. The accuracy of the predictions—in relation to data—no longer dependents on external, static information and its modeling but on how well the data represents population dynamics. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 10 
+
+TABLE VI PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+A M IXTURE OF TWO LOG -N ORMALLY DISTRIBUTED CALL DURATION TIMES 
+
+WEEKS 27–33, 3:2:2 D ATA SPLIT 
+
+Calls Flow Speed Calls week MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max .175 .177 .179 .057 .057 .058 80.26 83.48 86.01 .238 .239 .241 .132 .133 .139 .034 .035 .036 66.55 68.63 73.06 .186 .187 .191 .148 .149 .151 .041 .042 .043 104.7 108.6 112.1 .203 .204 .207 .110 .112 .120 .024 .024 .028 88.81 93.29 97.39 .153 .156 .167 
+
+32 .154 .155 .158 .046 .046 .047 91.65 94.61 95.78 .214 .215 .218 .122 .124 .127 .028 .028 .030 66.88 68.8 78.20 .167 .168 .175 .168 .17 .173 .052 .052 .053 92.48 94.71 99.42 .228 .229 .231 .133 .134 .137 .034 .035 .036 76.53 79.30 81.27 .184 .188 .190 .233 .235 .236 .100 .100 .101 66.15 68.57 70.95 .316 .317 .318 .295 .363 .517 .304 .522 1.25 42.39 44.4 54.12 .551 .723 1.12 .148 .149 .152 .041 .041 .042 67.54 68.85 69.86 .202 .203 .206 .113 .114 .121 .024 .025 .027 64.83 68.58 74.26 .155 .157 .166 .157 .158 .160 .046 .047 .048 81.47 84.03 86.09 .215 .216 .218 .119 .122 .127 .026 .027 .031 44.22 45.03 56.28 .162 .164 .176 
+
+33 .143 .144 .147 .039 .040 .041 107.3 110.0 113.0 .198 .199 .201 .120 .121 .125 .028 .029 .030 102.6 104.3 108.3 .168 .170 .173 .181 .182 .184 .062 .062 .063 78.36 80.00 80.95 .248 .249 .251 .146 .147 .150 .038 .039 .041 73.63 76.04 79.25 .195 .197 .202 .217 .219 .220 .087 .087 .088 45.37 46.07 46.62 .294 .295 .297 .190 .209 .234 .078 .114 .206 33.29 34.83 40.27 .279 .337 .454  
+
+> a
+
+Test results from Mondays to Fridays (in sequential order) for weeks 32 and 33. 
+
+TABLE VII PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+A M IXTURE OF TWO LOG -N ORMALLY DISTRIBUTED CALL DURATION TIMES 
+
+WEEKS 27–33, 4:1:2 D ATA SPLIT 
+
+Calls Flow Speed Calls week MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max .170 .174 .177 .055 .056 .056 88.55 94.76 98.32 .234 .236 .237 .129 .131 .133 .032 .033 .033 77.82 82.80 85.40 .180 .182 .183 .146 .147 .148 .040 .040 .041 85.92 87.32 89.50 .200 .201 .202 .109 .110 .113 .023 .024 .024 72.42 75.18 76.78 .152 .154 .155 
+
+32 .152 .153 .154 .045 .045 .045 91.99 94.76 97.52 .211 .212 .212 .109 .110 .113 .023 .024 .024 72.42 75.18 76.78 .152 .154 .155 .165 .167 .169 .050 .051 .052 93.59 95.6 98.45 .225 .226 .228 .120 .121 .122 .026 .027 .027 66.69 68.86 73.68 .162 .164 .165 .229 .231 .233 .096 .097 .101 73.77 76.70 77.60 .311 .312 .318 .166 .179 .185 .055 .064 .072 33.71 38.60 42.88 .234 .254 .269 .145 .147 .149 .040 .040 .040 79.71 80.98 83.07 .199 .200 .201 .110 .112 .114 .023 .024 .024 81.10 82.96 87.64 .153 .154 .156 .154 .156 .158 .044 .045 .046 93.32 95.97 98.69 .210 .212 .214 .118 .119 .121 .025 .026 .026 45.60 46.94 50.37 .159 .16 .162 
+
+33 .14 .141 .144 .038 .038 .039 117.6 119.5 122.94 .194 .196 .196 .116 .117 .120 .026 .027 .028 114.7 119.5 124.7 .163 .165 .168 .178 .179 .181 .059 .061 .062 86.98 89.39 92.41 .244 .247 .249 .142 .144 .147 .037 .037 .040 77.28 81.77 88.06 .192 .194 .200 .213 .216 .218 .083 .085 .088 43.74 44.82 45.26 .289 .292 .296 .171 .172 .177 .054 .055 .062 30.54 32.67 33.55 .233 .235 .249  
+
+> a
+
+Test results from Mondays to Fridays (in sequential order) for weeks 32 and 33. 
+
+TABLE VIII PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+EXPONENTIALLY DISTRIBUTED CALL DURATION TIME , W EEKS 27–33, 3:2:2 D ATA SPLIT 
+
+Calls Flow Speed Calls week MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max .180 .181 .182 .058 .059 .059 77.12 79.47 80.86 .241 .242 .243 .125 .129 .134 .029 .031 .033 41.65 43.75 48.63 .172 .175 .181 .152 .154 .157 .042 .043 .044 84.33 85.64 89.31 .206 .207 .209 .096 .103 .109 .017 .019 .020 49.14 51.45 53.53 .131 .137 .142 
+
+32 .150 .150 .153 .040 .041 .041 108.0 110.3 112.8 .201 .201 .203 .105 .108 .113 .020 .021 .023 75.10 77.62 81.90 .141 .143 .152 .184 .184 .185 .063 .063 .064 78.22 79.23 82.32 .251 .252 .253 .130 .131 .137 .031 .032 .035 53.51 56.89 61.35 .176 .179 .187 .231 .232 .238 .103 .105 .111 47.75 49.02 51.25 .322 .323 .333 .300 .348 .484 .362 .518 1.28 35.50 36.49 42.50 .602 .718 1.13 .150 .151 .153 .042 .042 .042 42.88 43.76 45.855 .204 .205 .206 .101 .105 .109 .021 .022 .023 29.77 30.64 31.48 .145 .149 .153 .161 .162 .164 .050 .051 .051 69.00 70.58 73.72 .224 .225 .226 .113 .115 .122 .023 .024 .028 48.41 51.55 60.67 .152 .154 .166 
+
+33 .154 .156 .160 .050 .050 .051 126.2 127.9 131.7 .223 .224 .226 .104 .106 .12 .021 .022 .027 65.77 71.67 95.71 .146 .148 .165 .188 .189 .190 .070 .070 .071 126.2 128.6 131.1 .264 .265 .267 .126 .130 .142 .031 .032 .038 70.91 73.35 91.16 .176 .180 .194 .228 .230 .234 .098 .099 .103 46.92 48.63 51.74 .313 .315 .321 .189 .200 .244 .098 .123 .211 36.46 38.96 42.24 .313 .351 .460  
+
+> a
+
+Test results from Mondays to Fridays (in sequential order) for weeks 32 and 33. 
+
+TABLE IX PREDICTION PERFORMANCE ON CALLS DATASET AND FLOW , S PEED AND CALLS DATASET 
+
+EXPONENTIALLY DISTRIBUTED CALL DURATION TIME , W EEKS 27–33, 4:1:2 D ATA SPLIT 
+
+Calls Flow Speed Calls week MAE MSE MAPE RMSE MAE MSE MAPE RMSE 
+
+min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max min mdn max .177 .178 .18 .056 .057 .058 125.79 128.5 134.7 .236 .239 .240 .123 .125 .127 .029 .029 .030 69.76 76.12 77.95 .169 .171 .173 .151 .153 .154 .041 .042 .042 74.333 75.73 77.65 .203 .204 .205 .096 .099 .102 .017 .018 .018 44.58 46.04 47.31 .131 .133 .136 
+
+32 .146 .148 .149 .039 .039 .040 172.2 180.5 189.0 .197 .198 .199 .104 .106 .109 .019 .020 .020 115.7 126.3 146.0 .139 .141 .143 .180 .181 .182 .061 .061 .062 88.81 91.97 96.33 .246 .248 .249 .129 .130 .131 .030 .031 .033 55.97 57.68 62.31 .173 .176 .181 .229 .230 .232 .101 .102 .103 44.81 45.82 46.85 .318 .320 .321 .158 .165 .171 .051 .054 .060 26.07 28.32 29.72 .226 .233 .245 .148 .149 .151 .040 .041 .041 42.01 43.14 43.83 .200 .202 .203 .100 .103 .105 .021 .021 .022 29.06 30.21 31.873 .145 .147 .15 .158 .159 .161 .048 .048 .049 64.00 65.36 66.27 .219 .220 .222 .112 .114 .119 .023 .023 .024 47.45 50.60 53.34 .150 .153 .155 
+
+33 .152 .155 .157 .048 .049 .049 345.5 351.7 357.0 .220 .221 .222 .102 .103 .104 .021 .021 .022 163.4 170.9 184.7 .143 .144 .147 .185 .186 .188 .067 .068 .068 253.9 257.5 260.7 .258 .260 .261 .124 .126 .130 .030 .030 .031 110.5 119.4 129.2 .173 .174 .177 .226 .228 .230 .097 .097 .099 72.21 77.98 81.22 .311 .312 .315 .165 .167 .170 .054 .055 .057 62.99 66.08 71.53 .232 .234 .239  
+
+> a
+
+Test results from Mondays to Fridays (in sequential order) for weeks 32 and 33. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 11 Mon Tue Wed Thu Fri  
+
+> 52
+> 54
+> 56
+> 58
+> 60
+> 62
+> 64
+> 66
+> 68
+> Speed (mph)
+> Weeks: 27, 28, 29 Weeks: 30, 31, 32, 33
+
+Fig. 9. Speed recorded by the PeMS 320287 loop detector in the segment of the US50-E highway served by BS 320287 during weeks 27–33 in 2022. The red line shows the threshold applied to discretize the speed into speed levels. 
+
+B. Impact 
+
+During extreme events such as pandemics, human activity and mobility together with the use of urban spaces can drasti-cally change [28], [27]. The use of the mobile network might intensify and that of mobile applications can diversify [26]. When containment measures are in force, the divergence from common patterns could occur over a course of a day. Then, information about a BS operating in a specific type of region becomes stale and not useful to the prediction task. In other words, the performance of models that rely on exogenous information, depends on whether the external data represent valid relationships between the population and its use of the mobile system in time and space and falls short when the contextual information is no longer valid. Conversely, the power of learning the load generation pro-cess is in effectively dealing with any possible scenario. Pre-dictions are based on population dynamics, not on potentially outdated patterns such as correlations between mobile traffic and urban layout, which might become irrelevant over time. Employing population dynamics has the potential not only to reduce the uncertainty about future cellular volumes but also to cut down the cost of collecting big and diverse data and hence, to decrease the computational complexity and memory requirements of the learning models. Ultimately, this strategy could diminish the energy expenditure too. Furthermore, con-cept drift [6] arising from changes in network configurations or conditions and users’ behavior would have a major impact on models relying on exogenous data (KG, PoI or other external information) as these would need to be updated first. 
+
+C. Implementation 
+
+Modern transportation systems have monitoring capabilities—via loop detectors, sensors and video cameras— to track road related metrics, including flow and speed. Similar data can be collected by smart vehicles and interchanged with and send to RSU or the mobile cellular system. On highways, vehicular data would truthfully describe population dynamics. In cities, the monitored speed and flow can still be employed to forecast the cellular load placed by vehicles and their passengers. Dedicated network slices can then be managed efficiently to ensure time- and safety-critical applications and smooth service to fast moving users. VII. C ONCLUSION 
+
+We study mobile traffic forecasting from the perspective of data. We porpose to empower the prediction model with information on the fluctuating number of mobile users. To the best of our knowledge, this is the first approach that employs variables intrinsic to the mobile traffic generation process. In a highway scenario, we employ vehicular flow and average speed as an estimate of the potential sources of cellular load—vehicles and their passangers—and their mobility. The prediction performance is largely and consistently improved— when contrasted with forecasting based on purely cellular time series—across diverse road traffic and mobile load conditions. The approach does not rely on collecting large volumes of exogenous information but combines readily available data from the transport and mobile networks. It has the potential to make mobile cellular forecasting more sustainable and accurate, especially when deployed on large-scale. REFERENCES [1] D. Bega, M. Gramaglia, R. Perez, M. Fiore, A. Banchs, and X. Costa-P´ erez, “AI-based autonomous control, management, and orchestration in 5G: From standards to algorithms,” IEEE Network , vol. 34, no. 6, pp. 14–20, 2020. [2] N. Vesselinova, “On the road to more accurate mobile cellular traffic predictions,” arXiv preprint arXiv:2305.15234 , 2023. [3] N. Vesselinova, M. Harjula, and P. Ilmonen, “Data matters: The case of predicting mobile cellular traffic,” in 2025 IEEE Vehicular Networking Conference (VNC) . IEEE, 2025, pp. 1–8. [4] N. Vesselinova and J. Baranda Hortig¨ uela, “Segmentaci´ on de red anticipatoria seg´ un los movimientos transfronterizos previstos de equipo de usuario en una red 5G,” Patent Spain, Jun. 11, 2025, ES 2976583 B2; H04W 8/00; H04W 72/00; H04W 4/00; H04W 36/00. [Online]. Available: https://patents.google.com/patent/ES2976583B2/en [5] W. Jiang, “Cellular traffic prediction with machine learning: A survey,” 
+
+Elsevier Expert Systems with Applications , vol. 201, pp. 117–163, 2022. [6] O. Aouedi, V. A. Le, K. Piamrat, and Y. Ji, “Deep learning on network traffic prediction: Recent advances, analysis, and future directions,” ACM Computing Surveys , vol. 57, no. 6, pp. 1–37, 2025. [7] M. Amini, R. Stanica, and C. Rosenberg, “Where are the (cellular) data?” ACM Computing Surveys , vol. 56, no. 2, pp. 1–25, 2023. [8] T. Italia, “Telecommunications - SMS, Call, Internet - TN,” 2015. [Online]. Available: https://doi.org/10.7910/DVN/QLCABU [9] N. Fu, S. Liu, W. Xie, and Y. Huang, “Multi-grained spatial-temporal feature complementarity for accurate online cellular traffic prediction,” 
+
+ACM Transactions on Knowledge Discovery from Data , vol. 19, no. 8, pp. 1–27, 2025. [10] J. Ma, B. Wang, P. Wang, Z. Zhou, Y. Zhang, X. Wang, and Y. Wang, “Mobimixer: A multi-scale spatiotemporal mixing model for mobile traffic prediction,” IEEE Transactions on Mobile Computing , 2025. [11] H. Ma and et al., “Sim-MSTNet: Sim2real based multi-task spatiotem-poral network traffic forecasting,” pp. 1226–1230, 2026. [12] A. Okic, L. Zanzi, V. Sciancalepore, A. Redondi, and X. Costa-P´ erez, “π-ROAD: a learn-as-you-go framework for on-demand emergency slices in V2X scenarios,” in IEEE INFOCOM 2021-IEEE Conference on Computer Communications . IEEE, 2021, pp. 1–10. [13] D. Bega, M. Gramaglia, M. Fiore, A. Banchs, and X. Costa-Perez, “Deepcog: Cognitive network management in sliced 5g networks with deep learning,” in IEEE INFOCOM 2019-IEEE conference on computer communications . IEEE, 2019, pp. 280–288. [14] H. Wang, F. Xu, Y. Li, P. Zhang, and D. Jin, “Understanding mobile traffic patterns of large scale cellular towers in urban environment,” in 
+
+Proceedings of the 2015 Internet Measurement Conference , 2015, pp. 225–238. [15] F. Xu, Y. Li, M. Chen, and S. Chen, “Mobile cellular big data: linking cyberspace and the physical world with social ecology,” IEEE Network ,vol. 30, no. 3, pp. 6–12, 2016. [16] F. Calabrese, M. Colonna, P. Lovisolo, D. Parata, and C. Ratti, “Real-time urban monitoring using cell phones: A case study in Rome,” IEEE Transactions on Intelligent Transportation Systems , vol. 12, no. 1, pp. 141–151, 2010. JOURNAL OF L ATEX CLASS FILES, VOL. 18, NO. 9, SEPTEMBER 2020 12 
+
+[17] M. C. Gonzalez, C. A. Hidalgo, and A.-L. Barabasi, “Understanding individual human mobility patterns,” Nature , vol. 453, no. 7196, pp. 779–782, 2008. [18] P. Deville, C. Linard, S. Martin, M. Gilbert, F. R. Stevens, A. E. Gaughan, V. D. Blondel, and A. J. Tatem, “Dynamic population mapping using mobile phone data,” Proceedings of the National Academy of Sciences , vol. 111, no. 45, pp. 15 888–15 893, 2014. [19] X. Tan, B. Huang, M. Batty, W. Li, Q. R. Wang, Y. Zhou, and P. Gong, “The spatiotemporal scaling laws of urban population dynamics,” Nature Communications , vol. 16, no. 1, p. 2881, 2025. [20] Y. Xu, S.-L. Shaw, F. Lu, J. Chen, and Q. Li, “Uncovering the rela-tionships between phone communication activities and spatiotemporal distribution of mobile phone users,” in Human Dynamics Research in Smart and Connected Communities . Springer, 2018, pp. 41–65. [21] C. Bergroth, O. J¨ arv, H. Tenkanen, M. Manninen, and T. Toivonen, “A 24-hour population distribution dataset based on mobile phone data from Helsinki Metropolitan Area, Finland,” Scientific data , vol. 9, no. 1, p. 39, 2022. [22] R. A. Becker, R. Caceres, K. Hanson, J. M. Loh, S. Urbanek, A. Var-shavsky, and C. Volinsky, “A tale of one city: Using cellular network data for urban planning,” IEEE Pervasive Computing , vol. 10, no. 4, pp. 18–26, 2011. [23] R. Becker, R. C´ aceres, K. Hanson, S. Isaacman, J. M. Loh, M. Martonosi, J. Rowland, S. Urbanek, A. Varshavsky, and C. Volinsky, “Human mobility characterization from cellular network data,” Commu-nications of the ACM , vol. 56, no. 1, pp. 74–82, 2013. [24] R. Pulselli, P. Romano, C. Ratti, and E. Tiezzi, “Computing urban mobile landscapes through monitoring population density based on cell-phone chatting,” International Journal of Design & Nature and Ecodynamics ,vol. 3, no. 2, p. 121, 2008. [25] L. Dong, F. Duarte, G. Duranton, P. Santi, M. Barthelemy, M. Batty, L. Bettencourt, M. Goodchild, G. Hack, Y. Liu et al. , “Defining a city—delineating urban areas using cell-phone data,” Nature Cities ,vol. 1, no. 2, pp. 117–125, 2024. [26] A. F. Zanella, O. E. Mart´ ınez-Durive, S. Mishra, Z. Smoreda, and M. Fiore, “Impact of later-stages Covid-19 response measures on spatiotemporal mobile service usage,” in IEEE International Conference on Computer Communications (INFOCOM 2022) , 2022, pp. 970–979. [27] M. A. Bouzaghrane, H. Obeid, M. Gonz´ alez, and J. Walker, “Human mobility reshaped? Deciphering the impacts of the Covid-19 pandemic on activity patterns, spatial habits, and schedule habits,” EPJ Data Science , vol. 13, no. 1, p. 24, 2024. [28] J. Osorio Arjona, “Analyzing post-Covid-19 demographic and mobility changes in Andalusia using mobile phone data,” Scientific Reports ,vol. 14, no. 1, p. 14828, 2024. [29] A. F. Zanella, L. W. Dietz, S. ˇ S´ cepanovi´ c, K. Zhou, Z. Smoreda, and D. Quercia, “The digital life of parisian parks: Multifunctionality and urban context uncovered by mobile application traffic,” arXiv preprint arXiv:2508.15516 , 2025. [30] F. Xu, Q. Wang, E. Moro, L. Chen, A. Salazar Miranda, M. C. Gonz´ alez, M. Tizzoni, C. Song, C. Ratti, L. Bettencourt et al. , “Using human mobility data to quantify experienced urban inequalities,” Nature Human Behaviour , pp. 1–11, 2025. [31] J. C. Herrera, D. B. Work, R. Herring, X. J. Ban, Q. Jacobson, and A. M. Bayen, “Evaluation of traffic data obtained via GPS-enabled mobile phones: The Mobile Century field experiment,” Transportation Research Part C: Emerging Technologies , vol. 18, no. 4, pp. 568–583, 2010. [32] R. A. Becker, R. Caceres, K. Hanson, J. M. Loh, S. Urbanek, A. Var-shavsky, and C. Volinsky, “Route classification using cellular handoff patterns,” in ACM Proceedings of the 13th international conference on Ubiquitous computing , 2011, pp. 123–132. [33] N. Caceres, J. Wideberg, and F. Benitez, “Review of traffic data estimations extracted from cellular networks,” IET Intelligent Transport Systems , vol. 2, pp. 179–192, 2008. [34] O. J¨ arv, R. Ahas, E. Saluveer, B. Derudder, and F. Witlox, “Mobile phones in a traffic flow: A geographical perspective to evening rush hour traffic analysis using call detail records,” PloS one , vol. 7, no. 11, p. e49171, 2012. [35] F. Xu, Y. Li, H. Wang, P. Zhang, and D. Jin, “Understanding mobile traffic patterns of large scale cellular towers in urban environment,” 
+
+IEEE/ACM Transactions on Networking , vol. 25, no. 2, pp. 1147–1161, 2016. [36] J. Gong, T. Li, H. Wang, Y. Liu, X. Wang, Z. Wang, C. Deng, J. Feng, D. Jin, and Y. Li, “KGDA: A knowledge graph driven decomposition approach for cellular traffic prediction,” ACM Transactions on Intelligent Systems and Technology , vol. 15, no. 6, pp. 1–22, 2024. [37] J. Feng, X. Chen, R. Gao, M. Zeng, and Y. Li, “Deeptp: An end-to-end neural network for mobile cellular traffic prediction,” IEEE Network ,vol. 32, no. 6, pp. 108–115, 2018. [38] H. Chai, S. Zhang, X. Qi, B. Qiu, and Y. Li, “UoMo: A universal model of mobile traffic forecasting for wireless network optimization,” in Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2 , 2025, pp. 4308–4319. [39] J. Gong, Y. Liu, T. Li, H. Chai, X. Wang, J. Feng, C. Deng, D. Jin, and Y. Li, “Empowering spatial knowledge graph for mobile traffic prediction,” in Proceedings of the 31st ACM International Conference on Advances in Geographic Information Systems , 2023, pp. 1–11. [40] A. Hogan, E. Blomqvist, M. Cochez, C. d’Amato, G. D. Melo, C. Gutierrez, S. Kirrane, J. E. L. Gayo, R. Navigli, S. Neumaier et al. ,“Knowledge graphs,” ACM Computing Surveys , vol. 54, no. 4, pp. 1–37, 2021. [41] J. Gong, Y. Liu, T. Li, J. Ding, Z. Wang, and D. Jin, “STTF: A spatiotemporal transformer framework for multi-task mobile network prediction,” IEEE Transactions on Mobile Computing , 2025. [42] M. Tiru, “Mobile positioning data in tourism studies and monitoring: Case study in Tartu, Estonia,” in Information and Communication Tech-nologies in Tourism 2007: Proceedings of the International Conference in Ljubljana, Slovenia, 2007 . Springer, 2007, p. 119. [43] G. Ranjan, H. Zang, Z.-L. Zhang, and J. Bolot, “Are call detail records biased for sampling human mobility?” ACM SIGMOBILE Mobile Com-puting and Communications Review , vol. 16, no. 3, pp. 33–44, 2012. [44] V. D. Blondel, A. Decuyper, and G. Krings, “A survey of results on mobile phone datasets analysis,” EPJ data science , vol. 4, no. 1, p. 10, 2015. [45] S. Zhao, X. Jiang, G. Jacobson, R. Jana, W.-L. Hsu, R. Rustamov, M. Talasila, S. A. Aftab, Y. Chen, and C. Borcea, “Cellular net-work traffic prediction incorporating handover: A graph convolutional approach,” in 2020 17th Annual IEEE International Conference on Sensing, Communication, and Networking (SECON) , 2020, pp. 1–9. [46] Y. Fang, S. Erg¨ ut, and P. Patras, “SDGNet: A handover-aware spa-tiotemporal graph neural network for mobile traffic forecasting,” IEEE Communications Letters , vol. 26, no. 3, pp. 582–586, 2022. [47] D. Willkomm, S. Machiraju, J. Bolot, and A. Wolisz, “Primary users in cellular networks: A large-scale measurement study,” in 2008 3rd IEEE Symposium on New Frontiers in Dynamic Spectrum Access Networks ,2008, pp. 1–11. [48] J. Guo, F. Liu, and Z. Zhu, “Estimate the call duration distribution parameters in GSM system based on KL divergence method,” in 2007 International Conference on Wireless Communications, Networking and Mobile Computing . IEEE, 2007, pp. 2988–2991. [49] L. Fang, X. Cheng, H. Wang, and L. Yang, “Mobile demand forecasting via deep graph-sequence spatiotemporal modeling in cellular networks,” 
+
+IEEE Internet of Things Journal , vol. 5, no. 4, pp. 3091–3101, 2018.

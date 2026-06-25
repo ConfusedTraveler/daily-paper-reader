@@ -1,0 +1,1232 @@
+Title: Online forecast reconciliation using linear models
+
+URL Source: https://arxiv.org/pdf/2606.23326v1
+
+Published Time: Tue, 23 Jun 2026 03:41:43 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# Online forecast reconciliation using linear models 
+
+## Tobias Rønlev-Knudsen ∗1, Henrik Madsen 1, and Jan Kloppenborg Møller 11Department of Applied Mathematics and Computer Science, Technical University of Denmark June 2026 
+
+Abstract 
+
+We present a framework for online and adaptive forecasting and hierarchical reconcil-iation using linear regression models. We begin by formalizing hierarchies using graphs, and motivated by their structure, formulate a multivariate linear model using the matrix normal distribution to characterize residuals. Parameter estimation is posed as a ridge regression problem and applied to hierarchical forecast reconciliation. The connections between ridge regression, Bayesian estimation and shrinkage for hierarchical reconcilia-tion are discussed, and results for uncertainty quantification in parameters and forecasts are provided. Based on the ridge regression formulation, a recursive inference scheme inspired by recursive least squares is described. The algorithm is implemented in the Py-OnlineForecast package. Finally, the proposed methodology is demonstrated on a case study for district heating load forecasting using a temporal hierarchy. Our results provide a reference for implementation of forecast reconciliation via multivariate linear models in an online setting. The case study furthermore highlights practical considerations of using temporal hierarchies in an online setting and demonstrates the usefulness of the proposed framework and implementation, both for district heating load forecasting and more generally for online hierarchical forecasting. 
+
+# 1 Introduction 
+
+Forecast reconciliation is a method to ensure coherency of forecasts of time series with hierarchical structures. Such structures enforce linear constraints on the forecasts, which are exploited by reconciliation methods to improve accuracy. Forecast reconciliation has successfully been applied to a range of domains. Athanasopoulos et al., 2009 considered domestic tourism in Australia, grouping high dimensional time series data by geographical regions and purpose of travel, and demonstrated the use of several methods for achieving coherent forecasts. Applications within energy systems have also been considered. Examples include photovoltaic (Yagli et al., 2019), wind power (Bai & Pinson, 2019), electricity loads 
+
+> ∗
+
+Corresponding author: tobro@dtu.dk 
+
+1
+
+> arXiv:2606.23326v1 [stat.ME] 22 Jun 2026
+
+(Nystrup et al., 2020, 2021) and district heating (DH) load forecasting (Bergsteinsson et al., 2021, 2023). Early works on hierarchical time series used bottom-up or top-down approaches to aggregate or disaggregate forecasts and ensure coherency (Athanasopoulos et al., 2009; Gross & Sohl, 1990). As the basis for many later works, Hyndman et al., 2011 introduced the optimal combination method, which expresses coherent forecasts as a linear combination of base forecasts by solving an ordinary least squares (OLS) problem. For large hierarchies (Hyndman et al., 2016) considered a weighted least squares (WLS) approach utilizing sparse matrix solutions to improve efficiency. In general, these methods consider a generalized least squares (GLS) problem that uses the covariance matrix of the so-called coherency errors. This covariance matrix is usually unknown, and it was shown by Wickramasuriya et al., 2019 to be unidentifiable. In place of the true covariance matrix, they provided theoretical justification for using the full variance-covariance matrix of the base forecast errors using the minimum trace (MinT) method. They furthermore provided several suggestions for estimators of the covariance matrix, including shrinkage based estimators (Sch¨ afer & Strimmer, 2005) to address collinearity, which is common in hierarchical time series. Pritularga et al., 2021 proposed that coherence should be considered stochastic, and considered the sources and effect of uncertainty in forecast reconciliation. For temporal hierarchies, Møller et al., 2024b studied the importance of correct specifica-tion of the covariance matrix, and suggested dimensionality reduction by parameterization of the covariance matrix to improve estimation. Further work by Møller et al., 2024a also investigated uncertainty quantification in hierarchies and showed that forecast reconciliation can be stated as a linear model (LM). This result allows the use of methods for LMs, and enabled explicit quantification of the uncertainties in the weight matrices used for recon-ciliation. The study demonstrated that forecast reconciliation acts as a linear projection, mapping base forecasts to a coherent linear subspace. This was also noted by Panagiotelis et al., 2021, who provided a geometric interpretation of forecast reconciliation. In practical settings, forecasts are often required to be updated regularly as new ob-servations become available. Online forecasting methods address this by providing efficient algorithms for updating model parameters, typically using recursive estimation techniques. Adaptive models further ensure that model parameters are updated to reflect, typically slow, changes in the modelled system. Forecasting of DH loads using adaptive methods was considered by Bacher et al., 2013. They proposed linear time series models using climate inputs and Fourier series of calendar variables as input features for predicting heat loads. Adaptive methods have also been considered for hierarchical models for heat load forecasting (Bergsteinsson et al., 2021, 2023). These works have considered both temporal and spatial hierarchies and demonstrate the use of MinT reconciliation using shrinkage based on Ledoit and Wolf, 2003 in an online and adaptive setting. The main contribution of this paper is to apply the results of Møller et al., 2024a to derive online and adaptive forecasting methods for hierarchical time series. Moreover, the paper extends current descriptions of forecast reconciliation by using graphs to define hierarchies and matrix normal distributions to characterize errors. The paper is accompanied by an open source implementation in the Python package PyOnlineForecast (Rønlev-Knudsen et al., 2026). The package is loosely based on the onlineforecast package (Bacher et al., 2023) for the R programming language, which provides methods for online forecasting using ensembles 2μ1
+
+μ2
+
+μ3 μ4
+
+μ5 S =
+
+
+
+1 1 11 1 01 0 00 1 00 0 1
+
+
+
+Figure 1: A hierarchy and its summation matrix. Nodes represent states with values con-strained to the sum of their direct children, represented by solid edges. Node indices are chosen according to levels in the hierarchy. The transitive closure of the hierarchy, used to define the summation matrix, is represented by dashed edges. of linear models and the recursive least squares (RLS) algorithm for adaptive parameter estimation. As a demonstration of the methods, a DH load forecasting problem is considered. The structure of the paper is as follows: In Section 2, hierarchies and forecast reconcili-ation are formally introduced. Sections 3.1 and 3.2 then describe a regularized multivariate linear model and results on recursive inference for this model. Section 3.3 demonstrates how linear forecast reconciliation may be interpreted as a special case of the model. In Section 4 a brief discussion of the implementation in the PyOnlineForecast package is given. Section 5 provides an example demonstrating the use of the methods and package on a DH load forecasting problem. Section 6 finally concludes the paper with a summary and discussion of results. 
+
+# 2 Hierarchical reconciliation 
+
+Hierarchical forecast reconciliation uses the notion of a hierarchy to define a linear summation constraint on the states of a system. The summation constraints are commonly illustrated by drawing the hierarchy as in Figure 1. In the following, we consider a hierarchy as a graph, where nodes represent states of a system and edges define summation constraints between the states. Formally, let H = ( Y, E) be a directed tree where Y is a finite set of nodes, and 
+
+E ⊆ Y 2 is a set of edges directed away from the root node. For nodes μ, η ∈ Y we write 
+
+μ ≻ η if η is reachable from μ (e.g. μ1 ≻ μ3 in Figure 1). More formally, let E+ be the transitive closure of E, then we define the partial ordering ≻ as, 
+
+μ ≻ η ⇐⇒ (μ, η ) ∈ E +.
+
+We say that the interior nodes are the ”top level” nodes, and the leaves are the ”bottom level” nodes. Let ntop and nbot be the number of top and bottom level nodes, respectively and set ntot = ntop + nbot to be the total number of nodes in the hierarchy. Let ytop ∈ Rntop 
+
+and ybot ∈ Rnbot be the states of the top and bottom level nodes, respectively. We then 3define the summation matrix S in terms of its blocks, 
+
+S =
+
+Stop 
+
+Inbot 
+
+
+
+∈ Rntot ×nbot ,
+
+where Inbot is the nbot × nbot identity matrix. Define the index set I = {1, ..., n tot } and assign to each node an index i ∈ I such that the first ntop nodes are top level and the subsequent 
+
+nbot nodes are bottom level. The top level summation matrix Stop is defined in terms of reachability of the top levels from the bottom levels, i.e., 
+
+Stop,i,j =
+
+(
+
+1, if node j + ntop ≻ node i, 
+
+0, otherwise. The constraints of the hierarchy may then be expressed in terms of the linear equation, 
+
+Sybot =
+
+ytop 
+
+ybot 
+
+
+
+(1) Note, that the ordering of the nodes within the top and bottom levels is so far arbitrary. To provide a convention, we further structure the top levels by their individual level. For a given node μ, define the level ℓ(μ), as the length of the longest directed path to a bottom level node (e.g. ℓ(μ1) = 2 in Figure 1). We then choose our ordering such that, 
+
+ℓ(μi) ≥ ℓ(μj ) = ⇒ i < j. 
+
+Whilst this ordering is not unique, it satisfies that top and bottom levels are indexed by the first ntop and last nbot indices of I, respectively. Further, if μ ≻ η it follows that ℓ(μ) > ℓ (η), so that parent nodes are ordered above their children. In the context of forecasting and hierarchical reconciliation, we will consider time depen-dent states, and assume that observations are available at the bottom level of the hierarchy. The goal of hierarchical reconciliation (Hyndman et al., 2011) may be framed as finding a matrix P ∈ Rnbot ×ntot and reconciled forecasts ˜ yt ∈ Rntot satisfying, ˜yt = SP ˆyt. (2) The matrix SP is a projection matrix, mapping base forecasts to a coherent linear subspace (Panagiotelis et al., 2021). In particular, P maps base forecasts to reconciled bottom level forecasts, which are then aggregated to top level forecasts by the summation matrix S,enforcing coherency by construction. Thus, equation (2) expresses the summation constraint (1) in terms of the coherent forecasts P ˆyt and ˜ yt. Various methods have been suggested for determining P and the reconciled forecasts. Simple reconciliation methods include the bottom-up and top-down approaches. In bottom-up reconciliation, the bottom level forecasts are aggregated by summation to form the top level forecasts, whereas the top-down approach distributes top-level forecasts to the bottom levels. These methods ensure coherency, but ignore information available through either top or bottom level forecasts or correlations between these. The optimal combination approach proposed by Hyndman et al., 2011 uses some of this information by posing the problem as linear regression, ˜yt = SP ˆyt + ϵt,
+
+4where GLS estimation was suggested to estimate P as, 
+
+P =  S⊤Σ†S−1 S⊤Σ†,
+
+where Σ † is the Moore-Penrose generalized inverse of the variance-covariance matrix Σ of the reconciliation error ϵt. Hyndman et al., 2011 originally used the identity matrix in place of Σ, thus reducing the problem to OLS. Later, Wickramasuriya et al., 2019 showed that Σ is unidentifiable and provided theoretical justification for the use of the full variance-covariance matrix of the base forecast errors W as a weight matrix in place of Σ. The resulting MinT solution minimizes the trace of the variance of the reconciled forecast errors and reconciliation. Several estimators have been suggested for W (Nystrup et al., 2020; Wickramasuriya et al., 2019), including shrinkage based estimators (Ledoit & Wolf, 2003; Sch¨ afer & Strimmer, 2005). For temporal hierarchies, autocorrelation structures in the errors may also be used to guide the choice of estimator (Nystrup et al., 2020). The linear model (2) is stated as a regression problem for the reconciled forecasts. Alternatively, Møller et al., 2024a showed that the problem can be expressed as a LM in the bottom level base forecast errors, 
+
+ybot,t − ˆybot,t = Xtθ + ϵt, ϵt ∼ N (0 , Σr). (3) Where the design matrix is given by, 
+
+Xt = Inbot ⊗  ˆy⊤ 
+
+> top,t
+
+− ˆy⊤
+
+> bot,t
+
+S⊤
+
+> top
+
+ , (4) Here ybot,t , ˆybot,t ∈ Rnbot are the bottom level observations and base forecasts respectively and ˆytop,t ∈ Rntop are the top level base forecasts. This form has the advantage, that it enables the use of well known results on linear models. The reconciled forecasts are then given by, ˆyt = S (Xtθ + ˆ ybot,t ) . (5) Møller et al., 2024a further showed that Tikhonov regularization of the least squares estimate corresponds to shrinkage and maximum a posteriori (MAP) estimation. For observations labelled s = 1 , ..., t , the response vector and design matrix may be stacked into ybot − ˆybot ∈
+
+Rtn bot and Xstack ∈ Rtn bot ×ntop nbot . The Tikhonov regularized objective is then given by, min  
+
+> θ
+
+Xstack θ − (ybot − ˆybot ) 2 
+
+> It⊗Σ−1r
+
++ ∥θ − θ0∥2Σθ0
+
+(6) where θ0 and Σ θ0 are the prior mean and covariance. Let Σ top and Σ bot be the variance-covariance matrices of the top and bottom level base forecast errors, and Σ d 
+
+> top
+
+and Σ d 
+
+> bot
+
+be matrices containing their respective diagonals. For the MAP estimate to match shrinkage, Møller et al., 2024a showed that the prior should be chosen as, 
+
+θ0 =
+
+ ˆΣd 
+
+> top
+
++ Stop ˆΣd
+
+> bot
+
+S⊤
+
+> top
+
+−1 
+
+Stop ˆΣd
+
+> bot
+
+
+
+, (7) Σθ0 = 1 − γγt 
+
+ ˆΣd 
+
+> top
+
++ Stop ˆΣd
+
+> bot
+
+S⊤
+
+> top
+
+−1
+
+. (8) 5where γ ∈ [0 , 1] is the shrinkage parameter. In this case, the shrinkage estimate of the parameters is given by, ˆθ =
+
+
+
+(1 − γ)
+
+ ˆYtop − ˆYbot S⊤
+
+> top
+
+⊤  ˆYtop − ˆYbot S⊤
+
+> top
+
+
+
++ γt 
+
+ ˆΣd 
+
+> top
+
++ Stop ˆΣd
+
+> bot
+
+S⊤
+
+> top
+
+−1
+
+×
+
+
+
+(1 − γ)
+
+ ˆYtop − ˆYbot S⊤
+
+> top
+
+⊤ 
+
+Ybot − ˆYbot 
+
+
+
++ γt Stop ˆΣd
+
+> bot
+
+ (9) where ˆYtop , ˆYbot , Y bot are matrices containing the vectors ˆ ytop,s , ˆybot,s , y bot,s for s = 1 , ..., t as rows. The Tikhonov regularized objective (6) and related results provide much of the basis for the online reconciliation methods to be developed in the following sections. 
+
+# 3 Linear models 
+
+To formalize a framework for online forecasting and reconciliation, we will use LMs as our basic modelling tool. The usual linear model expresses a linear relationship between a target variable and features, assuming i.i.d. Gaussian noise. Instead, we consider a more general form, that allows residuals to be correlated and utilizes matrix normal distributions to characterize distributions in both residuals and parameters. This facilitates a concise and unified representation of the inherently multivariate models and the connections between shrinkage estimators, ridge regression and Bayesian inference. We will use a notation for matrix variate normal distributions as in Glanz and Carvalho, 2013, and refer to the textbook by Gupta and Nagar, 2018 for further details, see also Appendix A for a brief description. Let x, y be random variables taking values in Rn and Rm, respectively. We will consider discrete, regularly sampled time series and use integer indices to denote time. Take a sequence of samples indexed by s = 1 , 2, . . . , t and collect them in design and response matrices X
+
+and Y , such that the s-th row of X and Y are the row vectors x⊤ 
+
+> s
+
+and y⊤ 
+
+> s
+
+respectively. We then consider a LM of the form, 
+
+Y = Xθ + E, E ∼ MN (0 , U, V ) (10) where E takes values in Rt×m and the fixed matrices U ∈ Rt×t and V ∈ Rm×m. This will be the basic model considered in the following. If U has a diagonal structure, the model may equivalently be expressed as a set of t linear models with independent residuals, 
+
+ys = θ⊤xs + es, es ∼ N (0 , U ss V ), s = 1 , 2, . . . , t. (11) The latter decomposition will be useful for our development of a recursive inference scheme in section 3.2, as the solutions yield themselves to simple incremental updates. More general correlation structures in U pose interesting modelling possibilities, but encumber the solution complexity and are thus only considered in the non-recursive setting. For U as the identity matrix, the model reduces to a standard multivariate linear model with i.i.d. residuals. 
+
+## 3.1 Regularization in linear models 
+
+We pose parameter estimation as a ridge regression problem with the objective, 
+
+J(θ; P, Q, R, θ 0) = ∥Xθ − Y ∥2 
+
+> P,R
+
++ ∥θ − θ0∥2 
+
+> Q,R
+
+. (12) 6where θ0 is a shrinkage target, P ∈ Rt×t a weight matrix, Q ∈ Rn×n a regularization parameter and R ∈ Rm×m. Here we have introduced a weighted Mahalanobis-type norm for matrices, which we define as, 
+
+∥X∥2 
+
+> A,B
+
+= tr  BX ⊤AX  . (13) It holds that ∥X∥2 
+
+> A,B
+
+= vec ( X)⊤ (B ⊗ A)vec ( X), so that the norm is well-defined if B ⊗ A is symmetric positive definite (SPD). This also implies that J is convex in θ, if R⊗P and R⊗Q
+
+are both SPD. Loosely speaking, the objective seeks to minimize the weighted variance of the prediction error, while penalizing deviations of the parameters from the shrinkage target 
+
+θ0. In the following we will assume that P , Q and R are all SPD. It now holds, that the minimizer of (12) with respect to θ is independent of R and has a closed form solution. To state the result, we introduce the notation, 
+
+K = X⊤P X, L = X⊤P Y, H = X⊤P U P X. 
+
+Minimizing (12), the parameter estimate can be written, ˆθ = ( K + Q)−1 (L + Qθ 0) . (14) Under the model (10), the distribution of the estimate is matrix normal with, ˆθ ∼ MN (θridge , Ψridge , V ) , (15) where the mean and covariance parameters are given by, 
+
+θridge = ( K + Q)−1  X⊤P Xθ + Qθ 0
+
+ , Ψridge = ( K + Q)−1 H (K + Q)−1 .
+
+Note, the mean estimate ˆθ is equivalent to the MAP estimate of θ under the model (10), when assuming U, V known and prior distribution, 
+
+θ ∼ MN (θ0, Q −1, R −1).
+
+For a full discussion of the Bayesian interpretation of the model and a proof of the above statement, see Appendix B. Given the results in the Bayesian setting, it is straightforward to argue that ˆθ is the minimizer of (12), see Appendix C. The predictive distribution for a new observation Y ∗ given new features X∗ is then given by, 
+
+Y ∗|X∗, X, Y ∼ MN  X∗θridge , X ∗Ψridge X∗⊤ + U ∗, V  , (16) It is worthwhile to consider some variants of the model (10) and their relation to standard methods. Firstly, setting Q = 0, it is easy to see that the minimization of (12) and the solution (14) reduces to a WLS type problem and that the parameter estimate becomes unbiased. More generally, the model (10) may be expressed in the vectorized form, vec ( Y ) = ( Im ⊗ X)vec ( θ) + vec ( E) , vec ( E) ∼ N (0 , V ⊗ U ),
+
+where Im is the identity matrix of size m. This expression conforms to the standard linear model form, directly allowing the use of associated theory and methods to recover estimates 7of the parameter and predictive distributions. The major drawback of this approach is the additional computational complexity implied by the larger design and covariance matrices. These issues could potentially be alleviated by exploiting the sparse structures, especially in the case of U being equal to the identity or other sparse matrix. In the vectorized form, diagonal U corresponds to, 
+
+ys = ( Im ⊗ X)vec ( θ) + es, es ∼ N (0 , u ss V ).
+
+For U = Im, this is exactly the formulation used for the hierarchical LM by Møller et al., 2024a, i.e. equation (3). They suggest that this formulation may be used for model reduction using a test strategy to remove insignificant parameters for hierarchical reconciliation. This corresponds to removing individual columns from the design matrix Im ⊗ X, which is not possible in the matrix form (10) without adding algebraic constraints to the optimization problem. Despite the flexibility of the vectorized formulation, we will use the matrix form (10) for its notational simplicity and computational efficiency. 
+
+## 3.2 Recursive Estimation 
+
+For use in an online setting, we assume our inputs and outputs are time series with equidistant sampling times. To emphasize the temporal nature of the data, we will attach a subscript s =1, 2, . . . , t to all variables, where t > 0 is the current time step or simply the (current) time. For example, yt is the most current observation and Yt is the collection of all observations currently available from time 1 to time t. At time t we are interested in forecasting yt+k
+
+for some integer horizon k > 0. For any such t, forecasts should be made online, i.e. using models estimated from all data available up to that time. We then consider a sequence of linear models of the form (10) parameterized by the current time t,
+
+Yt = Xtθ + Et, Et ∼ M N (0 , U t, V ), t = 1 , 2, . . . (17) As new observations become available, the matrices Xt, Yt, Ut and regularization parameter 
+
+Pt increase in size, so that numerics eventually become infeasible. To address this, we adopt a recursive approach (see e.g. (Bacher et al., 2023; Madsen, 2007)). We do not pursue a general solution in this case, but assume special structures of Pt and Ut. Using the subscript notation, we can express the ridge regression estimator (15) at time t as, 
+
+θridge ,t = ( Kt + Q)−1 (Lt + Qθ 0) , (18) and the covariance of the estimator as, Ψridge ,t = ( Kt + Q)−1 X⊤ 
+
+> t
+
+Ht (Kt + Q)−1 . (19) We now assume independent residuals by setting Ut = diag( u1, . . . , u t), and choose Pt as a diagonal weight matrix, Λt = diag( λt−1, λ t−2, . . . , 1) .
+
+For implementation purposes, the main result is recursive update equations for the matrices 
+
+Kt, Lt and Ht.8Corollary 3.1 (Update equations) . Under the above assumptions, the ridge regression esti-mator (18) and its covariance (19) can be updated recursively in terms of the matrices Kt,
+
+Lt and Ht as, 
+
+Kt+1 = λK t + xt+1 x⊤
+
+> t+1
+
+,Lt+1 = λL t + xt+1 y⊤
+
+> t+1
+
+,Ht+1 = λ2Ht + ut+1 xt+1 x⊤
+
+> t+1
+
+.
+
+(20) The corollary follows from Proposition 1 in the appendix, and is proven in Appendix C.1. The choice of Pt = Λ t is motivated by commonly used exponential smoothing filters. Indeed, for univariate target variable Yt, setting Qt = 0 and ut = 1, the above reduces to the recursive least squares solution used by e.g. Bacher et al., 2023. For a forecast horizon h > 0, the predictive distribution for time t + h is then given by, 
+
+yt+h | Yt ∼ N 
+
+ˆθridge ,t x∗
+
+> t+h
+
+, (x∗⊤ 
+
+> t+h
+
+Ψridge ,t x∗ 
+
+> t+h
+
++ 1) V
+
+
+
+.
+
+As we will typically not know the variance V , it should be estimated from the data. For example, we may use the weighted empirical variance estimate at time t,ˆVt = ( Xt ˆθt − Yt)⊤Λt(Xt ˆθt − Yt).
+
+Assuming large t, the memory is saturated, and the variance update may be expressed recursively as (Bergsteinsson et al., 2021), ˆVt+1 = λ ˆVt + (1 − λ)( ˆθ⊤ 
+
+> t
+
+xt+1 − yt+1 )( ˆθ⊤ 
+
+> t
+
+xt+1 − yt+1 )⊤. (21) We do not pursue a correction to the uncertainty of the predictive distribution implied by the estimation of V , but note its potential importance for small samples or short memory. 
+
+## 3.3 Application to hierarchies 
+
+Hierarchical forecast reconciliation can be treated using the methods discussed so far by applying the result of Møller et al., 2024a. To do so, we organize the top and bottom level forecasts ˆ ybot ,s and ˆ ytop ,s and the bottom level observations ybot ,s for s = 1 , 2, . . . , t as rows in the matrices ˆYtop , ˆYbot and Ybot . We then pose a linear model for the bottom level base forecast errors of the sort (10), 
+
+Ybot − ˆYbot = ( ˆYtop − ˆYbot S⊤
+
+> top
+
+)θ + E, E ∼ MN (0 , U, Σr). (22) Parameters are estimated by minimizing the equivalent of (12) for the model (22), 
+
+( ˆYtop − ˆYbot S⊤
+
+> top
+
+)θ − (Ybot − ˆYbot ) 2
+
+> P, Σ−1
+> r
+
++ ∥θ − θ0∥2 
+
+> Q, Σ−1
+> r
+
+. (23) For P = U = It, the objective reduces to (6), so that estimates correspond to usual rec-onciliation methods. For instance, choosing Q = Σ −1 
+
+> θ0
+
+and θ0 as in (7)-(8) we recover the 9shrinkage estimate (9) as the solution (14). To see the equivalence with (3), we note that when U = It, a single sample of (22) reduces to, (ybot ,s − ˆybot ,s )⊤ = (ˆ ytop ,s − Stop ˆybot ,s )⊤ θ + e⊤,
+
+= Im ⊗ (ˆ ytop ,s − Stop ˆybot ,s ) vec ( θ) + e⊤, e ∼ N (0 , Σr).
+
+The model (22) produces predictions ˜∆bot = ∆ bot | Ybot of the bottom level base forecast errors ∆ bot = Ybot − ˆYbot . Bottom level reconciled forecasts are obtained as ˜Ybot = ˆYbot + ˜∆bot ,or equivalently by computing ˜Ybot = ˆY P(θ)⊤ where the matrix P(θ) is defined by Møller et al., 2024a as, 
+
+P(θ)⊤ =
+
+ θ⊤
+
+Inbot − S⊤
+
+> top
+
+θ⊤
+
+
+
+.
+
+The first term of the objective (23) can then be expressed as, 
+
+ˆY P(θ)⊤ − Ybot 
+
+> 2
+> P, Σ−1
+> r
+
+.
+
+It is then clear, that the solution ˆθ should minimize the bottom level reconciled forecast error, subject to the summation constraint imposed by P(θ) and the regularization penalties on the parameters. In particular, setting P = It and identifying Q = Σ −1 
+
+> θ0
+
+and θ0 as in (7)-(8) we recover the shrinkage estimate (9) as the solution (14). This is simply restating the findings of Møller et al., 2024a, here based on a matrix variate model. In the following examples however, we do not pursue this exact choice of prior, but consider alternatives that are simpler in this setting. As a special case, we consider θ0 = 0 and Q = qI ntop 
+
+where q → ∞ . In the limit, the prior approaches a point mass at zero, so that in turn the parameters θ tend to zero, corresponding to a zero prediction of the bottom level forecast errors. The resulting reconciled forecasts will then be the bottom-up forecasts. Note, whilst this prior is common for ridge regression, it differs from the usual shrinkage prior used for forecast reconciliation (Nystrup et al., 2020). Since strong regularization under this prior favours the bottom-up forecasts, it is important to consider whether the hierarchy’s nodes of interest will benefit from the choice. Using (22)-(23), it is possible to follow either a Bayesian or ridge regression approach by imposing appropriate assumptions on P , U , Q and 
+
+θ. As we aim to use the model for online forecast reconciliation, we will pursue the ridge regression formulation and recursive estimation scheme described in the previous sections. Assume then that ˆθ was found using (14) and that we are given new base forecasts ˆY ∗
+
+> bot
+
+,ˆY ∗
+
+> top
+
+, error row covariance U ∗ and need to predict deviations from the yet unknown output 
+
+Y ∗
+
+> bot
+
+. Using the input features X∗ = ˆY ∗ 
+
+> top
+
+− ˆY ∗
+
+> bot
+
+S⊤
+
+> top
+
+, (16) gives a predictive distribution for ˜∆∗
+
+> bot
+
+, i.e. the conditional distribution of the corresponding bottom level base forecast errors ˜∆∗ 
+
+> bot
+
+= ( Y ∗ 
+
+> bot
+
+− ˆY ∗
+
+> bot
+
+). The full reconciled forecast may be obtained by shifting and aggregating the prediction, ˜Y ∗ = ( ˆY ∗ 
+
+> bot
+
++ ˜∆∗
+
+> bot
+
+)S⊤.
+
+The distribution of the reconciled forecasts follows from the properties of the matrix normal distribution as, ˜Y ∗ ∼ MN 
+
+
+
+( ˆY ∗ 
+
+> bot
+
++ X∗ ˆθridge )S⊤, X ∗Ψridge X∗⊤ + U ∗, SΣrS⊤
+
+
+
+.
+
+10 For a single new sample at time t + 1, the row covariance reduces to a scalar value dependent on ut+1 = Ut+1 ,t +1 , and by letting xt+1 = ˆ ytop ,t +1 − S top ˆybot ,t +1 , the predictive distribution of the reconciled forecast collapses to a multivariate normal distribution, ˜yt+1 | Yt ∼ N
+
+
+
+S(ˆ ybot ,t +1 + ˆθridge xt+1 ), (x∗⊤ 
+
+> t+1
+
+ψridge x∗ 
+
+> t+1
+
++ u∗
+
+> t+1
+
+)SΣrS⊤
+
+
+
+.
+
+Note, when the distribution of the reconciled forecasts are only required per sample, both mean and covariance can be retrieved from the per-sample distribution of the bottom level base forecast errors. In particular for the covariance, it is sufficient to track the combined covariance matrix of the bottom levels Σ bot = ( x∗⊤ 
+
+> t+1
+
+ψridge x∗ 
+
+> t+1
+
++ ut+1 )Σ r in order to recover the reconciled forecast variance. 
+
+# 4 Implementation 
+
+Hierarchical forecast reconciliation was implemented in the PyOnlineForecast package (Rønlev-Knudsen et al., 2026) using the models described in sections 3.2-3.3. The package employs a notion of transformations , which define modular computational procedures that can be ap-plied to data. Simple transformations may be composed to create more complex procedures or composite transformations. Forecast reconciliation can be viewed as one such composite transformation, mapping base forecasts and bottom level observations to reconciled forecasts. The implementation is split into 1. a generic prediction model using the recursive approach described in 3.2 and 2. a set of utilities based on 3.3 to accommodate hierarchical forecast data for use with the regression model and subsequent construction of reconciled forecasts. The regression model is implemented under the assumption that U = I using variance estimation for V as in (21) and provides estimates of the per-sample predictive distribution of forecasts. These computations are natively restricted to be performed one sample at a time and are implemented accordingly. This is not true for the construction of reconciled forecasts from the regression model outputs, which can be performed as batch operations, also when only providing per-sample predictive distributions. In the online setting, forecasts and observations for a given time are not available at the same time. Instead, at time t
+
+we collect new observations yt and forecasts ˆ yt+h for some integer forecast horizon h > 0. To construct inputs for the regression model, forecasts should be aligned to observations by back-shifting the forecasts h time steps. Similarly, for training the regression model to that same horizon, features should be lagged h steps relative to the target variable. The latter is automatically handled by the implementation of the ridge regression model transformation, whilst the former is resolved within the reconciliation transformation. The implementation in the PyOnlineForecast package is adequately represented by a computational graph of the intermediate transformations. Figure 2 illustrates the most important transformation compositions and output com-putations used to define the reconciliation transformation. At runtime, the transforma-tion receives base forecasts ˆ yt+h and bottom level observations ybot ,t as inputs. The base 11 ˆytop ,t +h = ˆ yt+h, Itop ˆyt+h ybot ,t 
+
+xt+h = ˆ ytop ,t +h − S top ˆybot ,t +h ˆybot ,t +h = ˆ yt+h, Ibot ∆bot ,t = Bh ˆybot ,t +h − ˆybot ,t 
+
+˜yt+h = S (ˆ ybot ,t +h + ∆ bot ,t +h)˜Σt+h = S ˆΣbot ,t +hS⊤
+
+˜∆bot ,t +h, ˜Σbot ,t +h computed c.f. (3.2), (21) using (22)-(23).   
+
+> I1 I2 S1
+> S2 DR
+> P
+> O
+
+Figure 2: Schematic of the implementation of forecast reconciliation in the PyOnlineForecast 
+
+package. Rectangles represent transformations with arrows indicating data flow. Inputs are drawn using trapezoids and the output computation is highlighted with double edges and rounded corners. I1-I2: input data. S1-S2: splitting of base forecasts into top and bottom levels. D: construction of design matrix from base forecasts. R: back-shifting of bottom level base forecasts and construction of response matrix from bottom level base forecast errors. P: prediction of bottom level base forecast errors using the recursive ridge regression transformation. O: construction of reconciled forecasts for transformation output. forecasts are split into top and bottom levels by selecting indices Itop = {1, . . . , n top } and 
+
+Ibot = {ntop + 1 , . . . , n top + nbot }, respectively. For computing the response matrix, the bottom level base forecasts are back-shifted, written as Bh ˆybot ,t +h = ˆ ybot ,t . The design and response matrices are then constructed based on current and past data. The ridge regression module (Figure 2, box P) uses these matrices as inputs, and internally handles back-shifting, training and prediction of the bottom level forecast errors. The module further supports es-timation of covariance matrix V using equation (21), but does not incorporate estimation uncertainty of this parameter into the predictive distribution. The predictions are then used by the reconciliation transformation to construct reconciled forecasts which are returned as output. The implementation can be extended to temporal hierarchies by preprocessing inputs before applying the reconciliation transformation. This step constructs bottom level obser-vations for the temporal hierarchy based on a single observed time series. The revised input is formed by constructing additional input columns of back-shifted observations, one for each node in the bottom level of the temporal hierarchy. The temporal reconciliation procedure is then specified by defining the summation matrix as before, and a back-shift structure for the bottom level observations. For an input variable zt taking values in Rn, the back-shifted bottom level observations are constructed using the operator B defined as, 
+
+ybot ,t = Bzt =  Bj1 zi1,t , . . . , B jm zim,t 
+
+⊤ = ( zi1,t −j1 , . . . , z im,t −jm )⊤ .
+
+12 In practice the operator can be specified as a set of pairs ( ik, j k) for k = 1 , . . . , m . Here 1 < i k < n and 0 < j k are the indices of the input and a corresponding lag. The opera-tor effectively maps state observations to a multivariate time series obeying the temporal hierarchy structure. This approach comes with the caveat that some observations will be repeated in the bottom level observations ybot ,t , when they are updated at every time step t.This may artificially introduce a strong autocorrelation structure in the data. To mitigate this issue, the implementation accepts a boolean argument controlling the update frequency. When enabled, parameters are only updated every h-th time step, where h is the maximum of the input lags. 
+
+# 5 Adaptive heat load forecasting 
+
+We demonstrate the proposed methods by forecasting district heating loads for three areas in the Gellerup district of Aarhus, Denmark. Data was provided by the district heating operator Kredsløb. The data consists of three years of heat load measurements from March 2022 to April 2025. The measurements were recorded at a local heat exchanger supplying heat to three different regions; south, east and west. The measurements were provided on a five-minute frequency. Pre-processing of the data includes removal of outliers, resampling to hourly frequency using averaging and filling empty values using persistence (forward fill). Outlier removal was performed by assigning standard scores to the observations, and discarding observations with high absolute scores. The standard scores were computed using a running estimate of the mean and variance with an exponential forgetting factor of 0 .995, and the threshold for removal was set to three standard deviations. Figure 3 shows the cleaned time series for each of the three regions. A temporal hierarchy is constructed for a daily cycle consisting of 24 hourly forecasts at the bottom level and aggregation levels 6, 12, and 24 hours. Figure 4 illustrates the structure of the hierarchy. Throughout the results, performance metrics are computed based on residuals after a burn-in period of 90 days. 
+
+Base forecasts. Base forecasts were generated for all three regions and each node in the hierarchy using the PyOnlineForecast package. Each node in the hierarchy corresponds to a separate forecast model using a number of input features derived from data transformations of observations and forecasts for the given horizon. As inputs, the models consider previ-ous load measurements, local temperature measurements and weather forecasts. The local temperature measurements were provided by Kredsløb, originating from a nearby weather station, see Figure 5. This data was provided on an hourly resolution, and was pre-processed by removing outliers and filling missing values as described for the load data. Weather fore-casts were obtained from the MET Norway THREDDS data server (The Norwegian Me-teorological Institute, 2025), extracted for a nearby geographical location. Each weather forecast provides hourly predictions for the following 58 hours and was updated every six hours. To align with load data, forecasts were resampled to hourly frequency by reusing forecasts between updates. This way, 24 hour-ahead forecasts were made available every hour. For any hour in between the six-hourly updates, the forecast for horizon h is simply the most recent forecast of horizon h+k where k is the number of hours since the last update. Feature selection and design was done by hand, with hyperparameters being tuned for the 13 0
+
+5
+
+0
+
+1
+
+2
+
+May Sep 2023 May Sep 2024 May Sep 2025 May 
+
+0
+
+2
+
+> Load (MWh)
+
+South East West Figure 3: Heat load data provided by Kredsløb after removing outliers and resampling to hourly frequency. 
+
+Horizon                             
+
+> 1h 24h
+> 1h
+> 6h
+> 12h
+> 24h
+> 12345678910 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+> 1-6 7-12 13-18 19-24
+> 1-12 12-24
+> 1-24
+
+Figure 4: Temporal hierarchy used for load forecasting. The bottom level considers horizons 1 through 24 hours, aggregated into 6-hour, 12-hour, and 24-hour levels. 14 May Sep 2023 May Sep 2024 May Sep 2025 May 
+
+> −10
+> 0
+> 10
+> 20
+> 30 Temperature ( °C)
+
+Figure 5: Local temperature measurements. east region and applied to all three regions. A linear model based on section 3.2 was used to estimate parameters and generate forecasts. For further details on the base forecasts, refer to Appendix D. 
+
+Case Update frequency θ0 Q λmem 
+
+Main Hourly 0 0.001 0.995 1Daily 00.001 0.995 2 13 100 Table 1: Regularization parameters for forecast reconciliation. Main case updates parameters at every time step, whereas cases 1-3 only update parameters every 24 hours to avoid reusing observations and base forecasts for estimation. 
+
+Forecast reconciliation. Forecasts were reconciled in the temporal hierarchy for each region separately. The same configuration was used for each region, with details provided in Table 1. Note in particular that the shrinkage target was chosen as zero, with varying levels of regularization being tested. In all cases, the regularization parameter Q was chosen as the identity scaled by the value in the table. Two different setups were tested when reconciling; the first performs parameter updates at every data update (every hour), whilst the second only does so every 24 hours to avoid reusing base forecasts and observations. The latter setup generally yielded less accurate results with higher variance estimates (see Figure 10 for the east region). This is not surprising, as the parameter estimates are initially based on fewer observations, and may not adapt to changes as quickly as the former setup. In an attempt to mitigate the effect, we further investigate the use of hourly updates with different levels of regularization. In the following, we refer to the first setup as the main case, and the second setup as cases 1-3 depending on the level of regularization. Beginning with the main case, Figure 6 shows examples of the reconciled forecasts for the east region. In general, residuals were larger for the south region, which may be attributed to generally 15 1.25             
+
+> 1.50
+> 1.75
+> Look-ahead from 2023-02-25 00:00
+> ` = 1
+> Historical 12-hour forecasts
+> 12:00 18:00 00:00 06:00 12:00 18:00 00:00
+> 7
+> 8
+> 9
+> 10
+> 22 23 24 25 26 2023 −Feb
+> ` = 6
+> Load (MWh) +- 2 std. dev. Observations Mean forecast
+
+Figure 6: Sample of reconciled forecasts for the east region including prediction bands as +/- 2 standard deviations. For reference, observed values and aggregations of these are shown in blue. Left column shows forecasts for all horizons assuming information available up to the ”current” hour, indicated by the vertical dashed line. The right column shows historical forecasts for a fixed 12-hour horizon. Top rows contain forecasts for the bottom level (hourly), while the bottom rows are for the 6-hour aggregation level. 16 0h 6h 12h 18h South 0h 6h 12h 18h East 0h 6h 12h 18h West 0.00.10.20.30.4RRMSE Figure 7: Relative reduction in RMSE achieved through forecast reconciliation (main case). Tiles represent forecasts organized such that increasing angle and decreasing radius match horizon and level. ` = 1 ` = 6 ` = 12 ` = 24 
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3RRMSE
+
+Figure 8: RRMSE of reconciled forecasts by aggregation level (main case). higher levels of heat consumption and variance. Comparing east and west, consumption levels are similar indicating that some difference in performance between the regions may be due to model design and hyperparameter tuning being performed specifically for the east region. Generally, errors increase with aggregation level and forecast horizon. To measure the effect of forecast reconciliation, we define the relative reduction in root mean squared error (RMSE) as, RRMSE = RMSE of base forecasts − RMSE of reconciled forecasts RMSE of base forecasts .
+
+Forecasts reconciled using parameter updates every hour are improved for every region, level and horizon. Figures 7 and 8 summarize all relative reduction in root mean squared error (RRMSE) scores in the hierarchy. 
+
+Update frequency and regularization. When reconciliation in the temporal hierarchy is performed with masked data updates, mean and variance parameters are only updated once every 24 hours. Despite concerns on violating independence assumptions, updating 17 parameters at every step generally yielded the best predictive performance. Figure 10 com-pares the mean squared error (MSE) and average prediction error variance estimates for the east region for both approaches using the main case and case number 1. In the main case MSE and variance estimates follow a similar trend, increasing with horizon at a diminishing rate. For case 1, variance estimates become less stable and may overshoot realized errors significantly. Similar trends are observed in the other regions (see Figure 15). For masked updates, cases 1-3 demonstrate the effects of varying regularization. Figure 9 shows RRMSE for the bottom level reconciled forecasts in each region (see Figure 14 in Appendix E for a summary for all levels). As the extent of regularization increases, the RRMSE tends to increase for small horizons whilst it decreases for longer horizons. The base forecasts are updated at every step and use relatively short memory factors for the lower aggregation levels, implying that parameter estimates may change quickly. If important dynamics are captured by the parameter update scheme, reconciled forecast performance may degrade as parameter update frequency is reduced. Due to the choice of memory parameters, this effect should be most pronounced for the bottom level forecasts. Short horizons may also be more sensitive to fast changes, as they are more likely to reflect the current state of the system. Increasing the degree of regularization pushes the reconciled forecasts towards the bottom level base forecasts, thus providing better performance for short horizons. Conversely, for the longer horizons, the benefit of reconciliation is most pronounced when little regularization is applied. Alternatively, the difference in how regularization affects forecasts in the hierarchy may be explained by worse top level base forecasts. Again, high regularization would push the reconciled forecasts towards the superior bottom level base forecasts. Increasing regular-ization for reconciliation when using hourly parameter updates showed no clear benefit in RRMSE, making the former explanation seem more plausible. 
+
+# 6 Conclusion 
+
+Formulating linear forecast reconciliation as a LM enables the use of common statistical methods and algorithms suitable for online and recursive estimation and prediction. Based on the work of Møller et al., 2024a, a generic framework for representing linear hierarchical reconciliation was presented. This framework uses a suitable regularized multivariate linear model, enabling online adaptive learning and uncertainty quantification of parameters and forecasts. The framework begins with the LM (10) and may use either of two approaches for inference, ridge regression or Bayesian estimation with matrix normal priors. The two approaches are closely related when regularization parameters are chosen as precision ma-trices of the row covariances of the residuals and the parameter priors. In this case, both approaches produce the same algebraic form of the parameter estimates and consequently the same point predictions of new data. However, due to different model assumptions, the two approaches differ in their uncertainty quantification. Depending on the application, ei-ther approach may be preferred. The ridge regression approach allows independent choices of P and U , enabling a simple approach for implementing estimation schemes with weighting per observation by choosing P accordingly. This is generally not possible in the Bayesian setting, where the interpretation P = U −1 imposes modelling restrictions. To align with 18 0.00        
+
+> 0.05 South
+> `= 1
+> 0.00
+> 0.05 East
+> 1612 18 24 Horizon (hours)
+> 0.000
+> 0.025 West
+> RRMSE Q = 0.01 Q = 1 Q = 100
+
+Figure 9: RRMSE scores for cases 1-3 for bottom level reconciled forecasts compared to base forecasts for each region and forecast horizon. 1 6 12 18 24 Horizon (hours) 
+
+> 0.0020
+> 0.0025
+> 0.0030
+> 0.0035
+> 0.0040
+> 0.0045 East
+> MSE (case 1) MSE (main case) Average variance (case 1) Average variance (main case) MSE & average variance
+
+Figure 10: MSE and averaged forecasts of prediction error variance estimates for the east region, based on reconciled forecasts using parameter updates every hour (main case) or every 24 hours (case 1). 19 existing methods on RLS, the ridge regression approach was developed further by choosing the regularization parameter P to define exponentially decaying weights for the observations. With this choice of P and diagonal U , it was possible to derive simple recursive updates for parameter and prediction distributions. A more general treatment of the regularization matrix P and structure of the covariance matrix U for recursive estimation may be considered. Both matrices have row dimension equal to the number of observations used for estimation, which may eventually become problematically large in an online setting. To enable recursive updates, it may be useful to consider banded or sparse structures that discard long term correlations in the residuals. Similarly, for the column covariance, specific parametrizations as demonstrated by Møller et al., 2024b may be beneficial. Whilst the LM formalism used in this work may be specialized to usual shrinkage es-timators used in forecast reconciliation, it also suggests the use of generic regularization techniques. Lasso (Tibshirani, 1996) or elastic net (Zou & Hastie, 2005) regression methods are natural candidates. Both methods tend to produce sparse solutions, which are particu-larly useful for reducing the number of parameters in large hierarchies. In general however, the use of such methods does not permit closed form solutions, which are desirable for re-cursive estimation methods. Parameter selection strategies may also be performed based on statistical tests, as suggested by Møller et al., 2024a. In this case, the graph formulation of hierarchies may be useful, as it introduces an (informal) notion of distance between nodes using path lengths. It seems reasonable that more distant nodes are less likely to provide useful information for reconciling forecasts, suggesting that the corresponding weights be tested for removal. For variance estimation, further use of the results from Møller et al., 2024a may also be incorporated. In particular, including a prior for the column, and potentially row, covariances may improve estimation in cases with limited data. The predictive distribution should then be generalized to account for the uncertainty of the variance estimates. For general hierarchies, especially spatio-temporal hierarchies, further generalizations of the matrix variate linear model may be considered. In fact, much work on multiway or array data analysis already exists, see for example Lock, 2018; Manceur and Dutilleul, 2013; Nzabanita et al., 2015. If tensor normal distributions are assumed, it is known that the covariance structure may be parameterized by a sequence of covariance matrices, one for each node, joined by a Kronecker structure as in the matrix normal case (see e.g. Manceur and Dutilleul, 2013). For spatio-temporal hierarchies, the separation of covariance structures may naturally decompose into spatial and temporal components as is characteristic of multiway data. The recursive ridge regression method described in section 3.2 was implemented numer-ically and applied to a district heating load forecasting problem. This implementation uses the PyOnlineForecast package, which uses a RLS-like algorithm based on the content of section 3.2. The case used a 24-hour temporal hierarchy, and demonstrated that meaningful improvements in forecast accuracy can be achieved, in particular for longer horizons and higher aggregation levels. Regularization was applied to shrink reconciliation weights to-wards zero. As a consequence of using an online and adaptive parameter estimation scheme, forecast reconciliation was most successful when updates to parameter estimates were made at the frequency of the lowest temporal aggregation levels. Using this approach, all non-top 20 level base forecast and all bottom level observations were used multiple times in parame-ter updates. When updates were instead restricted to the frequency of the fully aggregate 24-hour level, results were generally worse and required higher regularization to achieve the best performance. This effect is believed to be exclusive to online reconciliation in temporal hierarchies, as not all observations in the hierarchy are available at the same time. Relaxing either assumption, by considering non-temporal hierarchies or in sample performance, should alleviate this issue. In all cases, shrinkage regularization was necessary to avoid rank defi-ciency in the least squares problems for parameter estimation. Increasing shrinkage pushed results towards bottom-up reconciliation, which was required when updates were made less frequently, otherwise bottom level reconciled forecasts would lose accuracy compared to base forecasts. 
+
+# Acknowledgement 
+
+This work is supported by INSIEME (Digital Europe No. 101194952), ELEXIA (Horizon Europe No. 101075656), ARV (EU H2020 No. 101036723), SEEDS (Horizon Europe No. 10042024), BIPED (Horizon Europe No. 101139060), Weather2X (EUDP 640232-511303) and DynFlex , which is one of the Innomission Green Fuel projects. 
+
+# References 
+
+Athanasopoulos, G., Ahmed, R. A., & Hyndman, R. J. (2009). Hierarchical forecasts for Australian domestic tourism. International Journal of Forecasting , 25 (1), 146–166. https://doi.org/10.1016/j.ijforecast.2008.07.004 Bacher, P., G. Bergsteinsson, H., Fr¨ olke, L., L. Sørensen, M., Lemos-Vinasco, J., Liisberg, J., Kloppenborg Møller, J., Aalborg Nielsen, H., & Madsen, H. (2023). Onlineforecast: An R Package for Adaptive and Recursive Forecasting. The R Journal , 15 (1), 173– 194. https://doi.org/10.32614/RJ-2023-031 Bacher, P., Madsen, H., Nielsen, H. A., & Perers, B. (2013). Short-term heat load forecasting for single family houses. Energy and Buildings , 65 , 101–112. https://doi.org/10.1016/ j.enbuild.2013.04.022 Bai, L., & Pinson, P. (2019). Distributed Reconciliation in Day-Ahead Wind Power Fore-casting. Energies , 12 (6), 1112. https://doi.org/10.3390/en12061112 Bergsteinsson, H. G., Møller, J. K., Nystrup, P., P´ alsson, ´O. P., Guericke, D., & Madsen, H. (2021). Heat load forecasting using adaptive temporal hierarchies. Applied Energy ,
+
+292 , 116872. https://doi.org/10.1016/j.apenergy.2021.116872 Bergsteinsson, H. G., Sørensen, M. L., Møller, J. K., & Madsen, H. (2023). Heat load fore-casting using adaptive spatial hierarchies. Applied Energy , 350 , 121676. https://doi. org/10.1016/j.apenergy.2023.121676 Glanz, H., & Carvalho, L. (2013, September 25). An Expectation-Maximization Algorithm for the Matrix Normal Distribution . arXiv: 1309.6609 [stat] . https://doi.org/10. 48550/arXiv.1309.6609 21 Gross, C. W., & Sohl, J. E. (1990). Disaggregation methods to expedite product line forecast-ing. Journal of Forecasting , 9 (3), 233–254. https://doi.org/10.1002/for.3980090304 Gupta, A. K., & Nagar, D. K. (2018). Matrix variate distributions . Chapman and Hall/CRC. Hyndman, R. J., Ahmed, R. A., Athanasopoulos, G., & Shang, H. L. (2011). Optimal combi-nation forecasts for hierarchical time series. Computational Statistics & Data Analysis ,
+
+55 (9), 2579–2589. https://doi.org/10.1016/j.csda.2011.03.006 Hyndman, R. J., Lee, A. J., & Wang, E. (2016). Fast computation of reconciled forecasts for hierarchical and grouped time series. Computational Statistics & Data Analysis , 97 ,16–32. https://doi.org/10.1016/j.csda.2015.11.007 Ledoit, O., & Wolf, M. (2003). Improved estimation of the covariance matrix of stock returns with an application to portfolio selection. Journal of Empirical Finance , 10 (5), 603– 621. https://doi.org/10.1016/S0927-5398(03)00007-0 Lock, E. F. (2018). Tensor-on-Tensor Regression. Journal of Computational and Graphical Statistics , 27 (3), 638–647. https://doi.org/10.1080/10618600.2017.1401544 Madsen, H. (2007). Time Series Analysis .Manceur, A. M., & Dutilleul, P. (2013). Maximum likelihood estimation for the tensor normal distribution: Algorithm, minimum sample size, and empirical bias and dispersion. 
+
+Journal of Computational and Applied Mathematics , 239 , 37–49. https://doi.org/10. 1016/j.cam.2012.09.017 Møller, J. K., Nystrup, P., Hjorth, P. G., & Madsen, H. (2024a, February 9). Optimal Forecast Reconciliation with Uncertainty Quantification . arXiv: 2402.06480 [stat.ME] . https: //doi.org/10.48550/arXiv.2402.06480 Møller, J. K., Nystrup, P., & Madsen, H. (2024b). Likelihood-based inference in temporal hierarchies. International Journal of Forecasting , 40 (2), 515–531. https://doi.org/10. 1016/j.ijforecast.2022.12.005 Nystrup, P., Lindstr¨ om, E., Møller, J. K., & Madsen, H. (2021). Dimensionality reduction in forecasting with temporal hierarchies. International Journal of Forecasting , 37 (3), 1127–1146. https://doi.org/10.1016/j.ijforecast.2020.12.003 Nystrup, P., Lindstr¨ om, E., Pinson, P., & Madsen, H. (2020). Temporal hierarchies with au-tocorrelation for load forecasting. European Journal of Operational Research , 280 (3), 876–888. https://doi.org/10.1016/j.ejor.2019.07.061 Nzabanita, J., Von Rosen, D., & Singull, M. (2015). Maximum likelihood estimation in the tensor normal model with a structured mean. Link¨ oping University Electronic Press .Panagiotelis, A., Athanasopoulos, G., Gamakumara, P., & Hyndman, R. J. (2021). Forecast reconciliation: A geometric view with new insights on bias correction. International Journal of Forecasting , 37 (1), 343–359. https://doi.org/10.1016/j.ijforecast.2020.06. 004 Petersen, K. B., Pedersen, M. S., et al. (2008). The matrix cookbook. Technical University of Denmark , 7 (15), 510. Pritularga, K. F., Svetunkov, I., & Kourentzes, N. (2021). Stochastic coherency in forecast reconciliation. International Journal of Production Economics , 240 , 108221. https : //doi.org/10.1016/j.ijpe.2021.108221 Rønlev-Knudsen, T., Madsen, H., Bacher, P., & Møller, J. K. (2026, May). PyOnlineForecast 
+
+(Version v0.1.0). https://doi.org/10.5281/zenodo.20287172 22 Sch¨ afer, J., & Strimmer, K. (2005). A Shrinkage Approach to Large-Scale Covariance Ma-trix Estimation and Implications for Functional Genomics. Statistical Applications in Genetics and Molecular Biology , 4 (1). https://doi.org/10.2202/1544-6115.1175 The Norwegian Meteorological Institute. (2025). MET norway THREDDS data server. https: //thredds.met.no/thredds/catalog.html Tibshirani, R. (1996). Regression Shrinkage and Selection Via the Lasso. Journal of the Royal Statistical Society: Series B (Methodological) , 58 (1), 267–288. https://doi.org/10. 1111/j.2517-6161.1996.tb02080.x Wickramasuriya, S. L., Athanasopoulos, G., & Hyndman, R. J. (2019). Optimal Forecast Reconciliation for Hierarchical and Grouped Time Series Through Trace Minimiza-tion. Journal of the American Statistical Association , 114 (526), 804–819. https:// doi.org/10.1080/01621459.2018.1448825 Yagli, G. M., Yang, D., & Srinivasan, D. (2019). Reconciling solar forecasts: Sequential reconciliation. Solar Energy , 179 , 391–397. https://doi.org/10.1016/j.solener.2018. 12.075 Zou, H., & Hastie, T. (2005). Regularization and Variable Selection Via the Elastic Net. 
+
+Journal of the Royal Statistical Society Series B: Statistical Methodology , 67 (2), 301– 320. https://doi.org/10.1111/j.1467-9868.2005.00503.x 
+
+# A Useful identities 
+
+Based on Glanz and Carvalho, 2013, we say that a random variable X taking values in Rt×m
+
+follows a matrix normal distribution, written 
+
+X ∼ MN (M, U, V ),
+
+if its vectorization follows a multivariate normal distribution as, vec ( X) ∼ N (vec  M ⊤ , V ⊗ U ).
+
+The density of X is then given by, (2 π)− 12 tm | (V ⊗ U )−1 |12 exp 
+
+
+
+−12tr  V −1(X − M )⊤U −1(X − M )
+
+.
+
+Using Petersen, Pedersen, et al., 2008 as a reference, we first note some useful identities. For matrices X, Y, F, G with F, G symmetric, the cyclic property of the trace easily yields, tr  G(X − Y )⊤F (X − Y ) = tr  GX ⊤F X  + tr  GY ⊤F Y  − 2tr  GX ⊤F Y  . (24) The product of two matrix normal densities with the same column covariance matrix V is also matrix normal. Letting Φ( · | M, U, V ) denote the density of MN (M, U, V ) on Rt×m,then the following identity holds, Φ( · | M1, U 1, V )Φ( · | M2, U 2, V ) ∝ Φ( · | M, U, V ),
+
+where the row covariance and mean parameters are given by, 
+
+U = V ⊗ (U −11 + U −12 )−1, M = ( U −11 + U −12 )−1(U −11 M1 + U −12 M2).
+
+23 The result follows from vectorizing and using properties of the multivariate normal distri-bution. To show this, we use the well known result, that the product of the densities of two independent multivariate normal distributions N (μ1, Σ1) and N (μ2, Σ2), is proportional to another multivariate normal density N (μ, Σ) with, Σ = (Σ −11 + Σ −12 )−1, μ = Σ(Σ −11 μ1 + Σ −12 μ2).
+
+Substituting the parameters of the vectorized forms, vec ( M1), vec ( M2), Σ 1 = V ⊗ U1 and Σ2 = V ⊗ U2 yields, Σ = ( V −1 ⊗ U −11 + V −1 ⊗ U −12 )−1 = V ⊗ (U −11 + U −12 )−1,
+
+and using the mixed product property of the Kronecker product, 
+
+μ = Σ(( V −1 ⊗ U −11 )vec ( M1) + ( V −1 ⊗ U −12 )vec ( M2)) = ( V ⊗ (U −11 + U −12 )−1)vec  (U −11 M1 + U −12 M2)V −1
+
+= vec  (U −11 + U −12 )−1(U −11 M1 + U −12 M2) .
+
+From the vectorized form of the matrix normal distribution, it is clear that μ, Σ is simply the mean and covariance of vec ( Z), so the result follows. A similar result holds for the sum of two independent matrix normally distributed variables with the same column covariance matrix V . Let, 
+
+Z1 ∼ MN (M1, U 1, V ), Z2 ∼ MN (M2, U 2, V ),
+
+then, 
+
+Z1 + Z2 ∼ MN (M1 + M2, U 1 + U2, V ). (25) This follows directly from vectorizing and using properties of the multivariate normal distri-bution and reducing the sum of the variances as, 
+
+V [vec ( Z1 + Z2)] = V [vec ( Z1)] + V [vec ( Z2)] = V ⊗ U1 + V ⊗ U2 = V ⊗ (U1 + U2).
+
+Finally, we note that for Z ∼ MN (M, U, V ), it holds that for a constant matrix A,
+
+AZ ∼ MN (AM, AU A ⊤, V ). (26) This follows by vectorizing to vec ( Z), scaling the variance by ( I ⊗ A), and reducing the vectorized covariance given by, 
+
+V [vec ( AZ )] = ( I ⊗ A)V [vec ( Z)] ( I ⊗ A)⊤ = ( I ⊗ A)( V ⊗ U )( I ⊗ A⊤) = V ⊗ (AU A ⊤).
+
+# B Bayesian regression 
+
+The usual linear regression model with normal errors and parameter prior, provides well known results for the posterior and predictive distributions. For the sake of completeness, we provide a derivation of corresponding results for the matrix variate linear model with matrix normal errors and priors. In the Bayesian setup, we assume U , V , Ψ and Ω known and SPD, and start from the model, 
+
+Y | θ ∼ MN (Xθ, U, V ), θ ∼ MN (θ0, Ψ0, Ω0). (27) This is the same as the model in (10), with the addition of a matrix normal prior on the parameters with mean θ0 and covariance parameters Ψ 0 and Ω 0.24 B.1 Posterior and MAP estimate 
+
+The linear model (27) lends itself well to Bayesian inference due to its simple linear structure, and conjugate matrix normal prior. 
+
+Proposition 1 (Posterior distribution) . Under the model (27) , if V = Ω 0 = Σ , then the posterior distribution of θ is given by, 
+
+θ|Y ∼ MN (ˆθ, Ψ, Σ) , (28) 
+
+with, 
+
+ˆθ = Ψ  X⊤U −1Y + Ψ −10 θ0
+
+ , Ψ =  X⊤U −1X + Ψ −10
+
+−1 .
+
+Since ˆθ maximizes the Gaussian posterior it is the MAP estimate. Proof. In general, it holds for the posterior distribution of θ that, 
+
+p(θ|Y ) ∝ p(Y |θ)p(θ).
+
+To show the result, we argue that the maximum likelihood estimate (MLE) of θ can be expressed as a matrix normal distribution, 
+
+p(Y |θ) ∝ MN 
+
+
+
+θ; ˆθl, Ψl, V 
+
+
+
+. (29) Where the MLE parameters are given by, ˆθl =  X⊤U −1X−1 X⊤U −1Y, Ψl =  X⊤U −1X−1 . (30) Let Φ( · | M, U, V) denote the density of the matrix normal distribution with mean M and covariance parameters U and V. Then the posterior is proportional to the product of two matrix normal distributions, 
+
+p(θ|Y ) ∝ Φ( θ | ˆθl, Ψl, V )Φ( θ | θ0, Ψ0, Ω) . (31) We will show that for V = Ω = Σ this product is exactly (28). In particular, for some scalar constant C,
+
+p(θ|Y ) = CΦ( θ | ˆθ, Ψ, Σ) . (32) but for this to be a valid density, we must have C = 1, and we have found the posterior distribution. To prove the statements used above, we rely on the assumption that U , V , Ψ and Ω are SPD, and use the properties in Appendix A. To show (29), note that the likelihood can be written as, 
+
+p(Y |θ) ∝ exp 
+
+
+
+−12 ∥Y − Xθ ∥2  
+
+> U−1,V −1
+
+
+
+.
+
+Then using (24), we rewrite the exponent as a quadratic form in θ,
+
+∥Y − Xθ ∥2   
+
+> U−1,V −1
+
+= tr  V −1Y ⊤U −1Y  constant terms 
+
+− 2tr  V −1Y ⊤U −1Xθ  1st order terms + tr  V −1θ⊤X⊤U −1Xθ  2nd order terms .
+
+25 For (29) to be true, the first and second order terms must match those of the exponent of the matrix normal distribution, while the constant terms can be absorbed into the propor-tionality constant. Choosing the parameters as in (30), the exponent for the matrix normal distribution (29) becomes, 
+
+θ − ˆθl  
+
+> 2Ψ−1l,V −1
+
+= tr  V −1θ⊤Ψ−1l θ − 2tr 
+
+
+
+V −1θ⊤Ψ−1l ˆθl
+
+
+
++ tr 
+
+
+
+V −1 ˆθ⊤ 
+
+> l
+
+Ψ−1l ˆθl
+
+
+
+.
+
+= tr  V −1θ⊤X⊤U −1Xθ  − 2tr  V −1θ⊤X⊤U −1Y  + constant terms .
+
+Up to a constant, this matches the first and second order terms of the likelihood expression, so (29) holds. To show that (31) is identical to (32), we use the result from Appendix A. We assume V = Ω = Σ, then, Ψ = Σ ⊗ (Ψ −1l + Ψ −10 )−1 =  X⊤U −1X + Ψ −10
+
+−1 ,
+
+ˆθ = (Ψ −1l + Ψ −10 )−1(Ψ −1l ˆθl + Ψ −10 θ0)=  X⊤U −1X + Ψ −10
+
+−1  X⊤U −1Y + Ψ −10 θ0
+
+ .
+
+This shows that (31) is indeed equal to (32) with C = 1, and that the posterior distribution is given by (28). 
+
+## B.2 Predictive distribution 
+
+For a new pair of observations Y ∗ and features X∗, we assume, 
+
+Y ∗ | θ ∼ MN (X∗θ, U ∗, Σ) .
+
+We assume that conditional on θ, Y ∗ is independent of Y , so that (X∗θ + E∗ | Y ) = X∗θ | Y + E∗,
+
+where E∗ is a noise term, 
+
+E∗ ∼ MN (0 , U ∗, Σ) .
+
+Using equation (26), we have that, 
+
+X∗θ | Y ∼ MN 
+
+
+
+X∗ ˆθ, X ∗ΨX∗⊤ , Σ
+
+
+
+,
+
+Since both distributions are matrix normal and share the same column covariance Σ, by equation (25), the sum is also matrix normal, 
+
+Y ∗ | Y ∼ MN 
+
+
+
+X∗ ˆθ, X ∗ΨX∗⊤ + U ∗, Σ
+
+
+
+. (33) By a similar argument as above, using instead the parameters from (30), we get the MLE predictive distribution with known variance parameters, 
+
+Y ∗ 
+
+> l
+
+∼ MN 
+
+
+
+X∗ ˆθl, X ∗ΨlX∗⊤ + U ∗, Σ
+
+
+
+.
+
+26 C Ridge regression 
+
+If we modify the Bayesian setup by treating the precision matrices U −1, Ψ −10 , Σ −1 as regular-ization parameters P , Q, R and do not explicitly model a prior on θ, the problem becomes equivalent to the ridge regression problem posed in section 3. In particular, using model (10) and minimizing the ridge regression objective (12) we get the same point estimate for the parameters, i.e., ˆθ = ( K + Q)−1 (L + Qθ 0) , K = X⊤P X, L = X⊤P Y. (34) This is true, since the maximizer of the normal posterior is the minimizer of the the loss function (12) when identifying P = U −1, Q = Ψ −10 and R = Σ −1. In particular, the minimizer of the loss, is the mean of the corresponding Gaussian posterior. Note, in the Bayesian setting, we condition on Y so that ˆθ is a deterministic quantity. This is not true for the ridge regression model, and ˆθ should be considered a random variable that depends on the observations Y and noise term E as random variables. It is easy to see, that the only source of variance in ˆθ comes from the observation noise, i.e. the term, (K + Q)−1 X⊤P E, E ∼ MN (0 , U, V ).
+
+We are thus dealign with a scaled matrix random variable, and using (26), it follows that, ˆθ ∼ MN (θridge , Ψridge , V ) .
+
+Here the mean parameter is given by the expectation, 
+
+θridge = E
+
+hˆθ
+
+i
+
+= ( K + Q)−1  X⊤P Xθ + Qθ 0
+
+ ,
+
+and the covariance parameter is given by, Ψridge = ( K + Q)−1 H (K + Q)−1 , H = X⊤P U P X. 
+
+Note that θridge is biased, and is never evaluated in practice since the true parameter θ is unknown. In contrast, the covariance parameter Ψ ridge is a function of known quantities only and is useful for quantifying parameter and predictive uncertainty. The prediction model implied by (10) is, 
+
+Y ∗ 
+
+> ridge
+
+= X∗ ˆθ + E∗, E∗ ∼ MN (0 , U ∗, V ).
+
+Using identities (26) and (25), the predictive distribution with known variance parameters is then matrix normal with, 
+
+Y ∗ 
+
+> ridge
+
+∼ MN  X∗θridge , X ∗Ψridge X∗⊤ + U ∗, V  . (35) 
+
+## C.1 Recursive updates 
+
+For the linear model (17), estimation becomes computationally expensive as t increases. Recursive updates for the ridge regression parameters and predictions can be derived in some special cases. To begin, denote features and observations up to time step t using 27 subscript t, e.g. Xt and Yt. Similarly, let Kt, Lt and Ht correspond to the matrices K, L and 
+
+H defined in the previous. When P = Pt and U = Ut are diagonal matrices with particularly well-behaved updates, we can derive simple closed forms for the posterior updates. If Pt is chosen as an exponentially decaying weight matrix, i.e. with diagonal elements pi = λt−i as in corollary 3.1, we recover a form of RLS solutions. The proof is straightforward, see below. 
+
+Proof of corollary 3.1. Follows by evaluating the expressions for Kt+1 , Lt+1 and Ht+1 as sums over samples. Let Pt = diag( λt−1, λ t−2, . . . , λ 0). For Kt+1 , we have, 
+
+Kt+1 = X⊤
+
+> t+1
+
+Pt+1 Xt+1 
+
+=
+
+> t+1
+
+X
+
+> i=1
+
+λt+1 −ixix⊤
+
+> i
+
+= λ
+
+> t
+
+X
+
+> i=1
+
+λt−ixix⊤ 
+
+> i
+
++ xt+1 x⊤
+
+> t+1
+
+= λK t + xt+1 x⊤
+
+> t+1
+
+,
+
+and similarly for Lt+1 in terms of Lt. Letting ui, i = 1 , . . . , t denote the diagonal elements of Ut, for Ht we have, 
+
+Ht = X⊤ 
+
+> t
+
+PtUtPtXt
+
+=
+
+> t
+
+X
+
+> i=1
+> t
+
+X
+
+> j=1
+
+Ut,ij λt−iλt−j xix⊤
+
+> j
+
+=
+
+> t
+
+X
+
+> i=1
+
+ut,i λ2( t−i)xix⊤ 
+
+> i
+
+.
+
+For Ht+1 we get, 
+
+Ht+1 =
+
+> t+1
+
+X
+
+> i=1
+
+ut+1 ,i λ2( t+1 −i)xix⊤
+
+> i
+
+= λ2
+
+> t
+
+X
+
+> i=1
+
+ut,i λ2( t−i)xix⊤ 
+
+> i
+
++ ut+1 ,t +1 xt+1 x⊤
+
+> t+1
+
+= λ2Ht + ut+1 ,t +1 xt+1 x⊤
+
+> t+1
+
+.
+
+This result allows us to recursively update the parameter estimate, mean and covariance. In practice, we are most interested in the parameter estimate and its covariance, ˆθt+1 = ( Kt+1 + Q)−1 (Lt+1 + Qθ 0) ,
+
+Ψridge ,t +1 = ( Kt+1 + Q)−1 Ht+1 (Kt+1 + Q)−1 .
+
+The predictions are then y∗ 
+
+> t+1
+
+= x∗ 
+
+> t+1
+
+ˆθt+1 , for which the distribution (35) collapses to, 
+
+y∗ 
+
+> t+1
+
+∼ N  θridge ,t +1 x∗
+
+> t+1
+
+, (x∗⊤ 
+
+> t+1
+
+Ψridge ,t +1 x∗ 
+
+> t+1
+
++ u∗
+
+> t+1
+
+)V  .
+
+28 Note, equivalent recursive results could be stated for the Bayesian model, by updating the posterior parameters and the predictive distribution in a similar manner. However, when Pt
+
+is considered a hyperparameter, the implied restriction on the variance Ut = P −1 
+
+> t
+
+may be undesirable. In particular, when the diagonal elements pt,i of Pt depend on t, the variance model for past observations may tacitly change between time steps. 29 Transformation Description 
+
+GetItem Selects from output using built in getitem methods. 
+
+Subset Selects subset of columns based on variable names and forecast horizons. 
+
+DataCleaner Provides outlier detection and removal, forward filling, resampling. Uses a running estimate of mean and variance with exponential forgetting factor. 
+
+Scaler Multiplies selected columns by a scaling factor. 
+
+Aggregator Resamples time series using summation or averaging. 
+
+Index Extracts the row index. 
+
+Align Combines multiple DataFrame s by reindexing data a shared index and con-catenating. 
+
+One Provides constant value of one (for intercept terms). 
+
+TimeOfDay Computes time of day as a fraction. 
+
+TimeOfWeek Provides time of week features. 
+
+FourierSeries Computes terms of a Fourier series. 
+
+LowPass Applies exponential smoothing filter. 
+
+Disruption Provides square wave disruption features. 
+
+Lag Shifts time series by specified lag. 
+
+SlidingSum Computes sliding window sums. 
+
+Table 2: Built-in transformations provided by the PyOnlineForecast package. 
+
+# D Base forecast models & transformations 
+
+To generate base forecasts, the PyOnlineForecast package was used (Rønlev-Knudsen et al., 2026). The package provides multiple built-in transformations to be used for feature engineering. Table 2 provides a description of the transformations used for generating base forecasts. Input data names and abbreviations for use in the following tables are summarized in Table 3. For each region and node in the temporal hierarchy 4, a separate base forecast model was instantiated, and parameters estimated. This results in a total of 93 models to be instantiated. Each model uses multiple features, meaning that individual descriptions of models is not feasible. Instead, Table 4 summarizes all features used across all models, and Table 5 summarizes their use in forecast model ensembles. Each ensemble maintains models for each horizon for a single level in the hierarchy. The input features are selected to match the forecast horizon of the model, meaning that for horizon k > 0, only features with horizon 
+
+k (forecasts) or 0 (current, usually shared values) are included. 30 Abbreviation Full Variable Name         
+
+> Eeast energi oest MW
+> Esouth energi syd MW
+> Ewest energi vest MW
+> Tlocal t ambient tranbjerg degC
+> Tair air temperature 2m
+> RH relative humidity 2m
+> W S wind speed 10m
+> SW integral of surface downwelling shortwave flux in air wrt time
+
+Table 3: Data variable abbreviations. 
+
+# E Additional figures 
+
+Figure 11 shows a comparison of base and reconciled forecast for the east region in the main case. Figures 12 and 13 provide additional plots of the results for the main case, while Figure 14 summarizes the RRMSE for cases 1-3. For all figures, tiles represent forecasts organized such that increasing angle and decreasing radius match horizon and level. We define the R2
+
+score as the fraction of variance explained, 
+
+R2 = 1 −
+
+PTt=1 (yt − ˜yt)2
+
+PTt=1 (yt − ¯y)2 .R2 scores generally decrease with increasing forecast horizon, but increase with aggregation level. Both south and west regions show lower R2 scores compared to east, which may again be attributed to model design and hyperparameter tuning being targeted the east region. RRMSE is generally higher for longer horizons and higher aggregation levels. 31 Abbr. Type Input(s) Parameters 
+
+Data Sources 
+
+S1 Source – name=”load” S2 Source – name=”weather forecast” S3 Source – name=”local temp” 
+
+Pre-processing 
+
+P1 GetItem S1 Eeast , Esouth , Ewest 
+
+P2 Subset S2 Tair , RH , W S , SW , horizons=[1..24] P3 GetItem S3 Tlocal 
+
+P4 DataCleaner P1 α=0.995, freq=”5min” P5 DataCleaner P2 α=0.995, freq=”1h” P6 DataCleaner P3 α=0.995, freq=”1h” P7 Scaler P5 SW : 1e-5 P8 Aggregator P4 freq=”h”, agg=”mean” P9 Index P7 –P10 Align P9, P8, P7, P6 
+
+Features 
+
+F1 Index P10 –F2 One P10 –F3 TimeOfDay F1 –F4 TimeOfWeek F1 –F5 FourierSeries F3 n=8 F6 FourierSeries F4 n=8 F7 GetItem P10 Tair 
+
+F8 GetItem P10 RH 
+
+F9 GetItem P10 Tlocal 
+
+F10 GetItem P10 W S 
+
+F11 LowPass F7 α=0.95 F12 LowPass F7 α=0.2 F13 LowPass F8 α=0.9 F14 LowPass F9 α=0.99 F15 LowPass F10 α=0.8 F16 GetItem P10 Tlocal , W S , Tair , SW 
+
+F17 Disruption † F1 hour=[1..7], dayofweek=5, horizons=[1..24] 
+
+Energy Features ∗
+
+E1 GetItem P10 energi {r} MW (r ∈ { syd , oest , vest })E2 LowPass E1 α=0.2 E3 LowPass E1 α=0.9 E4 Lag E3 lag=24, offsets=[1..24] E5 Lag E3 lag=48, offsets=[12, 24] E6 Lag E3 lag=72, offsets=[12, 24] E7 Lag E3 lag=168, offsets=[12, 24] 
+
+Targets ∗
+
+Y1 (reference) E1 –Y2 SlidingSum E1 window=6 Y3 SlidingSum E1 window=12 Y4 SlidingSum E1 window=24 
+
+Table 4: Overview of the base forecast model features and target variables. ∗Region-specific (South, east and west), † seven separate transformations. 32 Level Features (X) Target (Y) Horizons Memory 
+
+1 F2, F5, F12, F11, F13, F16, E1, E2, E3, E4, F17 †
+
+Y1 1, 2, ..., 24 0.995 6 F2, F5, F12, F11, F13, F16, E1, E2, E3, E4, F17 †
+
+Y2 6, 12, 18, 24 0.995 12 F2, F6, F11, F13, F16, E3, E4, E5, E6, E7, F17 †
+
+Y3 12, 24 0.995 24 F2, F6, F11, F14, F15, F13, F16, E3, E5, E6, E7, F17 †
+
+Y4 24 0.9999 
+
+Table 5: Forecast model definitions using ForecastEnsemble . For each level, features and target variable are used to construct transformations that generate forecasts for the spec-ified target and horizons. All regions use regularization with Q=0.001, theta0 = 0 and 
+
+track memory enabled for covariance estimation. For horizon h = k, only features with horizon k (forecasts) or 0 (observations) are included. †F17 (disruptions) only included in the east region model. 1.25         
+
+> 1.50
+> ` = 1
+> 8
+> 9
+> ` = 6
+> 16
+> 18
+> ` = 12
+> 13 14 15 16 17
+> 32 .5
+> 35 .0
+> ` = 24
+> February 2023
+> Load (MWh) Observations 6h 12h 18h 24h
+
+Figure 11: Sample of forecasts for the east region and all aggregation levels. Base forecasts are shown in dashed, whilst reconciled forecasts are shown in solid. Only forecasts for horizons 6, 12, 18 and 24 hours are shown. 33 0h 6h 12h 18h South 0h 6h 12h 18h East 0h 6h 12h 18h West 0123RMSE Figure 12: RMSE score for base forecasts of each region. 0h 6h 12h 18h South 0h 6h 12h 18h East 0h 6h 12h 18h West 0.975 0.980 0.985 0.990 0.995 1.000 
+
+> R2
+
+Figure 13: Fraction of variance explained by reconciled forecasts ( R2) from the main case. 34 0h 6h 12h 18h Q = 0.01 South 0h 6h 12h 18h East 0h 6h 12h 18h West 0h 6h 12h 18h Q = 1 0h 6h 12h 18h 0h 6h 12h 18h 0h 6h 12h 18h Q = 100 0h 6h 12h 18h 0h 6h 12h 18h 
+
+> −0.10.00.10.20.30.4RRMSE
+
+Figure 14: RRMSE for increasing regularization for each region, aggregation level, and forecast horizon for cases 1-3. Note that the colour scale is asymmetrical around zero, since all but a few forecasts show a reduction in RMSE compared to the base forecasts. 0.04     
+
+> 0.06 South
+> 1612 18 24 Horizon (hours)
+> 0.005
+> 0.010 West
+> MSE & average variance MSE (case 1) MSE (main case) Average variance (case 1) Average variance (main case)
+
+Figure 15: MSE and averaged forecasts of prediction error variance estimates for the south and west regions based on reconciled forecasts using parameter updates every hour (main case) or every 24 hours (case 1). 35

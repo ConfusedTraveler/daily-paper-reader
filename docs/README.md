@@ -6,48 +6,52 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-24
-- 运行时间：2026-06-24 21:29:51 UTC
+- 最新运行日期：2026-06-25
+- 运行时间：2026-06-25 21:18:14 UTC
 - 运行状态：成功
-- 本次总论文数：8
+- 本次总论文数：10
 - 精读区：1
-- 速读区：7
+- 速读区：9
 
 ### 今日简报（AI）
-今日精读1篇高分论文，探讨季节性气候超出混沌极限的可预测性，另速读3篇涵盖动力系统重构、时间序列数据估值与推荐系统意图建模。
-
-最值得关注的是《Why is Seasonal Climate Predictable Beyond the Limit of Deterministic Predictability set by Chaos?》提出的可预测性机制，以及《Data-Based Dynamical Systems Reconstruction》中的系统重构可靠性测试方法。
-
-建议优先精读9.0分论文，理解气候预测突破混沌限制的根源，后续可关注时间序列数据估值与推荐系统稀疏编码的应用。
-- 详情：[/202606/24/README](/202606/24/README)
+1) 今日精读1篇推荐系统论文《S2-CAR》，从10篇中筛选出1篇高分研究。
+2) 最值得看的是《S2-CAR》的分割监督复杂度自适应方法（8.0分），以及速读中《Time-Varying Model Averaging》的时序网络建模（7.0分）。
+3) 建议优先精读S2-CAR以了解推荐系统前沿，再浏览速读中的网络自回归应用作为拓展。
+- 详情：[/202606/25/README](/202606/25/README)
 
 ### 精读区论文标签
-1. [Why is Seasonal Climate Predictable Beyond the Limit of Deterministic Predictability set by Chaos?](/202606/24/2606.24358v1-why-is-seasonal-climate-predictable-beyond-the-limit-of-deterministic-predictability-set-by-chaos)  
-   标签：评分：9.0/10、query:pred-limit
-   evidence：季节性气候可预测性超越确定性极限，延迟同步，理论界限
+1. [S2-CAR: Segmentation-Supervised Complexity-Adaptive Recommendation](/202606/25/2606.25415v1-s2-car-segmentation-supervised-complexity-adaptive-recommendation)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：序列推荐，复杂度自适应，用户兴趣可预测性
 
 ### 速读区论文标签
-1. [Data-Based Dynamical Systems Reconstruction: An Adequacy/Reliability Test](/202606/24/2606.24873v1-data-based-dynamical-systems-reconstruction-an-adequacyreliability-test)  
+1. [Time-Varying Model Averaging of Multi-layer Network Vector Autoregressions](/202606/25/2606.25292v1-time-varying-model-averaging-of-multi-layer-network-vector-autoregressions)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：随机系统重建验证，准则局限性，可预测性边界
-2. [TimeLAVA: Learning-Agnostic Data Valuation for Time Series](/202606/24/2606.18729v1-timelava-learning-agnostic-data-valuation-for-time-series)  
+   evidence：通过渐近最优性和收敛率提供预测精度的理论界
+2. [Slow Brain, Fast Planner: Latency-Resilient VLM-Augmented Urban Navigation](/202606/25/2606.20458v1-slow-brain-fast-planner-latency-resilient-vlm-augmented-urban-navigation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列数据价值评估，时序依赖性，可预测性价值
-3. [SAERec: Constructing Fine-grained Interpretable Intents Priors via Sparse Autoencoders for Recommendation](/202606/24/2606.18897v1-saerec-constructing-fine-grained-interpretable-intents-priors-via-sparse-autoencoders-for-recommendation)  
+   evidence：城市导航，轨迹规划，VLM增强，行人交互
+3. [Multi-Task Bayesian In-Context Learning](/202606/25/2606.20538v1-multi-task-bayesian-in-context-learning)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：基于意图的推荐系统，用户序列建模，稀疏自编码器
-4. [Does Text Actually Help? Uncovering and Resolving Text Collapse in Multimodal Time Series Forecasting](/202606/24/2606.19413v1-does-text-actually-help-uncovering-and-resolving-text-collapse-in-multimodal-time-series-forecasting)  
+   evidence：提供贝叶斯框架进行预测推理，与理论可预测性分析相关
+4. [Structure-Aware Graph Multi-Task Learning for Dynamic Sparse OD Demand Prediction](/202606/25/2606.21022v1-structure-aware-graph-multi-task-learning-for-dynamic-sparse-od-demand-prediction)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：多模态时间序列预测中文本崩溃现象，影响可预测性
-5. [Non-asymptotic estimates of the minimal risk in statistical learning](/202606/24/2606.23295v1-non-asymptotic-estimates-of-the-minimal-risk-in-statistical-learning)  
+   evidence：动态稀疏OD需求预测，涉及人类移动性
+5. [Distributional Granger Causality: Identification, Sequential Inference, and Adaptive Testing](/202606/25/2606.22230v1-distributional-granger-causality-identification-sequential-inference-and-adaptive-testing)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：提供了最小风险的非渐近界，直接关联时间序列预测精度的理论界
-6. [Learning the Koopman Operator using Attention Free Transformers](/202606/24/2606.23957v1-learning-the-koopman-operator-using-attention-free-transformers)  
+   evidence：用于时间序列预测依赖的分布格兰杰因果框架
+6. [Online forecast reconciliation using linear models](/202606/25/2606.23326v1-online-forecast-reconciliation-using-linear-models)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：学习Koopman算子实现潜在空间线性预测，优化长期预测误差
-7. [Importance Sampling for Event Discovery via Guesswork](/202606/24/2606.24537v1-importance-sampling-for-event-discovery-via-guesswork)  
+   evidence：预测调和与不确定性量化
+7. [RAVEN: A Regime-Aware Variable-context Expert Network for Financial Time Series Forecasting](/202606/25/2606.24062v1-raven-a-regime-aware-variable-context-expert-network-for-financial-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：通过猜词进行事件发现的理论分析，信息论极限
+   evidence：针对金融时间序列预测中的低信噪比和非平稳性，与可预测性极限相关
+8. [Adapt Only When It Pays: Budgeted Decision-Loss Priority for Delayed Online Time-Series Adaptation](/202606/25/2606.25068v1-adapt-only-when-it-pays-budgeted-decision-loss-priority-for-delayed-online-time-series-adaptation)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：在线时间序列适应，预算更新策略涉及可预测性极限
+9. [Cellular Predictions on the Move: What about Data?](/202606/25/2606.25709v1-cellular-predictions-on-the-move-what-about-data)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：通过蜂窝负载预测人类移动性
 
 
 <div class="dpr-home-promo-card">

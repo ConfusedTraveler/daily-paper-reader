@@ -1,0 +1,1016 @@
+Title: Structure-Aware Graph Multi-Task Learning for Dynamic Sparse OD Demand Prediction
+
+URL Source: https://arxiv.org/pdf/2606.21022v1
+
+Published Time: Tue, 23 Jun 2026 00:31:50 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+> 1
+
+# Structure-Aware Graph Multi-Task Learning for Dynamic Sparse OD Demand Prediction 
+
+Ming Xu ∗ and Jiawei Cao 
+
+Abstract —Origin–Destination (OD) demand prediction is fun-damental to intelligent transportation systems, yet real-world OD flows are often dynamically sparse, long-tailed, and characterized by heterogeneous zero-flow patterns. These properties make it difficult to distinguish whether an OD connection is active from how much demand it generates once activated. Many existing methods primarily treat OD prediction as a single flow regression task, which limits their ability to model low-frequency, intermittent, and long-tailed OD interactions. To address these challenges, we propose SAGMTL, a Structure-Aware Graph Multi-Task Learning framework for dynamic sparse OD demand prediction. SAGMTL decomposes OD prediction into structural state modeling and flow intensity estimation, jointly learning re-gional activity states, OD connection activity, and edge-level flow intensity within a unified framework. Specifically, a node–edge collaborative representation module captures regional seman-tics, temporal dynamics, and spatial priors through interactive node–edge updates, producing structure-aware representations for dynamic OD interactions. Based on these representations, SAGMTL estimates OD flows by jointly modeling stable demand patterns and short-term fluctuations. A multi-constraint objective further improves sparsity awareness and structural consistency. Experiments on three real-world urban mobility datasets from Beijing, Chengdu, and Nanjing show that SAGMTL achieves superior overall performance compared with state-of-the-art baselines. Further analysis demonstrates that explicitly modeling regional activity, connection states, and flow intensity improves the robustness of dynamic sparse OD demand prediction. 
+
+Index Terms —OD demand prediction, sparse OD flows, graph learning, multi-task learning, edge activity. 
+
+I. I NTRODUCTION 
+
+# ORIGIN-DESTINATION (OD) demand prediction is a fundamental task in intelligent transportation systems, with broad applications in traffic scheduling, capacity alloca-tion, and urban planning [1]–[3]. OD demand characterizes travel flows between different origin and destination regions within a specific time period [4]. Unlike node-level traffic flow prediction, OD prediction takes region pairs as the basic modeling unit and aims to capture the spatiotemporal evolution of directional travel demand [5]. Therefore, OD demand prediction is inherently a structured spatiotemporal forecasting problem involving pairwise dependencies, directional interac-tions, and temporal dynamics. Despite its importance, real-world OD demand prediction remains challenging due to the                  
+
+> ∗Corresponding author: Ming Xu. Ming Xu and Jiawei Cao are with the Software College, Liaon-ing Technical University, Huludao, Liaoning 125100, China (e-mail: xum.2016@tsinghua.org.cn; 4724201684@stu.lntu.edu.cn). This work was supported by the Doctoral Scientific Research Foundation of Liaoning Technical University under Grant 21-1027. The processed datasets used in this study are available at IEEE DataPort: https://doi.org/10.21227/sg4n-6t97. The source code is available at: https:// github.com/iCityLab/SAGMTL.
+
+dynamic sparsity and long-tailed distribution of OD flow data. As the number of regions increases, the number of possible OD pairs grows quadratically, i.e., O(N 2), while only a small fraction of region pairs exhibit non-zero travel demand at a given temporal granularity [6]. Moreover, travel relationships between regions are not always continuously active. Many OD pairs are intermittently activated and show non-zero flows only at a few time steps over long observation periods [7]. Consequently, zero-valued observations in OD matrices do not have a unified semantic meaning. Some zero values correspond to truly nonexistent travel relationships, some indicate tempo-rary inactivity of potentially valid OD connections, and others reflect low-frequency or weakly observed travel relationships. This heterogeneous generation mechanism of zero observa-tions introduces substantial structural state heterogeneity into OD data, making it difficult to distinguish whether an OD pair is structurally disconnected, temporarily inactive, or latently connected. Existing OD prediction methods usually formulate OD demand forecasting as a direct regression problem over all OD pairs. Under highly sparse observations, such a formulation tends to treat zero values as homogeneous flow targets and overlooks the latent structural states behind them. As a result, model learning can be dominated by a large number of zero entries, which weakens the ability to identify potentially active or low-frequency OD relationships. Although previous studies have attempted to alleviate OD sparsity through zero-inflated modeling, long-tailed distribution fitting, and uncertainty esti-mation [6], [7], most of them mainly address sparsity at the distributional or loss-design level. The structural distinction between whether an OD connection exists and how strong the corresponding travel demand is remains insufficiently mod-eled. Therefore, explicitly decomposing OD prediction into connectivity state recognition and conditional flow intensity estimation is essential for improving prediction performance under dynamic sparse observations. In addition to historical OD flows, the formation of OD demand is closely related to regional functional attributes, population distribution, land-use patterns, and urban activity structures [8], [9]. Different regions may serve heterogeneous urban functions, such as residential areas, employment centers, commercial districts, and transportation hubs, leading to sig-nificant differences in travel generation and attraction capaci-ties [10]. As a result, OD relationships are shaped not only by geographical proximity but also by functional complementarity and non-local semantic interactions [11]. This is particularly important for low-frequency and intermittent OD pairs, whose latent connectivity is difficult to infer from historical flow observations alone. Stable regional semantic information can 
+
+> arXiv:2606.21022v1 [cs.LG] 19 Jun 2026
+
+provide useful priors for identifying potential travel relation-ships and enhancing the robustness of OD prediction under sparse and long-tailed distributions. Based on the above analysis, the key challenge in OD demand prediction lies in jointly modeling the connectivity states and flow intensities of OD relationships under dynamic sparse observations, while incorporating regional semantic information to infer low-frequency and latent OD patterns. To address this challenge, we propose SAGMTL, a structure-aware graph multi-task learning framework for dynamic sparse OD demand prediction. SAGMTL consists of three tightly coupled components: a representation learning module, amulti-task decoding module, and a constraint-driven optimiza-tion module. Specifically, the representation learning module jointly encodes static regional semantics, dynamic temporal states, OD interaction patterns, and spatial priors into unified node and edge representations. Based on these representa-tions, the multi-task decoding module jointly predicts OD connectivity states and conditional flow intensities, enabling the model to distinguish structural existence from demand magnitude. Furthermore, the constraint-driven optimization module introduces sparsity control, temporal consistency, and marginal flow consistency constraints to improve robustness under dynamic sparse and long-tailed OD distributions. Experimental results on three real-world taxi and ride-hailing OD datasets from Beijing, Chengdu, and Nanjing demonstrate that the proposed SAGMTL consistently out-performs a variety of classical spatiotemporal forecasting models and advanced OD prediction methods. The results show that SAGMTL achieves superior performance in both flow prediction accuracy and connectivity state identification, validating its effectiveness and robustness for dynamic sparse OD demand prediction. In summary, the main contributions of this paper are as follows:  
+
+> •
+
+We propose a structure-aware multi-task learning frame-work for dynamic sparse OD demand prediction. The framework reformulates OD forecasting as a joint learn-ing problem of connectivity state recognition and condi-tional flow intensity estimation, explicitly decomposing OD relationships into structural existence and demand magnitude.  
+
+> •
+
+We design a node–edge collaborative representation learning mechanism that integrates regional functional semantics, temporal dynamics, OD interaction patterns, and spatial priors through interactive node–edge updates. This mechanism enhances the model’s ability to infer low-frequency and intermittent OD relationships under sparse observations.  
+
+> •
+
+We introduce a multi-constraint optimization objective tailored to dynamic sparse and long-tailed OD distri-butions. By jointly incorporating flow fitting, structural supervision, sparsity regularization, temporal consistency, and marginal flow consistency, the proposed objective improves prediction robustness and stability under severe sparsity and temporal fluctuations. II. RELATED WORK 
+
+A. OD Demand Prediction 
+
+Early OD demand prediction methods model travel de-mand between region pairs using matrix-, tensor-, or graph-based representations, where OD flows are treated as the fundamental forecasting units. Representative deep learning approaches focus on capturing spatiotemporal dependencies within OD matrices [12]–[14]. CSTN [15] models OD de-mand by integrating spatial, temporal, and global contextual information, while CAS-CNN [5] alleviates sparsity and high dimensionality in metro OD prediction via channel-attention-based convolutional structures. Other studies explore partially observed OD estimation from inflow/outflow signals [16] and incorporate external contextual factors such as land use [17]. With the development of graph neural networks, MT-MF-GCN [18] jointly models region-level and OD-level tasks, while GEML [19] and MPGCN [20] learn spatial dependencies from geographic, semantic, and directional graph structures. Hybrid spatiotemporal models further combine graph-based spatial learning with sequential temporal modeling for OD prediction tasks [21]–[23]. However, existing methods predominantly treat OD prediction as a flow regression problem, focusing on demand magnitude estimation while ignoring the structural nature of OD relationships. 
+
+B. Dynamic Sparse OD and Structural Gap 
+
+Real-world OD data exhibit severe dynamic sparsity and long-tailed distributions, where only a small fraction of re-gion pairs are active at each time step despite a quadratic growth in potential connections. Moreover, OD interactions are highly intermittent, leading to complex zero-heavy and imbalanced observations. To address sparsity, existing studies mainly focus on probabilistic modeling and uncertainty-aware learning. For example, Zhuang et al. [6] estimate uncertainty in sparse travel demand using spatiotemporal graph models, while Jiang et al. [7] adopt Tweedie-based distributions to handle zero-inflated and long-tailed OD flows. Although these approaches improve robustness under sparse observations, they still model OD prediction as a pure flow estimation problem without explicitly distinguishing underlying structural states. Recent advances in dynamic graph learning suggest that edge evolution should be explicitly modeled rather than implicitly inferred from node dynamics. Temporal graph models and streaming link prediction methods [24], [25] demonstrate the importance of capturing dynamic connectivity explicitly. Works such as TGAE [26] model OD networks as evolving weighted graphs, while streaming temporal link prediction [27] treats OD interactions as time-dependent edges. These studies indicate that OD connectivity is not merely a byproduct of flow prediction but a fundamental predictive target. Additionally, structural consistency constraints such as flow conservation have been explored to improve OD estimation quality [28], further highlighting the importance of structural regularization. Overall, existing studies have explored sparse flow model-ing, probabilistic estimation, and structural constraints sepa-rately. However, they lack a unified formulation that jointly 2models node activity, connection existence, and flow intensity, leaving their hierarchical dependencies underexplored. 
+
+C. Spatio-Temporal Graph Modeling 
+
+Graph-based spatiotemporal modeling has become a domi-nant paradigm in traffic forecasting due to its ability to capture non-Euclidean spatial dependencies [29]–[31]. Early models such as DCRNN [32], STGCN [33], and T-GCN [34] integrate graph convolution with temporal modules to model spatial diffusion and temporal evolution over predefined graphs. To overcome limitations of static graphs, adaptive and dynamic graph learning methods such as Graph WaveNet [35], AGCRN [36], and MTGNN [37] learn latent spatial dependencies via adaptive adjacency matrices. Continuous and dynamic formulations such as STGODE [38] and D2STGNN [39] fur-ther enhance long-range dependency modeling. Transformer-based approaches [40]–[43] improve global spatiotemporal modeling, while PatchSTG [44] improves efficiency via spatial patching mechanisms. However, most graph-based models remain node-centric, where edges serve as information prop-agation channels rather than prediction targets. In contrast, OD prediction fundamentally requires modeling edge-level existence and flow intensity dynamics. Motivated by this lim-itation, this work proposes a node–edge collaborative learning framework that jointly models node activity, OD connection existence, and conditional flow intensity within a unified multi-task paradigm, enabling effective learning under dynamic sparse and long-tailed OD distributions. III. METHODOLOGY 
+
+A. Problem Formulation 
+
+At time step t, the OD system is represented as a directed weighted graph 
+
+Gt = ( V, E, Yt, Zet ) (1) where V = {v1, v 2, . . . , v N } denotes the set of nodes, and each node represents a traffic analysis zone that can act as both an origin and a destination. E ⊆ V × V denotes the OD edge set constructed from historical observations, containing region pairs with at least one recorded interaction. In this work, both 
+
+V and E are assumed to be fixed during inference, and we focus on modeling temporal variations over existing OD pairs without considering cold-start edges. For each edge (vi, v j ) ∈ E, the observed OD flow at time 
+
+t is denoted as yij,t . We define its binary activation state as 
+
+zeij,t = I(yij,t > 0) , where zeij,t = 1 indicates that the OD pair is active at time step t, and zeij,t = 0 otherwise. Accordingly, the flow matrix Yt ∈ R|E|≥0 and the edge state vector Zet ∈{0, 1}|E| are obtained by stacking all edges in E. Each node 
+
+vi is associated with a static feature vector xsi and a dynamic feature vector xdi,t . The static features describe time-invariant regional attributes, while the dynamic features characterize the recent travel activity of each region. Specifically, the dynamic node feature is defined as: 
+
+xdi,t = deg out i,t , deg in i,t , f low out i,t , f low in i,t 
+
+ (2) where 
+
+deg out i,t = X 
+
+> j:( vi,v j)∈E
+
+zeij,t (3) 
+
+deg in i,t = X 
+
+> j:( vj,v i)∈E
+
+zeji,t (4) 
+
+f low out i,t = X 
+
+> j:( vi,v j)∈E
+
+yij,t (5) 
+
+f low in i,t = X 
+
+> j:( vj,v i)∈E
+
+yji,t (6) Given OD observations {Gt−T +1 , . . . , G t}, node static fea-tures Xs, node dynamic feature sequence {Xdt−T +1 , . . . , X dt },and spatial distance matrix D ∈ R|V |×| V |, the primary objective is to predict future OD flow intensities over the next 
+
+K time steps: 
+
+{ ˆYt+1 , . . . , ˆYt+K } (7) To better capture the dynamics of sparsity in OD interac-tions, we further introduce two auxiliary tasks. The first is edge activity prediction, which estimates whether each OD pair will be active: 
+
+{ ˆZet+1 , . . . , ˆZet+K }, ˆZet+k ∈ [0 , 1] |E| (8) The second is node activity prediction, which models whether each region will be active as an origin or as a destination: 
+
+{ ˆZnt+1 , . . . , ˆZnt+K }, ˆZnt+k ∈ [0 , 1] |V |× 2 (9) For node vi, the two dimensions of ˆZnt+k correspond to ori-gin activity and destination activity, respectively. The ground-truth node activity labels are derived from edge activity states: 
+
+zn,out i,t = I
+
+ X 
+
+> j:( vi,v j)∈E
+
+zeij,t > 0
+
+ (10) 
+
+zn,in i,t = I
+
+ X 
+
+> j:( vj,v i)∈E
+
+zeji,t > 0
+
+ (11) Through this formulation, sparse OD demand prediction is decomposed into three coupled subproblems: regional activity modeling, OD connection state prediction, and flow intensity estimation. 
+
+B. Method Overview 
+
+As illustrated in Fig. 1, SAGMTL adopts an encoder– decoder architecture consisting of a representation learning module, a multi-task decoding module, and a joint opti-mization module. Given historical OD observations, regional attributes, and spatial relationships, the representation learning module learns unified node–edge representations that encode regional semantics, temporal dynamics, and structural depen-dencies. Based on the learned representations, the multi-task decoder jointly predicts node activity states, OD connection states, and future flow intensities [45]. To improve robust-ness under dynamically sparse OD distributions, the joint 3Fig. 1. Overall architecture of the proposed SAGMTL framework. Given historical OD flows, edge activation states, spatial relationships, and static regional attributes, SAGMTL first learns structure-aware node–edge representations through the node–edge coupled spatiotemporal encoder. The structure–strength multi-task decoder consists of four branches: the steady flow branch models stable OD demand patterns, the dynamic flow branch captures short-term residual variations, the edge connection state branch predicts OD edge activation, and the node activity branch estimates origin and destination activity states. The steady and dynamic flow branches are further fused to generate final OD flow predictions, while structural supervision and multiple regularization losses are jointly optimized to improve dynamic sparse OD demand prediction. 
+
+optimization module incorporates flow supervision, structural supervision, and consistency regularization during training. The model ultimately outputs the predicted OD flows and corresponding connection states over the next K time steps. For notational simplicity, MLP( ·) denotes a generic mul-tilayer perceptron. Outputs representing probabilities are mapped to [0 , 1] via a sigmoid function, while nonnegative flow variables are generated using a softplus activation. Unless otherwise specified, hidden representations and intermediate variables are unconstrained. 
+
+C. Node–Edge Coupled Spatio-temporal Encoder 1) Initial Node Representation: For each node vi, its static functional attribute vector xsi is mapped into a static embed-ding hsi through a linear transformation. To capture temporal variations in regional activity, a GRU is used to encode the dynamic node feature sequence over the past T time steps: 
+
+hdi,t = GRU n
+
+ xdi,t −T +1 , . . . , x di,t 
+
+ (12) The static semantic embedding and dynamic state represen-tation are then fused to obtain the initial node representation: 
+
+h(0)  
+
+> i,t
+
+= MLP h
+
+ hsi ∥hdi,t 
+
+ (13) where the operator ∥ denotes vector concatenation. To incorporate spatial priors, we further introduce adistance-aware spatial attention mechanism. The geographical distance between nodes is first transformed as: 
+
+¯Dij = log 
+
+
+
+1 + Dij 
+
+d0
+
+
+
+(14) where d0 is a distance normalization factor. Let H(0)  
+
+> t
+
+=
+
+h
+
+h(0) 1,t , . . . , h(0)  
+
+> |V|,t
+
+i⊤
+
+. The query, key, and value matrices are computed as: 
+
+Qt = H(0)  
+
+> t
+
+WQ, Kt = H(0)  
+
+> t
+
+WK , Vt = H(0)  
+
+> t
+
+WV (15) The distance-aware spatial representation is obtained by: 
+
+Hpt = softmax 
+
+ QtK⊤
+
+> t
+
+√dα
+
+− γ ¯D + M
+
+
+
+Vt (16) where γ = softplus( θγ ) is a learnable non-negative distance decay coefficient, M is the self-connection mask, where 
+
+Mij = −∞ if i = j and Mij = 0 otherwise. The spatially enhanced node representation is obtained through a residual connection: 
+
+H(0)  
+
+> t
+
+= H(0)  
+
+> t
+
++ λpHpt (17) where λp controls the contribution of the spatial attention representation. 42) Initial Edge Representation: For each OD edge (vi, v j ),the static edge representation is constructed from the semantic embeddings of its origin and destination nodes : 
+
+usij = MLP enc s
+
+ hsi ∥hsj
+
+ (18) This representation captures relatively stable OD interaction tendencies induced by regional functional semantics. To model the short-term OD interaction dynamics, an edge-intrinsic dynamic representation is learned for each OD edge by applying a GRU to its recent flow and connection state sequence: 
+
+u′dij,t = GRU e
+
+h 
+
+yt−T +1  
+
+> ij
+
+, ze,t −T +1 
+
+> ij
+
+i
+
+, . . . , ytij , ze,t ij 
+
+
+
+(19) This edge-intrinsic dynamic representation serves two pur-poses. It is fused with the dynamic representations of the origin and destination nodes to obtain an endpoint-enhanced task-oriented dynamic edge representation: 
+
+udij,t = MLP enc u
+
+ u′dij,t ∥hdi,t ∥hdj,t 
+
+ (20) It is also combined with the initial representations of the endpoint nodes to construct the initial edge representation for subsequent node–edge collaborative updates: 
+
+u(0)  
+
+> ij,t
+
+= MLP init u
+
+
+
+u′dij,t ∥h(0)  
+
+> i,t
+
+∥h(0) 
+
+> j,t
+
+
+
+(21) 
+
+3) Node–Edge Collaborative Update: Based on the initial node and edge representations, SAGMTL performs node–edge collaborative updates to model the bidirectional dependencies between regional states and OD interactions [48]. At the l-th update layer, the node and edge representations are denoted as h(l) 
+
+> i,t
+
+and u(l)
+
+> ij,t
+
+, respectively. First, edge-to-node message aggregation is performed. For node vi, outgoing and incoming edge messages are aggregated separately: 
+
+mout ,(l) 
+
+> i,t
+
+= 1
+
+cout 
+
+> i
+
+X 
+
+> j:( vi,v j)∈E
+
+W out u(l) 
+
+> ij,t
+
+(22) 
+
+min ,(l) 
+
+> i,t
+
+= 1
+
+cin 
+
+> i
+
+X 
+
+> j:( vj,v i)∈E
+
+W in u(l) 
+
+> ji,t
+
+(23) Here, W out and W in are learnable transformation matrices. 
+
+cout  
+
+> i
+
+and cin  
+
+> i
+
+denote the static out-degree and static in-degree of node vi over the edge set E, respectively. The node representation is updated as: 
+
+h(l+1)  
+
+> i,t
+
+= h(l) 
+
+> i,t
+
++ MLP upd 
+
+> h
+
+
+
+h(l) 
+
+> i,t
+
+∥mout ,(l) 
+
+> i,t
+
+∥min ,(l)
+
+> i,t
+
+
+
+(24) Then, node-to-edge information propagation is performed. For each OD edge (vi, v j ), the edge representation is updated as: 
+
+u(l+1)  
+
+> ij,t
+
+= u(l) 
+
+> ij,t
+
++ MLP upd 
+
+> u
+
+
+
+u(l)
+
+> ij,t
+
+∥h(l+1)  
+
+> i,t
+
+∥h(l+1) 
+
+> j,t
+
+∥ h(l+1)  
+
+> i,t
+
+− h(l+1) 
+
+> j,t
+
+ (25) Through alternating edge-to-node and node-to-edge prop-agation, the encoder captures both the influence of regional activity patterns on OD connections and the feedback effect of OD interaction on regional states. After L collaborative update layers, the encoder outputs the high-order node representation set: 
+
+H(L) 
+
+> t
+
+=
+
+n
+
+h(L) 
+
+> i,t
+
+| vi ∈ V
+
+o
+
+(26) and the high-order edge representation set: 
+
+U (L) 
+
+> t
+
+=
+
+n
+
+u(L) 
+
+> ij,t
+
+| (vi, v j ) ∈ E
+
+o
+
+(27) The static edge representation set U s = {usij | (vi, v j ) ∈ E}
+
+and the endpoint-enhanced dynamic edge representation set 
+
+U d = {udij,t | (vi, v j ) ∈ E} are also retained for subsequent multitask decoding. 
+
+D. Connection–Flow Decomposed Multitask Decoder 
+
+Based on the learned node and edge representations, SAGMTL employs a connection–flow decomposed multitask decoder to jointly predict OD connection states and future flow intensities. The decoder consists of four branches: an edge connection state branch, a node activity branch, a steady flow branch, and a dynamic flow branch. The final OD flow is generated by a connection-guided gated fusion mechanism. 
+
+1) Edge Connection State Branch: For each OD edge 
+
+(vi, v j ), the edge connection state branch predicts its activation probabilities over the next K time steps: 
+
+ˆzeij,t +1 , . . . , ˆzeij,t +K
+
+ = MLP e
+
+
+
+u(L)
+
+> ij,t
+
+
+
+(28) Here, ˆzeij,t +k ∈ [0 , 1] denotes the probability that edge 
+
+(vi, v j ) will be activated at future time step t + k. This branch explicitly models OD connection states and provides structural information for flow intensity estimation. 
+
+2) Node Activity Branch: To provide region-level structural supervision, SAGMTL further predicts whether each node will be active as an origin or as a destination. For node vi, the node activity branch is defined as: 
+
+h
+
+ˆzn, out  
+
+> i,t +1
+
+, ˆzn, in 
+
+> i,t +1
+
+, . . . , ˆzn, out  
+
+> i,t +K
+
+, ˆzn, in 
+
+> i,t +K
+
+i
+
+= MLP n
+
+
+
+h(L)
+
+> i,t
+
+
+
+(29) For each future time step t + k, the two dimensions cor-respond to ˆzn,out i,t +k and ˆzn,in i,t +k, representing the probabilities that node vi is active as an origin and as a destination, respectively. This auxiliary task helps the model learn regional travel generation and attraction patterns, which are especially useful under sparse OD observations. 
+
+3) Steady Flow Branch: OD flow usually contains rela-tively stable patterns induced by regional functions, spatial relationships, and long-term travel regularities. To capture such patterns, the steady flow branch estimates a nonnegative flow baseline using the static edge representation and the high-order edge representation: 
+
+ˆysij,t +1 , . . . , ˆysij,t +K
+
+ = MLP bf 
+
+
+
+˜usij ∥u(L)
+
+> ij,t
+
+
+
+(30) Here, ˆysij,t +k denotes the steady flow component of edge 
+
+(vi, v j ) at future time step t + k. This branch mainly reflects stable and recurring demand patterns. 54) Dynamic Flow Branch: In addition to stable patterns, OD demand also exhibits short-term fluctuations caused by recent activity changes, intermittent connection states, and sud-den demand variations. To capture these dynamics, SAGMTL constructs a task-specific dynamic representation: 
+
+rdij,t = MLP dyn 
+
+
+
+udij,t ∥u(L)
+
+> ij,t
+
+
+
+(31) Based on this representation, the decoder generates a basic dynamic flow component, a dynamic gate, and a residual variation term: 
+
+˜ydij,t +1 , . . . , ˜ydij,t +K
+
+ = MLP d
+
+ rdij,t 
+
+ (32) A dynamic gate: 
+
+[gij,t +1 , . . . , g ij,t +K ] = MLP g
+
+ rdij,t ∥yij,t 
+
+ (33) And residual term: 
+
+[δij,t +1 , . . . , δ ij,t +K ] = MLP δ
+
+ rdij,t 
+
+ (34) The final dynamic flow component is computed as: 
+
+ˆydij,t +k = softplus  ˜ydij,t +k + gij,t +k ⊙ δij,t +k
+
+ (35) The dynamic gate allows the model to adaptively control the contribution of recent state changes, while the residual term captures short-term flow enhancement, attenuation, and abrupt fluctuations. 
+
+5) Connection-Guided Flow Fusion: After obtaining the edge connection probability, steady flow component, and dy-namic flow component, SAGMTL uses the predicted connec-tion state to guide the final flow prediction. Specifically, the fusion weight is computed as: 
+
+αij,t +k = α0 + (1 − α0)MLP α
+
+ ˆzeij,t +k∥gij,t +k
+
+ (36) where α0 ∈ [0 , 1] is a predefined lower bound that ensures the dynamic flow branch retains a minimum contribution. The final OD flow prediction is then given by: 
+
+ˆyij,t +k = (1 − αij,t +k)ˆ ysij,t +k + αij,t +k ˆydij,t +k (37) This connection-guided fusion mechanism enables SAGMTL to adaptively balance stable demand patterns and short-term dynamic fluctuations. For OD pairs with regular and high-frequency interactions, the model can rely more on the steady flow component. For intermittent or recently changing OD pairs, the model can increase the contribution of the dynamic flow component, thereby improving prediction robustness under dynamic sparsity. 
+
+E. Joint Optimization Objective 
+
+SAGMTL is trained with a joint optimization objective consisting of three complementary parts. The flow prediction loss supervises OD flow intensity estimation, the structural auxiliary loss guides edge-level and node-level activity predic-tion, and the flow regularization loss improves sparsity aware-ness, short-term variation modeling, and node-level marginal distribution consistency. The overall objective is defined as: 
+
+L = Lflow + Lstruct + Lreg (38) where 
+
+Lflow = λbase Lbase + λcomp Lcomp (39) 
+
+Lstruct = λedge Ledge + λnode Lnode (40) 
+
+Lreg = λzero Lzero + λvol Lvol + λmarg Lmarg (41) Here, λbase , λcomp , λedge , λnode , λzero , λvol , and λmarg 
+
+are weight coefficients used to balance the contributions of different loss terms. For clarity, we use ℓSL1 , ℓBCE , and ℓfocal to denote the Smooth L1 loss, binary cross-entropy (BCE) loss, and focal BCE loss, respectively. Among them, ℓSL1 is used for flow regression and consistency constraints, ℓBCE is used for node activity prediction, and ℓfocal is used to alleviate the class imbalance problem in edge activity prediction. For a prediction value a and its ground-truth value b, the Smooth L1 loss is defined as [49]: 
+
+ℓSL1 (a, b ) = 
+
+(
+
+0.5( a − b)2, if |a − b| < 1
+
+|a − b| − 0.5, if |a − b| ≥ 1 (42) For a predicted probability p ∈ [0 , 1] and a binary label 
+
+z ∈ { 0, 1}, the BCE loss is defined as: 
+
+ℓBCE (p, z ) = −z log( p) − (1 − z) log(1 − p) (43) Since edge activity prediction suffers from severe class imbalance, we adopt the focal BCE loss [50]: 
+
+ℓfocal (p, z ) = −αf z(1 − p)γf log p
+
+− (1 − αf )(1 − z)pγf log(1 − p) (44) where αf is the class balancing coefficient and γf is the focusing parameter. They reduce the loss contribution of easy negative samples and enhance the learning of the minority active-edge samples. For each future step t + k, the active and inactive edge sets are defined as: 
+
+E+ 
+
+> t+k
+
+= {(vi, v j ) ∈ E | yij,t +k > 0} (45) 
+
+E0 
+
+> t+k
+
+= {(vi, v j ) ∈ E | yij,t +k = 0 } (46) 
+
+1) Flow Prediction Loss: The flow prediction loss super-vises the final OD flow prediction. Since OD flow distribu-tions usually exhibit long-tailed patterns, directly computing regression errors in the original flow space may cause high-flow samples to dominate training. Therefore, we adopt the Smooth L1 loss in the logarithmic space: 
+
+ℓfij,t +k = ℓSL1 (log(1 + ˆ yij,t +k), log(1 + yij,t +k)) (47) where ˆyij,t +k and yij,t +k denote the predicted and ground-truth OD flows, respectively. Since this term mainly learns flow intensity when an OD connection actually occurs, the basic flow regression loss is computed over the active edge set: 
+
+Lbase = 1
+
+PKk=1 max  |E+
+
+> t+k
+
+|, 1
+
+> K
+
+X
+
+> k=1
+
+X 
+
+> i,j :( vi,v j)∈E+
+> t+k
+
+ℓfij,t +k
+
+(48) The max( ·, 1) operation avoids division by zero when no active edge exists at a certain future step. 62) Intensity Compensation Loss: Although Lbase focuses on active OD edges, the model may still tend to fit the majority of low- and medium-flow edges while underestimating high-flow edges. To address this issue, an intensity-aware compen-sation loss is introduced. For each active OD edge, its relative intensity weight is defined as: 
+
+ωij,t +k = log (1 + yij,t +k)
+
+P  
+
+> i′,j ′:( vi′,v j′)∈E+
+> t+k
+
+log (1 + yi′j′,t +k) (49) The intensity compensation loss is defined as: 
+
+Lcomp = 1
+
+K
+
+> K
+
+X
+
+> k=1
+
+X 
+
+> i,j :( vi,v j)∈E+
+> t+k
+
+ωij,t +kℓfij,t +k (50) This term increases the contribution of medium- and high-flow active edges according to their relative flow intensities, thereby alleviating the underestimation of high-intensity OD flows. 
+
+3) Edge Activity Loss: The edge activity loss supervises the OD connection state prediction branch. Unlike the flow regression loss, this term is computed over both active and inactive edges, enabling the model to learn a complete binary decision boundary for OD connection activity: 
+
+Ledge = 1
+
+K · | E|
+
+> K
+
+X
+
+> k=1
+
+X 
+
+> i,j :( vi,v j)∈E
+
+ℓfocal 
+
+ ˆzeij,t +k, z eij,t +k
+
+ (51) Here, ˆzeij,t +k denotes the predicted activation probability of edge (vi, v j ), and zeij,t +k denotes the ground-truth edge activity label. 
+
+4) Node Activity Loss: The node activity loss provides region-level structural supervision from the perspectives of travel generation and attraction. It measures whether each node is active as an origin or as a destination. It is defined as: 
+
+Lnode = 12K|V |
+
+> K
+
+X
+
+> k=1
+
+X
+
+> i:vi∈V
+
+h
+
+ℓBCE 
+
+
+
+ˆzn, out  
+
+> i,t +k
+
+, z n, out 
+
+> i,t +k
+
+
+
++ ℓBCE 
+
+
+
+ˆzn, in 
+
+> i,t +k
+
+, z n, in 
+
+> i,t +k
+
+ i (52) Here, ˆzn,out i,t +k and ˆzn,in i,t +k denote the predicted probabilities that node vi is active as an origin and as a destination, re-spectively. This auxiliary supervision helps the model capture regional travel generation and attraction patterns, which further benefits sparse OD connection identification. 
+
+5) Zero-Edge Suppression Loss: In sparse OD systems, most OD edges remain inactive at many time steps. To reduce false positive flow predictions on zero-flow edges, we introduce a zero-edge suppression loss: 
+
+Lzero = 1
+
+PKk=1 max  |E0
+
+> t+k
+
+|, 1
+
+×
+
+> K
+
+X
+
+> k=1
+
+X 
+
+> i,j :( vi,v j)∈E0
+> t+k
+
+ℓSL1 (ˆ yij,t +k, 0) .
+
+(53) This term penalizes nonzero predictions on truly inactive OD edges and improves the model’s sparsity awareness. 
+
+6) Volatility Consistency Loss: To improve the model’s ability to capture short-term flow changes, we introduce a volatility consistency loss. The ground-truth flow variation is defined as: 
+
+∆yij,t +k = yij,t +k − yij,t +k−1 (54) The predicted flow variation is defined as: 
+
+∆ˆ yij,t +k = ˆ yij,t +k − ˆyij,t +k−1 (55) that is, the currently observed ground-truth flow is used as the starting point for computing the predicted variation. The set of edges with significant flow variations is defined as: 
+
+Evar  
+
+> t+k
+
+= {(vi, v j ) ∈ E | | ∆yij,t +k| > ε } (56) where ε is a variation threshold. The volatility consistency loss is defined as: 
+
+Lvol = 1
+
+PKk=1 max  |Evar 
+
+> t+k
+
+|, 1
+
+×
+
+> K
+
+X
+
+> k=1
+
+X 
+
+> i,j :( vi,v j)∈Evar
+> t+k
+
+ℓSL1 (∆ˆ yij,t +k, ∆yij,t +k)
+
+(57) This term encourages the model to capture both the direction and magnitude of short-term OD flow changes, especially for OD pairs with significant temporal fluctuations. 
+
+7) Node Inflow–Outflow Marginal Consistency Loss: OD prediction should preserve not only edge-level flow accuracy but also node-level distribution consistency. To reduce system-atic bias in regional total inflows and outflows, we introduce a node inflow–outflow marginal consistency loss. For any node vi, the predicted and ground-truth total outflow at time step t + k are defined as: 
+
+ˆoi,t +k = X 
+
+> j:( vi,v j)∈E
+
+ˆyij,t +k (58) 
+
+oi,t +k = X 
+
+> j:( vi,v j)∈E
+
+yij,t +k (59) Similarly the predicted and ground-truth total inflow are defined as: 
+
+ˆqi,t +k = X 
+
+> j:( vj,v i)∈E
+
+ˆyji,t +k (60) 
+
+qi,t +k = X 
+
+> j:( vj,v i)∈E
+
+yji,t +k (61) The node inflow–outflow marginal consistency loss is de-fined as: 
+
+Lmarg = 12K|V |
+
+> K
+
+X
+
+> k=1
+
+X
+
+> i:vi∈V
+
+h
+
+ℓSL1 (ˆ oi,t +k, o i,t +k)+ ℓSL1 (ˆ qi,t +k, q i,t +k)
+
+i (62) This constraint encourages the model to maintain con-sistency between predicted and ground-truth regional travel generation and attraction, thereby improving the stability of the overall OD flow distribution. 7TABLE I STATISTICS OF THE DYNAMIC SPARSE OD DATASETS .
+
+Dataset Nodes Unique E Avg. E/S Density Avg. Flow Beijing 675 159765 2300 0.0051 3064 Chengdu 673 50703 1754 0.0039 2690 Nanjing 673 52603 1624 0.0036 3144 
+
+In summary, the proposed joint optimization objective com-bines the main flow prediction task, structural auxiliary tasks, and sparsity-aware flow regularization within a unified training framework. By jointly optimizing these complementary ob-jectives, SAGMTL can better adapt to long-tailed flow distri-butions, intermittent OD activations, and node-level marginal flow imbalance in dynamic sparse OD demand prediction. IV. EXPERIMENTS 
+
+A. Datasets 
+
+We evaluate SAGMTL on three real-world urban mobility datasets: Beijing Taxi, Nanjing Taxi, and Chengdu Ride-hailing. The Beijing dataset contains taxi GPS trajectories from November 1 to November 30, 2012; the Nanjing dataset contains taxi GPS trajectories from January 13 to February 2, 2011; and the Chengdu dataset contains ride-hailing trajecto-ries from November 1 to November 30, 2016. For each city, we determine the study area based on the spatial coverage of valid trips and divide it into regular 1.5 km × 1.5 km grids. Each grid cell is treated as a traffic analysis zone and can serve as either an origin or a destination. We map each trip origin and destination to the correspond-ing grid cells and count directed trips between grid pairs at 20-minute intervals to construct dynamic OD flow sequences. Records with missing coordinates, abnormal timestamps, or O/D outside the study area are removed. The resulting directed trip counts are used as the ground truth for OD flow prediction. To avoid test-set information leakage, the OD edge set E is constructed from directed region pairs with valid trip records in the training set and is kept fixed for validation and testing. To capture regional functional semantics, we collect POI data through the AMAP API and map POIs to grid cells by location. For each region, POI counts across categories such as catering, shopping, accommodation, healthcare, transportation, public facilities, enterprises, life services, commercial resi-dences, sports and leisure, government agencies, and scenic spots are used to form a multidimensional functional feature vector. Table I reports the statistics of the three datasets, including the numbers of nodes and historical unique OD edges, the average number of active edges per time slot, the active-edge density, and the average total flow. The active-edge density is defined as the average proportion of active OD edges among all possible directed non-self OD pairs in each time slot. As shown in Table I, the active-edge density is below 0.6% for all datasets, indicating that most OD pairs remain inactive at any given time and that OD demand exhibits strong dynamic sparsity. 
+
+B. Baselines 
+
+To comprehensively evaluate the effectiveness of the pro-posed method, we compare SAGMTL with representative baselines from four categories: 1) Traditional statistical and machine learning methods: HA (Historical Average) and SVR (Support Vector Re-gression). 2) Deep temporal models: GRU [46] and LSTM. 3) Spatiotemporal graph forecasting models: STGCN [33], DCRNN [32], and AGCRN [36]. 4) OD prediction and sparse demand modeling methods: CSTN [15], GEML [19], MPGCN [20], TGAE [26], STZINB-GNN [6], and DSTCN [13]. For a fair comparison, all methods use the same training, validation, and test splits and are trained and evaluated on the same OD flow sequences. For spatiotemporal graph forecast-ing models originally designed for node-level traffic predic-tion, we concatenate the learned origin-node embedding and destination-node embedding to construct an OD-pair feature representation. Each OD pair is then treated as a prediction unit, and the models are trained and tested under the same regional partition and OD relation graph. For HA, SVR, and GRU, modeling is conducted directly on the same OD-pair flow sequences. 
+
+C. Evaluation Metrics 
+
+We evaluate the model from two perspectives: OD flow prediction accuracy and structural state identification ability. 
+
+1) Flow Prediction Metrics: To evaluate OD flow predic-tion accuracy, we adopt Mean Absolute Error (MAE), Root Mean Square Error (RMSE), and Mean Absolute Percentage Error (MAPE). Since OD flow matrices contain a large number of zero values, MAE, RMSE, and MAPE are computed on the set of truly active OD edges. Let Ttest denote the set of prediction starting time steps in the test set, and the total number of active-edge samples during testing is defined as 
+
+N +test = X
+
+> t∈Ttest
+> K
+
+X
+
+> k=1
+
+E+ 
+
+> t+k
+
+(63) MAE is defined as: 
+
+MAE = 1
+
+N +test 
+
+X
+
+> t∈Ttest
+> K
+
+X
+
+> k=1
+
+X 
+
+> (vi,v j)∈E+
+> t+k
+
+|ˆyij,t +k − yij,t +k|
+
+(64) RMSE is defined as: 
+
+RMSE = 1
+
+N +test 
+
+X
+
+> t∈Ttest
+> K
+
+X
+
+> k=1
+
+X 
+
+> (vi,v j)∈E+
+> t+k
+
+(ˆ yij,t +k − yij,t +k)2
+
+! 12 (65) 8MAPE is defined as: 
+
+MAPE = 100% 
+
+N +test 
+
+X
+
+> t∈Ttest
+> K
+
+X
+
+> k=1
+
+X 
+
+> (vi,v j)∈E+
+> t+k
+
+|ˆyij,t +k − yij,t +k||yij,t +k|
+
+(66) 
+
+2) Structural Prediction Metrics: For edge activity identi-fication, we use F1-score as the evaluation metric, denoted as 
+
+F1 edge . For node activity prediction, we report the average F1-score over origin-side and destination-side activity prediction: 
+
+F1 node = 12
+
+ F1 out node + F1 in node 
+
+ (67) where F1 out node and F1 in node denote the F1-scores for node activity prediction as origins and destinations, respectively. 
+
+D. Experimental Settings 
+
+All models are implemented in PyTorch and trained and tested on a server equipped with an NVIDIA GeForce RTX 3090 GPU. Each dataset is split into training, validation, and test sets in chronological order with a ratio of 7:1:2. For a fair comparison, all temporal models use the same input window length T = 18 and prediction horizon K = 6 .We adopt a unified data preprocessing pipeline and construct the OD edge set in the same way for all methods. All methods are evaluated on the same test set. For spatiotemporal graph models, the input graphs are constructed based on the same regional partition and OD relations. For GRU, SVR, and HA, training and testing are conducted on the same OD-pair flow sequences. The loss weights of SAGMTL are set as follows: λbase =3.0 for the basic flow prediction loss, λcomp = 1.0 for the intensity compensation loss, λedge = 0 .08 for the edge activity supervision loss, λnode = 0 .08 for the node activity supervision loss, λzero = 0 .035 for the zero-edge suppression loss, λvol = 0.1 for the volatility consistency loss, and 
+
+λmarg = 0 .1 for the marginal consistency loss. 
+
+E. Overall Prediction Performance Comparison 
+
+Table II reports the OD demand prediction results on the Beijing, Chengdu, and Nanjing datasets. Overall, SAGMTL achieves the best MAE and MAPE on all three datasets, demonstrating its effectiveness in modeling the spatiotemporal evolution of dynamic sparse OD demand. On the Beijing dataset, SAGMTL achieves an MAE of 0.8692, reducing the error by 11.82% compared with the best baseline STZINB-GNN (0.9857). Its MAPE decreases from 45.05% to 39.29%, with a relative reduction of 12.79%. On the Chengdu dataset, SAGMTL achieves an MAE of 0.8892 and a MAPE of 37.76%, improving over STZINB-GNN by 4.76% and 6.27%, respectively. On the Nanjing dataset, SAGMTL obtains the lowest MAE (1.6135) and MAPE (41.66%), re-ducing the errors by 3.64% and 12.20% compared with the best baseline MPGCN. Although SAGMTL has a slightly higher RMSE than some baselines on the Nanjing dataset, it achieves the best MAE and MAPE. This indicates that SAGMTL predicts most OD flows more accurately, while RMSE is more sensitive to a small number of high-flow outliers. Therefore, SAGMTL better balances overall prediction accuracy and long-tailed flow modeling. Compared with traditional methods such as HA and SVR, SAGMTL better captures nonlinear spatiotemporal dependen-cies. Compared with GRU, it further incorporates spatial and structural information. Although graph-based models such as STGCN, DCRNN, and AGCRN can model spatial depen-dencies, they are originally designed for node-level traffic prediction and are less effective in representing edge-level OD interactions. OD-specific models such as GEML, MPGCN, TGAE, and STZINB-GNN achieve stronger performance by modeling inter-regional relationships or sparse zero-flow pat-terns. However, most of them still treat OD prediction as a single flow regression problem. In contrast, SAGMTL explicitly decomposes OD demand prediction into connection state identification and flow in-tensity estimation. By introducing edge and node activity prediction as auxiliary tasks and using node–edge collaborative updates, SAGMTL learns more robust structural representa-tions, leading to superior prediction performance across the three datasets. 
+
+F. Multi-step Prediction Performance Analysis 
+
+Tables III–V report the MAE results of different models over the next six prediction steps. Overall, most baselines show increasing errors as the prediction horizon becomes longer, indicating more severe error accumulation in long-term forecasting. For example, on the Beijing dataset, the MAE of HA increases from 1.1557 to 1.1803; on the Nanjing dataset, the MAE of GRU increases from 1.7171 to 1.8624, with a relative increase of 8.46%. In contrast, SAGMTL maintains more stable performance across all three datasets. On the Beijing dataset, its MAE remains within 0.8665–0.8706, with a fluctuation range of only 0.0041. On the Chengdu dataset, the MAE stays around 0.88, with an overall variation below 0.011. Although the error also increases on the Nanjing dataset, its growth is smaller than that of most baselines. At the sixth prediction step (H6), SAGMTL still achieves clear advantages. It obtains an MAE of 0.8665 on the Beijing dataset, reducing the error by 13.21% compared with STZINB-GNN (0.9984). On the Chengdu and Nanjing datasets, SAGMTL reduces MAE by 5.52% and 3.61% com-pared with the best baselines, respectively. These results demonstrate that SAGMTL has stronger long-term prediction stability. The node–edge collaborative update mechanism captures the coupling between regional states and OD interactions, while edge and node activity supervision provides structural priors that help reduce error propagation in multi-step forecasting. 
+
+G. Visualization of Representative OD Pairs 
+
+To further examine how different models capture dynamic sparse OD patterns, we select three representative OD pairs 9TABLE II OVERALL PREDICTION PERFORMANCE COMPARISON ON THREE CITY DATASETS .Model Beijing Chengdu Nanjing MAE RMSE MAPE MAE RMSE MAPE MAE RMSE MAPE HA 1.1682 1.6905 50.6618 1.1370 1.5809 47.0994 1.9119 4.4453 56.0082 SVR 1.1217 1.6935 51.2063 1.1304 1.5097 46.9262 1.9294 4.8357 57.7905 GRU 1.1191 1.6066 51.3054 1.0901 1.3990 46.5434 1.8011 4.3153 50.2860 LSTM 1.1112 1.6018 50.8970 1.0965 1.4037 46.7260 1.8446 4.2964 52.4634 STGCN 1.1261 1.6130 51.6058 1.0756 1.3859 45.4418 1.8220 4.1084 51.1985 DCRNN 1.0887 1.5853 49.8150 1.0075 1.3017 42.8198 1.7316 4.0866 48.6876 AGCRN 1.0470 1.5436 51.2921 1.0911 1.4208 45.8805 1.8674 4.2297 52.4742 CSTN 1.0597 1.5624 48.4493 1.0061 1.2822 43.1267 1.7534 4.0705 49.5929 GEML 1.0437 1.5050 48.0701 1.0031 1.2521 43.0421 1.6771 4.2529 47.8914 MPGCN 1.0351 1.4974 47.6747 0.9919 1.2286 43.0144 1.6744 4.2413 47.4482 TGAE 1.0380 1.4967 47.8686 0.9838 1.2193 42.7262 1.6882 4.2793 48.0926 STZINB-GNN 0.9857 1.5129 45.0495 0.9336 1.1952 40.2827 1.7188 4.0254 48.4879 DSTCN 1.0877 1.5859 49.7298 1.0399 1.3405 44.0502 1.7158 4.0534 48.1089 SAGMTL 0.8692 1.4505 39.2874 0.8892 1.1777 37.7583 1.6135 4.2491 41.6601 
+
+Fig. 2. Fitting results on a representative stable OD edge. The gray curve denotes the ground-truth flow, the red curve denotes the prediction of SAGMTL, and the blue dashed curves denote the predictions of comparison methods or ablated variants. 
+
+from the Beijing test set, corresponding to balanced, bursty, and highly volatile travel patterns. Figs. 2–4 show the ground-truth flow series and the predictions of different models. In these figures, the gray curves denote the ground-truth flows, the red curves denote the predictions of SAGMTL, and the blue dashed curves denote the predictions of comparison methods or ablated variants. For the stable OD pair in Fig. 2, most methods capture the overall trend, but traditional statistical and temporal models tend to over-smooth local fluctuations, while some spatiotem-poral graph models still generate false flows during inactive periods. In contrast, SAGMTL better distinguishes active and inactive states and suppresses false positives in zero-flow intervals. 10 Fig. 3. Fitting results on a representative bursty OD edge. The gray curve denotes the ground-truth flow, the red curve denotes the prediction of SAGMTL, and the blue dashed curves denote the predictions of comparison methods or ablated variants. TABLE III MULTI -STEP MAE COMPARISON ON THE BEIJING DATASET .
+
+Model H1 H2 H3 H4 H5 H6 HA 1.1557 1.1612 1.1660 1.1705 1.1753 1.1803 SVR 1.1090 1.1147 1.1177 1.1247 1.1306 1.1333 GRU 1.1085 1.1127 1.1188 1.1217 1.1247 1.1285 LSTM 1.0963 1.1036 1.1091 1.1132 1.1202 1.1249 STGCN 1.1137 1.1203 1.1234 1.1275 1.1332 1.1384 DCRNN 1.0824 1.0861 1.0880 1.0899 1.0922 1.0936 AGCRN 1.0418 1.0448 1.0456 1.0466 1.0510 1.0521 CSTN 1.0636 1.0613 1.0616 1.0595 1.0576 1.0545 GEML 1.0428 1.0415 1.0396 1.0413 1.0471 1.0498 MPGCN 1.0259 1.0290 1.0403 1.0375 1.0377 1.0404 TGAE 1.0351 1.0359 1.0354 1.0369 1.0417 1.0429 STZINB-GNN 0.9758 0.9792 0.9817 0.9865 0.9928 0.9984 DSTCN 1.0878 1.0866 1.0904 1.0866 1.0855 1.0894 SAGMTL 0.8706 0.8694 0.8695 0.8695 0.8694 0.8665 
+
+For the bursty OD pair in Fig. 3, most baselines underes-timate sudden flow increases or fail to capture peak timing. SAGMTL better identifies the connection reactivation process and achieves more accurate predictions around peak periods, showing stronger sensitivity to low-frequency and bursty OD interactions. 
+
+TABLE IV MULTI -STEP MAE COMPARISON ON THE CHENGDU DATASET .
+
+Model H1 H2 H3 H4 H5 H6 HA 1.1021 1.1163 1.1304 1.1443 1.1578 1.1709 SVR 1.0966 1.1130 1.1236 1.1385 1.1503 1.1607 GRU 1.0526 1.0674 1.0855 1.0978 1.1115 1.1260 LSTM 1.0565 1.0728 1.0854 1.1019 1.1230 1.1398 STGCN 1.0664 1.0664 1.0753 1.0747 1.0825 1.0884 DCRNN 1.0145 1.0086 1.0064 1.0044 1.0035 1.0077 AGCRN 1.0716 1.0812 1.0910 1.0972 1.1008 1.1049 CSTN 1.0159 1.0069 1.0008 1.0016 1.0042 1.0070 GEML 1.0039 0.9983 0.9978 0.9973 0.9989 1.0070 MPGCN 0.9824 0.9852 0.9883 0.9930 0.9984 1.0040 TGAE 0.9791 0.9823 0.9831 0.9846 0.9857 0.9882 STZINB-GNN 0.9277 0.9333 0.9346 0.9370 0.9355 0.9336 DSTCN 1.0207 1.0260 1.0276 1.0426 1.0572 1.0654 SAGMTL 0.8875 0.8927 0.8918 0.8909 0.8901 0.8821 
+
+For the highly volatile OD pair in Fig. 4, baseline methods generally capture the overall direction but show lag or ampli-tude attenuation when modeling continuous peaks and troughs. SAGMTL tracks the dynamic variations more accurately and maintains higher consistency with the ground-truth sequence. Overall, these visualization results show that SAGMTL can 11 Fig. 4. Fitting results on a representative highly volatile OD edge. The gray curve denotes the ground-truth flow, the red curve denotes the prediction of SAGMTL, and the blue dashed curves denote the predictions of comparison methods or ablated variants. TABLE V MULTI -STEP MAE COMPARISON ON THE NANJING DATASET .
+
+Model H1 H2 H3 H4 H5 H6 HA 1.8195 1.8635 1.9000 1.9329 1.9631 1.9924 SVR 1.8337 1.8789 1.9174 1.9466 1.9895 2.0105 GRU 1.7171 1.7647 1.7944 1.8256 1.8427 1.8624 LSTM 1.7415 1.7706 1.7988 1.8340 1.8578 1.9262 STGCN 1.7286 1.7706 1.7988 1.8340 1.8578 1.8764 DCRNN 1.6531 1.7020 1.7281 1.7434 1.7676 1.7955 AGCRN 1.7859 1.8330 1.8607 1.8742 1.9044 1.9470 CSTN 1.6794 1.7175 1.7461 1.7665 1.7936 1.8177 GEML 1.6475 1.6578 1.6742 1.6841 1.6957 1.7035 MPGCN 1.6333 1.6569 1.6743 1.6830 1.6968 1.7024 TGAE 1.6394 1.6682 1.6847 1.7029 1.7154 1.7189 STZINB-GNN 1.6183 1.6764 1.7112 1.7458 1.7776 1.7838 DSTCN 1.6243 1.6697 1.7009 1.7331 1.7611 1.8062 SAGMTL 1.5698 1.5959 1.6120 1.6265 1.6364 1.6409 
+
+model stable trends, connection activation, and abrupt flow changes more effectively. This further validates the benefit of jointly modeling connection states and flow intensities in dynamic sparse OD demand prediction. 
+
+TABLE VI ABLATION STUDY ON THE BEIJING DATASET .
+
+Model MAE RMSE MAPE Node F1 Edge F1 SAGMTL-noStruct 0.9105 1.4709 41.3625 0.5260 0.0342 SAGMTL-noSpatialAttn 0.8876 1.4608 40.2677 0.8462 0.3327 SAGMTL-noDynGate 0.9098 1.4728 41.3015 0.8491 0.3358 SAGMTL-noCO 0.8909 1.4616 40.3906 0.8421 0.3291 SAGMTL-noSF 0.9146 1.4796 41.4413 0.8484 0.3327 SAGMTL-singleHead 0.8909 1.4616 40.3906 0.8521 0.3291 SAGMTL-noEdgeAct 0.8794 1.4573 39.7602 0.8453 0.0350 SAGMTL-noNodeAct 0.8729 1.4557 39.4891 0.5703 0.3289 SAGMTL 0.8692 1.4505 39.2874 0.8514 0.3383 
+
+H. Ablation Study 
+
+To evaluate the contribution of each component in SAGMTL, we conduct ablation experiments on the Beijing dataset, as reported in Table VI. We remove the structural auxiliary tasks, spatial distance attention module, dynamic gating mechanism, node–edge collaborative update module, and steady–dynamic flow decomposition decoder, respectively, and compare their effects on prediction performance. 
+
+Effect of Structural Auxiliary Tasks: Removing the edge activity prediction branch (SAGMTL-noEdgeAct) increases MAE from 0.8692 to 0.8794 and MAPE from 39.29% to 12 39.76%, showing that edge activity supervision helps identify potentially active OD connections. Removing the node activity prediction branch (SAGMTL-noNodeAct) increases MAE to 0.8729, indicating that node-level activity information also contributes to regional state modeling.When both auxiliary tasks are removed (SAGMTL-noStruct), MAE rises to 0.9105 and MAPE increases by 2.08 percentage points, demonstrat-ing that structural supervision provides important priors for dynamic sparse OD prediction. 
+
+Effect of the Spatial Distance Attention: SAGMTL-noSpatialAttn removes the spatial distance attention module. Its MAE increases from 0.8692 to 0.8876, and MAPE in-creases from 39.29% to 40.27%. This confirms that geograph-ical proximity remains important for modeling inter-regional travel demand, and spatial distance attention helps capture more reasonable spatial dependencies. 
+
+Effect of the Node–Edge Collaborative Update: 
+
+SAGMTL-noCO removes the node–edge collaborative update mechanism. The MAE increases to 0.8909, and MAPE in-creases to 40.39%. This suggests that independent node and edge encoding is insufficient, while node–edge collaborative updates better capture the coupling between regional states and OD interactions. 
+
+Effect of the Dynamic Gating Mechanism: SAGMTL-noDynGate removes the gating mechanism in the dynamic flow branch. The MAE increases to 0.9098, and MAPE increases to 41.30%, showing a substantial performance drop. This indicates that dynamic gating is crucial for adaptively modulating flow prediction according to connection states. 
+
+Effect of the Steady–Dynamic Flow Decoder Structure: 
+
+To evaluate the effectiveness of the steady–dynamic flow decomposition decoder, we construct two variants: SAGMTL-noSF and SAGMTL-singleHead. SAGMTL-noSF removes the steady-flow branch and only keeps the dynamic-flow branch. SAGMTL-singleHead keeps the structural auxiliary branches unchanged but replaces the steady–dynamic flow decompo-sition decoder with a single MLP prediction head, which directly maps the L-th layer edge representation to the final OD flow prediction. The results show that both variants lead to clear performance degradation. SAGMTL-noSF ob-tains the worst MAE of 0.9146, while SAGMTL-singleHead increases the MAE to 0.8909. These results indicate that explicitly decomposing OD demand into steady and dynamic components is more effective than directly predicting flows from edge representations with a single head. The steady– dynamic flow decomposition decoder helps the model jointly capture relatively stable demand patterns and short-term flow fluctuations, thereby improving OD flow prediction accuracy. 
+
+I. Parameter Sensitivity Analysis 
+
+To evaluate the sensitivity of SAGMTL to key hyperparam-eters, we analyze the effects of the spatial dependency en-hancement weight λp, the number of node–edge collaborative update layers L, the structural auxiliary task weights λedge 
+
+and λnode , the flow modeling weights λbase and λcomp , and the constraint weights λzero , λvol , and λmarg . The results are shown in Fig. 5. For spatial dependency modeling, increasing λp from 0.05 to 0.15 reduces MAE from 0.906 to 0.869, indicating that an appropriate geographical distance prior improves spatial dependency learning. However, a larger λp increases predic-tion error, suggesting that overly strong spatial constraints may limit the modeling of long-distance functional correlations and non-local OD interactions. Therefore, λp = 0.15 provides a suitable balance between spatial priors and data-driven learning. For the node–edge collaborative update depth, the model performs poorly when L = 0 , with an MAE of 0.980, showing the importance of information propagation between node states and OD interactions. The best performance is achieved when 
+
+L = 2, while deeper propagation leads to performance degradation due to possible over-smoothing. Thus, a two-layer collaborative update structure is adopted. For structural auxiliary task weights, both λedge and λnode 
+
+improve performance as they increase from 0 and reach the optimum around 0.08. This demonstrates that edge and node activity prediction provide useful structural supervision for dynamic sparse OD modeling. When the weights become too large, MAE increases, indicating that excessive auxiliary supervision may weaken the optimization of the main flow re-gression task. Edge activity supervision brings slightly greater gains than node activity supervision, suggesting that edge-level connection states are more directly related to OD flows. For flow modeling parameters, increasing λbase from 1 to 3 improves MAE, but further increasing it degrades perfor-mance, showing that the main regression objective should be balanced with structural constraints. For the intensity compen-sation loss, the best performance is obtained at λcomp = 1 .Removing this term weakens the modeling of medium- and high-intensity active connections, while an overly large weight may overemphasize high-flow samples and reduce generaliza-tion. For constraint weights, increasing λzero to 0.035 improves performance by suppressing false positive flows on inactive edges, but an excessive weight may suppress low-frequency and weak connections. The marginal consistency constraint achieves the best performance at λmarg = 0.1, indicating that appropriate inflow–outflow consistency improves struc-tural rationality. The volatility consistency loss also shows a first-decreasing-then-increasing trend, suggesting that mod-erate temporal variation constraints help capture dynamic trends, whereas overly strong constraints may suppress bursty fluctuations. Overall, SAGMTL is relatively stable within reasonable hyperparameter ranges. Spatial priors, structural auxiliary tasks, and flow constraints all improve prediction performance when properly weighted, while overly strong constraints may interfere with the main flow prediction objective. Therefore, the final parameter settings are chosen to balance prediction accuracy and structural modeling capability. V. CONCLUSION AND FUTURE WORK To address the challenges of identifying connection states, modeling long-tailed connections, and insufficiently exploiting 13 Fig. 5. Parameter sensitivity analysis of SAGMTL on the Beijing dataset. Panels (a)–(i) report the effects of the spatial residual weight, the number of co-update layers, the zero-flow loss weight, the base-flow loss weight, the compensation loss weight, the edge activity loss weight, the node activity loss weight, the volatility consistency weight, and the marginal consistency weight, respectively. The orange bars denote the default hyperparameter settings used in the final model. For most parameters, the primary MAE on active OD edges is reported. In panel (i), both the primary MAE and all-edge MAE are shown to illustrate the effect of marginal consistency on global OD flow allocation. 
+
+the coupling between node states and edge-level interactions in dynamic sparse OD demand prediction, this paper pro-poses a structure-aware graph multi-task learning framework, SAGMTL. The framework jointly models node activity states, OD connection states, and edge-level flow intensities, and captures the coupling between regional states and OD inter-actions through a node–edge collaborative update mechanism. Meanwhile, SAGMTL introduces a steady–dynamic flow de-composition mechanism and multiple structural constraints to enhance its capability in predicting dynamic sparse OD demand. Experiments on three real-world urban mobility datasets from Beijing, Chengdu, and Nanjing show that SAGMTL achieves the best performance in terms of MAE and MAPE, while maintaining strong competitiveness in RMSE. Further ablation studies and parameter sensitivity analysis verify the effectiveness of the structural auxiliary tasks, spatial de-pendency enhancement, node–edge collaborative update, and steady–dynamic flow decomposition mechanism. These results demonstrate that explicitly modeling the relationships among connection states, regional states, and flow intensities can improve dynamic sparse OD demand prediction. Future work will further incorporate external factors such as weather, holidays, and events to enhance the model’s ability to capture complex travel demand variations. In addition, continuous-time dynamic graph modeling and adaptive struc-ture learning will be explored to more precisely characterize the evolution of OD connections. The proposed framework can also be extended to larger-scale urban areas and multimodal transportation scenarios, thereby improving its practical value in urban traffic management and intelligent mobility services. REFERENCES [1] J. Ke, X. Qin, H. Yang, Z. Zheng, Z. Zhu, and J. Ye, “Predicting origin-destination ride-sourcing demand with a spatio-temporal encoder-decoder residual multi-graph convolutional network,” Transportation Research Part C: Emerging Technologies , vol. 122, Art. no. 102858, 2021, doi: 10.1016/j.trc.2020.102858. [2] L. Liu, Y. Zhu, G. Li, Z. Wu, L. Bai, M. Mao, and L. Lin, “On-line metro origin-destination prediction via heterogeneous informa-tion aggregation,” IEEE Transactions on Pattern Analysis and Ma-chine Intelligence , vol. 45, no. 3, pp. 3574–3589, Mar. 2023, doi: 10.1109/TPAMI.2022.3178184. 
+
+14 [3] M. Xu, J. Wu, M. Liu, Y. Xiao, H. Wang, and D. Hu, “Discovery of critical nodes in road networks through mining from vehicle trajecto-ries,” IEEE Transactions on Intelligent Transportation Systems , vol. 20, no. 2, pp. 583–593, Feb. 2019. [4] M. Xu, J. Xiang, Z. Xie, and X. Meng, “Learning to rank critical road segments via heterogeneous graphs with origin-destination flow integration,” Information Processing & Management , vol. 63, no. 6, Art. no. 104702, 2026, doi: 10.1016/j.ipm.2026.104702. [5] J. Zhang, H. Che, F. Chen, W. Ma, and Z. He, “Short-term origin-destination demand prediction in urban rail transit systems: A channel-wise attentive split-convolutional neural network method,” Transporta-tion Research Part C: Emerging Technologies , vol. 124, Art. no. 102928, 2021, doi: 10.1016/j.trc.2020.102928. [6] D. Zhuang, S. Wang, H. N. Koutsopoulos, and J. Zhao, “Uncer-tainty quantification of sparse travel demand prediction with spatial-temporal graph neural networks,” in Proc. 28th ACM SIGKDD Conf. Knowledge Discovery and Data Mining , 2022, pp. 4639–4647, doi: 10.1145/3534678.3539093. [7] X. Jiang, D. Zhuang, X. Zhang, H. Chen, J. Luo, and X. Gao, “Uncertainty quantification via spatial-temporal Tweedie model for zero-inflated and long-tail travel demand prediction,” in Proc. 32nd ACM Int. Conf. Information and Knowledge Management , 2023, doi: 10.1145/3583780.3615215. [8] C. Rong, Z. Liu, J. Ding, and Y. Li, “Learning to generate temporal origin-destination flow based on urban regional features and traffic in-formation,” ACM Transactions on Knowledge Discovery from Data , vol. 18, no. 6, Art. no. 150, pp. 150:1–150:17, 2024, doi: 10.1145/3649141. [9] Y. Zhao, S. Cheng, S. Gao, P. Wang, and F. Lu, “Predicting origin-destination flows by considering heterogeneous mobility patterns,” Sus-tainable Cities and Society , vol. 118, Art. no. 106015, 2025, doi: 10.1016/j.scs.2024.106015. [10] Z. Lin, J. Feng, Z. Lu, Y. Li, and D. Jin, “DeepSTN+: Context-aware spatial-temporal neural network for crowd flow prediction in metropolis,” in Proc. AAAI Conf. Artificial Intelligence , vol. 33, no. 1, 2019, pp. 1020–1027. [11] H. Yao, X. Tang, H. Wei, G. Zheng, and Z. Li, “Revisiting spatial-temporal similarity: A deep learning framework for traffic prediction,” in Proc. AAAI Conf. Artificial Intelligence , vol. 33, no. 1, 2019, pp. 5668–5675, doi: 10.1609/aaai.v33i01.33015668. [12] S. Yuan, X. Li, W. Mu, J. Zhong, M. Chen, H. Sun, and Y. Gong, “Spatio-temporal prototype-based hierarchical learning for OD demand prediction,” in Proc. 34th Int. Joint Conf. Artificial Intelligence , 2025, pp. 3597–3605. [13] Y. Gong, P. Yu, X. Zhang, X. Zhang, X. Nie, and H. Sun, “Exploiting dynamic spatio-temporal correlations for origin-destination demand pre-diction,” Expert Systems with Applications , vol. 299, Art. no. 130095, 2026, doi: 10.1016/j.eswa.2025.130095. [14] C. Zhang, G. Ma, L. Zhang, and B. Shihada, “Graph neural networks em-powered origin-destination learning for urban traffic prediction,” CAAI Transactions on Intelligence Technology , 2025, doi: 10.1049/cit2.70021. [15] L. Liu, Z. Qiu, G. Li, Q. Wang, W. Ouyang, and L. Lin, “Contextualized spatial-temporal network for taxi origin-destination demand prediction,” 
+
+IEEE Transactions on Intelligent Transportation Systems , vol. 20, no. 10, pp. 3875–3887, Oct. 2019. [16] Z. Cheng, M. Tr´ epanier, and L. Sun, “Real-time forecasting of metro origin-destination matrices with high-order weighted dynamic mode decomposition,” Transportation Science , vol. 56, no. 4, pp. 904–918, 2022. [17] N. K. Shanthappa, R. H. Mulangi, and H. M. Manjunath, “Origin-destination demand prediction of public transit using graph convolutional neural network,” Case Studies on Transport Policy , vol. 17, Art. no. 101230, 2024. [18] S. Feng, J. Ke, H. Yang, and J. Ye, “A multi-task matrix factorized graph neural network for co-prediction of zone-based and OD-based ride-hailing demand,” IEEE Transactions on Intelligent Transportation Systems , vol. 23, no. 6, pp. 5704–5716, Jun. 2022. [19] Y. Wang, H. Yin, H. Chen, T. Wo, J. Xu, and K. Zheng, “Origin-destination matrix prediction via graph convolution: A new perspective of passenger demand modeling,” in Proc. 25th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining , 2019, pp. 1227–1235, doi: 10.1145/3292500.3330877. [20] H. Shi, Q. Yao, Q. Guo, Y. Li, L. Zhang, J. Ye, Y. Li, and Y. Liu, “Pre-dicting origin-destination flow via multi-perspective graph convolutional network,” in Proc. IEEE 36th Int. Conf. Data Engineering , 2020, pp. 1818–1821. [21] L. Han, X. Ma, L. Sun, B. Du, Y. Fu, W. Lv, and H. Xiong, “Continuous-time and multi-level graph representation learning for origin-destination demand prediction,” in Proc. 28th ACM SIGKDD Conf. Knowledge Discovery and Data Mining , 2022, pp. 516–524, doi: 10.1145/3534678.3539273. [22] R. Zhang, L. Han, B. Liu, J. Zeng, and L. Sun, “Dynamic graph learning based on hierarchical memory for origin-destination demand prediction,” in Proc. 31st Int. Joint Conf. Artificial Intelligence , 2022, pp. 2383–2389, doi: 10.24963/ijcai.2022/331. [23] J. Rong, W. Xu, and Y. Wen, “A spatiotemporal model for urban taxi origin-destination prediction based on multi-hop GCN and hierarchical LSTM,” Alexandria Engineering Journal , vol. 128, pp. 905–917, 2025. [24] D. Xu, C. Ruan, E. Korpeoglu, S. Kumar, and K. Achan, “Inductive representation learning on temporal graphs,” in Proc. Int. Conf. Learning Representations , 2020. [25] A. Sankar, Y. Wu, L. Gou, W. Zhang, and H. Yang, “DySAT: Deep neural representation learning on dynamic graphs via self-attention networks,” in Proc. 13th ACM Int. Conf. Web Search and Data Mining , 2020, pp. 519–527, doi: 10.1145/3336191.3371845. [26] Q. Wang, H. Jiang, M. Qiu, Y. Liu, and D. Ye, “TGAE: Temporal graph autoencoder for travel forecasting,” IEEE Transactions on Intelligent Transportation Systems , vol. 24, no. 8, pp. 8529–8541, Aug. 2023. [27] Y. Yang, H. Li, and H. Tu, “Real-time OD connection demand forecast-ing based on streaming temporal link prediction in dynamic graphs,” 
+
+Transportation Research Part C: Emerging Technologies , vol. 182, Art. no. 105413, 2026, doi: 10.1016/j.trc.2025.105413. [28] Z. Zhang, J. Yang, X. Chen, and Y. Wu, “Graph neural networks with flow conservation constraints for real-time origin-destination matrix completion,” Pattern Recognition , vol. 170, Art. no. 112046, 2026, doi: 10.1016/j.patcog.2025.112046. [29] Z. Shao, Z. Zhang, F. Wang, W. Wei, and Y. Xu, “Spatial-temporal identity: A simple yet effective baseline for multivariate time series forecasting,” in Proc. 31st ACM Int. Conf. Information & Knowledge Management , 2022, pp. 4454–4458, doi: 10.1145/3511808.3557702. [30] W. Jiang and J. Luo, “Graph neural network for traffic forecasting: A survey,” Expert Systems with Applications , vol. 207, Art. no. 117921, 2022, doi: 10.1016/j.eswa.2022.117921. [31] G. Jin, Y. Liang, Y. Fang, Z. Shao, J. Huang, J. Zhang, and Y. Zheng, “Spatio-temporal graph neural networks for predictive learning in urban computing: A survey,” IEEE Transactions on Knowledge and Data Engineering , vol. 36, no. 10, pp. 5388–5408, Oct. 2024. [32] Y. Li, R. Yu, C. Shahabi, and Y. Liu, “Diffusion convolutional recurrent neural network: Data-driven traffic forecasting,” in Proc. Int. Conf. Learning Representations , 2018. [33] B. Yu, H. Yin, and Z. Zhu, “Spatio-temporal graph convolutional networks: A deep learning framework for traffic forecasting,” in Proc. 27th Int. Joint Conf. Artificial Intelligence , 2018, pp. 3634–3640. [34] L. Zhao, Y. Song, C. Zhang, Y. Liu, P. Wang, T. Lin, M. Deng, and H. Li, “T-GCN: A temporal graph convolutional network for traffic prediction,” 
+
+IEEE Transactions on Intelligent Transportation Systems , vol. 21, no. 9, pp. 3848–3858, Sep. 2020. [35] Z. Wu, S. Pan, G. Long, J. Jiang, and C. Zhang, “Graph WaveNet for deep spatial-temporal graph modeling,” in Proc. 28th Int. Joint Conf. Artificial Intelligence , 2019, pp. 1907–1913. [36] L. Bai, L. Yao, C. Li, X. Wang, and C. Wang, “Adaptive graph convolutional recurrent network for traffic forecasting,” in Advances in Neural Information Processing Systems , vol. 33, 2020. [37] Z. Wu, S. Pan, G. Long, J. Jiang, C. Chang, and C. Zhang, “Con-necting the dots: Multivariate time series forecasting with graph neural networks,” in Proc. 26th ACM SIGKDD Conf. Knowledge Discovery and Data Mining , 2020, pp. 753–763, doi: 10.1145/3394486.3403118. [38] Z. Fang, Q. Long, G. Song, and K. Xie, “Spatial-temporal graph ODE networks for traffic flow forecasting,” in Proc. 27th ACM SIGKDD Conf. Knowledge Discovery and Data Mining , 2021, pp. 364–373, doi: 10.1145/3447548.3467430. [39] Z. Shao, Z. Zhang, W. Wei, F. Wang, Y. Xu, X. Cao, and C. S. Jensen, “Decoupled dynamic spatial-temporal graph neural network for traffic forecasting,” Proceedings of the VLDB Endowment , vol. 15, no. 11, pp. 2733–2746, 2022. [40] S. Guo, Y. Lin, N. Feng, C. Song, and H. Wan, “Attention based spatial-temporal graph convolutional networks for traffic flow forecasting,” in 
+
+Proc. AAAI Conf. Artificial Intelligence , vol. 33, no. 1, 2019, pp. 922– 929. [41] C. Zheng, X. Fan, C. Wang, and J. Qi, “GMAN: A graph multi-attention network for traffic prediction,” in Proc. AAAI Conf. Artificial Intelligence , vol. 34, no. 1, 2020, pp. 1234–1241. [42] J. Jiang, C. Han, W. X. Zhao, and J. Wang, “PDFormer: Propagation delay-aware dynamic long-range transformer for traffic flow prediction,” 
+
+15 in Proc. AAAI Conf. Artificial Intelligence , vol. 37, no. 4, 2023, pp. 4365–4373, doi: 10.1609/aaai.v37i4.25556. [43] H. Liu, Z. Dong, R. Jiang, J. Deng, J. Deng, Q. Chen, and X. Song, “Spatio-temporal adaptive embedding makes vanilla Transformer SOTA for traffic forecasting,” in Proc. 32nd ACM Int. Conf. In-formation and Knowledge Management , 2023, pp. 4125–4129, doi: 10.1145/3583780.3615160. [44] Y. Fang, Y. Liang, B. Hui, Z. Shao, L. Deng, X. Liu, X. Jiang, and K. Zheng, “Efficient large-scale traffic forecasting with Transformers: A spatial data management perspective,” in Proc. 31st ACM SIGKDD Conf. Knowledge Discovery and Data Mining , 2025, pp. 307–317, doi: 10.1145/3690624.3709177. [45] R. Caruana, “Multitask learning,” Machine Learning , vol. 28, no. 1, pp. 41–75, 1997, doi: 10.1023/A:1007379606734. [46] K. Cho, B. van Merri¨ enboer, C. Gulcehre, D. Bahdanau, F. Bougares, H. Schwenk, and Y. Bengio, “Learning phrase representations using RNN encoder-decoder for statistical machine translation,” in Proc. Conf. Empirical Methods in Natural Language Processing , 2014, pp. 1724– 1734, doi: 10.3115/v1/D14-1179. [47] P. Veliˇ ckovi´ c, G. Cucurull, A. Casanova, A. Romero, P. Li` o, and Y. Bengio, “Graph attention networks,” in Proc. Int. Conf. Learning Representations , 2018. [48] J. Gilmer, S. S. Schoenholz, P. F. Riley, O. Vinyals, and G. E. Dahl, “Neural message passing for quantum chemistry,” in Proc. 34th Int. Conf. Machine Learning , 2017, pp. 1263–1272. [49] P. J. Huber, “Robust estimation of a location parameter,” The Annals of Mathematical Statistics , vol. 35, no. 1, pp. 73–101, 1964, doi: 10.1214/aoms/1177703732. [50] T.-Y. Lin, P. Goyal, R. Girshick, K. He, and P. Doll´ ar, “Focal loss for dense object detection,” in Proc. IEEE Int. Conf. Computer Vision , 2017, pp. 2980–2988, doi: 10.1109/ICCV.2017.324. 
+
+16
