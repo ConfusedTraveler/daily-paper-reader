@@ -6,52 +6,60 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-25
-- 运行时间：2026-06-25 21:18:14 UTC
+- 最新运行日期：2026-06-26
+- 运行时间：2026-06-26 20:53:41 UTC
 - 运行状态：成功
-- 本次总论文数：10
-- 精读区：1
+- 本次总论文数：12
+- 精读区：3
 - 速读区：9
 
 ### 今日简报（AI）
-1) 今日精读1篇推荐系统论文《S2-CAR》，从10篇中筛选出1篇高分研究。
-2) 最值得看的是《S2-CAR》的分割监督复杂度自适应方法（8.0分），以及速读中《Time-Varying Model Averaging》的时序网络建模（7.0分）。
-3) 建议优先精读S2-CAR以了解推荐系统前沿，再浏览速读中的网络自回归应用作为拓展。
-- 详情：[/202606/25/README](/202606/25/README)
+1) 今日精读聚焦两大前沿：限价订单簿预测的低延迟计算架构，以及通过多小波数嵌入提升LLM对数字感知的时间序列预测。
+
+2) 最值得关注的是推理计算前沿与金融高频交易的硬件优化交叉方向，此外时间序列预测中数字嵌入的新方法同样亮眼。
+
+3) 建议普通读者延伸速读中的可解释KAN网络（电力负荷预测）与智能体长期记忆模型，探索稀疏传感部署的实践价值。
+- 详情：[/202606/26/README](/202606/26/README)
 
 ### 精读区论文标签
-1. [S2-CAR: Segmentation-Supervised Complexity-Adaptive Recommendation](/202606/25/2606.25415v1-s2-car-segmentation-supervised-complexity-adaptive-recommendation)  
+1. [The Inference-Compute Frontier and a Latency-Efficient Architecture for Limit Order Book Prediction](/202606/26/2606.25986v1-the-inference-compute-frontier-and-a-latency-efficient-architecture-for-limit-order-book-prediction)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：序列推荐，复杂度自适应，用户兴趣可预测性
+   evidence：研究限价订单簿预测中的推断-计算前沿和预测损失极限
+2. [Speaking Numbers to LLMs: Multi-Wavelet Number Embeddings for Time Series Forecasting](/202606/26/2606.26487v1-speaking-numbers-to-llms-multi-wavelet-number-embeddings-for-time-series-forecasting)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：通过小波嵌入提升时间序列预测可靠性
+3. [How Good Can Linear Models Be for Time-Series Forecasting?](/202606/26/2606.27282v1-how-good-can-linear-models-be-for-time-series-forecasting)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：研究线性模型在时间序列预测中的性能极限
 
 ### 速读区论文标签
-1. [Time-Varying Model Averaging of Multi-layer Network Vector Autoregressions](/202606/25/2606.25292v1-time-varying-model-averaging-of-multi-layer-network-vector-autoregressions)  
+1. [Nous: A Predictive World Model for Long-Term Agent Memory](/202606/26/2606.22030v1-nous-a-predictive-world-model-for-long-term-agent-memory)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：通过渐近最优性和收敛率提供预测精度的理论界
-2. [Slow Brain, Fast Planner: Latency-Resilient VLM-Augmented Urban Navigation](/202606/25/2606.20458v1-slow-brain-fast-planner-latency-resilient-vlm-augmented-urban-navigation)  
+   evidence：利用信息论惊喜度进行可预测性评估的预测世界模型
+2. [Interpretable Kolmogorov-Arnold Network with Feature-Isolated Temporal Attention Mechanism for Electricity Load Forecasting](/202606/26/2606.23425v1-interpretable-kolmogorov-arnold-network-with-feature-isolated-temporal-attention-mechanism-for-electricity-load-forecasting)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：提出可解释KAN用于电力负荷预测，属于时间序列预测
+3. [Sparse Sensor Placement for Reducing Forecast Errors in Ensemble Kalman Filtering](/202606/26/2606.27267v1-sparse-sensor-placement-for-reducing-forecast-errors-in-ensemble-kalman-filtering)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：通过稀疏传感器放置减少预测误差的理论框架
+4. [SOHET: Sequence Of Heterogeneous Events Transformer with Self-Supervised Pre-Training](/202606/26/2606.21356v1-sohet-sequence-of-heterogeneous-events-transformer-with-self-supervised-pre-training)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：城市导航，轨迹规划，VLM增强，行人交互
-3. [Multi-Task Bayesian In-Context Learning](/202606/25/2606.20538v1-multi-task-bayesian-in-context-learning)  
+   evidence：序列事件预测方法可应用于序列推荐
+5. [From Recognition to Understanding: Unlocking Cognitive Time Series Reasoning with LLMs](/202606/26/2606.22126v1-from-recognition-to-understanding-unlocking-cognitive-time-series-reasoning-with-llms)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：提供贝叶斯框架进行预测推理，与理论可预测性分析相关
-4. [Structure-Aware Graph Multi-Task Learning for Dynamic Sparse OD Demand Prediction](/202606/25/2606.21022v1-structure-aware-graph-multi-task-learning-for-dynamic-sparse-od-demand-prediction)  
+   evidence：批评时间序列预测仅作为曲线拟合
+6. [Neural Operator Processes for Probabilistic Operator Learning under Partial Observations](/202606/26/2606.22946v1-neural-operator-processes-for-probabilistic-operator-learning-under-partial-observations)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：动态稀疏OD需求预测，涉及人类移动性
-5. [Distributional Granger Causality: Identification, Sequential Inference, and Adaptive Testing](/202606/25/2606.22230v1-distributional-granger-causality-identification-sequential-inference-and-adaptive-testing)  
+   evidence：部分观测下的概率算子学习，不确定性预测
+7. [Learning the distance for ABC and localized neural posterior estimation](/202606/26/2606.22981v1-learning-the-distance-for-abc-and-localized-neural-posterior-estimation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：用于时间序列预测依赖的分布格兰杰因果框架
-6. [Online forecast reconciliation using linear models](/202606/25/2606.23326v1-online-forecast-reconciliation-using-linear-models)  
+   evidence：针对错误设定时间序列的自适应距离学习，优化预测性能
+8. [Hierarchical Bayes meets hierarchical forecasting: A flexible framework for level-focused forecasts](/202606/26/2606.23009v1-hierarchical-bayes-meets-hierarchical-forecasting-a-flexible-framework-for-level-focused-forecasts)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：预测调和与不确定性量化
-7. [RAVEN: A Regime-Aware Variable-context Expert Network for Financial Time Series Forecasting](/202606/25/2606.24062v1-raven-a-regime-aware-variable-context-expert-network-for-financial-time-series-forecasting)  
+   evidence：层次时间序列预测
+9. [Forecasting With LLMs: Improved Generalization Through Feature Steering](/202606/26/2606.27199v1-forecasting-with-llms-improved-generalization-through-feature-steering)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：针对金融时间序列预测中的低信噪比和非平稳性，与可预测性极限相关
-8. [Adapt Only When It Pays: Budgeted Decision-Loss Priority for Delayed Online Time-Series Adaptation](/202606/25/2606.25068v1-adapt-only-when-it-pays-budgeted-decision-loss-priority-for-delayed-online-time-series-adaptation)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：在线时间序列适应，预算更新策略涉及可预测性极限
-9. [Cellular Predictions on the Move: What about Data?](/202606/25/2606.25709v1-cellular-predictions-on-the-move-what-about-data)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：通过蜂窝负载预测人类移动性
+   evidence：使用LLM进行时间序列预测并分析特征引导
 
 
 <div class="dpr-home-promo-card">

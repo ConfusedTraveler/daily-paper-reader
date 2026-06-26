@@ -1,0 +1,359 @@
+Title: The Inference-Compute Frontier and a Latency-Efficient Architecture for Limit Order Book Prediction
+
+URL Source: https://arxiv.org/pdf/2606.25986v1
+
+Published Time: Thu, 25 Jun 2026 01:12:01 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# The Inference-Compute Frontier and a Latency-Efficient Architecture for Limit Order Book Prediction 
+
+## C. Evans Hedges 
+
+Independent Researcher New York, USA 
+
+Abstract 
+
+We study whether a scaling-law-style inference-compute frontier appears in limit order book prediction. Using FI-2010 and a suite of models ranging from small decision trees to neural LOB archi-tectures, we find that the realized empirical frontier of predictive loss versus structural forward work is well summarized by a power law. In particular, with MLPLOB held out as an architecture family, a power-law fit to the low- and mid-compute non-MLPLOB fron-tier extrapolates across multiple orders of magnitude and attains 
+
+𝑅 2 = 0.941 on the excluded high-compute MLPLOB target frontier. A similar exercise in latency space gives substantially weaker results, showing that latency is not merely noisy compute. We use this gap to motivate FastBiNLOB, a dense axis-separable LOB mixer built from hardware-friendly temporal and feature mixing operations. In a five-seed experiment, FastBiNLOB exceeds the published 𝑦 10 and 𝑦 100 macro-F1 targets at notably lower latency than existing published SOTA architectures. 
+
+1 Introduction 
+
+Limit order book (LOB) prediction is useful only when short-horizon forecasts are both accurate and fast enough to act on. A mid-price movement signal can lose value rapidly as the state of the LOB changes, so a model that improves benchmark accuracy may still be unattractive if it adds too much batch-one latency. This makes LOB prediction a natural setting for a capacity-allocation question: which forms of model complexity improve predictive power, and which merely increase serving cost? Scaling-law work in other domains shows that empirical perfor-mance frontiers can often be summarized by simple relationships between loss and compute or model scale. It is not clear a priori that the same kind of frontier should appear in LOB prediction. The benchmark is smaller, the predictors are heterogeneous, the inputs are highly structured market states, and deployment cares about latency rather than tunable parameter counts. Our first goal is therefore empirical: to test whether a scaling-law-style inference-compute frontier appears at all in FI-2010. We find such a frontier in FI-2010 limit order book prediction. On raw LOB40 features, a heterogeneous realized low- and mid-compute frontier across decision trees, histogram gradient boosting, CatBoost symmetric trees, and random-convolution logistic models is well summarized by a power law in structural forward work. When MLPLOB operating points are excluded from the fit, this frontier extrapolates across multiple orders of magnitude and at-tains 𝑅 2 = 0.941 on the excluded MLPLOB target frontier. The inferential target is the realized benchmark frontier, not a train-time model-selection rule or a claim that future test performance is predicted from training information alone. MLPLOB exclusion is an architecture-family holdout test of frontier regularity across model families and far outside the fit compute range. The result is a frontier statement, not a monotone claim about a single model family. Across W64, W128, and W256 MLPLOB targets, the all-operating-point score is 𝑅 2 = 0.838 , while the W64+W128 non-dominated subset gives 𝑅 2 = 0.948 . W256 is dominated in this run: it uses more work but does not improve loss. This is exactly the distinction a frontier should make. More compute expands the feasible set, but a particular architecture need not convert additional work into lower loss. Latency behaves differently. Replacing structural work with mea-sured latency gives a much weaker operating-point fit and reorders model families. In the matched CPU single-observation timing di-agnostic, the best latency-axis score is 𝑅 2 = 0.468 . Because this frontier is measured across model architectures with varying de-grees of computational efficiency, the latency axis measures pure implementation costs in terms of runtime rather than model capac-ity. This gap motivates FastBiNLOB. The design goal is to place use-ful LOB computation into dense, hardware-friendly temporal and feature mixing operations. In the full 144 feature lane, FastBiNLOB exceeds the published 𝑦 10 target at lower latency than the MLPLOB anchor (a median ∼ 23% decrease in single batch inference time), and its H120 taper variant exceeds the published 𝑦 100 target at lower latency than the TLOB anchor (a median ∼ 60% decrease) [ 2 ]. Under the published MLPLOB/TLOB comparison setting, the H120 taper variant posts selected-horizon SOTA FI-2010 macro-F1 scores on 
+
+𝑦 10 and 𝑦 100 , at notably lower latency. Overall, this paper makes two linked contributions. First, it gives evidence that structural forward work is a useful empirical capacity coordinate for heterogeneous LOB predictors on FI-2010. Second, it shows that measured latency is a separate design target, and introduces FastBiNLOB as an architecture that preserves the useful computation while reducing serving latency. 
+
+2 Background 
+
+Limit order book prediction is an event-time market microstructure problem. Queue state, depth, and order-flow imbalance determine the local supply-demand state of the book, while adverse selection and queue updates make latency central to whether a prediction is actionable [ 7, 12 , 14 , 17 ]. FI-2010 remains a standard public bench-mark, but its feature conventions, horizon labels, class balance, and reproduced rankings require careful reporting [3, 19, 20, 22]. LOB models have moved from classical classifiers and recur-rent networks to CNN/LSTM, bilinear-attention, Transformer, and MLP-style architectures [ 1, 2, 8 , 24 , 29 , 30 , 33 ]. Normalization is a recurring design issue because LOB inputs mix price-like and size-like coordinates under non-stationarity. DAIN and BiN provide finance-specific precedents for learned input normalization [ 21 , 30 ].       
+
+> arXiv:2606.25986v1 [cs.LG] 24 Jun 2026 C. Evans Hedges
+> lane features primary metric scaling raw LOB40 test cross-entropy deployment full 144 macro-F1, latency
+
+Table 1: Experimental lanes. The scaling lane uses CF1–CF9 and five horizons; the deployment lane uses 𝑊 = 128 , train days 1–7, and test days 8–10. 
+
+Scaling laws summarize empirical performance frontiers, but most examples are training-centric and within-family [ 9– 11 , 13 ]. Inference-aware and test-time-compute work is closer in spirit, but it usually studies large neural-model families rather than heteroge-neous financial predictors [ 15 , 23 , 25 ]. Our setting is different: we ask whether a compute-performance frontier is consistent and sta-ble enough across architecture families so that a realized low- and mid-compute LOB frontier can locate excluded neural operating points far outside the fit work range. Measured latency is a separate coordinate. FLOPs and opera-tion counts are useful scientific proxies, but systems and efficient-architecture work show that realized runtime also depends on arith-metic intensity, memory traffic, operator implementation, graph structure, compiler behavior, and target hardware [ 4–6, 18 , 26 , 31 ,32 ]. That distinction is the basis for treating structural work and latency as separate objects throughout the paper. 
+
+3 Experimental Setup 3.1 FI-2010 Tasks and Feature Sets 
+
+We use FI-2010 in two experimental lanes. The scaling lane uses NoAuction Z-score raw LOB40 features and test cross-entropy to study the inference-compute frontier. The deployment lane uses the full 144 FI-2010 feature set with train days 1–7 and test days 8–10, matching the MLPLOB/TLOB-style comparison protocol with macro-F1 and batch-one latency [ 2]. The lanes support the same compute/latency thesis, but they are not a direct feature-set com-parison. Code for reproducibility can be found at https://github.com/ evanshedges2/LOB_scaling_and_FastBiNLOB. 
+
+3.2 Tasks and Metrics 
+
+For each time index and horizon, the task is three-class mid-price movement prediction, 
+
+𝑌 𝑡,ℎ ∈ {− 1, 0, +1}.
+
+We report horizons as 𝑦 10 , 𝑦 20 , 𝑦 30 , 𝑦 50 , 𝑦 100 , corresponding to the original FI-2010 labels 𝑘 ∈ { 1, 2, 3, 5, 10 }. The primary scaling metric is three-class categorical cross-entropy, 
+
+𝐿 (𝑓 ) = − 1
+
+𝑛 
+
+> 𝑛
+
+∑︁ 
+
+> 𝑖 =1
+
+ln ˆ 𝑝 𝑓 (𝑦 𝑖 | 𝑥 𝑖 ).
+
+Here ˆ𝑝 𝑓 (𝑦 𝑖 | 𝑥 𝑖 ) is the predicted probability assigned to the realized label, so the metric is the average negative log-likelihood in nats. Unless validation cross-entropy is explicitly named, every occur-rence of 𝐿 (𝑓 ), 𝐿 ∗ (𝐶 ), 𝐿 (𝐶 ), and “loss” in the frontier analysis refers to held-out test cross-entropy. This is deliberate: the scaling lane studies the realized empirical benchmark frontier, not train-time model selection or prediction from training information alone. The               
+
+> family screened selected decision tree 27 9HGB 126 30 CatBoost 30 6random-conv. 811 EBM/MLP/TCN 51 0total 242 56
+
+Table 2: Screened and retained low/mid-compute configura-tions. The retained set is fixed across all cross-fold/horizon cells. 
+
+holdout axis is operating point and architecture family: MLPLOB rows are excluded from the non-MLPLOB frontier fit and scored only after the frontier has been estimated. In the deployment lane, the primary accuracy metric is macro-F1. This matches the public TLOB/MLPLOB implementation, which logs the sklearn classification-report macro-average F1 as its re-ported F1 score [ 2]. Additionally, we report batch-one latency under the timing harness described in Section 4.4, seeking to track relevant live inference costs rather than offline batched throughput. The final full 144 FastBiNLOB evaluation is a canonical five-seed deployment experiment. Each seed uses multi-task training over 
+
+𝑦 10 , 𝑦 20 , 𝑦 50 , and 𝑦 100 with logit-adjusted cross entropy using 𝜏 = 0.5,validation macro-F1 mean selection, per-horizon fine-tuning, and validation-tuned class-bias calibration. We report five-seed means and standard errors for the H96 mean and H120 taper operating points, measured against the published MLPLOB/TLOB macro-F1 targets, and for a latency comparison we follow the harness found in Section 4.4 which we additionally repeated for MLPLOB and TLOB. 
+
+3.3 Model Pools 
+
+The scaling experiment has a fit pool and a held-out neural target pool. The fit pool contains 2,520 non-MLPLOB rows: 56 config-urations in each of 45 cross-fold/horizon cells. It combines deci-sion trees, histogram gradient boosting, CatBoost symmetric trees, and random-convolution logistic models. The target pool contains W64, W128, and W256 MLPLOB rows, one per window/cross-fold/horizon cell, for 135 excluded target rows. No MLPLOB target row is used in any frontier fit. The 56 non-MLPLOB configurations are fixed across folds and horizons. They were selected from 833 CF1 discovery rows across five horizons, representing 212 distinct raw-LOB40 window/model configurations. Selection used validation cross-entropy normalized by the same-horizon class-prior loss, lower envelopes in structural-work/loss space, and pruning for compute-band and window cov-erage. The final set contains 9 decision-tree, 30 histogram-gradient-boosting, 6 CatBoost, and 11 random-convolution configurations, including an additional six small 𝑊 10 bridge models. Interestingly, although 51 variants of EBMs, small MLPs, and TCNs were screened, none performed sufficiently well for their implementation costs to attain the inference-compute frontier. DeepLOB-style rows were treated only as high-compute references and were excluded from the fit pool. Inference-Compute Frontier for Limit Order Books       
+
+> family counted costs decision tree fit path-depth comparisons plus leaf lookup HGB fit path-depth comparisons, lookup, and logit additions CatBoost symmetric-tree depth, vector leaf lookup, and logit additions random-conv. temporal dot products, pooling, standardization, linear head MLPLOB targets analytic embedding, feature mixer, temporal mixer, and head count
+
+Table 3: Structural-work accounting convention. Counts are architecture-level forward-work proxies, not hardware in-struction counts or latency measurements. 
+
+3.4 Structural Forward Work 
+
+For a model configuration 𝑓 , let ops (𝑓 ) denote a one-observation structural forward-work count. This is a reproducible capacity co-ordinate derived from model hyperparameters and architecture definitions. It is not a hardware instruction count and does not include memory traffic, cache behavior, branch prediction, vector-ization, Python or framework dispatch, or wall-clock latency. The counting convention is explicit. For tree models, we count the average number of split comparisons on the fit test traversal, plus one leaf lookup and one logit addition per tree. Thus a single decision tree has work 𝑑 path + 1, while an ensemble with 𝑇 trees has work Í𝑇 𝑡 =1 𝑑 𝑡 + 2𝑇 . For CatBoost symmetric trees, 𝑑 𝑡 is the symmetric-tree depth, computed as log 2 of the leaf count. Random-convolution logistic rows count temporal dot products, pooling comparisons and reductions, feature standardization, and the linear classifier head. If the random feature transformer has kernel lengths 
+
+ℓ𝑗 and response counts 𝑟 𝑗 = 𝑊 − ℓ𝑗 + 1, its counted work is ∑︁ 
+
+> 𝑗
+
+𝑟 𝑗 ℓ𝑗 +∑︁ 
+
+> 𝑗
+
+(2𝑟 𝑗 − 1) + 2𝐾 + 3𝐾, 
+
+where 𝐾 is the number of random features, 2𝐾 standardizes features, and 3𝐾 is the three-class linear head. The raw40 MLPLOB target uses the analytic mixer count 
+
+𝑊 𝐻 𝐹 + 𝐿  2𝑊 𝐻 2𝐸 + 2𝐻𝑊 2𝐸  + 𝐻 2 + 3𝐻, 
+
+for window 𝑊 , base feature count 𝐹 , hidden width 𝐻 , layer count 
+
+𝐿 , and expansion 𝐸 .
+
+architecture rows min median max decision tree 405 2 3 8histogram gradient boosting 1,350 120 528 7,680 
+
+CatBoost symmetric trees 270 7,848 12 ,276 24 ,576 
+
+random-convolution logistic 495 228 7,296 434 ,119 
+
+W64 MLPLOB target 45 6,555 ,360 6,555 ,360 6,555 ,360 
+
+W128 MLPLOB target 45 20 ,850 ,360 20 ,850 ,360 20 ,850 ,360 
+
+W256 MLPLOB target 45 73 ,402 ,080 73 ,402 ,080 73 ,402 ,080 
+
+3.5 Frontier Fitting 
+
+For a fixed cross-fold and horizon, let M be the set of low- and mid-compute model configurations. The realized lower envelope of test cross-entropy is 
+
+𝐿 ∗ (𝐶 ) = min {𝐿 (𝑓 ) : 𝑓 ∈ M , ops (𝑓 ) ≤ 𝐶 }.
+
+The frontier is empirical and finite. The fit curve is not used as a training-time selector; it tests whether realized non-MLPLOB frontier regularity locates excluded MLPLOB operating points in loss-compute space.                                    
+
+> diagnostic 𝑛 𝑅 2MAE RMSE within 0.05 all operating points 120 0.838 0.041 0.056 0.683 target frontier 42 0.941 0.026 0.032 0.857 W64+W128 80 0.948 0.024 0.030 0.875 W64 40 0.940 0.026 0.032 0.850 W128 40 0.955 0.021 0.028 0.900 W256 dominated 40 0.647 0.074 0.087 0.300
+
+Table 4: Excluded MLPLOB architecture-family holdout di-agnostics on CF2–CF9. All rows use the full non-MLPLOB structural-work frontier and the MSE power-law fit. The target-frontier row keeps only MLPLOB targets that improve the target-side lower envelope within the same fold and hori-zon. 
+
+We fit the power-law form 
+
+𝐿 (𝐶 ) = 𝐿 ∞ + 𝐴𝐶 −𝛼 
+
+to lower-envelope points. In implementation, we divide 𝐶 by the median fit-envelope structural-work value before nonlinear least squares; this is a numerical rescaling and only reparameterizes the amplitude. The reported power-law fit minimizes squared er-ror on those envelope points, with 𝐿 ∞ ≥ 0, 𝐴 ≥ 0, and 𝛼 ≥ 0.MLPLOB target rows are scored only after this fit is complete. The primary pooled architecture-family holdout score uses the full non-MLPLOB lower envelope on CF2–CF9, with all MLPLOB target rows excluded. CF1 is the smallest training fold, and the MLPLOB targets ap-pear data-limited there. We therefore use CF2–CF9 as the primary architecture-family holdout result and report CF1-inclusive rows as conservative diagnostics. Including CF1 weakens the scores but preserves the ordering between all targets, W64+W128, and the target frontier. 
+
+4 Inference-Compute Frontier Results 4.1 MLPLOB Architecture-Family Holdout 
+
+In this section, we find that the non-MLPLOB structural-work frontier extrapolates to excluded MLPLOB operating points. The MLPLOB target pool is an architecture-family holdout: W64, W128, and W256 MLPLOB rows are all excluded from the non-MLPLOB frontier fits and scored only afterward. On CF2–CF9, the target pool contributes 
+
+8 folds × 5 horizons × 3 sizes = 120 
+
+excluded rows across a structural-work range of 6.56 M to 73 .40 M. The fit non-MLPLOB frontier ends between 29 ,184 and 116 ,736 
+
+work units, so the MLPLOB target pool tests extrapolation from 
+
+56 × to 2,515 × beyond the fit range.             
+
+> target size rows structural work gap beyond fit range W64 40 6,555 ,360 56 ×–225 ×
+> W128 40 20 ,850 ,360 179 ×–714 ×
+> W256 40 73 ,402 ,080 629 ×–2,515 ×
+
+The main architecture-family holdout experiment scores the same non-MLPLOB curves against all 120 excluded MLPLOB targets. Table 4 separates the pointwise all-target question from the target-frontier question aligned with 𝐿 ∗ (𝐶 ).The target-frontier score is the main result: 𝑅 2 = 0.941 on the excluded MLPLOB frontier. The W64+W128 subset gives 𝑅 2 = 0.948 ,and the all-target score is 𝑅 2 = 0.838 . The difference comes from the C. Evans Hedges 0.2 0.3 0.4 0.5 0.6 0.7 0.8 
+
+Frontier-implied test cross-entropy   
+
+> 0.2
+> 0.3
+> 0.4
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> Observed test cross-entropy
+> W64 W128 W256
+> y10
+> y20
+> y30
+> y50
+> y100
+
+Figure 1: Excluded MLPLOB operating-point observed versus frontier-implied test cross-entropy. Frontier-implied losses are generated from the full non-MLPLOB structural-work frontier. Shapes distinguish W64, W128, and W256; colors distinguish target horizon. 
+
+lack of predictive power of the W256 variant. In CF2–CF9, W64 is on the target frontier in all 40 fold/horizon cells, W128 improves it in two cells, and W256 improves it in none. The residuals show the boundary directly: W64 averages 0.447 actual cross-entropy versus 
+
+0.470 frontier-implied, W128 averages 0.459 versus 0.445 , and W256 averages 0.493 versus 0.418 . Including CF1 slightly weakens the attained 𝑅 2 values, but preserves the ordering: 0.731 for all targets, 
+
+0.912 for W64+W128, and 0.934 for the target frontier. In Figure 2 we show examples of the fit power-law on CF7 and how it extrapolates to W128. 
+
+4.2 Compute Counting Definition Robustness Check 
+
+We recognize that our particular definition of inference compute operations is only one definition, and the true scaling law type relationship may rely on a different convention. To address this we run a robustness analysis where for 500 random samples, every architecture family receives an independent log-uniform multiplier in [1/2, 2] to scale the model family’s inference compute estimate. We then repeat the headline analysis, observing the extrapolative 
+
+𝑅 2 fitting a power-law to the low- and mid- compute frontier points and testing on the frontier-attaining MLPLOB datapoints. Our results prove robust to these 2× architecture-level perturba-tions on the CF1–CF9 target frontier. The target-frontier 𝑅 2 distri-bution is:          
+
+> statistic mean median 5–95% range min target-frontier 𝑅 20.888 0.900 0.770–0.951 0.698
+
+The target-frontier 𝑅 2 remains positive in all 500 draws. Thus the operating-point extrapolation is not an artifact of a single exact structural-work normalization. 0.2             
+
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Test cross-entropy (log-loss)
+> fit pts=21
+> gap=179x
+> CF7 y10: implied 0.332, actual 0.336
+> non-MLPLOB frontier
+> power-law fit
+> W128 frontier-implied
+> W128 actual
+> fit pts=23
+> gap=179x
+> CF7 y20: implied 0.530, actual 0.552
+> 10 110 210 310 410 510 610 7
+> Structural forward-work units
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Test cross-entropy (log-loss)
+> fit pts=21
+> gap=179x
+> CF7 y50: implied 0.364, actual 0.360
+> 10 110 210 310 410 510 610 7
+> Structural forward-work units
+> fit pts=16
+> gap=179x
+> CF7 y100: implied 0.248, actual 0.254
+
+CF7 structural-work power-law fits, all non-MLPLOB frontier 
+
+Figure 2: CF7 example of the full non-MLPLOB structural-work frontier. Each panel shows one horizon’s non-MLPLOB lower-envelope points, fit power-law curve, and W128 MLPLOB frontier-implied versus actual target test cross-entropy. 
+
+4.3 Retrospective Full-Frontier Fit 
+
+The full measured frontier has the same structure. After the hold-out exercise, we refit the power law to the entire realized lower envelope, including all W64, W128, and W256 MLPLOB points when they lie on it. This retrospective in-sample check gives test-cross-entropy 𝑅 2 = 0.902 over 971 frontier points, with 46 MLPLOB points on the envelope ( 44 W64 and 2 W128). The fold-level test-loss exponents are horizon-dependent:                     
+
+> horizon mean 𝛼 median 𝛼 range
+> 𝑦 10 0.045 0.044 0.035–0.052
+> 𝑦 20 0.027 0.026 0.021–0.033
+> 𝑦 30 0.045 0.046 0.037–0.051
+> 𝑦 50 0.065 0.065 0.054–0.071
+> 𝑦 100 0.094 0.095 0.077–0.101
+
+4.4 Latency Is Not Compute 
+
+In the context of LOB prediction, latency is not a suitable substitute for structural work. Using the same MLPLOB holdout structure, we replace work with measured latency and add no new training. The CPU-measured single-observation experiment reaches only 𝑅 2 =
+
+0.468 on held out MLPLOB observations. Additionally, latency is not simply noisy compute, with a notable reordering of architectures that can be seen in Figure 3. The architecture summaries show the reorder. CatBoost rows have median structural work 12 ,276 but median latency only 281 𝜇 s. Histogram gradient boosting has lower median structural work, 
+
+528 , but much higher median latency, 4.34 ms. W128 MLPLOB has 
+
+20 .85 M structural-work units but median CPU single-observation latency 1.20 ms. Inference-Compute Frontier for Limit Order Books 10 0 10 1 10 2 10 3 10 4 10 5 10 6 10 7
+
+> Structural forward-work units
+> 10 2
+> 10 3
+> 10 4
+> 10 5
+> CPU single-observation latency (us)
+> Structural work and CPU single-observation latency
+> decision tree
+> hist. gradient boosting
+> CatBoost symmetric trees
+> random-conv logistic
+> W128 MLPLOB
+
+Figure 3: Structural work and CPU single-observation latency reorder architecture families. The plot uses the matched configuration-level CPU single-observation timing diagnos-tic, with repeated CF/horizon rows collapsed to unique con-figurations. W128 MLPLOB has far more structural work than the low/mid pool, but lower CPU single-observation latency than several classical configurations. 
+
+5 FastBiNLOB 5.1 Role in the Paper 
+
+FastBiNLOB is a latency-oriented dense LOB mixer motivated by the gap between structural work and realized latency. Structural work identifies useful computation; the latency analysis shows that serving time depends on how that computation is arranged. The design problem is to put useful LOB computation into operators that run efficiently at batch one. The MLPLOB and TLOB baselines define the practical target [ 2]. MLPLOB is a strong non-attention architecture for FI-2010, while TLOB adds dual-axis attention. FastBiNLOB keeps their normal-ization and axis-mixing ideas, but removes attention maps, Q/K/V projections, softmax attention, and repeated layout changes around attention blocks. Most of its work is spent in dense temporal and feature MLPs. 
+
+5.2 Architecture 
+
+FastBiNLOB is a dense, axis-separable LOB mixer, with context from all-MLP and axis-separable mixing models [ 16 , 27 , 28 ]. The input is a full 144 FI-2010 window 
+
+𝑥 ∈ R144 ×128 ,
+
+where the first axis indexes LOB-derived features and the second axis indexes event-time history. The model first applies a simple BiN-style normalization, retained because FI-2010 features mix price-like and size-like quantities under non-stationarity [ 30 ]. The normalized tensor is then transposed to time-major form and lin-early embedded, 
+
+𝑧 0 = 𝑥 ⊤𝑊 in + 𝐸 time , 𝑧 0 ∈ R128 ×𝐻 ,
+
+where 𝐻 is the hidden width and 𝐸 time is a learned position-specific bias over the event-time axis.                                              
+
+> model dev. P50 P90 P95 P99 MLPLOB CPU 2101 2400 2509 2794 MLPLOB MPS 2834 3252 3369 3728 TLOB H16 CPU 22846 24727 25248 25897 TLOB H16 MPS 5089 7194 7725 8883 H96 mean CPU 1604 2002 2199 2985 H96 mean MPS 2634 3150 3371 3970 H120 taper CPU 2028 2599 2813 3266 H120 taper MPS 2124 2310 2396 2898
+
+Table 5: Batch-one latency percentiles, 𝜇 s. CPU and MPS use the same resident-model forward-plus-softmax hot-path protocol. The lower P50 hardware result for each model is bolded.                                              
+
+> model mean 𝑦 10 𝑦 20 𝑦 50 𝑦 100
+> published MLPLOB .8763 .8164 .8488 .9139 .9262
+> published TLOB .8677 .8155 .8268 .9003 .9281
+> H96 mean .8647 ±.0003 .8184 ±.0006 .8121 ±.0011 .9004 ±.0003 .9278 ±.0014
+> H120 taper .8678 ±.0008 .8215 ±.0011 .8158 ±.0013 .9035 ±.0006 .9306 ±.0005
+
+Table 6: Full 144 macro-F1 deployment results. FastBiNLOB entries report five-seed mean and standard error. H120 taper gives selected-horizon SOTA FI-2010 macro-F1 scores on 𝑦 10 
+
+and 𝑦 100 in the published MLPLOB/TLOB comparison setting [2]. 
+
+The core of the model is a short stack of residual axis-separable blocks. For hidden state 𝑧 ∈ R𝑇 ×𝐻 , one block applies 
+
+𝑧 ′ = 𝑧 + 𝐹 𝜃 (𝑧 ), 𝑧 out = 𝑧 ′ + 𝐺 𝜙 
+
+ (𝑧 ′)⊤ ⊤ .
+
+Here 𝐹 𝜃 is a feature-channel MLP applied independently at each time step, and 𝐺 𝜙 is a temporal MLP applied independently to each hidden channel. The feature update mixes embedded LOB coor-dinates; the temporal update mixes the 128 event-time positions. Each block therefore has global temporal receptive field without attention, and the forward graph is dominated by dense linear layers. Both variants use feature expansion 1, GELU activations, dropout 
+
+0.05 , no block LayerNorm, no final LayerNorm, and a hidden MLP head for each target horizon. H96 mean is the latency-oriented point: 𝐻 = 96 , two blocks, and temporal mean pooling. H120 taper is the performance-oriented point: 𝐻 = 120 , temporal expansion 10, and a learned taper reducer that summarizes recent and older event-time positions without pairwise attention weights. Although these architectural decisions allow for a much higher rate of computation, it does so at the cost of not perform content-adaptive pairwise token selection. A TLOB-style attention layer can choose which time steps or feature groups interact conditional on the current book state. FastBiNLOB instead uses fixed learned mixing matrices and nonlinear channel updates, trading adaptive attention for a lower-latency dense operator regime. 
+
+5.3 Experimental Results 
+
+The full 144 evaluation uses train days 1–7, test days 8–10, win-dow 𝑊 = 128 , and horizons 𝑦 10 , 𝑦 20 , 𝑦 50 , and 𝑦 100 . The published TLOB/MLPLOB table reports a single F1 column [ 2 ]; the public im-plementation logs it as sklearn classification-report macro-average F1. We therefore use macro-F1 as the deployment metric. The five-seed run gives two operating points: H96 mean for latency and H120 taper for selected-horizon performance. C. Evans Hedges                           
+
+> full 144 LOB window
+> 144 ×128
+> SimpleBiN normalization
+> time-major embed
+> 144 →𝐻
+> +𝐸 time
+> 𝑧 0
+> 128 ×𝐻
+> feature MLP per time step
+> 𝐻 →𝐻𝑒 𝑓 →𝐻
+> residual add
+> 𝑧 ′=𝑧 +𝐹 𝜃 (𝑧 )
+> temporal MLP per hidden channel
+> 128 →128 𝑒 𝑡 →128
+> residual add
+> 𝑧 out =𝑧 ′+𝐺 𝜙 (𝑧 ′)
+> FastBiN block, repeated twice
+> two-block sequence
+> temporal reducer mean or taper
+> target logits one head per horizon
+
+Figure 4: FastBiNLOB architecture overview. The model applies BiN-style normalization, embeds the time-major LOB window, runs two residual axis-separable blocks, reduces the temporal axis, and uses separate prediction heads for each horizon. 
+
+For selected horizons, FastBiNLOB improves the accuracy/latency tradeoff. H96 and H120 both beat the published 𝑦 10 macro-F1 target set by MLPLOB at lower latency: H96 by 23 .7% and H120 by 3.5%.H120 also beats the published 𝑦 100 macro-F1 target set by TLOB at 60 .1% lower latency. Under the published comparison setting, H120 posts the highest reported FI-2010 macro-F1 scores on 𝑦 10 
+
+and 𝑦 100 . We do not claim universal SOTA performance, as FastBiN-LOB underperforms relative to MLPLOB/TLOB on the 𝑦 20 and 𝑦 50 
+
+targets. The latency audit uses 10 ,000 timed single-observation calls after 
+
+256 warmup rows on the CF8 test split, with the model and input tensor resident on the target device. The timed path is forward-only plus softmax; it excludes feature preprocessing and data transfer. Measurements use a MacBook Pro (Mac15,8) with Apple M3 Max, 16 CPU cores, 128GB RAM, macOS 26.5.1 on Darwin arm64, Python 3.12.2, PyTorch 2.12.0, eager FP32 execution, and CPU/MPS back-ends. PyTorch uses 12 intra-op threads and 16 inter-op threads, with a 1ms inter-call delay. The comparison uses the lower P50 over CPU and MPS for each model: 2101 𝜇 s for MLPLOB on CPU and 
+
+5089 𝜇 s for TLOB H16 on MPS. 
+
+6 Conclusion 
+
+The above FI-2010 results show a finite realized empirical fron-tier between inference work and predictive loss. On raw LOB40 features, the non-MLPLOB frontier extrapolates to the excluded MLPLOB target frontier with 𝑅 2 = 0.941 . The W64+W128 subset gives 𝑅 2 = 0.948 , and the full target pool gives 𝑅 2 = 0.838 . W256 is dominated in this run, which makes the frontier interpretation explicit: increasing compute expands the feasible set, but an individ-ual architecture need not convert additional work into lower loss. The result supports the central claim of the paper: a realized empir-ical inference-compute frontier can be defined and tested for LOB prediction, and the MLPLOB exclusion provides architecture-family holdout evidence for its regularity. Full-frontier retrospective fits remain strong, and the family-level work perturbation robustness check suggests the relationship is not merely an artifact of the specific computation count definition used in this paper. However, latency gives a weaker frontier, reorders model fami-lies, and depends on how computation is arranged under a concrete runtime. FastBiNLOB is the constructive response: it spends compu-tation in dense axis-separable temporal and feature mixing rather than in operators that are expensive at batch one. In the full 144 deployment lane, H96 and H120 exceed the published 𝑦 10 macro-F1 target at lower latency than MLPLOB, and H120 exceeds the pub-lished 𝑦 100 target at notably lower latency than TLOB. Under the MLPLOB/TLOB comparison setting, H120 posts selected-horizon SOTA FI-2010 macro-F1 on 𝑦 10 and 𝑦 100 , and however does not attain SOTA results across reported horizons. The scope of these claims is empirical. The frontier is finite and should not be read as a theorem about Bayes risk or the optimum over all model classes, markets, and datasets. Structural forward-work units are a reproducible convention rather than a hardware instruction count, although the current CF1–CF9 target-frontier re-sult remains stable under a 2× family-level work perturbation. The raw LOB40 scaling lane and the full 144 FastBiNLOB deployment lane support the same compute/latency thesis, but they use different feature sets and should not be collapsed into one direct feature-set comparison. Likewise, single-observation latency is hardware- and implementation-dependent, and the FastBiNLOB result is a recipe-plus-architecture result rather than an architecture-only ablation. The practical implication is that model capacity and serving la-tency should be optimized as separate objects in LOB prediction. Scaling-law fits can identify whether useful computation exists, but they do not say whether that computation will be cheap to serve. FastBiNLOB gives one answer: place useful temporal and feature mixing in dense operations that the serving runtime executes effi-ciently. More broadly, the results suggest that latency-efficient LOB modeling should be designed around where the computation sits, not only how much computation is counted. 
+
+References       
+
+> [1] Leonardo Berti et al .2024. HLOB – Information Persistence and Structure in Limit Order Books. arXiv preprint arXiv:2405.18938 (2024). arXiv:2405.18938 [2] Leonardo Berti and Gjergji Kasneci. 2025. TLOB: A Novel Transformer Model with Dual Attention for Stock Price Trend Prediction with Limit Order Book
+
+Inference-Compute Frontier for Limit Order Books 
+
+Data. arXiv preprint arXiv:2502.15757 (2025). arXiv:2502.15757 [3] Antonio Briola, Silvia Bartolucci, and Tomaso Aste. 2024. Deep Limit Order Book Forecasting. arXiv preprint arXiv:2403.09267 (2024). arXiv:2403.09267 [4] Han Cai, Chuang Gan, Tianzhe Wang, Zhekai Zhang, and Song Han. 2020. Once for All: Train One Network and Specialize it for Efficient Deployment. In 
+
+International Conference on Learning Representations .[5] Han Cai, Ligeng Zhu, and Song Han. 2019. ProxylessNAS: Direct Neural Ar-chitecture Search on Target Task and Hardware. In International Conference on Learning Representations .[6] Tianqi Chen, Thierry Moreau, Ziheng Jiang, Haichen Shen, Eddie Yan, Leyuan Wang, Yuwei Hu, Luis Ceze, Carlos Guestrin, and Arvind Krishnamurthy. 2018. TVM: An Automated End-to-End Optimizing Compiler for Deep Learning. In 13th USENIX Symposium on Operating Systems Design and Implementation . 578–594. [7] Rama Cont, Arseniy Kukanov, and Sasha Stoikov. 2014. The Price Impact of Order Book Events. Journal of Financial Econometrics 12, 1 (2014), 47–88. [8] Matthew F. Dixon. 2018. Sequence Classification of the Limit Order Book using Recurrent Neural Networks. Journal of Computational Science 24 (2018), 277–286. arXiv:1707.05642 doi:10.1016/j.jocs.2017.08.018 [9] Thomas D. P. Edwards et al . 2024. Scaling-laws for Large Time-series Models. 
+
+arXiv preprint arXiv:2405.13867 (2024). arXiv:2405.13867 [10] Tom Henighan, Jared Kaplan, Mor Katz, Mark Chen, Christopher Hesse, Ja-cob Jackson, Heewoo Jun, Tom B. Brown, Prafulla Dhariwal, Scott Gray, et al .2020. Scaling Laws for Autoregressive Generative Modeling. arXiv preprint arXiv:2010.14701 (2020). arXiv:2010.14701 [11] Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl, Aidan Clark, et al . 2022. Training Compute-Optimal Large Language Models. arXiv preprint arXiv:2203.15556 (2022). arXiv:2203.15556 [12] Weibing Huang, Charles-Albert Lehalle, and Mathieu Rosenbaum. 2015. Sim-ulating and Analyzing Order Book Data: The Queue-Reactive Model. J. Amer. Statist. Assoc. 110, 509 (2015), 107–122. doi:10.1080/01621459.2014.982278 [13] Jared Kaplan, Sam McCandlish, Tom Henighan, Tom B. Brown, Benjamin Chess, Rewon Child, Scott Gray, Alec Radford, Jeffrey Wu, and Dario Amodei. 2020. Scaling Laws for Neural Language Models. arXiv preprint arXiv:2001.08361 (2020). arXiv:2001.08361 [14] Petter N. Kolm, Jeremy Turiel, and Nicholas Westray. 2023. Deep Order Flow Imbalance: Extracting Alpha at Multiple Horizons from the Limit Order Book. 
+
+Mathematical Finance 33, 4 (2023), 1044–1081. doi:10.1111/mafi.12413 [15] Noam Levi. 2024. A Simple Model of Inference Scaling Laws. arXiv preprint arXiv:2410.16377 (2024). arXiv:2410.16377 [16] Hanxiao Liu, Zihang Dai, David R. So, and Quoc V. Le. 2021. Pay Attention to MLPs. arXiv preprint arXiv:2105.08050 (2021). arXiv:2105.08050 [17] Lorenzo Lucchese, Mikko S. Pakkanen, and Almut E. D. Veraart. 2024. The Short-Term Predictability of Returns in Order Book Markets: A Deep Learn-ing Perspective. International Journal of Forecasting 40, 4 (2024), 1587–1621. arXiv:2211.13777 doi:10.1016/j.ijforecast.2024.02.001 [18] Ningning Ma, Xiangyu Zhang, Hai-Tao Zheng, and Jian Sun. 2018. ShuffleNet V2: Practical Guidelines for Efficient CNN Architecture Design. In Proceedings of the European Conference on Computer Vision . 116–131. [19] Adamantios Ntakaris, Martin Magris, Juho Kanniainen, Moncef Gabbouj, and Alexandros Iosifidis. 2017. Benchmark Dataset for Mid-Price Forecasting of Limit Order Book Data with Machine Learning Methods. http://urn.fi/urn:nbn:fi:csc-kata20170601153214969115. N/A. [20] Adamantios Ntakaris, Martin Magris, Juho Kanniainen, Moncef Gabbouj, and Alexandros Iosifidis. 2018. Benchmark Dataset for Mid-Price Forecasting of Limit Order Book Data with Machine Learning Methods. Journal of Forecasting 37, 8 (2018), 852–866. arXiv:1705.03233 doi:10.1002/for.2543 [21] Nikolaos Passalis, Anastasios Tefas, Juho Kanniainen, Moncef Gabbouj, and Alexandros Iosifidis. 2020. Deep Adaptive Input Normalization for Time Series Forecasting. IEEE Transactions on Neural Networks and Learning Systems 31, 9 (2020), 3760–3765. arXiv:1902.07892 [22] Matteo Prata, Giuseppe Masi, Leonardo Berti, Viviana Arrigoni, Andrea Coletta, Irene Cannistraci, Svitlana Vyetrenko, Paola Velardi, and Novella Bartolini. 2024. LOB-based Deep Learning Models for Stock Price Trend Prediction: A Benchmark Study. Artificial Intelligence Review 57 (2024), 116. doi:10.1007/s10462-024-10715-4[23] Nikhil Sardana, Jacob Portes, Sasha Doubov, and Jonathan Frankle. 2024. Beyond Chinchilla-Optimal: Accounting for Inference in Language Model Scaling Laws. 
+
+arXiv preprint arXiv:2401.00448 (2024). arXiv:2401.00448 [24] Justin A. Sirignano. 2019. Deep Learning for Limit Order Books. Quantitative Fi-nance 19, 4 (2019), 549–570. arXiv:1601.01987 doi:10.1080/14697688.2018.1546053 [25] Charlie Snell, Jaehoon Lee, Kelvin Xu, and Aviral Kumar. 2024. Scaling LLM Test-Time Compute Optimally Can Be More Effective than Scaling Model Parameters. 
+
+arXiv preprint arXiv:2408.03314 (2024). arXiv:2408.03314 [26] Mingxing Tan, Bo Chen, Ruoming Pang, Vijay Vasudevan, Mark Sandler, Andrew Howard, and Quoc V. Le. 2019. MnasNet: Platform-Aware Neural Architecture Search for Mobile. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition .[27] Ilya Tolstikhin, Neil Houlsby, Alexander Kolesnikov, Lucas Beyer, Xiaohua Zhai, Thomas Unterthiner, Jessica Yung, Andreas Steiner, Daniel Keysers, Jakob Uszko-reit, et al . 2021. MLP-Mixer: An All-MLP Architecture for Vision. Advances in Neural Information Processing Systems 34 (2021). [28] Hugo Touvron, Piotr Bojanowski, Mathilde Caron, Matthieu Cord, Alaaeldin El-Nouby, Edouard Grave, Gautier Izacard, Armand Joulin, Gabriel Synnaeve, Jakob Verbeek, and Hervé Jégou. 2021. ResMLP: Feedforward Networks for Image Classification with Data-Efficient Training. arXiv preprint arXiv:2105.03404 (2021). arXiv:2105.03404 [29] Dat Thanh Tran, Alexandros Iosifidis, Juho Kanniainen, and Moncef Gabbouj. 2019. Temporal Attention Augmented Bilinear Network for Financial Time-Series Data Analysis. IEEE Transactions on Neural Networks and Learning Systems 
+
+30, 5 (2019), 1407–1418. doi:10.1109/TNNLS.2018.2869225 [30] Dat Thanh Tran, Juho Kanniainen, Moncef Gabbouj, and Alexandros Iosifidis. 2021. Bilinear Input Normalization for Neural Networks in Financial Forecasting. 
+
+arXiv preprint arXiv:2109.00983 (2021). arXiv:2109.00983 [31] Samuel Williams, Andrew Waterman, and David Patterson. 2009. Roofline: An Insightful Visual Performance Model for Multicore Architectures. Commun. ACM 52, 4 (2009), 65–76. [32] Bichen Wu, Xiaoliang Dai, Peizhao Zhang, Yanghan Wang, Fei Sun, Yiming Wu, Yuandong Tian, Peter Vajda, Yangqing Jia, and Kurt Keutzer. 2019. FBNet: Hardware-Aware Efficient ConvNet Design via Differentiable Neural Architec-ture Search. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition . 10734–10742. [33] Zihao Zhang, Stefan Zohren, and Stephen Roberts. 2019. DeepLOB: Deep Con-volutional Neural Networks for Limit Order Books. IEEE Transactions on Signal Processing 67, 11 (2019), 3001–3012. arXiv:1808.03668

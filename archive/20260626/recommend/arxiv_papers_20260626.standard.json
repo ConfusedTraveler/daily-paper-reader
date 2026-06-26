@@ -1,0 +1,466 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-26T20:44:59.235997+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 9,
+    "quick_skim_target": 11,
+    "quick_selected": 9
+  },
+  "deep_dive": [
+    {
+      "id": "2606.25986v1",
+      "source": "arxiv",
+      "title": "The Inference-Compute Frontier and a Latency-Efficient Architecture for Limit Order Book Prediction",
+      "abstract": "We study whether a scaling-law-style inference-compute frontier appears in limit order book prediction. Using FI-2010 and a suite of models ranging from small decision trees to neural LOB architectures, we find that the realized empirical frontier of predictive loss versus structural forward work is well summarized by a power law. In particular, with MLPLOB held out as an architecture family, a power-law fit to the low- and mid-compute non-MLPLOB frontier extrapolates across multiple orders of magnitude and attains $R^2=0.941$ on the excluded high-compute MLPLOB target frontier.   A similar exercise in latency space gives substantially weaker results, showing that latency is not merely noisy compute. We use this gap to motivate FastBiNLOB, a dense axis-separable LOB mixer built from hardware-friendly temporal and feature mixing operations. In a five-seed experiment, FastBiNLOB exceeds the published $y_{10}$ and $y_{100}$ macro-F1 targets at notably lower latency than existing published SOTA architectures.",
+      "authors": [
+        "C. Evans Hedges"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "q-fin.ST",
+        "q-fin.TR"
+      ],
+      "published": "2026-06-24T15:54:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.25986v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "studies inference-compute frontier and limits of predictive loss in limit order book prediction",
+      "llm_evidence_cn": "研究限价订单簿预测中的推断-计算前沿和预测损失极限",
+      "llm_evidence": "研究限价订单簿预测中的推断-计算前沿和预测损失极限",
+      "canonical_evidence": "研究限价订单簿预测中的推断-计算前沿和预测损失极限",
+      "llm_tldr_en": "Finds a power-law frontier between compute and predictive loss in LOB prediction, and uses this to motivate a latency-efficient architecture.",
+      "llm_tldr_cn": "该论文在限价订单簿预测中发现预测损失与计算量之间存在幂律前沿（类似于缩放定律），并利用这一间隙设计了延迟高效的架构，揭示了计算资源对预测性能的极限影响。",
+      "llm_tldr": "该论文在限价订单簿预测中发现预测损失与计算量之间存在幂律前沿（类似于缩放定律），并利用这一间隙设计了延迟高效的架构，揭示了计算资源对预测性能的极限影响。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.26487v1",
+      "source": "arxiv",
+      "title": "Speaking Numbers to LLMs: Multi-Wavelet Number Embeddings for Time Series Forecasting",
+      "abstract": "Large language models (LLMs) are attractive for context-aware time series forecasting because they can integrate heterogeneous textual signals, yet their discrete, language-oriented tokenization and embedding interfaces are misaligned with continuous numerical values, often harming numerical ordering and forecasting reliability. We propose TempoWave, a plug-and-play temporal wavelet digit interface that maps each scalar observation into digit-wise embeddings constructed from multi-wavelet, multi-scale coefficients. By directly overriding standard token representations, TempoWave seamlessly exposes both fine-grained local fluctuations and macro global structures in a transformer-compatible form, ensuring that precise numerical formatting, distinct digit identity, and robustness to common normalization operations are maintained throughout the LLM pipeline. Experiments across five context-enriched forecasting benchmarks demonstrate that TempoWave consistently improves LLM-based forecasters over standard numeric tokenization and alternative embedding interfaces, achieving a new state-of-the-art. These results highlight the numeric interface as a key bottleneck and suggest that principled multi-resolution embeddings can better couple LLMs' contextual reasoning with precise forecasting. Our code is available at https://github.com/DC-research/TempoWAVE and our model can be accessed at https://huggingface.co/Melady/TempoWAVE.",
+      "authors": [
+        "Defu Cao",
+        "Zijie Lei",
+        "Muyan Weng",
+        "Jiao Sun",
+        "Yan Liu"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2026-06-25T00:44:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.26487v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "improves time series forecasting reliability with wavelet embeddings",
+      "llm_evidence_cn": "通过小波嵌入提升时间序列预测可靠性",
+      "llm_evidence": "通过小波嵌入提升时间序列预测可靠性",
+      "canonical_evidence": "通过小波嵌入提升时间序列预测可靠性",
+      "llm_tldr_en": "Proposes TempoWave, a plug-and-play wavelet digit interface for LLMs that converts time series into digit-wise multi-wavelet embeddings, improving forecasting reliability and numerical ordering compared to standard tokenization.",
+      "llm_tldr_cn": "现有大语言模型在时间序列预测中因离散词元接口无法保留数值顺序和预测可靠性。本文提出TempoWave数字接口，将每个标量观测映射为基于多小波多尺度系数的按位嵌入，直接替换标准词元表示，在Transformer兼容形式下同时捕获局部波动和宏观结构。实验表明该方法显著提升了时间序列预测的准确性和数值排序保真度，为LLM驱动的时序预测提供了有效的数值对齐方案。",
+      "llm_tldr": "现有大语言模型在时间序列预测中因离散词元接口无法保留数值顺序和预测可靠性。本文提出TempoWave数字接口，将每个标量观测映射为基于多小波多尺度系数的按位嵌入，直接替换标准词元表示，在Transformer兼容形式下同时捕获局部波动和宏观结构。实验表明该方法显著提升了时间序列预测的准确性和数值排序保真度，为LLM驱动的时序预测提供了有效的数值对齐方案。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.27282v1",
+      "source": "arxiv",
+      "title": "How Good Can Linear Models Be for Time-Series Forecasting?",
+      "abstract": "Time-series forecasting research has been moving steadily toward larger architectures, from specialized transformers to general-purpose foundation models, on the assumption that capacity is what unlocks accuracy. We take the opposite position: most of the gap can be closed at far lower cost by tuning preprocessing rather than scaling models. We use Ridge regression as the testbed, since it has a closed-form solution and interpretable weights, which let the optimal hyperparameters be read off the search directly. We search over context length, local normalization, regularization, and augmentation on eight standard benchmarks and find three patterns. (1) Optimal lookback is strongly series-specific and often non-monotonic in forecast horizon, with fitted power-law exponents ranging from $+0.46$ on ETTm2 to $-0.19$ on Exchange and Traffic, challenging the convention that longer horizons need longer history. (2) Normalizing over a learned trailing fraction of the context, rather than its entirety, is almost universally preferred. (3) Series within the same dataset often disagree on hyperparameters; the optimal degree of cross-series sharing varies from fully shared to fully per-series. The resulting models beat prior linear forecasters on most dataset-horizon entries and exceed Transformer, MLP, and CNN baselines on six of eight benchmarks. The optimized hyperparameters also serve as a diagnostic on the data itself, revealing structures that larger models absorb silently into their learned parameters.",
+      "authors": [
+        "Lang Huang",
+        "Jinglue Xu",
+        "Luke Darlow"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-25T16:57:50+00:00",
+      "link": "https://arxiv.org/pdf/2606.27282v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "investigates performance limits of linear models for time series forecasting",
+      "llm_evidence_cn": "研究线性模型在时间序列预测中的性能极限",
+      "llm_evidence": "研究线性模型在时间序列预测中的性能极限",
+      "canonical_evidence": "研究线性模型在时间序列预测中的性能极限",
+      "llm_tldr_en": "This paper shows that linear models with careful preprocessing can achieve forecasting accuracy close to large models, quantifying the limits of simple models.",
+      "llm_tldr_cn": "该论文通过大量实验表明，通过精心选择预处理（如上下文长度、归一化），岭回归等线性模型在时间序列预测上可以达到与大型模型接近的准确率。它量化了线性模型在标准基准上的性能极限，并揭示了最优回看长度的幂律规律，直接贡献于量化时间序列预测的可预测性。",
+      "llm_tldr": "该论文通过大量实验表明，通过精心选择预处理（如上下文长度、归一化），岭回归等线性模型在时间序列预测上可以达到与大型模型接近的准确率。它量化了线性模型在标准基准上的性能极限，并揭示了最优回看长度的幂律规律，直接贡献于量化时间序列预测的可预测性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.22030v1",
+      "source": "arxiv",
+      "title": "Nous: A Predictive World Model for Long-Term Agent Memory",
+      "abstract": "We present Nous, a novel agent memory architecture grounded in the principle that knowledge is prediction, not storage. Rather than persisting facts as database records, vector embeddings, or knowledge-graph triples, Nous maintains a predictive world model: a collection of categorical probability distributions, called dimensions, one per entity-attribute pair observed in conversation. Each incoming observation is scored by its information-theoretic surprise S = -log2 P(obs | D), and the distribution is updated via a closed-form Bayesian posterior. The primary stored artifact is the delta, a record of the shift from prior to posterior belief, rather than the fact itself. Forgetting emerges naturally as entropy decay toward the uniform distribution, and identity resolution is handled through mutual information between entity dimension sets. Evaluated on the LoCoMo long-term conversational memory benchmark across ten conversations (1,540 questions) using GPT-4o-mini as backbone, Nous achieves F1 of 63.50 (single-hop), 55.32 (multi-hop), 58.57 (temporal), and 62.50 (open-domain). Against A-MEM's self-reported GPT-4o-mini numbers, Nous shows substantial gains in three of four categories, though we note that independent citations of A-MEM's results disagree with each other on category assignment, a reproducibility issue we discuss openly rather than resolve unilaterally. We additionally compare against BeliefMem, a concurrently developed system built on the same core premise of belief-based rather than deterministic memory; on the same benchmark and backbone, Nous's self-reported numbers exceed BeliefMem's self-reported numbers on all four categories, though we flag several uncontrolled differences between the two evaluation pipelines that prevent this from being a fully controlled comparison. Nous requires no external vector database or graph engine.",
+      "authors": [
+        "Pranav Singh"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2026-06-20T13:07:00+00:00",
+      "link": "https://arxiv.org/pdf/2606.22030v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "predictive world model with information-theoretic surprise for predictability",
+      "llm_evidence_cn": "利用信息论惊喜度进行可预测性评估的预测世界模型",
+      "llm_evidence": "利用信息论惊喜度进行可预测性评估的预测世界模型",
+      "canonical_evidence": "利用信息论惊喜度进行可预测性评估的预测世界模型",
+      "llm_tldr_en": "Proposes a memory architecture using predictive world model with Bayesian updates and information-theoretic surprise to quantify predictability of observations.",
+      "llm_tldr_cn": "该论文提出Nous智能体记忆架构，基于“知识即预测”理念，为每个实体属性对维护一个概率分布，用信息论惊喜度（-log2 P）量化观测的可预测性，并通过贝叶斯后验更新。该方法将预测不确定性作为核心，为理论可预测性分析提供了可计算框架，在对话代理任务中表现优异。",
+      "llm_tldr": "该论文提出Nous智能体记忆架构，基于“知识即预测”理念，为每个实体属性对维护一个概率分布，用信息论惊喜度（-log2 P）量化观测的可预测性，并通过贝叶斯后验更新。该方法将预测不确定性作为核心，为理论可预测性分析提供了可计算框架，在对话代理任务中表现优异。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.21356v1",
+      "source": "arxiv",
+      "title": "SOHET: Sequence Of Heterogeneous Events Transformer with Self-Supervised Pre-Training",
+      "abstract": "Many machine learning applications rely on heterogeneous event streams to make predictions, either causally as events arrive or bidirectionally over complete sequences. We propose SOHET (Sequence Of Heterogeneous Events Transformer), a hierarchical architecture combining event-type-specific tabular encoders with temporal and type embeddings, processed by a causal or bidirectional transformer. We introduce three self-supervised pre-training objectives for the causal setting. On a proprietary large-scale real-world Booking.com fraud detection task with 17 event types, SOHET outperforms FlexTPP, NAPPT, and CIPPT by 5.8%. Pre-training yields an additional 2.6% gain and 2.4% faster convergence. On the EBES benchmark, bidirectional SOHET matches or exceeds the published best on 6 out of 8 tasks.",
+      "authors": [
+        "Kees Jan de Vries",
+        "Mustafa Radha",
+        "Mathijs de Jong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-19T11:56:46+00:00",
+      "link": "https://arxiv.org/pdf/2606.21356v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "sequential event prediction method applicable to sequential recommendation",
+      "llm_evidence_cn": "序列事件预测方法可应用于序列推荐",
+      "llm_evidence": "序列事件预测方法可应用于序列推荐",
+      "canonical_evidence": "序列事件预测方法可应用于序列推荐",
+      "llm_tldr_en": "Proposes a transformer architecture for heterogeneous event sequences with self-supervised pre-training, achieving significant gains on real-world tasks.",
+      "llm_tldr_cn": "针对异质事件序列预测，提出SOHET架构，结合事件类型编码器和时序嵌入，采用因果或双向Transformer，并引入三种自监督预训练目标。在Booking.com大规模欺诈检测任务上，SOHET相比现有方法提升5.8%，预训练额外提升2.6%。该方法可推广至序列推荐中的用户行为预测，为序列预测提供了通用框架。",
+      "llm_tldr": "针对异质事件序列预测，提出SOHET架构，结合事件类型编码器和时序嵌入，采用因果或双向Transformer，并引入三种自监督预训练目标。在Booking.com大规模欺诈检测任务上，SOHET相比现有方法提升5.8%，预训练额外提升2.6%。该方法可推广至序列推荐中的用户行为预测，为序列预测提供了通用框架。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.23425v1",
+      "source": "arxiv",
+      "title": "Interpretable Kolmogorov-Arnold Network with Feature-Isolated Temporal Attention Mechanism for Electricity Load Forecasting",
+      "abstract": "Accurate electricity load forecasting is a crucial prerequisite for stable power system operations. While prevalent deep learning models present competitive performance, they often operate as black boxes and lack interpretability. While the Kolmogorov-Arnold network (KAN) has emerged as a promising alternative because of its learnable activation function design, its direct application to time-series forecasting faces challenges in modeling complex temporal data patterns. Also, simple integration into existing architectures, such as serving as replacement of neural modules, cannot fully leverage KAN's interpretability strengths. To address these gaps, this study develops LoadKAN, a novel hybrid and interpretable framework for load forecasting that synergistically combines a specifically-designed feature-isolated temporal attention mechanism with a KAN module. The attention stage aims to extract temporal dynamics from each input feature independently, such as historical load and human mobility, providing distilled feature representations to the KAN module for interpretable predictions. When evaluated on datasets from three representative U.S. electricity markets, our LoadKAN remains highly competitive when compared to extensively-tuned, state-of-the-art, black-box deep learning benchmarks. More importantly, LoadKAN's interpretability enables a granular analysis of the learned non-linear relationships between six distinct mobility patterns and electricity load. Through KAN-learned activation functions, our quantitative sensitivity analyses on mobility features reveal complex and market-specific dependencies. These findings further demonstrate the ability of our LoadKAN to generate insights often obscured by opaque black-box neural forecasting models.",
+      "authors": [
+        "Jinhao Li",
+        "Hao Wang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.CE",
+        "cs.SC"
+      ],
+      "published": "2026-06-22T14:46:16+00:00",
+      "link": "https://arxiv.org/pdf/2606.23425v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proposes interpretable KAN for electricity load forecasting, a time series prediction task",
+      "llm_evidence_cn": "提出可解释KAN用于电力负荷预测，属于时间序列预测",
+      "llm_evidence": "提出可解释KAN用于电力负荷预测，属于时间序列预测",
+      "canonical_evidence": "提出可解释KAN用于电力负荷预测，属于时间序列预测",
+      "llm_tldr_en": "Develops LoadKAN, a hybrid KAN with feature-isolated temporal attention for interpretable electricity load forecasting.",
+      "llm_tldr_cn": "该论文开发了LoadKAN模型，结合Kolmogorov-Arnold网络与特征隔离时间注意力机制，在保持高预测精度的同时增强可解释性，解决了深度学习黑箱问题。",
+      "llm_tldr": "该论文开发了LoadKAN模型，结合Kolmogorov-Arnold网络与特征隔离时间注意力机制，在保持高预测精度的同时增强可解释性，解决了深度学习黑箱问题。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.22126v1",
+      "source": "arxiv",
+      "title": "From Recognition to Understanding: Unlocking Cognitive Time Series Reasoning with LLMs",
+      "abstract": "Time series analysis has recently been coupled with Large Language Models (LLMs) to leverage their reasoning and world knowledge capabilities, yet gains remain limited. We attribute this to a fundamental mismatch between existing task formulations and LLM strengths: most settings reduce time series understanding to curve-fitting systems, focusing on low-level prediction while ignoring the semantic, contextual, and reasoning-intensive nature of real-world temporal decision-making.To address these limitations, we introduce TSCognition, a multimodal benchmark for multi-dimensional time series reasoning. It collects real-world time series and textual information from 15 public sources and constructs approximately 41K QA samples around five cognitive reasoning tasks: Decoding, Grounding, Inferring, Extrapolating, and Acting. Building on this, we further propose TSAlign, a unified framework that encodes time series into compact patch-level representations and aligns them with semantic directions in the LLM embedding space via gated residual injection and multivariate fusion.Experiments show that TSAlign outperforms existing LLM, VLM, and time series QA baselines on TSCognition and the publicly available TimerBed benchmark while substantially reducing computational cost.Code is available at: [https://github.com/EIT-NLP/CognitiveTSR](https://github.com/EIT-NLP/CognitiveTSR)",
+      "authors": [
+        "Xin Qiu",
+        "Junlong Tong",
+        "Yao Zhang",
+        "Yunpu Ma",
+        "Wei Zhang",
+        "Xiaoyu Shen"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL"
+      ],
+      "published": "2026-06-20T16:08:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.22126v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "critique of time series prediction as curve-fitting",
+      "llm_evidence_cn": "批评时间序列预测仅作为曲线拟合",
+      "llm_evidence": "批评时间序列预测仅作为曲线拟合",
+      "canonical_evidence": "批评时间序列预测仅作为曲线拟合",
+      "llm_tldr_en": "Introduces TSCognition benchmark for multi-dimensional time series reasoning, moving beyond low-level prediction to cognitive tasks.",
+      "llm_tldr_cn": "该论文指出现有时间序列任务简化为曲线拟合，忽略语义和推理。提出TSCognition多模态基准，包含约41K问答样本，涵盖五个推理维度。虽未直接分析可预测性极限，但通过强调预测局限性间接关联。",
+      "llm_tldr": "该论文指出现有时间序列任务简化为曲线拟合，忽略语义和推理。提出TSCognition多模态基准，包含约41K问答样本，涵盖五个推理维度。虽未直接分析可预测性极限，但通过强调预测局限性间接关联。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.27267v1",
+      "source": "arxiv",
+      "title": "Sparse Sensor Placement for Reducing Forecast Errors in Ensemble Kalman Filtering",
+      "abstract": "Designing efficient observation networks for reducing forecast errors is a fundamental challenge in numerical weather prediction. Data-driven sparse sensor placement (SSP) and ensemble-based data assimilation via the Ensemble Kalman Filter (EnKF) have each addressed this challenge independently, yet their mathematical connections have not been systematically formalized. This study presents a unified theoretical framework integrating SSP and EnKF through optimal experimental design, providing new theoretical and algorithmic results. While conventional SSP methods aim to reduce analysis errors, this study extends the SSP to target forecast error reduction by using a tangent linear model approximated by an ensemble forecast. We derive the Fisher information matrices in the ensemble and model spaces for the EnKF, and clarify the mathematical interpretations of A-, D-, and E-optimality in terms of forecast error reduction. A-optimality in the model space minimizes the mean forecast error variance; D-optimality is ill-defined in the model space due to rank deficiency and is therefore formulated in the ensemble space, where it maximizes the Shannon information content of assimilated observations; and E-optimality in the model space minimizes the worst-case forecast error variance. We further propose a fast greedy algorithm for selecting observation locations under A-optimality in the model space, avoiding matrix inversion at each greedy step and substantially reducing computational cost. Numerical experiments using the Lorenz-96 model support these theoretical findings. Among the three optimality criteria, A-optimality in the model space most consistently reduces forecast spread and root-mean-square error, and yields stable incremental improvements consistent with post-assimilation observation impact diagnostics.",
+      "authors": [
+        "Takumi Saito",
+        "Shunji Kotsuki"
+      ],
+      "primary_category": "physics.ao-ph",
+      "categories": [
+        "physics.ao-ph"
+      ],
+      "published": "2026-06-25T16:50:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.27267v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "theoretical framework for reducing forecast errors via sparse sensor placement",
+      "llm_evidence_cn": "通过稀疏传感器放置减少预测误差的理论框架",
+      "llm_evidence": "通过稀疏传感器放置减少预测误差的理论框架",
+      "canonical_evidence": "通过稀疏传感器放置减少预测误差的理论框架",
+      "llm_tldr_en": "Unifies sparse sensor placement and Ensemble Kalman Filtering to reduce forecast errors, providing theoretical bounds.",
+      "llm_tldr_cn": "本文提出了稀疏传感器放置与集合卡尔曼滤波的统一理论框架，通过最优实验设计减少预报误差。推导了Fisher信息矩阵与预报误差的关系，并拓展了稀疏传感器方法以直接针对预报误差减小。该工作为预测误差的理论分析提供了新视角，与理论可预测性直接相关。",
+      "llm_tldr": "本文提出了稀疏传感器放置与集合卡尔曼滤波的统一理论框架，通过最优实验设计减少预报误差。推导了Fisher信息矩阵与预报误差的关系，并拓展了稀疏传感器方法以直接针对预报误差减小。该工作为预测误差的理论分析提供了新视角，与理论可预测性直接相关。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.22946v1",
+      "source": "arxiv",
+      "title": "Neural Operator Processes for Probabilistic Operator Learning under Partial Observations",
+      "abstract": "Neural operators learn mappings between function spaces, but are typically developed with dense input-output training fields and fully observed inputs at inference. Many scientific problems require instead predicting solution fields from sparse, irregular, or partial observations under uncertainty. We introduce Neural Operator Processes (NOPs), a framework that unifies neural-process conditioning with neural-operator decoding to predict full output fields from limited context. NOPs condition on sparse joint input-output observations and support deterministic and probabilistic prediction within a shared encoder-decoder architecture. We study two conditioning strategies, convolutional pooled summaries and query-aligned attention, and analyze how their interaction with latent stochastic variables depends on PDE geometry. Across function regression and three PDE benchmarks, we find that sparse conditional operator learning is viable and can match dense-grid behavior in several regimes, that preserving local context-query geometry is essential in non-periodic settings but less so in spectrally smooth periodic regimes, and that uncertainty-aware operator learning succeeds when latent conditioning complements rather than overwrites the local geometric pathway. These results provide a basis for probabilistic operator learning under partial observations and help bridge operator learning and probabilistic meta-learning in function space.",
+      "authors": [
+        "Jose Miguel Lara-Rangel",
+        "Serge Guillas"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-22T07:25:01+00:00",
+      "link": "https://arxiv.org/pdf/2606.22946v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "probabilistic operator learning under partial observations, uncertainty prediction",
+      "llm_evidence_cn": "部分观测下的概率算子学习，不确定性预测",
+      "llm_evidence": "部分观测下的概率算子学习，不确定性预测",
+      "canonical_evidence": "部分观测下的概率算子学习，不确定性预测",
+      "llm_tldr_en": "Unifies neural processes with neural operators for probabilistic prediction of full fields from sparse observations.",
+      "llm_tldr_cn": "本文提出神经算子过程（NOPs），统一神经过程条件化与神经算子解码，从稀疏输入输出观测中预测完整场，支持确定性和概率预测。该方法适用于时间序列预测中部分观测场景，可量化预测不确定性，与可预测性量化相关。",
+      "llm_tldr": "本文提出神经算子过程（NOPs），统一神经过程条件化与神经算子解码，从稀疏输入输出观测中预测完整场，支持确定性和概率预测。该方法适用于时间序列预测中部分观测场景，可量化预测不确定性，与可预测性量化相关。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.22981v1",
+      "source": "arxiv",
+      "title": "Learning the distance for ABC and localized neural posterior estimation",
+      "abstract": "Likelihood-free inference methods can perform Bayesian inference when evaluating the likelihood is impractical but simulating synthetic data from the model is feasible. Approximate Bayesian computation (ABC) is a well-established likelihood-free approach that constructs particle posterior approximations by evaluating the similarity between simulated and observed data using a distance function, which is used in rejection or weighting steps. Here we extend previous work on adaptive distance learning for ABC to misspecified time series, while also exploring applications in neural posterior estimation using prior-data fitted networks (NPE-PFN) with localization. The adaptation of the distance that we consider optimizes out-of-sample predictive performance using a scoring rule. We also establish a connection between linear pooling for forecast combination and our posterior estimation methods with randomized distances, showing that empirical estimation of pooling weights can be interpreted as another form of adaptive distance learning. For both ABC algorithms and NPE-PFN methods with localization, adaptive distance learning improves forecasting performance in simulated and real examples.",
+      "authors": [
+        "Yuyan Wang",
+        "David J. Nott"
+      ],
+      "primary_category": "stat.CO",
+      "categories": [
+        "stat.CO"
+      ],
+      "published": "2026-06-22T08:01:44+00:00",
+      "link": "https://arxiv.org/pdf/2606.22981v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "adaptive distance learning for misspecified time series to optimize predictive performance",
+      "llm_evidence_cn": "针对错误设定时间序列的自适应距离学习，优化预测性能",
+      "llm_evidence": "针对错误设定时间序列的自适应距离学习，优化预测性能",
+      "canonical_evidence": "针对错误设定时间序列的自适应距离学习，优化预测性能",
+      "llm_tldr_en": "Extends adaptive distance learning for ABC to misspecified time series and neural posterior estimation, optimizing out-of-sample predictive performance.",
+      "llm_tldr_cn": "本文扩展了针对近似贝叶斯计算的自适应距离学习方法，处理错误设定的时间序列，并结合先验数据拟合网络进行局部神经后验估计。通过优化距离函数提升样本外预测性能，为解决时间序列预测中的模型误设问题提供了新思路，间接触及预测极限问题。",
+      "llm_tldr": "本文扩展了针对近似贝叶斯计算的自适应距离学习方法，处理错误设定的时间序列，并结合先验数据拟合网络进行局部神经后验估计。通过优化距离函数提升样本外预测性能，为解决时间序列预测中的模型误设问题提供了新思路，间接触及预测极限问题。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.23009v1",
+      "source": "arxiv",
+      "title": "Hierarchical Bayes meets hierarchical forecasting: A flexible framework for level-focused forecasts",
+      "abstract": "Decision-making in hierarchical systems requires probabilistic forecasts at all cross-sectional levels. Current hierarchical forecasting methods typically generate independent forecasts at each level and reconcile them post hoc to ensure coherence between upper and lower levels. Such post hoc corrections do not incorporate hierarchical structure or decision goals into the underlying parameter estimation. We propose a fully Bayesian hierarchical forecasting framework that shares information more effectively between and across levels than reconciliation alone. Our approach has the flexibility to softly penalise incoherence, subject to model specification, and to focus the global model and coherence update on hierarchical levels most relevant to decision outcomes. This yields parameter estimates that are focused towards the forecasting goals and capture the requirement for coherency, removing the need to estimate covariance matrices for multi-step forecasting horizons. We demonstrate improvements in predictive accuracy metrics on both simulated data and Australian domestic tourism forecasting.",
+      "authors": [
+        "Arwen Nugteren",
+        "Mahdi Abolghasemi",
+        "Kerrie Mengersen",
+        "Christopher Drovandi"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-06-22T08:22:13+00:00",
+      "link": "https://arxiv.org/pdf/2606.23009v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical forecasting for time series",
+      "llm_evidence_cn": "层次时间序列预测",
+      "llm_evidence": "层次时间序列预测",
+      "canonical_evidence": "层次时间序列预测",
+      "llm_tldr_en": "Proposes a fully Bayesian hierarchical forecasting framework that shares information across levels, flexible for level-focused forecasts.",
+      "llm_tldr_cn": "该论文提出全贝叶斯层次预测框架，跨层级共享信息，灵活调整连贯性惩罚。针对时间序列预测问题，通过概率预测提升层次决策，但未直接研究可预测性理论极限。",
+      "llm_tldr": "该论文提出全贝叶斯层次预测框架，跨层级共享信息，灵活调整连贯性惩罚。针对时间序列预测问题，通过概率预测提升层次决策，但未直接研究可预测性理论极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.27199v1",
+      "source": "arxiv",
+      "title": "Forecasting With LLMs: Improved Generalization Through Feature Steering",
+      "abstract": "Successful forecasting involves identifying patterns between historical and future states of the world which generalize to future observations. We apply LLMs to a variety of forecasting tasks and inspect their internal states using sparse autoencoders to understand whether they appear to rely on time-specific pieces of knowledge versus generalizable patterns. Our analyses identify features associated with both time-aware reasoning and look-ahead-biased reasoning. We then apply the LLMs to an entirely different domain and intervene on these features. We find that amplifying time-awareness features substantially reduces look-ahead bias on forecasting prompts while preserving general reasoning performance. In contrast, steering the candidate look-ahead-bias features does not produce an effect. These results suggest that interpretable temporal features can be used to causally shift LLMs toward more historically grounded reasoning.",
+      "authors": [
+        "Humzah Merchant",
+        "Bradford Levy"
+      ],
+      "primary_category": "cs.CL",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-06-25T15:59:20+00:00",
+      "link": "https://arxiv.org/pdf/2606.27199v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "uses LLMs for time series forecasting and analyzes feature steering",
+      "llm_evidence_cn": "使用LLM进行时间序列预测并分析特征引导",
+      "llm_evidence": "使用LLM进行时间序列预测并分析特征引导",
+      "canonical_evidence": "使用LLM进行时间序列预测并分析特征引导",
+      "llm_tldr_en": "Studies LLM internal states for forecasting, identifies time-aware and look-ahead-bias features, and reduces bias via feature steering, improving generalization across domains.",
+      "llm_tldr_cn": "该论文将LLM应用于多种预测任务，通过稀疏自编码器分析其内部状态，识别出时间感知和前瞻偏误两类特征。通过干预时间感知特征，有效减少了预测中的前瞻偏误，同时保持一般推理性能，提升了跨领域泛化能力。",
+      "llm_tldr": "该论文将LLM应用于多种预测任务，通过稀疏自编码器分析其内部状态，识别出时间感知和前瞻偏误两类特征。通过干预时间感知特征，有效减少了预测中的前瞻偏误，同时保持一般推理性能，提升了跨领域泛化能力。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
