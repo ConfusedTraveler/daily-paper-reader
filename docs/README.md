@@ -6,60 +6,40 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-26
-- 运行时间：2026-06-26 20:53:41 UTC
+- 最新运行日期：2026-06-27
+- 运行时间：2026-06-27 20:35:45 UTC
 - 运行状态：成功
-- 本次总论文数：12
-- 精读区：3
-- 速读区：9
+- 本次总论文数：5
+- 精读区：0
+- 速读区：5
 
 ### 今日简报（AI）
-1) 今日精读聚焦两大前沿：限价订单簿预测的低延迟计算架构，以及通过多小波数嵌入提升LLM对数字感知的时间序列预测。
+今日速读5篇论文，均聚焦时间序列预测与数据质量评估（含卡尔曼滤波、持续学习及拓扑保真度框架）。
 
-2) 最值得关注的是推理计算前沿与金融高频交易的硬件优化交叉方向，此外时间序列预测中数字嵌入的新方法同样亮眼。
+三个方向值得关注：基于扩展卡尔曼滤波的时序QoS估计、面向非平稳电力系统的持续学习预测、以及用拓扑保真度评估Transformer时序模型。
 
-3) 建议普通读者延伸速读中的可解释KAN网络（电力负荷预测）与智能体长期记忆模型，探索稀疏传感部署的实践价值。
-- 详情：[/202606/26/README](/202606/26/README)
+建议普通读者优先关注持续学习如何应对真实场景中的概念漂移，同时了解拓扑保真度指标对模型可靠性的量化意义。
+- 详情：[/202606/27/README](/202606/27/README)
 
 ### 精读区论文标签
-1. [The Inference-Compute Frontier and a Latency-Efficient Architecture for Limit Order Book Prediction](/202606/26/2606.25986v1-the-inference-compute-frontier-and-a-latency-efficient-architecture-for-limit-order-book-prediction)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：研究限价订单簿预测中的推断-计算前沿和预测损失极限
-2. [Speaking Numbers to LLMs: Multi-Wavelet Number Embeddings for Time Series Forecasting](/202606/26/2606.26487v1-speaking-numbers-to-llms-multi-wavelet-number-embeddings-for-time-series-forecasting)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：通过小波嵌入提升时间序列预测可靠性
-3. [How Good Can Linear Models Be for Time-Series Forecasting?](/202606/26/2606.27282v1-how-good-can-linear-models-be-for-time-series-forecasting)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：研究线性模型在时间序列预测中的性能极限
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Nous: A Predictive World Model for Long-Term Agent Memory](/202606/26/2606.22030v1-nous-a-predictive-world-model-for-long-term-agent-memory)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：利用信息论惊喜度进行可预测性评估的预测世界模型
-2. [Interpretable Kolmogorov-Arnold Network with Feature-Isolated Temporal Attention Mechanism for Electricity Load Forecasting](/202606/26/2606.23425v1-interpretable-kolmogorov-arnold-network-with-feature-isolated-temporal-attention-mechanism-for-electricity-load-forecasting)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：提出可解释KAN用于电力负荷预测，属于时间序列预测
-3. [Sparse Sensor Placement for Reducing Forecast Errors in Ensemble Kalman Filtering](/202606/26/2606.27267v1-sparse-sensor-placement-for-reducing-forecast-errors-in-ensemble-kalman-filtering)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：通过稀疏传感器放置减少预测误差的理论框架
-4. [SOHET: Sequence Of Heterogeneous Events Transformer with Self-Supervised Pre-Training](/202606/26/2606.21356v1-sohet-sequence-of-heterogeneous-events-transformer-with-self-supervised-pre-training)  
+1. [A Novel Approach to Temporal QoS Estimation via Extended Kalman Filter-Incorporated Latent Feature Analysis](/202606/27/2606.23010v1-a-novel-approach-to-temporal-qos-estimation-via-extended-kalman-filter-incorporated-latent-feature-analysis)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：序列事件预测方法可应用于序列推荐
-5. [From Recognition to Understanding: Unlocking Cognitive Time Series Reasoning with LLMs](/202606/26/2606.22126v1-from-recognition-to-understanding-unlocking-cognitive-time-series-reasoning-with-llms)  
+   evidence：使用扩展卡尔曼滤波进行非平稳时间序列的时变QoS预测
+2. [Towards Continuous Power Forecasting: Practical Continual Learning for Real-World Energy Systems in Nonstationary Time Series](/202606/27/2606.24955v1-towards-continuous-power-forecasting-practical-continual-learning-for-real-world-energy-systems-in-nonstationary-time-series)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：批评时间序列预测仅作为曲线拟合
-6. [Neural Operator Processes for Probabilistic Operator Learning under Partial Observations](/202606/26/2606.22946v1-neural-operator-processes-for-probabilistic-operator-learning-under-partial-observations)  
+   evidence：非平稳时间序列下的连续电力预测采用持续学习
+3. [TopoCast: A Topological Fidelity Framework for Evaluating Transformer-Based Time Series Forecasting](/202606/27/2606.25439v1-topocast-a-topological-fidelity-framework-for-evaluating-transformer-based-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：部分观测下的概率算子学习，不确定性预测
-7. [Learning the distance for ABC and localized neural posterior estimation](/202606/26/2606.22981v1-learning-the-distance-for-abc-and-localized-neural-posterior-estimation)  
+   evidence：基于拓扑的框架评估时间序列预测的结构保真度
+4. [Rethinking Training & Inference for Forecasting: Linking Winner-Take-All back to GMMs](/202606/27/2606.26424v1-rethinking-training--inference-for-forecasting-linking-winner-take-all-back-to-gmms)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：针对错误设定时间序列的自适应距离学习，优化预测性能
-8. [Hierarchical Bayes meets hierarchical forecasting: A flexible framework for level-focused forecasts](/202606/26/2606.23009v1-hierarchical-bayes-meets-hierarchical-forecasting-a-flexible-framework-for-level-focused-forecasts)  
+   evidence：重新思考轨迹预测的训练与推理
+5. [PMDformer: Patch-Mean Decoupling Information Transformer for Long-term Forecasting](/202606/27/2606.26549v1-pmdformer-patch-mean-decoupling-information-transformer-for-long-term-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：层次时间序列预测
-9. [Forecasting With LLMs: Improved Generalization Through Feature Steering](/202606/26/2606.27199v1-forecasting-with-llms-improved-generalization-through-feature-steering)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：使用LLM进行时间序列预测并分析特征引导
+   evidence：通过块均值解耦进行长期时间序列预测
 
 
 <div class="dpr-home-promo-card">
