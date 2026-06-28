@@ -1,0 +1,54 @@
+{
+  "label": "2026-06-28",
+  "date": "2026-06-28",
+  "generated_at": "2026-06-28T20:49:44",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202606/28/2606.21911v1-the-pitfall-of-scaling-up-uncovering-and-mitigating-popularity-bias-amplification-in-scaling-transformer-based-recommenders",
+      "section": "deep",
+      "title_en": "The Pitfall of Scaling Up: Uncovering and Mitigating Popularity Bias Amplification in Scaling Transformer-based Recommenders",
+      "authors": "Weiqin Yang, Yue Pan, Chongming Gao, Sheng Zhou, Xiang Wang, Can Wang, Jiawei Chen",
+      "date": "2026-06-20",
+      "pdf": "https://arxiv.org/pdf/2606.21911v1",
+      "score": "9.0",
+      "evidence": "直接研究扩展基于Transformer的序列推荐系统如何放大流行度偏差，从而限制了对冷门项目的预测准确性，涉及可预测性的基本极限",
+      "tldr": "随着Transformer推荐模型规模增大，推荐准确率提升但流行度偏差被放大，导致系统过度推荐热门物品，损害公平性和生态健康。研究发现，模型深度增加时，注意力聚合和前馈投影协同引发谱坍缩，是偏差放大的根源。提出SPRINT方法，通过约束注意力分数矩阵最大列和与前馈参数谱范数来缓解谱坍缩。实验表明，SPRINT在提升准确率和长尾公平性的同时，实现了从0.05M到0.34B参数规模的更优扩展行为。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We identify a critical pitfall in scaling transformer-based sequential recommenders: while increasing model size improves recommendation accuracy, it simultaneously amplifies popularity bias. This bias drives systems to over-recommend popular items at the expense of niche ones, which not only undermines fairness but also degrades the broader ecosystem by reinforcing the Matthew effect and filter bubbles. Consequently, this bias amplification emerges as a fundamental obstacle to sustainable model scaling.   Through comprehensive theoretical and empirical analyses, we uncover the root cause of this amplification. Our findings reveal that as model depth increases, the two core components of the transformer architecture, i.e., attention aggregation and feed-forward projections, synergistically induce severe spectral collapse in model predictions, which directly translates to the amplification of popularity bias. To address this challenge, we propose SPRINT (Scalable Popularity Regularization IN Transformers), which mitigates spectral collapse during scaling by constraining (i) the maximum column-sums of the attention score matrices and (ii) the spectral norms of the feed-forward parameters. Extensive experiments demonstrate that SPRINT significantly improves both accuracy and long-tail fairness. Crucially, it yields more favorable scaling behaviors when expanding model sizes from 0.05M to 0.34B parameters. The code is available at https://github.com/Tiny-Snow/GenRec.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/28/2606.26270v1-on-the-optimal-prediction-of-extreme-events",
+      "section": "deep",
+      "title_en": "On the optimal prediction of extreme events",
+      "authors": "Benjamin Bobbia, Stilian Stoev",
+      "date": "2026-06-24",
+      "pdf": "https://arxiv.org/pdf/2606.26270v1",
+      "score": "9.0",
+      "evidence": "极端事件最优预测的理论分析",
+      "tldr": "针对多元正则变化分布下的极端事件预测问题，研究了最优正齐次预测器的渐近性质。通过将预测精度转化为尾部依赖系数的变分问题，推导出最优解由倾斜分布的非极端条件分位数给出。基于极值理论中的峰超越阈值框架提出通用推断方法，证明了估计量在大类角测度下的一致性。在实际太阳耀斑预测中，该方法接近最优预言机性能。",
+      "tags": "query:pred-limit",
+      "abstract_en": "The prediction of the extremely large values of a response variable $Y$ in terms of a vector of covariates $X=(X_i)_{i=1}^d$ is a fundamental problem arising in many scientific and engineering domains. The scarcity of data in the extremes makes the optimal solution of this problem of particular importance. The optimal predictors of such events can be explicitly characterized in just a few cases and it is of fundamental practical and theoretical interest to develop optimal estimators over large classes of models and predictors. In this work, the focus is on the case where $(Y,X)$ have a multivariate regularly varying distribution and one seeks an optimal predictor expressed as a positive homogeneous function $h(X)$ of the covariates. The asymptotic prediction precision in this setting coincides with the tail-dependence coefficient $λ(Y,h(X))$ and it can be expressed as an integral functional of the associated angular measure of $(Y,X)$. Thus, finding asymptotically optimal homogeneous predictors amounts to solving a variational problem. We obtain a general solution to this problem, which is expressed in terms of a non-extreme conditional quantile of a tilted distribution derived from the angular measure. This leads to a general inference methodology for the optimal predictors in the peaks-over-threshold framework form extreme value theory. We establish the universal consistency for these estimators over large classes of angular measures. A general-purpose implementation of the resulting inference procedure is shown to work remarkably well against optimal oracle estimators, as well as in the challenging problem of extreme solar flare prediction.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202606/28/2606.27001v1-uncertainty-quantification-via-conformal-prediction-in-data-assimilation",
+      "section": "quick",
+      "title_en": "Uncertainty quantification via conformal prediction in data assimilation",
+      "authors": "Catherine George, Alireza Javanmardi, Tijana Janjić, Eyke Hüllermeier",
+      "date": "2026-06-25",
+      "pdf": "https://arxiv.org/pdf/2606.27001v1",
+      "score": "7.0",
+      "evidence": "通过保形预测量化时间序列预测中的不确定性，涉及可预测性极限",
+      "tldr": "数值天气预报中不确定性量化至关重要。本文在简化大气模型中应用保形预测（CP）方法量化不确定性，对比标准CP、归一化CP和保形分位数回归三种变体。实验表明CP能提供有效的不确定性区间，但各有优劣；将CP扰动融入同化循环可改善性能。该研究为CP在数据同化中的应用提供了见解。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Quantifying the evolution of uncertainty is critical to both probabilistic forecasting and data assimilation in numerical weather prediction. In this study, we investigate the applicability of conformal prediction (CP), a recent machine learning (ML) method, to quantify uncertainty in a controlled, idealized setting. We use the one dimensional modified shallow water model, designed to mimic the convective process. CP provides a set of possible outcomes with a chosen confidence level. Here, we compare and evaluate the average empirical coverage, the average interval length, miss low, miss high and average interval score loss (AISL) for three variants of CP, namely a) Standard CP, b) Normalized CP and c) Conformalized Quantile Regression. We further compare these CP-based uncertainty estimates with traditional ensemble-based measures such as standard deviation intervals and ensemble spread. In addition, we investigate the integration of CP-derived uncertainty within the data assimilation cycle through CP perturbations. Our results highlight the strengths and limitations of each approach, providing insight into the effectiveness of CP to complement common ensemble-based uncertainty quantification in simplified atmospheric models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

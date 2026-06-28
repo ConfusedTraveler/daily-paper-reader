@@ -1,0 +1,5339 @@
+Title: On the optimal prediction of extreme events
+
+URL Source: https://arxiv.org/pdf/2606.26270v1
+
+Published Time: Fri, 26 Jun 2026 00:06:15 GMT
+
+Number of Pages: 70
+
+Markdown Content:
+# On the optimal prediction of extreme events 
+
+Benjamin Bobbia ∗1, and Stilian Stoev 2
+
+> 1
+
+D´ epartement d’Ing´ enierie des Systˆ emes complexes F´ ed´ eration ONERA ISAE-SUPAERO ENAC, universit´ e de Toulouse Toulouse, France, e-mail: benjamin.bobbia@isae-supaero.fr 
+
+> 2
+
+Department of Statistics University of Michigan Ann Arbor, USA, e-mail: sstoev@umich.edu 
+
+Abstract: The prediction of the extremely large values of a response variable Y in terms of a vector of covariates X = ( Xi)di=1 is a fundamental problem arising in many scientific and engineering domains. The scarcity of data in the extremes makes the optimal solution of this problem of particular importance. The optimal predictors of such events can be explicitly characterized in just a few cases and it is of fundamental practical and theoretical interest to develop optimal estimators over large classes of models and predictors. In this work, the focus is on the case where ( Y, X ) have a multivariate regularly varying distribution and one seeks an optimal predictor expressed as a positive homogeneous function h(X) of the covariates. The asymptotic prediction precision in this setting coincides with the tail-dependence coefficient 
+
+λ(Y, h (X)) and it can be expressed as an integral functional of the associated angular measure of ( Y, X ). Thus, finding asymptotically optimal homogeneous predictors amounts to solving a variational problem. We obtain a general solution to this problem, which is expressed in terms of a non-extreme conditional quantile of a tilted distribution derived from the angular measure. This leads to a general inference methodology for the optimal predictors in the peaks-over-threshold framework form extreme value theory. We establish the universal consistency for these estimators over large classes of angular measures. A general-purpose implementation of the resulting inference procedure is shown to work remarkably well against optimal oracle estimators, as well as in the challenging problem of extreme solar flare prediction. 
+
+MSC2020 subject classifications: Primary 62G32, 60G70; secondary 49J50. 
+
+Keywords and phrases: optimal prediction, regular variation, homogeneous functions, im-balanced classification, universal consistency. 
+
+1. Introduction 
+
+In many scientific fields one has to predict rare events of the type {Y > y 0}, where an unobserved response random variable Y exceeds a large threshold y0. Assuming that one observes a vector of covariates X = ( Xi)di=1 , such binary predictors can always be written in the form {h(X) > h 0}, for some measurable function h. The optimal predictors, in a certain natural sense, can be explicitly characterized via density ratios, as in Neyman-Pearson’s Lemma (see Section 2.1). Nevertheless, this is the beginning rather than the end of the story. Except in a handful of cases where closed-form solutions exist (Examples 2.1–2.3), the optimal predictors need to be estimated. While the estimation of density ratios has received some attention [51] it remains a methodologically and practically challenging problem [35, 52]. In this paper, we are interested in the regime of extremes, where the events {Y > y 0} are rare or extremely rare . An equivalent perspective to this problem is from the point of view of classification, where there is an extreme imbalance between the two classes of labels {Y ≤ y0} and {Y > y 0} in the training data. Imbalanced classification problems arise naturally and are ubiquitous in science, medicine, engineering, etc [7, 25, 55]. Imbalanced classification has received considerable theoretical attention [see, e.g. 43, 52, 53]. Nevertheless, the 
+
+> ∗
+
+[Corresponding author. ]1 
+
+> arXiv:2606.26270v1 [math.ST] 24 Jun 2026 /Optimal prediction of extreme events 2
+
+theoretical study of the optimal extreme event prediction or, equivalently, binary classification in the extremely imbalanced regime has received relatively less attention. To the best of our knowledge, [26] is the first paper that has addressed this problem by arguing that the traditional empirical risk minimization approaches do not enjoy provable guarantees in the regime of extremes. They proposed a principled solution based on extreme value theory by considering risk minimization after conditioning on asymptotically extreme events, which has led to an active area of research [see, e.g. 12, 1, 11, 13, and the references therein]. In this paper, we offer an alternative take on the problem from the perspective of optimal extreme event prediction rather than imbalanced classification. An important starting point of this investigation is the framing of the notion of optimality. Colloquially, prediction of the unobservable event {Y > y 0} via the observed covariates amounts to raising an alarm when an event {h(X) > h 0} occurs. Let the thresholds y0 := F ← 
+
+> Y
+
+(p) and 
+
+h0 := F ←
+
+> h(X)
+
+(q) be generalized quantiles of the distributions of Y and h(X), respectively, for some 
+
+p, q ∈ (0 , 1). Then, under mild regularity conditions, the alarm rate equals 1 − q = P[h(X) >F ←
+
+> h(X)
+
+(q)] and the event rate is 1 − p = P[Y > F ← 
+
+> Y
+
+(p)]. Given certain alarm and event rates, the 
+
+optimal predictors are the ones that maximize the precision: 
+
+P[Y > F ← 
+
+> Y
+
+(p) | h(X) > F ←
+
+> h(X)
+
+(p)] .
+
+It is often natural to seek calibrated predictors where p = q, i.e., the alarm and event rates coincide. Then, in the regime of extremes, as p ↑ 1, the asymptotic precision is precisely the tail-dependence coefficient 
+
+λ(Y, h (X)) = lim  
+
+> p↑1
+
+P[Y > F ← 
+
+> Y
+
+(p) | h(X) > F ←
+
+> h(X)
+
+(p)] , (1.1) which is a well-known quantity in extreme value theory [see e.g. 28]. In the general setting when Y and X are jointly regularly varying , and the predictors h are continuous and positive homogeneous functions, the tail dependence coefficient λ(Y, h (X)) is well-defined, and it can be expressed as an integral functional with respect to the angular measure (cf Propositions 3.1 and 3.2). Specifically, 
+
+λ(Y, h (X)) = 1
+
+E[U ] E[U ∧ (1 − U )h(Θ)] , (1.2) where the random variable U ∈ [0 , 1] and the random vector Θ = (Θ i)di=1 characterize the joint extremal behavior of Y and X as follows: (Y, X )
+
+τ (Y, X ) | { τ (Y, X ) > t } d
+
+→ (U, (1 − U )Θ) , as t → ∞ .
+
+Here τ (y, x ) := y+ + τX (x) is a positive 1-homogeneous gauge function codifying the notion of mul-tivariate regular variation (Definition 3.1) and Θ is a random vector taking values in the generalized unit sphere SτX = {x ∈ Rd : τX (x) = 1 }.In view of (1.1), we seek homogeneous predictors that maximize the tail-dependence coefficient 
+
+λ(Y, h (X)) and refer to them as asymptotically optimal . Given the joint distribution of ( U, Θ), Relation (1.2) shows that finding asymptotically optimal homogeneous predictors amounts to solv-ing a variational problem. Namely, finding a homogeneous function h in an infinite-dimensional class of functions, that maximizes the integral functional in (1.2), under the asymptotic calibration constraints :
+
+P[Y > t ] ∼ P[h(X) > t ], as t → ∞ .
+
+Here and throughout the paper by at ∼ bt we mean asymptotic equivalence in the sense that 
+
+at/b t → 1 as t → ∞ ./Optimal prediction of extreme events 3
+
+The first main contribution of the paper is a solution of the aforementioned variational problem (Theorem 3.8). Then, in Section 3.3, we demonstrate how this solution yields asymptotically optimal homogeneous predictors in the context of the general class of Breiman type models. It turns out that homogeneous optimal predictors can be expressed in terms of the homogenous function 
+
+g(opt) (x) := τX (x) · qα(x/τ X (x)) 1 − qα(x/τ X (x)) ,
+
+where θ 7 → qα(θ) is the conditional α-level quantile of the tilted conditional probability distribution 
+
+b(θ)−1(1 − u)pU |Θ(du |θ), where pU |Θ(du |θ) is the regular conditional distribution of U given Θ, and 
+
+b(θ) is a normalization constant. All homogeneous functions of the above form are solutions to the optimal variational problems with constraints governed by the parameter α ∈ (0 , 1) (Theorem 3.8). Thus, to find an optimal and calibrated predictor, in practice, one merely needs to estimate the quantile functions qα and find α so that P[g(opt) (X) > t ] ∼ P[Y > t ], t → ∞ . Inference theory for the optimal homogeneous predictors in the peaks-over-threshold framework developed in Section 4. In this setting, by using a contiguity argument, we established the universal consistency of these optimal homogeneous predictors in Theorem 4.1 under mild regularity conditions. This result may be viewed as a counterpart of the Stone universal consistency theory in the context of extremes [17]. In Section 5, we discuss the implementation of the estimators and illustrate their performance in comparison with optimal oracle predictors, both in the context of discrete and continuous angu-lar measures. A general-purpose, practical, and nearly tuning free implementation of the optimal homogeneous predictor methodology was built by using powerful quantile regression forests [34, 4], which were used to estimate the quantile functions qα. The resulting predictors nearly match the performance of the oracle predictors in a variety of simulated models (Figures 1 and 2). Fur-thermore, their application to the open challenge of predicting extreme X-class solar flare events achieves state-of-the-art results without sophisticated feature engineering and tuning (see Section E). R code and R Shiny Apps illustrating the methodology are freely available on [49, 50]. The paper contains a variety of additional contributions of independent interest. First, in Propo-sition 2.1 we provide a characterization of the optimal (non-asymptotic) predictors for Archimedean copula models; A general contiguity argument justifying the peaks-over-threshold based inference was developed (Section 4.2); A flexible family of Pareto-Breiman models was studied where regular variation holds in a stronger, total-variation sense (Proposition 3.4). The case of Pareto-Dirichlet models has a particularly elegant solution (Proposition C.3), while a large class of spectrally discrete models offer insights to further phenomena and applications (Section 5.2). A curious phenomenon of perfect asymptotic precision arises for certain spectrally discrete models, when all underlying latent factors influencing Y are involved in forming the covariates X (see Section C). 
+
+The rest of the paper is structured as follows. In Section 2, we begin with the formulation of the optimal prediction framework and present a general characterization results of optimal predictors in terms of density ratios (Theorem 2.2). This naturally leads to several examples where closed-form optimal (non-asymptotic) predictors can be derived (i.e., Sections 2.1 and 2.2). In Section 2.3, we conclude the preliminaries by relating the notion of asymptotic optimality and tail dependence. In Section 3, we present the formulation and solution to the variational problem on optimal homogeneous prediction, where the main result is Theorem 3.8. Section 4 presents an inference theory for these optimal predictors in the context of peaks-over-threshold, where we carefully treat the distribution shift problem via contiguity argument. The main result is Theorem 4.1, which shows that the so-constructed estimators achieve the asymptotically optimal precision. This can be seem as a counterpart to the celebrated universal consistency results of Stone. Section 5 briefly discusses /Optimal prediction of extreme events 4
+
+methodological aspects and illustrates the non-asymptotic, practical performance of the optimal homogeneous predictors with simulations. Further technical details and some lengthy proofs are given in the Supplement. 
+
+2. Preliminaries 
+
+In this section, we introduce the notion of optimal event prediction considered in this paper. A general characterization result and several examples of closed-form optimal predictors are discussed, which may be of independent interest and can serve as benchmarks. The extremal counterpart to optimal event prediction is then formulated and related to asymptotic tail dependence. This sets the stage for the problem formulation discussed in Section 3.1. 
+
+2.1. Optimal event prediction: A Neyman-Pearson perspective 
+
+Consider a vector of covariates X = ( Xi)di=1 taking values in Rd and an unobserved positive response random variable Y . We would like to optimally predict the event {Y > y 0} in terms of X. All such predictors are of the form {h(X) > h 0}, for some Borel measurable function h and a suitable calibration threshold h0 ∈ R.
+
+Definition 2.1. (i) We say that the predictor {h(X) > h 0} for {Y > y 0}, is calibrated at level q,or q-calibrated, if 
+
+P[h(X) > h 0] = 1 − q, for some q ∈ (0 , 1) .
+
+The predictor is said to be balanced if it is calibrated at the same level as the target event, i.e., 
+
+P[Y > y 0] = P[h(X) > h 0].
+
+(ii) A q-calibrated predictor {h(X) > h 0} of {Y > y 0} is said to be optimal, if 
+
+P[Y > y 0|h(X) > h 0] ≥ P[Y > y 0|g(X) > g 0],
+
+for all other q-calibrated predictors {g(X) > g 0}.The conditional probability P[Y > y 0|h(X) > h 0] will be referred to as the precision of the event predictor. Thus, the optimal q-calibrated predictors have maximal precision among all other 
+
+q-calibrated predictors. 
+
+The following result is a restatement of Theorem 2.1 in [57]. It provides a general characterization of the optimal calibrated predictors. 
+
+Theorem 2.2. Let ν(dx ) be a σ-finite Borel measure on Rd. Assume that X|Y > y 0 and X|Y ≤ y0
+
+have densities f0(x) and f1(x), respectively, with respect to ν(dx ). Consider the density ratio: 
+
+r(x) := f0(x)
+
+f1(x) , (2.1) 
+
+where r(x) is interpreted as ∞ if f1(x) = 0 . Let Fr(X)(x) = P[r(X) ≤ x] be the distribution function of r(X) and F ←
+
+> r(X)
+
+(q) := inf {x : Fr(X)(x) ≥ q}. For all q ∈ Fr(X)(R), {r(X) > F ←
+
+> r(X)
+
+(q)} is an optimal q-calibrated predictor of {Y > y 0}.
+
+Theorem 2.2 leads to closed form optimal predictors in a handful but important cases. 
+
+Example 2.1 (Additive heteroskedastic models) . Let X = ( Xi)di=1 and ϵ be independent, where ϵ
+
+has a density with respect to the Lebesgue measure on R. Define 
+
+Y = g(X) + σ(X)ϵ, (2.2) /Optimal prediction of extreme events 5
+
+for some deterministic measurable functions g and σ such that σ(X) > 0 almost surely. Then, by Theorem 2.2 in [57], for all y0 and τ ,
+
+{hy0 (X) > τ } := 
+
+n g(X) − y0
+
+σ(X) > τ 
+
+o
+
+is a q-calibrated optimal predictor of {Y > y 0}, where 1 − q = P[h(X) > τ ].
+
+The above example leads to explicit characterizations of the optimal event-predictors as well as their precisions in the general class of linear models [57]. In particular, since Gaussian vectors can always be cast in the form of (2.2), where g is a linear function and σ is non-random, Example 2.1 immediately implies the following. 
+
+Example 2.2 (Gaussian copula) . Let (Y, X 1, · · · , X d) follow a Gaussian copula model with con-tinuous marginal distribution functions FY and FXi , i = 1 , · · · , d . Then, for all p, q ∈ (0 , 1) ,we have that {h(X) > F ←
+
+> h(X)
+
+(q)} is a q-calibrated optimal predictor for {Y > F ← 
+
+> Y
+
+(p)}, where 
+
+h(X) = Pdi=1 aiΦ−1(FXi (Xi)) , and Φ stands for the standard normal cdf [Corollary 2.1 in 57]. 
+
+Example 2.3 (bivariate max-stable models) . Let now d = 1 and (Y, X ) follow a bivariate extreme value distribution having a joint density with respect to the Lebesgue measure in R2. Using Theorem 2.2, in Proposition A.1 below, it is shown that {X > F ← 
+
+> X
+
+(q)} is a q−calibrated optimal predictor of the event {Y > F ← 
+
+> Y
+
+(p)}, for all p, q ∈ (0 , 1) .
+
+The above example is rather natural since max-stable laws are positively dependent and hence the extremes of Y go with the extremes of X. See also Example 2.6, below. 
+
+2.2. Further examples: Archimedean copula 
+
+The closed-form expressions of optimal predictors as in the previous examples are rare. In this section, we present such an expression for the broad class of Archimedean copula with completely monotone generators. It can be of independent interest and shall serve as a benchmark for our optimal prediction inference methodology. Suppose that the random vector ( Y, X ) = ( Y, X 1, · · · , X d) has continuous marginal cdf’s FY (t) = 
+
+P[Y ≤ t] and FXi (t) := P[Xi ≤ t], t ∈ R, i = 1 , · · · , d and the copula 
+
+C(y, x ) := P[FY (Y ) ≤ y, F Xi (Xi) ≤ xi, i = 1 , · · · , d ], y ∈ (0 , 1) , x = ( xi)di=1 ∈ (0 , 1) d,
+
+The copula C is said to be Archimedean if 
+
+C(y, x ) = ψ
+
+
+
+ψ−1(y) + ψ−1(x1) + · · · + ψ−1(xd)
+
+
+
+, (2.3) where ψ : (0 , ∞) → (0 , 1) is a decreasing function referred to as the generator of the copula. It is known that C is a valid copula provided ψ is a ( d + 1)-monotone function [see, e.g. 32]. Here, we focus on the important particular case of Archimedean copula, where the generator ψ is completely monotone and hence ( d + 1)-monotone for all d. Such functions have the representation 
+
+ψ(u) = 
+
+Z ∞
+
+> 0
+
+e−ux μ(dx ), u > 0 (2.4) for some unique Borel measure μ on [0 , ∞) [see e.g., Theorem 1.4 in 47]. Since we deal with copulas, the measure μ will not charge {0}./Optimal prediction of extreme events 6
+
+Proposition 2.1. Let (Y, X 1, · · · , X d) be a random vector in R1+ d with continuous marginal cdfs 
+
+FY and FXi , i = 1 , · · · , d , respectively, and the Archimedean copula C as in (2.3) , where the generator ψ is completely monotone, i.e., as in (2.4) . Then, for all τ ∈ (0 , 1) and y0 ∈ R, the events n
+
+ψ
+
+
+
+ψ−1(FX1 (X1)) + · · · + ψ−1(FXd (Xd)) 
+
+
+
+> τ 
+
+o
+
+are optimal predictors of the events {Y > y 0} in terms of X.
+
+The proof is given in Section A.1.2, below. This result furnishes a complete characterization of optimal event prediction in an interesting family of copula models. We will illustrate it further with an important Archimedean copula arising in extreme value theory. 
+
+Example 2.4 (Gumbel copula) . Consider the function 
+
+ψ(u) = e−u1/β 
+
+=
+
+Z ∞
+
+> 0
+
+e−ux f1/β (x)dx, β > 1
+
+where f1/β (x) is the probability density of a (1 /β )−stable subordinator. Notice that ψ is completely monotone since it is the Laplace transform of a probability distribution on [0 , ∞) for β ∈ (1 , ∞).(The case β = 1 is also trivially covered since the corresponding copula is the independent one.) The copula C in (2.3) then becomes the so-called Gumbel copula :
+
+C(v, u ) = exp 
+
+n
+
+−
+
+
+
+log(1 /v )β + log(1 /u 1)β + · · · + log(1 /u d)β 1/β o
+
+,
+
+for v ∈ (0 , 1) and u = ( ui)di=1 ∈ (0 , 1) d. By attaching standard 1-Fr´ echet marginals to the resulting Archimedean copula, we obtain the so-called multivariate logistic max-stable distribution model for the random vector (Y, X 1, · · · , X d):
+
+P(Y ≤ y, X ≤ x) = exp 
+
+n
+
+−
+
+ 1
+
+yβ + 1
+
+xβ
+
+> 1
+
++ · · · + 1
+
+xβd
+
+1/β o
+
+, (2.5) 
+
+xi > 0, y > 0. Proposition 2.1 implies that for all p, q ∈ (0 , 1) , an optimal predictor of {Y > F −1 
+
+> Y
+
+(p)}
+
+is of the form: {h(X) > F −1
+
+> h(X)
+
+(q)}, where h(X) = ( Pdi=1 1/X βi )−1/β . Its precision can be obtained numerically. In the following section, we will consider the notion of asymptotically optimal precision and obtain a formula for it for these copula. 
+
+2.3. Tail dependence and optimal extreme event prediction 
+
+In this paper, we are primarily interested in predicting extreme events of the form 
+
+{Y > F ← 
+
+> Y
+
+(p)},
+
+as the level p becomes extreme, i.e., as p ↑ 1. For simplicity, assume that p ∈ FY (R) = {FY (y), y ∈
+
+R} and focus on the natural case of balanced predictors , where one has 1 − p = P[Y > F ← 
+
+> Y
+
+(p)] = P[h(X) > F ←
+
+> h(X)
+
+(p)] . (2.6) In this case, the conditional probability of a true positive alarm, referred to as the precision of the predictor, is: 
+
+λp(Y, h (X)) := P[Y > F ← 
+
+> Y
+
+(p) | h(X) > F ←
+
+> h(X)
+
+(p)] . (2.7) /Optimal prediction of extreme events 7
+
+Observe that, as the level p becomes extreme, i.e., p ↑ 1, the above precision recovers the well-known notion of tail-dependence coefficient :
+
+λ(Y, h (X)) := lim  
+
+> p↑1
+
+P[Y > F ← 
+
+> Y
+
+(p) | h(X) > F ←
+
+> h(X)
+
+(p)] , (2.8) whenever the limit exists [see, e.g., 28, 27]. The random variables Y and h(X) will be referred to as tail-independent if λ(Y, h (X)) = 0; otherwise we will sometimes call them tail-dependent. Relation (2.8) motivates the following notion of extremal optimality [Definition 2.3 in 57]. 
+
+Definition 2.3. Let Cp(X) denote the class of all Borel functions g such that P[g(X) > F ←
+
+> g(X)
+
+(p)] = 1 − p. That is, Cp(X) is the set of functions g that can serve as p-calibrated predictors. 
+
+(i) The optimal extremal precision for predicting Y in terms of X is defined as: 
+
+λ(opt) (Y, X ) := lim sup 
+
+> p↑1
+
+sup 
+
+> g∈C p(X)
+
+n
+
+λp(Y, g (X)) 
+
+o
+
+. (2.9) (ii) A random variable h(X) is said to be an optimal extremal predictor for Y , if h ∈ C p(X) and its asymptotic precision attains the optimal extremal precision in (2.9) . That is, if 
+
+λ(opt) (Y, X ) = lim sup 
+
+> p↑1
+
+λp(Y, h (X)) 
+
+In particular, if the tail-dependence λ(Y, h (X)) coefficient exists, we also obtain λ(opt) (Y, X ) = 
+
+λ(Y, h (X)) .
+
+Relation (2.9) indicates that λ(opt) (Y, X ) is the best asymptotic precision that can be achieved among all balanced calibrated predictors of the extreme events {Y > F ← 
+
+> Y
+
+(p)}. Theorem 2.2 implies that the density ratios in (2.1) yield fixed-p as well as asymptotically optimal predictors. This is the gold-standard in extreme event prediction, which can in fact be achieved in a number of interesting models (see the Examples 2.1-2.4 above and their follow-ups in 2.5–2.7 below). In general, however, the density ratios are hard to compute and estimate [51]. Thus, it is challeng-ing to characterize the optimal extremal predictors and their extremal precisions in full generality. Therefore, it is of interest to limit the notion of extremal optimality to a class of predictors. 
+
+Definition 2.4. Consider a class G of measurable functions g : Rd → R. We shall say that h is a 
+
+G-optimal extremal predictor for Y if the tail-dependence coefficient λ(Y, h (X)) exists and 
+
+λ(Y, h (X)) = λ(opt)  
+
+> G
+
+(Y, X ) := sup 
+
+> g∈G
+
+
+
+lim sup 
+
+> p↑1
+
+λp(Y, g (X)) 
+
+
+
+,
+
+where λp is as in (2.7) .
+
+We conclude this section by following-up on Examples 2.1 – 2.4, where the optimal extremal predictors and their precisions can be derived. The next section focuses on G-optimal prediction for the class of homogeneous functions under the framework of joint regular variation for Y and X.
+
+Example 2.5. When (Y, X ) = ( Y, X 1, · · · , X d) follow a Gaussian copula such that Y is not a deterministic function of X, then the covariates in X have vanishing precision in predicting the extremes of Y , i.e., λ(opt) (Y, X ) = 0 . Indeed, upon applying increasing component-wise determin-istic transformations to Y and Xi, i = 1 , · · · , d , we may assume that (Y, X ) is Gaussian with standard normal marginals. Hence, for some a = ( ai)di=1 ∈ Rd, we have Y = a⊤X + Z, where 
+
+Z ∼ N (0 , σ 2), (σ > 0) is independent from X. By a classical result of Sibuya [Theorem 3 48], it follows that the jointly Gaussian variables a⊤X and Y are asymptotically independent, and hence by Example 2.2, λ(opt) (Y, X ) = λ(Y, a ⊤X) = 0 ./Optimal prediction of extreme events 8
+
+Example 2.6. Let (Y, X ) be a bivariate max-stable vector having a Lebesgue density. Then, by Example 2.3, λ(opt) (Y, X ) = λ(Y, X ), i.e., the optimal extremal precision is precisely the tail-dependence coefficient. 
+
+Example 2.7 (Multivariate logistic max-stable law) . Recall Example 2.4, where the joint distribu-tion of (Y, X ) is multivariate max-stable with standard 1-Fr´ echet marginals and the Gumbel copula in (2.5) . We know that h(x) := ( Pdi=1 x−βi )1/β provides an optimal prediction function for this model. As shown in Corollary A.1, the optimal extremal precision is given by: 
+
+λ(opt) (Y, X ) = λ(Y, h (X)) = E
+
+h
+
+min 
+
+n
+
+Γ−1/β  
+
+> 1
+
+/c 1,β , Γ−1/β d /c d,β 
+
+oi 
+
+, (2.10) 
+
+where Γ1 ∼ Gamma(1 , 1) and Γd ∼ Gamma( d, 1) are independent Gamma-distributed random variables and where cd,β = Γ( d − 1/β )/Γ( d).
+
+While elegant, the above examples are the only a handful of cases we know of, where the opti-mal (extremal) predictors and their (asymptotic) precisions can be obtained in closed form. This motivates the main pursuit of the present paper on characterizing optimal extremal predictors over a smaller but still very rich class of homogeneous predictors. 
+
+3. A characterization of the optimal homogeneous predictors 
+
+In this section, we present the core contribution of this paper. We start with the main framework that relies on an assumption of joint regular variation between the response and the predictors. In this context, we cast the main problem of finding asymptotically optimal homogeneous predictors as a calculus of variations problem relative to the angular measure. The general solution of this problem is presented in Theorem 3.8. The section concludes with a rejoinder, where the solutions to the general variational problem are related to optimal homogeneous predictors in the context of the generalized Breiman models. 
+
+3.1. Joint regular variation and problem formulation 
+
+Let Z be a random vector taking values in Rk and let τ : Rk → R+ := [0 , ∞) be a non-negative continuous 1-homogeneous function, i.e., τ (c · x) = cτ (x), ∀c ≥ 0, x ∈ Rk.
+
+Definition 3.1 (τ -regular variation) . We say that Z is τ -regularly varying if, there exists a positive sequence {an}, and constants cZ > 0 and α > 0, such that for all t > 0,
+
+nP[τ (Z) > ta n] −→ cZ t−α, (n → ∞ ) and Zτ (Z) | τ (Z) > r d
+
+−→ ΘZ , (r → ∞ ) (3.1) 
+
+for some random variable ΘZ taking values in 
+
+Sτ := {x ∈ Rk : τ (x) = 1 }.
+
+In this case, we shall write Z ∈ RV α(Rk, {an}, c Z , τ, σ ), where σ is the probability distribution of 
+
+ΘZ .
+
+For more details and an equivalent definition, see Section B.1 below. In particular, the first convergence in Relation (3.1) holds if and only if x 7 → P[τ (Z) > x ] is a regularly varying function at infinity with exponent −α. Therefore, (3.1) is equivalent to 
+
+b(t)P[τ (Z) > t ] −→ cZ t−α, (n → ∞ ) and Zτ (Z) | τ (Z) > r d
+
+−→ ΘZ , (r → ∞ ) (3.2) /Optimal prediction of extreme events 9
+
+where b(t) ∼ L(t)tα, as t → ∞ , for some slowly varying function L(·) such that b(an) ∼ n, as 
+
+n → ∞ . Thus, for an for an X as in Definition 3.1, the function {b(t)} in (3.2) is unique modulo asymptotic equivalence [see, e.g. Propositions 1.1.8 and 1.2.2 in 29]. When we need (3.2), we shall equivalently write X ∈ RV α(Rk, {an}, b (·), c Z , τ, σ ). 
+
+Remark 3.1. The notion of τ -regular variation is equivalent to the notion of regular variation on the cone Rk \ { τ = 0 } [see e.g. 46, 18]. It only focuses on the extremal behavior of Z over the open cone {τ > 0}, where extremeness is measured in terms of the positive homogeneous loss function 
+
+τ . For a complete and general treatment, see the recent monograph of [3]. The ability to choose different loss-functions τ allows one to be more flexible and study the dependence in the extremes relative to the relevant loss somewhat in the spirit of hidden regular variation [42]. 
+
+The following is a key result that will allow us to formulate the optimal extreme event prediction problem in terms of a calculus of variations problem for the angular measure. See also Proposition 2.5 in [27] and Theorem 2.1 in [20], for similar results. 
+
+Proposition 3.1. Let Z ∈ RV α(Rk, {an}, b (·), c Z , τ, σ ). Let also H+(Rk, τ ) denote the class of all non-negative continuous 1-homogeneous functions h : Rd → R+ such that {h > 0} ⊂ { τ > 0}. For all h ∈ H +(Rk, τ ) such that 
+
+∥h∥∞,S τ := sup 
+
+> θ∈Sτ
+
+|h(θ)| < ∞, (3.3) 
+
+we have 
+
+lim  
+
+> n→∞
+
+nP[h(Z) > a n] = lim  
+
+> t→∞
+
+b(t)P[h(Z) > t ] = cZ σ(h), (3.4) 
+
+where 
+
+σ(h) := E[h(Θ Z )α] = 
+
+Z
+
+> Sτ
+
+hα(θ)σ(dθ ).
+
+For the sake of completeness, the proof of Proposition 3.1 is given in Section B.3.1. In the rest of the section, we will specialize the above regular variation concept to the setting considered in this paper by considering a specific τ . Namely, let 
+
+Z = ( Y, X ),
+
+where Y is a positive response variable and X = ( Xi)di=1 is a d-dimensional vector of covariates. We will assume that Y and X are jointly regularly varying , which will be made precise next. For simplicity and without loss of generality, we will assume the exponent of regular variation equals one, i.e.: 
+
+α = 1 .
+
+Assumption 3.1 (joint regular variation) . Let τX : Rd → R+ be a continuous 1-homogeneous function, τY : R → R+ be the function τY (y) := y+ := max {0, y }, and let 
+
+τ (y, x ) := τY (y) + τX (x) = y+ + τX (x).
+
+We shall say that Y and X are jointly regularly varying if 
+
+Z = ( Y, X ) ∈ RV 1(R+ × Rd, {an}, 1, τ, σ ).
+
+and 
+
+σ({1} × { τX = 0 }) < 1 and σ({0} × { τX = 1 }) < 1. (3.5) /Optimal prediction of extreme events 10 
+
+Remark 3.2. The joint regular variation assumption for Y and X amounts essentially to assuming that the vector Z = ( Y, X ) is τ -regularly varying. The additional conditions in (3.5) mean that both 
+
+Y and X are marginally regularly varying with the same normalizing sequence {an} in the sense that, for all t > 0,
+
+nP[Y > a nt] →n→∞ cY t−1 and X ∈ RV 1(Rd, {an}, c X , τ X , σ X ).
+
+for some cY > 0, c X > 0 and a probability measure σX supported on SτX = {x ∈ Rd : τX (x) = 1 }.For more details, see Section B.1 and the references therein. 
+
+Remark 3.3. In many applications the radial function τ is simply a norm in Rk. In this case, 
+
+Sτ = {τ = 1 } is compact, and the condition (3.3) is fulfilled for all continuous and homogeneous 
+
+h. Moreover those assumptions still are fulfilled for radial functions with weighted or thresholded directions which is commonly use in portfolio optimization. 
+
+Remark 3.4. Note that (3.4) holds for Breiman models with any non-negative and integrable h.Namely if Z = ξW , with b(t)P[ξ > tx ] → x−1, for x > 0, then for all W such that E[h(W )1+ ϵ] < ∞,
+
+b(t)P[h(Z) > t ] = b(t)P[ξh (W ) > t ] → E[h(W )] , t → ∞ .
+
+See also Section 3.3. 
+
+Suppose now that X and Y are jointly regularly varying in the sense of Assumption 3.1 and let 
+
+eU := Yτ (Y, X ) , and eΘ := XτX (X) . (3.6) Observe that with the chosen polar coordinate parameterization τ (Y, X ) = Y + τX (X), we have: (Y, X )
+
+τ (Y, X ) =
+
+ eU , (1 − eU ) eΘ
+
+
+
+. (3.7) Hence, in view of Definition 3.1, we obtain that for all t > 0, as n → ∞ and r → ∞ : nP[τ (Y, X ) >ta n] −→ t−1, and ( eU , (1 − eU ) eΘ) | τ (Y, X ) > r d
+
+−→ ΘY,X =: ( U, (1 − U )Θ) . (3.8) In the sequel, we shall use the ( U, (1 − U )Θ) parameterization of the angular vector Θ Y,X to formulate the optimal homogeneous prediction problem. Observe that if U < 1, then Θ = W/ (1 −
+
+U ) can be identified from ( U, W ) := Θ Y,X . Whenever U = 1, however, Θ is undefined, though unimportant since (1 − U )Θ = 0. In this case, by convention, we shall define Θ := θ∗, for some arbitrary fixed θ∗ ∈ SτX such that σX ({θ∗}) = 0, where σX is the angular measure of X (cf Remark 3.2). 
+
+Definition 3.2. Let (Y, X ) be jointly τ -regularly varying in the sense of Assumption 3.1 and let 
+
+G(τX ) be a class of continuous, non-negative 1-homogeneous functions fulfilling the following three conditions: (i) ( τ -support-dominance) For all g ∈ G (τX ), {g > 0} ⊂ { τX > 0}.(ii) (boundedness) For all g ∈ G (τX ), ∥g∥∞,S X := sup θ∈SX |g(x)| < ∞./Optimal prediction of extreme events 11 
+
+(iii) (asymptotic calibration) For all g ∈ G (τX ),
+
+P[g(X) > t ] ∼ P[Y > t ], as t → ∞ . (3.9) 
+
+The predictors g(X) that satisfy Relation (3.9) will be referred to as asymptotically calibrated ex-tremal predictors for Y .
+
+Note that (ii) is a technical condition, which is always satisfied if SX is compact. 
+
+Lemma 3.3. Let (Y, X ) and G(τX ) be as in Definition 3.2. Then, for all g ∈ G (τX ) the bivariate tail dependence coefficient λ(Y, g (X)) defined in (2.8) exists and 
+
+λ(g(X), Y ) = lim  
+
+> t↑∞
+
+P[Y > t |g(X) > t ] = lim  
+
+> t↑∞
+
+P[g(X) > t |Y > t ].
+
+The proof of this lemma is given in Section B.3.1. The next proposition leads us to the formulation of the optimal homogeneous prediction problem as a calculus of variations problem. 
+
+Proposition 3.2. Let (Y, X ) be jointly τ -regularly varying in the sense of Assumption 3.1. Let 
+
+G(τX ) be the class of predictors in Definition 3.2. Then, for all g ∈ G (τX ), and (U, Θ) as in (3.8) ,we have 
+
+E[U ] = E[(1 − U )g(Θ)] = c > 0 (3.10) 
+
+and 
+
+λ(Y, g (X)) = 1
+
+c E[U ∧ (1 − U )g(Θ)] (3.11) The claim follows from Proposition 3.1 and Lemma 3.3, but its proof is given Section B.3.1, for the sake of completeness. Observe that every non-negative homogeneous function h : Rd → R+, support-dominated by 
+
+τX , is uniquely determined by its values on the unit sphere SτX , since for all τX (x) > 0, we have 
+
+h(x) = τX (x) · h(θ), where θ := x/τ X (x). Thus, Proposition 3.2 above entails that the optimal extremal predictors via homogeneous functions can be obtained by the functions g : SX → R+ that minimize (3.11) under the constraints (3.10). This leads us to the following optimization problem. 
+
+Problem 3.1 (maximal precision) . Consider the admissible set of measurable predictors, 
+
+D(c) := 
+
+n
+
+g : SX → R+ : E[(1 − U )g(Θ)] = c
+
+o
+
+,
+
+where c > 0 and the expectations are relative to the probability measure σ in Assumption 3.1. Introduce precision functional Λ( g) := 1
+
+E[U ] E[U ∧ (1 − U )g(Θ)] , (3.12) 
+
+defined for all non-negative Borel measurable functions g : SX → R+.The problem is to: 
+
+maximize Λ( g), subject to g ∈ D(σY ), where σY := E[U ].
+
+Using the identity |a − b| = a + b − 2( a ∧ b), valid for all a, b ∈ R, Problem 3.1 can be equivalently formulated as a minimization problem: /Optimal prediction of extreme events 12 
+
+Problem 3.2 (minimal L1-loss) . For a measurable g : SτX → R+, define the functional 
+
+I(g) := E[|U − (1 − U )g(Θ) |]. (3.13) 
+
+The problem is to 
+
+minimize I(g), subject to g ∈ D(σY ). (3.14) In the following sub-section we provide a general solution to Problem 3.2 (equivalently, 3.1) for all possible spectral measures arising under Assumption 3.1. 
+
+Remark 3.5 (The domain of optimization) . The natural domain for Problems 3.1 and 3.2 is the convex set D(σY ), which is closed in a certain L1-sense (cf Section 3.2). As shown in Theorem 3.8 below, over this domain, these two problems always have a solution. Naturally, the question arises as to what is the connection between a discontinuous solution g(opt) and optimal extreme event prediction. This is discussed in the following remarks as well as in Section 3.3. 
+
+Remark 3.6 (Optimal prediction) . If g(opt) is a solution of Problems 3.1 and 3.2, then one can define an extremal predictor function 
+
+h(opt) (x) := τX (x)g(opt) (x/τ X (x))1 {τX (x)>0}.
+
+If θ 7 → g(opt) (θ) happens to be continuous and bounded on SX , then so is h(opt) (·), and in view of Proposition 3.2, we obtain 
+
+λ(Y, h (opt) (X)) = Λ( g(opt) (Θ)) . (3.15) 
+
+That is, h(opt) is an optimal extremal predictor over the class H+.
+
+Remark 3.7 (On the correspondence between Λ and the tail-dependence coefficient) . The solu-tion θ 7 → g(opt) (θ) may sometimes be discontinuous . In such cases, the functional Λ( g) remains well-defined, while the tail-dependence functional for Y and h(opt) (X), may not exist for certain pathological jointly regularly varying (Y, X ) models. In Section 3.3, however, we shall demonstrate that over the broad class of Breiman-type models, which encompasses all possible angular distri-butions, the general (and possibly discontinuous) solutions to Problems 3.1 and 3.2 always yield 
+
+asymptotically optimal predictors. More precisely, for such models the tail dependence coefficient between Y and h(opt) (X) always exists and (3.15) holds (cf Corollary 3.1 and Remark 3.10, below). 
+
+3.2. The general solution to the variational problems 
+
+In this section, we will focus on the abstract optimization Problem 3.2 in the general case of non-negative measurable functions g, where the pair ( U, Θ) takes values in [0 , 1] ×SX and has probability distribution pU, Θ. To exclude trivialities, we will assume that 
+
+P[U = 0] < 1 and P[U = 1] < 1, (3.16) which corresponds precisely to (3.5) in the joint regular variation condition on Y and X. For the purposes of this section, however, the variables Y and X, will play no role. The joint distribution pU, Θ(dudθ ) can always be written as 
+
+pU, Θ(dudθ ) = p(du |θ)pΘ(dθ ), (3.17) where p(du |θ) is a regular conditional probability i.e., p(du |θ) is a probability transition kernel [see e.g. Theorem 10.2.2 in 19]. /Optimal prediction of extreme events 13 
+
+We proceed with some convenient notation. Let 
+
+b(θ) := 
+
+Z
+
+> [0 ,1]
+
+(1 − u)p(du |θ) (3.18) and observe that pΘ({0 < b (θ) < 1}) = 1, by (3.16). The functional I(·) in (3.19) can be written as: 
+
+I(g) := 
+
+Z
+
+> SX
+
+n Z
+
+> [0 ,1)
+
+|u − (1 − u)g(θ)|p(du |θ)
+
+o
+
+pΘ(dθ ). (3.19) In view of (3.18), by an application of the triangle inequality and Fubini’s theorem, we see that 
+
+I(h) < ∞, for all measurable h, such that 
+
+C(h) := E[(1 − U )|h(Θ) |] = 
+
+Z
+
+> SX
+
+|h(θ)|b(θ)pΘ(dθ ) < ∞. (3.20) We will denote this class of functions by L1(b·pΘ) and the non-negative such functions by L1+(b·pΘ). The functional C(·) in (3.20) will be referred to as the constraint functional . This terminology is motivated by Problem 3.2, which amounts to minimizing I(g) over all g ∈ L1+(b · pΘ) such that 
+
+C(g) = E[U ] = σY . Note also that the constraint functional C(g) is precisely the weighted L1-norm of g in L1(b · pΘ), so that for C(g) < ∞ is equivalent to g ∈ L1(b · pΘ). Consider now the family of cumulative probability distribution functions indexed by θ ∈ SX :
+
+Fθ(t) := 1
+
+b(θ)
+
+Z
+
+> {0≤u≤t}
+
+(1 − u)p(du |θ), t ∈ [0 , 1] . (3.21) Observe that the Fθ’s are the distribution functions of probability measures concentrated on [0 , 1). Notably, these measures, also denoted by Fθ, have no atoms at 1, i.e., Fθ(1) = Fθ(t−) = 1 and 
+
+Fθ({1}) = Fθ(1) − Fθ(1 −) = 0 , for all θ ∈ SX . (3.22) The following lemma establishes a precise formula for the Gˆ ateaux directional derivative of the functional I, which will be key. Its proof is given in Section B.3.2. 
+
+Lemma 3.4 (Gˆ ateaux derivative) . Let I(·) be as in (3.19) , the b(θ)’s and Fθ(t)’s be as in (3.18) 
+
+and (3.21) , respectively. Then, for all g ≥ 0 and g, h ∈ L1(b · pΘ), he have 
+
+lim 
+
+> δ↓0
+
+I(g + δh ) − I(g)
+
+δ
+
+= 2 
+
+Z
+
+> SX
+
+b(θ)
+
+n
+
+Fθ(q(θ)) h(θ) + Fθ({q(θ)})h(θ)−
+
+o
+
+pΘ(dθ ) −
+
+Z
+
+> SX
+
+b(θ)h(θ)pΘ(dθ ), (3.23) 
+
+where Fθ({t}) = Fθ(t) − Fθ(t−) and 
+
+q(θ) := g(θ)1 + g(θ) and h(θ)− = max {0, −h(θ)}.
+
+We proceed with some further notation and auxiliary results needed to formulate and prove the main result. It turns out one can obtain an essentially explicit solution to Problem 3.2 in terms of the quantiles of the weighted conditional probability distribution Fθ in (3.21). Let 
+
+qα(θ) := inf 
+
+n
+
+t ≥ 0 : Fθ(t) ≥ α
+
+o
+
+, α ∈ [0 , 1] (3.24) /Optimal prediction of extreme events 14 
+
+be the left-continuous generalized inverse of Fθ(·), with the small modification that above infimum is restricted to t ∈ [0 , ∞) since the distributions Fθ are supported on [0 , 1). This implies that 
+
+q0(θ) = 0. We shall also need the right-continuous generalized inverse 
+
+qα+(θ) = inf 
+
+n
+
+t ≥ 0 : Fθ(t) > α 
+
+o
+
+, (3.25) where by convention we set q1+ (θ) = q1(θ) = sup {t ∈ R : Fθ(t) < 1} ≤ 1. Note that 
+
+qα+(θ) = lim  
+
+> β>α, β ↓α
+
+qβ (θ), for all 0 ≤ α < 1. The fact that the distributions Fθ’s have no atoms at 1 (cf (3.22)), implies the important observation that 
+
+qα(θ) ≤ qα+(θ) < 1, for all 0 ≤ α < 1 and θ ∈ SX . (3.26) The following general result will be useful. Its proof is given in Section B.3.2. 
+
+Lemma 3.5. Let F be the CDF of a probability distribution on [0 , 1] and let α 7 → qα and α 7 → qα+
+
+be its left- and right-continuous generalized inverses, defined as in (3.24) and (3.25) , respectively. The following statements hold: 
+
+(i) For all 0 ≤ α ≤ 1, we have 
+
+F (qα−) ≤ F (qα+−) ≤ α ≤ F (qα) ≤ F (qα+), (3.27) 
+
+where F (t−) := lim s<t, s →t F (s) denotes the left-limit of F at t.
+
+(ii) For all 0 ≤ α ≤ 1, such that qα < q α+, we have 
+
+F (t) = F (qα), for all qα ≤ t < q α+. (3.28) The next lemma provides a technical ingredient needed for our first result. 
+
+Lemma 3.6. For all 0 ≤ α ≤ 1 and functions θ 7 → h(θ), we have: 
+
+Fθ(t)h(θ) + Fθ({t})h(θ)− ≥ αh (θ), for all θ ∈ SX and t ∈ [qα(θ), q α+(θ)] , (3.29) 
+
+where x± := max {0, ±x}.Proof. If h(θ) ≥ 0, then the bound in (3.29) holds since α ≤ Fθ(qα(θ)) ≤ Fθ(t), t ≥ qα(θ) (cf (3.27)) and since the term Fθ(t)h(θ)− vanishes. On the other hand, if h(θ) < 0, we have h(θ) = −h(θ)− and by writing 
+
+Fθ(t) = Fθ(t−) + Fθ({t}),
+
+we obtain that the left-hand side of (3.29) equals 
+
+Fθ(t)h(θ) + Fθ({t})h(θ)− = Fθ(t−)h(θ).
+
+By (3.27) and the monotonicity of Fθ, however, for all t ∈ [qα(θ), q α+(θ)], 
+
+Fθ(t−) ≤ Fθ(qα+(θ)−) ≤ α. 
+
+Hence by multiplying the above inequalities with the negative number h(θ), we obtain Fθ(t−)h(θ) ≥
+
+αh (θ), which completes the proof of (3.29). /Optimal prediction of extreme events 15 
+
+The following proposition characterizes a broad class of solutions to Problem 3.2 under arbitrary positive values of the constraint functional. It shows that the solutions can be obtained from func-tions sandwiched between the left- and right-continuous quantile functions of the Fθ distributions. 
+
+Proposition 3.3. Let g ∈ L1+(b · pΘ) and define q(θ) := g(θ)/(1 + g(θ)) . Consider the following two conditions: 
+
+(i) For some fixed 0 ≤ α < 1, we have 
+
+qα(θ) ≤ q(θ) ≤ qα+(θ), for almost all θ, modulo b(θ)pΘ(dθ ). (3.30) (ii) We have 
+
+q1(θ) ≤ q(θ), for almost all θ, modulo b(θ)pΘ(dθ ). (3.31) 
+
+If either (i) or (ii) holds, then 
+
+I(g) = inf  
+
+> g′∈D(C(g))
+
+I(g′).
+
+Proof. Let g′ ∈ D(C(g)) be arbitrary. Since C(g) = C(g′), with C(·) as in (3.20), we obtain 
+
+C(g′) − C(g) = 
+
+Z
+
+> SX
+
+(g′(θ) − g(θ)) b(θ)pΘ(dθ ) =: 
+
+Z
+
+> SX
+
+h(θ)b(θ)pΘ(dθ ) = 0 . (3.32) Thus, by Lemma 3.4 applied with h := g′ − g, we obtain: lim 
+
+> δ↓0
+
+I(g + δ · (g′ − g)) − I(g)
+
+δ = 2 
+
+Z
+
+> SX
+
+b(θ)
+
+n
+
+Fθ(q(θ)) h(θ) + Fθ({q(θ)})h(θ)−
+
+o
+
+pΘ(dθ ), (3.33) where the second integral in (3.23) vanishes in view of (3.32). Now, focus on the integrand in (3.33). If (3.30) holds, by Lemma 3.6 applied with t := q(θ), we obtain Fθ(q(θ)) h(θ) + Fθ({q(θ)})h(θ)− ≥ αh (θ). This, in view of (3.33) and (3.32), implies lim 
+
+> δ↓0
+
+I(g + δ · (g′ − g)) − I(g)
+
+δ ≥ 2α
+
+Z
+
+> SX
+
+b(θ)h(θ)pΘ(dθ ) = 0 . (3.34) On the other hand, if (3.31) holds, we have Fθ(q(θ)) = 1 and by dropping the non-negative term 
+
+Fθ({q(θ)})h(θ)−, we obtain Fθ(q(θ)) h(θ) + Fθ({q(θ)})h(θ)− ≥ h(θ). Thus, in view of (3.33), we obtain that (3.34) holds with α := 1. Note that the function φ(δ) := I(g + δ · (g′ − g)) − I(g) is convex on δ ∈ [0 , ∞). By the Lebesgue DCT it readily follows that δ 7 → φ(δ) is also continuous. We have shown that Relation (3.34) holds under either one of the conditions (3.30) or (3.31). This means that the right-derivative of φ(·) at 0 is non-negative, which, in view of the convexity of φ, implies that φ(δ) ≥ 0 = φ(0), for all δ ≥ 0. By taking δ := 1, we obtain 
+
+I(g) ≤ I(g′),
+
+which, since g′ ∈ D(C(g)) was arbitrary, completes the proof of the proposition. Proposition 3.3 provides a rich family of solutions to Problem 3.2, where the constraint σY is replaced by a potentially arbitrary finite value C(g). Thus, to complete the solution to Problem 3.2, it remains to demonstrate that it is always possible to choose such a function g that meets the constraint σY = E[U ] = C(g). To this end, the conditional quantile functions qα(θ) and qα+(·) will play an important role. For all 0 < α < 1 and λ ∈ [0 , 1], introduce the functions 
+
+g(λ) 
+
+> α
+
+(θ) := q(λ) 
+
+> α
+
+(θ)1 − q(λ) 
+
+> α
+
+(θ) , (3.35) /Optimal prediction of extreme events 16 
+
+where 
+
+q(λ) 
+
+> α
+
+(θ) := (1 − λ)qα(θ) + λq α+(θ). (3.36) Recall that by (3.26), we have q(λ)
+
+> α+
+
+(θ) < 1 and hence g(λ) 
+
+> α
+
+(θ) < ∞, for all 0 ≤ α < 1 and λ ∈ [0 , 1]. Note, however, that it is often possible to have q1(θ) = q1+ (θ) = 1 in which case g1(θ) = ∞, by convention. The following lemma, proved in Section B.3.2 below, is essential. It establishes that for all 
+
+α ∈ [0 , 1), the predictors g(λ) 
+
+> α
+
+(·), 0 ≤ λ ≤ 1 belong to L1+(b · pΘ) and shows other useful properties of the constraint functional. 
+
+Lemma 3.7. Let g(λ) 
+
+> α
+
+be as in (3.35) . Then: 
+
+(i) We have that C(g(λ) 
+
+> α
+
+) < ∞, for all 0 ≤ α < 1 and 0 ≤ λ ≤ 1.
+
+(ii) The function λ 7 → C(g(λ) 
+
+> α
+
+) is monotone non-decreasing and continuous in λ ∈ [0 , 1] .
+
+(iii) The function α 7 → C(gα) in monotone non-decreasing and left-continuous in α ∈ (0 , 1] .
+
+(iv) For all 0 ≤ α < 1, we have that C(gα+) = lim β↓α C(gβ ).
+
+Now, we are ready to formulate and prove our solution to the equivalent Problems 3.1 & 3.2. 
+
+Theorem 3.8. Let (U, Θ) be a random vector taking values in [0 , 1] × SX and having a probability distribution pU, Θ(du, dθ ) written as in (3.17) . Assume P[U = 0] < 1 and P[U = 1] < 1.
+
+(i) If U = u(Θ) , almost surely, for some Borel function u(·), then 
+
+g(opt) (θ) := E[U ]
+
+E[U · 1{U < 1}] · u(θ)(1 − u(θ)) 1( {u(θ) < 1}) (3.37) 
+
+is a solution to Problem 3.1 and 
+
+Λ( g(opt) ) = E[U · 1{U < 1}]
+
+E[U ] = 1 − P[U = 1] 
+
+E[U ] . (3.38) 
+
+In the next two cases, suppose that U is not a deterministic function of Θ.
+
+(ii) If E[U ] < C (g1), then there exist an α ∈ [0 , 1) and λ ∈ [0 , 1] such that for g(opt) := g(λ) 
+
+> α
+
+, we have E[U ] = C(g(opt) ) and g(opt) is a solution to Problem 3.1. 
+
+(iii) If C(g1) ≤ E[U ], then θ 7 → g(opt) (θ) := ( E[U ]/C (g1)) · g1(θ) is a solution to Problem 3.1 and 
+
+Λ( g(opt) ) is as in (3.38) .Proof. Part (i): We will show g(opt) solves the equivalent Problem 3.1. Observe first that by (3.37), we have 
+
+C(g(opt) ) = E[(1 − u(Θ)) g(opt) (Θ)] = E[U ]
+
+E[U · 1{U < 1}] · E[U · 1{U < 1}] = E[U ],
+
+which shows that g(opt) satisfies the constraint. Now, for every g′ ∈ D(E[U ]), we necessarily have Λ( g′) = 1
+
+E[U ] E[U ∧ (1 − U )g′(θ)] ≤ 1
+
+E[U ] E[U · 1{U < 1}] = 1 − P[U = 1] 
+
+E[U ] ./Optimal prediction of extreme events 17 
+
+On the other hand, with g(opt) as in (3.37), over the event {U < 1}, we have 
+
+U = u(Θ) ≤ (1 − u(Θ)) g(opt) (Θ) = E[U ]
+
+E[U · 1{U < 1}] u(Θ) ,
+
+since 1 ≤ E[U ]/E[U · 1{U < 1}]. Thus, Λ( g(opt) ) = 1
+
+E[U ] E[U ∧ (1 − U )g(opt) (Θ)] = 1
+
+E[U ] E[U · 1{U < 1}] = 1 − P[U = 1] 
+
+E[U ] ,
+
+which shows that Λ( g(opt) ) ≤ Λ( g′), for all g′ ∈ D(E[U ]), completing the proof of (i). 
+
+Part (ii): Let 
+
+eα := sup {α ≥ 0 : C(gα) ≤ E[U ]} (3.39) and observe that since C(g0) = 0 the above supremum is over a non-empty set, and hence eα ≥ 0. We will show next that: 
+
+eα < 1 and C(geα) ≤ E[U ] ≤ C(geα+) < ∞. (3.40) Indeed, since the function α 7 → C(gα) is monotone non-decreasing and left-continuous (cf part (iii) of Lemma 3.7), we obtain from (3.39) that 
+
+C(geα) ≤ E[U ].
+
+On the other hand, since E[U ] < C (g1), we necessarily have eα < 1 and hence by Lemma 3.7, it follows that C(geα+) < ∞. To show (3.40), it remains to prove that E[U ] ≤ C(geα+). Suppose that C(geα+) < E[U ]. Since eα < 1, by part (iv) of Lemma 3.7, it follows that 
+
+C(geα+) = lim  
+
+> β↓eα
+
+C(gβ ) < E[U ].
+
+Thus, there exists a β such that eα < β < 1 and E[C(gβ )] < E[U ]. This, however, contradicts the definition of eα in (3.39) and shows that E[U ] ≤ C(geα+), completing the proof of (3.40). Recall that g(λ) 
+
+> α
+
+, λ ∈ [0 , 1] monotonically and continuously interpolates between gα = g(0)  
+
+> α
+
+and 
+
+gα+ = g(1)  
+
+> α
+
+(cf (3.35)). By part (ii) of Lemma 3.7, moreover, the function λ 7 → C(g(λ) 
+
+> eα
+
+) is continu-ous, and hence in view of (3.40), it follows that C(g(eλ) 
+
+> eα
+
+) = E[U ], for some eλ ∈ [0 , 1]. Note also that 
+
+q(θ) := g(eλ) 
+
+> eα
+
+(θ)/(1 + g(eλ) 
+
+> eα
+
+(θ)) satisfies the condition (3.30) with α replaced by eα. Thus, Proposition 3.3 implies that g(opt) (θ) := g(eλ) 
+
+> eα
+
+(θ), θ ∈ SX is a solution to Problem 3.2, as we have already established that g(opt) satisfies the desired constraint C(g(opt) ) = E[U ]. 
+
+Part (iii): Since c := E[U ]/C (g1) ≥ 1, we have that q(θ) := c · g1(θ)/(1 + c · g1(θ)) ≥ q1(θ) = 
+
+g1(θ)/(1 + g1(θ)). Thus, by observing that C(g(opt) ) = C(c · g1) = E[U ], part (ii) of Proposition 3.3 implies that g(opt) is a solution to Problem 3.2. It remains to show that Λ( g(opt) ) is as in (3.38). Conditionally on Θ, over the event {U < 1}, we have (1 − U )g(opt) (Θ) = c · (1 − U ) q1(Θ) 1 − q1(Θ) ≥ cq 1(Θ) ≥ cU ≥ U, 
+
+almost surely, since c ≥ 1 and since q1(Θ) ≥ U , almost surely. This implies that Λ( g(opt) ) = 1
+
+E[U ] E[U ∧ (1 − U )g(opt) (Θ)] = 1
+
+E[U ] E[U · 1{U < 1}] = 1 − P[U = 1] 
+
+E[U ] ,
+
+which completes the proof of part (iii) and the theorem. /Optimal prediction of extreme events 18 
+
+3.3. The generalized Breiman models 
+
+In this section, we discuss the broad class of so-called Breiman’s models, which realize all possible tail dependence measures. We will demonstrate that in the context of these models, the solutions to the variational problems in Theorem 3.8 yield asymptotically optimal homogeneous predictors. We begin with a sharp version of the classical Breiman’s lemma, which is a reformulation of Lemma 2.3 in [16]. 
+
+Lemma 3.9 (Lemma 2.3 in [16]) . Let ξ and η be independent non-negative random variables, where ξ has regularly varying right tail with index α > 0 and E[ηα] < ∞. Consider the following two conditions. (i) For some cξ > 0, we have 
+
+tαP[ξ > t ] → cξ ∈ (0 , ∞), as t → ∞ . (3.41) 
+
+(ii) For some δ > 0, we have E[ηα+δ] < ∞.If either (i) or (ii) holds, then 
+
+P[ξη > t ]
+
+P[ξ > t ] → E[ηα], as t → ∞ . (3.42) 
+
+Remark 3.8. In contrast to the classical Breiman’s lemma, when the variable ξ has Pareto-type tails, i.e., (3.41) holds, one only needs E[ηα] < ∞ to conclude (3.42) .
+
+In the case when η in (3.42) is replaced by a random vector, one obtains a rich family of multivari-ate regularly varying models [see, e.g. 2, 29], which realize all possible asymptotic tail dependence regimes. The next result shows a curious fact that the multivariate Breiman-type models are, in fact, regularly varying in a stronger total variation sense. This fact is of independent interest, which we will revisit in Section 4. 
+
+Proposition 3.4 (The total regular variation of Breiman models) . Let Z := ξη, where ξ and η =(ηi)ki=1 are independent and ξ is non-negative with regularly varying right tail with index α > 0. Let also τ : Rk → R+ be a non-negative 1-homogeneous function and suppose that 0 < E[τ (η)α] < ∞.If either (i) Relation (3.41) holds; or (ii) E[τ (η)α+δ] < ∞, for some δ > 0, then 
+
+P[τ (Z) > t ]
+
+P[ξ > t ] −→ E[τ (η)α], as t → ∞ , (3.43) 
+
+and Zτ (Z) {τ (Z) > t } T V 
+
+−→ ΘZ , as t → ∞ , (3.44) 
+
+where T V 
+
+−→ denotes convergence of the probability laws in total variation, and ΘZ has the probability distribution σ on Sτ such that 
+
+σ(A) = 1
+
+E[τ (η)α] E[1 A(η/τ (η)) τ (η)α], A ∈ B (Sτ ). (3.45) 
+
+In particular, Z ∈ RV α(Rk, {an}, c Z , τ, σ ), where anP[ξ > n ] ∼ 1 and cZ = E[τ (η)α]./Optimal prediction of extreme events 19 
+
+The proof of Proposition 3.4 is given in Section B.3.3. 
+
+Pareto-Breiman models. In the rest of this section, we return to the optimal prediction context. We shall consider the important special case of the Breiman models, where the heavy-tailed factor has asymptotically Pareto tails, i.e., (3.41) holds and for simplicity α = 1. Specifically, we let 
+
+Z = ( Y, X ) = ξ · (V, W ), (3.46) be given by a Breiman-type model as in Proposition 3.4 such that V ≥ 0, ( V, W ) = ( V, W 1, · · · , W d)and ξ are independent. We assume, moreover that ξ satisfies (3.41) with α = 1. 
+
+Proposition 3.5 (Pareto-Breiman models) . Let Y and X be as in (3.46) with ξ as in (3.41) with 
+
+α = 1 . Let also τ (y, x ) := y+ + τX (x), be a non-negative, continuous 1-homogeneous such that 
+
+0 < E[V ] < ∞ and 0 < E[τX (W )] < ∞. Then: 
+
+(i) Y and X are jointly regularly varying in the sense of Assumption 3.1 and 
+
+(Y, X )
+
+τ (Y, X ) | { τ (Y, X ) > t } T V 
+
+−→ ΘZ =: ( U, (1 − U )Θ) , as t → ∞ . (3.47) 
+
+We have moreover that for all B ∈ B (SX ),
+
+P[Θ ∈ B | U < 1] = 1
+
+E[1 {τX (W )>0} · (V + τX (W ))] E
+
+h
+
+1B
+
+ WτX (W )
+
+
+
+·1{τX (W )>0}(V +τX (W )) 
+
+i
+
+. (3.48) (ii) For all non-negative, measurable homogeneous h : R1+ d → R+, such that E[h(V, W )] < ∞,we have 
+
+tP[h(Y, X ) > t ] → cξE[h(V, W )] , as t → ∞ . (3.49) (iii) If h is as in part (ii) and such that {h > 0} ⊂ { τ > 0}, then 
+
+E[h(U, (1 − U )Θ)] = 1
+
+E[τ (V, W )] E[h(V, W )] . (3.50) The proof of this result is given in Section B.3.3. We shall comment next on the subtle difference between the distribution of Θ in (3.47) the marginal angular distribution of X.
+
+Remark 3.9. In the context of Proposition 3.5, we have 
+
+XτX (X) | { τX (X) > t } T V 
+
+−→ ΘX , as t → ∞ , (3.51) 
+
+where (cf Proposition 3.4 with Z := X) the distribution of ΘX is given by: 
+
+σX (B) = P(Θ X ∈ B) = 1
+
+E[τX (W )] E[1 B (W/τ X (W )) τX (W )] , B ∈ B (SX ).
+
+Relation (3.48) shows that the distribution of Θ|{ U < 1} is a tilted version of the distribution of 
+
+ΘX . That is, even in the case when P[U < 1] = 1 and Θ is always uniquely defined, the distributions of Θ and ΘX are in general different . Indeed, this is naturally attributed to the fact in (3.47) and 
+
+(3.51) one conditions on different extreme events {Y + τX (X) > t } and {τX (X) > t }, respectively. 
+
+The following corollary shows that in the context of the Pareto-Breiman models, Theorem 3.8 yields optimal homogeneous predictors over the entire class of all τX -support dominated and asymp-totically calibrated predictors. /Optimal prediction of extreme events 20 
+
+Corollary 3.1. Let Y and X be as in Proposition 3.5. Suppose that g = g(opt) is as in Theorem 3.8. That is, g ∈ L1+(b · pΘ), with b(θ) and pΘ as in (3.18) and (3.17) , C(g) = E[(1 − U )g(Θ)] = E[U ],and 
+
+Λ( g) = sup      
+
+> f∈L1+(b·pΘ), C (f)= E[U]
+
+Λ( f ).
+
+Define the homogeneous extension of g:
+
+hg(x) := τX (x)g(x/τ X (x)) , x ∈ Rd,
+
+where by convention hg(x) = 0 whenever τX (x) = 0 . Then: 
+
+(i) We have 
+
+lim  
+
+> t→∞
+
+tP[Y > t ] = lim  
+
+> t→∞
+
+tP[hg(X)] = cξE[τ (V, W )] C(g). (3.52) (ii) For every non-negative, homogeneous and Borel measurable function h : Rd → R+ such that 
+
+{h > 0} ⊂ { τX > 0} and P[Y > t ] ∼ P[h(X) > t ], t → ∞ , we have h|SX ∈ L1+(b · pΘ) and 
+
+Λ( h) = λ(Y, h (X)) = lim  
+
+> t→∞
+
+P[Y > t |h(X) > t ] ≤ Λ( g) = λ(Y, h g(X)) . (3.53) 
+
+where the above limits exist and Λ is as in (3.12) .
+
+Remark 3.10. Corollary 3.1 clarifies the subtlety highlighted in Remark 3.7. It shows that for a broad class of regularly varying models, the asymptotic tail dependence coefficient λ(Y, h g(X)) is always well-defined so long as g ∈ L1+(b · pΘ). Moreover, for all τX -support dominated homoge-neous predictors h that are asymptotically calibrated, we have h|SX ∈ L1+(b · pΘ). Thus, the domain 
+
+L1+(b · pΘ) of the abstract optimization problems in Theorem 3.8 corresponds precisely to all possible calibrated measurable homogeneous predictors. 
+
+4. Statistical inference 
+
+In this section, the focus is on the statistical inference of the optimal predictors. We will work in the established peaks-over-threshold framework (Section 4.2) and obtain general results for the 
+
+universal extremal consistency for homogeneous predictors constructed in this framework (Section 4.3). 
+
+4.1. Setup and main ideas 
+
+Throughout this section, we let ( Y, X ) be a jointly regularly random vector in R+ × Rd in the sense of Assumption 3.1, where for simplicity, we suppose that the radial function is 
+
+τ (y, x ) := y + ∥x∥1 = y +
+
+> d
+
+X
+
+> i=1
+
+|xi|, (y, x ) ∈ R+ × Rd,
+
+with ∥ · ∥ 1 denoting the ℓ1-norm. In this case, with the notation in (3.6) and (3.7), we have: 
+
+eU = YY + ∥X∥1
+
+, and (1 − eU ) eΘ = XY + ∥X∥1
+
+, where eΘ := X
+
+∥X∥1
+
+. (4.1) /Optimal prediction of extreme events 21 
+
+For the purpose of conditional quantile inference, we shall assume that the convergence of the angular distributions in (3.8) holds in a stronger, total variation norm sense, i.e., ( eU , (1 − eU ) eΘ) | { τ (Y, X ) > t } T V 
+
+−→ Θ(Y,X ) =: ( U, (1 − U )Θ) , as t → ∞ . (4.2) Finally, we shall suppose that the joint limit distribution P(U, Θ) of U and Θ can be written as 
+
+P(U, Θ) (du, dθ ) = fU |Θ(u|θ)dup Θ(dθ ), (4.3) where the Lebesgue density of the conditional distribution U |Θ, is assumed to be positive , i.e., 
+
+fU |Θ(u|θ) > 0 modulo dup Θ(dθ ). (4.4) Recall that qα(θ), defined in (3.24), stands for the left-continuous α-quantile of the weighted 
+
+conditional density ∝ (1 − u)fU |Θ(u|θ). Then, (4.4) implies that α 7 → qα(θ) ∈ (0 , 1) is continuous 
+
+and strictly increasing in α ∈ (0 , 1) modulo pΘ(dθ ). In view of Theorem 3.8, we then have that for all 0 < α < 1, 
+
+gα(x) := ∥x∥ · qα(x/ ∥x∥)1 − qα(x/ ∥x∥) , x ∈ Rd, (4.5) yields an optimal homogeneous predictor. Specifically, Λ( gα) = sup 
+
+> g∈D(gα)
+
+Λ( g), (4.6) where Λ( ·) is as in (3.12). Recall that the optimization domain D(gα) consists of all measurable positive homogeneous functions such that 
+
+C(g) = E[(1 − U )g(Θ)] = C(gα),
+
+where C(·) stands for the constraint functional in (3.20). Finally, notice that the optimal value is achieved by a continuous predictor ( α, x ) 7 → gα(x). 
+
+Summary of the main ideas. Given the above discussion, obtaining an asymptotically optimal homogeneous predictor of {Y > t } amounts to estimating the quantile functions qα(·), and finding the value of α ∈ (0 , 1) such that the predictor in (4.5) is calibrated. This, in view of the continuity of gα, amounts to having 
+
+C(gα∗ ) = E[U ], (4.7) because P[gα(X) > t ]/P[Y > t ] → C(gα)/E[U ], as t → ∞ , by Proposition 3.1. This is the main idea behind the optimal predictor inference methodology described in Sections 5 and D. Theorem 4.1 (below) shows that this methodology will yield predictors with asymptotically optimal precision. To make this precise, however, one needs to address several details. If one had iid samples ( Ui, Θi), i = 1 , · · · , n from the limiting angular distribution P∞ := P(U, Θ) ,then qα(·) can be consistently estimated (as n → ∞ ) in many ways. For example, one can use classical quantile regression with a weighted loss or by using weighted quantile random forest estimators [34, 21] (cf Section 5). In practice, however, one does not have iid samples from the limiting angular distribution, but in-stead a triangular array of samples ( eUi, eΘi)’s coming from the distribution Ptn of ( eU , eΘ) | { τ (Y, X ) >tn} indexed by a threshold tn → ∞ . Thus, to show that the quantile estimates bqα based on these data are asymptotically consistent, one needs an additional step that controls the rate at which 
+
+Ptn converges to P∞. This will be done by appealing to a Le Cam-type contiguity argument in Section 4.2. This step will subsequently allow us to establish general results that can be thought of as extremal counterparts to universal consistency (Theorem 4.1 in Section 4.3). /Optimal prediction of extreme events 22 
+
+4.2. Peaks-over-threshold: A contiguity perspective 
+
+Let {(Yi, X i)}ni=1 be independent copies of ( Y, X ) and define the radii 
+
+Ri := τ (Yi, X i) = Yi + ∥Xi∥1, i = 1 , . . . , n. 
+
+Given a threshold t = tn → ∞ , consider the associated index set of exceedances: 
+
+In := {i ∈ { 1, . . . , n } : Ri > t n}.
+
+Following (4.1), the angular components of these exceedance observations are denoted as 
+
+eUi := Yi
+
+Ri
+
+, and eΘi := Xi
+
+∥Xi∥1
+
+, i ∈ I n. (4.8) The Peaks-over-Threshold (PoT) methodology stipulates that by Relation (4.2), as t → ∞ , one can regard the ( eUi, eΘi), i ∈ I n as independent samples coming from P∞ := P(U, Θ) . Thus, if t = tn → ∞ 
+
+and at the same time the number of exceedances 
+
+K(n) := |I n| → ∞ , as n → ∞ ,
+
+one expects to be able to consistently estimate functionals of P∞ with statistics based on the sample ( eUi, eΘi), i ∈ I n. To formalize this idea, one needs to address two issues: (i) The sample size K(n)is random; (ii) The conditional distribution Ptn of ( eU , eΘ) given τ (Y, X ) > t n may approach P∞ at a slow rate. The first issue is elegantly addressed via the so-called d` ecoupage de L´ evy , while the second by Proposition 4.2 using the ideas of contiguity. 
+
+Proposition 4.1 (D` ecoupage de L´ evy) . Let Pt be the conditional distribution ( eU , eΘ) |τ (Y, X ) > t .Let also ( eUi, eΘi), i ∈ I n be as in (4.8) and independently, let (U ∗ 
+
+> j
+
+, Θ∗ 
+
+> j
+
+), j = 1 , 2, . . . be independent realizations from Pt. Then, 
+
+{( eUi, eΘi), i ∈ I n} d
+
+= {(U ∗ 
+
+> j
+
+, Θ∗ 
+
+> j
+
+), j = 1 , · · · , K (n)},
+
+viewed as random point measures. 
+
+This result is known [see e.g. 40, or Remark B.2 in Section B.4.1 for a proof]. Proposition 4.1 shows that the exceedance “angles” ( eUi, eΘi) can be regarded as independent draws from the distri-bution Pt. Moreover, the random number of exceedances K(n) and their values are independent, i.e., can be decoupled, even though they come from the common sample {(Yi, X i), i ∈ [n]}.The following result makes the intuition behind Peaks-over-Threshold formally precise. It uses a contiguity-type argument in the spirit of Le Cam’s First Lemma [see e.g. 56]. 
+
+Proposition 4.2 (Contiguity) . Consider the distributions P∞ := P(U, Θ) and Pt := P( eU , eΘ) |τ (Y,X )>t 
+
+above defined. Let (Ui, Θi), i = 1 , 2, . . . be iid from P∞ and ( eUi, eΘi), i = 1 , 2, . . . be iid from Ptn .If the random integer sequence K(n) is independent from these samples and such that 
+
+K(n) P
+
+→ ∞ and K(n)∥Ptn − P∞∥TV P
+
+−→ 0 as n → ∞ , (4.9) 
+
+then for any measurable Tk = Tk(( U1, Θ1), · · · , (Uk, Θk)) such that 
+
+Tk P
+
+→ 0, as k → ∞ 
+
+we have eTK(n) := TK(n)
+
+
+
+( eU1, eΘ1), · · · , ( eUK(n), eΘK(n))
+
+ P
+
+→ 0, as n → ∞ ./Optimal prediction of extreme events 23 
+
+The proof can be found in Section B.4.1 (cf Proposition B.5). This result shows that provided (4.9) holds, any statistic based on the sample {( eUi, eΘi), i ∈ I n} has the same consistency behavior as the same statistic computed from {(Ui, Θi)}K(n) 
+
+> i=1
+
+– an iid sample from the asymptotic angular distribution P∞ = P(U, Θ) . This general contiguity argument allows us to seamlessly extend consis-tency results for iid samples from the unattainable asymptotic distribution P∞ to the triangular array type setting of peaks-over-threshold. 
+
+Remark 4.1. The appearance of the total variation norm in (4.9) may appear stringent but it is in fact rather mild. Indeed, as shown in Proposition 3.4, for the broad class of Breiman-type models we automatically have ∥Ptn − P∞∥TV → 0, as tn → ∞ and then ensuring (4.9) is a matter of choosing the threshold in the latter convergence. Consequently, for every Breiman-type model one can choose 
+
+tn → ∞ so that (4.9) is holds. 
+
+Remark 4.2. By Proposition 1.1 in [6], we have 
+
+( eUi, eΘi)i∈I n
+
+> d
+
+= ( U ∗ 
+
+> i
+
+, Θ∗ 
+
+> i
+
+)ki=1 ,
+
+where (U ∗ 
+
+> i
+
+, Θ∗ 
+
+> i
+
+)ki=1 are iid from Ptn , where tn is a random threshold given by the largest k(n)-th order statistic of the Ri’s. Therefore, the results in this section can be shown to hold in the case where the number of exceedances |I n| = k(n) is deterministic, while the threshold is tn is random. 
+
+4.3. On the universal consistency in optimal homogeneous prediction 
+
+In this section, we provide a general consistency result for the optimal homogeneous predictors under rather mild conditions. In Section 5, we demonstrate that these conditions are fulfilled for a class of random forest-based predictors. These general consistency results can be viewed as an extreme value counterpart to the classical universal consistency theory of Stone [see e.g. Ch. 6 in 17]. To be precise, the focus here is on showing convergence to the optimal precision (equivalently, loss) rather than on the consistency of the predictors themselves. Namely, consistency results are stated through the precision functional Λ defined in equation (3.12) for functions g as Λ( g) = 1
+
+E[U ] E[U ∧ (1 − U )g(Θ)] = lim 
+
+> t→∞
+
+P[Y > t, g (X) > t ]
+
+P[Y > t ] ;Observe that if g(X) is calibrated then we have Λ( g) = λ(Y, g (X)). Hence the aim is to provide asymptotic calibration conditions and consistency of Λ(ˆ gn) for a suitable sequence of predictors (ˆ gn)n≥1 based on a growing training data set. 
+
+Assumption 4.1. Adopt the setup of Section 4.1. We suppose that (4.2) holds, that is, 
+
+∥Pt − P∞∥TV −→ 0, as t → ∞ ,
+
+where Pt = P( eU , eΘ) |τ (Y,X )>t and P∞ = P(U, Θ) . Suppose moreover that (4.3) , and (4.4) hold. 
+
+Assumption 4.2. Adopt the notation of Section 4.1 and recall qα(θ) stands for the quantile of the weighted conditional density ∝ (1 − u)fU |Θ(u|θ), (cf (3.24) ). Assume that (α, θ ) 7 → qα(θ) is defined and continuous on the domain (0 , 1) × SΘ for some compact set SΘ ⊆ SX such that pΘ(SΘ) = 1 
+
+(e.g., SΘ = supp( pΘ)). Let {(Ui, Θi)}ki=1 be independent samples from the distribution P∞ = P(U, Θ) . Assume there exists an estimator bqα,k (θ) of qα(θ), based on the sample {(Ui, Θi)}ki=1 , such that: (i) for all α ∈ (0 , 1) /Optimal prediction of extreme events 24 
+
+and k ∈ N, the function θ 7 → bqα,k (θ) is defined and continuous on the entire unit sphere θ ∈ SX ;(ii) We have 
+
+0 < bqα(θ) < 1, for all α ∈ (0 , 1) and θ ∈ SX ;(iii) For all 0 < α 0 < α 1 < 1:
+
+sup 
+
+> α∈[α0,α 1]
+
+∥bqα,k (·) − qα(·)∥∞,S Θ := sup 
+
+> α∈[α0,α 1]
+
+sup 
+
+> θ∈SΘ
+
+|bqα,k (θ) − qα(θ)| P
+
+−→ 0, as k → ∞ .
+
+Given the quantile estimators in Assumption 4.2, define 
+
+bgα,k (x) := ∥x∥ · bqα,k (x/ ∥x∥)1 − bqα,k (x/ ∥x∥) , x ∈ Rd, (4.10) where bgα,k (x) := 0. Now, consider the Peaks-over-Threshold methodology of Section 4.2. That is, let ( Yi, X i), i ∈ [n]be independent copies of a jointly regularly varying random vector ( Y, X ) in R+ × Rd and focus on the random sample of exceedance-based angles {( eUi, eΘi), i ∈ I n} in (4.8), for a sequence of thresholds t = tn → ∞ . Let also αn be a sequence of estimators for α∗ in (4.7) and define the predictors 
+
+bgn(x) := bgαn,K (n)(x), (4.11) computed with the ( Ui, Θi)’s replaced by the the ( eUi, eΘi)’s, where K(n) = |I n|.The following theorem shows the universal extremal consistency of the predictors {bgK(n)(X) > t }
+
+for the events {Y > t }, as t → ∞ under mild conditions. That is, we will show that these event predictors are asymptotically calibrated and that their precision is asymptotically optimal. 
+
+Theorem 4.1. Let (Y, X ) and (Yi, X i), i = 1 , 2, · · · , n be iid. Adopt Assumptions 4.1 and 4.2 and let bgn(·) = bgαn,K (n)(·) be as in (4.11) .If αn P
+
+→ α∗ with α∗ as in (4.7) , and the thresholds tn → ∞ are such that 
+
+nP(τ (Y, X )) > t n)∥Ptn − P∞∥TV −→ 0 as n → ∞ , (4.12) 
+
+then: 
+
+(i) We have that: 
+
+bcn := lim 
+
+> t→∞
+
+P[bgn(X) > t |bgn]
+
+P[Y > t ]
+
+> P
+
+−→ 1, as n → ∞ , (4.13) 
+
+and consequently, for bcn > 0,
+
+λ(Y, bgn(X)|bgn) = lim  
+
+> t→∞
+
+P[bgn(X) > bcnt|Y > t, bgn] = Λ( bgn(·)/bcn). (4.14) (ii) The predictors bgn(·) and bgn(·)/bcn are both precision-optimal: 
+
+P lim  
+
+> n→∞
+
+Λ( bgn/bcn) = P lim  
+
+> n→∞
+
+Λ( bgn) = Λ( gα∗ ), (4.15) 
+
+where P lim denotes the limit in probability. 
+
+(iii) If, moreover, for some sequence of non-negative, continuous, and homogeneous functions 
+
+bhn(·), independent from (Y, X ), we have that 
+
+bdn := lim 
+
+> t→∞
+
+P[bhn(X) > t |bhn(·)] 
+
+P[Y > t ]
+
+> P
+
+−→ 1, as n → ∞ , (4.16) 
+
+then for all ϵ > 0, we have 
+
+lim  
+
+> n→∞
+
+P[Λ( bhn) ≤ Λ( bgn) + ϵ] = 1 . (4.17) /Optimal prediction of extreme events 25 
+
+We will first comment on the consequences of this result and then present its proof. 
+
+Remark 4.3. Observe that Relations (4.13) and (4.16) involve conditioning on the predictors bgn
+
+and/or bhn, which are built by using the training data {(Yi, X i)}ni=1 . One can interpret these results as follows. Having a new observation (Y, X ), independent from {(Yi, X i)}ni=1 , we seek a predictor 
+
+{bgn(X) > t } for {Y > t }, which is asymptotically calibrated, in the sense that (4.13) holds. That is, given the data, the rate at which we sound an alarm P[bgn(X) > t |bgn] is asymptotically equivalent to the rate P[Y > t ] of the event, as t → ∞ and as the sample size n → ∞ .Adopting this extremal perspective , where the rate of the event P[Y > t ] vanishes as t → ∞ ,Relation (4.17) shows that the predictor bgn has an asymptotically optimal precision among all continuous homogeneous predictors, calibrated in the sense of (4.16) .
+
+Remark 4.4. In the context of Theorem 4.1, we have 
+
+λ(Y, bhn(X)|bhn) ≤ Λ( gα∗ ) = P lim  
+
+> n→∞
+
+λ(Y, bgn(X)|bgn). (4.18) 
+
+This follows from the observation that λ(Y, bhn(X)|bhn) = Λ( bhn(·)/ bdn) and the fact that bhn(·)/ bdn is calibrated, which trivially implies the inequality in (4.18) . The equality therein follows from (4.14) 
+
+and (4.15) .Relation (4.18) states that the asymptotic precision of any calibrated continuous homogeneous predictor bhn, is no better than the optimal value Λ( gα∗ ). This, while appealing, is of limited interest in practice, since one often does not have knowledge of the calibration constants bdn in (4.16) . In practice, one provides decisions based on whether the event {bhn(X) > t } occurs. Therefore, for a finite n, the precision functional 
+
+Λ( bhn) = P lim  
+
+> n→∞
+
+P[bhn(X) > t |Y > t, bhn]
+
+is of greater interest than the tail-dependence coefficient λ(Y, bhn(X)|bhn). This is why we stated Theorem 4.1 primarily in terms of the precision functionals Λ rather than via tail-dependence coefficients. Proof of Theorem 4.1. We will argue first that 
+
+∥bgn − gα∗ ∥∞,S Θ
+
+> P
+
+−→ 0, as n → ∞ . (4.19) Indeed, recalling (4.11), one can write sup 
+
+> θ∈SΘ
+
+|bqn(θ) − qα∗ (θ)| ≤ sup 
+
+> θ∈SΘ
+
+|bqαn,K (n)(θ) − qαn (Θ) | + sup 
+
+> θ∈SΘ
+
+|qαn (θ) − qα∗ (θ)|
+
+=: TK(n)(( eU1, eΘ1), · · · , ( eUK(n), eΘK(n))) + ∥qαn (·) − qα∗ (·)∥∞,S Θ , (4.20) for some measurable functions Tk : ((0 , 1) × SX )×k → [0 , 1] , k ∈ N.Consider the first term in (4.20). By Assumption 4.2, since αn P
+
+→ α∗ ∈ (0 , 1), as n → ∞ , we have 
+
+Tk(( U1, Θ1), · · · , (Uk, Θk)) P
+
+−→ 0, as k → ∞ ,
+
+where the ( Ui, Θi)’s are now iid from p(U, Θ) . On the other hand, 
+
+K(n) = |I n| = OP(E[K(n)]) = OP(nP[τ (Y, X ) > t n]) , as n → ∞ ,
+
+and therefore, the contiguity argument in Proposition 4.2 implies 
+
+TK(n)(( eU1, eΘ1), · · · , ( eUK(n), eΘK(n))) P
+
+−→ 0, as n → ∞ ./Optimal prediction of extreme events 26 
+
+This shows that the right-hand side of (4.20) converges in probability to 0, as n → ∞ , because 
+
+∥qαn − qα∗ ∥∞,S Θ
+
+> P
+
+→ 0, n → ∞ , by the continuity of ( α, θ ) 7 → qα(θ) on (0 , 1) × SΘ and since 
+
+αn P
+
+→ α∗ ∈ (0 , 1). We have thus shown that 
+
+∥bqn − qα∗ ∥∞,S Θ
+
+> P
+
+→ 0, as n → ∞ . (4.21) Now, recall (4.10) and observe that 
+
+bgn(θ) := Ψ( bqn)( θ) and gα∗ (θ) := Ψ( bqn)( θ),
+
+where Ψ : C(SΘ; (0 , 1)) → C(SΘ; (0 , ∞)) is the functional Ψ( q)( θ) := q(θ)/(1 − q(θ)), and where 
+
+C(Sθ; ( a, b )) denotes the space of continuous functions q : SΘ → (a, b ) defined on the compact 
+
+SΘ and taking values in ( a, b ). Observe that the functional Ψ : C(SΘ; (0 , 1)) → C(SΘ; (0 , ∞)) is continuous in ∥ · ∥ ∞,S Θ , at all functions q ∈ C(SΘ; (0 , 1)) such that max θ∈SΘ q(θ) < 1. Thus, by the fact that α∗ < 1, we have qα∗ (θ∗) := max θ∈SΘ qα∗ (θ) < 1, and the continuity of Ψ at qα∗ (·)combined with the established Relation (4.21) implies (4.19). 
+
+Part (i). We shall now prove (4.13). Assumption 4.2 implies that for all αn ∈ (0 , 1), the quantile estimator bqαn (θ) is continuous in θ, positive, and less than 1 for all θ ∈ SX . Therefore, bgn(θ) = 
+
+bqαn (θ)/(1 − bqαn (θ)) is continuous positive and finite for all θ ∈ SX . Hence, the homogeneous functions ( y, x ) 7 → y and ( y, x ) 7 → bgn(x) := ∥x∥bgn(x/ ∥x∥), x ∈ Rd satisfy the assumptions of Proposition 3.1, and thus lim  
+
+> t→∞
+
+b(t)P[bgn(X) > t |bgn] = cZ E[(1 − U )bgn(Θ) |bgn] and lim  
+
+> t→∞
+
+b(t)P[Y > t ] = cZ E[U ],
+
+which implies lim 
+
+> t→∞
+
+P[bgn(X) > t |bgn]
+
+P[Y > t ] = 1
+
+E[U ] E[(1 − U )bgn(Θ) |bgn], as t → ∞ . (4.22) Therefore, to prove (4.13), it remains to show that the right-hand side of (4.22) converges in probability to 1, as n → ∞ . By the calibration result in (4.7), we have E(1 − U )gα∗ (Θ)] = E[U ], and hence 
+
+1
+
+E[U ] E[(1 − U )bgn(Θ) |bgn] − 1 = 1
+
+E[U ] E[(1 − U )( bgn(Θ) − gα∗ (Θ)) |bgn]
+
+≤ 1
+
+E[U ] ∥bgn − gα∗ ∥∞,S Θ
+
+> P
+
+→ 0, (4.23) as n → ∞ , by the established Relation (4.19). This completes the proof of (4.13). To show (4.14), observe that (4.13) implies that t 7 → P[bgn(X) > t |bgn] is regularly varying with tail exponent −1 whenever bcn > 0. Therefore, for bcn > 0, we have 
+
+P[bgn(X) > bcnt|bgn] ∼ bc−1 
+
+> n
+
+P[bgn(X) > t ], as t → ∞ ,
+
+which in view of (4.13), entails that bgn(·)/bcn is asymptotically calibrated in the sense of (3.9). Lemma 3.3, then implies (4.14). 
+
+Part (ii). The proof of (4.15) is similar to that of (4.13). Indeed, conditionally on bgn, by Propo-sition 3.1 applied to the continuous and homogeneous functions ( y, x ) 7 → (y ∧ bgn(x)) and ( y, x ) 7 → y,we obtain: Λ( bgn) = lim  
+
+> t→∞
+
+P[bgn(X) > t |Y > t, bgn] = E[U ∧ (1 − U )bgn(Θ) |bgn]
+
+E[U ] . (4.24) /Optimal prediction of extreme events 27 
+
+The latter, as argued in (4.23), in view of (4.19) and the Dominated Convergence Theorem, converges as n → ∞ , to Λ( gα∗ ) = E[U ∧ (1 − U )gα∗ (Θ)]. Relation (4.19) and the fact that 
+
+bcn P
+
+→ 1, n → ∞ , imply also that ∥bgn(·)/bcn − gα∗ ∥∞,S Θ
+
+> P
+
+→ 0. Thus a similar dominated con-vergence argument with bgn replaced by bgn(·)/bcn entails also Λ( bgn(·)/bcn) P
+
+→ Λ( gα∗ ), as n → ∞ .
+
+Proof of (iii): Relations (4.3) and (4.4) in Assumption 4.1 imply that the quantile functions 
+
+β 7 → qβ (θ)are strictly increasing and continuous , and such that 
+
+qβ (θ) ↓ 0 (β ↓ 0) and qβ (θ) ↑ 1 (β ↑ 1) , (4.25) modulo pΘ(dθ ). These observations, the Monotone Convergence Theorems, and the fact that u 7 → u/ (1 − u) is strictly increasing and continuous, entail that the functions 
+
+β 7 → C(gβ ) = E[(1 − U )gβ (Θ)] and β 7 → Λ( gβ ) = E[U ∧ (1 − U )gβ (Θ)] /E[U ],
+
+are continuous (see also Lemma 3.7). Moreover, the function φ(β) := C(gβ ) is strictly increasing in β and such that 
+
+C(gβ ) ↓ 0 (β ↓ 0) and C(gβ ) ↑ ∞ (β ↑ 1) . (4.26) We are now ready to prove (4.17). By (4.26) and the continuity of β 7 → C(gβ ), it follows that 
+
+C(bhn) = C(gbβn ), (4.27) where in fact the sequence of random variables bβn ∈ (0 , 1) is unique. Further, the fact that for all 
+
+β ∈ (0 , 1), we have that gβ is optimal in the sense of (4.6) and since by (4.27), we have bhn ∈ D(gbβn ), we obtain Λ( bhn) ≤ Λ( gbβn ). (4.28) Now, notice that Proposition 3.1, applied to the homogeneous functions ( x, y ) 7 → bhn(x) and ( x, y ) 7 →
+
+y and the conditional measure P(·| bhn), implies that lim 
+
+> t→∞
+
+P[bhn(X) > t |bhn]
+
+P[Y > t ] = C(bhn)
+
+E[U ] .
+
+Thus, by (4.16), yields C(bhn) = C(gbβn ) P
+
+→ E[U ] = C(gα∗ ), as n → ∞ . The strict monotonicity of 
+
+φ(β) = C(gβ ) in β implies, however, that φ−1 is continuous and hence 
+
+bβn = φ−1
+
+C(gbβn )
+
+ P
+
+−→ φ−1
+
+C(gα∗ )
+
+
+
+= α∗, as n → ∞ .
+
+The last convergence, the continuity of β 7 → gβ (θ) modulo pΘ(dθ ), and the Dominated Convergence Theorem, entail Λ( gbβn ) = 1
+
+E[U ] E[U ∧ (1 − U )gbβn (Θ) | bβn] P
+
+−→ Λ( gα∗ ), as n → ∞ . (4.29) Relations (4.15), (4.28), and (4.29) imply (4.17), completing the proof of the theorem. 
+
+Remark 4.5. The existence of a positive density (cf (4.3) and (4.4) ) in Assumption 4.1 can be relaxed. The key idea behind proving (4.17) is the continuity of the optimal value inf g′∈D(g) Λ( g′)
+
+relative to the value of the constraint C(g). Thus, one can extend (4.17) to the case of discontinuous quantile functions qα(·) by considering (3.36) and applying the method of interpolation used in the proof of Theorem 3.8. /Optimal prediction of extreme events 28 
+
+5. Methodology and numerical examples 
+
+5.1. Weighted quantile inference 
+
+Consider a random variable ξ whose conditional density given Θ = θ is defined by 
+
+fξ|Θ= θ(u) ∝ (1 − u)fU |Θ(u | θ),
+
+and assume that Assumption 4.2 holds. Let 
+
+ρα(u) =  α − 1{u≤0}
+
+u, α ∈ (0 , 1) ,
+
+denote the standard check loss function. Under Assumption 4.2, the conditional density fξ|Θ= θ is continuous and strictly positive in a neighborhood of its α-quantile 
+
+qα,ξ (θ) := F −1
+
+> ξ|Θ= θ
+
+(α), θ ∈ Sd−1.
+
+It is well known (see, e.g., [38]) that, for every fixed θ ∈ Sd−1, the conditional quantile qα,ξ (θ) is the unique minimizer of 
+
+a 7 −→ E[ρα(ξ − a) | Θ = θ] .
+
+Since qα is assumed to be continuous, the conditional quantile admits the representation 
+
+qα(θ) = argmin 
+
+> a∈(0 ,1)
+
+E[ρα(ξ − a) | Θ = θ] . (5.1) Moreover, integrating with respect to the distribution of Θ and using the definition of ξ, we obtain Z
+
+> Sd−1
+
+E[ρα(ξ − a) | Θ = θ] pΘ(dθ ) = E[ρα(U − a)(1 − U )] .
+
+Consequently, introducing 
+
+Mα(a) := E[ρα(U − a)(1 − U )] ,
+
+we have 
+
+qα(θ) = argmin 
+
+> a∈(0 ,1)
+
+Mα(a).
+
+Since Mα is convex and subdifferentiable, its minimizer is characterized by the first-order opti-mality condition 
+
+α = E1{U ≤a}(1 − U ) Θ = θ
+
+E[1 − U | Θ = θ] .
+
+The right-hand side is precisely the conditional distribution function of ξ given Θ = θ. This obser-vation leads to the following weighted quantile estimator [59, 22]: 
+
+bqα(θ) := bF −1
+
+> k,ξ |Θ= θ
+
+(α), (5.2) where 
+
+bFk,ξ |Θ= θ(a) = 
+
+> k
+
+X
+
+> i=1
+
+ωh(Θ i, θ )(1 − Ui)
+
+Pkj=1 ωh(Θ j , θ )(1 − Uj ) 1{Ui≤a}./Optimal prediction of extreme events 29 
+
+Here ( Ui, Θi)ki=1 are independent copies of ( U, Θ), and 
+
+ωh(θ, θ ′) = ω
+
+ d(θ, θ ′)
+
+h
+
+
+
+,
+
+with 
+
+d(θ, θ ′) = arccos( θ⊤θ′)denoting the geodesic distance on the sphere Sd−1 and h a bandwidth depending on k.For a fixed θ ∈ Sd−1, consistency of the estimator bqα(θ) follows, as long as kh (k)d−1 goes to 0 as n goes to infinity, from standard arguments because the density is strictly positive in kernel estimation; see, for instance, Section 1.2 of [54] for kernel estimator and [40] Proposition 0.1 for the convergence of inverse functions. Note that a wide range of weights functions ω can be chosen in practice. As an example, implementation with quantile regression forests [34] are discussed in Supplements D and E. However, pointwise consistency alone is not sufficient to guarantee the uniform convergence required in Assumption 4.2. The estimator bqα can nevertheless be modified to obtain a uniformly consistent version. 
+
+Proposition 5.1. Let qn,α (θ) be a consistent (in probability) estimator of qα(θ) for all θ ∈ K.Assume that the mapping 
+
+(α, θ ) 7 −→ qα(θ)
+
+is continuous on (0 , 1) × K. Then there exist a sequence m(n) → ∞ and a transformed estimator 
+
+bqn,α (θ) such that: (i) The mapping 
+
+(α, θ ) 7 −→ bqn,α (θ)
+
+is continuous on (0 , 1) × Sd−1.(ii) The uniform convergence 
+
+sup 
+
+> θ∈K
+
+|bqn,α (θ) − qα(θ)| P
+
+−→ 0, n → ∞ , (5.3) 
+
+holds. Proof. The result follows directly from Proposition B.6. An explicit construction of the estimator bqn,α (·) is provided in the proof of Proposition B.6. Note that the sequence m(n) therein is not very explicit since one only requires the pointwise consistency of qn,α (θ). If one has more information on the rate of this consistency, then a conservative choice of m(n) can be obtained. For more details, see Remark B.3. 
+
+Remark 5.1. As it is typical in the PoT framework (cf Section 4.2), the formal consistency result for bqα(·) to the asymptotic quantity qα(·), would require taking the threshold r = r(n) → ∞ so that 
+
+n/r (n) → ∞ .On the other hand, although we are dealing with extreme event prediction, the value of α is not necessarily extremely small or large so the quantile regression inference methodology is conventional. /Optimal prediction of extreme events 30 
+
+5.2. Examples and simulations 
+
+In this section, we illustrate the performance of our optimal homogeneous predictors that were 
+
+estimated from data in comparison with the oracle predictors in several simulated models. We implemented the peaks-over-threshold methodology described in Section 4.1. While the quantile (θ, α ) 7 → qα(θ) involved therein can be estimated using a variety of methods, we opted for the versatile nonparametric method of [34] known as quantile regression forest . This method works remarkably well in multiple dimensions and is easy to tune. Specifically, we implemented our esti-mator in R [49, 50] using a state-of-the-art computationally and memory efficient implementation of quantile regression forests in the R package ranger by [58]. For more details, see Section D. We present two types of models: spectrally discrete and spectrally continuous ones, that illustrate and the general case described in Section 4. For more details and proofs, see Section C. 
+
+The spectrally discrete case. Consider the linear factor model 
+
+Y =
+
+> p
+
+X
+
+> i=1
+
+biξi and X =
+
+> r
+
+X
+
+> i=1
+
+aiξi, (r ≤ p), (5.4) where ξ1, . . . , ξ p are independent standard 1-Pareto random variables, viewed as latent factors ;
+
+bi ≥ 0, and ai ∈ Rd. Then, vector Z = ( Y, X ) is regularly varying with a discrete angular measure concentrated on the p directions ci/∥ci∥1, where ci = ( bi, a i) (see Proposition C.1 in Section C.1). 
+
+Remark 5.2. The latent factor model in (5.4) includes as a special case the linear model of the form Y = X⊤β + ϵ, where X and ϵ ∼ Pareto(1) are independent (with X as in (5.4) ). The latent factor formulation, however, is in general much richer than the simple linear model. In fact, as 
+
+p → ∞ , the angular measures of such spectrally discrete models can be shown to be dense in the space of all possible angular measures for jointly regularly varying (Y, X ).
+
+Remark 5.3. The linear factor models in (5.4) are just one instance of models with discrete spectra. Others such as max-linear or generalized Breiman-type models can have such spectra and Proposition C.1 and Corollary C.1 hold for them. 
+
+Under mild non-proportionality assumptions on the ai’s (Corollary C.1), the optimal asymptotic precision takes the explicit form 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = 
+
+Pri=1 bi
+
+Ppi=1 bi
+
+, (5.5) where r ≤ p is the number of factors with ai̸ = 0. 
+
+Remark 5.4 (perfect asymptotic precision) . Relation (5.5) reveals a remarkable perfect asymp-totic precision phenomenon. If all p latent factors contribute to X (r = p) and no two directions 
+
+{ai/∥ai∥1, i = 1 , · · · , p } coincide, then (5.5) implies λ(opt)  
+
+> G
+
+(Y, X ) = 1 . This means that, asymptoti-cally, one can predict the extremes of Y with perfect precision ! This surprising phenomenon can be intuitively explained via the single large jump heuristic as follows. Conditionally on {∥ X∥1 > t },as t → ∞ , one and only one of the factors ξi will dominate in the sum (5.4) . Thus, the direc-tion X/ ∥X∥1 identifies, asymptotically with probability one, the unique factor ξi responsible for the extreme event, which in turn determines Y exactly. For more details, see Section C.1. 
+
+Given the bi’s and ai’s, one can construct a continuous, non-negative, 1-homogeneous function 
+
+h(opt) achieving (5.5), which we refer to as the oracle predictor (see (C.6)). In practice the bi’s and /Optimal prediction of extreme events 31 0.00 0.25 0.50 0.75 1.00      
+
+> 0.85 0.9 0.95 0.99 0.995
+> Threshold p
+> λ
+> ^(p)
+> λ
+> ^Oracle
+
+Discrete spectrum: d=3, r=5, p=10 0.00 0.25 0.50 0.75 1.00      
+
+> 0.85 0.9 0.95 0.99 0.995
+> Threshold p
+> λ
+> ^(p)
+> λ
+> ^Oracle
+
+Discrete spectrum: d=3, r=10, p=10 
+
+Fig 1: Pairs of boxplots of the empirical tail dependence coefficient bλ(p) of the estimated predictor 
+
+(left) and the oracle predictor (right) for several thresholds p ∈ { 0.85 , 0.9, 0.95 , 0.99 , 0.995 }, based on 100 independent replications of a spectrally discrete model. Left panel: Unobserved covariates present ( r = 5 < p = 10). Right panel: A perfect asymptotic precision scenario ( r = p = 10). The dotted red line marks the optimal asymptotic precision for the class of homogeneous predictors 
+
+λopt  
+
+> H
+
+.
+
+ai’s are unknown. Nevertheless, the spectral measure of ( Y, X ) in (C.2) can be estimated consis-tently from data by using the peaks-over-threshold methodology combined with a non-parametric estimator of the quantiles of qα(θ) the tilted conditional angular distribution (cf Algorithm 1). Figure 1 illustrates the finite-sample behavior of our nonparametric estimator across repeated experiments: The left panel corresponds to the under-determined case r < p , where (5.5) is strictly less than one, while the right panel shows the perfect precision case r = p, where λ(opt)  
+
+> G
+
+= 1. The estimators are based on a training sample {(Yi, X i)} of ntrain = 10 4 using a random threshold based on the 0 .95th empirical quantile. The empirical precision is then computed over an independently generated testing sample {(Y ∗ 
+
+> i
+
+, X ∗ 
+
+> i
+
+)}ntest  
+
+> i=1
+
+of size ntest = 10 4, where 
+
+bλ(p) := 11 − p
+
+> ntest
+
+X
+
+> i=1
+
+I{bg(X∗ 
+
+> i
+
+) > bFbg(p)}I{Y ∗ 
+
+> i
+
+> bFY (p)}, p ∈ (0 , 1) , (5.6) where bFbg and bFY are the empirical CDFs of {bg(X∗ 
+
+> i
+
+)} and {Y ∗ 
+
+> i
+
+}, respectively. The boxplots are based on 100 independent replications of the bλ(p)’s. The coefficients bi and the components of the vectors ai in (5.4) were fixed across different replications, but drawn independently and at random from the Uniform(0 , 1) distribution, therefore ensuring that ai/∥ai∦ = aj /∥aj ∥, for all i̸ = j, with probability one. Figure 1 shows a close agreement of the estimated optimal homogeneous predictor and the oracle, and both are rather close to the optimal homogeneous extremal precision (dashed horizontal line). It is remarkable that the empirical tail dependence coefficient is nearly one for thresholds p as low as 0 .85 in the asymptotically perfect precision scenario. 
+
+The Pareto-Dirichlet case. As an illustration of the spectrally continuous setting, consider 
+
+Z = ( Y, X ) = ξ · (V, W ), where ξ is a standard 1-Pareto random variable independent of ( V, W ) ∼
+
+Dirichlet( β) with parameter β = ( β0, β 1, . . . , β d) ∈ (0 , ∞)d+1 . We call this the Pareto-Dirichlet (β)/Optimal prediction of extreme events 32 0.00 0.25 0.50 0.75 1.00      
+
+> 0.85 0.9 0.95 0.99 0.995
+> Threshold p
+> λ
+> ^(p)
+> λ
+> ^Oracle
+
+Pareto−Dirichlet model 0.00 0.25 0.50 0.75 1.00      
+
+> 0.85 0.9 0.95 0.99 0.995
+> Threshold p
+> λ
+> ^(p)
+> λ
+> ^Oracle
+
+Gumbel copula 
+
+Fig 2: Pairs of boxplots of the empirical tail dependence coefficient bλ(p) of the estimated predictor 
+
+(left) and the oracle predictor (right) for several thresholds p, based on 100 independent replica-tions for two spectrally continuous models. Left panel: Pareto–Dirichlet spectral model ( d = 9). 
+
+Right panel: Gumbel copula model ( β = 1 .5, d = 10). The horizontal dotted red line marks the theoretically optimal asymptotic precision λopt  
+
+> H
+
+in each case. model (cf Proposition C.3). It is τ -regularly varying with respect to the radial function τ (y, x ) = 
+
+|y| + ∥x∥1, and its angular measure is the Dirichlet distribution on the unit simplex ∆ d.The neutrality property of the Dirichlet distribution [14] implies that U := V and Θ := W/ ∥W ∥1
+
+are independent, so the conditional quantile qα(θ) in Theorem 3.8 is constant in θ. This yields a remarkably simple optimal predictor (Proposition C.3 in Section C): 
+
+h(opt) (X) = c ∥X∥1, c := β0
+
+Pdi=1 βi
+
+, (5.7) with optimal precision 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = E
+
+ UμU
+
+∧ 1 − U
+
+1 − μU
+
+
+
+, U ∼ Beta 
+
+
+
+β0, Pdi=1 βi
+
+
+
+, μU = E[U ]. (5.8) Moreover, λ(opt)  
+
+> G
+
+(Y, X ) = λp(Y, h (opt) (X)) for all p > p 0 := μU ∨ (1 − μU ), so the precision is 
+
+exactly constant beyond a threshold. This is clearly observed in the right panel of Figure 2, where the empirical tail-dependence coefficient ˆλp boxplots for both the oracle and the nonparametric estimator plateau at λ(opt)  
+
+> G
+
+across a wide range of p values (see also Figure 3). Figure 2 (left panel) shows boxplots of the empirical tail-dependence coefficients as in (5.6) based on 100 replications of an estimated optimal predictor and the corresponding oracle. As in Figure 1, we have ntrain = ntest = 10 4 and a random peaks-over-threshold of the 0 .95-th percentile. The Pareto-Dirichlet model involves coefficients β0 = 1 and βi = ( i + 1) /10 , i = 1 , · · · , 9. As in the spectrally discrete case, we have a remarkably close agreement in the precision of the estimated predictor and the oracle, which in this case is simply proportional to ∥X∥1. Both agree closely with the asymptotically optimal precision as indicated above. The right panel of Figure 2 shows the same type of experiment where ( Y, X ) come from a Gumbel copula, where d = 10. By Corollary A.1, in this case the optimal homogeneous predictor is in fact the ultimate optimal predictor for all values of p ∈ (0 , 1). In this scenario, the non-parametric estimator is remarkably close to the oracle. /Optimal prediction of extreme events 33 
+
+These brief simulation results illustrate the success of the optimal homogeneous prediction methodology. The quantile regression forest based implementation is nearly tuning–free and quite adaptive – working well in both spectrally discrete and continuous settings. We have implemented this methodology in the context of the challenging open problem of Solar flare prediction, where we found it to work out-of-the-box and provide state-of-the-art prediction scores for the most extreme X-class flares (cf Figure 5). We plan to pursue more applied and methodological directions of this research in a future work, but the preliminary findings are available in Section E. The code used to produce all simulation in the paper is freely available from the GitHub repository [49]. An R Shiny app illustrating the methodology over a challenging Solar flare prediction problem is deployed on [50]. 
+
+6. Discussion and future work 
+
+In this paper, we considered the fundamental problem of optimal extreme event prediction in terms of covariates. Starting from a general the Neyman-Pearson-type characterization of the optimal pre-dictors (Theorem 2.2), we formulated an optimality framework that is closely related to the notion of tail-dependence. This naturally led us to explore the problem of optimal extremal prediction in the context of jointly regularly varying response and covariates. For the general class where the pre-dictors are positive homogeneous of the covariates, the problem was cast into a variational problem – a constrained optimization problem for a convex integral functional with respect to the angular measure. Our first main contribution was an explicit solution to this problem (Theorem 3.8), which can be represented in terms of the quantiles of a certain tilted conditional distribution arising from the angular measure. This abstract result let us to concrete and yet general inference methodology for the optimal homogeneous predictors. Our second contribution was to establish the consistency for estimators of these optimal predictors in the framework of peaks-over-threshold (Theorem 4.1). This result, modulo mild regularity conditions, may be viewed as an extremal counterpart to the celebrated Stone’s Universal Consistency Theorems for the class of homogeneous predictors. Last but not least, using established quantile regression forests tools, the estimators were implemented into a broadly applicable and nearly tuning free statistical software, which was shown to achieve the oracle performance over simulated examples. The problem of extreme event prediction is fundamental and ubiquitous. It can be seen as a series of increasingly imbalanced classification problems, which is rather challenging. Notably, [26] have identified the shortcomings of the traditional empirical risk minimization approach and proposed a solution. While motivated by similar problems, our approach is different. Here, by conditioning on the regime of extremes, the loss function is directly related to tail-dependence, which allowed us to take a different look through the lens of calculus of variations. We provide a rather complete solution to the optimal extremal prediction with homogeneous functions in the context of jointly regularly varying Y and X. While in many cases the class of homogeneous predictors do contain the optimal extremal predictors (cf Example 2.1 and Corollary A.1), this is not always the case. Indeed, as shown in Example C.1, even under joint regular variation, the ‘extremes’ of X do not necessarily predict the extremes of Y . To the best of our knowledge, the problem of finding universally consistent predictors in the extreme value sense, remains open both in terms of its precise formulation and solution. 
+
+Acknowledgments 
+
+We thank Victor Verma for providing curated the GOES flux time series and SHARP parameter data for the Solar flare prediction experiment in Section E. SS was partially supported by the NSF /Optimal prediction of extreme events 34 
+
+grant CNS/CSE-2319592 “Collaborative Research: IMR: MM-1A: Scalable Statistical Methodology for Performance Monitoring, Anomaly Identification, and Mapping Network Accessibility from Active Measurements”. 
+
+References 
+
+[1] Aghbalou, A., Portier, F. and Sabourin, A. [2024], Sharp error bounds for imbalanced classifi-cation: How many examples in the minority class?, in ‘Proceedings of The 27th International Conference on Artificial Intelligence and Statistics’, Vol. 238 of Proceedings of Machine Learn-ing Research , PMLR, pp. 838–846. 
+
+URL: https://proceedings.mlr.press/v238/aghbalou24a.html 
+
+[2] Basrak, B., Davis, R. A. and Mikosch, T. [2002], ‘A characterization of multivariate regular variation’, Ann. Appl. Probab. 12 (3), 908–920. 
+
+URL: http://dx.doi.org/10.1214/aoap/1031863174 
+
+[3] Basrak, B., Milinˇ cevi´ c, N. and Molchanov, I. [2025], ‘Foundations of regular variation on topological spaces’. 
+
+URL: https://arxiv.org/abs/2503.00921 
+
+[4] Beirlant, J., Goegebeur, Y., Teugels, J. and Segers, J. [2004], Statistics of extremes , Wiley Series in Probability and Statistics, John Wiley & Sons, Ltd., Chichester. Theory and applications, With contributions from Daniel De Waal and Chris Ferro. 
+
+URL: http://dx.doi.org/10.1002/0470012382 
+
+[5] Bingham, N. H., Goldie, C. M. and Teugels, J. L. [1987], Regular Variation , Encyclopedia of Mathematics and its Applications, Cambridge University Press. [6] Bobbia, B., Dombry, C. and Varron, D. [2025], ‘A donsker and glivenko-cantelli theorem for random measures linked to extreme value theory’, Scandinavian Journal of Statistics 
+
+52 (4), 1708–1734. 
+
+URL: https://onlinelibrary.wiley.com/doi/abs/10.1111/sjos.70007 
+
+[7] Bobra, M. G. and Couvidat, S. [2015], ‘Solar flare prediction using SDO/HMI vector magnetic field data with a machine-learning algorithm’, The Astrophysical Journal 798 (2), 135. 
+
+URL: https://dx.doi.org/10.1088/0004-637X/798/2/135 
+
+[8] Bobra, M. G., Sun, X., Hoeksema, J. T., Turmon, M., Liu, Y., Hayashi, K., Barnes, G. and Leka, K. D. [2014], ‘The Helioseismic and Magnetic Imager (HMI) vector magnetic field pipeline: SHARPs –space-weather HMI active region patches’, Solar Physics 289 (9), 3549– 3578. 
+
+URL: https://doi.org/10.1007/s11207-014-0529-3 
+
+[9] Bobra, M. G., Wright, P. J., Turmon, M. J., Vertanen, J., Dissauer, K., Schrijver, C. J., Cheung, M. C. M., Wheatland, M. S., Leka, K. D. and Barnes, G. [2021], ‘SMARTs and SHARPs: Two solar cycles of active region data’, The Astrophysical Journal Supplement Series 256 (2), 26. [10] Boldi, M.-O. and Davison, A. C. [2007], ‘A mixture model for multivariate extremes’, Journal of the Royal Statistical Society: Series B (Statistical Methodology) 69 (2), 217–229. [11] Cl´ emen¸ con, S., Huet, N. and Sabourin, A. [2025], ‘On regression in extreme regions’, Electronic Journal of Statistics 19 (2), 4784–4828. [12] Cl´ emen¸ con, S., Jalalzai, H., Lhaut, S., Sabourin, A. and Segers, J. [2023], ‘Concentration bounds for the empirical angular measure with statistical learning applications’, Bernoulli 
+
+29 (4), 2797–2827. [13] Cl´ emen¸ con, S. and Sabourin, A. [2026], ‘Weak signals and heavy tails: Learning theory meets extreme value analysis’, Extremes .[14] Connor, R. J. and Mosimann, J. E. [1969], ‘Concepts of independence for proportions with a /Optimal prediction of extreme events 35 
+
+generalization of the Dirichlet distribution’, Journal of the American Statistical Association 
+
+64 (325), 194–206. [15] Corradini, M. and Strokorb, K. [2024], ‘Stochastic ordering in multivariate extremes’, Extremes 
+
+27 , 357–396. [16] Davis, R. A. and Mikosch, T. [2008], ‘Extreme value theory for space-time processes with heavy-tailed distributions’, Stochastic Process. Appl. 118 (4), 560–584. 
+
+URL: http://dx.doi.org/10.1016/j.spa.2007.06.001 
+
+[17] Devroye, L., Gy¨ orfi, L. and Lugosi, G. [1996], A Probabilistic Theory of Pattern Recognition ,Vol. 31 of Stochastic Modelling and Applied Probability , Springer, New York. [18] Dombry, C. and Ribatet, M. [2015], ‘Functional regular variations, Pareto processes and peaks over threshold’, Stat. Interface 8(1), 9–17. 
+
+URL: https://doi.org/10.4310/SII.2015.v8.n1.a2 
+
+[19] Dudley, R. M. [1989], Real Analysis and Probability , Wadsworth and Brook/Cole. [20] Dyszewski, P. and Mikosch, T. [2020], ‘Homogeneous mappings of regularly varying vectors’, 
+
+Ann. Appl. Probab. 30 , 2999–3026. 
+
+URL: https: // doi. org/ 10. 1214/ 20-AAP1579 
+
+[21] Elie-Dit-Cosaque, K. and Maume-Deschamps, V. [2022], ‘Random forest estimation of con-ditional distribution functions and conditional quantiles’, Electronic Journal of Statistics 
+
+16 (2), 6553–6583. [22] Fan, J. and Gijbels, I. [1996], Local Polynomial Modelling and Its Applications , Vol. 66 of 
+
+Monographs on Statistics and Applied Probability , Chapman & Hall, London. [23] Foug` eres, A.-L., Nolan, J. P. and Rootz´ en, H. [2009], ‘Models for Dependent Ex-tremes Using Stable Mixtures’, Scandinavian Journal of Statistics 36 (1), 42–59. eprint: https://onlinelibrary.wiley.com/doi/pdf/10.1111/j.1467-9469.2008.00613.x. 
+
+URL: https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-9469.2008.00613.x 
+
+[24] Hult, H. and Lindskog, F. [2006], ‘Regular variation for measures on metric spaces’, Publ. Inst. Math. (Beograd) (N.S.) 80(94) , 121–140. 
+
+URL: http://dx.doi.org/10.2298/PIM0694121H 
+
+[25] Irvin, J., Rajpurkar, P., Ko, M., Yu, Y., Ciurea-Ilcus, S., Chute, C., Marklund, H., Haghgoo, B., Ball, R., Shpanskaya, K., Lungren, M. P. and Ng, A. Y. [2019], CheXpert: A large chest radiograph dataset with uncertainty labels and expert comparison, in ‘Proceedings of the AAAI Conference on Artificial Intelligence’, Vol. 33, pp. 590–597. [26] JALALZAI, H., Cl´ emen¸ con, S. and Sabourin, A. [2018], On binary classification in extreme regions, in S. Bengio, H. Wallach, H. Larochelle, K. Grauman, N. Cesa-Bianchi and R. Gar-nett, eds, ‘Advances in Neural Information Processing Systems’, Vol. 31, Curran Associates, Inc. 
+
+URL: https: // proceedings. neurips. cc/ paper_ files/ paper/ 2018/ file/ 0ebcc77dc72360d0eb8e9504c78d38bd-Paper. pdf 
+
+[27] Janßen, A., Neblung, S. and Stoev, S. [2023], ‘Tail-dependence, exceedance sets, and metric embeddings’, Extremes .
+
+URL: https://doi.org/10.1007/s10687-023-00471-z 
+
+[28] Joe, H. [2015], Dependence Modeling with Copulas , Chapman & Hall/CRC Monographs on Statistics & Applied Probability, CRC Press, Boca Raton, FL. [29] Kulik, R. and Soulier, P. [2020], Heavy-Tailed Time Series , Springer Series in Operations Research and Financial Engineering, Springer, New York, NY. 
+
+URL: http://link.springer.com/10.1007/978-1-0716-0737-4 
+
+[30] Le Cam, L. and Yang, G. L. [2000], Asymptotics in Statistics , Springer Series in Statistics, second edn, Springer-Verlag, New York. Some basic concepts. /Optimal prediction of extreme events 36 
+
+URL: https://doi.org/10.1007/978-1-4612-1166-2 
+
+[31] Lindskog, F., Resnick, S. I. and Roy, J. [2014], ‘Regularly varying measures on metric spaces: hidden regular variation and hidden jumps’, Probab. Surv. 11 , 270–314. 
+
+URL: http://dx.doi.org/10.1214/14-PS231 
+
+[32] McNeil, A. J. and Neˇ slehov´ a, J. [2009], ‘Multivariate Archimedean copulas, d-monotone func-tions and l1-norm symmetric distributions’, Ann. Statist. 37 (5B), 3059–3097. 
+
+URL: https://doi.org/10.1214/07-AOS556 
+
+[33] Meinguet, T. and Segers, J. [2012], Regularly varying time series in Banach spaces. Preprint available from arXiv:1001.3262. 
+
+URL: http://arxiv.org/pdf/1001.3262v1 
+
+[34] Meinshausen, N. [2006], ‘Quantile regression forests’, Journal of Machine Learning Research 
+
+7, 983–999. 
+
+URL: https://www.jmlr.org/papers/v7/meinshausen06a.html 
+
+[35] Nguyen, X., Wainwright, M. J. and Jordan, M. I. [2010], ‘Estimating divergence functionals and the likelihood ratio by convex risk minimization’, IEEE Transactions on Information Theory 56 (11), 5847–5861. [36] NOAA Space Weather Prediction Center [2023], ‘GOES X-ray Flux Data’, https://www. swpc.noaa.gov/products/goes-x-ray-flux . Accessed: 2025-06-13. [37] Pollard, D. [2002], A user’s guide to measure theoretic probability , Vol. 8 of Cambridge Series in Statistical and Probabilistic Mathematics , Cambridge University Press, Cambridge. [38] Portnoy, S. and Koenker, R. [1997], ‘The Gaussian hare and the Laplacian tortoise: com-putability of squared-error versus absolute-error estimators’, Statistical Science 12 (4), 279 – 300. 
+
+URL: https://doi.org/10.1214/ss/1030037960 
+
+[39] Resnick, S. [2007], Heavy-Tail Phenomena: Probabilistic and Statistical Modeling , number v. 10 in ‘Heavy-tail phenomena: probabilistic and statistical modeling’, Springer. 
+
+URL: https://books.google.com/books?id=p8uq2QFw9PUC 
+
+[40] Resnick, S. I. [1987], Extreme Values, Regular Variation and Point Processes , Springer-Verlag, New York. [41] Resnick, S. I. [1999], A probability path , Birkh¨ auser Boston Inc., Boston, MA. [42] Resnick, S. I. [2024], The art of finding hidden risks , Springer, New York. Hidden Regular Variation in the 21st Century. [43] Rigollet, P. and Tong, X. [2011], ‘Neyman–Pearson classification, convexity and stochastic constraints’, Journal of Machine Learning Research 12 , 2831–2855. 
+
+URL: https://jmlr.org/papers/v12/rigollet11a.html 
+
+[44] Sabourin, A. and Naveau, P. [2014], ‘Bayesian Dirichlet mixture model for multivariate ex-tremes: A re-parametrization’, Computational Statistics & Data Analysis 71 , 542–567. [45] Samorodnitsky, G. and Taqqu, M. S. [1994], Stable Non-Gaussian Processes: Stochastic Models with Infinite Variance , Chapman and Hall, New York, London. [46] Scheffler, H.-P. and Stoev, S. [2017], ‘Implicit extremes and implicit max-stable laws’, Extremes 
+
+20 (2), 265–299. 
+
+URL: https://doi.org/10.1007/s10687-016-0278-9 
+
+[47] Schilling, R. L., Song, R. and Vondracek, Z. [2012], Bernstein Functions: Theory and Appli-cations , De Gruyter, Berlin, Boston. 
+
+URL: https://doi.org/10.1515/9783110269338 
+
+[48] Sibuya, M. [1960], ‘Bivariate extreme statistics. I’, Ann. Inst. Statist. Math. Tokyo 11 , 195– 210. 
+
+URL: https://doi.org/10.1007/bf01682329 /Optimal prediction of extreme events 37 
+
+[49] Stoev, S. [2026 a], ‘optXpred: R code for optimal extreme event prediction via homogoneous functions’. Private. Ask the author for access. Provides R code and a Shiny app for optimal extreme event prediction via homogoneous functions. 
+
+URL: https://github.com/cctoeb/optXpred.git 
+
+[50] Stoev, S. [2026 b], ‘An R Shiny app illustrating the optXpred software for optimal extreme event prediction via homogeneous functions’. 
+
+URL: https://rada.stat.lsa.umich.edu/shiny/sstoev/optXpred/ 
+
+[51] Sugiyama, M., Suzuki, T. and Kanamori, T. [2012], Density Ratio Estimation in Machine Learning , 1 edn, Cambridge University Press. [52] Tong, X. [2013], ‘A plug-in approach to Neyman–Pearson classification’, Journal of Machine Learning Research 14 (92), 3011–3040. 
+
+URL: https://jmlr.org/papers/v14/tong13a.html 
+
+[53] Tong, X., Xia, L., Wang, J. and Feng, Y. [2020], ‘Neyman–Pearson classification: Parametrics and sample size requirement’, Journal of Machine Learning Research 21 (12), 1–48. 
+
+URL: https://jmlr.org/papers/v21/18-577.html 
+
+[54] Tsybakov, A. B. [2009], Introduction to Nonparametric Estimation , Springer series in statistics, Springer, Dordrecht. 
+
+URL: https://cds.cern.ch/record/1315296 
+
+[55] Valavi, R., Guillera-Arroita, G., Lahoz-Monfort, J. J. and Elith, J. [2022], ‘Predictive per-formance of presence-only species distribution models: A benchmark study with reproducible code’, Ecological Monographs 92 (1), e01486. [56] van der Vaart, A. W. [1998], Asymptotic statistics , Vol. 3 of Cambridge Series in Statistical and Probabilistic Mathematics , Cambridge University Press, Cambridge. [57] Verma, V., Stoev, S. and Chen, Y. [2024], ‘On the optimal prediction of extreme events in heavy-tailed time series with applications to solar flare forecasting’. 
+
+URL: https://arxiv.org/abs/2407.11887 
+
+[58] Wright, M. N. and Ziegler, A. [2017], ‘ranger: A fast implementation of random forests for high dimensional data in C++ and R’, Journal of Statistical Software 77 (1), 1–17. [59] Yu, K. and Jones, M. C. [1998], ‘Local linear quantile regression’, Journal of the American Statistical Association 93 (441), 228–237. 
+
+Supplements A: Examples 
+
+A.1. Examples of optimal predictors 
+
+In this section, we elaborate on the closed-form optimal predictors discussed in Section 2. Specifi-cally, we prove the stated characterizations of the optimal predictors in the bi-variate max-stable and Archimedean copula models with completely monotone generators. 
+
+A.1.1. Bivariate extreme value distributions 
+
+Suppose that ( Y, X ) follow the a bivariate extreme value distribution G, where without loss of generality the marginal distributions of X and Y are standard unit Fr´ echet. That is, 
+
+FX (u) = P[X ≤ u] = FY (u) = P[Y ≤ u] = exp {− 1/u }, u > 0.
+
+It is known that [see, e.g., Ch. 5 in 40], for all x, y ≥ 0,G(x, y ) = e−μ(Ax,y ), (A.1) /Optimal prediction of extreme events 38 
+
+where Ax,y = [0 , ∞)2 \ ([0 , x ] × [0 , y ]) and μ is a Borel measure on [0 , ∞)2 \ { (0 , 0) }, such that 
+
+μ(Ax,y ) < ∞ provided x > 0 or y > 0. It can be shown that μ(tA ) = t−1μ(A), for all t > 0 and Borel sets A ⊂ [0 , ∞)2 \ { (0 , 0) } and hence for all x, y ≥ 0
+
+G(x, y ) = exp 
+
+n
+
+− V (1 /x, 1/y )
+
+o
+
+, where V (a, b ) := 
+
+Z 10
+
+max {wa, (1 − w)b)}σ(dw ) (A.2) where σ is a finite measure on [0 , 1] and by convention 1 /∞ = 0 and 1 /0 = ∞. The function V is referred to as the stable tail-dependence function of the bivariate extreme value distribution. The following result is rather natural and it shows that the events {X > x 0} are optimal predic-tors of {Y > y 0}.
+
+Proposition A.1. Let (X, Y ) be a bivariate max-stable random vector with joint distribution function G as in (A.1) . Suppose that G(x, y ) is continuously differentiable in x and y, so that 
+
+g(x, y ) := ∂2
+
+> x,y
+
+G(x, y ) is the joint density of (X, Y ) with respect to the Lebesgue measure. Then, for all y0 > 0, the predictor {X > F −1 
+
+> X
+
+(q)} is an optimal predictor of {Y > y 0}, calibrated at level q.Proof. In view of Theorem 2.2, an optimal predictor of {Y > y 0} is of the form {r(X) > τ }, where 
+
+r(x) = f0(x)/f 1(x), where f0 and f1 are the conditional densities of X|{ Y > y 0} and X|{ Y ≤ y0},respectively. Let p := P[Y > y 0] and observe that for all x > 0: 
+
+f0(x) = 11 − p
+
+Z ∞
+
+> y0
+
+g(x, y )dy = 11 − p
+
+
+
+∂xG(x, ∞) − ∂xG(x, y 0)
+
+
+
+Similarly, 
+
+f1(x) = 1
+
+p
+
+Z y0
+
+> 0
+
+g(x, y )dy = 1
+
+p
+
+
+
+∂xG(x, y 0) − ∂xG(x, 0) 
+
+
+
+= 1
+
+p ∂xG(x, y 0),
+
+where we used that ∂xG(x, 0) = 0. This shows that 
+
+r(x) = f0(x)
+
+f1(x) = p
+
+(1 − p) · ∂xG(x, ∞)
+
+∂xG(x, y 0) − p
+
+1 − p .
+
+We will show that the function 
+
+x 7 → ∂xG(x, ∞)
+
+∂xG(x, y 0) (A.3) is increasing in x. This would complete the proof since it will show that the events {r(X) > τ } and 
+
+{X > τ ′} are the same, when calibrated at the same level q.To this end, since G(x, y ) = exp {− V (1 /x, 1/y )}, by the chain rule, we obtain 
+
+∂xG(x, y ) = x−2∂aV (1 /x, 1/y )e−V (1 /x, 1/y ).
+
+Note, however, ∂aV (a, 0) = 1 since V (a, 0) = a. Thus, ∂xG(x, ∞) = x−2 exp {− V (1 /x, 0) } and 
+
+∂xG(x, ∞)
+
+∂xG(x, y 0) = exp {V (1 /x, 1/y 0) − V (1 /x, 0) }
+
+∂aV (1 /x, 1/y 0) = exp {μ(Ax,y 0 ) − μ(Ax, ∞)}
+
+∂aV (1 /x, 1/y 0) , (A.4) where we used the fact that V (1 /x, 1/y ) = μ(Ax,y ) with Ax,y = [0 , ∞)2\([0 , x ]×[0 , y ]) , x, y ∈ (0 , ∞), and Ax, ∞ = [0 , ∞)2 \ ([0 , x ] × [0 , ∞]). Now, for the numerator in the right-hand side of (A.4), we obtain exp {μ(Ax,y ) − μ(Ax, ∞)} = exp {μ([0 , x ] × (y0, ∞)) },/Optimal prediction of extreme events 39 
+
+which is a monotone increasing function of x since the sets [0 , x ] × (y0, ∞) grow as x grows. On the other hand, a 7 → ∂aV (a, b ) is a monotone non-decreasing function of a. Indeed, in view of (A.2), we have that a 7 → V (a, b ) is a convex function, and therefore its partial derivative is non-decreasing in a. This implies that the denominator x 7 → ∂aV (1 /x, 1/y 0) in the right-hand side of (A.4) is a monotone non-increasing function of x. This, combined with the established monotonously of the numerator implies that the function in (A.3) is monotone non-decreasing in x, which completes the proof of the proposition. 
+
+Remark A.1. Let (Y, X ) be as in Proposition A.1. This result implies the optimal extremal preci-sion λ(opt) (Y, X ) equals the tail-dependence coefficient λ(Y, X ) (see also Example 2.6). A.1.2. Archimedean copula: Proofs for Section 2.2 
+
+We start with the following auxiliary result. 
+
+Lemma A.1. The positive completely monotone functions are log-convex. Proof. Let ψ be as in (2.4). Recall that the function ψ : (0 , ∞) → (0 , ∞) is log-convex if log( ψ(·)) is convex, or, equivalently: 
+
+ψ(λu + (1 − λ)v) ≤ ψ(u)λψ(v)1−λ, (A.5) for all u, v > 0 and λ ∈ (0 , 1). In view of (2.4), for all λ ∈ (0 , 1), 
+
+ψ(λu + (1 − λ)v) = 
+
+Z ∞
+
+> 0
+
+e−λux e−(1 −λ)vx μ(dx )
+
+≤
+
+ Z ∞
+
+> 0
+
+e−ux μ(dx )
+
+1/p  Z ∞
+
+> 0
+
+e−vx μ(dx )
+
+1/q 
+
+, (A.6) where the last bound follows from the H¨ older inequality applied to the functions f (x) := e−λux ∈
+
+Lp(μ(dx )) and g(x) := e−(1 −λ)vx ∈ Lq(μ(dx )), with p := 1 /λ and q := 1 /(1 − λ). This completes the proof since the right-hand sides of (A.5) and (A.6) are the same. 
+
+Proposition A.2 (Statement of Proposition 2.1) . Let (Y, X 1, · · · , X d) be a random vector in R1+ d
+
+with continuous marginal cdfs FY and FXi , i = 1 , · · · , d , respectively, and the Archimedean copula 
+
+C as in (2.3) , where ψ is a completely monotone function as in (2.4) . Then, for all τ > 0, the events n
+
+ψ
+
+
+
+ψ−1(FX1 (X1)) + · · · + ψ−1(FXd (Xd)) 
+
+
+
+> τ 
+
+o
+
+are optimal predictors of the events {Y > y 0} in terms of X.Proof of Proposition 2.1.. Without loss of generality, assume that the marginals of ( Y, X ) are uni-form, i.e., the joint cdf of ( Y, X ) is the copula C in (2.3). Let for convenience φ(t) := ψ−1(t) and observe that the joint density of ( X, Y ) with respect to the Lebesgue measure is: 
+
+fY,X (y, x ) = ∂d+1  
+
+> y,x
+
+C(y, x ) = ψ(d+1) 
+
+φ(y) + φ(x1) + · · · + φ(xd)
+
+
+
+φ′(y)
+
+> d
+
+Y
+
+> i=1
+
+φ′(xi),
+
+where x = ( xi)di=1 ∈ (0 , 1) d, y ∈ (0 , 1). Therefore, with p := P[Y > y 0] ∈ (0 , 1), for the conditional densities f0 and f1 of X|{ Y > y 0} and X|{ Y ≤ y0} in Theorem 2.2, we obtain 
+
+f0(x) = 
+
+Qdi=1 φ′(xi)(1 − p)
+
+Z 1
+
+> y0
+
+ψ(d+1) (φ(x1) + · · · + φ(xd) + φ(y)) φ′(y)dy /Optimal prediction of extreme events 40 
+
+=
+
+Qdi=1 φ′(xi)(1 − p)
+
+Z 1
+
+> y0
+
+h′(c + φ(y)) φ′(y)dy, (A.7) where for clarity, we let h(t) := ψ(d)(t) and c := φ(x1) + · · · + φ(xd). The fundamental theorem of calculus applied to the integral in the right-hand side of (A.7) then implies 
+
+f0(x) = 
+
+Qdi=1 φ′(xi)(1 − p)
+
+
+
+h(c) − h(c + φ(y0)) 
+
+
+
+, (A.8) where we used that φ(1) = 0. Similarly, for f1, we obtain 
+
+f1(x) = 
+
+Qdi=1 φ′(xi)
+
+p
+
+Z y0
+
+> 0
+
+h′(c + φ(y)) φ′(y)dy 
+
+=
+
+Qdi=1 φ′(xi)
+
+p
+
+
+
+h(c + φ(y0)) − h(∞)
+
+
+
+, (A.9) where we used that φ(0) = ∞. In view of (2.4), we have 
+
+h(u) = ψ(d)(u) = ( −1) d
+
+Z ∞
+
+> 0
+
+e−ux xdμ(dx )and hence h(∞) = lim u→∞ h(u) = 0. Thus, for the ratio r(x) = f0(x)/f 1(x), in view of (A.8) and (A.9), we obtain: 
+
+r(x) = f0(x)
+
+f1(x) ∝ ψ(d)(c)
+
+ψ(d)(c + φ(y0)) − 1, (A.10) where recall that c = c(x) := ψ−1(x1)+ · · · +ψ−1(xd). In view of Theorem 2.2, the events {r(X) > τ }
+
+are optimal predictors of {Y > y 0}. Thus, in view of (A.10), to complete the proof it is enough to establish that the function 
+
+c := ψ(d)(c)
+
+ψ(d)(φ(y0) + c)is decreasing in c. We will show that this is the case by using the log-convexity of the positive completely monotone functions (Lemma A.1). Indeed, observe that 
+
+g(c) = ψd(c)
+
+ψd(φ(y0) + c) ,
+
+where ψd(u) := ( −1) dψ(d)(u) = R ∞ 
+
+> 0
+
+e−ux xdμ(dx ). Notice that the function ψd is also completely monotone and hence it is log-convex. We have that ddc log( g(c)) = ψ′
+
+> d
+
+(c)
+
+ψd(c) − ψ′
+
+> d
+
+(φ(y0) + c)
+
+ψd(φ(y0) + c) . (A.11) Since ψd is log-convex, we have that 
+
+c 7 → ψ′
+
+> d
+
+(c)
+
+ψd(c) = ddc log( ψd(c)) is an increasing function. Since φ(y0) ≥ 0, this implies that the right-hand side of (A.11) is non-positive, d/dc (log( g(c)) ≤ 0 and this establishes that the function c 7 → g(c) is decreasing and the proof is complete. /Optimal prediction of extreme events 41 
+
+Proposition 2.1 implies the following result, which is of independent interest since it concerns an important class of multivariate max-stable models. 
+
+Corollary A.1. Assume that (Y, X ) follow the multivariate logistic max-stable distribution in (2.5) ,with parameter β > 1. Then, for all p, q ∈ (0 , 1) , an optimal predictor of {Y > F −1 
+
+> Y
+
+(p)} is of the form: 
+
+{h(X) > F −1
+
+> h(X)
+
+(q)}, where h(X) = 
+
+ dX
+
+> i=1
+
+1
+
+Xβi
+
+−1/β 
+
+.
+
+Moreover, the optimal extremal precision is given by: 
+
+λ(opt) (Y, X ) = λ(Y, h (X)) = E
+
+h
+
+min 
+
+n
+
+Γ−1/β  
+
+> 1
+
+/c 1,β , Γ−1/β d /c d,β 
+
+oi 
+
+, (A.12) 
+
+where Γ1 ∼ Gamma(1 , 1) and Γd ∼ Gamma( d, 1) are independent Gamma-distributed random variables and where cd,β = Γ( d − 1/β )/Γ( d).Proof of Corollary A.1. Let β > 1 and Z a 1 /β -stable subordinator. That is, a positive random variable with the Laplace transform 
+
+ψZ (t) = E[e−tZ ] = e−t1/β 
+
+, t ≥ 0.
+
+Let also ξi, i = 1 , · · · , d and η be independent standard β−Fr´ echet random variables, i.e., such that 
+
+P[ξi ≤ x] = P[η ≤ x] = e−x−β
+
+, x > 0.
+
+Assume that Z and ξ = ( ξi)di=1 and η are independent. Then, the multivariate logistic max-stable random vector ( X, Y ) in (2.5) has the following stochastic representation: (X, Y ) = Z1/β · (ξ, η ),
+
+where ξ = ( ξi)di=1 (see e.g., [23]). Proposition 2.1 shows that the optimal predictor of {Y > y 0} is of the form {∥ 1/X ∥−1 
+
+> β
+
+> τ },where ∥1/X ∥β := ( Pdi=1 X−βi )1/β . We will derive next the optimal extremal precision 
+
+λ(opt) (Y, X ) = λ(Y, 1/∥1/X ∥β ).
+
+We have that 1 /η β and 1 /ξ βi =: Ei ∼ Exponential(1) are standard Exponentially distributed. Therefore, 1/∥1/X ∥β = Z1/β  dX
+
+> i=1
+
+Ei
+
+−1/β 
+
+=: Z1/β 1Γ1/β d
+
+,
+
+where Γ d = E1 + · · · + Ed ∼ Gamma( d, 1). Similarly, 
+
+Y = Z1/β η =: Z1/β 1Γ1/β 
+
+> 1
+
+,
+
+where Γ 1 := η−β ∼ Gamma(1 , 1). Now, we have that 
+
+P[Z1/β > x ] ∼ c−1
+
+> β
+
+1
+
+x , as x → ∞ ,/Optimal prediction of extreme events 42 
+
+where in fact cβ = Γ(1 − 1/β ) [see e.g. Proposition 1.2.12 and Property 1.2.15 in 45]. Therefore, by Breiman’s Lemma, we have 
+
+P[Y > x ] = P[Z1/β η > x ] ∼ c−1
+
+> β
+
+E[η]
+
+x = 1
+
+x , x → ∞ ,
+
+since E[η] = R ∞ 
+
+> 0
+
+x1de −x−β
+
+= Γ(1 − 1/β ) = cβ . By Breiman’s lemma, we also have 
+
+P[1 /∥1/X ∥β > x ] = P[Z1/β Γ−1/β d > x ] ∼ c−1 
+
+> β
+
+E[Γ −1/β d ] 1
+
+x = Γ( d − 1/β )Γ( d)cβ
+
+1
+
+x =: σd,β 
+
+1
+
+x .
+
+Thus, the random variable ∥1/X ∥−1 
+
+> β
+
+/σ d,β has unit asymptotic scale, i.e., it is asymptotically cali-brated: 
+
+P[∥1/X ∥−1 
+
+> β
+
+/σ d,β > x ] ∼ P[Y > x ] ∼ 1
+
+x , x → ∞ .
+
+This, implies that 
+
+P[∥1/X ∥−1 
+
+> β
+
+/σ d,β ∧ Y > x ] ∼ λ(Y, ∥1/X ∥−1 
+
+> β
+
+) 1
+
+x = c−1 
+
+> β
+
+E[Γ −1/β d /σ d,β ∧ Γ−1/β  
+
+> 1
+
+] 1
+
+x ,
+
+by another application of Breiman’s lemma. Therefore, observing that cβ = c1,β = Γ(1 − 1/β ) and 
+
+cβ σd,β = Γ( d − 1/β )/Γ( d), d = 1 , 2, . . . , we obtain (A.12). 
+
+Supplements B: Proofs 
+
+B.1. Multivariate regular variation 
+
+In this section, we provide a brief review of the theory of multivariate regular variation of Borel measures on Rk, k ≥ 1. We consider the general case of τ -regular variation, where 
+
+τ : Rk → R+ (B.1) is a fixed non-negative, continuous 1-homogeneous function [see e.g. 46, 18]. For an abstract and general theory of regular variation with respect to the notion of a bornology , see e.g., [3] and the references therein. 
+
+B.2. The space Mτ and the Tail Index Theorem 
+
+Let Mτ = {μ : μ(τ > ϵ ) < ∞, for all ϵ > 0} be the collection of Borel measures μ on Rk \ { τ = 0 }
+
+such that μ({τ > ϵ }) < ∞, for all ϵ > 0. Such measures assign finite masses to all Borel sets A that are bounded away from 0, relative to the τ -loss, i.e., τ (A) := inf x∈A τ (x) is positive. We shall denote this class of Borel sets by B0(τ ) and B(τ ) = σ(B0(τ )) is the σ-field of all Borel sets in Rk \ { τ = 0 }.If μn, μ ∈ Mτ , then we write μn M0
+
+→ μ, as n → ∞ , if 
+
+Z
+
+f (x)μn(dx ) →
+
+Z
+
+f (x)μ(dx ), as n → ∞ , (B.2) for all bounded and continuous functions f such that {| f | > 0} ⊂ { τ > ϵ } for some ϵ > 0. It can be shown that μn M0
+
+→ μ if and only if 
+
+μn(A) → μ(A), as n → ∞ ,/Optimal prediction of extreme events 43 
+
+for all A ∈ B 0(τ ) such that μ(∂A ) = 0, where ∂A := A \ A◦ denotes the topological boundary of the set A [see e.g. Theorem 3.1 in 24]. The above-defined M0-convergence of measures in Mτ is generated by a metric, which renders Mτ a complete separable metric space [see e.g. Theorem 2.3 in 24]. 
+
+Definition B.1. Let τ be a fixed continuous 1-homogeneous function as in (B.1) . Consider a random vector Z in Rk, k ≥ 1. If there is a positive sequence {an} and a non-zero measure μ ∈ Mτ
+
+such that 
+
+μn := nP[Z/a n ∈ · ] M0
+
+→ μ, as n → ∞ ,
+
+then we say that Z is τ -regularly varying and write Z ∈ RV ({an}, μ ).
+
+Theorem B.2 (The tail index theorem) . If Z ∈ RV ({an}, μ ) according to Definition B.1, then: 1. There exists a positive α > 0 such that an ∼ ℓ(n)n1/α , for some slowly varying function ℓ(·).2. The measure μ satisfies the scaling relation: 
+
+μ(t · A) = t−αμ(A), for all t > 0 and A ∈ B (τ ). (B.3) 
+
+3. If also Z ∈ RV ({bn}, ν ), then 
+
+an
+
+bn
+
+→ c ∈ (0 , ∞), and μ(A) = c−αν(A), for all A ∈ B (τ ).
+
+Consequently, the parameter α > 0, referred to as the tail exponent of Z is unique, and so is the measure μ, up to a rescaling factor. 4. We have that Z ∈ RV α(Rk, {an}, c Z , τ, σ ) according to Definition 3.1, where 
+
+cZ := μ({τ > 1}) and σ(B) := 1
+
+μ({τ > 1}) μ({x/τ (x) ∈ B}), B ∈ B (Sτ ).
+
+5. Conversely, if Z ∈ RV α(Rk, {an}, c Z , τ, σ ) according to Definition 3.1, then Z ∈ RV α({an}, μ )
+
+according to Definition B.1, where 
+
+μ ◦ T −1 
+
+> τ
+
+(( r, ∞) × B)) = cZ r−ασ(B), for all r > 0, B ∈ B (Sτ ), (B.4) 
+
+and where Tτ : Rk \{ τ = 0 } → (0 , ∞)×Sτ is the generalized polar coordinated homeomorphism defined as Tτ (x) = ( τ (x), x/τ (x)) .
+
+The proof of this result can be derived from many excellent treatments in the literature. Specif-ically, see, for example, Theorem 3.1 and Corollary 4.4 in [31], as well as [24, 33], the monographs [29, 42], the general theory in [3], and the references therein for more details. 
+
+B.3. Proofs for Section 3 
+
+B.3.1. Proofs for Section 3.1 
+
+For completeness, we will present the proof of Proposition 3.1 below although similar results can be found in Proposition 2.5 of [27] and Theorem 2.1 of [20]. The proof consequence of the following characterization of multivariate regular variation [see e.g. Theorem 2.2.1 in 29]. 
+
+Proposition B.1. We have Z ∈ RV α(Rk, {an}, c Z , τ, σ ) if and only if 
+
+ τ (Z)
+
+t , Zτ (Z)
+
+
+
+τ (Z) > t d
+
+−→ (V, Θ) , (t → ∞ ), (B.5) 
+
+where V and Θ are independent and P[V > x ] = x−α, x ≥ 1, while Θ ∼ σ./Optimal prediction of extreme events 44 
+
+Proposition B.2 (Statement of Proposition 3.1) . Let Z ∈ RV α(Rk, {an}, b (·), c Z , τ, σ ). Let also 
+
+H+(Rk, τ ) denote the class of all non-negative continuous 1-homogeneous functions h : Rd → R+
+
+such that {h > 0} ⊂ { τ > 0}. Then, for all h ∈ H +(Rk, τ ), such that 
+
+∥h∥∞,S τ := sup 
+
+> θ∈Sτ
+
+|h(θ)| < ∞, (B.6) 
+
+we have 
+
+lim  
+
+> n→∞
+
+nP[h(Z) > a n] = lim  
+
+> t→∞
+
+b(t)P[h(Z) > t ] = cZ σ(h), (B.7) 
+
+where 
+
+σ(h) := E[h(Θ Z )α] = 
+
+Z
+
+> Sτ
+
+hα(θ)σ(dθ ).
+
+Proof of Proposition 3.1. Without loss of generality suppose that the positive normalizing sequence 
+
+{an} is such that cZ = 1. Observe that by the support domination condition {h > 0} ⊂ { τ > 0},we have {h(Z) > a n} implies {τ (Z) > 0}. Also, note that since by (B.6), h is bounded on the set 
+
+Sτ , we have 
+
+τ (Z)h(Z/τ (Z)) > a n implies τ (Z) > a n/∥h∥∞,S τ ,
+
+where ∥h∥∞,S τ is as in (B.6). Note that in the case ∥h∥∞,S τ = 0, the result trivially holds. On the other hand for ch := 
+
+∥h∥∞,S τ > 0, we have 
+
+P[h(Z) > a n] = P[τ (Z)h(Z/τ (Z)) > a n, τ (Z) > a n/c h].
+
+Hence, using that nP[τ (Z) > ta n] → t−α
+
+nP[h(Z) > a n] = nP[τ (Z) > a n/c h] · P
+
+h τ (Z)
+
+an/c h
+
+· h
+
+ Zτ (Z)
+
+
+
+> c h τ (Z) > a n/c h
+
+i
+
+−→ cαh · P[V h (Θ) > c h], (an → ∞ ) (B.8) where the last convergence follows from (B.5) and the fact that V h (Θ) is a continuous random variable. It remains to observe that by the independence of V and Θ Z := Θ, we have 
+
+P
+
+h
+
+V h (Θ Z ) > c h
+
+i
+
+= E[I(V > c h/h (Θ Z )] = E
+
+h 
+
+ch/h (Θ Z )
+
+−αi
+
+= c−αh E[h(Θ Z )α].
+
+By combining this calculation with Relation (B.8), we obtain that the first limit in (3.4) equals 
+
+cZ E[hα(Θ Z )]. The fact that the two limits in (3.4) coincide follows from the equivalence b(an) ∼ n
+
+as n → ∞ , which completes the proof. 
+
+Lemma B.3 (Statement of Lemma 3.3) . Let (Y, X ) and G(τX ) be as in Definition 3.2. Then, for all g ∈ G (τX ) the bivariate tail dependence coefficient λ(Y, g (X)) defined in (2.8) exists and 
+
+λ(g(X), Y ) = lim  
+
+> t↑∞
+
+P[Y > t |g(X) > t ] = lim  
+
+> t↑∞
+
+P[g(X) > t |Y > t ]. (B.9) 
+
+Proof of Lemma 3.3. By the transfer of regular variation theorem [see e.g. Proposition 2.1.12 in 29], we have ( ξ, η ) := ( g(X), Y ) is regularly varying with exponent measure ν := μ ◦ T −1 
+
+> g
+
+, where 
+
+Tg(y, x ) := ( g(x), y ). More precisely, 
+
+nP[( ξ, η ) ∈ anA] → ν(A), as n → ∞ ,/Optimal prediction of extreme events 45 
+
+for all Borel ν-continuity sets. Equivalently [see, e.g. Theorem 2.1.3 in 29], 
+
+b(t)P[( ξ, η ) ∈ t · A] → ν(A), as t → ∞ , (B.10) for a suitable function b(·), which is regularly varying at infinity with exponent 1. The calibration property implies that 
+
+P[ξ > t ] ∼ P[η > t ], as t → ∞ . (B.11) Thus, by Lemma B.4, since ξ and η have regularly varying right tails, to prove the result, it is enough to show that lim  
+
+> t→∞
+
+P[ξ > t |η > t ] = lim  
+
+> t→∞
+
+P[η > t |ξ > t ] = ν(A1 ∩ A2)
+
+ν(A1) , (B.12) where Ai = {(u1, u 2) ∈ R2 : ui ≥ 1}.To establish (B.12), observe that for all t, s > 0, the sets A(t,s ) := [ t, ∞) × [s, ∞) are ν-continuity sets. Indeed, this follows from the homogeneity of the measure ν. For all t, s > 0 and ϵ ∈ (0 , 1), we have that Aϵ·(t,s ) = ∪u∈[ϵ, ∞)∂A u·(t,s ), where the latter is a union of pairwise disjoint sets indexed by 
+
+u. This, since ν(Aϵ·(t,s )) < ∞, implies that all but countably many of the terms ν(∂A u·(t,s )) vanish. Notice, however, that by the homogeneity of ν, since ∂A u·(t,s ) = u · ∂A (t,s ), we have ν(∂A u·(t,s )) = 
+
+u−1ν(∂A (t,s )), for all u > 0. This means that ν(∂A u·(t,s )) = 0, for all u ≥ ϵ. Similarly, the sets 
+
+Ai, i = 1 , 2 are continuity sets. The continuity of the sets A1, A 2, and A1 ∩A2 = A(1 ,1) and Relation (B.10) entail that, as t → ∞ ,
+
+b(t)P[ξ > t ] → ν(A1), b(t)P[η > t ] → ν(A2), and b(t)P[ξ > t, η > t ] → ν(A1 ∩ A2). (B.13) Relation (B.11) implies ν(A1) = ν(A2), which are necessarily positive, since ν is non-zero. Thus, the convergences in (B.13) imply (B.12), which completes the proof. 
+
+Lemma B.4. Let ξ and η be random variables with regularly varying right tails such that 
+
+P[ξ > t ] = Lξ(t)t−α and P[η > t ] = Lη(t)t−α, t ≥ 0, (B.14) 
+
+where Lξ and Lη are slowly varying functions at ∞. Suppose that ξ and η are tail-equivalent, i.e. 
+
+P[ξ > t ] ∼ P[η > t ], as t → ∞ . (B.15) 
+
+If the limit 
+
+λ = lim  
+
+> t→∞
+
+P[ξ > t |η > t ]. (B.16) 
+
+exists, then so does the tail-dependence coefficient λ(ξ, η ) and 
+
+λ = λ(ξ, η ) := lim  
+
+> p↑1
+
+P[ξ > F ← 
+
+> ξ
+
+(p)|η > F ← 
+
+> η
+
+(p)] .
+
+Proof. It is enough to show that for every pn ↑ 1, we have 
+
+P[ξ > s n|η > t n] → λ, as n → ∞ , (B.17) where sn := F ← 
+
+> ξ
+
+(pn) and tn := F ← 
+
+> η
+
+(pn). For the so-defined sequences, we will first show that 
+
+sn = F ← 
+
+> ξ
+
+(pn) ∼ tn = F ← 
+
+> η
+
+(pn). (B.18) /Optimal prediction of extreme events 46 
+
+This last fact is consequence of the classical theory on regularly varying functions. Indeed, letting 
+
+Gξ(t) := 1 /(1 − Fξ(t)), and similarly Gη(t) = 1 /(1 − Fη(t)), with un := 1 /(1 − pn), we get 
+
+sn = G← 
+
+> ξ
+
+(un) and tn = G← 
+
+> η
+
+(un).
+
+Since Gξ(t) = L−1 
+
+> ξ
+
+(t)tα and Gη(t) = Lη(t)−1tα, Relation (B.15) entails Gξ(t) ∼ Gη(t), t → ∞ . This equivalence, since Gξ and Gη are regularly varying functions, implies G← 
+
+> ξ
+
+(u) ∼ G← 
+
+> η
+
+(u) as u → ∞ 
+
+[see, e.g., Proposition 1.5.15 in 5], which entails (B.18). Now, for every ϵ ∈ (0 , 1), we have 
+
+P[ξ ∧ η > (1 + ϵ)tn]
+
+P[η > t n] ≤ P[ξ > s n, η > t n]
+
+P[η > t n] ≤ P[ξ ∧ η > (1 − ϵ)tn]
+
+P[η > t n] .
+
+In view of (B.16), taking a limit, for the lower/upper bounds above, we get lim 
+
+> tn→∞
+
+P[ξ ∧ η > (1 ± ϵ)tn]
+
+P[η > t n] = λ lim 
+
+> tn→∞
+
+P[η > (1 ± ϵ)tn]
+
+P[η > t n] = λ · (1 ± ϵ)−α,
+
+where the last relation follows from (B.14). This, since ϵ ∈ (0 , 1) can be taken arbitrarily small, yields (B.17). 
+
+Proposition B.3 (Statement of Proposition 3.2) . Let (Y, X ) be jointly τ -regularly varying in the sense of Assumption 3.1. Let G(τX ) be the class of predictors in Definition 3.2. Then, for all 
+
+g ∈ G (τX ), and (U, Θ) as in (3.8) , we have 
+
+E[U ] = E[(1 − U )g(Θ)] = c > 0 (B.19) 
+
+and 
+
+λ(Y, g (X)) = 1
+
+c E[U ∧ (1 − U )g(Θ)] (B.20) 
+
+Proof of Proposition 3.2. Since Z = ( Y, X ) is regularly varying, Proposition 3.1 implies that, for all non-negative, continuous and 1-homogeneous functions h, such that {h > 0} ⊂ { τ > 0} with 
+
+∥h∥∞,S τ < ∞, we have 
+
+nP[h(Y, X ) > a n] → σZ (h) = E[h(U, (1 − U )Θ)] , as n → ∞ . (B.21) Let now g ∈ G (τX ) so that (3.9) holds and consider the 1-homogeneous functions: 
+
+hY (y, x ) := y+, hg(y, x ) := g(x) and hY,g (y, x ) := y+ ∧ g(x).
+
+Observe that these three homogeneous functions are continuous, non-negative, bounded on the unit sphere Sτ and support-dominated by τ . That is, {hY > 0} ∪ { hg > 0} ∪ { hY,g > 0} ⊂ { τ > 0} and hence Relation (B.21) applies with h replaced by hY , h g, and hY,g . This implies that, as n → ∞ ,we have 
+
+nP[Y > a n] → σZ (hY ) = E[U ], nP[g(X) > a n] → σZ (hg) = E[g((1 − U )Θ)] , (B.22) and 
+
+nP[Y ∧ g(X) > a n] → σZ (hY,g ) = E[U ∧ g((1 − U )Θ)] . (B.23) Since g(X) is an asymptotically calibrated extremal predictor for Y (recall (3.9)), Relations (B.22) imply that E[U ] = E[(1 − U )Θ] = c. Observe that c > 0 since by Assumption 3.1, σ({0} × { τX =1}) = P[U = 0] < 1. This proves (B.19). On the other hand, by Lemma 3.3, we have 
+
+λ(Y, g (X)) = lim  
+
+> n→∞
+
+P[g(X) > a n|Y > a n] = lim 
+
+> n→∞
+
+P[Y ∧ g(X) > a n]
+
+P[Y > a n] = E[U ∧ g((1 − U )Θ)] 
+
+E[U ] ,
+
+where the last relation follows from (B.22) and (B.23). This shows (B.20) and completes the proof of the proposition. /Optimal prediction of extreme events 47 
+
+B.3.2. Proofs for Section 3.2 
+
+Lemma B.5 (Statement of Lemma 3.4) . Let I(·) be as in (3.19) , the b(θ)’s and Fθ(t)’s be as in 
+
+(3.18) and (3.21) , respectively. Then, for all g ≥ 0 and g, h ∈ L1(b · pΘ), he have 
+
+lim 
+
+> δ↓0
+
+I(g + δh ) − I(g)
+
+δ
+
+= 2 
+
+Z
+
+> SX
+
+b(θ)
+
+n
+
+Fθ(q(θ)) h(θ) + Fθ({q(θ)})h(θ)−
+
+o
+
+pΘ(dθ ) −
+
+Z
+
+> SX
+
+b(θ)h(θ)pΘ(dθ ), (B.24) 
+
+where Fθ({t}) = Fθ(t) − Fθ(t−) and 
+
+q(θ) := g(θ)1 + g(θ) and h(θ)− = max {0, −h(θ)}.
+
+Proof. In view of (3.19), and the Fubini theorem for probability kernels [see, e.g. Theorem 10.2.1 in 19], we have that 
+
+I(g + δh ) − I(g)
+
+δ =
+
+Z
+
+> SX
+
+n Z
+
+> u∈[0 ,1]
+
+|u − (u − 1)( g(θ) + δh (θ)) | − | u − (u − 1) g(θ)|
+
+δ p(du |θ)
+
+o
+
+pΘ(dθ )=: 
+
+Z
+
+> SX
+
+n Z
+
+> u∈[0 ,1]
+
+fδ(u, θ )p(du |θ)
+
+o
+
+pΘ(dθ ), (B.25) Relation (B.24) will follow from two consecutive applications of the Lebesgue Dominated Conver-gence Theorem (DCT). Indeed, let us first establish the point-wise limit of fδ(u, θ ) as δ ↓ 0 by considering cases. 
+
+(Case 1): Suppose that u − (1 − u)g(θ) > 0. Then, there exists a δθ,u,h > 0 such that for all 0 < δ < δ θ,u,h , we have u − (1 − u)( g(θ) + δh (θ)) > 0 and hence 
+
+fδ(u, θ ) = 1
+
+δ
+
+
+
+u − (1 − u)( g(θ) + δh (θ)) − (u − (1 − u)g(θ)) 
+
+
+
+= −(1 − u)h(θ).
+
+(Case 2:) Similarly, if u − (1 − u)g(θ) < 0, for possibly smaller δθ,u,h > 0, we have u − (1 −
+
+u)( g(θ) + δh (θ)) < 0, for all 0 < δ < δ θ,u,h and hence 
+
+fδ(u, θ ) = (1 − u)h(θ).
+
+(Case 3:) If u − (1 − u)g(θ) = 0, we readily obtain 
+
+fδ(u, θ ) = 1
+
+δ |(1 − u)δh (θ)| = (1 − u)|h(θ)|.
+
+By combining the above three cases, and observing that 
+
+{u − (1 − u)g(θ) < 0} = {u < q (θ) := g(θ)/(1 + g(θ)) },
+
+we get lim  
+
+> δ↓0
+
+fδ(u, θ ) = (1 {u<q (θ)} − 1{u>q (θ)})(1 − u)h(θ) + 1 {u=q(θ)}(1 − u)|h(θ)|
+
+= 2 · 1{u≤q(θ)}(1 − u)h(θ) − (1 − u)h(θ) + 2 · 1{u=q(θ)}(1 − u)( h(θ)−) =: f0(u, θ ), (B.26) /Optimal prediction of extreme events 48 
+
+where in the last relation we used the facts that 1{u>q (θ)} = 1 − 1{u≤q(θ)} and |h(θ)| − h(θ) = 2 h(θ)−.
+
+Next, we will verify the conditions of the Lebesgue DCT. In view of (B.25) by applying the inequality || a| − | b|| ≤ | a − b|, we get 
+
+|fδ(u, θ )| ≤ | (1 − u)h(θ)| ≤ | h(θ)|. (B.27) Since for all θ ∈ SX the upper bound in (B.27) belongs to L1(p(du |θ)), by the DCT, the point-wise convergence (B.26) implies 
+
+Z
+
+> u∈[0 ,1]
+
+fδ(u, θ )p(du |θ) −→ 
+
+Z
+
+> u∈[0 ,1]
+
+f0(u, θ )p(du |θ), as δ ↓ 0. (B.28) Recalling that p(du |θ) and pΘ(dθ ) are probability measures, by using (B.27), and the established point-wise convergence in (B.28), the Lebesgue DCT over the space L1(pΘ), entails 
+
+Z
+
+> SX
+
+n Z
+
+> u∈[0 ,1]
+
+fδ(u, θ )p(du |θ)
+
+o
+
+pΘ(dθ ) →
+
+Z
+
+> SX
+
+Z
+
+> [0 ,1]
+
+f0(u, θ )p(du |θ)pΘ(dθ ),
+
+as δ ↓ 0. In view of (B.25), (B.26) and (3.18), the last convergence yields: lim 
+
+> δ↓0
+
+I(g + δh ) − I(g)
+
+δ = 2 
+
+Z
+
+> SX
+
+n Z
+
+> {u≤q(θ)}
+
+(1 − u)p(du |θ)
+
+o
+
+h(θ)pθ(dθ ) −
+
+Z
+
+> SX
+
+b(θ)h(θ)pΘ(dθ ) (B.29) + 2 
+
+Z
+
+> SX
+
+n Z
+
+> {u=q(θ)}
+
+(1 − u)p(du |θ)
+
+o
+
+(h(θ)−)pθ(dθ ), (B.30) In view of (3.21), Relations (B.29)-(B.30) can be written as in (B.24), which completes the proof of the lemma. 
+
+Lemma B.6. Let F be the CDF of a probability distribution on [0 , 1] and let α 7 → qα and α 7 → qα+
+
+be its left- and right-continuous generalized inverses, defined as in (3.24) and (3.25) , respectively. The following statements hold: 
+
+(i) For all 0 ≤ α ≤ 1, we have 
+
+F (qα−) ≤ F (qα+−) ≤ α ≤ F (qα) ≤ F (qα+), (B.31) 
+
+where F (t−) := lim s<t, s →t F (s) denotes the left-limit of F at t.
+
+(ii) For all 0 ≤ α ≤ 1, such that qα < q α+, we have 
+
+F (t) = F (qα), for all qα ≤ t < q α+. (B.32) 
+
+Proof. Since qα ≤ qα+, the monotonicity of F implies F (qα−) ≤ F (qα+−). Also, by (3.24) we have that tn ↓ qα, for some tn ≥ qα such that F (tn) ≥ α. The right-continuity of F then entails 
+
+F (tn) → F (qα), as n → ∞ , and hence F (qα) ≥ α. To complete the proof of (B.31), it remains to show that F (qα+−) ≤ α.If qα+ = 0, then by convention F (qα+−) = 0 ≤ α, for all α ∈ [0 , 1]. Let now qα+ > 0, and suppose that F (qα+−) > α . Let 0 < t n < q α+ be such that tn ↑ qα+. Then, since F (tn) → F (qα+−) > α , as 
+
+n → ∞ , there exists a tn < q α+ such that F (tn) > α . This, however, contradicts the definition of 
+
+qα+ in (3.25). We have thus shown that F (qα+−) ≤ α, completing the proof of (B.31). 
+
+We now prove (B.32) . By the monotonicity of F , we have F (t) ≥ F (qα), for all t ∈ [qα, q α+). Suppose now that 
+
+F (t) > F (qα) ≥ α, for some qα < t < q α+. (B.33) Relation (B.33) contradicts the definition of qα+ in (3.25). This completes the proof of (3.28). /Optimal prediction of extreme events 49 
+
+Lemma B.7 (Statement of Lemma 3.7) . Let g(λ) 
+
+> α
+
+be as in (3.35) . Then: 
+
+(i) We have that C(g(λ) 
+
+> α
+
+) < ∞, for all 0 ≤ α < 1 and 0 ≤ λ ≤ 1.
+
+(ii) The function λ 7 → C(g(λ) 
+
+> α
+
+) is monotone non-decreasing and continuous in λ ∈ [0 , 1] .
+
+(iii) The function α 7 → C(gα) in monotone non-decreasing and left-continuous in α ∈ (0 , 1] .
+
+(iv) For all 0 ≤ α < 1, we have that C(gα+) = lim β↓α C(gβ ).
+
+Proof. Part (i): Note that g(0)  
+
+> α
+
+(θ) = gα(θ) = qα(θ)/(1 − qα(θ)). We begin by showing that C(gα) = 
+
+C(g(0)  
+
+> α
+
+) < ∞, for all 0 ≤ α < 1. Let V ∼ Uniform(0 , 1) be independent from Θ ∼ pΘ. We will show that 
+
+E
+
+h b(Θ) 1 − qV (Θ) 
+
+i
+
+=
+
+Z 10
+
+Z
+
+> SX
+
+b(θ)1 − qα(θ) pΘ(dθ )dα < ∞. (B.34) This, in view of the Tonelli-Fubini theorem implies that 
+
+E
+
+h b(Θ) 1 − qα(Θ) 
+
+i
+
+=
+
+Z
+
+> SX
+
+b(θ)1 − qα(θ) pΘ(dθ ) < ∞,
+
+for Lebesgue almost all α ∈ (0 , 1). The monotonicity of the function α 7 → 1/(1 − qα(θ)) then entails that, for all α ∈ [0 , 1), we have 
+
+C(gα) = 
+
+Z
+
+> SX
+
+b(θ)gα(θ)pΘ(dθ ) = 
+
+Z
+
+> SX
+
+b(θ) qα(θ)1 − qα(θ) pΘ(dθ ) ≤
+
+Z
+
+> SX
+
+b(θ)1 − qα(θ) pΘ(dθ ) < ∞, (B.35) where we used that qα(θ) ∈ [0 , 1]. Thus, to show that C(gα) < ∞, 0 ≤ α < 1, it remains to prove (B.34), which we do next. Note that since α 7 → qα(θ) is the left-continuous inverse of Fθ, we have that qV (θ) has the probability distribution b(θ)−1(1 − u)p(du |θ) [see, e.g., p. 61 in 41]. Thus, by the independence of Θ and V , we obtain 
+
+E
+
+h b(Θ) 1 − qV (Θ) | Θ
+
+i
+
+=
+
+Z
+
+> [0 ,1)
+
+b(Θ) (1 − u)(1 − u)
+
+b(Θ) p(du |Θ) = p([0 , 1) |Θ) = 1 .
+
+Hence, by taking an expectation over Θ in the last relation, we obtain E[b(Θ) /(1 −qV (Θ))] = 1 < ∞,which implies (B.34) and proves that C(gα) < ∞ for all 0 ≤ α < 1. Now that we have shown C(gα) < ∞, for all 0 ≤ α < 1, we proceed with also proving that 
+
+C(g(λ) 
+
+> α
+
+) < ∞, for all 0 ≤ λ ≤ 1. (Note that we exclude the case α = 1, since in fact one often has 
+
+C(g1) = ∞.) Since the function x 7 → x/ (1 − x) is increasing for x ∈ [0 , 1), we have 0 ≤ g(λ) 
+
+> α
+
+(θ) = q(λ) 
+
+> α
+
+(θ)1 − q(λ) 
+
+> α
+
+(θ) ≤ gβ (θ), (B.36) for all α < β < 1, since q(λ) 
+
+> α
+
+(θ) ≤ qβ (θ). Since we have already shown that gβ ∈ L1+(b · pΘ(dθ )), the latter inequality implies g(λ) 
+
+> α
+
+(θ), i.e., C(g(λ) 
+
+> α
+
+) < ∞ and completes the proof of part (i). Observe /Optimal prediction of extreme events 50 
+
+that g(1)  
+
+> α
+
+= gα+ and so we have C(gα+) < ∞, for all α ∈ [0 , 1). Now, we prove (ii) . Observe that the function λ 7 → q(λ) 
+
+> α
+
+(θ) is continuous in λ for all θ. This, in view of (B.36) and the Lebesgue dominated convergence theorem implies the continuity of λ 7 → C(g(λ) 
+
+> α
+
+)in λ ∈ [0 , 1]. Part (iii) is an immediate consequence of the Monotone Convergence Theorem and the observa-tion that α 7 → gα(θ) are non-negative, monotone non-decreasing, and left-continuous in α, for all 
+
+θ ∈ SX .To prove (iv) , observe first that for all 0 ≤ α < 1 and any fixed β0 ∈ (α, 1), we have that 0 ≤ gα(θ) ≤ gβ (θ) ≤ gβ0 (θ), for all α < β < β 0.
+
+As shown in part (i) , we have gβ0 ∈ L1+(b · pΘ). Also, by the fact that qα+(θ) = lim β↓α qβ (θ) and the above dominance by an integrable function gβ0 , the Lebesgue dominated convergence theorem implies the desired claim in (iv) .
+
+B.3.3. Proofs of Section 3.3 Proof of Proposition 3.4.. The homogeneity of τ and Breiman’s Lemma 3.9 entail 
+
+P[τ (Z) > t ]
+
+P[ξ > t ] = P[ξτ (η) > t ]
+
+P[ξ > t ] = E[τ (η)α], as → ∞ ,
+
+which proves (3.43). On the other hand, by the regular variation of ξ, for all v > 0
+
+P[ξ > t/v ]
+
+P[ξ > t ] → vα, as t → ∞ .
+
+Thus, in view of (3.43), for all w ∈ { τ > 0},
+
+pt(w) := P[ξ > t/τ (w)] 
+
+P[τ (Z) > t ] → p∞(w) := τ (w)α
+
+E[τ (w)α] , t → ∞ .
+
+Observe that both pt(w) and p∞(w) are probability densities relative to the probability distribution 
+
+Pη(dw ) of the random vector η over the domain {w : τ (w) > 0}. Thus, as in the proof of Lemma 3.11 in [46], the Scheff´ e theorem entails 
+
+Z 
+
+> τ(w)>0
+
+|pt(w) − p∞(w)|Pη(dw ) → 0, t → ∞ . (B.37) On the other hand, by the independence of ξ and η, and the fact that Z/τ (Z) = η/τ (η), we can write 
+
+P[Z/τ (Z) ∈ B|{ τ (Z) > t }] = 1
+
+P[τ (Z) > t ] P[η/τ (η) ∈ B, ξ > t/τ (η)] =
+
+Z 
+
+> {τ(w)>0}
+
+1B (w/τ (w)) pt(w)Pη(dw ),
+
+for all B ∈ B (Sτ ). This fact and Relation (B.37) yields the desired convergence in total variation in (3.44). /Optimal prediction of extreme events 51 
+
+Proposition B.4 (Statement of Proposition 3.5 on the Pareto-Breiman models) . Let Y and X
+
+be as in (3.46) with ξ as in (3.41) with α = 1 . Let also τ (y, x ) := y+ + τX (x), be a non-negative, continuous 1-homogeneous such that 0 < E[V ] < ∞ and 0 < E[τX (W )] < ∞. Then: 
+
+(i) Y and X are jointly regularly varying in the sense of Assumption 3.1 and 
+
+(Y, X )
+
+τ (Y, X ) | { τ (Y, X ) > t } T V 
+
+−→ ΘZ =: ( U, (1 − U )Θ) , as t → ∞ . (B.38) 
+
+We have moreover that for all B ∈ B (SX ),
+
+P[Θ ∈ B | U < 1] = 1
+
+E[1 {τX (W )>0} · (V + τX (W ))] E
+
+h
+
+1B
+
+ WτX (W )
+
+
+
+· 1{τX (W )>0}(V + τX (W )) 
+
+i
+
+.
+
+(B.39) (ii) For all non-negative, measurable homogeneous h : R1+ d → R+, such that E[h(V, W )] < ∞,we have 
+
+tP[h(Y, X ) > t ] → cξE[h(V, W )] , as t → ∞ . (B.40) (iii) If h is as in part (ii) and such that {h > 0} ⊂ { τ > 0}, then 
+
+E[h(U, (1 − U )Θ)] = 1
+
+E[τ (V, W )] E[h(V, W )] . (B.41) 
+
+Proof of Proposition 3.5. Part (i): Proposition 3.4 readily implies the regular variation of Z := (Y, X ) and the convergence in (B.38) in the strong total variation sense. It remains to argue that 
+
+Y and X are jointly regularly varying. To this end, it is enough to show that P[U = 0] < 1 and 
+
+P[U = 1] < 1. We shall apply (3.45) with the set A = {θZ = ( u, eθZ ) : u = 0 } ⊂ Sτ , where eθZ = ( θZ (i)) d+1  
+
+> i=2
+
+. In this case, η := ( V, W ) and τ (η) = τ (V, W ) = V + τX (W ), and thus we obtain 
+
+P[U = 0] = σ(A) = 1
+
+E[V + τX (W )] E
+
+h
+
+1A
+
+ (V, W )
+
+τ (V, W )
+
+
+
+· (V + τX (W )) 
+
+i
+
+= 1
+
+E[V + τX (W )] E[1 {V =0 }(V + τX (W ))] ≤ E[τX (W )] 
+
+E[V ] + E[τX (W )] < 1,
+
+where the last inequality follows from the assumption that E[V ] > 0 and E[τX (W )] > 0. This shows that P[U = 0] < 1. Similarly, letting A = {(u, eθZ ) : u = 1 } = {(u, eθZ ) : τX (eθZ ) = 0 }, by (3.45), we obtain 
+
+P[U = 1] = σ(A) = 1
+
+E[V + τX (W )] E
+
+h
+
+1{τX (W )=0 } · (V + τX (W )) 
+
+i
+
+≤ E[V ]
+
+E[V ] + E[τX (W )] < 1. (B.42) This completes the proof (3.5), which establishes the joint regular variation of Y and X.To prove (3.48), let now B ∈ B (SX ) and define 
+
+A = {(u, (1 − u)θ) : u < 1, θ ∈ B}.
+
+By (3.45), we have 
+
+σ(A) = P[Θ ∈ B, U < 1] = 1
+
+E[V + τX (W )] E
+
+h
+
+1A
+
+ (V, W )
+
+τ (V, W )
+
+
+
+· (V + τX (W )) 
+
+i/Optimal prediction of extreme events 52 
+
+= 1
+
+E[V + τX (W )] E
+
+h
+
+1B (W/τ X (W ))1 {τX (W )>0} · (V + τX (W )) 
+
+i
+
+, (B.43) where in the last relation we used the fact that ( v, w )/τ (v, w ) ∈ A if and only if τX (w) > 0 and (w/τ (v, w )) · (1 − v/τ (v, w )) −1 = wv + τX (w) · v + τX (w)
+
+τX (w) = wτX (w) ∈ B. 
+
+By (B.43) with B := SX or in fact in view of (B.42), we obtain 
+
+P[U < 1] = 1
+
+E[V + τX (W )] E[1 {τX (W )>0} · (V + τX (W )] .
+
+Taking the ratio of (B.43) with the last expression yields (3.48). 
+
+Part (ii): By observing that τ (Z) = τ (ξ ·(V, W )) = ξ ·τ (V, W ), we see that (B.40) is an immediate consequence of Relations (3.41) and (3.43). 
+
+Part (iii): Let now h be a non-negative homogeneous function such that {h > 0} ⊂ { τ > 0}. If 
+
+h(z) := 1 A(z/τ (z)) · τ (z), for some Borel A ⊂ Sτ , then Relation (B.41) is precisely (3.45), since by definition σ(A) = E[1 A(U, (1 − U )θ)] = E[h(U, (1 − U )Θ)]. Thus, Relation (B.41) immediately extends to simple homogeneous functions 
+
+h(z) = τ (z) ·
+
+> n
+
+X
+
+> i=1
+
+ai1Ai (z/τ (z)) , (Ai ∈ B (Sτ )) where ai ≥ 0 and by convention τ (z)1 Ai (z/τ (z)) = 0 whenever τ (z) = 0. The claim of part (iii) follows by appealing to the Monotone Convergence Theorem, which applies in particular to non-negative functions h such that E[h(V, W )] = ∞.
+
+Corollary B.1 (Statement of Corollary 3.1) . Let Y and X be as in Proposition 3.5. Suppose that 
+
+g = g(opt) is as in Theorem 3.8. That is, g ∈ L1+(b · pΘ), with b(θ) and pΘ as in (3.18) and (3.17) ,
+
+C(g) = E[(1 − U )g(Θ)] = E[U ], and 
+
+Λ( g) = sup      
+
+> f∈L1+(b·pΘ), C (f)= E[U]
+
+Λ( f ).
+
+Define the homogeneous extension of g:
+
+hg(x) := τX (x)g(x/τ X (x)) , x ∈ Rd,
+
+where by convention hg(x) = 0 whenever τX (x) = 0 . Then: 
+
+(i) We have 
+
+lim  
+
+> t→∞
+
+tP[Y > t ] = lim  
+
+> t→∞
+
+tP[hg(X)] = cξE[τ (V, W )] C(g). (B.44) (ii) For every non-negative, homogeneous and Borel measurable function h : Rd → R+ such that 
+
+{h > 0} ⊂ { τX > 0} and P[Y > t ] ∼ P[h(X) > t ], t → ∞ , we have h|SX ∈ L1+(b · pΘ) and 
+
+Λ( h) = λ(Y, h (X)) = lim  
+
+> t→∞
+
+P[Y > t |h(X) > t ] ≤ Λ( g) = λ(Y, h g(X)) . (B.45) 
+
+where the above limits exist and Λ is as in (3.12) ./Optimal prediction of extreme events 53 
+
+Proof of Corollary 3.1. The argument is similar to the proof of Lemma 3.3 but instead of using multivariate regular variation, we shall appeal to Breiman’s lemma. Observe that the non-negative homogeneous functions hY (y, x ) := y+, h X (y, x ) := hg(X) and hY,X (y, x ) := y+ ∧ hg(x) are by construction support-dominated by τ . That is, for all h ∈ { hY , h X , h Y,X } we have {h > 0} ⊂ { τ > 
+
+0}, where τ (y, x ) = y+ + τX (x). Therefore, Relations (3.49) and (3.50) of Proposition 3.5 applied to h = hY and h = hX imply (B.44). Taking h = hY,X , we also obtain lim  
+
+> t→∞
+
+tP[Y > t, h g(X) > t ] = lim  
+
+> t→∞
+
+tP[hY,X (Y, X ) > t ] = cξE[V ∧ hg(W )] = cξE[τ (V, W )] E[U ∧ (1 − U )g(Θ)] .
+
+By taking the ratio of the last relation and the already established (B.44), we obtain lim  
+
+> t→∞
+
+P[Y > t |hg(X) > t ] = Λ( g),
+
+which, in view of Lemma B.4 applied to ξ := Y and η := hg(X), shows that the tail-dependence coefficient exists and λ(Y, h g(X)) = Λ( g). Let now h be an arbitrary homogeneous function as in part (ii) . Since {h > 0} ⊂ { τX > 0} we have that h(x) = τX (x)h(x/τ X (x)), where by convention h(x) = 0 if τX (x) = 0. That is, h can be represented as the homogeneous extension of its restriction f := h|SX onto SX = {τX = 1 }.Suppose for a moment that f := h|SX ∈ L1+(b · pΘ). Then, by the assumed tail-equivalence 
+
+P[Y > t ] ∼ P[h(X) > t ], t → ∞ , as in the first part of the proof, we obtain lim  
+
+> t→∞
+
+tP[Y > t ] = lim  
+
+> t→∞
+
+tP[h(X) > t ] = cξE[τ (V, W )] C(f ), (B.46) and hence C(g) = C(f ) in view of (B.44). Similarly, as argued above with hg replaced by h = hf ,we obtain Λ( f ) = λ(Y, h (X)) = lim  
+
+> t→∞
+
+P[Y > t |h(X) > t ].
+
+Since, both f and g satisfy the constraint C(f ) = C(g) = E[U ], Theorem 3.8 readily implies Λ( f ) ≤ Λ( g), which proves (B.45). Therefore, to complete the proof it remains to show that for every τ -support dominated and asymptotically calibrated predictor h(X), we have f = h|SX ∈ L1+(b · pΘ). We will do so next by the method of truncation. Define h(M )(x) := τX (x)h(x/τ X (x))1 {h(x/τ X (x)) ≤M } where by convention h(M )(x) := 0 whenever 
+
+τX (x) = 0. Observe that since {h > 0} ⊂ { τX > 0}, we have h(M )(x) ↑ h(x), as M → ∞ . Also, we have that h(M )(W ) ≤ τX (W ) · M < ∞ and hence E[h(M )(W )] ≤ M E[τX (W )] < ∞. Thus, by Breiman’s Lemma 3.9 lim  
+
+> t→∞
+
+tP[h(M )(X) > t ] = lim  
+
+> t→∞
+
+tP[ξh (M )(W ) > t ] = cξE[h(M )(W )] .
+
+On the other hand, since 0 ≤ h(M )(x) ≤ h(x) and in view of (B.46), we obtain 
+
+cξE[h(M )(W )] = lim  
+
+> t→∞
+
+tP[h(M )(X) > t ] ≤ lim  
+
+> t→∞
+
+tP[h(X) > t ] = lim  
+
+> t→∞
+
+tP[Y > t ] < ∞.
+
+Since the latter upper bound does not depend on M and cξ > 0, by the Monotone Convergence Theorem, we have that E[h(M )(W )] ↑ E[h(W )] ≤ E[τ (V, W )] C(g) < ∞, as M ↑ ∞ . Relation (3.50) applied to the homogeneous function ( y, x ) 7 → h(x) yields 
+
+E[h(W )] = E[τ (V, W )] E[h((1 − U )Θ)] = E[τ (V, W )] E[(1 − U )f (Θ)] < ∞.
+
+This shows that f ≡ h|SX ∈ L1+(b · pΘ), which completes the proof. /Optimal prediction of extreme events 54 
+
+B.4. Proofs of Section 4 
+
+In this section we provide proofs and auxiliary results needed for Theorem 4.1. We start by providing a contiguity argument, which will be used to formally justify the Peaks-over-Threshold methodology. This argument is of independent interest since it allows one to effectively plug-in a sample from the limit angular distribution σ in place of the triangular array coming from the exceedance distributions for a sequence of growing thresholds. 
+
+B.4.1. More on contiguity and the d` ecoupage de L´ evy 
+
+We begin by recalling established results and notation on Hellinger and total variation distances of measures. Let P and Q be two probability measures, defined on a common measure space ( S, S). Recall that the squared Hellinger distance of P and Q is defined as: 
+
+H2(P, Q ) := 12
+
+Z
+
+> S
+
+r dP dν −
+
+r dQ dν 
+
+2
+
+dν, 
+
+where ν is any other measure dominating P and Q, i.e., ν = P + Q.We shall denote by P ⊗k the product measure on the cartesian product space ( Sk, σ (Sk)). Note that P ⊗k is the probability distribution of a sample of k independent elements taking values in S
+
+and having probability distribution P . The following inequalities are well known [see e.g. 56, 30, 37] 
+
+H2(P ⊗k, Q ⊗k) ≤ kH 2(P, Q ) (B.47) and 
+
+H2(P, Q ) ≤ T V (P, Q ) ≤ √2H(P, Q ), (B.48) where T V (P, Q ) stands for the total variation distance: 
+
+T V (P, Q ) := sup 
+
+> A∈F
+
+|P (A) − Q(A)|. (B.49) Let now Pt be the conditional distribution of Z/τ (Z) | τ (Z) > t and let P∞ denote its limit. 
+
+Assumption B.1. The probability measures P∞ and {Pt, t = 1 , 2, . . . } are such that 
+
+H(Pt, P ∞) → 0, as t → ∞ .
+
+The next result is similar in spirit to Le Cam’s First Lemma (see also Remark B.1 below). 
+
+Proposition B.5. Suppose P∞ and {Pt} satisfy Assumption B.1. Let also Θi, i = 1 , . . . be iid from P∞ and Θi(t), i = 1 , 2, . . . be iid from Pt. Consider: (1) A statistic Tk = Tk(Θ 1, · · · , Θk) such that 
+
+Tk P
+
+→ 0, as k → ∞ 
+
+(2) A random integer sequence {K(t)}, independent from {Θi(t)} such that 
+
+K(t) P
+
+→ ∞ and K(t)H2(Pt, P ∞) = oP(1) , as t → ∞ .
+
+Then, (1) and (2) imply that 
+
+eTK(t) := TK(t)(Θ 1(t), · · · , ΘK(t)(t)) P
+
+→ 0, as t → ∞ ./Optimal prediction of extreme events 55 
+
+Remark B.1. In view of (B.48) and (B.49) , Assumption B.1 readily implies that Pt and Qt := P∞
+
+are contiguous [see e.g. Definition 6.3 in 56]. In principle, Proposition B.5 can be also derived as a consequence of Le Cam’s First Lemma [see e.g. Lemma 6.4 in 56]. Nevertheless, here we elected to provide our own argument since it makes the connection between the rate of convergence in the Hellinger distance and the random sample size more explicit. Proof of Proposition B.5. By assumption, for all ϵ > 0, we can find two deterministic integer se-quences k(0)  
+
+> t
+
+≤ k(1)  
+
+> t
+
+such that k(0)  
+
+> t
+
+→ ∞ , as t → ∞ , and for all t ≥ tϵ
+
+k(1)  
+
+> t
+
+≤ ϵ2
+
+2H2(Pt, P ∞) , and P[k(0)  
+
+> t
+
+≤ K(t) ≤ k(1)  
+
+> t
+
+] ≥ 1 − ϵ. (B.50) Thus, for all t ≥ tϵ, we have that, 
+
+P[| eTK(t)(t)| > ϵ ] = 
+
+ X
+
+> k<k (0)
+> t
+
++ X  
+
+> k∈[k(0)
+> t,k (1)
+> t]
+
++ X
+
+> k>k (1)
+> t
+
+
+
+P[| eTk(t)| > ϵ, K (t) = k]
+
+≤ P[K(t)̸ ∈ [k(0)  
+
+> t
+
+, k (1)  
+
+> t
+
+]] + 
+
+> k(1)
+> t
+
+X
+
+> k=k(0)
+> t
+
+P[| eTk| > ϵ ]P[K(t) = k]
+
+≤ 2ϵ +
+
+> k(1)
+> t
+
+X
+
+> k=k(0)
+> t
+
+P[| eTk| > ϵ ]P[K(t) = k], (B.51) where the last two relations follow from (B.50) and the independence of K(t) and the Θ i(t)’s. Now, by appealing to the definition of total variation distance in (B.49) and using the inequalities (B.47) and (B.48), for the kth term in (B.51), we obtain 
+
+P[| eTk| > ϵ ] ≤ P[|Tk| > ϵ ]) + T V (P ⊗kt , P ⊗k 
+
+> ∞
+
+)
+
+≤ P[|Tk| > ϵ ]) + √2H(P ⊗kt , P ⊗k 
+
+> ∞
+
+)
+
+≤ P[|Tk| > ϵ ] + 
+
+
+
+2kH 2(Pt, P ∞)
+
+1/2
+
+. (B.52) By the assumption on the sequences in (B.50), we further obtain that 2 kH 2(Pt, P ∞) ≤ ϵ2, for all 
+
+k ∈ [k(0)  
+
+> t
+
+, k (1)  
+
+> t
+
+], and hence 
+
+P[| eTk| > ϵ ] ≤ P[|Tk| > ϵ ] + ϵ, 
+
+which, in view of (B.51) yields 
+
+P[| eTK(t)(t)| > ϵ ] ≤ 3ϵ +
+
+> k(1)
+> t
+
+X
+
+> k=k(0)
+> t
+
+P[|Tk| > ϵ ]P[K(t) = k] ≤ 3ϵ + sup 
+
+> k≥k(0)
+> t
+
+P[|Tk| > ϵ ].
+
+However, since by assumption Tk P
+
+→ 0, as k → ∞ and since k(0)  
+
+> t
+
+→ ∞ , we have that sup k≥k(0) 
+
+> t
+
+P[|Tk| >ϵ] → 0, as t → ∞ . Hence, by possibly increasing the value of tϵ, we have that 
+
+P[| eTK(t)(t)| > ϵ ] ≤ 4ϵ, for all t ≥ tϵ.
+
+This, since ϵ > 0 was arbitrary implies that eTK(t)
+
+> P
+
+→ 0, as t → ∞ ./Optimal prediction of extreme events 56 
+
+The following remark shows why the assumption of independence of K(t) and the Θ i’s in Propo-sition B.5 is not restrictive in the setting of peaks over threshold. 
+
+Remark B.2 (decoupage de L´ evy, see e.g., [40]) . Let Zi, i = 1 , 2, . . . , n be iid and define the set of exceedances I(t) := {i ∈ [n] : τ (Zi) > t }. Then, letting Θi := Zi/τ (Zi), i ∈ I (t), we have the following equality in distribution in the sense of random point measures 
+
+Π := {Θi, i ∈ I (t)} d
+
+= Π ∗ := {Θ∗
+
+> 1
+
+, · · · , Θ∗
+
+> K(t)
+
+}, (B.53) 
+
+where K(t) := |I (t)| and Θ∗
+
+> 1
+
+, Θ∗
+
+> 2
+
+, . . . are iid and independent from K(t) such that Θ∗
+
+> id
+
+= Zi/τ (Zi)|τ (Zi) >t. In simple terms, the values of the Θi’s are independent of the number of exceedances K(t).Proof of equation (B.53) . To prove (B.53), it is enough to show that the Laplace functionals of Π and Π ∗ coincide. That is, we will show that for all non-negative measurable functions f : Rd → R+,we have E[e−Π( f )] = E[e−Π∗(f )] in standard Resnick notation [40]. We have 
+
+E[e−Π( f )] = E
+
+h
+
+exp 
+
+n
+
+− X
+
+> i∈I (t)
+
+f (Zi/τ (Zi)) 
+
+oi 
+
+= E
+
+h
+
+exp 
+
+n
+
+−
+
+> n
+
+X
+
+> i=1
+
+g(Zi)
+
+oi 
+
+, (B.54) where g(z) = f (z/τ (z)) , τ (z) > t and g(z) = 0, if τ (z) ≤ t. The independence of the Zi’s then entails 
+
+E[e−Π( f )] = 
+
+
+
+E[e−g(Z1)]
+
+n
+
+=
+
+
+
+E[e−f (Θ) ]P[τ (Z1) > t ] + (1 − P[τ (Z) > t ]) 
+
+n
+
+=
+
+> n
+
+X
+
+> k=0
+
+nk
+
+
+
+pk(1 − p)n−k
+
+E[e−f (Θ) ]) k,
+
+where Θ := Z1/τ (Z1) | τ (Z1) > t , and p := P[τ (Z1) > t ]. On the other hand, using the independence of K(t) and the Θ ∗ 
+
+> i
+
+’s, we obtain 
+
+E[e−Π∗(f )] = 
+
+> n
+
+X
+
+> k=0
+
+
+
+E[e−f (Θ ∗ 
+
+> 1)
+
+]
+
+k
+
+P[K(t) = k] = 
+
+nk
+
+
+
+pk(1 − p)n−k
+
+E[e−f (Θ ∗ 
+
+> 1)
+
+]
+
+k
+
+,
+
+which equals the right-hand side of (B.54) completing the proof of (B.53). 
+
+B.4.2. On the construction of uniformly consistent estimators 
+
+In this section we demonstrate that a point-wise consistent estimator of a continuous function can be modified to obtain a uniformly consistent estimator over compacta. Although surprising, at a first glance, this fact is akin to the method of sieves and is a direct consequence of the principle of the diagonal . The caveat is that this modification may ultimately converge at a potentially slow rate. We were unable to find a reference for this simple fact and therefore we give it here for the sake of completeness. 
+
+Proposition B.6. Let gn : K → R be a sequence of random measurable functions defined on a compact set K ⊂ Rd. Suppose that for all θ ∈ K, we have gn(θ) P
+
+→ g(θ), as n → ∞ , where 
+
+g : K → R is continuous. Then, for some mn → ∞ , there exist continuous functions egn : Rd → R defined over Rd, which are measurable functions of gn(θ), θ ∈ K (but not of g(·)), such that 
+
+sup 
+
+> θ∈K
+
+|egn(θ) − g(θ)| P
+
+−→ 0, as n → ∞ . (B.55) /Optimal prediction of extreme events 57 
+
+We begin with the following 
+
+Lemma B.8. Adopt the assumptions of Proposition B.6. Let I = {θi}i∈N ⊂ K be an arbitrary countable subset of K. Then, there is a sequence mn → ∞ such that 
+
+max 
+
+> 1≤j≤mn
+
+|gn(θj ) − g(θj )| P
+
+−→ 0, as n → ∞ . (B.56) 
+
+Proof. By the point-wise convergence in probability gn(θ) P
+
+→ g(θ), n → ∞ , for all θj ∈ I , and 
+
+k ∈ N, there exist N (k, j ) < ∞ such that 
+
+P
+
+h
+
+|gn(θj ) − g(θj )| ≥ 1
+
+k
+
+i
+
+≤ 12j k , for all n ≥ N (k, j ), (B.57) where without loss of generality, we suppose that N (k, j ) is strictly increasing in j and k. Then, for all m ∈ N, we have 
+
+P
+
+h
+
+max  
+
+> 1≤j≤m
+
+|gn(θj ) − g(θj )| ≥ 1
+
+k
+
+i
+
+≤
+
+> m
+
+X
+
+> j=1
+
+P
+
+h
+
+|gn(θj ) − g(θj )| ≥ 1
+
+k
+
+i
+
+≤
+
+> m
+
+X
+
+> j=1
+
+12j k ≤ 1
+
+k , (B.58) for all n ≥ N ∗(k, m ) := max 1≤j≤m N (k, j ). For all n ≥ N ∗(1 , 1) define 
+
+mn := max {m ≥ 1 : n ≥ N ∗(m, m )}.
+
+Observe that mn < ∞ since {N ∗(m, m )}m∈N is a strictly increasing integer sequence and hence 
+
+N ∗(m, m ) ↑ ∞ , as m → ∞ . Moreover, we have mn → ∞ because N ∗(m, m ) < ∞, for all m. This, in view of (B.58) with k := m := mn, implies that 
+
+P
+
+h
+
+max 
+
+> 1≤j≤mn
+
+|gn(θj ) − g(θj )| ≥ 1
+
+mn
+
+i
+
+≤ 1
+
+mn
+
+, (B.59) which entails (B.56) since mn → ∞ .
+
+Remark B.3. The construction of the sequence {mn} in Lemma B.8 is rather implicit. In view of 
+
+(B.57) , only the rate in the pointwise convergence gn(θ) P
+
+→ g(θ), as n → ∞ , plays a role. In this remark, we will give a conservative but explicit bound on mn.Recall the Ky Fan metric between for two random variables 
+
+ρKF (ξ, η ) := inf {ϵ > 0 : P[|ξ − η| ≥ ϵ] ≤ 1/ϵ ]}
+
+and suppose that 
+
+D(n) := sup 
+
+> θ∈K
+
+ρKF (gn(θ), g (θ)) → 0, as n → ∞ .
+
+That is, ρ(n) is the uniform rate of pointwise consistency in the Ky Fan metric. Without loss of generality suppose that ρ(n) is monotone non-decreasing in n. Then, Relation (B.58) holds, provided ρ(N (j, k )) ≤ 1/2j k and in turn ρ(n) ≤ 1/(2 mn mn) implies (B.59) . This shows that a crude upper bound for mn can be chosen as the logarithm of the inverse of the regularly varying function x 7 → 1/(x log( x)) . Concretely, if ρ(n) = O(n−γ ), n → ∞ for some γ > 0, then any sequence mn → ∞ such that mn = o(log( n)) will satisfy the conditions of Lemma B.8. /Optimal prediction of extreme events 58 
+
+Proof of Proposition B.6. Let I be a countable and dense subset of K and let mn be the sequence obtained from Lemma B.8 ensuring (B.56) holds. For each θ ∈ K, let ζn(θ) be the nearest neighbor to θ among {θi, i ∈ [mn]} in the Euclidean norm, for example, and define the function 
+
+fn(θ) := gn(ζ(θ)) , θ ∈ K. 
+
+First, we will argue that 
+
+∥fn − g∥∞,K P
+
+→ 0, as n → ∞ . (B.60) Note that by the triangle inequality, we have sup 
+
+> θ∈K
+
+|fn(θ) − g(θ)| ≤ sup 
+
+> θ∈K
+
+|gn(ζn(θ)) − g(ζn(θ)) | + sup 
+
+> θ∈K
+
+|g(ζn(θ)) − g(θ)|
+
+= max 
+
+> 1≤j≤mn
+
+|gn(θj ) − g(θj )| + ωδn (g), (B.61) where 
+
+ωδ(g) := sup 
+
+> ∥θ′−θ′′ ∥<δ, θ ′,θ ′′ ∈K
+
+|g(θ′) − g(θ′′ )|
+
+stands for the modulus of continuity of g and where 
+
+δn := sup 
+
+> θ∈K
+
+min  
+
+> j∈[mn]
+
+∥θ − θj ∥.
+
+By Relation (B.56), the first term in the right-hand side of (B.61) vanishes in probability, as 
+
+n → ∞ . On the other hand, the fact that I is dense in the compact set K implies that δn → 0 and hence ωδn (g) → 0, n → ∞ , by the uniform continuity of g on the compact K. This completes the proof of (B.60). Next, to complete the proof, we will construct a continuous (which can in fact be arbitrarily smooth) modification egn of fn that satisfies (B.55). This will be done by simply convolving fn with a suitable compactly supported kernel, whose support shrinks as n → ∞ . Indeed, let φ : Rd →
+
+[0 , ∞) be a non-negative continuous function, such that φ(θ) = 0, for all ∥θ∥ ≥ 1 and such that R 
+
+> Rd
+
+φ(x)dx = 1. Let ϵn ↓ 0 be arbitrary and let φn(x) := ϵ−1 
+
+> n
+
+φ(x/ϵ n). Define 
+
+egn(θ) := 
+
+Z
+
+> K
+
+fn(u)φn(θ − u)du 
+
+and note that egn : Rd → R is continuous. By the triangle inequality, for all θ ∈ K, we obtain 
+
+|egn(θ) − g(θ)| ≤ 
+
+Z
+
+> K
+
+|fn(u) − g(u)|φn(θ − u)du +
+
+Z
+
+> K
+
+|g(u) − g(θ)|φn(θ − u)du 
+
+≤ ∥ fn − g∥∞,K 
+
+Z
+
+> Rd
+
+φn(θ − u)du + ωϵn (g)
+
+Z
+
+> Rd
+
+φn(θ − u)du 
+
+= ∥fn − g∥∞,K + ωϵn (g), (B.62) where the last inequality follows from the facts that φn(u − θ) = 0 unless ∥u − θ∥ ≤ ϵn and R 
+
+> Rd
+
+φn(θ − u)du = 1. In view of (B.60) and the fact that ϵn ↓ 0, the upper bound in (B.62) vanishes in probability, as n → ∞ . Since the right-hand side does not depend on θ ∈ K, the desired convergence in (B.55) follows. /Optimal prediction of extreme events 59 
+
+Remark B.4. The rate of the uniform convergence in Proposition B.6 may be arbitrarily slow since the sequence mn, which controls the size of the set In := {θ1, · · · , θ mn }, may diverge to infinity rather slowly, as n → ∞ . This means that, depending on the rate of the point-wise convergence of 
+
+gn(θ) to g(θ), one may not be able to have a sufficiently fine mesh of values in In to ensure a fast rate of decay of δn and hence a good rate on the oscillation ωδn (g). Providing an optimal upper bound in (B.61) involves a trade-off between the point-wise rate of convergence and the regularity of g.
+
+Remark B.5. The construction of egn in Proposition B.6 depends on the choice of mn, which in turn depends on g but only through the rate of the marginal convergence in probability gn(θ) →P g(θ)
+
+(recall (B.58) ). Thus, under minor regularity assumptions on these rates, mn can be chosen in a fashion completely agnostic to the knowledge of g. In many cases, simple upper bounds on the marginal rate of the convergence gn(θ) →P g(θ), n → ∞ suffice for a conservative selection of mn.
+
+Supplements C: Examples of asymptotically optimal homogeneous predictors 
+
+In this section, we will illustrate the optimal homogeneous predictors of Theorem 3.8 for two classes of spectral measures – purely discrete and absolutely continuous. The spectrally discrete case can be understood in a simpler way and yet, it is interesting since a curious perfect asymptotic precision 
+
+phenomenon emerges in this context. On the other hand, the spectrally continuous case is illustrated with a simple and yet elegant Dirichlet-type model, which may be of independent interest. 
+
+C.1. The spectrally discrete case: A perfect precision phenomenon 
+
+Consider the linear independent factor model: 
+
+Y =
+
+> p
+
+X
+
+> i=1
+
+biξi and X =
+
+> p
+
+X
+
+> i=1
+
+aiξi, (C.1) where the ξi’s are independent standard 1-Pareto random variables, i.e., P[ξi > x ] = 1 /x, x ≥ 1. We suppose that bi ≥ 0 and ai ∈ Rd, i = 1 , · · · , p, where not all bi’s and not all ai’s are zero. Letting τ (y, x ) := y+ + ∥x∥ for some (any) fixed norm ∥ · ∥ on Rd, it follows by Proposition 7.3 in [39] that Z := ( Y, X ) ∈ RV 1(R+ × Rd, {a(Z) 
+
+> n
+
+:= n}, c Z , τ, σ ), where with ci := ( bi, a i), we have 
+
+cZ =
+
+> p
+
+X
+
+> i=1
+
+τ (ci) = 
+
+> p
+
+X
+
+> i=1
+
+bi + ∥ai∥.
+
+In this case, the angular measure σ is discrete and takes the form: 
+
+σ(dθ ) = 1
+
+cZpX
+
+> i=1
+
+τ (ci)δci/τ (ci)(dθ ). (C.2) We begin with a counterpart to Proposition 3.2 and for the sake of completeness, we provide a proof. 
+
+Proposition C.1. Let Z = ( Y, X ) ∈ RV 1(R+ × Rd, {a(Z) 
+
+> n
+
+:= n}, τ, σ ), where the angular measure σ
+
+is as in (C.2) . Let also h : Rd → [0 , ∞) be a non-negative continuous 1-homogeneous function. Then: /Optimal prediction of extreme events 60 
+
+(i) We have that 
+
+lim  
+
+> t→∞
+
+tP[Y > t ] = 
+
+> p
+
+X
+
+> i=1
+
+bi, lim  
+
+> t→∞
+
+tP[h(X) > t ] = 
+
+> p
+
+X
+
+> i=1
+
+h(ai),
+
+and consequently h(X) is an asymptotically calibrated extremal predictor of Y if and only if 
+
+σY =
+
+> p
+
+X
+
+> i=1
+
+bi =
+
+> p
+
+X
+
+> i=1
+
+h(ai) (C.3) 
+
+(recall Definition 3.2). (ii) If h(X) is an asymptotically calibrated extremal predictor of Y , as in (C.3) , then 
+
+λ(Y, h (X)) = 1
+
+σYpX
+
+> i=1
+
+bi ∧ h(ai). (C.4) 
+
+Proof. Introduce the following three non-negative continuous 1-homogeneous functions on R+ ×Rd:
+
+hY (y, x ) := y, hX (y, x ) := h(x), and hX,Y (y, x ) := y ∧ h(x).
+
+Using that Z := ( Y, X ) ∈ RV 1(R+ × Rd, {a(Z) 
+
+> n
+
+:= n}, τ, σ ), applying Proposition 3.1 to each of them, we obtain, as t → ∞ :
+
+tP[Y > t ] → σ(hY ), tP[h(X) > t ] → σ(hX ), and tP[Y ∧ h(X) > t ] → σ(hX,Y ).
+
+Notice that in view of (C.2), and the homogeneity of the functions 
+
+σ(hY ) = 
+
+> p
+
+X
+
+> i=1
+
+hY (ci) = 
+
+> p
+
+X
+
+> i=1
+
+bi, σ(hX ) = 
+
+> p
+
+X
+
+> i=1
+
+h(ai), and σ(hX,Y ) = 
+
+> p
+
+X
+
+> i=1
+
+bi ∧ h(ai).
+
+Thus, h(X) is an asymptotically calibrated extremal predictor of Y (cf Definition 3.2) if and only if σ(hY ) = σ(hX ), which is equivalent to 
+
+σY := 
+
+> p
+
+X
+
+> i=1
+
+bi =
+
+> p
+
+X
+
+> i=1
+
+h(ai),
+
+which proves (C.3). Now, if (C.3) holds, by Lemma 3.3, for the asymptotic precision of the predictor h(X) of Y , we obtain: 
+
+λ(Y, h (X)) = lim  
+
+> t→∞
+
+tP[Y > t |h(X) > t ] = 1
+
+σYpX
+
+> i=1
+
+bi ∧ h(ai),
+
+which completes the proof. The following result as an immediate but rather curious consequence of the formula in (C.4). 
+
+Corollary C.1. Adopt the setting of Proposition C.1, where the dimension of the predictor X is 
+
+d ≥ 2. Suppose that: 1. ai̸ = 0 , i = 1 , · · · , r , for r ≤ p and ai = 0 , i = r + 1 , · · · , p , if r < p ;/Optimal prediction of extreme events 61 
+
+2. ai/∥ai∦ = aj /∥aj ∥, for all 1 ≤ i̸ = j ≤ r.Then, we have that: (i) The optimal homogeneous extremal precision is: 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = 
+
+Pri=1 bi
+
+Ppi=1 bi
+
+. (C.5) 
+
+(ii) If λ(opt)  
+
+> G
+
+(Y, X ) > 0, i.e., Pri=1 bi > 0, then λ(opt)  
+
+> G
+
+(Y, X ) = λ(Y, h (opt) (X)) , where an optimal 
+
+Oracle predictor h(opt) : Rd → R+ is a continuous, non-negative 1-homogeneous function such that 
+
+h(opt) (ai) := (1 + δr) · bi, i = 1 , · · · , r, where 1 + δr =
+
+> p
+
+X
+
+> i=1
+
+bi/
+
+> r
+
+X
+
+> i=1
+
+bi. (C.6) 
+
+Proof. Suppose first that bi = 0, for all i = 1 , · · · , r . Then, for all 1-homogeneous functions h :
+
+Rd → R+, by (C.4), we have λ(Y, h (X)) = 0, since either bi = 0 or h(ai) = 0, for all i = 1 , · · · , p .This proves (C.5) in this case. Now, if Pri=1 bi > 0, by assumption, since ai/∥ai∦ = ai′ /∥ai′ ∥ for all 1 ≤ i̸ = i′ ≤ r, we have that one can define a continuous non-negative homogeneous function as in (C.6), for every choice of the 
+
+bi’s. Moreover, the choice of δr > 0 implies that h(opt) (X) is an asymptotically calibrated extremal predictor of Y (cf Proposition C.1). By (C.4), since bi ∧ (1 + δr)bi = bi, we also have 
+
+λ(Y, h (opt) (X)) = 1
+
+σYrX
+
+> i=1
+
+bi ∧ (1 + δr)bi = 1
+
+σYrX
+
+> i=1
+
+bi,
+
+where σY := Ppi=1 bi.On the other hand, for every other asymptotically calibrated homogeneous predictor h(X), by (C.4) we also have 
+
+λ(Y, h (X)) = 1
+
+σYpX
+
+> i=1
+
+bi ∧ h(ai) = 1
+
+σYrX
+
+> i=1
+
+bi ∧ h(ai) ≤ 1
+
+σYrX
+
+> i=1
+
+bi = λ(Y, h (opt) (X)) .
+
+This shows that h(opt) in (C.6) is indeed an optimal extremal predictor, which completes the proof of (C.5) and the corollary. 
+
+Remark C.1. The linear factor models in (C.1) are just one instance of models with discrete spec-tra. Others such as max-linear or generalized Breiman-type models can have such spectra. Proposi-tion C.1 and Corollary C.1 apply to all cases where (C.2) holds. 
+
+Remark C.2. One limitation in Corollary C.1 is that the ai’s are assumed to be non-proportional. Theorem 3.8 provides the solution optimization problem in full generality. 
+
+Remark C.3. In practice, we do not have access to the bi’s and ai’s so the results in Corollary C.1 concern the asymptotic precision of the oracle predictors. Nevertheless, the spectral measure in (C.2) 
+
+can be estimated consistently from data. Section 4 addresses the general inference methodology. 
+
+Remark C.4 (The perfect precision phenomenon) . Corollary C.1 reveals a curious phenomenon of perfect asymptotic precision . Indeed, if in (C.1) we have ai̸ = 0 , for all 1 ≤ i ≤ p, and no two 
+
+ai and ai′ are proportional, then by (C.5) :
+
+λ(opt)  
+
+> G
+
+(Y, X ) = λ(opt) (Y, X ) = 1 ./Optimal prediction of extreme events 62 
+
+That is, one can predict Y via X with an asymptotically perfect precision! Our estimators developed in Section 4 do indeed enjoy near perfect precision in such models (cf Figure 1). This surprising phenomenon can be explained in terms of the so-called single large jump heuristic , which means that in (C.1) the sum X is extreme in norm if and only if one and only one 
+
+of the factors ξi, i = 1 , · · · , p is extreme. More precisely, 
+
+P[∥
+
+> p
+
+X
+
+> i=1
+
+aiξi∥ > t ] ∼
+
+> p
+
+X
+
+> i=1
+
+P[∥ai∥ξi > t ], as t → ∞ .
+
+Therefore, conditionally on {∥ X∥ > t }, as t → ∞ , with probability one, the direction X/ ∥X∥ is asymptotically associated with the direction ai of the unique factor ξi responsible for the extremes of Y . This leads to asymptotically perfect identification of Y .
+
+C.2. The spectrally continuous case 
+
+In this section, we illustrate Theorem 3.8 in the so-called spectrally continuous case where the conditional distribution p(du |θ) has a density. Inference methodology for the optimal predictors in this rather general regime will be developed in Section 4. We consider here non-negative random vectors Z = ( Y, X ) that are τ -regularly varying with 
+
+τ (y, x ) := y+ +
+
+> d
+
+X
+
+> i=1
+
+(xi)+.
+
+In this case the unit sphere Sτ becomes unit simplex: 
+
+Sτ = ∆ d := 
+
+n
+
+w = ( wi)di=0 :
+
+> d
+
+X
+
+> i=0
+
+wi = 1 , w i ≥ 0, i = 0 , · · · , d 
+
+o
+
+.
+
+A natural family of probability distributions on ∆ d are the Siri holet models. Recall that a random vector W = ( W0, W 1, · · · , W d) has the Dirichlet distribution with parameter vector β = ( β)di=0 ∈
+
+(0 , ∞)d+1 if W takes values in ∆ d and the joint density of W1, · · · , W d is given by: 
+
+fW1,··· ,W d (x1, · · · , x d) = Γ( Pdi=0 βi)
+
+Qdi=0 Γ( βi) ·
+
+
+
+1 −
+
+> d
+
+X
+
+> i=1
+
+xi
+
+β0−1
+
+×
+
+> d
+
+Y
+
+> i=1
+
+xβi−1 
+
+> i
+
+, xi ≥ 0,
+
+> d
+
+X
+
+> i=1
+
+xi ≤ 1,
+
+In this case, we shall write W ∼ Dirichlet( β). Thus, in this context, it is natural to consider τ -regularly varying vectors Z with Dirichlet angular distribution [see e.g. 10, 46, 44, 15]. 
+
+Definition C.1. A τ -regularly varying random vector Z = ( Y, X ) ∈ RV (Rd+1 + , {an}, τ, σ Z ) is said to be spectrally Dirichlet if 
+
+Zτ (Z) | { τ (Z) > t } d
+
+→ ΘZ ∼ Dirichlet( β),
+
+for some β = ( βi)di=0 ∈ (0 , ∞)d+1 .
+
+The optimal homogeneous predictors in the class of spectrally Dirichlet model are particularly elegant. /Optimal prediction of extreme events 63 
+
+Proposition C.2. Let Z = ( Y, X ) = ( Y, X 1, · · · , X d) be spectrally Dirichlet with parameter β ∈
+
+(0 , ∞)d+1 . Then: 
+
+(i) h(opt) (X) := c∥X∥1, is an asymptotically calibrated (cf (3.9) ) and optimal homogeneous pre-dictor for Y , where c := β0/(Pdi=1 βi).
+
+(ii) The optimal asymptotic precision is given by 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = λ(Y, h (opt) (X)) = E
+
+h UμU
+
+∧ (1 − U )(1 − μU )
+
+i
+
+(C.7) 
+
+where U ∼ Beta( β0, Pdi=1 βi) and μU = E[U ] = β0/(Pdi=0 βi).Proof. The spectrally Dirichlet models are a special case of generalized Breiman models treated in Section 3.3. In this case, the key idea is to observe that ΘZ := ( U, (1 − U )Θ) ∼ Dirichlet( β0, β 1, · · · , β d).
+
+The neutrality property of the Dirichlet distribution [see, e.g. 14], implies that Θ ∈ Dirichlet( β1, · · · , β d)and U are independent . Therefore, pU |Θ(u) = pU (u) and the quantile qα(θ) = const in Theorem 3.8 does not depend on θ, which implies claim (i). Claim (ii) is a standard calculation, treated in more detail in Proposition C.3, below. 
+
+Spectrally-Dirichlet models. Recall that a non-negative random vector (V, W ) = ( V, W 1, · · · , W d), d ≥ 1has the multivariate Dirichlet distribution with parameter vector β = ( β0, β 1, · · · , β d) ∈ (0 , ∞)d+1 
+
+if: (i) V + Pdi=1 Wi = 1 and (ii) the joint probability density of W1, · · · , W d is given by: 
+
+fW1,··· ,W d (x1, · · · , x d) = Γ( Pdi=0 βi)
+
+Qdi=0 Γ( βi) ·
+
+
+
+1 −
+
+> d
+
+X
+
+> i=1
+
+xi
+
+β0−1
+
+×
+
+> d
+
+Y
+
+> i=1
+
+xβi−1 
+
+> i
+
+, xi ≥ 0,
+
+> d
+
+X
+
+> i=1
+
+xi ≤ 1,
+
+In this case, we shall write ( V, W ) ∼ Dirichlet( β). Since the Dirichlet distribution is a probability distribution on the positive unit simplex, it is natural to consider polar coordinates with respect to the L1-norm: 
+
+τ (y, x ) := |y| + ∥x∥1,
+
+and define a version of the Pareto-Breiman models in Section 3.3. 
+
+Definition C.2. The special case of Pareto-Breiman models Z := ( Y, X ) := ξ · (V, W ) in (3.46) ,where (V, W ) ∼ Dirichlet( β), will be referred to as Pareto-Dirichlet (β), for β ∈ (0 , ∞)d+1 .
+
+The Pareto-Dirichlet models and their spectral mixtures have been considered due to the tractable analytical form of its spectral distribution [see e.g. 10, 46, 44, 15]. The following result shows that the optimal homogeneous predictor takes a particularly simple form for the Pareto-Dirichlet model. 
+
+Proposition C.3. Let (Y, X ) = ( Y, X 1, · · · , X d) ∼ Pareto-Dirichlet( β). Then: 
+
+(i) h(opt) (X) := c∥X∥1, is an asymptotically calibrated (cf (3.9) ) and optimal homogeneous pre-dictor for Y , where c := β0/(Pdi=1 βi)./Optimal prediction of extreme events 64 
+
+(ii) The optimal asymptotic precision is given by 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = λ(Y, h (opt) (X)) = E
+
+h UμU
+
+∧ (1 − U )(1 − μU )
+
+i
+
+(C.8) 
+
+where U ∼ Beta( β0, Pdi=1 βi) and μU = E[U ] = β0/(Pdi=0 βi).
+
+(iii) Moreover, we have 
+
+λ(opt)  
+
+> G
+
+(Y, X ) = λp(Y, h (opt) (X)) , for all p ∈ (p0, 1) ,
+
+where λp as in (2.7) and p0 = (1 ∨ c)/(c + 1) = μU ∨ (1 − μU ).Proof. Note that since τ (V, W ) = V + ∥W ∥1 = 1, in this case ξ = τ (Y, X ) and ( V, W ) =(Y, X )/τ (Y, X ), are independent. Hence, (3.47) holds trivially, with (U, (1 − U )Θ) := ( Y, X )/τ (Y, X ) = ( V, W ) ∼ Dirichlet( β0, eβ),
+
+where eβ = ( β1, · · · , β d). Moreover, by the neutrality property of the Dirichlet distribution, we have that U = (1 − ∥ W ∥1)and Θ := W/ ∥W ∥1 are independent and such that (U, (1 − U )) ∼ Dirichlet( β0, ∥ eβ∥1) and Θ := W/ ∥W ∥1 ∼ Dirichlet( eβ),
+
+Therefore, fU |Θ(u|θ) = fU (u), and the conditional quantile function is constant: qβ (θ) = const in 
+
+θ. This, in view of Theorem 3.8 (see also Corollary 3.1) implies that the function h(opt) (x) = c∥x∥1
+
+yields an optimal homogeneous predictor, for a suitable calibrating constant c. To calibrate the predictor, we must have 
+
+E[U ] = E[h(opt) (W )] = cE[(1 − U )∥Θ∥1] = cE[(1 − U )] .
+
+Since U ∼ Beta( β0, ∥ eβ∥1), we have that E[U ] = β0/(β0 + ∥ eβ∥1), and hence c = E[U ]/E[1 − U ] = 
+
+β0/∥ eβ∥1. Finally, by (3.53) and (3.12), for the optimal extremal precision , we get 
+
+λ(Y, h (opt) (X)) = 1
+
+E[U ] E[U ∧ (c∥W ∥1)] = E
+
+h U
+
+E[U ] ∧ (1 − U )
+
+E[1 − U ]
+
+i
+
+(C.9) proving (C.8). To prove part (iii), observe first that for all random variables 0 < η < C η, independent of the standard 1-Pareto ξ, we have that P[ξη > t |η] = η/t, whenever t > η . Thus, 
+
+P[ξη > t ] = E[P[ξ > t/η |η]] = E[ ηt ] = E[η]
+
+t when t > C η.That is, the tail of ξ · η is precisely Pareto, beyond quantile p0 := 1 − E[η]/C η. This implies that 
+
+P[Y > t ] = P[ξ · U > t ] = E[U ]
+
+t , P[h(opt) (X) > t ] = P[ξ · c(1 − U ) > t ] = c E[(1 − U )] 
+
+t ,
+
+and 
+
+P[Y ∧ h(opt) (X) > t ] = E[U ∧ c(1 − U )] 
+
+t , (C.10) /Optimal prediction of extreme events 65 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8 0.4 0.6 0.8            
+
+> 0510 15
+> 0510 15
+> α0
+> || α||1
+> λ
+> 0.4 0.6 0.8
+> Heatmap of λG
+> (opt )for the Pareto−Dirichlet 0.00 0.25 0.50 0.75 1.00
+> 0.900 0.925 0.950 0.975 1.000
+> p
+> Precision
+> λ
+> ^λ(opt )Oracle
+> Pareto−Dirichlet model: d=4
+
+Fig 3: Left panel: Optimal extremal precision λ(opt)  
+
+> G
+
+for predicting one component of the Pareto-Dirichlet model via a homogeneous function of the rest (C.9). Right panel: The empirical tail-dependence coefficients ˆλp for: (i) the asymptotically optimal Oracle predictor h(opt) (X) ∝ ∥ X∥
+
+(black solid line) (ii) a non-parametric estimator of the optimal predictor bY := bh(X) based on a training and testing samples of size ntrain = ntest = 10 4 (see Section D). for all t ≥ max {1, c }. The calibration of h(opt) (X) entails E[U ] = cE[(1 − U )], and hence for all 
+
+t ≥ max {1, c }, with 
+
+p := 1 − E[U ]
+
+t = 1 − c E[(1 − U )] 
+
+t ≥ p0 := 1 − E[U ]max {1, c } = max {1 − E[U ], E[U ]},
+
+we obtain t = F ← 
+
+> Y
+
+(p) = F ←
+
+> h(opt) (X)
+
+(p). This, in view of (C.10), entails that for all p ≥ p0:
+
+λp(Y, h (opt) (X)←) = 1
+
+P[Y > t ] P[Y ∧ h(opt) (X) > t ] = E[U ∧ c(1 − U )] 
+
+E[U ] ,
+
+which equals λ(opt)  
+
+> G
+
+(Y, X ), completing the proof of part (iii) .Figure 3 (left) illustrates this optimal extremal precision as a function of a0 = β0 and a1 = ∥ eβ∥1,where the expectation in (C.8) is expressed via incomplete Beta functions in terms of β0 and ∥β∥1.The right panel of Figure 3 illustrates the finite-sample performance of the optimal (oracle) predictor and a general estimator for the optimal homogeneous predictor implemented in Section D. 
+
+C.3. On the sub-optimality of homogeneous predictors 
+
+In some cases, the optimal predictors are in fact homogeneous functions of the covariates (cf Ex-ample 2.4). We will demonstrate next, however, that the class of homogeneous functions does not always contain neither optimal nor asymptotically optimal predictors. The spirit of this example is to show that the extremes of X do not necessarily predict well the extremes of Y .
+
+Example C.1. Let ϵ and Z be independent standard 1-Pareto random variables and 
+
+Y := cZ + (1 − c)ϵ, /Optimal prediction of extreme events 66 
+
+for some c ∈ (0 , 1] . Consider the covariate vector: 
+
+X = ( X1, X 2)⊤ := ( e−Y Z + Z, Z )⊤
+
+taking values in R2+.Clearly, with h(opt) (x) := − log( x1 − x2)/x 2, x = ( x1, x 2) ∈ R2+, we have Y = h(opt) (X), almost surely. Thus, the optimal extremal and non-extremal precisions are equal to 1. On the other hand, the intuition that the extremes of X (defined in terms of some homogeneous radial function h) will predict the extremes of Y fails! Indeed, for every continuous, 1-homogeneous h : R2+ → R+ such that h(x) > 0, for all x̸ = 0 , it can be shown that 
+
+λ(Y, h (X)) = λ(Y, Z ) = c, 
+
+which can be made arbitrarily small .
+
+Supplements D: Practical Implementation 
+
+Many of the existing implementations of quantile regression can accommodate importance weights 
+
+and thus achieve estimators for the quantiles of the tilted distribution in (3.24). Here, we opted for using the versatile quantile regression forest of [34] and its efficient implementation in the package 
+
+ranger of [58]. Specifically, this can be achieved with the R commands: 
+
+weights <- 1 - u data<-data.frame(u=u, theta) rf<-ranger(u ∼.,data=data, case.weights=weights, quantreg=TRUE) 
+
+Here u and θ are ( nr × 1) and ( nr × d) arrays, whose ith rows correspond to Ui and the vector Θ i,respectively, i = 1 , · · · , n r. The ranger function returns a random forest S3 object, which can be used to generate predictions of bqα(θnew ) using the commands 
+
+theta new = x new/L1 norm(x new) pred <- predict(rf, data=theta new, type="quantiles", quantiles=alpha) q alpha <- pred $predictions 
+
+The following Algorithm 1 summarizes the inference. The R code implementing the estimator using the ranger package of [58] is given in [49]. An R Shiny App demonstrating the estimator is deployed on [50], where further covariate selection heuristics are implemented. Note that the sequence ( αn)n∈N provided by Algorithm 1 fulfill the assumption of theorem 4.1 by application of lemma D.1. 
+
+Lemma D.1. If for any θ ∈ Sd the quantile estimator ˆqαn,n is uniformly consistent on compacts of (0 , 1) , then the sequence (αn)n∈N ⊂ (0 , 1) defined by the algorithm 1 satisfies 
+
+αn P
+
+−→  
+
+> n→∞
+
+αopt .
+
+Proof of Lemma D.1. For n ≥ 2 we can write, 
+
+
+
+|αopt − αn| ≤ 12n−1
+
+
+
+=
+
+
+
+|αopt − αn−1| ≤ 12n−2
+
+ \ 
+
+∃ l0 > 0|∀ l > l 0, q(αopt ) − ˆql(αn)
+
+q(αopt ) − q(αn) > 0
+
+/Optimal prediction of extreme events 67 
+
+Algorithm 1 Optimal homogeneous predictor inference 
+
+Require: 
+
+1: Training data: Arrays Y and X of sizes ( n × 1) and ( n × d), d ≥ 1; 2: Threshold probability parameter: pr ≈ 1; 3: Binary search tolerance: ϵ > 0. 4: for i = 1 , · · · , n do 
+
+5: Ri ← Yi + Pdj=1 Xi,j 
+
+6: end for 
+
+7: r ← quantile( R, p r ) and I ← which (R > = r)8: for i ∈ I do 
+
+9: Ui ← Yi/R i and Θ i ← Xi/∥Xi∥
+
+10: end for 
+
+11: 12: Procedure: (Implement conditional quantile) 
+
+13: For each a ∈ (0 , 1), the function quantile (a) returns an approximation of qα(θ) in (3.24), given the sample (Ui, Θi) for i ∈ I.14: Compute constraint: 
+
+c ← mean( U )15: Procedure: (Calibrate α ∈ (0 , 1) using binary search) 
+
+16: Start with a0 ≈ 0, a 0 > 0 and a1 ← 1 − a0 ≈ 117: Compute cj ← mean( g(aj , Θ)) , j = 0 , 1, where 
+
+g(a, θ ) = quantile (a)1 − quantile (a) .
+
+18: Ensure c0 < c < c 1, otherwise degrease starting value a0 > 0. 19: while a1 − a0 > ϵ do 
+
+20: Let anew ← (a0 + a1)/2 and cnew ← mean( g(anew , Θ)). 21: If cnew < c , then c0 ← cnew and a0 ← anew . Otherwise, c1 ← cnew and a1 ← anew .22: end while 
+
+23: Return calibrated α ← anew 
+
+24: Procedure: (Optimal homogeneous predictor) 25: Input Xnew – an array of size (1 × d) featuring a new vector of covariates. 26: Compute Θ new ← Xnew /∥Xnew ∥
+
+27: return bYnew := hopt (Xnew ) ← ∥ Xnew ∥g(α, Θnew ).
+
+= {| αopt − α2| ≤ 1} \ n\
+
+> k=2
+
+
+
+∃ l0 > 0|∀ l > l 0, q(αopt ) − ˆql(αk)
+
+q(αopt ) − q(αk) > 0
+
+!
+
+=
+
+> n
+
+\
+
+> k=2
+
+
+
+∃ l0 > 0|∀ l > l 0, q(αopt ) − ˆql(αk)
+
+q(αopt ) − q(αk) > 0
+
+
+
+..
+
+In the previous equalities, since the number of intersections is finite, we can always use the always integer l0 in each sets. Hence, taking the complementary in the previous equality, we get 
+
+P
+
+
+
+|αopt − αn| ≥ 12n−1
+
+
+
+≤
+
+> n
+
+X
+
+> k=2
+
+P
+
+
+
+∃ l0 > 0|∀ l > l 0, q(αopt ) − ˆql(αk)
+
+q(αopt ) − q(αk) < 0
+
+
+
+.
+
+Noticing that, for all k,
+
+
+
+∃ l0 > 0|∀ l > l 0, q(αopt ) − ˆql(αk)
+
+q(αopt ) − q(αk) < 0
+
+
+
+⊂ {∃ l0 > 0|∀ l > l 0, |ˆql(αk) − q(αk)| > |q(αk) − q(αopt )|} ,/Optimal prediction of extreme events 68 0.0000 0.0005 0.0010 0.0015    
+
+> 2010 2015 2020 2025
+> W/m²
+> GOES X−ray flux time series: SC24 and SC25
+
+Fig 4: Time series of maximum daily X-ray flux (in Watts per square meter). The data is based on the highest quality measurements obtained from merging observations from the GOES satellites [36]. It spans two solar cycles (SC24 & SC25). The horizontal line marks the X-class flare threshold (10 −4 W/m 2). since ˆ ql converge uniformly in probability on (0 , 1), there exists ln ∈ N such that, for all l > l n
+
+P (|ˆql(αk) − q(αk)| > |q(αk) − q(αopt )|) ≤ 1
+
+n(n − 2) , ∀ 2 ≤ k ≤ n. 
+
+This leads to 
+
+P
+
+
+
+|αopt − αn| ≥ 12n−1
+
+
+
+≤ 1
+
+n .
+
+Supplements E: An application to Solar flare prediction 
+
+In this section, we apply the general optimal homogeneous prediction methodology described in the previous section to an important open problem from space physics [see, e.g. 7, 57, and the references therein]. In the following, the responses {Y (t), t = 1 , 2, · · · } come from a curated X-ray flux time series derived from a collection up to 15 different GOES satellite measurements (Figure 4). The covariates 
+
+X1(t), · · · , X d(t), t = 1 , 2, . . . are time series of d = 22 statistics referred to as SHARP time series. They are derived from solar disk images and capture fundamental physical characteristics of the active regions (sun spots) which are believed to drive the formation of solar flares [8, 9]. The objective is to predict extreme flux events {Y (t + h) > y 0} at some future time period t + h,based on {Xi(t), i = 1 , · · · , d }. The events when the X-ray flux exceeds high thresholds are known as Solar flares and they are classified in several severity classes [36]. We will focus on predicting the most extreme M- and X-class flares, which correspond to X-ray fluxes exceeding 10 −5 W/m 2 and 10 −4 W/m 2, respectively (Figure 4). 
+
+Standardization. For both the response and the predictors, we consider non-overlapping block maxima over a window w corresponding to 24 hours: 
+
+Y (w)(t) := max  
+
+> w(t−1)+1 <s ≤wt
+
+Y (s) and X(w) 
+
+> j
+
+(t) := max  
+
+> w(t−1)+1 <s ≤wt
+
+Xj (s)./Optimal prediction of extreme events 69 
+
+We then construct estimates bFY (w) and bFX(w)
+
+> j
+
+of Y (w)(t) and X(w) 
+
+> j
+
+(t) based on a training sample 
+
+t ∈ D train . Tail extrapolation is used to ensure that the CDFs have unbounded supports and define the training sample with standardized approximately 1-Pareto marginals: 
+
+eY (t) := 11 − bFY (w) (Y (w)(t)) and eXj (t) := 11 − bFX(w)
+
+> j
+
+(X(w) 
+
+> j
+
+(t)) ,
+
+for all t ∈ D train , and j = 1 , · · · , d .Then, under the assumption that the so-standardized vectors ( eY (t + h), eX1(t), · · · , eXd(t)) , t, t +
+
+h ∈ D train are realizations from a jointly regularly varying vector ( Y, X ), we apply the inference methodology of Section 4. Specifically, we select the threshold r as a high quantile of the sample of norms, and apply the quantile random forest to estimate the optimal homogeneous predictor bh.
+
+Prediction. Given a test sample Dtest , we compute 
+
+bY (t + h) := bh( eX(t)) , t, t + h ∈ D test ,
+
+where eX(t) = ( eXj (t), j = 1 , · · · , d ) are standardized as: 
+
+eX(t) := 1
+
+bFX(w)
+
+> j
+
+(X(w) 
+
+> j
+
+(t)) , t ∈ D test .
+
+Recall that bFX(w)
+
+> j
+
+is an estimate of the CDF of X(w) 
+
+> j
+
+obtained from the training sample. We predict a certain type of flare whenever bY (t + h) exceeds a threshold. Specifically, we let ˆp := bFY (w) (u) and produce the binary predictors: 
+
+It(h) := I{ bY (t + h) > 1/(1 − bp)}.
+
+This choice, under the assumption of stationarity, ensures the approximate calibration E[It(h)] ≈
+
+P[Y (w)(t + h) > u ]. More precisely, for the M- and X-class flares, we use the thresholds u =10 −5W/m 2 and u = 10 −4W/m 2, respectively. The X-class flares are among the most extreme and rare events, which can lead to major magnetic storms. While less severe, the M-class flares can also cause major disruption of Earth’s ionosphere and lead to satellite and electric outages. 
+
+Results. Figure 5 shows a simple, nearly tuning-free application of the optimal homogeneous pre-diction methodology to Solar flare prediction. Specifically, the homogeneous predictor was trained over the period (2010-2017) and applied to forecasting M- and X-class flares over the period (2017-2025). Confusion matrices for the binary forecasts were used to obtain various metrics displayed on the plots. Specifically, letting TP, FP, TN, FN denote true-positive, false-negative, true-negative, and false-negative counts of the predictions, we obtain the standard metrics: prec = T P T P + F N , TSS = TP TP + FN − FP FP + TN , and missed = F N T P + F N .
+
+These metrics depend on the chosen quantile τp for the variable bY = h( eX), which ultimately determines the alarm rate: alarm = TP + FP 
+
+ntest 
+
+,
+
+where ntest is the size of the test sample. /Optimal prediction of extreme events 70 0.00 0.25 0.50 0.75 1.00       
+
+> 0.0 0.2 0.4 0.6
+> Alarm Rate
+> Metric Value  Metric
+> missed
+> prec
+> TSS
+> Train (2010−2017) Test (2017−2025): M+ class 0.00 0.25 0.50 0.75 1.00
+> 0.0 0.2 0.4 0.6
+> Alarm Rate
+> Metric Value  Metric
+> missed
+> prec
+> TSS
+> Train (2010−2017) Test (2017−2025): X+ class
+
+Fig 5: Evaluation metrics for the prediction of M-class (left panel) and X-class (right panel) solar flare events. The homogeneous predictor was based on 24-hour block-maxima of the SHARP time series covariates TOTUSJH , AREA ACR , ABSNJZH , SAVNCPP , TOTPOT , and a 24-hour lagged flux. The response is the 24-hour block-maximum flux time series. We used the period of 2010–2017 with 
+
+ntrain = 1 , 941 observations for training and tested on the period 2017-2025 with ntest = 2 , 018 observations. The radius threshold was chosen as the 0 .97-th quantile of the empirical distribution and the quantile random forest was built using 2000 trees, i.e., the ranger function was called with parameter num.trees=2000 .As the alarm rate decays, generally, the precision increases but so does the proportion of missed events. Observe that the popular TSS statistic can be non-informative or at best misleading. Indeed, very high values of TSS may be associated with quite poor precision and hence quite high false-alarm rate. On the other hand, well-calibrated predictors with alarm rate equal to the event rate may have quite low TSS values. Nevertheless, the peak of the TSS values seem to be aligned with an elbow in the missed rate, so it happens to be a good heuristic in this case. In principle, however, in addition to TSS, we advocate for examining the precision and missed metrics, as a function of the alarm rate. The practitioner may choose to settle for an acceptable alarm rate that achieves good precision and low missed rate that may or may not correspond to high TSS. Optimizing a flare prediction method for achieving high TSS without considering calibration or alarm rates could be misleading. This said, the TSS values achieved by the generic optimal homogeneous predictor methodology are surprisingly high. While the best M-class flare forecasting machines claim to achieve TSS rates as high as 0 .7 (or sometimes 0 .8 in carefully designed studies), our method reaches 0 .66 with hardly any tuning at all, should one look at a suitable alarm rate of about 30%. At the same time the existing X-class flare forecasting methods barely reach TSS as high as 0 .5 in operational settings (i.e., without off-line post-processing of the data, which can often induce hard-to-control leakage of information from the testing data into the training data). The maximum TSS values for our method of predicting X-class flares is 0 .64, comfortably surpassing the coveted state-of-the-art threshold, should one contend with alarm rate of 40%. While we do not claim to have achieved close to optimal forecasts, this brief analysis demonstrates the great potential of the optimal homogeneous prediction methodology in the solar flare forecasting challenge.
