@@ -6,29 +6,46 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-28
-- 运行时间：2026-06-28 20:49:38 UTC
+- 最新运行日期：2026-06-29
+- 运行时间：2026-06-29 21:35:31 UTC
 - 运行状态：成功
-- 本次总论文数：3
-- 精读区：2
-- 速读区：1
+- 本次总论文数：8
+- 精读区：3
+- 速读区：5
 
 ### 今日简报（AI）
-今日研读3篇论文，聚焦推荐系统偏差放大与极端事件精准预测。推荐重点：Transformer推荐缩放中流行度偏差的放大机制与缓解方案，以及极端事件的最优预测方法。建议后续关注偏差控制技术在实际推荐系统中的应用，并探索极端预测的置信度评估方法。
-- 详情：[/202606/28/README](/202606/28/README)
+今日精读因果概率时序图与时间序列解释，速读上下文Bandit降维及因果发现等5篇。  
+重点关注《Estimation--Prediction Tradeoff》中因果图的估计-预测权衡，以及《Global Explanations》的K阶马尔可夫近似解释方法。  
+建议从因果图与解释性方法的结合点入手，尝试将时序模型中的因果结构用于实际预测任务。
+- 详情：[/202606/29/README](/202606/29/README)
 
 ### 精读区论文标签
-1. [The Pitfall of Scaling Up: Uncovering and Mitigating Popularity Bias Amplification in Scaling Transformer-based Recommenders](/202606/28/2606.21911v1-the-pitfall-of-scaling-up-uncovering-and-mitigating-popularity-bias-amplification-in-scaling-transformer-based-recommenders)  
+1. [Estimation--Prediction Tradeoff in Causal Probabilistic Temporal Graphs](/202606/29/2606.28225v1-estimation--prediction-tradeoff-in-causal-probabilistic-temporal-graphs)  
    标签：评分：9.0/10、query:pred-limit
-   evidence：直接研究扩展基于Transformer的序列推荐系统如何放大流行度偏差，从而限制了对冷门项目的预测准确性，涉及可预测性的基本极限
-2. [On the optimal prediction of extreme events](/202606/28/2606.26270v1-on-the-optimal-prediction-of-extreme-events)  
-   标签：评分：9.0/10、query:pred-limit
-   evidence：极端事件最优预测的理论分析
+   evidence：刻画了时间链接预测中估计-预测的固有权衡，揭示了可预测性的理论极限
+2. [Global Explanations for Multivariate Time Series Forecasting Models via $K$-Order Markov Approximations](/202606/29/2606.27599v1-global-explanations-for-multivariate-time-series-forecasting-models-via-k-order-markov-approximations)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：识别时间序列模型的最小预测历史长度K
+3. [The Simulacrum: Decision-Theoretic Pretraining for Near-Optimal Time-Series Forecasting and Inference](/202606/29/2606.27711v1-the-simulacrum-decision-theoretic-pretraining-for-near-optimal-time-series-forecasting-and-inference)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：时间序列预测的近最优风险界限
 
 ### 速读区论文标签
-1. [Uncertainty quantification via conformal prediction in data assimilation](/202606/28/2606.27001v1-uncertainty-quantification-via-conformal-prediction-in-data-assimilation)  
+1. [Graph Dimensionality Reduction for Contextual Bandits: Structure-Specific Regret Bounds under Approximate Smoothness and Noisy Eigenspaces](/202606/29/2606.27917v1-graph-dimensionality-reduction-for-contextual-bandits-structure-specific-regret-bounds-under-approximate-smoothness-and-noisy-eigenspaces)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：通过保形预测量化时间序列预测中的不确定性，涉及可预测性极限
+   evidence：为图结构上下文集匪提供理论遗憾界，与序列推荐中的可预测性极限相关
+2. [Disentangling Continuous-Time Latent Dynamics: Identifiability of Latent SDEs via Diffusion Shifts](/202606/29/2606.28228v1-disentangling-continuous-time-latent-dynamics-identifiability-of-latent-sdes-via-diffusion-shifts)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：时间序列潜在SDE的可识别性
+3. [From Causal Discovery to Implementation: An Agentic AI Framework for E-Scooter Mobility Hub Planning Across 29 German Cities](/202606/29/2606.25484v1-from-causal-discovery-to-implementation-an-agentic-ai-framework-for-e-scooter-mobility-hub-planning-across-29-german-cities)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：基于智能体AI的电动滑板车移动性枢纽规划
+4. [Learning Probabilistic Filters with Strictly Proper Scoring Rules](/202606/29/2606.26497v1-learning-probabilistic-filters-with-strictly-proper-scoring-rules)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：通过严格恰当评分规则进行滤波分布的理论分析
+5. [CryptoGAT: Are Time Series Models Effective for Cryptocurrency Forecasting?](/202606/29/2606.27670v1-cryptogat-are-time-series-models-effective-for-cryptocurrency-forecasting)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：质疑加密货币预测中时间序列模型的有效性，涉及预测极限
 
 
 <div class="dpr-home-promo-card">

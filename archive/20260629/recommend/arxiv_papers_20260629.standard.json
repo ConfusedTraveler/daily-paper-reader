@@ -1,0 +1,324 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-06-29T21:26:32.212700+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2606.28225v1",
+      "source": "arxiv",
+      "title": "Estimation--Prediction Tradeoff in Causal Probabilistic Temporal Graphs",
+      "abstract": "Temporal link prediction is usually evaluated by predictive performance on unseen edges, but in probabilistic temporal graphs this criterion can conflate model error with irreducible uncertainty. We study this issue by characterising an inherent estimation--prediction tradeoff in binary logistic models where regimes that maximise Fisher information and improve parameter recoverability are also those with the highest entropy, making individual predictions intrinsically harder even under perfect parameter recovery. We propose a probabilistic causal framework for generating temporal graphs with transient edges and known ground-truth causal structure, allowing temporal link prediction to be evaluated jointly with causal parameter recovery. For the proposed binary logistic parametrisation, we derive the Cramér--Rao bound and validate the tradeoff between parameter estimation error and irreducible predictive loss. Our results show that predictive accuracy alone may not reflect whether a model has learned the underlying causal mechanism, motivating benchmarks that distinguish reducible model error from intrinsic process uncertainty.",
+      "authors": [
+        "Aniq Ur Rahman"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.IT",
+        "cs.MA",
+        "cs.SI",
+        "eess.SY"
+      ],
+      "published": "2026-06-26T16:13:48+00:00",
+      "link": "https://arxiv.org/pdf/2606.28225v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "characterizes estimation-prediction tradeoff as inherent limit in temporal link prediction",
+      "llm_evidence_cn": "刻画了时间链接预测中估计-预测的固有权衡，揭示了可预测性的理论极限",
+      "llm_evidence": "刻画了时间链接预测中估计-预测的固有权衡，揭示了可预测性的理论极限",
+      "canonical_evidence": "刻画了时间链接预测中估计-预测的固有权衡，揭示了可预测性的理论极限",
+      "llm_tldr_en": "Identifies an inherent estimation-prediction tradeoff in probabilistic temporal graphs, where maximizing Fisher information increases irreducible uncertainty, and proposes a causal framework to jointly evaluate prediction and parameter recovery.",
+      "llm_tldr_cn": "该论文研究了概率时间图（如时间序列）中链接预测的固有估计-预测权衡：提高Fisher信息量虽然有助于参数恢复，但会增大预测的不确定性，使得即使是完美的模型也无法准确预测。作者提出了一个因果概率框架，用于生成具有已知因果结构的时间图，从而可以联合评估时间链接预测和参数恢复。这项工作为理解时间序列预测的极限提供了理论依据，并强调了不可约不确定性在评估预测性能时的重要性。",
+      "llm_tldr": "该论文研究了概率时间图（如时间序列）中链接预测的固有估计-预测权衡：提高Fisher信息量虽然有助于参数恢复，但会增大预测的不确定性，使得即使是完美的模型也无法准确预测。作者提出了一个因果概率框架，用于生成具有已知因果结构的时间图，从而可以联合评估时间链接预测和参数恢复。这项工作为理解时间序列预测的极限提供了理论依据，并强调了不可约不确定性在评估预测性能时的重要性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.27599v1",
+      "source": "arxiv",
+      "title": "Global Explanations for Multivariate Time Series Forecasting Models via $K$-Order Markov Approximations",
+      "abstract": "While many explainable AI (XAI) methods have been proposed, most are not designed for time-series forecasting models and often rely on the implicit assumption that timestamp features are independent. This assumption ignores the fundamental property of temporal dependence and can lead to explanations that violate the sequential and causal structure of the data. We introduce \\textsc{KARMA}, a method for explaining time-series predictors by constructing a Markov surrogate model that captures the temporal dependencies learned by the predictor. Our approach revolves around three main aspects: identifying the minimal history length $K$ that is predictively sufficient for the model, estimating the best-fitting $K$-order Markov transition kernel from the discretized history space, and a five-level global explanation hierarchy that can be derived from the Markov transition kernel, which we illustrate using real-world weather data (Beijing PM 2.5). We also certify using complex synthetic data with known true causal edges that KARMA (i) recovers the data causal structure as learned by the model via a controlled experiment and (ii) identifies temporal dependencies better than established attribution methods such as TimeSHAP.",
+      "authors": [
+        "Amadeo Tunyi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-06-25T23:09:03+00:00",
+      "link": "https://arxiv.org/pdf/2606.27599v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "identifies minimal predictive history length K for time-series models",
+      "llm_evidence_cn": "识别时间序列模型的最小预测历史长度K",
+      "llm_evidence": "识别时间序列模型的最小预测历史长度K",
+      "canonical_evidence": "识别时间序列模型的最小预测历史长度K",
+      "llm_tldr_en": "KARMA constructs a Markov surrogate model to capture temporal dependencies, identifying the minimal history length that is predictively sufficient for the model.",
+      "llm_tldr_cn": "该论文提出KARMA方法，通过构建K阶马尔可夫替代模型来解释时间序列预测器。该方法自动识别模型所需的预测充分最小历史长度K，并估计最优K阶马尔可夫逼近。这为理解时间序列预测的可预测性界限提供了新的视角。",
+      "llm_tldr": "该论文提出KARMA方法，通过构建K阶马尔可夫替代模型来解释时间序列预测器。该方法自动识别模型所需的预测充分最小历史长度K，并估计最优K阶马尔可夫逼近。这为理解时间序列预测的可预测性界限提供了新的视角。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2606.27711v1",
+      "source": "arxiv",
+      "title": "The Simulacrum: Decision-Theoretic Pretraining for Near-Optimal Time-Series Forecasting and Inference",
+      "abstract": "We introduce a neural network-based framework for learning time series estimators through a process we term decision-theoretic pretraining. Analysts specify a generative world, a distribution over data-generating processes, and a target decision objective. A neural network trained on stratified simulations from this world approximates the corresponding optimal decision rule, yielding a neural estimator that provides forecasts, parameter estimates, predictive intervals, or model-selection for zero-shot inference on previously unseen time series.   The joint specification of the generative world and objective enables the estimators to directly approximate process-level, finite-sample properties: near-optimal risk, bias control, minimax performance, and uniform calibration. Our experiments demonstrate that these neural estimators can outperform traditional baselines such as maximum likelihood estimation and model selection via AICc, for the same model structural model classes. Furthermore, even when trained purely on simulations of structural models, they achieve competitive or state-of-the-art forecasting accuracy on major real-world benchmarks, compared with statistical, neural or large pre-trained models.   We illustrate the framework by addressing two longstanding challenges: finite-sample bias and miscalibration in AR(p) models, and the forecast combination puzzle. These applications highlight the approach's main advantage: its ability to approximate solutions to analytically intractable or computationally prohibitive time series problems, including complex structural equations or optimality criteria. Ultimately, by enabling explicit control over decision-theoretic trade-offs, the framework equips analysts with highly efficient estimation tools tailored to their specific analytical needs.",
+      "authors": [
+        "Pablo Montero-Manso",
+        "Marcel Scharth"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.CO"
+      ],
+      "published": "2026-06-26T04:25:09+00:00",
+      "link": "https://arxiv.org/pdf/2606.27711v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "near-optimal risk bounds for time-series forecasting",
+      "llm_evidence_cn": "时间序列预测的近最优风险界限",
+      "llm_evidence": "时间序列预测的近最优风险界限",
+      "canonical_evidence": "时间序列预测的近最优风险界限",
+      "llm_tldr_en": "Introduces decision-theoretic pretraining to learn near-optimal time-series estimators with finite-sample risk guarantees, enabling zero-shot inference.",
+      "llm_tldr_cn": "该论文提出决策理论预训练框架，通过指定生成世界和决策目标，训练神经网络逼近最优决策规则，从而得到时间序列估计器。该方法在未见过的序列上实现零样本推理，并提供近最优风险保证，为时间序列预测提供了理论上的性能界限。",
+      "llm_tldr": "该论文提出决策理论预训练框架，通过指定生成世界和决策目标，训练神经网络逼近最优决策规则，从而得到时间序列估计器。该方法在未见过的序列上实现零样本推理，并提供近最优风险保证，为时间序列预测提供了理论上的性能界限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2606.27917v1",
+      "source": "arxiv",
+      "title": "Graph Dimensionality Reduction for Contextual Bandits: Structure-Specific Regret Bounds under Approximate Smoothness and Noisy Eigenspaces",
+      "abstract": "Contextual bandits with graph-structured arms arise in recommendation, citation retrieval, and social advertising, where arms connected on a graph tend to share reward signal. Standard dimensionality reduction ignores this structure, inflating exploration cost by a factor of $d/k$. We propose GraphDR-LinUCB, which projects arm features onto the graph's low-frequency spectral subspace and runs linear UCB in the resulting $k$-dimensional space. We prove the first $\\wtO(k\\sqrt{T})$ regret bound for spectral-projection-based contextual bandits, reducing dimension dependence from $d$ to $k$; a perturbation argument extends this to noisy graphs, with an explicit penalty for reward-smoothness mismatch and graph-estimation error. Our central theoretical finding is that the high-frequency reward component need not incur a worst-case linear-in-$T$ penalty: its actual cost depends on its realized impact along the played path, not on its total energy. A simple spectral comparison between subspaces ($Γ_k$) predicts which reducer wins on a given dataset, correctly calling five of six real-dataset outcomes without any fitted threshold. Across a synthetic benchmark and six real datasets (MovieLens, Amazon, LastFM, ogbn-arxiv, MIND), GraphDR-LinUCB reduces cumulative regret by $15\\times$ over full-dimensional LinUCB and outperforms competing graph-aware methods on five of six; the single failure is precisely where the graph's spectral subspace is misaligned with the reward.",
+      "authors": [
+        "Joyanta Jyoti Mondal",
+        "Ibne Farabi Shihab",
+        "Anuj Sharma"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-06-26T10:07:10+00:00",
+      "link": "https://arxiv.org/pdf/2606.27917v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "provides theoretical regret bounds for contextual bandits in recommendation with graph structure, relevant to predictability limits in sequential recommendation",
+      "llm_evidence_cn": "为图结构上下文集匪提供理论遗憾界，与序列推荐中的可预测性极限相关",
+      "llm_evidence": "为图结构上下文集匪提供理论遗憾界，与序列推荐中的可预测性极限相关",
+      "canonical_evidence": "为图结构上下文集匪提供理论遗憾界，与序列推荐中的可预测性极限相关",
+      "llm_tldr_en": "Proposes GraphDR-LinUCB for contextual bandits with graph-structured arms, proving regret bounds that reduce dimension dependence, offering insight into predictability in recommendation.",
+      "llm_tldr_cn": "针对推荐系统中具有图结构的臂（arm）问题，论文提出GraphDR-LinUCB算法，将臂特征投影到图的低频谱子空间，并在线性UCB中运行。首次证明了谱投影方法的遗憾界为 \\\\(\\tilde{O}(k\\sqrt{T})\\)，将维度依赖性从 d 降至 k。该理论界揭示了结构信息如何提升推荐中的可预测性，对理解序列推荐的可预测性极限有重要启示。",
+      "llm_tldr": "针对推荐系统中具有图结构的臂（arm）问题，论文提出GraphDR-LinUCB算法，将臂特征投影到图的低频谱子空间，并在线性UCB中运行。首次证明了谱投影方法的遗憾界为 \\\\(\\tilde{O}(k\\sqrt{T})\\)，将维度依赖性从 d 降至 k。该理论界揭示了结构信息如何提升推荐中的可预测性，对理解序列推荐的可预测性极限有重要启示。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.25484v1",
+      "source": "arxiv",
+      "title": "From Causal Discovery to Implementation: An Agentic AI Framework for E-Scooter Mobility Hub Planning Across 29 German Cities",
+      "abstract": "Existing approaches to e-scooter mobility hub planning lack city-type-specific causal evidence. Demand models are typically correlational, built on proprietary trip data, and do not distinguish how driver profiles vary across urban typologies. This paper presents a three-phase agentic AI framework that constructs a Causal Template Library from public GBFS data across 29 German cities, encoding which environmental features causally drive hotspot demand for each combination of city type (large, university, industrial, hilly) and cluster type (core, peripheral). A large language model (LLM) orchestrated causal discovery pipeline adapts algorithm selection to local data conditions across 57 city-cluster units. The library reveals systematic variation. Core demand is driven by activity access and transit proximity, while peripheral demand responds to built form, with city-type-specific patterns supporting transferable siting templates. A planning tool built on the library scores candidate sites, calibrates infrastructure recommendations to local demographics, and generates practitioner-ready reports. In Heilbronn, Germany, two hub sites informed by the framework's causal evidence are currently under construction, illustrating how the outputs can support real-world siting decisions.",
+      "authors": [
+        "Meng Jin",
+        "Melanie Handrich",
+        "Simone Martinenz",
+        "Nicholas Hoeser",
+        "Ziyue Li"
+      ],
+      "primary_category": "cs.CY",
+      "categories": [
+        "cs.CY",
+        "econ.GN",
+        "stat.AP"
+      ],
+      "published": "2026-06-24T07:13:15+00:00",
+      "link": "https://arxiv.org/pdf/2606.25484v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "agentic AI framework for e-scooter mobility hub planning across 29 German cities",
+      "llm_evidence_cn": "基于智能体AI的电动滑板车移动性枢纽规划",
+      "llm_evidence": "基于智能体AI的电动滑板车移动性枢纽规划",
+      "canonical_evidence": "基于智能体AI的电动滑板车移动性枢纽规划",
+      "llm_tldr_en": "Presents a causal discovery framework using LLMs to construct Causal Template Library for e-scooter mobility hub planning across German cities.",
+      "llm_tldr_cn": "该论文针对电动滑板车移动性枢纽规划缺乏城市类型特定因果证据的问题，提出一个三阶段智能体AI框架。利用来自29个德国城市的公共GBFS数据构建因果模板库，编码环境特征如何因果驱动热点需求，并按城市类型和集群类型分类。LLM编排的因果发现管道根据本地数据条件自适应选择算法。这项工作通过因果推断增强了移动性模式预测的可靠性。",
+      "llm_tldr": "该论文针对电动滑板车移动性枢纽规划缺乏城市类型特定因果证据的问题，提出一个三阶段智能体AI框架。利用来自29个德国城市的公共GBFS数据构建因果模板库，编码环境特征如何因果驱动热点需求，并按城市类型和集群类型分类。LLM编排的因果发现管道根据本地数据条件自适应选择算法。这项工作通过因果推断增强了移动性模式预测的可靠性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.28228v1",
+      "source": "arxiv",
+      "title": "Disentangling Continuous-Time Latent Dynamics: Identifiability of Latent SDEs via Diffusion Shifts",
+      "abstract": "Causal representation learning for time series has developed strong identifiability results in discrete-time latent causal models, but identifiability in continuous-time latent stochastic differential equation (SDE) models remains largely open. We address this gap using environment-induced shifts in diffusion covariance. We study additive-noise latent SDEs observed through an unknown nonlinear diffeomorphism, with shared drift but environment-specific diffusion covariance. We show that two diagonal diffusion regimes with pairwise distinct coordinate-wise variance ratios identify the latent coordinates up to permutation and scaling, without any sparsity assumption on the drift. We first prove this result for linear Ornstein--Uhlenbeck systems and then extend it to general additive-noise latent SDEs. Under mild smoothness, the instantaneous drift-Jacobian causal graph is identifiable up to the same permutation. We propose a two-stage estimator for latent disentanglement and optional graph recovery; experiments on synthetic systems confirm the predicted identifiability boundary, and an application to Hardanger Bridge monitoring data illustrates the approach on real sensor trajectories.",
+      "authors": [
+        "Yuanyuan Wang",
+        "Wenjie Wang",
+        "Haoxuan Li",
+        "Mingming Gong",
+        "Kun Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-06-26T16:18:28+00:00",
+      "link": "https://arxiv.org/pdf/2606.28228v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "identifiability of latent SDEs for time series",
+      "llm_evidence_cn": "时间序列潜在SDE的可识别性",
+      "llm_evidence": "时间序列潜在SDE的可识别性",
+      "canonical_evidence": "时间序列潜在SDE的可识别性",
+      "llm_tldr_en": "Proves identifiability of latent SDEs up to permutation and scaling using diffusion covariance shifts, enabling time series causal representation learning.",
+      "llm_tldr_cn": "该论文针对连续时间潜在随机微分方程（SDE）模型的可识别性问题，提出利用环境诱导的扩散协方差变化来识别潜在变量。核心结论是：在两种对角线扩散机制下，只要坐标方向方差比两两不同，潜在变量即可在置换和缩放意义下唯一确定，且无需漂移稀疏假设。这项理论为时间序列潜在动态的因果学习奠定了基础。",
+      "llm_tldr": "该论文针对连续时间潜在随机微分方程（SDE）模型的可识别性问题，提出利用环境诱导的扩散协方差变化来识别潜在变量。核心结论是：在两种对角线扩散机制下，只要坐标方向方差比两两不同，潜在变量即可在置换和缩放意义下唯一确定，且无需漂移稀疏假设。这项理论为时间序列潜在动态的因果学习奠定了基础。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2606.26497v1",
+      "source": "arxiv",
+      "title": "Learning Probabilistic Filters with Strictly Proper Scoring Rules",
+      "abstract": "Bayesian filtering of partially and noisily observed dynamical systems seeks to infer the evolving conditional distribution of the state of a dynamical system, given observations, in an online fashion. This Bayesian filtering distribution is the natural object for uncertainty quantification, but it is rarely available as a supervised learning target. However, one can often use the forecast model to generate synthetic system trajectories, along with synthetic observations. We introduce the proper scoring ensemble filter (PSEF), an ensemble data assimilation method based on training an analysis map to approximate the filtering distribution using only synthetic state--observation trajectories. The analysis step is represented as a permutation-invariant, transformer-based map that takes as input a forecast ensemble and observations, producing an analysis ensemble. Training is based on strictly proper scoring rules -- with the energy score used in our implementation -- so that probabilistic accuracy is rewarded over the whole probability distribution. We prove that, under a realizability assumption, the population objective is minimized by the true Bayesian filtering distribution. We also derive the finite-ensemble empirical objective used in training and relate its single state--observation trajectory form to the population objective, using a mean-field consistency argument. Numerical experiments show that the learned filter accurately approximates challenging filtering distributions, including nonlinear, non-Gaussian, and multi-modal posteriors, and achieves stronger performance in data assimilation tasks than classical methods or learning-based methods with mean-squared-error objectives. For close-to-Gaussian problems, learning a correction to the EnKF is the best approach, while for highly non-Gaussian problems an end-to-end approach that discards this inductive bias is superior.",
+      "authors": [
+        "Eviatar Bach",
+        "Ricardo Baptista",
+        "Jochen Bröcker",
+        "Bohan Chen",
+        "Andrew Stuart"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "math.DS",
+        "stat.ML"
+      ],
+      "published": "2026-06-25T01:04:21+00:00",
+      "link": "https://arxiv.org/pdf/2606.26497v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical analysis of filtering distribution via proper scoring rules",
+      "llm_evidence_cn": "通过严格恰当评分规则进行滤波分布的理论分析",
+      "llm_evidence": "通过严格恰当评分规则进行滤波分布的理论分析",
+      "canonical_evidence": "通过严格恰当评分规则进行滤波分布的理论分析",
+      "llm_tldr_en": "Introduces a method to learn probabilistic filters using proper scoring rules and synthetic data, enabling uncertainty quantification in dynamical systems. Uses permutation-invariant transformers to approximate the filtering distribution.",
+      "llm_tldr_cn": "该研究针对贝叶斯滤波中滤波分布难以作为监督学习目标的问题，利用预报模型生成合成轨迹和观测，提出了一种基于严格恰当评分规则的分析映射训练方法。所提的适当评分集成滤波器（PSEF）通过置换不变变换器表示分析步骤，仅利用合成数据近似滤波分布。该方法为动态系统的不确定性量化和预测提供了新的工具。",
+      "llm_tldr": "该研究针对贝叶斯滤波中滤波分布难以作为监督学习目标的问题，利用预报模型生成合成轨迹和观测，提出了一种基于严格恰当评分规则的分析映射训练方法。所提的适当评分集成滤波器（PSEF）通过置换不变变换器表示分析步骤，仅利用合成数据近似滤波分布。该方法为动态系统的不确定性量化和预测提供了新的工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2606.27670v1",
+      "source": "arxiv",
+      "title": "CryptoGAT: Are Time Series Models Effective for Cryptocurrency Forecasting?",
+      "abstract": "Cryptocurrency price prediction is a significant challenge in quantitative investment. In recent years, time series models have made significant progress in financial forecasting tasks, especially in the stock market. Despite the growing performance over the past few years, we question the validity of this line of research in cryptocurrency prediction. Specifically, time series models (e.g., LSTM, GRU, and Transformers) are effective at extracting temporal relationships in stock market data. However, in pure price-based cryptocurrency prediction, facing data with extreme volatility and wild swings, time series models have difficulty learning effective information. To validate our claim, we propose CryptoGAT, a lightweight Graph Attention Network that recasts cryptocurrency pure price prediction as a cross-asset graph problem rather than a temporal modeling task. Extensive experiments on real cryptocurrency benchmarks demonstrate that our proposed CryptoGAT outperforms various state-of-the-art forecasting methods with a notable margin. Moreover, we conduct comprehensive empirical studies to explore the fundamental differences exposed by time series models in stock and cryptocurrency prediction: differences in predictability of the signal and cross-asset dependencies. This finding opens up new research directions for the cryptocurrency pure price prediction task and inspires further graph-based exploration in the field. The source code is available at https://github.com/FanBroWell/CryptoGAT",
+      "authors": [
+        "Yu Peng",
+        "Matloob Khushi",
+        "Josiah Poon"
+      ],
+      "primary_category": "cs.CE",
+      "categories": [
+        "cs.CE",
+        "q-fin.ST"
+      ],
+      "published": "2026-06-26T03:05:02+00:00",
+      "link": "https://arxiv.org/pdf/2606.27670v1",
+      "tags": [
+        "keyword:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "questions time series model validity in cryptocurrency prediction, touching on prediction limits",
+      "llm_evidence_cn": "质疑加密货币预测中时间序列模型的有效性，涉及预测极限",
+      "llm_evidence": "质疑加密货币预测中时间序列模型的有效性，涉及预测极限",
+      "canonical_evidence": "质疑加密货币预测中时间序列模型的有效性，涉及预测极限",
+      "llm_tldr_en": "Challenges the assumption that time series models are effective for cryptocurrency forecasting; proposes CryptoGAT as alternative, showing limitations of standard models under extreme volatility.",
+      "llm_tldr_cn": "针对加密货币价格预测中传统时间序列模型效果不佳的问题，本文提出CryptoGAT轻量图注意力网络。实验表明，LSTM、GRU等模型在极端波动数据中难以学习有效信息，而图结构能更好捕捉市场关联。该工作揭示了时间序列模型在特定场景下的预测极限，推动了对模型选择的理论思考。",
+      "llm_tldr": "针对加密货币价格预测中传统时间序列模型效果不佳的问题，本文提出CryptoGAT轻量图注意力网络。实验表明，LSTM、GRU等模型在极端波动数据中难以学习有效信息，而图结构能更好捕捉市场关联。该工作揭示了时间序列模型在特定场景下的预测极限，推动了对模型选择的理论思考。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
