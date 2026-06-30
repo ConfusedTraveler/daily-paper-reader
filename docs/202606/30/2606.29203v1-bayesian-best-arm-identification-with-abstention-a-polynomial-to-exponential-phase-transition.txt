@@ -1,0 +1,9331 @@
+Title: Bayesian Best-Arm Identification with Abstention: A Polynomial-to-Exponential Phase Transition
+
+URL Source: https://arxiv.org/pdf/2606.29203v1
+
+Published Time: Tue, 30 Jun 2026 01:08:31 GMT
+
+Number of Pages: 77
+
+Markdown Content:
+# Bayesian Best-Arm Identification with Abstention: A Polynomial-to-Exponential Phase Transition 
+
+## Yuqi Huang 1 Yunlong Hou 1 Vincent Y. F. Tan 1,2 1Department of Mathematics, National University of Singapore 
+
+> 2
+
+## Department of Electrical and Computer Engineering, National University of Singapore 
+
+Abstract 
+
+We study the Bayesian fixed-budget best-arm identification problem in which a learner can abstain from making a terminal recommendation. Subject to an abstention budget α, we an-alyze the probability of undetected error–the risk of recommending a suboptimal arm without abstaining. Our central finding is that abstention induces a phase transition: without abstention, the error probability decays polynomially in the sampling budget T ; in contrast, introducing any small positive abstention budget shifts this to an exponential decay. For Gaussian priors and rewards, in the regime T → ∞ followed by α ↓ 0, we establish exact matching information-theoretic lower bounds and algorithmic upper bounds on the optimal error exponent, which takes the form exp( − α2T
+
+> 8κ2
+> ν
+
+). The hardness parameter κν represents the prior density of the top-two gap at zero, highlighting that nearly tied instances drive the fundamental error. We introduce an adaptive algorithm, PGWS , that successfully achieves this optimal exponent by expending its abstention budget on statistically ambiguous instances. We further demonstrate that this polynomial-to-exponential improvement is exclusively a Bayesian phenomenon–in the frequentist setting, abstention only affects lower-order exponent terms. We also extend our results beyond the Gaussian model. 
+
+# 1 Introduction 
+
+## 1.1 Problem Overview and Motivation 
+
+Fixed-Budget Best-Arm Identification (FB-BAI) (Audibert et al., 2010; Karnin et al., 2013; Carpentier and Locatelli, 2016) is a canonical pure exploration problem in sequential decision making. A learner is given a sampling budget, adaptively collects noisy observations from a set of K arms with unknown mean rewards, and finally recommends the arm believed to have the largest mean. This formulation captures the statistical core of ranking and selection, online experimentation, and treatment-selection problems, where samples are costly and the objective is to make a reliable terminal recommendation rather than to maximize reward during the experiment (Audibert et al., 2010; Kaufmann et al., 2016; Russo, 2016). Typical FB-BAI formulations require a firm terminal recommendation after the sampling budget is ex-hausted. In many applications, however, this forced decision, in which the decision maker commits to one of the K arms, may pose undue risks. When the collected evidence is ambiguous, the decision maker may defer the decision, run a follow-up experiment, escalate the case to an expert, or choose a conservative default action. This motivates a FB-BAI model with terminal abstention option: after sampling, the learner may either recommend an arm or output an inconclusive decision. Abstention changes the notion of error. A policy that always abstains never makes an incorrect rec-ommendation, but it is not useful. We therefore treat abstention as a scarce resource: the learner must 1
+
+> arXiv:2606.29203v1 [cs.LG] 28 Jun 2026
+
+keep the probability of abstention below a prescribed level α. Subject to this constraint, the performance criterion is the probability of an undetected error , namely the probability that the learner does not abstain but recommends a suboptimal arm. Informally, let a⋆ denote the best arm, ? be the abstention decision, and ̂ a ∈ [K] ∪ { ?} be the terminal output. The objective is to minimize 
+
+P(̂ a / ∈ { a⋆, ?}), subject to P(̂a =?) ≤ α. (1.1) This paper studies the problem in a Bayesian fixed-budget setting, where the unknown reward means are drawn from known priors. The Bayesian formulation is natural when the same experimental protocol is repeatedly applied to related instances, or when historical data provide a prior model for plausible reward configurations. It is also the setting in which the effect of abstention is particularly pronounced. Under a continuous prior, the Bayes error probability of forced-decision (i.e., without abstention) FB-BAI is domi-nated by instances in which the two best arms are nearly tied. These instances are rare, but they are also the hardest to resolve with a finite sampling budget. The central observation of this paper is that a small abstention budget allows the learner to spend its inconclusive decisions precisely on these statistically ambiguous near-tie cases. We show that this fundamen-tally results in a phase transition of the behavior of Bayesian BAI: even a small positive abstention budget substantially reduces the forced-decision polynomially small Bayes error probability into an exponentially 
+
+small Bayes undetected error probability. We derive this exponent and show that it is governed by the amount of prior probability near top-two ties. The rest of the paper formalizes this principle, develops an adaptive algorithm that attains the optimal exponent, and contrasts the Bayesian phenomenon with the frequentist setting. 
+
+## 1.2 Problem Formulation and Top-Two Gap Complexity 
+
+We now introduce the formal model. For an integer K ≥ 2, let [ K] := {1, . . . , K }. The learner is given a fixed sampling budget T and a collection of K arms. Arm i ∈ [K] has an unknown mean reward μi. We study a Bayesian model in which the mean vector μ = ( μ1, . . . , μ K ) is drawn from a known product Gaussian prior 
+
+Pν (d μ) := 
+
+> K
+
+⊗
+
+> i=1
+
+N (νi, σ 20 )(d μi),
+
+where the prior means ν1, . . . , ν K ∈ R and prior variance (which is common to all arms) σ20 > 0 are fixed and known. We define the best arm a⋆ = a⋆(μ) := argmax i∈[K] μi which is unique almost surely since the prior 
+
+Pν is continuous. Conditional on μ, the rewards from the arms are independent (across arms and time) and normally distributed: 
+
+Yi,s | μi ∼ N (μi, 1) , s ∈ N, i ∈ [K].
+
+Policies and Probability Laws. A policy π consists of a sequence of sampling rules and a terminal decision rule. At each round t = 1 , . . . , T , the policy selects an arm At ∈ [K]. Conditional on At = i and the mean vector μ, the learner observes a random sample Xt = Yi,N i(t) where Ni(t) := ∑ts=1 1{As = i} denotes the number of samples collected from arm i up to and including time t. The choice of the arm to be pulled 
+
+At depends on the previous arm choices {As}t−1 
+
+> s=1
+
+and observations {Xs}t−1
+
+> s=1
+
+. At the terminal time T , the policy recommends an arm from [ K] as the estimated best arm or an abstention decision denoted as ?. The class of all such policies is denoted as Π T .For a fixed mean vector μ, we write Pπμ and Eπμ for the probability and expectation over the reward realizations and the potential randomization of the policy. The joint Bayesian law is the mixture 
+
+Pπν (·) := 
+
+∫
+
+> RK
+
+Pπμ(·) Pν (d μ),
+
+2and Eπν is defined analogously. When the policy (resp. probability law) is clear from context, we suppress the superscript π (resp. subscript ν). 
+
+Terminal Decisions with Abstention. At the end of the experiment, the learner outputs ̂ aT ∈ [K]∪{ ?},where ? denotes abstention, an inconclusive decision. The learner makes an undetected error if it recommends an arm and the recommended arm is not the true best arm, i.e., the event {̂ aT /∈ { a⋆, ?}} = {̂ aT ∈ [K],̂ aT 6 =
+
+a⋆} occurs. For a policy π ∈ ΠT , define its Bayes abstention probability and Bayes undetected error probability 
+
+respectively as 
+
+AT (π) := Pπν (̂aT =?) and ET (π) := Pπν
+
+(̂ aT ∈ [K],̂ aT 6 = a⋆(μ)).
+
+Given an abstention budget α ∈ (0 , 1), let ΠT (α) := {π ∈ ΠT : AT (π) ≤ α}.
+
+The optimal Bayes undetected error probability is 
+
+ET (α) := inf   
+
+> π∈ΠT(α)
+
+ET (π). (1.2) For later comparison, we also define the optimal forced-decision Bayes probability of misidentification (in which abstention is not allowed) as 
+
+ET (0) := inf     
+
+> π∈ΠT:̂aT∈[K] a .s.
+
+Pπν (̂aT 6 = a⋆) = inf   
+
+> π∈ΠT(0)
+
+Pπν (̂aT 6 = a⋆) . (1.3) 
+
+Top-Two Gap Complexity. We define the top-two gap 
+
+Γ := μ(1) − μ(2) , (1.4) where μ(1) > μ (2) > · · · > μ (K) denote the means of the arms arranged in decreasing order. Theorems 2.1 and 3.1 identify the density of Γ at zero as the fundamental hardness parameter for the Bayesian BAI problem with abstention. For each arm i, we denote the prior density and distribution function of μi as 
+
+fi(x) := 1
+
+σ0
+
+φ
+
+( x − νi
+
+σ0
+
+)
+
+, and Fi(x) := Φ 
+
+( x − νi
+
+σ0
+
+)
+
+,
+
+where φ(x) = 1√2π e−x2/2 and Φ( x) = ∫ x 
+
+> −∞
+
+φ(u) d u are the standard normal density and cumulative distribu-tion function, respectively. For a pair of distinct arms ( i, j ) ∈ [K]2, define their average midpoint variable as Xij ∼ N 
+
+( νi+νj 
+
+> 2
+
+, σ20
+
+> 2
+
+)
+
+,and define the top-relevance weight wij := E
+
+[∏  
+
+> k6=i,j
+
+Φ
+
+( Xij −νk
+
+> σ0
+
+)] 
+
+. The quantity wij is the prior probability, averaged over a local tie value of arms i and j, that this tied value lies above all remaining arms. Define the 
+
+hardness parameter for Bayesian BAI with abstention problem as 
+
+κν = ∑
+
+> i6=j
+
+∫
+
+> R
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+Fk(x) d x = 1
+
+σ0
+
+√π
+
+∑
+
+> 1≤i<j ≤K
+
+wij exp 
+
+(
+
+− (νi − νj )2
+
+4σ20
+
+)
+
+.
+
+In Lemma A.1, we show that the top-two gap Γ is related to the hardness parameter κν as follows: 
+
+Pν (Γ ≤ ε) = κν ε + o(ε) as ε ↓ 0. (1.5) In view of (1.5), we see that κν measures the amount of prior probability assigned to locally ambiguous instances. Specifically, pairs with similar prior means and a realistic chance of being the top two arms contribute more to κν , whereas pairs that are unlikely to be optimal contribute little. 31.3 Main Contributions and Results 
+
+We formulate the fixed-budget BAI with abstention problem under the Bayesian setting. We study this problem under the large-budget and small-abstention probability regime through the iterated limit T → ∞ 
+
+followed by α ↓ 0 . Our main result is a sharp characterization of the exponential rate of decay of the optimal Bayes unde-tected error probability under abstention. In the Gaussian prior and Gaussian reward model, we prove the information-theoretic lower bound lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − 1
+
+8κ2
+
+> ν
+
+.
+
+We also propose an adaptive algorithm, Posterior Gap Weighted Sampling with Abstention 
+
+(PGWS (α)), whose abstention probability is calibrated exactly to α and whose undetected error probability 
+
+ET (PGWS (α)) satisfies lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (PGWS (α)) ≤ − 1
+
+8κ2
+
+> ν
+
+.
+
+Combining these results, we see that the fundamental hardness of the Bayesian BAI with abstention problem depends on the prior through κν , the density of top-two gap at zero. In other words, the complexity is intimately related to the prior probability of instances in which the means of two best arms are nearly the same. Subsequently, we compare the abstention problem with ordinary (forced-decision) Bayesian BAI, where the learner is compelled to recommend an arm. We establish that the optimal forced-decision Bayes proba-bility of misidentification satisfies lim inf  
+
+> T→∞
+
+√T ET (0) ≥
+
+√ 2
+
+π κν .
+
+Therefore, allowing an α fraction of abstentions transits the Bayes probability of error from being on the polynomial scale to the exponential scale. We further demonstrate that this phase transition is inherently Bayesian. In contrast, for any fixed frequentist instance with a positive gap, the error probability of conventional forced-decision FB-BAI already exhibits exponential decay in T ; see, e.g., Karnin et al. (2013). As a result, terminal abstention cannot improve the leading error exponent and affects only lower-order terms. Finally, the analysis is extended beyond the Gaussian model. For regular one-parameter reward models, the same exponent takes the form 1 /(8 κ2), where κ is the top-two gap density evaluated in Fisher–Rao information coordinates; see Eqn. (4.1). We also provide numerical experiments illustrating the benefit of abstention and the practical advantage of our adaptive algorithm which we call PGWS .
+
+## 1.4 Related work 
+
+Best-arm Identification and Ranking and Selection. Best-arm identification is a central pure-exploration problem in multi-armed bandits. In the fixed-confidence setting, the objective is to identify the best arm with prescribed confidence using as few samples as possible (Lattimore and Szepesv´ ari, 2020; Even-Dar et al., 2006; Kaufmann et al., 2016). In the fixed-budget setting, which is our focus, the learner is given a sampling budget and aims to minimize the probability of an incorrect terminal recommendation (Audibert et al., 2010; Karnin et al., 2013; Carpentier and Locatelli, 2016; Komiyama et al., 2022; Wang et al., 2023). For a fixed instance with a positive gap, this probability typically decays exponentially in the budget, with the exponent determined by instance-dependent complexity. Our work instead studies a Bayesian average over instances and allows terminal abstention. The problem is also related to ranking and selection and ordinal optimiza-tion, where the objective is often to maximize the probability of correct selection under a simulation budget 4(Chen et al., 2000; Glynn and Juneja, 2004; Hong et al., 2021). In contrast to most of that literature, our performance criterion is an abstention-constrained Bayes undetected error probability. 
+
+Bayesian Best Arm Identification. Bayesian BAI involves a prior distribution over the unknown reward means. Bayesian algorithms such as Thompson sampling and top-two Thompson sampling have been studied for posterior convergence and BAI (Russo, 2016; Shang et al., 2020). Recent work develops prior-sensitive guarantees for Bayesian BAI: Atsidakou et al. (2023) study Gaussian fixed-budget Bayesian BAI, while Komiyama et al. (2024) characterize Bayesian simple-regret rates under continuity assumptions and identify near-tie instances as the leading source of error. Related work also studies prior-dependent allocations in structured Bayesian fixed-budget BAI (Nguyen et al., 2025) and fixed-confidence BAI in the Bayesian setting (Jang et al., 2024). Our contribution is to add a terminal abstention option and provide a full characterization of the undetected error exponent under an abstention budget. 
+
+Abstention and Reject-Option Decisions. Abstention has a long history in statistical decision the-ory and classification. Classical reject-option rules trade prediction error against rejection (Chow, 1970), and selective prediction studies risk-coverage tradeoffs in supervised learning (Bartlett and Wegkamp, 2008; Cortes et al., 2016). These settings are typically passive, whereas our learner actively allocates a fixed sam-pling budget before deciding whether to recommend or abstain. Bandit models with abstention-like actions include selective sampling for online BAI (Camilleri et al., 2021) and regret minimization with per-round ab-stention (Yang et al., 2026). In contrast, our model permits abstention only at the terminal recommendation stage. 
+
+Erasure Decoding and Undetected Error. An essential motivation for considering this setup arises from erasure decoding in information theory. In channel coding with an erasure option, the decoder may either output a message or declare an erasure; performance is then measured by the tradeoff be-tween the total and undetected error probabilities. This line of work dates back to Forney’s exponential bounds for erasure, list, and decision-feedback decoding (Forney, 1968), with later refinements for era-sure/list exponents, exact random-coding exponents, and asymmetric erasure-error regimes (Merhav, 2008; Somekh-Baruch and Merhav, 2011; Hayashi and Tan, 2015). Our abstention option plays an analogous role to erasure, but the BAI setting is an active sequential experiment, in contrast to the non-sequential nature of channel coding (without feedback). 
+
+# 2 Algorithm and Error Analysis 
+
+## 2.1 The Algorithm PGWS 
+
+We now present Posterior Gap Weighted Sampling with Abstention (PGWS ). This policy has two components, a sampling rule and a terminal decision rule. During the sampling phase, it maintains Gaussian posterior distributions of the arm means and samples arms according to posterior mean gaps. At the terminal time, it either recommends the posterior mean leader or abstains, with the abstention rule calibrated to the prescribed budget α.Let Ft := σ(A1 , X 1, . . . , A t, X t) denote the history up to time t, with F0 := {∅, Ω}, augmented to include any external randomization used by the policy. Under the Gaussian prior and Gaussian reward model, the posterior distributions after t samples are independent across arms: 
+
+μi | F t ∼ N (Mi(t), V i(t)), i ∈ [K],
+
+5Algorithm 1 Posterior Gap Weighted Sampling with Abstention (PGWS (α)) 
+
+Require: Budget T , abstention level α, prior parameters ( ν1, . . . , ν K ) and σ20 . 
+
+> 1:
+
+Initialize Ni(0) = 0, Mi(0) = νi, and Vi(0) = σ20 for all i ∈ [K].  
+
+> 2:
+
+for t = 0 , 1, . . . , T − 1 do  
+
+> 3:
+
+if there exists i ∈ [K] such that Ni(t) < √t + 1 then  
+
+> 4:
+
+Sample one such arm, using deterministic tie-breaking.  
+
+> 5:
+
+else  
+
+> 6:
+
+Compute ̂ bt, the gaps {̂ ∆i(t)}i∈[K], and the sampling probabilities {pi(t)}i∈[K] in (2.2).  
+
+> 7:
+
+Sample arm i with probability pi(t).  
+
+> 8:
+
+end if  
+
+> 9:
+
+Observe the reward and update Ni(t + 1), Mi(t + 1), and Vi(t + 1) according to (2.1).  
+
+> 10:
+
+end for  
+
+> 11:
+
+Set ̂ bT = arg max i∈[K] Mi(T ).  
+
+> 12:
+
+Compute the terminal statistic RT in (2.3).  
+
+> 13:
+
+Output ̂ aT according to the abstention rule (2.6). 
+
+where the posterior variance Vi(t) and mean Mi(t) are, respectively, 
+
+Vi(t) = 1
+
+σ−20 + Ni(t) , and Mi(t) = Vi(t)
+
+ νi
+
+σ20
+
++
+
+> Ni(t)
+
+∑
+
+> s=1
+
+Yi,s 
+
+ . (2.1) At each time t, define the posterior mean leader ̂ bt := arg max i∈[K] Mi(t). For i 6 =̂ bt, define the posterior mean gap ̂ ∆i(t) := M̂ bt (t) − Mi(t), with ̂ ∆̂bt (t) := min j6 =̂ bt̂ ∆j (t). The forced-exploration step in Lines 3–4 ensures that every arm is sufficiently sampled to yield an accurate estimate of the mean. On all remaining rounds, PGWS samples arm i with probability 
+
+pi(t) = ̂ ∆i(t)−2
+
+∑Kℓ=1 ̂ ∆ℓ(t)−2 , i ∈ [K]. (2.2) Consequently, the leader and the closest challenger receive equal sampling probability, while arms with larger posterior mean gaps receive smaller probabilities. At the end of the sampling phase, PGWS measures the strength of the posterior evidence in favor of the final leader ̂ bT . Define 
+
+RT := min   
+
+> j6=̂bT
+
+(M̂ bT (T ) − Mj (T ))2
+
+2(V̂bT (T ) + Vj (T )) , (2.3) which represents the smallest pairwise posterior Gaussian exponent separating the final leader from its challengers. A small value of RT indicates that at least one challenger remains statistically difficult to be distinguished from the leader. To calibrate abstention, let rT,α be the lower α-quantile of RT under the joint Bayesian law induced by the sampling rule, i.e., 
+
+rT,α := inf {r ≥ 0 : P(RT ≤ r) ≥ α}. (2.4) If the distribution of RT has an atom at the threshold, define 
+
+θT,α := 
+
+
+
+α − P(RT < r T,α )
+
+P(RT = rT,α ) , P(RT = rT,α ) > 0,
+
+0, P(RT = rT,α ) = 0 .
+
+(2.5) 6The terminal decision is ̂
+
+aT =
+
+
+
+?, RT < r T,α ,
+
+?, RT = rT,α with probability θT,α ,̂
+
+bT , otherwise .
+
+(2.6) Thus PGWS abstains on the least confident posterior histories, up to boundary randomization which is used only to obtain exact calibration when RT has an atom at its α-quantile. 
+
+Remark 2.1 (Computing the quantile) . The quantile rT,α is deterministic once the prior, the sampling rule, T , and α are fixed. For the purpose of implementation, it can be estimated offline by Monte Carlo simulation from the prior. A large-T , small-α approximation is rasy  
+
+> T,α
+
+= 1
+
+> 8κ2
+> ν
+
+α2T. 
+
+## 2.2 Upper Bound Analysis 
+
+We now derive theoretical guarantees for PGWS . In this subsection, all probabilities are under the joint Bayesian law induced by Algorithm 1. 
+
+Theorem 2.1 (Upper Bound for PGWS ). For any T and any α ∈ (0 , 1) , PGWS (α) with the terminal rule 
+
+(2.6) satisfies AT (PGWS (α)) = α. Furthermore, asymptotically, 
+
+lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (PGWS (α)) ≤ − 1
+
+8κ2
+
+> ν
+
+. (2.7) The proof uses two key lemmas. In particular, the first lemma gives a finite-sample posterior certification bound: conditional on the sampled arms and observed rewards up to time step T , the statistic RT controls the posterior probability that the final leader is not the true best arm. 
+
+Lemma 2.1 (Posterior Certification Error Bound) . For every T and every α ∈ (0 , 1) ,
+
+ET (PGWS (α)) ≤ (K − 1) e−rT ,α .
+
+Lemma 2.2 (Asymptotic Lower Bound on the Calibration Threshold) . For every ε ∈ (0 , 1) , there exists 
+
+α0 > 0 such that for every 0 < α ≤ α0, there exists T0(α, ε ) such that for all T ≥ T0(α, ε ),
+
+rT,α ≥ (1 − ε) 1
+
+8κ2
+
+> ν
+
+α2T. 
+
+The proofs of both Lemmas are deferred to Appendix B. 
+
+Proof of Theorem 2.1. By the definition of the lower α-quantile, P(RT < r T,α ) ≤ α ≤ P(RT ≤ rT,α ). The boundary randomization in (2.6) is chosen so that P(̂aT =?) = P(RT < r T,α ) + θT,α P(RT = rT,α ) = α. Thus 
+
+AT (PGWS (α)) = α.For the error probability, Lemma 2.1 gives ET (PGWS (α)) ≤ (K − 1) e−rT ,α . By Lemma 2.2, for every 
+
+ε ∈ (0 , 1), all sufficiently small α, and all sufficiently large T , rT,α ≥ (1 − ε) 1
+
+> 8κ2
+> ν
+
+α2T. Therefore 
+
+ET (PGWS (α)) ≤ (K − 1) exp 
+
+{
+
+−(1 − ε) 1
+
+8κ2
+
+> ν
+
+α2T
+
+}
+
+.
+
+This then yields the final result in (2.7). 
+
+73 Lower Bounds 
+
+This section presents three lower bounds. The first is the main impossibility result for Bayesian BAI with abstention and matches the upper bound presented in Section 2.2. The second shows that forced-decision Bayesian BAI has only polynomial decay in the error probability, which refines the lower bound established by Atsidakou et al. (2023). The third considers the frequentist (non-Bayesian) formulation and shows that, when the instance has a positive gap, abstention improves only lower-order exponential terms. Together, these results identify both the value of abstention and the role of the Bayesian formulation. 
+
+## 3.1 Bayesian BAI with Abstention 
+
+Theorem 3.1 (Lower Bound for Bayesian BAI with Abstention) . In the Gaussian prior and Gaussian reward model, 
+
+lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − 1
+
+8κ2
+
+> ν
+
+.
+
+Theorem 3.1 applies to every adaptive sampling and terminal decision rule satisfying the abstention constraint AT (π) ≤ α. The proof, which is deferred to Appendix C, proceeds by decomposing the parameter space into disjoint regions Ω ij where arms i and j are the two arms with the largest means. Since the undetected error is dominated by near-tie instances, we focus on small neighborhoods of the tie surfaces inside these regions and introduce a locally flat subprior that is a submeasure of the original prior. This reduction transforms the problem into a two-arm hypothesis testing problem under a convenient approximately uniform prior. Combining a Neyman–Pearson-like argument with the aggregation over all pairs yields the exponent 1/(8 κ2 
+
+> ν
+
+) that matches that of the upper bound. Combining Theorem 3.1 with the achievability guarantee for PGWS gives the tight asymptotics on the exponential scale: 
+
+Corollary 3.2 (Tight Asymptotics and Optimality of PGWS ). The following holds: 
+
+lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (PGWS (α)) = lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) = − 1
+
+8κ2
+
+> ν
+
+. (3.1) Corollary 3.2 identifies κν , the density at zero of the prior top-two gap Γ, as the prior-dependent hardness parameter on the leading exponential scale. 
+
+## 3.2 Bayesian BAI without Abstention 
+
+To characterize the role of the abstention formulation, we next consider the forced-decision Bayesian BAI problem (Atsidakou et al., 2023), in which the learner must recommend an arm at the end of the experiment. Recall that we defined the forced-decision Bayes error probability as in (1.3). The following theorem shows that, without abstention, the Bayes probability of misidentification cannot decay exponentially fast. 
+
+Theorem 3.3 (No-Abstention Lower Bound) . For the Gaussian prior and Gaussian reward model, 
+
+lim inf  
+
+> T→∞
+
+√T ET (0) ≥
+
+√ 2
+
+π κν .
+
+The proof is deferred to Appendix D. Theorem 3.3 refines the two-arm Bayesian fixed-budget BAI lower bound of Atsidakou et al. (2023). They show that, for K = 2 Gaussian arms with Gaussian priors, the Bayes probability of misidentification is Ω(( T log T )−1/2), with the multiplicative factor depending on the prior as exp { − (ν1 −ν2)2
+
+> 4σ20
+
+}. For K = 2, our hardness parameter is κν = 2 ∫ 
+
+> R
+
+f1(x)f2(x) d x = 1 
+
+> σ0
+> √π
+
+exp {− 
+
+> (ν1−ν2)2
+> 4σ20
+
+}. Thus Theorem 3.3 improves the dependence on T , recovers the same prior-separation dependence 8through κν , and extends the result from two arms to general K ≥ 2. For K > 2, κν represents a weighted sum (with weights {wij }) over all distinct pairs of arms ( i, j ) of the likelihood of i and j being equal. Additionally, this theorem is also materially different from the lower bound analysis of the Bayesian simple regret in Komiyama et al. (2024). That work studies the simple regret , rather than the probability of error, and establishes a decay rate of Θ( T −1). Theorem 3.3 identifies the mechanism behind the polynomial Bayes error probability in standard forced-decision Bayesian FB-BAI. The dominant error comes from instances whose top-two gap, Γ = μ(1) − μ(2) ,is of order T −1/2. The prior probability of these instances is of order κν /√T , and on these instances, the two leading arms cannot be reliably separated with T samples. Thus the same local near-tie density κν that governs the abstention exponent also determines the constant in the forced-decision problem. This contrasts with the results for Bayesian BAI with abstention in Theorem 3.1. By allowing an 
+
+α-fraction of inconclusive decisions on the most ambiguous posterior histories, the learner removes the near-tie region that dominates the forced-decision error probability. Consequently, the error probability exhibits a fundamental phase transition from polynomial decay (i.e., Ω( T −1/2)) to exponential decay (i.e., exp( −Θ( α2T ))). 
+
+## 3.3 Frequentist BAI with Abstention 
+
+The preceding results concern the Bayesian formulation, where the error probability is averaged over a prior. We now contrast this behavior with the frequentist (fixed-instance) setting, and we show that the polynomial-to-exponential improvement is specific to the Bayesian formulation. In particular, for a fixed positive-gap instance, the error probability of ordinary frequentist FB-BAI decays exponentially with T (Audibert et al., 2010; Carpentier and Locatelli, 2016; Kaufmann et al., 2016). We show that the terminal abstention can improve only lower-order (i.e., sublinear in T ) terms in the exponent. We exemplify this point with a symmetric pair of two-arm Gaussian instances which we call the mirror experiments . Pulling arm i ∈ { 1, 2} produces an independent reward from N (μi, 1). A strategy π adaptively samples the arms for T rounds and then outputs ̂ aT ∈ { 1, 2, ?}, where ? denotes abstention. For an instance 
+
+μ, let a⋆(μ) = arg max i∈{ 1,2} μi be the optimal arm, and define 
+
+ET,μ (π) := Pπμ(̂aT /∈ { a⋆(μ), ?}) , and AT,μ (π) := Pπμ(̂aT =?) .
+
+For α ∈ (0 , 1), let Πfreq  
+
+> T
+
+(α) := 
+
+{
+
+π : sup 
+
+> μ∈R2
+
+AT,μ (π) ≤ α
+
+}
+
+be the class of strategies with abstention probability uniformly bounded above by α. Let zα := Φ −1( 1+ α
+
+> 2
+
+),so that P(|Z| ≤ zα) = α for Z ∼ N (0 , 1). Fix x ∈ R and ∆ > 0, and consider the following two mirror instances 
+
+μ+ := 
+
+(
+
+x + ∆
+
+2 , x − ∆
+
+2
+
+)
+
+, and μ− := 
+
+(
+
+x − ∆
+
+2 , x + ∆
+
+2
+
+)
+
+.
+
+Under μ+, arm 1 is optimal; under μ−, arm 2 is optimal. 
+
+Theorem 3.4 (Two-Arm Frequentist Lower Bound with Abstention) . Given T ∈ N, α ∈ (0 , 1) , x ∈ R,
+
+∆ > 0, and any strategy π ∈ Πfreq  
+
+> T
+
+(α), we have 
+
+max {ET,μ + (π), ET,μ − (π)} ≥ Φ
+
+(
+
+− ∆√T
+
+2 − zα
+
+)
+
+.
+
+9The proof is deferred to Appendix E. The theorem is a minimax statement over the mirror instances (μ+, μ −): any strategy whose abstention probability is uniformly bounded by α necessarily incurs the stated undetected error on at least one of the two instances. This bound is sharp for the two-arm Gaussian mirror experiment: when T is even, sampling each arm 
+
+T / 2 times and abstaining when |̂ μ1 −̂ μ2| ≤ 2zα√T attains the lower bound. Theorem 3.4 shows that abstention does not change the leading fixed-gap exponential rate. Without abstention, the policy that pulls each arm an equal number of times results in the error probability Φ
+
+(
+
+− ∆√T
+
+2
+
+)
+
+= exp 
+
+{
+
+− ∆2
+
+8 T + O(log T )
+
+}
+
+.
+
+With an abstention budget α, the undetected error probability becomes Φ
+
+(
+
+− ∆√T
+
+2 − zα
+
+)
+
+= exp 
+
+{
+
+− ∆2
+
+8 T − ∆zα
+
+2
+
+√T − z2
+
+> α
+
+2 + O(log T )
+
+}
+
+.
+
+Hence, abstention only improves the exponent by a lower order term. For small α, zα = √π/ 2 α + O(α3 ), so the logarithmic improvement is of order O(α√T ). In contrast to the Bayesian formulation, the error probability under the frequentist setup is already decaying exponentially without abstention, and the additional option to abstain yields only a lower-order improvement in the error probability, characterized by a moderate-deviation term. 
+
+# 4 Extensions Beyond the Gaussian Model 
+
+In the preceding sections, we established the polynomial-to-exponential phase transition under the Gaussian model. In this section, we show that this transition extends beyond the Gaussian setting. Specifically, the same exponent arises for regular one-parameter reward models after measuring gaps in the Fisher–Rao information scale. Let I ⊆ R be an open interval, called the quality parameter space . At the beginning of each experiment, the quality parameters μ1, . . . , μ K ∈ I are drawn from their prior distributions and remain fixed throughout the experiment. The best arm is a⋆ := arg max i∈[K] μi. Conditional on μ1, . . . , μ K , each pull of arm i
+
+produces an independent reward with distribution Pμi . We assume that each Pμi comes from a regular one-parameter exponential family, defined as follows. 
+
+Assumption 4.1 (Regular One-Parameter Exponential Family) . The family {Pμ : μ ∈ I} is a regular full one-parameter exponential family, possibly after a smooth monotone reparameterization (which we call θ(·)); see, e.g., (Lattimore and Szepesv´ ari, 2020, Sec. 34.3.1). Specifically, there exists an open natural parameter space Θ ⊆ R, a dominating measure λ, a natural statistic t(·), a base distribution h(·), a C4 log-partition function A : Θ → R with A′′ (θ) > 0, and a C4 map θ : I → Θ onto Θ with θ′(μ) > 0 such that θ(μ) is the natural parameter corresponding to the quality parameter μ, and 
+
+dPμ
+
+dλ (w) = h(w) exp {θ(μ)t(w) − A(θ(μ)) }, μ ∈ I .
+
+Moreover, the image of every compact subset of I under θ is compact in Θ.
+
+Under Assumption 4.1, the Fisher information for the quality parameter μ is 
+
+I(μ) := A′′ (θ(μ)) (θ′(μ))2.
+
+We then define the Fisher–Rao information coordinate 
+
+s(μ) := 
+
+∫ μμ◦
+
+√I(v) d v, (4.1) 10 where μ◦ ∈ I is arbitrary and all quantities and results below are independent of the choice of μ◦, as changing 
+
+μ◦ shifts s(·) by an additive constant, leaving κ and gap-based results unchanged. This is the arc-length coordinate induced by the Fisher–Rao metric (Rao, 1992; Amari and Nagaoka, 2000). Since s(·) is strictly increasing, the best arm is unchanged by the transformation μi 7 → ηi := s(μi). 
+
+Assumption 4.2 (Regular Prior in Information Coordinates) . The arms’ quality parameters μ1, . . . , μ K are independent under the prior. In the information coordinate ηi = s(μi), the induced prior distribution of arm 
+
+i has density ¯fi and distribution function ¯Fi on H := s(I). For each i ∈ [K],
+
+¯fi is continuous and bounded on H, ¯fi(η) > 0 ∀ η ∈ H .
+
+Define the information-scaled top-two tie density 
+
+κ := ∑
+
+> i6=j
+
+∫
+
+> H
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk (u) d u. 
+
+Equivalently, if fi and Fi respectively denote the prior density and distribution function of μi in the original coordinate system, then 
+
+κ = ∑
+
+> i6=j
+
+∫
+
+> I
+
+fi(μ)fj (μ) ∏  
+
+> k6=i,j
+
+Fk (μ)
+
+√I(μ) dμ. 
+
+Thus κ is the density at zero of the top-two gap after transforming the quality parameters to Fisher–Rao coordinates via (4.1). In the Gaussian model with unit variance, θ(μ) ≡ μ and I(μ) ≡ 1, so this reduces to the top-two gap density used in the preceding sections. For the achievability result we also assume a global quadratic lower bound on the Kullback–Leibler (KL) divergence. Let D(μ, z ) := D(Pμ ‖ Pz ).
+
+Assumption 4.3 (Quadratic KL Growth in the Fisher–Rao Information Coordinate) . There exists cKL > 0
+
+such that, for all μ, z ∈ I ,
+
+D(μ, z ) ≥ cKL 
+
+(s(μ) − s(z))2. (4.2) Assumption 4.3 holds for several one-parameter exponential families when s(·) is the Fisher–Rao in-formation coordinate. In particular, Gaussians with unit variance, Bernoulli, and Poisson satisfy (4.2) with cKL = 1 /4. Assumption 4.3 can be viewed as a global version of the local quadratic approximation 
+
+D(μ, z ) ≈ 1
+
+> 2
+
+(s(μ) − s(z))2 where |s(μ) − s(z)| is the Fisher–Rao distance (Amari and Nagaoka, 2000). 
+
+Theorem 4.1 (Extension to General Distributions) . Suppose Assumptions 4.1–4.3 hold, then 
+
+lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (IC-PGWS (α)) = lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) = − 1
+
+8κ2 .
+
+The lower bound holds for all adaptive policies satisfying the abstention constraint, and the upper bound is attained by an information-coordinate version of PGWS , namely, IC-PGWS .
+
+The proof is postponed to Appendix F. We now provide a concrete example of applying Theorem 4.1 to Beta-Bernoulli arms. 
+
+Example 4.2 (Beta–Bernoulli arms) . Consider Bernoulli rewards with unknown success probabilities μi ∈
+
+(0 , 1) that follow Beta distributions, i.e., 
+
+Yi,s | μi ∼ Bernoulli( μi), and μi ∼ Beta( ai, b i),
+
+independently across arms and time, where ai, b i ≥ 1/2 for i ∈ [K].
+
+11 We show that the Beta–Bernoulli arms satisfy Assumptions 4.1–4.3. Firstly, the Bernoulli family is a regular exponential family with 
+
+θ(μ) = log μ
+
+1 − μ , A(θ) = log(1 + eθ), and t(w) = w. 
+
+Its Fisher information is I(μ) = 1 
+
+> μ(1 −μ)
+
+. Hence, s(μ) = ∫ μ
+
+> 0
+
+√I(v) d v = 2 arcsin √μ, and H = (0 , π ).Secondly, if η = s(μ), then μ = sin 2(η/ 2) , and the prior density of ηi is 
+
+¯fi(η) = sin 2ai−1(η/ 2) cos 2bi −1(η/ 2) 
+
+Beta( ai, b i) , 0 < η < π. 
+
+Because ai, b i ≥ 1/2, this density is bounded, continuous, and strictly positive on (0 , π ). Hence, Assump-tion 4.2 holds. Lastly, a routine calculation shows that the Bernoulli KL divergence satisfies 
+
+D(μ, z ) ≥ 1
+
+4
+
+(s(μ) − s(z))2, μ, z ∈ (0 , 1) ,
+
+so Assumption 4.3 also holds with cKL = 1 /4.Therefore, the conditions of Theorem 4.1 hold and the theorem applies. Define 
+
+κBB := ∑
+
+> i6=j
+
+∫ π
+
+> 0
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk(u) d u = ∑
+
+> i6=j
+
+∫ 10
+
+fi(μ)fj (μ) ∏ 
+
+> k6=i,j
+
+Fk(μ)√μ(1 − μ) d μ
+
+where ¯Fi is the cumulative distribution function of 2 arcsin √μi, and fi and Fi are, respectively, the Beta (ai, b i)
+
+density and CDF. So by Theorem 4.1, we have 
+
+lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log EBB  
+
+> T
+
+(IC-PGWS (α)) = lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log EBB  
+
+> T
+
+(α) = − 1
+
+8κ2BB 
+
+.
+
+in the Beta-Bernoulli case. 
+
+# 5 Numerical Experiments 
+
+We conduct numerical experiments to illustrate the benefit brought by the abstention option and the superior design of the sampling rule in PGWS . First, we evaluate the practical benefit of abstention by comparing the undetected error probability for several abstention levels. Second, we isolate the value of the PGWS 
+
+allocation by comparing it with uniform allocation under the same posterior abstention threshold. 
+
+## 5.1 Experimental Setup 
+
+We adopt the Gaussian prior and reward model from Section 1.2. The prior is μi ∼ N (νi, σ 20 ) for i ∈ [K], independently across arms, and rewards satisfy Yi,s | μi ∼ N (μi, 1). We consider the arm prior with K = 5, 
+
+σ0 = 1, and ν = [5 , 5, 3, 3, 2]. The following methods are involved in the comparison: 
+
+• PGWS (α): PGWS with the quantile-calibrated posterior abstention threshold ̂ rT,α , so that the ab-stention probability is α.
+
+• Unif (α): Uniform allocation, followed by recommending the posterior leader. Use the same terminal statistic and calibration procedure as PGWS .
+
+• BayesElim (Atsidakou et al., 2023): Bayesian elimination without abstention, used as a forced-decision Bayesian BAI baseline. 12 For PGWS (α) and Unif (α), the abstention threshold is calibrated separately for each sampling rule, budget T , so that the abstention probability is upper bounded by α. Specifically, the abstention threshold is the lower α-quantile rT,α defined in (2.4). For PGWS (α), for each given budget T and abstention level 
+
+α, we apply the given sampling rule and generate terminal statistic samples {R(m) 
+
+> T
+
+}m∈[Mcal ] of independent 
+
+Mcal = 10 5 simulations from the prior. We approximate the abstention threshold rT,α by its empirical estimate ̂
+
+rT,α := min 
+
+{
+
+r : 1
+
+Mcal 
+
+> Mcal
+
+∑
+
+> m=1
+> 1
+
+{R(m) 
+
+> T
+
+≤ r} ≥ α
+
+}
+
+.
+
+For α = 0, there is no abstention and the algorithm always recommends the posterior mean leader. The performance is evaluated on an independent test sample of Mtest = 10 6 prior-generated experiments. For each method, budget T , and abstention level α, we compute the empirical abstention probability and empirical undetected error probability as follows: ̂
+
+AT := 1
+
+Mtest 
+
+> Mtest
+
+∑
+
+> m=1
+> 1
+
+{̂ a(m) 
+
+> T
+
+=? }, and ̂ ET := 1
+
+Mtest 
+
+> Mtest
+
+∑
+
+> m=1
+> 1
+
+{̂ a(m) 
+
+> T
+
+/∈ { a⋆, (m), ?}},
+
+where a⋆, (m) denotes the true best arm in the mth prior-generated experiment, and ̂ a(m) 
+
+> T
+
+∈ [K] ∪ { ?} is the terminal output of the algorithm. 
+
+## 5.2 Effect of Abstention 
+
+In the first experiment, we aim to demonstrate the value of abstention. We run PGWS (α) for α ∈{0, 0.01 , 0.03 , 0.05 } over a range of budgets T , and report the empirical undetected error probability ̂ ET .The empirical abstention rate ̂ AT is reported separately to verify the correctness of threshold calibration. The results are shown in Figure 1: 
+
+• Significant reduction in undetected error probability (Figure 1(a)): The forced-decision base-lines ( PGWS (0) and BayesElim (Atsidakou et al., 2023)) exhibit a significantly slower decay in the error probability compared to the case where abstention is allowed, i.e., PGWS (α) for positive α.This corroborates our main result in Theorem 2.1: spending a small fraction of inconclusive decisions on the most ambiguous instances yields an exponential reduction in terminal misidentifications. In addition, Figure 1(a) also shows that the curves for PGWS (α) when α is positive are approximately affine, demonstrating exponential decay in the undetected error probability. 
+
+• Abstention calibration (Figure 1(b)): Across all budgets T , PGWS (α) adheres to the prescribed abstention targets without being overly conservative. This validates the practical reliability of our calibrated abstention threshold. 
+
+## 5.3 Effect of Adaptive Sampling in PGWS 
+
+The second experiment illustrates the effectiveness of the sampling strategy of PGWS as in (2.2), which adapts to the instance. We compare PGWS (α) with uniform allocation Unif (α) for the abstention lev-els α ∈ { 0, 0.01 , 0.05 }, and the results are shown in Figure 2. We observe that for every abstention level, 
+
+PGWS (α) achieves a significantly lower undetected error probability than Unif (α) across all budgets. The performance gap highlights the practical superiority of our algorithm’s adaptive sampling design. By dy-namically concentrating the sampling budget on the posterior mean leader and its most relevant challengers, rather than wasting pulls uniformly across all arms, the algorithm more efficiently resolves the ambiguous near-tie instances that dominate the Bayes error probability. 13 100 
+
+> 1000
+> 2000
+> 4000
+> 6000
+> 8000
+> 10000
+
+Budget 𝑇 
+
+> 10 −6
+> 10 −5
+> 10 −4
+> 10 −3
+> 10 −2
+> 10 −1
+> Empirical Undetected Error Prob
+> BayesElim
+> PGWS (0)
+> PGWS (0.01 )
+> PGWS (0.03 )
+> PGWS (0.05 )
+
+(a) ̂ ET against T (b) ̂ AT against T
+
+Figure 1: Plots of the undetected and abstention probabilities as functions of the budget T
+
+> 100
+> 1000
+> 2000
+> 4000
+> 6000
+> 8000
+> 10000
+
+Budg et 𝑇 
+
+> 10 −6
+> 10 −5
+> 10 −4
+> 10 −3
+> 10 −2
+> 10 −1
+> Empirical Undetected Error Prob  Unif (0)
+> PGWS (0)
+> Unif (0.01 )
+> PGWS (0.01 )
+> Unif (0.05 )
+> PGWS (0.05 )
+
+Figure 2: Comparison of PGWS to the algorithm which samples arms uniformly at random. 
+
+# 6 Conclusion 
+
+In this paper, we studied Bayesian FB-BAI with an abstention option. We characterized the sharp small-abstention, large-budget exponent: 
+
+ET (α) = exp 
+
+{
+
+− α2T
+
+8κ2
+
+> ν
+
++ o(α2T )
+
+}
+
+.
+
+The exponent is governed by the density κν of the prior top-two gap at zero. We proposed PGWS , an adaptive algorithm that allocates samples to the posterior mean leader and its challengers. PGWS samples arms according to the empirical allocation distribution which is proportional to the reciprocal of the squared posterior mean gaps. It achieves the same exponent as the information-theoretic lower bound. Hence it is asymptotically optimal on the α2T logarithmic scale. Numerical experiments support the practicality of our theoretical findings. Our results clarify the benefits of abstention. Without abstention, Bayesian BAI has only a polynomial error decay, driven by prior probability on instances with top-two gap of order T −1/2. With abstention, the learner can spend its abstention budget on these near-tie instances, leading to exponentially decaying 14 undetected error. In contrast, in the frequentist fixed-gap setting, ordinary BAI is already exponentially accurate, and abstention improves only lower-order terms in the exponent. Finally, we showed that the same mechanism extends beyond the Gaussian model under continuous prior, one parameter exponential family reward, and quadratic KL growth conditions, with the Gaussian top-two gap density replaced by an information-scaled top-two gap density. 15 Appendix A Prior Density of the Top-Two Gap at Zero 
+
+Lemma A.1 (Prior Density of the Top-Two Gap at Zero) . The hardness parameter κν and the top-two gap 
+
+Γ are related as follows: 
+
+κν = lim 
+
+> ε↓0
+
+Pν (Γ ≤ ε)
+
+ε .
+
+Proof. For each arm i ∈ [K], the event that arm i is the best and the top-two gap is at most ε is {μi = μ(1) , μ (1) − μ(2) ≤ ε} . Conditional on {μi = x}, this event says that the means of all the other arms are at most x and at least one other arm is in [ x − ε, x ]. Hence 
+
+P(Γ ≤ ε) = 
+
+> K
+
+∑
+
+> i=1
+
+P(μi = μ(1) , μ (1) − μ(2) ≤ ε) = 
+
+> K
+
+∑
+
+> i=1
+
+∫
+
+> R
+
+fi(x)
+
+∏ 
+
+> k6=i
+
+Fk(x) − ∏ 
+
+> k6=i
+
+Fk(x − ε)
+
+ dx
+
+Let Gi(x) := ∏  
+
+> k6=i
+
+Fk(x), then G′
+
+> i
+
+(x) = ∑ 
+
+> j6=i
+
+(fj (x) ∏  
+
+> k6=i,j
+
+Fk(x)). By the fundamental theorem of calculus, 
+
+Gi(x) − Gi(x − ε) = ∫ xx−ε G′
+
+> i
+
+(u) d u. Additionally, by the dominated convergence theorem, as ε → 0, 
+
+P(Γ ≤ ε)
+
+ε =
+
+> K
+
+∑
+
+> i=1
+
+∫
+
+> R
+
+fi(x)
+
+[ Gi(x) − Gi(x − ε)
+
+ε
+
+]
+
+dx →
+
+> K
+
+∑
+
+> i=1
+
+∑ 
+
+> j6=i
+
+∫
+
+> R
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+Fk(x) d x. 
+
+It remains to simplify the product of the Gaussian densities. For i < j ,
+
+fi(x)fj (x) = 1
+
+2πσ 20
+
+exp 
+
+(
+
+− (x − νi)2 + ( x − νj )2
+
+2σ20
+
+)
+
+= 1
+
+2√π σ 0
+
+exp 
+
+(
+
+− (νi − νj )2
+
+4σ20
+
+)
+
+gij (x),
+
+where gij is the density of N
+
+( νi +νj 
+
+> 2
+
+, σ20
+
+> 2
+
+)
+
+. Therefore 2
+
+∫
+
+> R
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+Fk(x) d x = 1
+
+σ0
+
+√π exp 
+
+(
+
+− (νi − νj )2
+
+4σ20
+
+) ∫ 
+
+> R
+
+gij (x) ∏ 
+
+> k6=i,j
+
+Fk(x) d x
+
+= 1
+
+σ0
+
+√π exp 
+
+(
+
+− (νi − νj )2
+
+4σ20
+
+)
+
+wij .
+
+Summing over i < j proves the claim. 
+
+# B Proof of Theorem 2.1 
+
+## B.1 Error Guarantee 
+
+Proof of Lemma 2.1. If the algorithm recommends ̂ bT , then conditional on FT ,
+
+P(a⋆ 6 =̂ bT | F T ) ≤ ∑  
+
+> j6=̂bT
+
+P(μj ≥ μ̂ bT | F T ).
+
+As usual, let μ = ( μ1, . . . , μ K ). By the independent Gaussian prior and the arm-wise reward model, the posterior factorizes across arms even under adaptive sampling: 
+
+p(μ | F T ) ∝
+
+> K
+
+∏
+
+> i=1
+
+p(μi) 
+
+> Ni(T)
+
+∏
+
+> s=1
+
+p(Yi,s | μi)
+
+ .
+
+16 Consequently, the law of the means is 
+
+L(μ1, . . . , μ K | F T ) = 
+
+> K
+
+⊗
+
+> i=1
+
+N (Mi(T ), V i(T )) ,
+
+thus the arm means μ1, . . . , μ K are mutually independent conditional on FT .Furthermore, Mi(T ) and Vi(T ) are FT -measurable, and therefore ̂ bT = arg max i Mi(T ) is also FT -measurable. Hence, conditional on FT , the random index ̂ bT is fixed. Thus, for each j 6 =̂ bT ,
+
+μ̂ bT − μj | F T ∼ N 
+
+(
+
+M̂ bT (T ) − Mj (T ), V ̂bT (T ) + Vj (T )
+
+)
+
+.
+
+Therefore, using Φ( −x) ≤ e−x2/2 for x ≥ 0, 
+
+P(μj ≥ μ̂ bT | F T ) = Φ 
+
+− M̂ bT (T ) − Mj (T )
+
+√
+
+V̂bT (T ) + Vj (T )
+
+ ≤ exp 
+
+(
+
+−
+
+(M̂ bT (T ) − Mj (T ))2
+
+2(V̂bT (T ) + Vj (T )))
+
+.
+
+By definition of RT , on the event that the algorithm does not abstain we have RT ≥ rT,α . Hence, on this event, P(a⋆ 6 =̂ bT | F T ) ≤ (K − 1) e−RT ≤ (K − 1) e−rT ,α .
+
+Taking expectation gives 
+
+ET = E
+
+[
+
+> 1
+
+{̂ aT 6 =? }P(a⋆ 6 =̂ bT | F T )
+
+]
+
+≤ (K − 1) e−rT ,α .
+
+## B.2 Asymptotic Behavior of the Statistic RT
+
+To analyze the (asymptotic) behavior of rT,α , we first analyze RT .For ease of notation, we introduce auxiliary unnormalized weights. At time t, define ̂ bt and ̂ ∆i(t) from the posterior means as in Algorithm 1. We also define ̂ Γt =̂ ∆̂bt (t). Set ŵbt (t) = 1, wj (t) = (̂ Γt̂ 
+
+> ∆j(t)
+
+)2 for 
+
+j 6 =̂ bt, and W (t) := ∑Kℓ=1 wℓ(t). Then, on every non-forced round, the sampling rule in (2.2) in Algorithm 1 can be written equivalently as pi(t) = wi(t)  
+
+> W(t)
+
+for i ∈ [K]. Let b⋆ := arg max i∈[K] μi be the true best arm which is unique almost surely. For j 6 = b⋆, define the true gap ∆ j := μb⋆ − μj > 0. Recall that the true top-two gap is Γ := min j6 =b⋆ ∆j = μ(1) − μ(2) .Define the (deterministic) unnormalized limiting sampling weights 
+
+w† 
+
+> b⋆
+
+(μ) := 1 , and w† 
+
+> j
+
+(μ) := 
+
+( Γ
+
+∆j
+
+)2
+
+, j 6 = b⋆,
+
+Also define their sum, which is the normalization constant for the sampling distribution 
+
+W †(μ) := 
+
+> K
+
+∑
+
+> ℓ=1
+
+w† 
+
+> ℓ
+
+(μ) = 1 + ∑ 
+
+> j6=b⋆
+
+( Γ
+
+∆j
+
+)2
+
+. (B.1) Finally, define the limiting sampling proportions 
+
+p† 
+
+> i
+
+(μ) := w† 
+
+> i
+
+(μ)
+
+W †(μ) = w† 
+
+> i
+
+(μ)
+
+∑Kℓ=1 w† 
+
+> ℓ
+
+(μ) ,
+
+as well as the worst-case pairwise error exponent 
+
+C†(μ) := min  
+
+> j6=b⋆
+
+∆2
+
+> j
+
+2
+
+(
+
+1/p † 
+
+> b⋆
+
+(μ) + 1 /p † 
+
+> j
+
+(μ)
+
+) .
+
+Next we simplify C†(μ). 17 Lemma B.1 (Explicit Form of the Limiting Exponent) . Almost surely, 
+
+C†(μ) = Γ2
+
+4W †(μ) .
+
+In particular, 
+
+Γ2
+
+4K ≤ C†(μ) ≤ Γ2
+
+8 .
+
+Proof. By definition, the normalized sampling proportions are: 
+
+p† 
+
+> b⋆
+
+= 1
+
+W †(μ) , and p† 
+
+> j
+
+= Γ2/∆2
+
+> j
+
+W †(μ) .
+
+We substitute these proportions into the pairwise error exponent for a specific challenger j:∆2
+
+> j
+
+2
+
+(
+
+1/p † 
+
+> b⋆
+
++ 1 /p †
+
+> j
+
+) = ∆2
+
+> j
+
+2W †(μ) (1 + ∆ 2 
+
+> j
+
+/Γ2) .
+
+To isolate the effect of the gap, we factor out Γ2   
+
+> 2W†(μ)
+
+and express the remainder as a function of the relative gap rj := ∆ j /Γ: ∆2
+
+> j
+
+2
+
+(
+
+1/p † 
+
+> b⋆
+
++ 1 /p †
+
+> j
+
+) = Γ2
+
+2W †(μ)
+
+[ (∆ j /Γ) 2
+
+1 + (∆ j /Γ) 2
+
+]
+
+= Γ2
+
+2W †(μ)
+
+( r2
+
+> j
+
+1 + r2
+
+> j
+
+)
+
+.
+
+Now, recall the limiting exponent C†(μ) is defined as the minimum of this expression over all challengers 
+
+j 6 = b⋆. Observe that the function f (r) = r2 
+
+> 1+ r2
+
+is increasing on [1 , ∞). Since ∆ j /Γ ≥ 1 for all j 6 = b⋆, the minimum is attained by a second-best arm, for which ∆ j = Γ: 
+
+C†(μ) = Γ2
+
+2W †(μ)
+
+( 12
+
+1 + 1 2
+
+)
+
+= Γ2
+
+4W †(μ) .
+
+Also, because w† 
+
+> b⋆
+
+= 1, the second-best arm has weight 1, and all other weights are at most 1, we have 2 ≤ W †(μ) ≤ K. Substituting back gives Γ2
+
+4K ≤ C†(μ) ≤ Γ2
+
+8 .
+
+Next, we prove that the forced-exploration safeguard collects enough data to guarantee the posterior mean of every arm converges to its true mean. 
+
+Lemma B.2 (Posterior Consistency) . For every arm i,
+
+Mi(t) → μi almost surely . (B.2) 
+
+Proof. First, recall that the algorithm’s forced-exploration samples arm i whenever Ni(t) < √t + 1, this guarantees that as t → ∞ , Ni(t) → ∞ for every i.Second, conditional on a specific realization of the true mean μi, the reward sequence ( Yi,s )s≥1 consists of mutually independent draws from N (μi, 1). Therefore, by the Strong Law of Large Numbers, the conditional probability of the empirical average converging to μi is 1. Integrating this over the prior of μi, we have 1
+
+Ni(t)
+
+> Ni(t)
+
+∑
+
+> s=1
+
+Yi,s → μi almost surely .
+
+18 Finally, recall our algorithm’s update for the posterior mean: 
+
+Mi(t) = σ−20 νi + ∑Ni(t) 
+
+> s=1
+
+Yi,s 
+
+σ−20 + Ni(t) .
+
+Combining the previous two displayed equations yields (B.2). 
+
+Next, we show that the empirical allocation of arm pulls converges to the sampling proportions. 
+
+Lemma B.3 (Convergence of Empirical Sampling Proportions) . For every arm i,
+
+Ni(T )
+
+T → p† 
+
+> i
+
+(μ) almost surely . (B.3) 
+
+Proof. Fix an arm i. We proceed in four steps: 
+
+Step 1: Forced exploration is negligible. Let Fi(T ) be the number of forced-exploration pulls of arm i up to time T . If the m-th forced pull of arm i occurs before time T , then immediately before that pull, 
+
+Ni(t) ≥ m−1. But a forced pull of arm i can occur only if Ni(t) < √t + 1 ≤ √T + 1. Hence m−1 < √T + 1, and therefore Fi(T ) ≤ ⌈ √T + 1 ⌉ + 1. Consequently, 
+
+Fi(T )
+
+T → 0.
+
+Let F (T ) be the total number of forced-exploration rounds up to time T . Since F (T ) = ∑Kℓ=1 Fℓ(T ), we also have F (T )
+
+T ≤ K(⌈√T + 1 ⌉ + 1) 
+
+T → 0.
+
+Step 2: Martingale concentration on non-forced rounds. Let Ft be the history before round 
+
+t + 1, and define Bt := 1{round t + 1 is non-forced }. The event {Bt = 1 } is Ft-measurable. On non-forced rounds, the algorithm samples arm i with conditional probability pi(t). Define Di,t +1 := Bt
+
+(1{At+1 = i} − pi(t)). Then E[Di,t +1 | F t] = 0, so ( Di,t +1 )t≥0 is a martingale difference sequence. Also, |Di,t +1 | ≤ 1. Therefore, by Azuma’s inequality, for every ε > 0, 
+
+P
+
+(∣∣∣∣
+
+1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 
+
+∣∣∣∣ ≥ ε
+
+)
+
+≤ 2 exp 
+
+(
+
+− ε2T
+
+2
+
+)
+
+.
+
+The right-hand side is summable in T . Hence, by the Borel–Cantelli lemma, 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 → 0 almost surely .
+
+Step 3: Decomposition of the empirical pull count. The total number of pulls of arm i can be decomposed as 
+
+Ni(T ) = Fi(T ) +  
+
+> T−1
+
+∑
+
+> t=0
+
+Bt1{At+1 = i}.
+
+Using the definition of Di,t +1 , we have Bt1{At+1 = i} = Di,t +1 + Btpi(t). Thus 
+
+Ni(T )
+
+T = Fi(T )
+
+T + 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 + 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t).
+
+19 By Steps 1 and 2, 
+
+Ni(T )
+
+T − 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) → 0 almost surely .
+
+Step 4: Ces` aro convergence of the target probabilities. By Lemma B.2, M (t) → μ almost surely. Since the prior is continuous, the true best arm and true second-best arm are unique almost surely. On this probability-one event, the map m 7 → p(m) is continuous at m = μ. Therefore, as t → ∞ ,
+
+pi(t) → p† 
+
+> i
+
+(μ) almost surely .
+
+Hence, the sequence {pi(t)} is also Ces` aro convergent, i.e., 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+pi(t) → p† 
+
+> i
+
+(μ) almost surely .
+
+Now write 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) = 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+pi(t) − 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt)pi(t).
+
+Since 0 ≤ pi(t) ≤ 1, 0 ≤ 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt)pi(t) ≤ 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt) = F (T )
+
+T → 0.
+
+Hence 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) → p† 
+
+> i
+
+(μ) almost surely .
+
+Combining this with Step 3 gives (B.3). 
+
+Finally, we show that the statistic RT /T converges to C†(μ). 
+
+Lemma B.4 (Convergence of the Terminal Statistic) . Under the joint Bayesian law, 
+
+RT
+
+T → C†(μ) almost surely . (B.4) 
+
+Proof. By Lemma B.2, Mi(T ) → μi for every i. Since the true best arm is unique almost surely, ̂ bT = b⋆ for 
+
+T large enough. So for every j 6 = b⋆, Mb⋆ (T ) − Mj (T ) → ∆j .Recall Vi(T ) = 1   
+
+> σ−20+Ni(T)
+
+. Furthermore, by Lemma B.3, Ni(T ) 
+
+> T
+
+→ p† 
+
+> i
+
+(μ). Hence 
+
+T V i(T ) = T
+
+σ−20 + Ni(T ) → 1
+
+p† 
+
+> i
+
+(μ) .
+
+Therefore, for every j 6 = b⋆,1
+
+T
+
+(Mb⋆ (T ) − Mj (T ))2
+
+2(Vb⋆ (T ) + Vj (T )) → ∆2
+
+> j
+
+2
+
+(
+
+1/p † 
+
+> b⋆
+
+(μ) + 1 /p † 
+
+> j
+
+(μ)
+
+) .
+
+Taking the minimum over j 6 = b⋆ proves (B.4) as desired. 
+
+20 B.3 Lower Tail of the Exponent 
+
+We now analyze the lower tail of C†(μ). We first bound the event that the means of three or more arms are 
+
+ε-close. 
+
+Lemma B.5 (Triple Near-Tie Probability) . Let Γ3 := μ(1) − μ(3) when K ≥ 3. If K = 2 , set Γ3 := + ∞.We have that as ε ↓ 0,
+
+P(Γ 3 ≤ ε) = O(ε2).
+
+Proof. For K = 2 the statement is trivial. Assume K ≥ 3. If Γ 3 ≤ ε, then there exist three distinct arms 
+
+i, j, k such that all three means lie within an interval of length ε around the largest of the three. By a union bound over ordered triples, 
+
+P(Γ 3 ≤ ε) ≤ ∑ 
+
+> i6=j6=k
+
+∫
+
+> R
+
+fi(x)
+
+[∫ xx−ε
+
+fj (y) d y
+
+] [∫ xx−ε
+
+fk(z) d z
+
+]
+
+dx. 
+
+Gaussian densities are bounded uniformly by ( σ0
+
+√2π)−1, so each inner integral is O(ε) uniformly in x. Since ∫ fi(x) d x = 1, the whole expression is O(ε2). 
+
+Remark B.1. This lemma reveals why asymptotically the leading-order complexity of the abstention problem depends only on pairwise gaps. While a two-arm near-tie forms the primary statistical bottleneck (occurring with probability O(ε)), the event that three or more arms are simultaneously tied is one order rarer (namely, 
+
+O(ε2)). Consequently, in the small-abstention regime, the asymptotic error exponent is perfectly captured by the closest challenger alone; the statistical cost of separating third-best (and worse) arms vanishes. 
+
+Next, we show that W †(μ), defined in (B.1), is approximately 2 when C†(μ) is small, because it is unlikely (by Lemma B.5) that many other arms are close to the optimal. Consequently, Γ 2/8 and C†(μ)behave similarly. 
+
+Lemma B.6 (Lower Tail of C†(μ)) . As x ↓ 0,
+
+P(C†(μ) ≤ x) = κν
+
+√8x + o(√x). (B.5) 
+
+Proof. By Lemma B.1, C†(μ) = Γ2   
+
+> 4W†(μ)
+
+≤ Γ2 
+
+> 8
+
+. Therefore {Γ ≤ √8x} ⊆ { C†(μ) ≤ x}.Using Lemma A.1, 
+
+P(C†(μ) ≤ x) ≥ P(Γ ≤ √8x) = κν
+
+√8x + o(√x).
+
+On the other hand, to derive an upper bound, set δx := x3/8. On the event {C†(μ) ≤ x}, Lemma B.1 yields Γ2 ≤ 4Kx , because W †(μ) ≤ K. On the additional event {Γ3 > δ x}, every arm other than the top two has gap at least δx from the best arm. Hence, for every such arm k,
+
+( Γ
+
+∆k
+
+)2
+
+≤ 4Kx 
+
+δ2
+
+> x
+
+= 4 Kx 1/4 = o(1) as x ↓ 0.
+
+Thus, on {C†(μ) ≤ x, Γ3 > δ x}, we have 
+
+W †(μ) = 
+
+> K
+
+∑
+
+> ℓ=1
+
+w† 
+
+> ℓ
+
+(μ) = 1 + ∑ 
+
+> j6=b⋆
+
+( Γ
+
+∆j
+
+)2
+
+= 2 + o(1) ,
+
+uniformly as x ↓ 0. Therefore, for every fixed η > 0 and all sufficiently small x,
+
+C†(μ) ≤ x, Γ3 > δ x =⇒ Γ = 2 
+
+√
+
+C†(μ)W †(μ) ≤ (1 + η)√8x. 
+
+21 Consequently, 
+
+P(C†(μ) ≤ x) ≤ P(Γ ≤ (1 + η)√8x) + P(Γ 3 ≤ δx).
+
+By Lemma A.1, 
+
+P(Γ ≤ (1 + η)√8x) = (1 + η)κν
+
+√8x + o(√x).
+
+By Lemma B.5, 
+
+P(Γ 3 ≤ δx) = O(δ2
+
+> x
+
+) = O(x3/4 ) = o(√x).
+
+Thus lim sup 
+
+> x↓0
+
+P(C†(μ) ≤ x)
+
+√x ≤ (1 + η)κν
+
+√8.
+
+Letting η ↓ 0 gives the matching upper bound, and hence we obtain (B.5). 
+
+## B.4 Lower Bound on the Calibration Threshold rT,α 
+
+Proof of Lemma 2.2. Fix ε ∈ (0 , 1) and set xα,ε := (1 − ε) 1
+
+> 8κ2
+> ν
+
+α2. By Lemma B.6, 
+
+P(C†(μ) ≤ xα,ε ) = κν
+
+√
+
+8(1 − ε) 1
+
+8κ2
+
+> ν
+
+α + o(α) = √1 − ε α + o(α).
+
+Hence, for sufficiently small α, P(C†(μ) ≤ xα,ε ) < α .Additionally, by Lemma B.4, RT 
+
+> T
+
+→ C†(μ) almost surely. Therefore we also have convergence in distri-bution. By the Portmanteau theorem applied to the closed set ( −∞ , x α,ε ], lim sup  
+
+> T→∞
+
+P
+
+( RT
+
+T ≤ xα,ε 
+
+)
+
+≤ P(C†(μ) ≤ xα,ε ) < α. 
+
+Hence for all sufficiently large T ,
+
+P(RT ≤ xα,ε T ) < α. 
+
+By the definition of rT,α as the lower α-quantile of RT , this implies 
+
+rT,α ≥ xα,ε T = (1 − ε) 1
+
+8κ2
+
+> ν
+
+α2T. 
+
+# C Proof of Theorem 3.1 
+
+We aim to lower bound the Bayes undetected error probability subject to an upper bound on the Bayes abstention probability. We begin by expressing these global probabilities over the full parameter (mean of the arms) space RK , i.e., 
+
+AT (π) = 
+
+∫
+
+> RK
+
+Pπμ(̂a =?) Pν (d μ), and ET (π) = 
+
+∫
+
+> RK
+
+Pπμ
+
+(̂ aT /∈ { a⋆(μ), ?}) Pν (d μ).
+
+Inspired by the form of the prior complexity κν , it is natural to partition the parameter space RK
+
+according to the top pair of arms. For any pair i < j , define the region Ω ij where arms i and j strictly dominate all the other arms, i.e., Ωij := 
+
+{
+
+μ ∈ RK : min {μi, μ j } > max   
+
+> k6=i,j
+
+μk
+
+}
+
+.
+
+22 Because the boundaries between these regions correspond to tie events and hence have Pν -measure zero, the sets Ω ij form a partition of the parameter space up to Pν -null sets. Thus, we can decompose the abstention and undetected error probability as: 
+
+AT (π) = ∑
+
+> i<j
+
+∫
+
+> Ωij
+
+Pπμ(̂a =?) Pν (d μ), and ET (π) = ∑
+
+> i<j
+
+∫
+
+> Ωij
+
+Pπμ
+
+(̂ aT /∈ { a⋆(μ), ?}) Pν (d μ).
+
+Ultimately, we want to lower bound the undetected error ET (π) using a Neyman–Pearson lemma (cf. Lehmann and Romano (2005)) style rearrangement. However, working directly with the restricted true prior  
+
+> 1Ωij
+
+(μ)Pν (d μ) presents significant technical hurdles. This is overcome by the introduction of a submeasure, which we call a flat local subprior .
+
+## C.1 A Submeasure: Flat Local Subprior 
+
+To resolve the difficulties of integrating over Ω ij , we construct a mathematically cleaner measure Qρ that is a submeasure of the true Gaussian prior Pν , where ρ ∈ (0 , 1) is a fixed slack parameter. 
+
+Definition C.1 (Local Change of Variable) . For a fixed pair of arms i < j , we reparameterize the mean vector μ ∈ RK into (i, j, x, δ, h, ζ −ij ), a “local” coordinate system defined by the top two arms, their gap, and the other arms. Specifically, 
+
+• x ∈ R: the midpoint of the top two arms’ means. 
+
+• δ ≥ 0: the absolute gap between the top two arms. 
+
+• h ∈ { +1 , −1}: the sign indicating which arm is better ( h = +1 for arm i, h = −1 for arm j). 
+
+• ζ−ij = ( ζk)k6 =i,j : the means of the remaining K − 2 arms. We consolidate the background variables, i, j, x, ζ −ij , into one tuple ξ = ( i, j, x, ζ −ij ). Given ξ, δ, and h, the inverse mapping μ(ξ, δ, h ) ∈ RK is defined as: 
+
+μi = x + h δ
+
+2 , μj = x − h δ
+
+2 , and μk = ζk for k 6 = i, j. (C.1) 
+
+Note the absolute value of the determinant of the Jacobian of the map (x, δ ) 7 → (μi, μ j ) is 1.
+
+Remark C.1. To see why the restricted true prior is difficult to work with, let ψ : RK → R≥0 be any non-negative measurable function. Applying the local coordinate transformation in (C.1) to the true prior over the partitioned space yields: 
+
+∫
+
+> RK
+
+ψ(μ)Pν (d μ) = ∑
+
+> i<j
+
+∫
+
+> Ωij
+
+ψ(μ)pν (μ) d μ
+
+= ∑
+
+> i<j
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫ ∞
+
+> 0
+
+∫ 
+
+> Dij (δ)
+
+ψ(μ(ξ, δ, h ))[
+
+fi
+
+(
+
+x + h δ
+
+2
+
+)
+
+fj
+
+(
+
+x − h δ
+
+2
+
+) ∏  
+
+> k6=i,j
+
+fk(ζk)
+
+]
+
+dξ dδ, 
+
+where dξ = d x dζ−ij , and the domain of integration 
+
+Dij (δ) := 
+
+{
+
+(x, ζ −ij ) ∈ RK−1 : max   
+
+> k6=i,j
+
+ζk < x − δ
+
+2
+
+}
+
+depends on the gap δ. The expansion of ∫ 
+
+> RK
+
+ψ(μ)Pν (d μ) above reveals the technical hurdles: the domain of integration Dij (δ) shrinks as the gap δ grows, and the densities fi and fj fluctuate with both the gap δ and the sign h. To overcome these hurdles, we construct Qρ to eliminate these dependencies by restricting (x, ζ −ij )
+
+to a smaller set, and by lower bounding fi
+
+(x + h δ
+
+> 2
+
+) fj
+
+(x − h δ
+
+> 2
+
+) with (1 − ρ)fi(x)fj (x), which depends on neither δ nor h.
+
+23 For ℓ > 0 and M > 0, and for each pair 1 ≤ i < j ≤ K, define the ( ℓ, M )-restricted set 
+
+Cij (ℓ, M ) := {(x, ζ −ij ) : |x| ≤ M, |ζk| ≤ M, ζ k ≤ x − ℓ for all k 6 = i, j } .
+
+Let Cρ = ∪i<j Cij (ℓ, M ) denote the disjoint union of Cij (ℓ, M ) over all arm pairs i < j . Recall that we defined 
+
+κν = ∑
+
+> i6=j
+
+∫
+
+> R
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+Fk (x) d x = 2 ∑
+
+> i<j
+
+∫ ∞−∞ 
+
+∫ x
+
+> −∞
+
+· · · 
+
+∫ x
+
+> −∞
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+fk(ζk) d ζ−ij 
+
+ dx. 
+
+By the monotone convergence theorem, for any ρ > 0, we can choose ℓ > 0 sufficiently small and M > 0sufficiently large such that: 2 ∑
+
+> i<j
+
+∫ 
+
+> Cij (ℓ,M )
+
+fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+fk(ζk) d ζ−ij dx ≥ (1 − ρ)κν .
+
+We now define a measure Λ ρ whose support is the set Cρ. Since Cρ is the disjoint union of Cij (ℓ, M ), we only need to specify Λ ρ for each pair i < j . For the pair i < j , Λ ρ takes the form Λρ(d ξ) := (1 − ρ)fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+fk(ζk ) d x dζ−ij (C.2) Let cρ := 2Λ ρ(Cρ) ≥ (1 − ρ)2κν .
+
+Lemma C.1 (Uniform Lower Bound) . There exists a gap δρ ∈ (0 , 2ℓ) such that, for all δ ∈ [0 , δ ρ], ξ ∈Cij (ℓ, M ), and h ∈ { +1 , −1}, the original densities satisfy the multiplicative bound: 
+
+(1 − ρ)fi(x)fj (x) ≤ fi
+
+(
+
+x + h δ
+
+2
+
+)
+
+fj
+
+(
+
+x − h δ
+
+2
+
+)
+
+.
+
+Furthermore, for any δ ∈ [0 , δ ρ], arms i and j are the top two arms because x − δ 
+
+> 2
+
+> x − ℓ ≥ ζk.Proof. For each ( i, j ), because Cij (ℓ, M ) is compact, the Gaussian densities defined on Cij (ℓ, M ) are (strictly) positive and uniformly continuous. Because ℓ > 0 separates the top pair of arms i, j from the other arms 
+
+k 6 = i, j , we can choose a sufficiently small δρ < 2ℓ such that the continuity of fi and fj guarantees the multiplicative bound over the interval [0 , δ ρ]. Since there are finitely many pairs, taking minimum of the pair-specific values of δρ yields the desired result. 
+
+We now define a convenient submeasure to work with later. 
+
+Definition C.2 (Flat Local Subprior) . Define the flat local subprior Qρ as 
+
+Qρ(E) := ∑
+
+> i<j
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫ 
+
+> Cij (ℓ,M )
+
+∫ δρ
+
+> 0
+> 1E
+
+(μ(ξ, δ, h )) dδ Λρ(d ξ) ∀ E ∈ B (RK ). (C.3) 
+
+Lemma C.2 (Domination) . The constructed measure Qρ in (C.3) is a submeasure of the true Gaussian prior Pν , i.e., Qρ ≤ Pν everywhere. Proof. For each i < j , let Sij := {μ(ξ, δ, h ) : ξ ∈ C ij (ℓ, M ), δ ∈ [0 , δ ρ], h ∈ { +1 , −1}} , and let S := ⋃ 
+
+> i<j
+
+Sij .For any Borel set E ⊆ RK , substituting the definition of Λ ρ in (C.2) into (C.3) gives 
+
+Qρ(E) = ∑
+
+> i<j
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫ 
+
+> Cij (ℓ,M )
+
+∫ δρ
+
+> 0
+> 1E
+
+(μ(ξ, δ, h ))(1 − ρ)fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+fk(ζk) d δ dx dζ−ij .
+
+24 0 δρ
+
+pν (δρ)(1 − ρ)pν (δρ)Local Pairwise Gap ( δ)Density (Unnormalized) 
+
+qρ ≤ pν
+
+ρ ↓ 0
+
+True Prior pν (δ)
+
+Flat Subprior qρ(δ)
+
+Limit lim ρ→0 qρ
+
+Figure 3: The true Gaussian prior Pν is bounded from below by the flat subprior Qρ on the interval [0 , δ ρ]. In the above, for brevity, we write the density as pν (δ) := pν (μ(ξ, δ, h )) and similarly for qρ.For each fixed i < j and h, the Jacobian determinant of the coordinate transformation in (C.1) has absolute value 1. Moreover, except on the null set {δ = 0 }, the sign h is uniquely determined by μi − μj , and the top-two pair {i, j } is uniquely determined on S. Hence Qρ has Lebesgue density 
+
+qρ
+
+(μ(ξ, δ, h )) = (1 − ρ)fi(x)fj (x) ∏ 
+
+> k6=i,j
+
+fk(ζk)for Lebesgue-almost every μ(ξ, δ, h ) ∈ S ij . Per the definition in (C.3), Qρ is supported on S, hence we also have qρ(μ) = 0 for Lebesgue-almost every μ / ∈ S .For μ = μ(ξ, δ, h ) ∈ S ij , the true prior density is 
+
+pν (μ) = fi
+
+(
+
+x + h δ
+
+2
+
+)
+
+fj
+
+(
+
+x − h δ
+
+2
+
+) ∏ 
+
+> k6=i,j
+
+fk(ζk ).
+
+Lemma C.1 therefore gives qρ(μ) ≤ pν (μ) for Lebesgue-almost every μ ∈ S . The same inequality holds outside S because qρ = 0 there. Consequently, for every Borel set E ⊆ RK ,
+
+Qρ(E) = 
+
+∫
+
+> E
+
+qρ(μ) d μ ≤
+
+∫
+
+> E
+
+pν (μ) d μ = Pν (E).
+
+Hence Qρ ≤ Pν .
+
+Figure 3 provides a visual intuition for this result, illustrating how the constructed flat subprior bounds the true Gaussian prior from below over the compact gap interval. 
+
+Lemma C.3 (Properties of Qρ). Let Ξ (background oracle), ∆ (gap), and H (sign) denote random quantities under Qρ. The construction of Qρ results in the following joint distribution: 
+
+Qρ(d μ) = Qρ(Ξ ∈ dξ, ∆ ∈ dδ, H = h) = Λ ρ(d ξ) d δ, h ∈ { +1 , −1}. (C.4) 
+
+Because Qρ is not a probability measure in general, we refer to the Qρ measure of a set as its Qρ-mass in the following. This measure has two important properties: 1. Fair Sign: Conditional on any realization (Ξ = ξ, ∆ = δ), the two signs have equal Qρ-mass, i.e., 
+
+Qρ(H = +1 | ξ, δ ) = Qρ(H = −1 | ξ, δ ).
+
+25 2. Flat Gap: The marginal unnormalized density of the gap is uniform, i.e., Qρ(∆ ∈ dδ) = cρ dδ for 
+
+δ ∈ [0 , δ ρ].Proof. By the definition of Qρ, the measure on the product space Cρ × [0 , δ ρ] × { +1 , −1} factors as Λ ρ(d ξ) ⊗
+
+dδ ⊗ 1{h}. Because this is a product measure that does not depend on h, the sign H occurs with equal probability 1 /2 regardless of Ξ or ∆. Furthermore, integrating out Ξ and H leaves the measure of the gap ∆ as 2Λ ρ(Cρ) d δ = cρ dδ, proving the flat gap property. 
+
+Lemma C.4 (Probability Domination Under Qρ). For any policy π, the Bayes probability evaluated under the subprior Qρ is a lower bound of the probability under the original prior Pν . Specifically, if a strategy π
+
+satisfies the abstention condition AT (π) ≤ α under Pν , it also satisfies: 
+
+AQρ 
+
+> T
+
+(π) := 
+
+∫
+
+> RK
+
+Pπμ(̂aT =?) Qρ(d μ) ≤ A T (π) ≤ α. 
+
+In addition, the true undetected error is lower bounded by the error evaluated under the subprior: 
+
+ET (π) ≥ E Qρ 
+
+> T
+
+(π) := 
+
+∫
+
+> RK
+
+Pπμ(̂aT /∈ { a⋆, ?}) Qρ(d μ).
+
+Proof. This follows directly from Lemma C.2. 
+
+This lemma explains how to use Qρ. Any strategy satisfying AT (π) ≤ α under the original prior also has 
+
+Qρ-abstention mass at most α. Consequently, to lower bound the original Bayes undetected error probability, it suffices to lower bound the error contributed by the flat subprior Qρ.
+
+## C.2 Oracle Reduction: Lower Bounding via a 2-Arm Hypothesis Testing Prob-lem 
+
+Next, we evaluate the probabilities under the local subprior Qρ. To isolate the fundamental difficulty of the problem, we reduce the K-arm task to a 2-arm hypothesis testing problem by giving the learner additional side (oracle) information. 
+
+Revealing Oracle Information. Before sampling begins, we reveal the background oracle Ξ = ( I, J, X, ζ −IJ ), which depends on the random means μ, to the learner. For a specific realization Ξ = ξ = ( i, j, x, ζ −ij ), this means the learner knows the identities of the top two arms, their midpoint x, and the means ζ−ij of all remaining background arms. Conditional on any realization of the background oracle Ξ = ξ, the only remaining random variables relevant to the decision under Qρ are the gap magnitude and the sign, i.e., ∆ ∈ [0 , δ ρ], and H ∈ { +1 , −1}.
+
+For ease of notation, we define the unknown signed gap Θ := H∆. Let Pξθ denote the probability law of the experiment conditional on the background oracle Ξ = ξ and the signed gap Θ = θ.Since any policy in the original experiment can be implemented in the oracle-revealed setting by simply ignoring the side information Ξ, any lower bound derived for this oracle-revealed experiment provides a lower bound for the original problem. Furthermore, since the background means are known, querying any arm other than i or j provides no information about the unknown gap Θ. We show that we can restrict our analysis to strategies that only sample the top two arms and output the decision of the sign; we call these 
+
+local pair strategies .26 Lemma C.5 (Sufficiency of Local Pair Strategies) . Fix a realization of the background oracle Ξ = ξ =(i, j, x, ζ −ij ). For any adaptive strategy π, there exists a modified strategy π′ that samples only arms i and 
+
+j, restricts its terminal recommendation to ̂ a′ 
+
+> T
+
+∈ { +, −, ?}, and satisfies for every signed-gap realization 
+
+θ ∈ [−δρ, δ ρ] \ { 0} with true sign h = sgn (θ) ∈ { +, −} , i.e., 
+
+Pξθ(̂a′ 
+
+> T
+
+=?) = Pξθ (̂aT =?) , and Pξθ (̂a′ 
+
+> T
+
+= −h) ≤ Pξθ(̂aT /∈ { a⋆(h), ?}), (C.5) 
+
+where a⋆(+) = i and a⋆(−) = j. This says that the abstention probability of π′ is unchanged from that of π
+
+and the undetected error probability of π′ is less than or equal to that of π.Proof. Fix ξ = ( i, j, x, ζ −ij ). We construct a modified strategy π′ from π that possesses the desired properties in (C.5). When π samples from an arm k ∈ { i, j }, π′ queries that same arm and feeds the observed reward back to 
+
+π. Whenever π chooses to sample from an arm k / ∈ { i, j }, π′ instead queries arm i, discards the true reward, and feeds π an independent simulated reward drawn from N (ζk , 1). Because Ξ = ξ is known, ζk is the true mean of arm k. Furthermore, for k 6 = i, j , the reward distributions of arm k are independent of the unknown signed gap Θ. Therefore, the simulated reward from π′ matches that from the true distribution of arm k. By induction, the internal history observed by π under π′ is identically distributed to the true history in the original experiment. Consequently, the terminal distribution of π is preserved for every θ.When π stops and outputs a recommendation ̂ aT , π′ maps this to a sign decision ̂ a′ 
+
+> T
+
+∈ { +, −, ?} as follows: i 7 → +, j 7 → − , ? 7 →?, and any k / ∈ { i, j, ?} is mapped arbitrarily to +. This map preserves the abstention probability. For the undetected error, recall that on the support of Qρ, arms i and j are strictly the top two arms. Thus, any original output k / ∈ { i, j, ?} is an error. If h = −, mapping k to + yields ̂
+
+a′ 
+
+> T
+
+= +, which is an incorrect sign, thereby preserving the error probability. If h = +, mapping k to + converts an original error into a correct guess, reducing the error probability. Thus, across all cases, the probability of an incorrect sign under π′ is less than or equal to the probability of an undetected error under 
+
+π, showing (C.5). 
+
+## C.3 Transformed Observations and Sufficient Statistics: 
+
+To establish clean analytical expressions for the abstention and undetected error probabilities, we now demonstrate that any decision rule acting on the full history of this restricted two-arm game can be reduced to a randomized decision rule acting on a scalar sufficient statistic, without altering any terminal-output probability. Fix the revealed background oracle realization Ξ = ξ = ( i, j, x, ζ −ij ), and consider strategies that sample only from arms i and j. Define the sign indicator for the arms: sgn( i) := +1 and sgn( j) := −1. At time 
+
+t, if the learner samples At ∈ { i, j } and observes the reward Xt, we define the transformed observation :
+
+Zt := sgn( At)( Xt − x).
+
+For any realization of the signed gap Θ = H∆ = θ, the means of the top two arms are: 
+
+μi = x + θ
+
+2 , and μj = x − θ
+
+2 .
+
+Let Pξθ denote the probability law of the experiment conditional on Ξ = ξ and Θ = θ. Furthermore, let: 
+
+Hξt := ( ξ, A 1, Z 1, . . . , A t, Z t) denote the transformed oracle history up to time t.
+
+Lemma C.6 (Transformed Observations are i.i.d.) . Fix an oracle realization Ξ = ξ and a signed-gap realization θ ∈ [−δρ, δ ρ]. Under Pξθ , conditionally on Hξt−1 and the chosen arm At ∈ { i, j }, the transformed observation satisfies: Zt ∼ N ( θ 
+
+> 2
+
+, 1) . i.e., under the full joint Bayesian law, 
+
+Zt | H ξt−1, A t = i, Θ = θ, Ξ = ξ ∼ N 
+
+( θ
+
+2 , 1
+
+)
+
+. (C.6) 27 Because this conditional law does not depend on the chosen arm At, the sequence Z1, . . . , Z T is identically and independently distributed as N (θ/ 2, 1) under Pξθ .Proof. If At = i, the true observation follows Xt | H ξt−1, A t = i, Θ = θ, Ξ = ξ ∼ N (x + θ 
+
+> 2
+
+, 1) . Applying the transformation Zt = Xt − x yields (C.6). While if At = j, the true observation follows Xt | H ξt−1, A t =
+
+j, Θ = θ, Ξ = ξ ∼ N (x − θ 
+
+> 2
+
+, 1). Similarly, applying the transformation yields (C.6). Thus, the conditional law of Zt is N (θ/ 2, 1) regardless of which of the two arms is chosen. Next we prove independence. Let γθ denote the measure corresponding to N (θ/ 2, 1). For any Borel set 
+
+B, we have: 
+
+Pξθ (Zt ∈ B | H ξt−1, A t) = γθ (B).
+
+Iterating this identity using the tower property shows that for any sequence of Borel sets B1, . . . , B T :
+
+Pξθ(Z1 ∈ B1, . . . , Z T ∈ BT ) = 
+
+> T
+
+∏
+
+> t=1
+
+γθ (Bt).
+
+Hence, given ξ and θ, Z1, . . . , Z T are i.i.d. over the transformed history. 
+
+We consolidate the sequence of observations into a sum and its time-scaled counterpart. Define: 
+
+W := 
+
+> T
+
+∑
+
+> t=1
+
+Zt, and V := W
+
+√T .
+
+Lemma C.7 (Likelihood Ratios Depend Only on W ). For every ξ and every θ ∈ [−δρ, δ ρ], the measure Pξθ
+
+is absolutely continuous with respect to Pξ 
+
+> 0
+
+(i.e., Pξθ ≪ Pξ
+
+> 0
+
+), and the likelihood ratio of the transformed oracle history HξT is: 
+
+dPξθ
+
+dPξ
+
+> 0
+
+(HξT ) = exp 
+
+( θ
+
+2 W − T θ 2
+
+8
+
+)
+
+= exp 
+
+(
+
+θ√T
+
+2 V − T θ 2
+
+8
+
+)
+
+.
+
+Consequently, W (and equivalently V ) is a sufficient statistic for θ.Proof. Let hT = ( ξ, a 1, z 1, . . . , a T , z T ) be the realized transformed oracle history, and let φ be the standard normal density as usual. Under Pξθ, the density of hT factors as: 
+
+pξθ (hT ) = 
+
+[ T∏
+
+> t=1
+
+πt(at | ξ, a 1, z 1, . . . , a t−1, z t−1)
+
+] T∏
+
+> t=1
+
+φ
+
+(
+
+zt − θ
+
+2
+
+)
+
+,
+
+where πt is the strategy’s sampling kernel at time t. Because the action probabilities are identical functions of the realized history under both Pξθ and Pξ
+
+> 0
+
+, they cancel in the likelihood ratio, i.e., 
+
+pξθ(hT )
+
+pξ
+
+> 0
+
+(hT ) =
+
+> T
+
+∏
+
+> t=1
+
+φ(zt − θ/ 2) 
+
+φ(zt) =
+
+> T
+
+∏
+
+> t=1
+
+exp 
+
+( θ
+
+2 zt − θ2
+
+8
+
+)
+
+.
+
+Aggregating the sum inside the exponential yields: 
+
+pξθ(hT )
+
+pξ
+
+> 0
+
+(hT ) = exp 
+
+(
+
+θ
+
+2
+
+> T
+
+∑
+
+> t=1
+
+zt − T θ 2
+
+8
+
+)
+
+= exp 
+
+( θ
+
+2 W − T θ 2
+
+8
+
+)
+
+.
+
+28 Lemma C.8 (Sufficiency of V for Terminal Decisions) . Fix the revealed background oracle realization Ξ = ξ.Let ˜ψξ = ( ˜ψξ
+
+> +
+
+, ˜ψξ
+
+> −
+
+, ˜ψξ 
+
+> ?
+
+) be any randomized terminal rule based on the transformed oracle history HξT , and let ̂ a ∈ { +, −, ?} be its random output. There exists a modified terminal rule ψξ depending on the history only through V , with random output ̂ aV ∈ { +, −, ?}, such that for every θ ∈ [−δρ, δ ρ] and every decision 
+
+d ∈ { +, −, ?}:
+
+Pξθ(̂aV = d) = Pξθ(̂a = d).
+
+Proof. By Lemma C.7, the likelihood ratio d Pξθ /dPξ 
+
+> 0
+
+is σ(W )-measurable. Since σ(V ) = σ(W ), it is also 
+
+σ(V )-measurable. Let ˜ψξd(hT ) denote the probability that the original terminal rule outputs decision d ∈ { +, −, ?} after observing transformed history hT . Let Qξ(v, dhT ) be a regular conditional distribution of HξT given V = v
+
+under Pξ
+
+> 0
+
+. i.e., Qξ(V, B ) is a version of Pξ
+
+> 0
+
+(
+
+HξT ∈ B | V
+
+)
+
+.By Lemma C.7, Pξθ(V ∈ dv ) = exp 
+
+( θ√T 
+
+> 2
+
+v − T θ 2
+
+> 8
+
+)
+
+Pξ
+
+> 0
+
+(V ∈ dv ). Therefore, for every measurable set B and 
+
+C ∈ B (R), 
+
+Pξθ
+
+(
+
+HξT ∈ B, V ∈ C
+
+)
+
+= Eξ
+
+> 0
+
+[
+
+exp 
+
+(
+
+θ√T
+
+2 V − T θ 2
+
+8
+
+)  
+
+> 1{H ξT∈B}1{V∈C}
+
+]
+
+=
+
+∫
+
+> C
+
+exp 
+
+(
+
+θ√T
+
+2 v − T θ 2
+
+8
+
+)
+
+Qξ(v, B )Pξ
+
+> 0
+
+(V ∈ dv)=
+
+∫
+
+> C
+
+Qξ(v, B )Pξθ (V ∈ dv).
+
+This implies that the kernel Qξ(v, dhT ) is a conditional law under Pξθ. Hence, for every bounded measurable 
+
+f ,
+
+Eξθ
+
+[f (HξT ) | V ] =
+
+∫
+
+f (hT )Qξ (V, dhT ) Pξθ -a.s., (C.7) Define the terminal rule ψξ = ( ψξ
+
+> +
+
+, ψ ξ
+
+> −
+
+, ψ ξ 
+
+> ?
+
+) via the kernel Qξ(v, dhT ) as follows: 
+
+ψξd(v) := 
+
+∫˜ψξd(hT ) Qξ(v, dhT ), d ∈ { +, −, ?}.
+
+By definition, ψξ
+
+> (·)
+
+(v) is a probability distribution on {+, −, ?}. For every signed-gap realization θ and every decision d ∈ { +, −, ?}, taking f = ˜ψξd in (C.7), the tower property guarantees: 
+
+Pξθ(̂aV = d) = Eξθ [ψξd(V )] = Eξθ
+
+[Eξθ [ ˜ψξd(HξT ) | V ]] = Eξθ [ ˜ψξd(HξT )] = Pξθ(̂a = d).
+
+Thus, the V -based rule preserves all probabilities under every realization of the signed-gap θ.
+
+## C.4 The Resulting Bayesian Flat Sign Experiment 
+
+We are now ready to express the abstention and undetected error probability by integrating over the local subprior Qρ.Recall from Lemma C.3 that on the local coordinate space, the subprior measure factors as in (C.4). Under the measure Qρ, conditional on (Ξ , ∆), the two signs have equal mass. The unnormalized marginal measure of the gap is Qρ(∆ ∈ dδ) = cρ dδ, where cρ = 2Λ ρ(Cρ). Define the rescaled gaps: G := ∆√T 
+
+> 2
+
+and LT := δρ 
+
+> √T
+> 2
+
+. Under Qρ, the support of the rescaled gap G is [0 , L T ]. For any realization G = g on the interval [0 , L T ], the corresponding absolute gap is δ = 2g√T , yielding the differential change of variables as follows: d δ = 2√T dg. 
+
+29 Applying Lemma C.6, the conditional distribution of V given the rescaled gap and sign is Gaussian and independent of the background oracle Ξ, namely, 
+
+V | (G = g, H = h, Ξ = ξ) ∼ N (hg, 1) . (C.8) This reduces the given experiment to one that has the following properties under Qρ:
+
+• The unnormalized marginal density of G is constant on [0 , L T ] (and zero elsewhere). 
+
+• H ∈ { +1 , −1} is uniform. 
+
+• V | (G = g, H = h) ∼ N (hg, 1). As established in Lemma C.8, any terminal decision can be represented by a V -based rule. Thus it suffices to consider rules that only depend on V . We represent this rule via the tuple of measurable functions 
+
+ψξ = ( ψξ
+
+> +
+
+, ψ ξ
+
+> −
+
+, ψ ξ 
+
+> ?
+
+), mapping the scalar v to the probability simplex on {+, −, ?}. In other words, ψξ
+
+> +
+
+(v) + 
+
+ψξ
+
+> −
+
+(v) + ψξ 
+
+> ?
+
+(v) = 1 . The superscript ξ indicates that the decision rule is allowed to depend on the revealed background oracle ξ. It follows that we can write 
+
+Pξhδ 
+
+(̂ aV =? ) = Eξhδ 
+
+[
+
+ψξ 
+
+> ?
+
+(V )
+
+]
+
+=
+
+∫
+
+> R
+
+ψξ 
+
+> ?
+
+(v)φ
+
+(
+
+v − h δ√T
+
+2
+
+)
+
+dv (C.9) For ease of notation, we define the unnormalized marginal density of V corresponding to ( H = +1) and (H = −1) sign realizations as follows: 
+
+AT (v) := 
+
+∫ LT
+
+> 0
+
+φ(v − g) d g, and BT (v) := 
+
+∫ LT
+
+> 0
+
+φ(v + g) d g. 
+
+Then we can express the total Qρ-abstention mass of any rule ψ as: 
+
+AQρ 
+
+> T
+
+(ψ) = 
+
+∫
+
+> RK
+
+Pμ
+
+(̂ aV =? ) Qρ(d μ)
+
+> (a)
+
+=
+
+∫
+
+> Cρ
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫ δρ
+
+> 0
+
+Pξhδ 
+
+(̂ aV =? ) dδ Λρ(d ξ)
+
+> (b)
+
+=
+
+∫
+
+> Cρ
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫ δρ
+
+> 0
+
+∫
+
+> R
+
+ψξ 
+
+> ?
+
+(v)φ
+
+(
+
+v − h δ√T
+
+2
+
+)
+
+dv dδ Λρ(d ξ)
+
+> (c)
+
+=
+
+∫
+
+> Cρ
+
+Λρ(d ξ) ∑
+
+> h∈{ +1 ,−1}
+
+∫ LT
+
+> 0
+
+(∫ 
+
+> R
+
+ψξ 
+
+> ?
+
+(v)φ(v − hg ) d v
+
+) 2
+
+√T dg
+
+= 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> R
+
+ψξ 
+
+> ?
+
+(v)[AT (v) + BT (v)] dv Λρ(d ξ),
+
+where ( a) is due to the fair sign property and factorization of Lemma C.3, ( b) is due to (C.9) and ( c) is due to change of variables with d δ = 2√T dg. 
+
+Similarly, an undetected error occurs when the rule outputs − when H = +1, or outputs + when H = −1. Hence the Qρ-undetected error mass can be expressed as: 
+
+EQρ 
+
+> T
+
+(ψ) = 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> R
+
+[
+
+ψξ
+
+> −
+
+(v)AT (v) + ψξ
+
+> +
+
+(v)BT (v)
+
+]
+
+dv Λρ(d ξ).
+
+30 C.5 Solving the Bayesian Flat Sign Experiment 
+
+We are now ready to solve the core optimization problem: establishing a lower bound on the undetected error probability EQρ 
+
+> T
+
+(ψ) for any terminal decision rule ψ that satisfies the abstention budget AQρ 
+
+> T
+
+(ψ) ≤ α.
+
+Lemma C.9 (Pointwise Optimal Sign Decision) . For every terminal decision rule ψ, the undetected error mass is bounded below as: 
+
+EQρ 
+
+> T
+
+(ψ) ≥ 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> R
+
+(1 − ψξ 
+
+> ?
+
+(v)) min {AT (v), B T (v)} dv Λρ(d ξ).
+
+Proof. Fix ( ξ, v ). Since ψξ
+
+> +
+
+(v) + ψξ
+
+> −
+
+(v) = 1 − ψξ 
+
+> ?
+
+(v), and both ψξ
+
+> +
+
+(v) and ψξ
+
+> −
+
+(v) are non-negative, 
+
+ψξ
+
+> −
+
+(v)AT (v) + ψξ
+
+> +
+
+(v)BT (v) ≥ (ψξ
+
+> −
+
+(v) + ψξ
+
+> +
+
+(v)) min {AT (v), B T (v)} = (1 − ψξ 
+
+> ?
+
+(v)) min {AT (v), B T (v)}.
+
+Integrating over v and ξ proves the claim. 
+
+Lemma C.10 (Uniform Central Bound) . Fix η ∈ (0 , 1) . For all sufficiently large T , the following bounds hold for all |v| ≤ LT 
+
+> 2
+
+:
+
+AT (v) + BT (v) ≥ 1 − η, and min {AT (v), B T (v)} ≥ (1 − η)Φ( −| v|).
+
+Proof. First, evaluating the integrals of the standard normal density φ yields: 
+
+AT (v) = 
+
+∫ LT
+
+> 0
+
+φ(v − g) d g = Φ( v) − Φ( v − LT ), and BT (v) = 
+
+∫ LT
+
+> 0
+
+φ(v + g) d g = Φ( v + LT ) − Φ( v).
+
+Adding these yields: 
+
+AT (v) + BT (v) = Φ( v + LT ) − Φ( v − LT ).
+
+For |v| ≤ LT /2, this domain restriction implies v + LT ≥ LT /2 and v − LT ≤ − LT /2. Since Φ is strictly increasing, we can lower bound the sum by evaluating it at these extremes: 
+
+AT (v) + BT (v) ≥ Φ( LT /2) − Φ( −LT /2) = 1 − 2Φ( −LT /2) .
+
+As T → ∞ , LT → ∞ , so 1 − 2Φ( −LT /2) → 1. Thus, for sufficiently large T , the sum is bounded below by 1 − η.For the second inequality, observe that φ is symmetric and strictly decreasing away from zero. Thus, the relationship between AT (v) and BT (v) depends only on the sign of v. For v ≥ 0, the integration interval for AT (v) is [ v − LT , v ], which is closer to the origin than the interval [ v, v + LT ] for BT (v). Hence, 
+
+AT (v) ≥ BT (v), yielding: min {AT (v), B T (v)} = BT (v) = Φ( v + LT ) − Φ( v) = Φ( −v) − Φ( −(v + LT )) since Φ( x) = 1 − Φ( −x). By identical symmetric reasoning for v < 0, we find min {AT (v), B T (v)} = AT (v). Consolidating both cases yields a single identity for all v:min {AT (v), B T (v)} = Φ( −| v|) − Φ( −(|v| + LT )) . (C.10) We wish to show that Φ( −| v|) − Φ( −(|v| + LT )) ≥ (1 − η)Φ( −| v|), which is equivalent to bounding the ratio: Φ( −(|v| + LT )) 
+
+Φ( −| v|) ≤ η. 
+
+Since 0 ≤ | v| ≤ LT /2, the numerator is bounded above by Φ( −LT ) and the denominator is bounded below by Φ( −LT /2). Therefore: Φ( −(|v| + LT )) 
+
+Φ( −| v|) ≤ Φ( −LT )
+
+Φ( −LT /2) → 0uniformly as T → ∞ . Thus, the bound holds for sufficiently large T .
+
+31 To complete the lower bound, we use the following specialized consequence of the Bathtub Principle (cf. Theorem 1.14 of Lieb and Loss (2001)). The following lemma states the form of this principle needed for our subsequent analysis. 
+
+Lemma C.11 (Abstention Rearrangement / Bathtub Principle) . Let B > 0, let Λ be a finite measure on a space O, and let w(v) ≥ 0 be an even function that is non-increasing in |v| on [−B, B ]. Let r : O × R → [0 , 1] 
+
+be measurable. If there exists some a ∈ [0 , B ] such that: 
+
+∫
+
+> O
+
+∫ B
+
+> −B
+
+r(ξ, v ) d v Λ(d ξ) ≤ 2a Λ( O),
+
+then the complementary integral is bounded below as: 
+
+∫
+
+> O
+
+∫ B
+
+> −B
+
+(1 − r(ξ, v )) w(v) d v Λ(d ξ) ≥ 2 Λ( O)
+
+∫ Ba
+
+w(u) d u. 
+
+Proof. Define the central cylinder set C := O × { v : |v| < a }. The measure of C is 2 a Λ( O). Because 
+
+w(v) is non-increasing in |v|, we have w(v) ≥ w(a) on C and w(v) ≤ w(a) on Cc. Thus, the integrand (1C (ξ, v ) − r(ξ, v ))( w(v) − w(a)) is non-negative everywhere. Consequently: 0 ≤
+
+∫
+
+> O× (−B,B )
+
+(1C − r)( w − w(a)).
+
+Expanding this inequality gives: 
+
+∫
+
+> O× (−B,B )
+
+rw ≤
+
+∫
+
+> C
+
+w − w(a)
+
+(∫
+
+> C
+
+1 −
+
+∫
+
+> O× (−B,B )
+
+r
+
+)
+
+≤
+
+∫
+
+> C
+
+w, 
+
+where the final step follows because the assumption ∫ 
+
+> O× (−B,B )
+
+r ≤ 2a Λ( O) = ∫ 
+
+> C
+
+1 forces the bracketed term to be non-negative. Therefore: 
+
+∫
+
+> O× (−B,B )
+
+(1 − r)w ≥
+
+∫
+
+> O× (−B,B )
+
+w −
+
+∫
+
+> C
+
+w =
+
+∫
+
+> Cc
+
+w = 2 Λ( O)
+
+∫ Ba
+
+w(u) d u. 
+
+Lemma C.12 (Flat Bayesian Sign Lower Bound) . Fix η ∈ (0 , 1) and suppose α < (1 −η)cρδρ 
+
+> 4
+
+. Define the threshold parameter: 
+
+aT,η := α√T
+
+2(1 − η)cρ
+
+. (C.11) 
+
+Then, for every terminal rule ψ satisfying AQρ 
+
+> T
+
+(ψ) ≤ α, we have that as T → ∞ :
+
+EQρ 
+
+> T
+
+(ψ) ≥ (1 − oT (1)) 2(1 − η)cρ
+
+√T
+
+∫ ∞
+
+> aT ,η
+
+Φ( −u) d u. 
+
+Proof. By Lemma C.10, for all sufficiently large T , AT (v) + BT (v) ≥ 1 − η on the interval |v| ≤ LT /2. Given the abstention constraint AQρ 
+
+> T
+
+(ψ) ≤ α, we can further restrict the integration domain to this interval [−LT /2, L T /2] to obtain: 2
+
+√T
+
+∫
+
+> Cρ
+
+∫ 
+
+> |v|≤ LT/2
+
+ψξ 
+
+> ?
+
+(v)[AT (v) + BT (v)] dv Λρ(d ξ) ≤ α. 
+
+32 Substituting the uniform central bound (first bound in Lemma C.10) yields: 
+
+∫
+
+> Cρ
+
+∫ 
+
+> |v|≤ LT/2
+
+ψξ 
+
+> ?
+
+(v) d v Λρ(d ξ) ≤ α√T
+
+2(1 − η) .
+
+Because Λ ρ(Cρ) = cρ/2, the right-hand side is 2 aT,η Λρ(Cρ). Next, we evaluate the undetected error mass. Discarding the non-negative contribution from |v| > L T /2and applying Lemma C.9 and the second bound of Lemma C.10, we obtain: 
+
+EQρ 
+
+> T
+
+(ψ) ≥ 2(1 − η)
+
+√T
+
+∫
+
+> Cρ
+
+∫ 
+
+> |v|≤ LT/2
+
+(1 − ψξ 
+
+> ?
+
+(v))Φ( −| v|) d v Λρ(d ξ).
+
+We now apply the abstention rearrangement result from Lemma C.11 with B = LT /2, w(v) = Φ( −| v|), and 
+
+r(ξ, v ) = ψξ 
+
+> ?
+
+(v). Our assumption on α ensures that aT,η < L T /4 < L T /2. This allows the rearrangement to yield: ∫
+
+> Cρ
+
+∫ 
+
+> |v|≤ LT/2
+
+(1 − ψξ 
+
+> ?
+
+(v))Φ( −| v|) d v Λρ(d ξ) ≥ Λρ(Cρ) 2 
+
+∫ LT /2
+
+> aT ,η
+
+Φ( −u) d u. 
+
+Substituting Λ ρ(Cρ) = cρ/2: 
+
+EQρ 
+
+> T
+
+(ψ) ≥ 2(1 − η)cρ
+
+√T
+
+∫ LT /2
+
+> aT ,η
+
+Φ( −u) d u. 
+
+Finally, because aT,η < L T /4, the omitted tail ∫ ∞  
+
+> LT/2
+
+Φ( −u) d u decays exponentially faster than ∫ ∞ 
+
+> aT ,η
+
+Φ( −u) d u.Thus ∫ LT /2
+
+> aT ,η
+
+Φ( −u) d u = (1 − oT (1)) 
+
+∫ ∞
+
+> aT ,η
+
+Φ( −u) d u, 
+
+which concludes the proof. 
+
+## C.6 Proof of the Lower Bound Theorem 
+
+Proof of Theorem 3.1. Let π be any policy satisfying the global abstention budget AT (π) ≤ α. By Lemma C.4, the abstention and undetected error mass of this strategy under the local subprior Qρ are bounded above by their true global counterparts, i.e., 
+
+AQρ 
+
+> T
+
+(π) ≤ A T (π) ≤ α, and EQρ 
+
+> T
+
+(π) ≤ E T (π).
+
+By Lemma C.5 and Lemma C.8, the original strategy π induces a V -based terminal rule ψξ in the experiment with background oracle revealed. This reduction preserves the abstention probability and ensures the induced sign-rule error is no larger than the original undetected error. Therefore 
+
+AQρ 
+
+> T
+
+(ψξ ) ≤ α. 
+
+Because the abstention constraint is satisfied, we may apply Lemma C.12. This yields: 
+
+ET (π) ≥ E Qρ 
+
+> T
+
+(ψξ) ≥ (1 − oT (1)) 2(1 − η)cρ
+
+√T
+
+∫ ∞
+
+> aT ,η
+
+Φ( −u) d u, 
+
+where the lower limit of the integral aT,η is defined in (C.11). Fix ρ ∈ (0 , 1) and η ∈ (0 , 1). The construction of the local subprior gives constants cρ > 0 and δρ > 0. We define the critical abstention threshold α0(ρ, η ) := (1 −η)cρδρ 
+
+> 4
+
+. For every fixed α ∈ (0 , α 0(ρ, η )), Lemma C.12 applies. Furthermore, as T → ∞ , aT,η = α√T 
+
+> 2(1 −η)cρ
+
+→ ∞ .
+
+33 Using ∫ ∞ 
+
+> a
+
+Φ( −u) d u = φ(a) − aΦ( −a) and the standard Gaussian tail asymptotics: log 
+
+(∫ ∞
+
+> a
+
+Φ( −u) d u
+
+)
+
+= − a2
+
+2 + O(log a) as a → ∞ ,
+
+we extract the exponential decay rate for any feasible strategy π:lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (π) ≥ − 1
+
+8(1 − η)2c2
+
+> ρ
+
+.
+
+Taking the infimum over all feasible strategies yields the lower bound on the optimal undetected error probability ET (α). Since this bound holds for all α ∈ (0 , α 0(ρ, η )), taking the limit as α ↓ 0: lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − 1
+
+8(1 − η)2c2
+
+> ρ
+
+≥ − 1
+
+8(1 − η)2(1 − ρ)4κ2
+
+> ν
+
+, (C.12) where the second inequality follows because our definition of the restricted set Cij ensures that the constant satisfies cρ ≥ (1 − ρ)2κν . Because (C.12) holds for arbitrary η ∈ (0 , 1) and ρ ∈ (0 , 1), we may take η ↓ 0 and then ρ ↓ 0 to obtain the desired lower bound. 
+
+# D Proof of Theorem 3.3 
+
+We prove the no-abstention (forced-decision) lower bound by reusing the local subprior and oracle reduction developed in the proof of Theorem 3.1. The only difference is that the terminal rule is not allowed to abstain. Thus, in the resulting one-dimensional flat sign experiment, the rule must always choose one of the two signs. Fix ρ ∈ (0 , 1). Let Qρ, Cρ, Λ ρ, δρ, and cρ be the flat local subprior objects constructed in the proof of Theorem 3.1. We recall the two properties of the construction of Qρ. First, by Lemma C.2, Qρ ≤ Pν . Second, by Lemma C.3, under Qρ, the local coordinates (Ξ , ∆, H ) satisfy (C.4) and cρ := 2Λ ρ(Cρ) ≥ (1 − ρ)2κν . On the support of Qρ, the two arms in Ξ = ( i, j, x, ζ −ij ) are (strictly) the top two arms. Let π be any forced-decision policy, so ̂ aT ∈ [K] almost surely. Since abstention never occurs, misidenti-fication and undetected error coincide: {̂ aT 6 = a⋆} = {̂ aT /∈ { a⋆, ?}} . So by Qρ ≤ Pν ,
+
+Pπν (̂aT 6 = a⋆) = 
+
+∫
+
+Pπμ(̂aT 6 = a⋆)Pν (d μ) ≥
+
+∫
+
+Pπμ(̂aT /∈ { a⋆, ?})Qρ(d μ) := EQρ 
+
+> T
+
+(π) ≥ E Qρ 
+
+> T
+
+(ψξ ). (D.1) The lower bound of the error probability in the oracle-revealed experiment provides a lower bound for the original problem. Moreover, by Lemma C.5, after revealing Ξ = ξ it is enough to consider a strategy that samples only the two local top arms and outputs a sign in {+, −} . By Lemma C.8, the terminal rule can further be taken to depend on the history only through the sufficient statistic V = 1√T
+
+∑Tt=1 Zt, where 
+
+Zt denotes the transformed observation defined in the local reduction. Let G := ∆√T 
+
+> 2
+
+and LT := δρ 
+
+> √T
+> 2
+
+. Then G has support [0 , L T ] under Qρ, and the flat sign experiment satisfies 
+
+V | (G = g, H = h, Ξ = ξ) ∼ N (hg, 1) , h ∈ { +1 , −1}.
+
+Any forced-decision terminal rule ψξ satisfies 
+
+ψξ
+
+> +
+
+(v) + ψξ
+
+> −
+
+(v) = 1 , and ψξ
+
+> +
+
+(v), ψ ξ
+
+> −
+
+(v) ≥ 0.
+
+Define 
+
+AT (v) := 
+
+∫ LT
+
+> 0
+
+φ(v − g) d g, and BT (v) := 
+
+∫ LT
+
+> 0
+
+φ(v + g) d g. 
+
+34 Using (C.4) and the change of variables d δ = 2 d g/ √T ,
+
+EQρ 
+
+> T
+
+(ψ) = 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> R
+
+[
+
+ψξ
+
+> −
+
+(v)AT (v) + ψξ
+
+> +
+
+(v)BT (v)
+
+]
+
+dv Λρ(d ξ).
+
+Since ψξ
+
+> +
+
+(v) + ψξ
+
+> −
+
+(v) = 1, we have pointwise 
+
+ψξ
+
+> −
+
+(v)AT (v) + ψξ
+
+> +
+
+(v)BT (v) ≥ min {AT (v), B T (v)}.
+
+Therefore, 
+
+EQρ 
+
+> T
+
+(ψ) ≥ 2
+
+√T Λρ(Cρ)
+
+∫
+
+> R
+
+min {AT (v), B T (v)} dv = cρ
+
+√T
+
+∫
+
+> R
+
+min {AT (v), B T (v)} dv. (D.2) It remains to evaluate the one-dimensional integral. Recall that (C.10) gives min {AT (v), B T (v)} =Φ( −| v|) − Φ( −(|v| + LT )). Consequently, 
+
+∫
+
+> R
+
+min {AT (v), B T (v)} dv = 2 
+
+∫ ∞
+
+> 0
+
+[Φ( −v) − Φ( −(v + LT ))] d v = 2 
+
+∫ LT
+
+> 0
+
+Φ( −u) d u. 
+
+Since LT → ∞ as T → ∞ , ∫
+
+> R
+
+min {AT (v), B T (v)} dv → 2
+
+∫ ∞
+
+> 0
+
+Φ( −u) d u. 
+
+Finally, ∫ ∞
+
+> 0
+
+Φ( −u) d u =
+
+∫ ∞
+
+> 0
+
+∫ ∞
+
+> u
+
+φ(z) d z du =
+
+∫ ∞
+
+> 0
+
+zφ (z) d z = 1
+
+√2π .
+
+Thus ∫
+
+> R
+
+min {AT (v), B T (v)} dv →
+
+√ 2
+
+π . (D.3) Combining (D.1), (D.2), and (D.3), we obtain a policy-independent bound: for any π ∈ ΠT (0), lim inf  
+
+> T→∞
+
+√T Pπν (̂aT 6 = a⋆) ≥ cρ
+
+√ 2
+
+π .
+
+Minimizing over all policies and using the definition of cρ yields lim inf  
+
+> T→∞
+
+√T ET (0) ≥ cρ
+
+√ 2
+
+π ≥ (1 − ρ)2κν
+
+√ 2
+
+π .
+
+Because ρ ∈ (0 , 1) is arbitrary, taking ρ ↓ 0 yields the desired lower bound. 
+
+# E Proof of Theorem 3.4 
+
+Proof. Fix any strategy π ∈ Πfreq  
+
+> T
+
+(α). The proof uses the midpoint instance μ0 := ( x, x ) as a change-of-measure reference. Since the abstention constraint is uniform over all two-arm Gaussian instances, 
+
+Pπμ0 (̂aT =?) ≤ α. (E.1) For θ ∈ {− 1, 0, +1 }, define 
+
+μθ := 
+
+(
+
+x + θ ∆
+
+2 , x − θ ∆
+
+2
+
+)
+
+.
+
+35 Thus μ0 = ( x, x ). Let 
+
+St := 1{At = 1 } − 1{At = 2 } ∈ { +1 , −1},
+
+and define the centered signed observation Zt := St(Xt − x). Finally, set W := ∑Tt=1 Zt, V := W√T and 
+
+m := ∆√T 
+
+> 2
+
+.We first reduce the adaptive experiment to a one-dimensional Gaussian shift experiment. Under μθ ,conditionally on the past and on the chosen arm At, the transformed observation satisfies Zt ∼ N (θ ∆ 
+
+> 2
+
+, 1).The conditional law of Zt is therefore independent of both the past and the chosen arm. Hence Z1, . . . , Z T
+
+> i.i.d.
+
+∼N (θ ∆ 
+
+> 2
+
+, 1), and consequently 
+
+V ∼
+
+
+
+N (m, 1) , θ = +1 ,
+
+N (0 , 1) , θ = 0 ,
+
+N (−m, 1) , θ = −1.
+
+The same argument as in Lemma C.8 applies here, with the background oracle consisting only of the two arms and their midpoint x. Therefore, for the three instances μ0, μ +, μ −, the terminal decision rule may be represented by measurable functions ψ = ( ψ+, ψ −, ψ ?), where ψ+(v) is the probability of recommending arm 1 after observing V = v, ψ−(v) is the probability of recommending arm 2, and ψ?(v) is the probability of abstaining. These functions satisfy, for every v,
+
+ψ+(v) + ψ−(v) + ψ?(v) = 1 , ψ+(v), ψ −(v), ψ ?(v) ∈ [0 , 1] .
+
+Let φ denote the standard normal density. Under the midpoint instance μ0, we have V ∼ N (0 , 1), so (E.1) means ∫
+
+> R
+
+ψ?(v)φ(v) d v ≤ α. (E.2) Under μ+, arm 1 is uniquely optimal and V ∼ N (m, 1). Therefore 
+
+ET,μ + (π) = Pπμ+ (̂aT = 2) = 
+
+∫
+
+> R
+
+ψ−(v)φ(v − m) d v. (E.3) Similarly, under μ−, arm 2 is uniquely optimal and V ∼ N (−m, 1), so 
+
+ET,μ − (π) = Pπμ− (̂aT = 1) = 
+
+∫
+
+> R
+
+ψ+(v)φ(v + m) d v. (E.4) We next lower bound the average of the two mirror-instance errors. Define 
+
+p+(v) := φ(v − m), p−(v) := φ(v + m).
+
+By (E.3) and (E.4), 
+
+E := 1
+
+2 ET,μ + (π) + 1
+
+2 ET,μ − (π) = 1
+
+2
+
+∫
+
+> R
+
+[ψ−(v)p+(v) + ψ+(v)p−(v)] d v
+
+≥ 1
+
+2
+
+∫
+
+> R
+
+(1 − ψ?(v)) min {p+(v), p −(v)} dv. 
+
+Note that min {p+(v), p −(v)} = φ(|v| + m). Hence 
+
+E ≥ 1
+
+2
+
+∫
+
+> R
+
+(1 − ψ?(v))φ(|v| + m) d v. (E.5) It remains to identify the least possible value of the right-hand side subject to the midpoint abstention constraint (E.2). Let r(v) := ψ?(v). Then 0 ≤ r(v) ≤ 1 and 
+
+∫
+
+> R
+
+r(v)φ(v) d v ≤ α. 
+
+36 Write 
+
+φ(|v| + m) = qm(v)φ(v), qm(v) := exp 
+
+(
+
+−m|v| − m2
+
+2
+
+)
+
+.
+
+The function qm is even and nonincreasing in |v|. Let Cα := [ −zα, z α]. By the definition of zα,
+
+∫
+
+> Cα
+
+φ(v) d v = α. 
+
+Since qm(v) ≥ qm(zα) on Cα and qm(v) ≤ qm(zα) on Ccα, we have pointwise 
+
+(r(v) − 1Cα (v))( qm(v) − qm(zα)) ≤ 0.
+
+Integrating with respect to φ(v) d v gives 
+
+∫
+
+> R
+
+r(v)qm(v)φ(v) d v ≤
+
+∫
+
+> Cα
+
+qm(v)φ(v) d v + qm(zα)
+
+[∫ 
+
+> R
+
+r(v)φ(v) d v −
+
+∫
+
+> Cα
+
+φ(v) d v
+
+]
+
+.
+
+The bracketed term is nonpositive by (E.2), and hence 
+
+∫
+
+> R
+
+r(v)qm (v)φ(v) d v ≤
+
+∫
+
+> Cα
+
+qm(v)φ(v) d v. 
+
+Equivalently, ∫
+
+> R
+
+(1 − r(v))φ(|v| + m) d v ≥
+
+∫
+
+> R\Cα
+
+φ(|v| + m) d v. (E.6) By symmetry, ∫
+
+> R\Cα
+
+φ(|v| + m) d v = 2 
+
+∫ ∞
+
+> zα
+
+φ(v + m) d v = 2Φ( −m − zα).
+
+Combining this identity with (E.5) and (E.6) yields E ≥ Φ( −m − zα). Finally, max {ET,μ + (π), ET,μ − (π)} ≥ E ≥ Φ( −m − zα) = Φ 
+
+(
+
+− ∆√T
+
+2 − zα
+
+)
+
+.
+
+# F Proof of Theorem 4.1 
+
+## F.1 Assumptions 
+
+We start by recalling the assumptions for Theorem 4.1 and providing some more explanations. Let I ⊆ R
+
+be an open interval, called the quality parameter space . For each arm i ∈ [K], let μi ∈ I denote its quality parameter . Define the best arm by a⋆ := arg max i∈[K] μi. When arm i is sampled, its reward distribution 
+
+Pμi belongs to a one-parameter family {Pμ : μ ∈ I} .
+
+Assumption 4.1 (Regular One-Parameter Exponential Family) . The family {Pμ : μ ∈ I} is a regular full one-parameter exponential family, possibly after a smooth monotone reparameterization (which we call θ(·)); see, e.g., (Lattimore and Szepesv´ ari, 2020, Sec. 34.3.1). Specifically, there exists an open natural parameter space Θ ⊆ R, a dominating measure λ, a natural statistic t(·), a base distribution h(·), a C4 log-partition function A : Θ → R with A′′ (θ) > 0, and a C4 map θ : I → Θ onto Θ with θ′(μ) > 0 such that θ(μ) is the natural parameter corresponding to the quality parameter μ, and 
+
+dPμ
+
+dλ (w) = h(w) exp {θ(μ)t(w) − A(θ(μ)) }, μ ∈ I .
+
+Moreover, the image of every compact subset of I under θ is compact in Θ.
+
+37 Under Assumption 4.1, the Fisher information for the quality parameter μ is 
+
+I(μ) = A′′ (θ(μ)) {θ′(μ)}2.
+
+Thus I(μ) > 0, and I is bounded away from zero and infinity on every compact subset of I. Fix μ◦ ∈ I ,and define the Fisher–Rao information coordinate 
+
+s(μ) := 
+
+∫ μμ◦
+
+√I(v) d v, 
+
+where μ◦ ∈ I is arbitrary. This is the arc-length coordinate induced by the Fisher–Rao metric (Rao, 1992; Amari and Nagaoka, 2000). We remark that all our results are independent of the choice of μ◦. Indeed, if another base point ˜μ◦ ∈ I is used, and ˜s(μ) := ∫ μ
+
+> ˜μ◦
+
+√I(v) d v, then ˜s(μ) = s(μ) − s(˜μ◦). Thus all transformed arm qualities are shifted by the same constant. Consequently, the ordering of arms, all pairwise information-coordinate gaps, and the event of a near top-two tie are unchanged. The interval H, the densities ¯fi, and the distribution functions ¯Fi are merely translated, so the integral defining κ is invariant under the corresponding change of variables. The quadratic KL condition below is also unchanged because it depends only on differences s(μ) − s(z). Also let ηi := s(μi) and β(η) := θ(s−1(η)). Note θ(μ) = β(s(μ)). Since s is strictly increasing, the best arm is unchanged by the transformation μi 7 → ηi.
+
+Assumption 4.2 (Regular Prior in Information Coordinates) . The arms’ quality parameters μ1, . . . , μ K are independent under the prior. In the information coordinate ηi = s(μi), the induced prior distribution of arm 
+
+i has density ¯fi and distribution function ¯Fi on H := s(I). For each i ∈ [K],
+
+¯fi is continuous and bounded on H, ¯fi(η) > 0 ∀ η ∈ H .
+
+Define the information-scaled top-two tie density 
+
+κ := ∑
+
+> i6=j
+
+∫
+
+> H
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk (u) d u. (F.1) Equivalently, if fi and Fi respectively denote the prior density and distribution function of μi in the original quality coordinate system, then 
+
+κ = ∑
+
+> i6=j
+
+∫
+
+> I
+
+fi(μ)fj (μ) ∏  
+
+> k6=i,j
+
+Fk(μ)
+
+√I(μ) dμ
+
+Thus κ is the density at zero of the top-two gap after transforming to the Fisher–Rao information coordinate. Note that under Assumption 4.2, 0 < κ < ∞.
+
+Remark F.1. We note that, each arm has 3 (equivalent) descriptions: 
+
+μ ↔ η := s(μ) ↔ θ := θ(μ) := β(η),
+
+where 1. μ is the actual parameter of an arm, the value drawn from the prior. It is the quality (parameter) coordinate in which the decision problem is defined: a∗ = argmax i μi, and μ measures the quality of the arms. 2. θ(μ) is the natural (parameter) coordinate . It is the coordinate in which the reward distribution has exponential-family form. 
+
+38 3. η is the Fisher–Rao information (parameter) coordinate . It rescales the quality coordinate so that local Fisher information is equal to one. Note that in the Gaussian case, with μ◦ = 0 , we have μ = s(μ) = θ(μ).
+
+For the achievability result we also assume a global quadratic lower bound on the Kullback–Leibler divergence. For u, v ∈ I , let 
+
+D(u, v ) := D(Pu ‖ Pv) = {θ(u) − θ(v)}A′(θ(u)) − A(θ(u)) + A(θ(v)) .
+
+Assumption 4.3 (Quadratic KL Growth in the Fisher–Rao Information Coordinate) . There exists cKL > 0
+
+such that, for all μ, z ∈ I ,
+
+D(μ, z ) ≥ cKL 
+
+(s(μ) − s(z))2. (4.2) The assumption holds for several common one-parameter families when s(·) is chosen as the information coordinate. In particular, Gaussian location, Bernoulli, and Poisson satisfy (4.2) with cKL = 1 /4. Assump-tion 4.3 can be viewed as a global version of the local quadratic approximation D(μ, z ) ≈ 1 
+
+> 2
+
+dFR (μ, z )2 where 
+
+dFR is the Fisher–Rao distance; cf. Amari and Nagaoka (2000). 
+
+## F.2 Lower Bound for Theorem 4.1 
+
+We first prove the lower bound 
+
+Theorem F.1 (Lower Bound for the General Case) . Under Assumptions 4.1 and 4.2, 
+
+lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − 1
+
+8κ2 .
+
+Throughout this proof, oT (α2T ) denotes a quantity rT (α)α2 T such that rT (α) → 0 as T → ∞ for each fixed α > 0. All oT (α2T ) terms below are uniform over ξ ∈ C ρ and over all local pair strategies, for fixed ρ,
+
+ε, and D.
+
+F.2.1 Step 1. A Dominated Flat Local Subprior 
+
+Fix ρ ∈ (0 , 1). Recall we let β(η) := θ(s−1(η)) for η ∈ H . Since both θ(·) and s(·) are strictly increasing, β : H → Θ is strictly increasing. Moreover, as η = s(μ), 
+
+β′(η) = θ′(μ)
+
+s′(μ) = θ′(μ)
+
+√A′′ (θ(μ)) θ′(μ) = 1
+
+√A′′ (θ(μ)) .
+
+Definition F.1 (Local Change of Variable) . Fix a pair i < j , and write 
+
+ξ = ( i, j, u, ζ −ij ), u ∈ H , ζ−ij ∈ H K−2.
+
+For δ ≥ 0 and h ∈ { +1 , −1}, define 
+
+θi(u, δ, h ) := β(u) + h δ
+
+2√A′′ (β(u)) ,θj (u, δ, h ) := β(u) − h δ
+
+2√A′′ (β(u)) .
+
+39 Whenever these two natural parameters belong to Θ, define η(ξ, δ, h ) ∈ H K by 
+
+ηi(ξ, δ, h ) := β−1(θi(u, δ, h )),ηj (ξ, δ, h ) := β−1(θj (u, δ, h )),ηk(ξ, δ, h ) := ζk , k 6 = i, j. 
+
+(F.2) 
+
+The corresponding vector in the original parameter space is defined coordinatewise as 
+
+μk(ξ, δ, h ) := s−1(ηk(ξ, δ, h )), k ∈ [K].
+
+Note that for each fixed pair i < j and sign h, the map ( u, δ, ζ −ij ) 7 −→ η(ξ, δ, h ) is one-to-one. Indeed, writing θi = β(ηi) and θj = β(ηj ), one recovers 
+
+u = β−1
+
+( θi + θj
+
+2
+
+)
+
+, δ = h√A′′ (β(u)) ( θi − θj ), ζk = ηk (k 6 = i, j ).
+
+In particular, when δ > 0, the sign is uniquely determined by h = sign( ηi − ηj ). For fixed i < j and h, let 
+
+Jijh (u, δ ) := 
+
+∣∣∣∣det ∂(ηi, η j )
+
+∂(u, δ )
+
+∣∣∣∣ .
+
+The remaining coordinates satisfy ηk = ζk, so Jijh (u, δ ) is also the absolute Jacobian determinant of the full transformation ( u, δ, ζ −ij ) 7 → η(ξ, δ, h ). At δ = 0, we have ηi(ξ, 0, h ) = ηj (ξ, 0, h ) = u. Using β′(u) = 1 /√A′′ (β(u)) gives 
+
+∂(ηi, η j )
+
+∂(u, δ )
+
+∣∣∣∣δ=0 
+
+=
+
+(1 h/ 21 −h/ 2
+
+)
+
+.
+
+Consequently, Jijh (u, 0) = 1. Unlike the Gaussian location model, however, Jijh (u, δ ) is not generally equal to one when δ > 0. For each pair i < j , define the top-pair tie domain 
+
+Tij := {(i, j, u, ζ −ij ) ∈ H × H K−2 : ζk < u for every k 6 = i, j } ,
+
+and let T := ⊎ 
+
+> i<j
+
+Tij denote the disjoint union over pairs. Define a finite measure λ on T componentwise as 
+
+λ(d ξ) := ¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk ) d u dζ−ij , ξ ∈ T ij .
+
+Then 2λ(T ) = 2 ∑
+
+> i<j
+
+∫
+
+> H
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk(u) d u
+
+= ∑
+
+> i6=j
+
+∫
+
+> H
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk(u) d u = κ. 
+
+Since λ is a finite Borel measure, it is inner regular. Hence there exists a compact set Cρ ⊂ T such that 2λ(Cρ) ≥ (1 − ρ)κ. (F.3) For each pair i < j , let Cρ,ij := Cρ ∩ T ij , so that Cρ = ⊎ 
+
+> i<j
+
+Cρ,ij .Because Cρ is a compact subset of the open set T , there exists ℓρ > 0 such that, for every ξ =(i, j, u, ζ −ij ) ∈ C ρ,ij ,
+
+ζk ≤ u − 2ℓρ (k 6 = i, j ), [u − 2ℓρ, u + 2 ℓρ] ⊂ H . (F.4) 40 This will ensure that sufficiently small local perturbations remain in H and preserve {i, j } as the unique top-two pair. Define a finite measure Λ ρ on Cρ as Λρ(d ξ) := (1 − ρ) ¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk ) d u dζ−ij , ξ ∈ C ρ,ij . (F.5) Let 
+
+cρ := 2Λ ρ(Cρ). (F.6) By (F.3), 
+
+cρ = 2(1 − ρ)λ(Cρ) ≥ (1 − ρ)2κ. (F.7) 
+
+Lemma F.1 (Uniform Density Lower Bound) . There exists δρ > 0 such that, for every i < j , every 
+
+ξ = ( i, j, u, ζ −ij ) ∈ C ρ,ij , every h ∈ { +1 , −1}, and every δ ∈ [0 , δ ρ], the coordinate map in (F.2) is well-defined, Jijh (u, δ ) > 0, and 
+
+(1 − ρ) ¯fi(u) ¯fj (u) ≤ ¯fi
+
+(ηi(ξ, δ, h )) ¯fj
+
+(ηj (ξ, δ, h ))Jijh (u, δ ). (F.8) 
+
+Moreover, arms i and j are the unique top-two arms since min {ηi(ξ, δ, h ), η j (ξ, δ, h )} > η k(ξ, δ, h ) for k 6 = i, j .Proof. For ξ = ( i, j, u, ζ −ij ) ∈ C ρ,ij , define 
+
+Rijh (ξ, δ ) := ¯fi
+
+(ηi(ξ, δ, h )) ¯fj
+
+(ηj (ξ, δ, h ))Jijh (u, δ )
+
+¯fi(u) ¯fj (u) .
+
+Since Cρ is compact and the prior densities are continuous and strictly positive, the denominator is uniformly bounded away from zero on Cρ.At δ = 0, we have ηi(ξ, 0, h ) = ηj (ξ, 0, h ) = u and Jijh (u, 0) = 1. Hence Rijh (ξ, 0) = 1. The coordinate maps, Jijh , and Rijh are continuous in a neighborhood of Cρ × { 0} × { +1 , −1}. Since 
+
+Cρ is compact and there are finitely many pairs and signs, there exists δρ > 0 such that, uniformly over all admissible ξ, h, and δ ∈ [0 , δ ρ], 
+
+ηi(ξ, δ, h ), η j (ξ, δ, h ) ∈ (u − ℓρ, u + ℓρ), Jijh (u, δ ) > 0,
+
+and Rijh (ξ, δ ) ≥ 1 − ρ. The latter inequality is (F.8). Finally, by (F.4), min {ηi(ξ, δ, h ), η j (ξ, δ, h )} > u − ℓρ
+
+> u − 2ℓρ
+
+≥ ζk = ηk(ξ, δ, h ), k 6 = i, j. 
+
+Thus i and j are the unique top-two arms. 
+
+Definition F.2 (Flat Local Subprior) . For every 0 < ¯δ ≤ δρ, define the finite measure Qρ, ¯δ on (I)K as 
+
+Qρ, ¯δ(E) := ∑
+
+> i<j
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫
+
+> Cρ,ij
+
+∫ ¯δ
+
+> 0
+> 1E
+
+(μ(ξ, δ, h )) dδ Λρ(d ξ), E ∈ B (( I)K ). (F.9) 
+
+Lemma F.2 (Domination) . For every 0 < ¯δ ≤ δρ, the measure Qρ, ¯δ is a submeasure of the original prior 
+
+P ; that is, Qρ, ¯δ (E) ≤ P (E) for every E ∈ B (( I)K ).
+
+41 Proof. Let s(μ) := (s(μ1), . . . , s (μK )). Define the measures in the information coordinate as ¯P (B) := P (s−1(B)), ¯Qρ, ¯δ(B) := Qρ, ¯δ
+
+(s−1(B)).
+
+Note ¯P has Lebesgue density ¯ p(η) = ∏Kk=1 ¯fk(ηk). For each pair i < j , define 
+
+S ¯δi,j := {η(ξ, δ, h ) : ξ ∈ C ρ,ij , 0 ≤ δ ≤ ¯δ, h ∈ { +1 , −1}} ,
+
+and set S ¯δρ := ⋃ 
+
+> i<j
+
+S ¯δi,j .By Lemma F.1, arms i and j are the unique strict top-two arms on S ¯δi,j . Consequently, the sets S ¯δi,j are pairwise disjoint. Moreover, when δ > 0, the sign is uniquely determined by h = sign( ηi − ηj ). The two sign representations overlap only when δ = 0, which is a Qρ, ¯δ -null set. For any Borel set B ⊆ H K , substituting the definition of Λ ρ in (F.5) into (F.9) gives ¯Qρ, ¯δ(B) = ∑
+
+> i<j
+
+∑
+
+> h∈{ +1 ,−1}
+
+∫
+
+> Cρ,ij
+
+∫ ¯δ
+
+> 0
+> 1B
+
+(η(ξ, δ, h ))(1 − ρ) ¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk ) d δ du dζ−ij .
+
+For each fixed pair and sign, apply change-of-variables with ( u, δ, ζ −ij ) 7 −→ η(ξ, δ, h ). The absolute Jacobian determinant is Jijh (u, δ ). It follows that ¯Qρ, ¯δ has Lebesgue density ¯ qρ, ¯δ satisfying ¯qρ, ¯δ
+
+(η(ξ, δ, h )) =(1 − ρ) ¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk )
+
+Jijh (u, δ )for Lebesgue-almost every η(ξ, δ, h ) ∈ S ¯δi,j .Furthermore, the definition (F.9) implies ¯Qρ, ¯δ
+
+(HK \ S ¯δρ
+
+) = 0. Hence ¯ qρ, ¯δ (η) = 0 for Lebesgue-almost every η / ∈ S ¯δρ .For η = η(ξ, δ, h ) ∈ S ¯δi,j , Lemma F.1 gives (1 − ρ) ¯fi(u) ¯fj (u) ≤ ¯fi(ηi) ¯fj (ηj )Jijh (u, δ ).
+
+Since Jijh (u, δ ) > 0 and ηk = ζk for k 6 = i, j ,¯qρ, ¯δ (η) ≤ ¯fi(ηi) ¯fj (ηj ) ∏ 
+
+> k6=i,j
+
+¯fk(ηk) = ¯ p(η).
+
+The same inequality holds outside S ¯δρ because ¯ qρ, ¯δ = 0 there. Thus ¯ qρ, ¯δ ≤ ¯p Lebesgue-almost everywhere on 
+
+HK .Consequently, for every Borel set B ⊆ H K ,¯Qρ, ¯δ (B) = 
+
+∫
+
+> B
+
+¯qρ, ¯δ (η) d η ≤
+
+∫
+
+> B
+
+¯p(η) d η = ¯P (B).
+
+Finally, for every Borel set E ⊆ (I)K ,
+
+Qρ, ¯δ(E) = ¯ Qρ, ¯δ
+
+(s(E)) ≤ ¯P (s(E)) = P (E).
+
+Hence Qρ, ¯δ ≤ P .
+
+42 Lemma F.3 (Properties of Qρ, ¯δ). Except on the Qρ, ¯δ-null tie set {∆ = 0 }, let Ξ, ∆, and H denote the unique background oracle, local gap coordinate, and sign associated with the representation μ = μ(Ξ , ∆, H ).Then 
+
+Qρ, ¯δ (Ξ ∈ dξ, ∆ ∈ dδ, H = h) = Λ ρ(d ξ) d δ, h ∈ { +1 , −1}. (F.10) 
+
+Consequently, 
+
+Qρ, ¯δ
+
+(H = +1 | Ξ = ξ, ∆ = δ) = Qρ, ¯δ
+
+(H = −1 | Ξ = ξ, ∆ = δ) = 1
+
+2 ,
+
+and 
+
+Qρ, ¯δ(∆ ∈ dδ) = cρ dδ, 0 ≤ δ ≤ ¯δ. 
+
+In particular, Qρ, ¯δ(( I)K ) = cρ ¯δ.Proof. The uniqueness of the pair follows from the strict top-two property in Lemma F.1. When δ > 0, the sign is determined by h = sign( ηi − ηj ), and the center and remaining coordinates are recovered from the inverse transformation given above. The two sign representations coincide only when δ = 0, which is a 
+
+Qρ, ¯δ-null set. Define the coordinates arbitrarily on this null set. For Borel sets C ⊆ C ρ and D ⊆ [0 , ¯δ], the definition (F.9) gives 
+
+Qρ, ¯δ
+
+(Ξ ∈ C, ∆ ∈ D, H = h) =
+
+∫
+
+> C
+
+∫
+
+> D
+
+dδ Λρ(d ξ) = Λ ρ(C) Leb( D).
+
+This proves (F.10). Since the two signs have the same mass conditional on (Ξ , ∆), integrating over ξ and summing over the two signs gives 
+
+Qρ, ¯δ(∆ ∈ dδ) = 2Λ ρ(Cρ) d δ = cρ dδ. 
+
+Lemma F.4 (Probability Domination Under Qρ, ¯δ). For any policy π, define the abstention mass 
+
+AQρ, ¯δ 
+
+> T
+
+(π) := 
+
+∫
+
+Pπμ(̂aT =?) Qρ, ¯δ(d μ)
+
+and the undetected error mass 
+
+EQρ, ¯δ 
+
+> T
+
+(π) := 
+
+∫
+
+Pπμ
+
+(̂ aT /∈ { a⋆(μ), ?}) Qρ, ¯δ(d μ).
+
+Then 
+
+AQρ, ¯δ 
+
+> T
+
+(π) ≤ A T (π), EQρ, ¯δ 
+
+> T
+
+(π) ≤ E T (π). (F.11) 
+
+In particular, any policy satisfying AT (π) ≤ α also satisfies AQρ, ¯δ 
+
+> T
+
+(π) ≤ α.Proof. Follows directly from Qρ, ¯δ ≤ P .
+
+F.2.2 Step 2. Oracle Reduction 
+
+Before sampling begins, we reveal the background oracle Ξ = ( I, J, U, Z −IJ ), which depends on the random means μ, to the learner. Conditional on Ξ = ξ = ( i, j, u, ζ −ij ), the learner knows the identities of the local top-two arms, the local center u, and the information-coordinate values ζk of all background arms. Equivalently, the learner knows that each background arm k 6 = i, j has quality parameter s−1(ζk) and reward distribution Ps−1 (ζk ).The only unknown local coordinates under Qρ, ¯δ are ∆ ∈ [0 , ¯δ], H ∈ { +1 , −1}.
+
+43 Here H = +1 means that arm i is better, whereas H = −1 means that arm j is better. For ease of notation, denote the probability law of the experiment conditional on Ξ, H and ∆ 
+
+Pξ,π h,δ := Pπμ(ξ,δ,h ), h ∈ { +1 , −1}, δ ∈ [0 , ¯δ].
+
+Since any policy in the original experiment can be implemented in the oracle-revealed setting by simply ignoring the side information Ξ, any lower bound derived for this oracle-revealed experiment provides a lower bound for the original problem. Furthermore, since the background means are known, querying any arm other than i or j provides no information about ∆ and H. We show that we can restrict our analysis to strategies that only sample the top two arms and output the decision of the sign; we call these local pair strategies .
+
+Lemma F.5 (Sufficiency of Local Pair Strategies) . Fix a realization of the background oracle Ξ = ξ =(i, j, u, ζ −ij ) ∈ C ρ. For any adaptive strategy π, there exists a modified strategy π′ that samples only arms 
+
+i and j, restricts its terminal recommendation to ̂ a′ 
+
+> T
+
+∈ { +, −, ?}, and satisfies, for every δ ∈ (0 , ¯δ] and 
+
+h ∈ { +1 , −1},
+
+Pξ,π ′ 
+
+> h,δ
+
+(̂a′ 
+
+> T
+
+=?) = Pξ,π h,δ (̂aT =?) , and Pξ,π ′ 
+
+> h,δ
+
+(̂a′ 
+
+> T
+
+= −h) ≤ Pξ,π h,δ (̂aT /∈ { a⋆(h), ?}), (F.12) 
+
+where a⋆(+) = i and a⋆(−) = j. This says that the abstention probability of π′ is unchanged from that of π
+
+and the undetected error probability of π′ is less than or equal to that of π.Proof. Fix ξ = ( i, j, u, ζ −ij ) ∈ C ρ. We construct the modified strategy π′ that satisfies (F.12) by internally simulating π.Whenever the internal copy of π samples arm k ∈ { i, j }, the strategy π′ samples the same arm and feeds the observed reward to the internal copy. Whenever the internal copy samples an arm k / ∈ { i, j }, the strategy π′ instead samples arm i, discards the resulting reward, and feeds the internal copy an independent simulated reward drawn from Ps−1 (ζk ). Conditional on Ξ = ξ, the quality parameter of every background arm k / ∈ { i, j } is known to be s−1(ζk), and its reward distribution is independent of ( H, ∆). Therefore, for every fixed ( h, δ ), the simulated reward has the same distribution as the reward that π would have observed by sampling arm k in the original experiment. It follows inductively over the sampling rounds that the internal history observed by π under π′ has the same distribution as the history observed by π under Pξ,π h,δ . Consequently, the terminal output of the internal copy has the same distribution as ̂ aT under the original strategy. At time T , the strategy π′ maps the terminal output of the internal copy according to 
+
+i 7 → +, j 7 → − , ? 7 →?,
+
+and maps every recommendation k / ∈ { i, j } arbitrarily to one of the two signs, say +. This mapping preserves the abstention event, and hence 
+
+Pξ,π ′ 
+
+> h,δ
+
+(̂a′ 
+
+> T
+
+=?) = Pξ,π h,δ (̂aT =?) .
+
+Moreover, on the support of Qρ, ¯δ, arms i and j are the unique top-two arms, with a⋆(+) = i and 
+
+a⋆(−) = j. Therefore, any original recommendation k / ∈ { i, j } is already an undetected error. Mapping such a recommendation to a sign either preserves that error or converts it into a correct sign decision. Since the recommendations i and j are mapped to their corresponding signs, the mapping cannot turn a correct original recommendation into an incorrect sign decision. Thus {̂ a′ 
+
+> T
+
+= −h} ⊆ { ̂aT /∈ { a⋆(h), ?}} under the coupled construction, and consequently 
+
+Pξ,π ′ 
+
+> h,δ
+
+(̂a′ 
+
+> T
+
+= −h) ≤ Pξ,π h,δ 
+
+(̂ aT /∈ { a⋆(h), ?}).
+
+This proves (F.12). 
+
+44 F.2.3 Step 3. Log-Likelihood Ratio and MLE 
+
+Fix D > 0, to be chosen later, and set ¯δα := Dα, LT := ¯δα
+
+√T
+
+2 = Dα √T
+
+2 .
+
+For all sufficiently small α, we have ¯δα ≤ δρ.Fix a realization of the background oracle Ξ = ξ = ( i, j, u, ζ −ij ) ∈ C ρ and a local-pair strategy π. Recall that 
+
+Pξ,π h,δ := Pπμ(ξ,δ,h ), h ∈ { +1 , −1}, δ ∈ [0 , ¯δα].
+
+At δ = 0, the two signs induce the same parameter vector. We denote their common law by Pξ,π  
+
+> 0
+
+:= Pξ,π  
+
+> +1 ,0
+
+=
+
+Pξ,π 
+
+> −1,0
+
+. When the strategy is clear, we suppress the superscript π.Consider the experiment where only two arms i or j can be sampled, let Hξt := ( ξ, A 1, X 1, . . . , A t, X t)denote the oracle history up to time t. Let ( HξT , H ξT ) denote the measurable space of oracle histories for this two-arm experiment. We write 
+
+ω = ( ξ, a 1, x 1, . . . , a T , x T ) ∈ H ξT
+
+for a realization, and let ωt−1 := ( ξ, a 1, x 1, . . . , a t−1, x t−1) denote its restriction to the first t − 1 rounds. Write 
+
+θ0 := β(u), a0 := A′′ (θ0).
+
+For h ∈ { +1 , −1} and δ ∈ [0 , ¯δα], define the signed rescaled local gap 
+
+r := h δ√T
+
+2 ∈ [−LT , L T ].
+
+The natural parameters of the two local arms are then 
+
+θi(r) = θ0 + r
+
+√T a 0
+
+, θj (r) = θ0 − r
+
+√T a 0
+
+.
+
+For a realized history ω ∈ H ξT , define 
+
+St(ω) := 
+
+{+1 , at = i, 
+
+−1, at = j. 
+
+Thus, under the signed rescaled gap r, the natural parameter of the arm sampled at time t is θ0 + St(ω)r
+
+> √T a 0
+
+.For h ∈ { +1 , −1} and δ ∈ [0 , ¯δα], define the log-likelihood ratio of the oracle history relative to the tie law: 
+
+ℓT,ξ (r; ω) = ℓT,ξ 
+
+(
+
+h δ√T
+
+2 ; ω
+
+)
+
+:= log dPξh,δ 
+
+dPξ
+
+> 0
+
+(ω). (F.13) This definition is unambiguous at δ = 0 because Pξ 
+
+> +1 ,0
+
+= Pξ
+
+> −1,0
+
+.
+
+Lemma F.6 (Local Likelihood Factorization) . For every h ∈ { +1 , −1} and δ ∈ [0 , ¯δα], let r = hδ √T / 2.Then Pξh,δ ≪ Pξ
+
+> 0
+
+, and for Pξ
+
+> 0
+
+-almost every ω ∈ H ξT ,
+
+ℓT,ξ (r; ω) = 
+
+> T
+
+∑
+
+> t=1
+
+[ St(ω)r
+
+√T a 0
+
+t(xt) − A
+
+(
+
+θ0 + St(ω)r
+
+√T a 0
+
+)
+
++ A(θ0)
+
+]
+
+. (F.14) 45 Proof. Let πt(at | ξ, ω t−1) denote the sampling kernel used by the strategy at time t, evaluated at the realized history ωt−1. This kernel is fixed by the strategy and is the same measurable function of the realized past under every value of ( h, δ ). For a natural parameter θ ∈ Θ, write 
+
+pθ(x) := h(x) exp {θt (x) − A(θ)}.
+
+Under Pξh,δ , where r = hδ √T / 2, the density of the realized history ω is 
+
+pξh,δ (ω) = 
+
+> T
+
+∏
+
+> t=1
+
+πt(at | ξ, ω t−1)
+
+> T
+
+∏
+
+> t=1
+
+pθ0+St(ω)r/ √T a 0 (xt).
+
+Under the tie law (where δ = 0), 
+
+pξ
+
+> 0
+
+(ω) = 
+
+> T
+
+∏
+
+> t=1
+
+πt(at | ξ, ω t−1)
+
+> T
+
+∏
+
+> t=1
+
+pθ0 (xt).
+
+The sampling kernels πt and carrier densities h cancel in the likelihood ratio. Therefore, log pξh,δ (ω)
+
+pξ
+
+> 0
+
+(ω) =
+
+> T
+
+∑
+
+> t=1
+
+[ St(ω)r
+
+√T a 0
+
+t(xt) − A
+
+(
+
+θ0 + St(ω)r
+
+√T a 0
+
+)
+
++ A(θ0)
+
+]
+
+,
+
+which proves (F.14). 
+
+We use the likelihood function to define a scalar statistic that orders full histories. For ω ∈ H ξT , let 
+
+VT,ξ (ω) := argmax 
+
+> |r|≤ LT
+
+ℓT,ξ (r; ω) (F.15) be the bounded local maximum-likelihood estimator of the signed rescaled gap r = h δ√T 
+
+> 2
+
+. Differentiating (F.14) gives 
+
+ℓ′
+
+> T,ξ
+
+(r; ω) = 1
+
+√T a 0
+
+> T
+
+∑
+
+> t=1
+
+St(ω)
+
+[
+
+t(xt) − A′
+
+(
+
+θ0 + St(ω)r
+
+√T a 0
+
+)] 
+
+,
+
+and 
+
+−ℓ′′ 
+
+> T,ξ
+
+(r; ω) = 1
+
+T a 0
+
+> T
+
+∑
+
+> t=1
+
+A′′ 
+
+(
+
+θ0 + St(ω)r
+
+√T a 0
+
+)
+
+> 0. (F.16) Hence ℓT,ξ (·; ω) is strictly concave on [ −LT , L T ], and its maximizer is unique. Since ℓT,ξ (r; ω) is measurable in ω and continuous in r, the map ω 7 → VT,ξ (ω) is measurable. 
+
+F.2.4 Step 4. The Resulting Bayesian Flat Sign Experiment 
+
+Recall that we defined 
+
+G := ∆√T
+
+2 , LT := ¯δα
+
+√T
+
+2 .
+
+By the coordinate factorization of Qρ, ¯δα and the change of variables 
+
+g = δ√T
+
+2 , δ = 2g
+
+√T , dδ = 2
+
+√T dg, 
+
+46 we have 
+
+Qρ, ¯δα (Ξ ∈ dξ, G ∈ dg, H = h) = 2
+
+√T Λρ(d ξ) d g, h ∈ { +1 , −1},
+
+for g ∈ [0 , L T ]. Fix ξ ∈ C ρ. Recall ( HξT , H ξT ) is the oracle history space, and ω ∈ H ξT denotes a realization. For every 
+
+E ∈ H ξT , define the unnormalized marginal measures of the history , corresponding to two values of the sign 
+
+h,
+
+AT,ξ (E) := 
+
+∫ LT
+
+> 0
+
+Pξ  
+
+> +1 ,2g/ √T
+
+(E) d g, BT,ξ (E) := 
+
+∫ LT
+
+> 0
+
+Pξ  
+
+> −1,2g/ √T
+
+(E) d g. (F.17) Let 
+
+MT,ξ := AT,ξ + BT,ξ .
+
+In particular, 
+
+AT,ξ (HξT ) = BT,ξ (HξT ) = LT , MT,ξ (HξT ) = 2 LT .
+
+and define their overlap measure NT,ξ := AT,ξ ∧ BT,ξ by dNT,ξ 
+
+dMT,ξ 
+
+:= min 
+
+{ dAT,ξ 
+
+dMT,ξ 
+
+, dBT,ξ 
+
+dMT,ξ 
+
+}
+
+.
+
+Recall that, from (F.13), for g ∈ [0 , L T ], dPξ 
+
+> +1 ,2g/ √T
+
+dPξ
+
+> 0
+
+(ω) = exp {ℓT,ξ (g; ω)},
+
+whereas dPξ 
+
+> −1,2g/ √T
+
+dPξ
+
+> 0
+
+(ω) = exp {ℓT,ξ (−g; ω)}.
+
+Tonelli’s theorem therefore gives dAT,ξ 
+
+dPξ
+
+> 0
+
+(ω) = 
+
+∫ LT
+
+> 0
+
+exp {ℓT,ξ (g; ω)} dg =
+
+∫ LT
+
+> 0
+
+exp {ℓT,ξ (r; ω)} dr
+
+dBT,ξ 
+
+dPξ
+
+> 0
+
+(ω) = 
+
+∫ LT
+
+> 0
+
+exp {ℓT,ξ (−g; ω)} dg =
+
+∫ 0
+
+> −LT
+
+exp {ℓT,ξ (r; ω)} dr. 
+
+(F.18) Consequently, dMT,ξ 
+
+dPξ
+
+> 0
+
+(ω) = 
+
+∫ LT
+
+> −LT
+
+exp {ℓT,ξ (r; ω)} dr, 
+
+and dNT,ξ 
+
+dPξ
+
+> 0
+
+(ω) = min 
+
+{∫ LT
+
+> 0
+
+eℓT ,ξ (r;ω) dr, 
+
+∫ 0
+
+> −LT
+
+eℓT ,ξ (r;ω) dr
+
+}
+
+.
+
+In particular, wherever the denominator is positive, dNT,ξ 
+
+dMT,ξ 
+
+(ω) = min 
+
+{∫ LT
+
+> 0
+
+eℓT ,ξ (r;ω) dr, 
+
+∫ 0
+
+> −LT
+
+eℓT ,ξ (r;ω) dr
+
+}
+
+∫ LT
+
+> −LT
+
+eℓT ,ξ (r;ω) dr. (F.19) 47 Let ψξ = (ψξ
+
+> +
+
+, ψ ξ
+
+> −
+
+, ψ ξ
+
+> ?
+
+) denote the randomized terminal rule of an oracle local-pair strategy. Thus, for every ω ∈ H ξT ,
+
+ψξ
+
+> +
+
+(ω) + ψξ
+
+> −
+
+(ω) + ψξ 
+
+> ?
+
+(ω) = 1 ,
+
+where ψξ
+
+> +
+
+(ω), ψξ
+
+> −
+
+(ω), and ψξ 
+
+> ?
+
+(ω) are the probabilities of recommending +, recommending −, and abstaining after observing the history ω.
+
+Lemma F.7 (Risk Representation in the Flat Sign Experiment) . For every terminal rule ψ, its abstention mass under Qρ, ¯δα is 
+
+AQρ, ¯δα  
+
+> T
+
+(ψ) = 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) MT,ξ (d ω) Λ ρ(d ξ). (F.20) 
+
+Its undetected error mass is 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) = 2
+
+√T
+
+∫
+
+> Cρ
+
+[ ∫ 
+
+> HξT
+
+ψξ
+
+> −
+
+(ω) AT,ξ (d ω) + 
+
+∫
+
+> HξT
+
+ψξ
+
+> +
+
+(ω) BT,ξ (d ω)
+
+]
+
+Λρ(d ξ). (F.21) 
+
+Moreover, 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) ≥ 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> HξT
+
+(1 − ψξ 
+
+> ?
+
+(ω)) NT,ξ (d ω) Λ ρ(d ξ). (F.22) 
+
+Proof. For fixed ( ξ, δ, h ), the conditional abstention probability induced by ψξ is 
+
+Pξh,δ (̂aT =?) = 
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) Pξh,δ (d ω). (F.23) Hence we can write 
+
+AQρ, ¯δα  
+
+> T
+
+(ψ) = 
+
+∫
+
+> (I)K
+
+Pμ(̂aT =?) Qρ, ¯δα (d μ)
+
+> (a)
+
+= ∑
+
+> h∈{ +1 ,−1}
+
+∫
+
+> Cρ
+
+∫ ¯δα
+
+> 0
+
+Pξh,δ (̂aT =?) d δ Λρ(d ξ)
+
+> (b)
+
+= ∑
+
+> h∈{ +1 ,−1}
+
+∫
+
+> Cρ
+
+∫ ¯δα
+
+> 0
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) Pξh,δ (d ω) d δ Λρ(d ξ).
+
+> (c)
+
+= 2
+
+√T
+
+∫
+
+> Cρ
+
+∫ LT
+
+> 0
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) Pξ  
+
+> +1 ,2g/ √T
+
+(d ω) d g Λρ(d ξ)+ 2
+
+√T
+
+∫
+
+> Cρ
+
+∫ LT
+
+> 0
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) Pξ  
+
+> −1,2g/ √T
+
+(d ω) d g Λρ(d ξ).
+
+where ( a) is due to the coordinate factorization of Qρ, ¯δα (F.10), ( b) is due to (F.23) and ( c) is due to the change of variable with g = δ√T / 2 separately for the two signs. Hence by the definitions of MT,ξ , this is (F.20). An undetected sign error occurs when the rule recommends − under H = +1, or recommends + under 
+
+H = −1. Repeating similar arguments as for (F.20) with the two error events gives (F.21). Note the tie case 
+
+δ = 0 does not affect the calculation because it is null with respect to the δ-integration. To prove the lower bound, write aT,ξ := dAT ,ξ  
+
+> dMT ,ξ
+
+, and bT,ξ := dBT ,ξ  
+
+> dMT ,ξ
+
+. Since MT,ξ = AT,ξ + BT,ξ ,
+
+aT,ξ (ω) + bT,ξ (ω) = 1 MT,ξ -a.e. 48 For MT,ξ -almost every ω,
+
+ψξ
+
+> −
+
+(ω)aT,ξ (ω) + ψξ
+
+> +
+
+(ω)bT,ξ (ω) ≥ (ψξ
+
+> −
+
+(ω) + ψξ
+
+> +
+
+(ω)) min {aT,ξ (ω), b T,ξ (ω)}
+
+= (1 − ψξ 
+
+> ?
+
+(ω)) dNT,ξ 
+
+dMT,ξ 
+
+(ω).
+
+Integrating with respect to MT,ξ , and then with respect to Λ ρ, proves (F.22). 
+
+In particular, if 
+
+AQρ, ¯δα  
+
+> T
+
+(ψ) ≤ α, 
+
+then (F.20) implies ∫
+
+> Cρ
+
+∫
+
+> HξT
+
+ψξ 
+
+> ?
+
+(ω) MT,ξ (d ω) Λ ρ(d ξ) ≤ α√T
+
+2 . (F.24) Thus the remaining problem is to study, as functions of the full history ω, the total unnormalized marginal measure of the history MT,ξ and the overlap ratio dNT ,ξ  
+
+> dMT ,ξ
+
+(ω). Next, we compare this overlap ratio with Φ( −| VT,ξ (ω)|) and use the local MLE VT,ξ (ω) in the bathtub argument. 
+
+F.2.5 Step 5. Solving the Bayesian Flat Sign Experiment 
+
+Intuitively, the measures MT,ξ and NT,ξ determine, respectively, the available abstention mass and the unavoidable undetected error mass. We now compare these measures with their Gaussian analogues through the local MLE VT,ξ . We use the abbreviations 
+
+St := St(HξT ), ℓT,ξ (r) := ℓT,ξ (r; HξT ), VT,ξ := VT,ξ (HξT ).
+
+For r ∈ [−LT , L T ], define sgn( r) := 
+
+{
+
++1 , r ≥ 0,
+
+−1, r < 0, δT (r) := 2|r|
+
+√T .
+
+At r = 0, the choice of sgn( r) is immaterial because both signs induce the same tie law. 
+
+Lemma F.8 (Uniform Curvature and Local-MLE Tightness) . Fix ρ ∈ (0 , 1) and D < ∞. There exist constants α0 > 0 and C, C 1 < ∞ such that, for every 0 < α ≤ α0, the following statements hold uniformly over ξ ∈ C ρ and all local pair strategies. First, for every history realization ω,
+
+1 − Cα ≤ − ℓ′′ 
+
+> T,ξ
+
+(r; ω) ≤ 1 + Cα, |r| ≤ LT . (F.25) 
+
+In particular, ℓT,ξ (·; ω) is strictly concave on [−LT , L T ], and the local MLE VT,ξ (ω) is unique. Second, for every R > 0 and every T such that R ≤ LT /2,
+
+sup 
+
+> ξ∈C ρ
+
+sup  
+
+> |r|≤ LT/2
+
+Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| > R ) ≤ C1
+
+R2 . (F.26) 
+
+Proof. Fix ξ = ( i, j, u, ζ −ij ) ∈ C ρ, and recall that θ0 = β(u) and a0 = A′′ (θ0). By (F.16), 
+
+−ℓ′′ 
+
+> T,ξ
+
+(r; ω) = 1
+
+T a 0
+
+> T
+
+∑
+
+> t=1
+
+A′′ 
+
+(
+
+θ0 + St(ω)r
+
+√T a 0
+
+)
+
+.
+
+Because Cρ is compact, the centers θ0 = β(u) range over a compact subset of Θ, and inf ξ∈C ρ a0 > 0. Moreover, for |r| ≤ LT ,
+
+∣∣∣ r√T a 0
+
+∣∣∣ ≤ CDα uniformly over ξ ∈ C ρ. Thus, for all sufficiently small α, every 49 perturbed natural parameter θ0 + St(ω)r
+
+> √T a 0
+
+belongs to a common compact subset of Θ. Since A′′ is locally Lipschitz on this compact set, there exists C < ∞ such that 
+
+∣∣∣∣∣∣
+
+A′′ 
+
+(
+
+θ0 + St(ω)r
+
+> √T a 0
+
+)
+
+A′′ (θ0) − 1
+
+∣∣∣∣∣∣ ≤ Cα. 
+
+Averaging over t proves (F.25). By decreasing α0 if necessary, we may assume Cα 0 < 1, so the likelihood is strictly concave. We next prove (F.26). Fix r ∈ [−LT /2, L T /2] and consider the experiment under Pξ 
+
+> sgn( r), δ T(r)
+
+. Define the score at the true signed parameter by 
+
+UT,ξ (r) := ℓ′
+
+> T,ξ
+
+(r) = 
+
+> T
+
+∑
+
+> t=1
+
+Dt(r),
+
+where 
+
+Dt(r) := St
+
+√T a 0
+
+[
+
+t(Xt) − A′
+
+(
+
+θ0 + Str
+
+√T a 0
+
+)] 
+
+.
+
+Let Gξt := σ(ξ, A 1, X 1, . . . , A t−1, X t−1, A t
+
+) denote the information available after choosing At but before observing Xt. Conditional on Gξt , the reward has natural parameter 
+
+θ0 + Str
+
+√T a 0
+
+.
+
+Therefore, 
+
+Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+Dt(r) | G ξt
+
+]
+
+= 0 and 
+
+Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+Dt(r)2 | G ξt
+
+]
+
+=
+
+A′′ 
+
+(
+
+θ0 + Str√T a 0
+
+)
+
+T a 0
+
+.
+
+Moreover, for s < t , the variable Ds(r) is Gξt -measurable. Hence 
+
+Eξ  
+
+> sgn( r), δ T(r)
+
+[Ds(r)Dt(r)] = Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+Ds(r)Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+Dt(r) | G ξt
+
+]] 
+
+= 0 .
+
+Thus the martingale increments are orthogonal in L2, and therefore 
+
+Eξ 
+
+> sgn( r), δ T(r)
+
+[UT,ξ (r)2] =
+
+> T
+
+∑
+
+> t=1
+
+Eξ 
+
+> sgn( r), δ T(r)
+
+[Dt(r)2 ]
+
+= Eξ 
+
+> sgn( r), δ T(r)
+
+[ T∑
+
+> t=1
+
+Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+Dt(r)2 | G ξt
+
+]]
+
+= Eξ 
+
+> sgn( r), δ T(r)
+
+[
+
+1
+
+T a 0
+
+> T
+
+∑
+
+> t=1
+
+A′′ 
+
+(
+
+θ0 + Str
+
+√T a 0
+
+)]
+
+> (a)
+
+= Eξ 
+
+> sgn( r), δ T(r)
+
+[−ℓ′′ 
+
+> T,ξ
+
+(r)]
+
+> (b)
+
+≤ 1 + Cα, 
+
+where ( a) follows from (F.16), and ( b) follows from (F.25). 50 Let R ≤ LT /2. If VT,ξ ≥ r + R, then concavity implies ℓ′
+
+> T,ξ
+
+(r + R) ≥ 0. Hence, 0 ≤ ℓ′
+
+> T,ξ
+
+(r + R)= ℓ′
+
+> T,ξ
+
+(r) + 
+
+∫ r+Rr
+
+ℓ′′ 
+
+> T,ξ
+
+(v) d v
+
+≤ UT,ξ (r) − (1 − Cα )R, 
+
+so that 
+
+UT,ξ (r) ≥ (1 − Cα )R. 
+
+Similarly, 
+
+VT,ξ ≤ r − R =⇒ UT,ξ (r) ≤ − (1 − Cα )R. 
+
+Consequently, 
+
+|VT,ξ − r| > R =⇒ |UT,ξ (r)| ≥ (1 − Cα )R. 
+
+Chebyshev’s inequality gives 
+
+Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| > R ) ≤ 1 + Cα 
+
+(1 − Cα )2R2 .
+
+Since α ≤ α0, the right-hand side is at most C1/R 2 for a constant C1 < ∞ independent of ξ, T , r, and the sampling strategy. 
+
+Lemma F.9 (Uniform Local Likelihood Curve Comparison) . Fix ρ ∈ (0 , 1) , D < ∞, and ε ∈ (0 , 1/10) . Let 
+
+aT := α√T 
+
+> 2(1 −3ε)cρ
+
+, and assume D > 4 
+
+> (1 −3ε)cρ
+
+, so that LT = Dα √T 
+
+> 2
+
+> 4aT .For all sufficiently small α, and then all sufficiently large T , the following statements hold uniformly over 
+
+ξ ∈ C ρ and all nonanticipating local-pair sampling strategies. First, 
+
+MT,ξ (|VT,ξ | ≤ aT ) ≥ 2(1 − ε)aT . (F.27) 
+
+Second, 
+
+∫   
+
+> {aT<|VT ,ξ |≤ LT/2}
+
+Φ(−| VT,ξ (ω)|) MT,ξ (d ω) ≥ exp {− oT (α2T )}2(1 − ε)
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u. (F.28) 
+
+Third, on the central history set {ω : |VT,ξ (ω)| ≤ LT /2},
+
+dNT,ξ 
+
+dMT,ξ 
+
+(ω) ≥ (1 − ε) exp {− εα 2T − oT (α2T )}Φ(−| VT,ξ (ω)|), MT,ξ -a.e. (F.29) 
+
+The oT (α2T ) terms are uniform over ξ ∈ C ρ and all nonanticipating local-pair sampling strategies. Proof. Recall we have established that, for every measurable (history event) E ∈ H ξT ,
+
+MT,ξ (E) = 
+
+∫ LT
+
+> 0
+
+Pξ  
+
+> +1 ,2g/ √T
+
+(E) d g +
+
+∫ LT
+
+> 0
+
+Pξ  
+
+> −1,2g/ √T
+
+(E) d g
+
+=
+
+∫ LT
+
+> −LT
+
+Pξ 
+
+> sgn( r), δ T(r)
+
+(E) d r. 
+
+(F.30) Choose R > 0 sufficiently large that C1 
+
+> R2
+
+≤ ε 
+
+> 4
+
+, where C1 is the constant in Lemma F.8. For all sufficiently large T , we have R < a T and R < L T /2. Also recall LT > 4aT , hence [ −aT + R, a T − R] ⊂ [−LT , L T ]. And 51 on this interval |r| ≤ aT − R, hence {| VT,ξ − r| ≤ R} ⊂ {| VT,ξ | ≤ aT }. Therefore, 
+
+MT,ξ (|VT,ξ | ≤ aT ) = 
+
+∫ LT
+
+> −LT
+
+Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ | ≤ aT ) d r
+
+≥
+
+∫ aT −R 
+
+> −aT+R
+
+Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| ≤ R) d r
+
+≥ (2 aT − 2R)
+
+(
+
+1 − ε
+
+4
+
+)
+
+.
+
+Since aT → ∞ for every fixed α > 0, the final expression is at least 2(1 − ε)aT for all sufficiently large T .This proves (F.27). For the second (weighted) bound, suppose first that |VT,ξ −r| ≤ R and r ∈ [aT + 2 R, LT 
+
+> 2
+
+− R]. Then aT <VT,ξ ≤ LT 
+
+> 2
+
+, and hence Φ( −| VT,ξ |) ≥ Φ( −(r + R)). Similarly, if |VT,ξ − r| ≤ R and r ∈ [− LT 
+
+> 2
+
++ R, −aT − 2R],then aT < |VT,ξ | ≤ LT 
+
+> 2
+
+, and Φ( −| VT,ξ |) ≥ Φ( −(|r| + R)). Using (F.30), we have 
+
+∫   
+
+> {aT<|VT ,ξ |≤ LT/2}
+
+Φ(−| VT,ξ (ω)|) MT,ξ (d ω)=
+
+∫
+
+> HξT
+> 1
+
+{
+
+aT < |VT,ξ (ω)| ≤ LT
+
+2
+
+}
+
+Φ(−| VT,ξ (ω)|) ∫ LT
+
+> −LT
+
+dr Pξ 
+
+> sgn( r), δ T(r)
+
+(d ω)=
+
+∫ LT
+
+> −LT
+
+∫
+
+> HξT
+> 1
+
+{
+
+aT < |VT,ξ (ω)| ≤ LT
+
+2
+
+}
+
+Φ(−| VT,ξ (ω)|) Pξ 
+
+> sgn( r), δ T(r)
+
+(d ω) d r
+
+≥
+
+∫ LT /2−RaT +2 R
+
+∫ 
+
+> HξT
+> 1
+
+{| VT,ξ (ω) − r| ≤ R} Φ( −(r + R)) Pξ 
+
+> sgn( r), δ T(r)
+
+(d ω) d r
+
++
+
+∫ −aT −2R 
+
+> −LT/2+ R
+
+∫ 
+
+> HξT
+> 1
+
+{| VT,ξ (ω) − r| ≤ R} Φ( −(|r| + R)) Pξ 
+
+> sgn( r), δ T(r)
+
+(d ω) d r
+
+=
+
+∫ LT /2−RaT +2 R
+
+Φ( −(r + R)) Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| ≤ R) d r
+
++
+
+∫ −aT −2R 
+
+> −LT/2+ R
+
+Φ( −(|r| + R)) Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| ≤ R) d r. 
+
+By (F.26), 
+
+Pξ  
+
+> sgn( r), δ T(r)
+
+(|VT,ξ − r| ≤ R) ≥ 1 − ε
+
+4throughout both integration intervals. Then, with the change of variables u = −r, we get 
+
+∫   
+
+> {aT<|VT ,ξ |≤ LT/2}
+
+Φ(−| VT,ξ (ω)|) MT,ξ (d ω) ≥ 2
+
+(
+
+1 − ε
+
+4
+
+) ∫ LT /2−RaT +2 R
+
+Φ( −(r + R)) d r
+
+= 2 
+
+(
+
+1 − ε
+
+4
+
+) ∫ LT /2 
+
+> aT+3 R
+
+Φ( −u) d u. 
+
+Since R is fixed, aT ≍ α√T , and LT /2 > 2aT , Gaussian tail asymptotics (Φ( −x) = φ(x) 
+
+> x
+
+(1 + O(x−2) )and ∫ ∞ 
+
+> x
+
+Φ( −u)d u = φ(x) − xΦ( −x)) imply log 
+
+∫ LT /2 
+
+> aT+3 R
+
+Φ( −u) d u
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u
+
+= −3Ra T + O(1 + log aT ) = −oT (α2T )52 for every fixed α > 0. Therefore, 
+
+∫   
+
+> {aT<|VT ,ξ |≤ LT/2}
+
+Φ(−| VT,ξ (ω)|) MT,ξ (d ω) ≥ exp {− oT (α2T )}2(1 − ε)
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u, 
+
+which proves (F.28). It remains to prove the third overlap bound. Fix a history realization ω, and for ease of notation define 
+
+v := VT,ξ (ω). Assume |v| ≤ LT /2. Since v is an interior maximizer, 
+
+ℓ′
+
+> T,ξ
+
+(v; ω) = 0 .
+
+By (F.25) in Lemma F.8, for every r ∈ [−LT , L T ], 
+
+ℓT,ξ (v; ω) − 1 + Cα 
+
+2 (r − v)2 ≤ ℓT,ξ (r; ω)
+
+≤ ℓT,ξ (v; ω) − 1 − Cα 
+
+2 (r − v)2.
+
+(F.31) Recall from (F.19) that dNT,ξ 
+
+dMT,ξ 
+
+(ω) = min 
+
+{∫ LT
+
+> 0
+
+eℓT ,ξ (r;ω) dr, 
+
+∫ 0
+
+> −LT
+
+eℓT ,ξ (r;ω) dr
+
+}
+
+∫ LT
+
+> −LT
+
+eℓT ,ξ (r;ω) dr.
+
+Suppose first that v ≥ 0. By the lower bound in (F.31), min 
+
+{∫ LT
+
+> 0
+
+eℓT ,ξ (r;ω) dr, 
+
+∫ 0
+
+> −LT
+
+eℓT ,ξ (r;ω) dr
+
+}
+
+≥ eℓT ,ξ (v;ω) min 
+
+{∫ LT
+
+> 0
+
+e−(1+ Cα )( r−v)2/2 dr, 
+
+∫ 0
+
+> −LT
+
+e−(1+ Cα )( r−v)2/2 dr
+
+}
+
+≥ eℓT ,ξ (v;ω)
+
+∫ 0
+
+> −LT
+
+exp 
+
+{
+
+− 1 + Cα 
+
+2 (r − v)2
+
+}
+
+dr. 
+
+By the upper bound in (F.31), 
+
+∫ LT
+
+> −LT
+
+eℓT ,ξ (r;ω) dr ≤ eℓT ,ξ (v;ω)
+
+∫ ∞−∞ 
+
+exp 
+
+{
+
+− 1 − Cα 
+
+2 (r − v)2
+
+}
+
+dr
+
+= eℓT ,ξ (v;ω)
+
+√ 2π
+
+1 − Cα .
+
+Thus dNT,ξ 
+
+dMT,ξ 
+
+(ω) ≥
+
+√ 1 − Cα 
+
+1 + Cα 
+
+[
+
+Φ
+
+(
+
+−√1 + Cα v 
+
+)
+
+− Φ
+
+(
+
+−√1 + Cα (LT + v)
+
+)] 
+
+.
+
+The case v ≤ 0 is symmetric and yields the same bound with |v| in place of v.Since Φ( −x) is decreasing, uniformly over |v| ≤ LT /2, Φ (−√1 + Cα (LT + |v|))
+
+Φ (−√1 + Cα |v|) ≤ Φ (−√1 + CαL T
+
+)
+
+Φ (−√1 + CαL T /2) = oT (1) .
+
+53 Moreover, note d 
+
+> dt
+
+log Φ( −t) = − φ(t) 
+
+> Φ( −t)
+
+. By Mills ratio bound Φ( −t) ≥ t 
+
+> 1+ t2
+
+φ(t), we have log Φ (−√1 + Cα v )
+
+Φ ( −v) = −
+
+∫ √1+ Cα v v
+
+φ(t)
+
+Φ( −t) dt
+
+≥ − 
+
+∫ √1+ Cα v v
+
+(t + 1
+
+t )d t
+
+= − 1 + Cα − 1
+
+2 v2 − log 
+
+(√1 + Cα 
+
+)
+
+And note (1 + Cα )−1/2 ≥ 1 − C 
+
+> 2
+
+α. Hence there exists C2 = C/ 2 < ∞ such that, for all sufficiently small α
+
+and all v > 0, Φ
+
+(
+
+−√1 + Cα v 
+
+)
+
+≥ (1 − C2α) exp {− C2αv 2}Φ( −v).
+
+Finally, uniformly over |v| ≤ LT /2, dNT,ξ 
+
+dMT,ξ 
+
+(ω) ≥
+
+√ 1 − Cα 
+
+1 + Cα 
+
+[
+
+Φ
+
+(
+
+−√1 + Cα |v|
+
+)
+
+− Φ
+
+(
+
+−√1 + Cα (LT + |v|)
+
+)] 
+
+=
+
+√ 1 − Cα 
+
+1 + Cα Φ
+
+(
+
+−√1 + Cα |v|
+
+) [
+
+1 − Φ (−√1 + Cα (LT + |v|))
+
+Φ (−√1 + Cα |v|)]
+
+≥ (1 − oT (1)) 
+
+√ 1 − Cα 
+
+1 + Cα (1 − C2α) exp {− C2αv 2}Φ( −| v|).
+
+Moreover, for all sufficiently small α, there exists C3 < ∞ such that 
+
+√ 1−Cα  
+
+> 1+ Cα
+
+≥ 1 − C3α. Consequently, dNT,ξ 
+
+dMT,ξ 
+
+(ω) ≥ (1 − oT (1))(1 − C2α)(1 − C3α) exp {−C2αv 2} Φ ( −| v|) .
+
+Since |v| ≤ LT 
+
+> 2
+
+= Dα √T 
+
+> 4
+
+, there exists C4 < ∞ such that C2αv 2 ≤ C4D2α3T . Choose α sufficiently small such that C4D2α ≤ ε. Then exp {− C2αv 2} ≥ exp {−εα 2T } .
+
+Shrinking α further and then taking T sufficiently large to obtain (1 − oT (1))(1 − C2α)(1 − C3α) > (1 − ε). This proves (F.29). 
+
+Lemma F.10 (Bathtub Principle under an Arbitrary Measure) . Let m be a finite measure, let V be a measurable real-valued statistic, and let w : R → [0 , ∞) be even and nonincreasing in |v|. Fix 0 < a < B ,and let ϕ be measurable with 0 ≤ ϕ ≤ 1. If 
+
+∫
+
+ϕ dm ≤ b and m(|V | ≤ a) ≥ b, 
+
+then ∫ 
+
+> {| V|≤ B}
+
+(1 − ϕ)w(V ) d m ≥
+
+∫ 
+
+> {a< |V|≤ B}
+
+w(V ) d m. (F.32) 
+
+Proof. Let 
+
+C := {| V | ≤ a}, D := {| V | ≤ B}.
+
+Since w(V ) ≤ w(a) on D \ C,
+
+∫
+
+> D
+
+ϕw (V ) d m ≤
+
+∫
+
+> C
+
+ϕw (V ) d m + w(a)
+
+∫
+
+> D\C
+
+ϕ dm.
+
+54 The budget and central-mass assumptions imply 
+
+∫
+
+> D\C
+
+ϕ dm ≤
+
+∫
+
+> Cc
+
+ϕ dm
+
+≤ m(C) −
+
+∫
+
+> C
+
+ϕ dm
+
+=
+
+∫
+
+> C
+
+(1 − ϕ) d m.
+
+Since w(V ) ≥ w(a) on C,
+
+w(a)
+
+∫
+
+> C
+
+(1 − ϕ) d m ≤
+
+∫
+
+> C
+
+(1 − ϕ)w(V ) d m.
+
+Therefore, ∫
+
+> D
+
+ϕw (V ) d m ≤
+
+∫
+
+> C
+
+ϕw (V ) d m +
+
+∫
+
+> C
+
+(1 − ϕ)w(V ) d m
+
+=
+
+∫
+
+> C
+
+w(V ) d m.
+
+Consequently, ∫
+
+> D
+
+(1 − ϕ)w(V ) d m =
+
+∫
+
+> D
+
+w(V ) d m −
+
+∫
+
+> D
+
+ϕw (V ) d m
+
+≥
+
+∫
+
+> D
+
+w(V ) d m −
+
+∫
+
+> C
+
+w(V ) d m
+
+=
+
+∫
+
+> D\C
+
+w(V ) d m,
+
+which proves (F.32). 
+
+Lemma F.11 (Flat Local Sign Lower Bound) . Fix ρ ∈ (0 , 1) and ε ∈ (0 , 1/10) , and choose D > 4 
+
+> (1 −3ε)cρ
+
+.Set 
+
+¯δα := Dα, LT := Dα √T
+
+2 , aT := α√T
+
+2(1 − 3ε)cρ
+
+.
+
+For all sufficiently small α, and then all sufficiently large T , every oracle local-pair terminal rule ψ satisfying 
+
+AQρ, ¯δα  
+
+> T
+
+(ψ) ≤ α
+
+must satisfy 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) ≥ exp {− εα 2T − oT (α2T )} 2(1 − ε)2cρ
+
+√T
+
+∫ ∞
+
+> aT
+
+Φ( −u) d u. (F.33) 
+
+Proof. Define a finite measure mT by 
+
+∫
+
+F (ξ, ω ) mT (d ξ, dω) := 
+
+∫
+
+> Cρ
+
+∫
+
+> HξT
+
+F (ξ, ω ) MT,ξ (d ω) Λ ρ(d ξ)for every nonnegative measurable function F . Let 
+
+V (ξ, ω ) := VT,ξ (ω), ϕ(ξ, ω ) := ψξ 
+
+> ?
+
+(ω).
+
+By the abstention representation (F.20), the constraint AQρ, ¯δα  
+
+> T
+
+(ψ) ≤ α implies 
+
+∫
+
+ϕ dmT ≤ α√T
+
+2 .
+
+55 On the other hand, by (F.27) and Λ ρ(Cρ) = cρ/2, 
+
+mT (|V | ≤ aT ) = 
+
+∫
+
+> Cρ
+
+MT,ξ (|VT,ξ | ≤ aT ) Λ ρ(d ξ)
+
+≥ 2(1 − ε)aT Λρ(Cρ)= (1 − ε)cρaT
+
+= 1 − ε
+
+1 − 3εα√T
+
+2
+
+> α√T
+
+2 .
+
+Intuitively, this means the central set {| V | ≤ aT } has enough mT -mass to contain the entire abstention budget. By the overlap lower bound (F.22), 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) ≥ 2
+
+√T
+
+∫
+
+> Cρ
+
+∫
+
+> HξT
+
+(1 − ψξ 
+
+> ?
+
+(ω)) NT,ξ (d ω) Λ ρ(d ξ).
+
+Restricting the integral to {| VT,ξ | ≤ LT /2} and applying (F.29) yields 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) ≥ 2
+
+√T
+
+∫
+
+> Cρ
+
+∫  
+
+> {| VT ,ξ |≤ LT/2}
+
+(1 − ψξ 
+
+> ?
+
+(ω)) NT,ξ (d ω) Λ ρ(d ξ)= 2
+
+√T
+
+∫
+
+> Cρ
+
+∫  
+
+> {| VT ,ξ |≤ LT/2}
+
+(1 − ψξ 
+
+> ?
+
+(ω)) dNT,ξ 
+
+dMT,ξ 
+
+MT,ξ (d ω) Λ ρ(d ξ)
+
+≥ 2(1 − ε)
+
+√T exp {− εα 2T − oT (α2T )}
+
+∫  
+
+> {| V|≤ LT/2}
+
+(1 − ϕ)Φ( −| V |) d mT .
+
+Apply Lemma F.10 with 
+
+w(v) := Φ( −| v|), a = aT , B = LT /2, b = α√T
+
+2 .
+
+The budget and central-mass conditions were verified above. Therefore, 
+
+∫  
+
+> {| V|≤ LT/2}
+
+(1 − ϕ)Φ( −| V |) d mT ≥
+
+∫   
+
+> {aT<|V|≤ LT/2}
+
+Φ( −| V |) d mT
+
+=
+
+∫
+
+> Cρ
+
+∫   
+
+> {aT<|VT ,ξ |≤ LT/2}
+
+Φ(−| VT,ξ (ω)|) MT,ξ (d ω) Λ ρ(d ξ)
+
+> (a)
+
+≥ exp {− oT (α2T )}2(1 − ε)Λ ρ(Cρ)
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u
+
+= exp {− oT (α2T )}(1 − ε)cρ
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u. 
+
+where ( a) is by (F.28) and Λ ρ(Cρ) = cρ/2. Consequently, 
+
+EQρ, ¯δα  
+
+> T
+
+(ψ) ≥ exp {− εα 2T − oT (α2T )} 2(1 − ε)2cρ
+
+√T
+
+∫ LT /2
+
+> aT
+
+Φ( −u) d u. 
+
+Finally, the choice of D implies LT 
+
+> 2
+
+> 2aT . Since aT → ∞ for every fixed α > 0, Gaussian tail asymptotics give ∫ LT /2
+
+> aT
+
+Φ( −u) d u = (1 − oT (1)) 
+
+∫ ∞
+
+> aT
+
+Φ( −u) d u. 
+
+Absorbing the factor 1 − oT (1) into exp {− oT (α2T )} proves (F.33). 
+
+56 F.2.6 Step 6. Conclusion 
+
+Let π be any original adaptive policy satisfying 
+
+AT (π) ≤ α. 
+
+Fix ρ ∈ (0 , 1) and ε ∈ (0 , 1/10). Choose D > 4 
+
+> (1 −3ε)cρ
+
+and set ¯δα := Dα .For all sufficiently small α, ¯δα ≤ δρ, so Qρ, ¯δα is well-defined. By (F.11), 
+
+AQρ, ¯δα  
+
+> T
+
+(π) ≤ A T (π) ≤ α, 
+
+and 
+
+ET (π) ≥ E Qρ, ¯δα  
+
+> T
+
+(π).
+
+After revealing the background oracle and applying Lemma F.5, the original policy induces an oracle local-pair sign rule whose abstention probability is at most α, and whose sign-error probability is no larger than the original undetected-error probability. Therefore Lemma F.11 implies 
+
+ET (π) ≥ exp {− εα 2T − oT (α2T )} 2(1 − ε)2cρ
+
+√T
+
+∫ ∞
+
+> aT
+
+Φ( −u) d u, 
+
+where aT = α√T 
+
+> 2(1 −3ε)cρ
+
+.For fixed α > 0, aT → ∞ . The identity 
+
+∫ ∞
+
+> a
+
+Φ( −u) d u = φ(a) − aΦ( −a)and the standard Gaussian tail expansion imply log 
+
+(∫ ∞
+
+> a
+
+Φ( −u) d u
+
+)
+
+= − a2
+
+2 + O(log a), a → ∞ .
+
+Thus, for every feasible policy π,lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (π) ≥ − ε − 1
+
+8(1 − 3ε)2c2
+
+> ρ
+
+.
+
+The bound is uniform over all policies satisfying AT (π) ≤ α. Taking the infimum over feasible policies gives lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − ε − 1
+
+8(1 − 3ε)2c2
+
+> ρ
+
+.
+
+Now take α ↓ 0. Since ρ and ε are fixed, lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − ε − 1
+
+8(1 − 3ε)2c2
+
+> ρ
+
+.
+
+Using (F.7), 
+
+cρ ≥ (1 − ρ)2κ, 
+
+so lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − ε − 1
+
+8(1 − 3ε)2(1 − ρ)4κ2 .
+
+Finally let ε ↓ 0 and then ρ ↓ 0. This gives lim inf  
+
+> α↓0
+
+lim inf  
+
+> T→∞
+
+1
+
+α2T log ET (α) ≥ − 1
+
+8κ2 .
+
+This proves the lower-bound part of Theorem 4.1. 57 F.3 Algorithm and Upper Bound 
+
+Next we prove the matching upper bound. Recall Assumption 4.3 assumes that there exists cKL > 0 such that, for all μ, z ∈ I ,
+
+D(μ, z ) ≥ cKL {s(μ) − s(z)}2.
+
+Take ˜c := min {cKL , 1/4}. Then 
+
+D(μ, z ) ≥ ˜c {s(μ) − s(z)}2, μ, z ∈ I . (F.34) 
+
+F.3.1 The Algorithm 
+
+We now define the information-coordinate version of PGWS, IC-PGWS . As in the Gaussian algorithm in the main paper, the policy has two components. During the sampling phase, it forms empirical centers in the information coordinate and allocates samples according to information-gap weights. At the terminal time, it recommends the empirical information-coordinate leader unless the terminal certificate is below a calibrated abstention threshold. For each arm i ∈ [K], define 
+
+Ni(t) := 
+
+> t
+
+∑
+
+> r=1
+> 1
+
+{Ar = i}, Si(t) := ∑ 
+
+> r≤t:Ar=i
+
+t(Xr ).
+
+The sampling rule uses an empirical information-coordinate center. If Ni(t) > 0, define ̂
+
+ti(t) := Si(t)
+
+Ni(t) .
+
+If Ni(t) > 0 and ̂ ti(t) ∈ A′(Θ), set ̂
+
+θi(t) := ( A′)−1(̂ ti(t)) ,̂ ηi(t) := β−1(̂ 
+
+θi(t)
+
+)
+
+,̂ μi(t) := s−1(̂ηi(t)) . (F.35) If Ni(t) = 0, or if ̂ ti(t) /∈ A′(Θ), use the deterministic fallback ̂
+
+ηi(t) := η◦ := s(μ◦),̂ μi(t) := μ◦. (F.36) The fallback is only a finite-time safeguard. For example, in Bernoulli rewards, the empirical natural statistic may equal 0 or 1 after only failures or only successes. Since the true parameter lies in the interior and forced exploration gives Ni(t) → ∞ , the strong law implies ̂ ti(t) → A′(θ(μi)) ∈ A′(Θ), so the fallback is used only finitely many times almost surely for each arm. At time t, define the empirical information-coordinate leader ̂
+
+bt := arg max 
+
+> i∈[K]
+
+̂ ηi(t), (F.37) with deterministic tie-breaking. For j 6 =̂ bt, define the empirical information-coordinate gap ̂
+
+∆j,s (t) := ̂ η̂bt (t) −̂ ηj (t),
+
+and define the empirical top-two information gap ̂
+
+Γs,t := min   
+
+> j6=̂bt
+
+̂ ∆j,s (t).
+
+58 When ̂ Γs,t > 0, set 
+
+ŵbt (t) := 1 , wj (t) := min 
+
+{
+
+1,̂ Γ 2
+
+> s,t
+
+4˜ĉ ∆j,s (t)2
+
+}
+
+, j 6 =̂ bt. (F.38) The sampling probabilities are 
+
+pi(t) := 
+
+
+
+wi(t)
+
+∑Kℓ=1 wℓ(t) ,̂ Γs,t > 0,
+
+1
+
+K ,̂ Γs,t = 0 .
+
+(F.39) The constant ˜c ≤ 1/4 is the one in (F.34). The cap at 1 /4 ensures that the closest empirical challenger receives the same sampling weight (1) as the leader. At the terminal time, set ̂
+
+bT := arg max 
+
+> i∈[K]
+
+̂ ηi(T ), (F.40) again with deterministic tie-breaking. Given the terminal history, for ease of notation let 
+
+ΠT (·) := P(· | F T )denote the posterior distribution induced by the prior and the observed data. The terminal certificate is 
+
+RT := − log max   
+
+> j6=̂bT
+
+ΠT (μj ≥ μ̂ bT ) = − log max   
+
+> j6=̂bT
+
+ΠT (ηj ≥ η̂bT ), (F.41) where the equality follows because s is strictly increasing. Thus RT is large when the final leader is well separated from all challengers under the posterior, and small when at least one challenger remains plausible. To calibrate abstention, let rT,α be the lower α-quantile of RT under the joint Bayesian law induced by the sampling rule: 
+
+rT,α := inf {r ≥ 0 : P(RT ≤ r) ≥ α} . (F.42) All probabilities in (F.42) are taken before the final terminal randomization. If the distribution of RT has an atom at the threshold, define 
+
+θT,α := 
+
+
+
+α − P(RT < r T,α )
+
+P(RT = rT,α ) , P(RT = rT,α ) > 0,
+
+0, P(RT = rT,α ) = 0 .
+
+(F.43) The terminal decision is ̂
+
+aT =
+
+
+
+?, RT < r T,α ,
+
+?, RT = rT,α with probability θT,α ,̂
+
+bT , otherwise .
+
+(F.44) 
+
+F.3.2 Upper Bound Theorem Theorem F.2 (Upper Bound for IC-PGWS ). Under Assumptions 4.1, 4.2, and the global quadratic KL assumption 4.3, IC-PGWS (α) with terminal rule (F.44) satisfies, for every T and every α ∈ (0 , 1) ,
+
+AT (IC-PGWS (α)) = α. 
+
+Moreover, 
+
+lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (IC-PGWS (α)) ≤ − 1
+
+8κ2 .
+
+We prove the theorem in several steps. Throughout this proof, all probabilities are under the joint Bayesian law induced by Algorithm 2, unless otherwise stated. Recall that 
+
+ηi = s(μi), β(η) = θ(s−1(η)) , H = s(I).
+
+59 Algorithm 2 Information-Coordinate Posterior Gap Weighted Sampling with Abstention IC-PGWS (α)
+
+Require: Budget T , abstention level α, functions s, β, A, natural statistic t, prior densities { ¯fi}Ki=1 , and a constant ˜c ∈ (0 , 1/4] satisfying (F.34).  
+
+> 1:
+
+Initialize Ni(0) = 0 and Si(0) = 0 for all i ∈ [K].  
+
+> 2:
+
+for t = 0 , 1, . . . , T − 1 do  
+
+> 3:
+
+if there exists i ∈ [K] such that Ni(t) < √t + 1 then  
+
+> 4:
+
+Sample one such arm, using deterministic tie-breaking.  
+
+> 5:
+
+else  
+
+> 6:
+
+Compute the empirical centers {̂ ηi(t),̂ μi(t)}Ki=1 using (F.35)–(F.36).  
+
+> 7:
+
+Compute the leader ̂ bt, the empirical gaps {̂ ∆j,s (t)}j6 =̂ bt , and ̂ Γs,t using (F.37).  
+
+> 8:
+
+Compute the sampling probabilities {pi(t)}Ki=1 using (F.38)–(F.39).  
+
+> 9:
+
+Sample arm i with probability pi(t).  
+
+> 10:
+
+end if  
+
+> 11:
+
+Observe Xt+1 , and update Ni(t + 1) and Si(t + 1).  
+
+> 12:
+
+end for  
+
+> 13:
+
+Compute ̂ bT using (F.40).  
+
+> 14:
+
+Compute the terminal certificate RT in (F.41).  
+
+> 15:
+
+Output ̂ aT according to the abstention rule (F.44). 
+
+F.3.3 Error Guarantee Lemma F.12 (Error Guarantee) . For every T and every α ∈ (0 , 1) ,
+
+ET (IC-PGWS (α)) ≤ (K − 1) e−rT ,α .
+
+Proof. Condition on the terminal history FT . If the algorithm recommends ̂ bT , then 
+
+P(a⋆ 6 =̂ bT | F T ) ≤ ∑  
+
+> j6=̂bT
+
+ΠT (μj ≥ μ̂ bT ).
+
+By the definition of RT ,max   
+
+> j6=̂bT
+
+ΠT (μj ≥ μ̂ bT ) = e−RT .
+
+Therefore 
+
+P(a⋆ 6 =̂ bT | F T ) ≤ (K − 1) e−RT .
+
+On the event that the algorithm does not abstain, the terminal quantile rule implies RT ≥ rT,α . Hence 
+
+ET (IC-PGWS (α)) = E
+
+[
+
+> 1
+
+{̂ aT 6 =? }P(a⋆ 6 =̂ bT | F T )
+
+]
+
+≤ (K − 1) e−rT ,α .
+
+F.3.4 Consistency and Allocation Convergence. 
+
+We next identify the almost-sure limit of RT /T . We first introduce the limiting quantities associated with a realized parameter vector. Let b⋆ := arg max i∈[K] ηi = arg max i∈[K] μi be the true best arm. For each 
+
+j 6 = b⋆, define the information coordinate gap ∆ j,s := ηb⋆ − ηj , and define the true top two information gap Γs := min j6 =b⋆ ∆j,s = η(1) − η(2) , where η(1) > η (2) > · · · > η (K) are the ordered information-coordinate qualities. 60 Define the limiting unnormalized sampling weights by 
+
+w† 
+
+> b⋆
+
+(η) := 1 , w† 
+
+> j
+
+(η) := min 
+
+{
+
+1, Γ2
+
+> s
+
+4˜c ∆2
+
+> j,s
+
+}
+
+, j 6 = b⋆. (F.45) Let 
+
+W †(η) := 
+
+> K
+
+∑
+
+> ℓ=1
+
+w† 
+
+> ℓ
+
+(η), p† 
+
+> i
+
+(η) := w† 
+
+> i
+
+(η)
+
+W †(η) .
+
+Because ˜c ≤ 1/4, every second-best arm has limiting weight one. Consequently, 2 ≤ W †(η) ≤ K, p† 
+
+> i
+
+(η) > 0 for every i ∈ [K].
+
+For each challenger j 6 = b⋆, define its pairwise error exponent 
+
+C† 
+
+> j
+
+(μ) := inf   
+
+> z∈[μj,μ b⋆]
+
+{
+
+p† 
+
+> b⋆
+
+(η)D(μb⋆ , z ) + p† 
+
+> j
+
+(η)D(μj , z )
+
+}
+
+.
+
+The worst-case pairwise error exponent is 
+
+C†(μ) := min   
+
+> j6=b⋆
+
+C† 
+
+> j
+
+(μ). (F.46) Equivalently, 
+
+C†(μ) = 1
+
+W †(η) min   
+
+> j6=b⋆
+
+inf   
+
+> z∈[μj,μ b⋆]
+
+{
+
+D(μb⋆ , z ) + w† 
+
+> j
+
+(η)D(μj , z )
+
+}
+
+. (F.47) We now show that the empirical centers converge to the true qualities, the empirical sampling proportions converge to p†(η), and the normalized terminal certificate converges to C†(μ). 
+
+Lemma F.13 (Information Coordinate Center Consistency) . Under Algorithm 2, for every arm i,̂
+
+ηi(t) → ηi and ̂ μi(t) → μi a.s. Proof. The forced-exploration rule implies 
+
+Ni(t) → ∞ a.s. for every i. 
+
+Conditional on μi, the observations from arm i are i.i.d. from Pμi . Since the log-partition function is finite on an open natural-parameter space, the natural statistic has finite mean under Pμi , and 
+
+Eμi [t(X)] = A′(θ(μi)) .
+
+Therefore, by the strong law of large numbers, ̂
+
+ti(t) = 1
+
+Ni(t)
+
+∑ 
+
+> r≤t:Ar=i
+
+t(Xr ) → A′(θ(μi)) a.s. Because θ(μi) ∈ Θ and Θ is open, A′(θ(μi)) ∈ A′(Θ). Hence ̂ ti(t) ∈ A′(Θ) eventually almost surely. On this eventual event, ̂
+
+θi(t) = ( A′)−1(̂ ti(t)) → θ(μi),
+
+since A′′ > 0 implies that A′ is strictly increasing and continuous. Thus ̂
+
+ηi(t) = β−1(̂θi(t)) → β−1(θ(μi)) = s(μi) = ηi.
+
+Continuity of s−1 gives ̂
+
+μi(t) = s−1(̂ηi(t)) → μi.
+
+61 Lemma F.14 (Sampling Proportions) . Under Algorithm 2, 
+
+Ni(T )
+
+T → p† 
+
+> i
+
+(η) a.s. for every i ∈ [K].
+
+Proof. By Lemma F.13, ̂
+
+ηi(t) → ηi for every i. 
+
+Since the prior densities are continuous, ties have probability zero. Thus the best arm and the second-best arm are unique almost surely. On this probability-one event, ̂ bt = b⋆ eventually, and ̂
+
+∆j,s (t) → ∆j,s ,̂ Γs,t → Γs.
+
+Therefore 
+
+wi(t) → w† 
+
+> i
+
+(η), pi(t) → p† 
+
+> i
+
+(η) a.s. for every i. 
+
+Now fix an arm i. We take four steps: 
+
+Step 1: Forced exploration is negligible. Let Fi(T ) be the number of forced-exploration pulls of arm i up to time T . If the m-th forced pull of arm i occurs before time T , then immediately before that pull, 
+
+Ni(t) ≥ m−1. But a forced pull of arm i can occur only if Ni(t) < √t + 1 ≤ √T + 1. Hence m−1 < √T + 1, and therefore Fi(T ) ≤ ⌈ √T + 1 ⌉ + 1. Consequently, 
+
+Fi(T )
+
+T → 0.
+
+Let F (T ) be the total number of forced-exploration rounds up to time T . Since F (T ) = ∑Kℓ=1 Fℓ(T ), we also have F (T )
+
+T ≤ K(⌈√T + 1 ⌉ + 1) 
+
+T → 0.
+
+Step 2: Martingale concentration on non-forced rounds. Let Ft be the history before round 
+
+t + 1, and define Bt := 1{round t + 1 is non-forced }. The event {Bt = 1 } is Ft-measurable. On non-forced rounds, the algorithm samples arm i with conditional probability pi(t). Define Di,t +1 := Bt
+
+(
+
+> 1
+
+{At+1 = i} − pi(t)
+
+)
+
+. Then E[Di,t +1 | F t] = 0, so ( Di,t +1 )t≥0 is a martingale difference sequence. Also, |Di,t +1 | ≤ 1. Therefore, by Azuma’s inequality, for every ε > 0, 
+
+P
+
+(∣ ∣∣∣∣
+
+1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 
+
+∣∣∣∣∣ ≥ ε
+
+)
+
+≤ 2 exp 
+
+(
+
+− ε2T
+
+2
+
+)
+
+.
+
+The right-hand side is summable in T . Hence, by the Borel–Cantelli lemma, 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 → 0 almost surely .
+
+Step 3: Decomposition of the empirical pull count. The total number of pulls of arm i can be decomposed as 
+
+Ni(T ) = Fi(T ) +  
+
+> T−1
+
+∑
+
+> t=0
+
+Bt1{At+1 = i}.
+
+Using the definition of Di,t +1 , we have Bt1{At+1 = i} = Di,t +1 + Btpi(t). Thus 
+
+Ni(T )
+
+T = Fi(T )
+
+T + 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Di,t +1 + 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t).
+
+62 By Steps 1 and 2, 
+
+Ni(T )
+
+T − 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) → 0 almost surely .
+
+Step 4: Ces` aro convergence of the target probabilities. Since 
+
+pi(t) → p† 
+
+> i
+
+(η) almost surely ,
+
+the sequence {pi(t)} is Ces` aro convergent, i.e., 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+pi(t) → p† 
+
+> i
+
+(η) almost surely .
+
+Now write 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) = 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+pi(t) − 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt)pi(t).
+
+Since 0 ≤ pi(t) ≤ 1, 0 ≤ 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt)pi(t) ≤ 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+(1 − Bt) = F (T )
+
+T → 0.
+
+Hence 1
+
+T 
+
+> T−1
+
+∑
+
+> t=0
+
+Btpi(t) → p† 
+
+> i
+
+(η) almost surely .
+
+Combining this with Step 3 gives the desired result. 
+
+F.3.5 Posterior Ordering Large Deviations 
+
+Let Xi, 1, . . . , X i,n denote the first n rewards observed from arm i, and let Gi,n := σ(Xi, 1, . . . , X i,n ). Define the one-arm posterior Πi,n as the conditional distribution of ηi = s(μi) given Gi,n :
+
+Πi,n (B) := P(ηi ∈ B | G i,n ), B ∈ B (H).
+
+Intuitively, the next lemma proves that 
+
+Πi,n (μ′ 
+
+> i
+
+≈ z) = exp {− nD (μi, z ) + o(n)}
+
+Lemma F.15 (One-arm Posterior Estimates for Ordering) . Fix an arm i, and work on the event (that happens almost surely) 
+
+1
+
+n
+
+> n
+
+∑
+
+> r=1
+
+t(Xi,r ) → A′(θ(μi)) .
+
+Let Πi,n be the one-arm posterior defined above. Define 
+
+Ii(η) := D(μi, s −1(η)) .
+
+Then the following hold. First, for every compact interval K ⋐ H,
+
+lim sup 
+
+> n→∞
+
+1
+
+n log Πi,n (K) ≤ − inf  
+
+> η∈K
+
+Ii(η).
+
+63 Second, for every nonempty open interval G ⊆ H ,
+
+lim inf 
+
+> n→∞
+
+1
+
+n log Πi,n (G) ≥ − inf  
+
+> η∈G
+
+Ii(η).
+
+Third, for every a, b ∈ H with a < η i < b ,
+
+lim sup 
+
+> n→∞
+
+1
+
+n log Πi,n (η ≤ a) ≤ − Ii(a),
+
+and 
+
+lim sup 
+
+> n→∞
+
+1
+
+n log Πi,n (η ≥ b) ≤ − Ii(b).
+
+Proof. Set 
+
+ηi = s(μi), θi := θ(μi) = β(ηi), mi := A′(θi),
+
+and write ¯mn := 1
+
+n
+
+> n
+
+∑
+
+> r=1
+
+t(Xi,r ).
+
+For η ∈ H , write 
+
+pη (w) := dPs−1 (η)
+
+dλ (w) = exp {β(η)t(w) − A(β(η)) }h(w).
+
+Consider a realized full adaptive history ht = ( a1, x 1, . . . , a t, x t), For a candidate parameter vector η =(η1, . . . , η K ) ∈ H K , the density of this realized history under the policy π, with respect to counting measure on actions and λ⊗t on rewards, is 
+
+Lπt (η; ht) = 
+
+> t
+
+∏
+
+> r=1
+
+πr (ar | hr−1)
+
+> t
+
+∏
+
+> r=1
+
+pηar (xr ).
+
+Here πr (ar | hr−1) is the sampling probability assigned by the policy to the realized action ar after the realized past hr−1.Using the product prior in information coordinates, the posterior density of η is therefore proportional to K∏
+
+> ℓ=1
+
+¯fℓ(ηℓ) ∏ 
+
+> r:ar=ℓ
+
+pηℓ (xr ).
+
+Thus the posterior factorizes arm by arm. In particular, the marginal posterior of arm i depends only on the rewards observed from arm i. If these rewards are denoted Xi, 1, . . . , X i,n , then, for every measurable set 
+
+B ⊆ H ,
+
+Πi,n (B) = 
+
+∫ 
+
+> B
+
+¯fi(η) ∏nr=1 pη(Xi,r ) d η
+
+∫ 
+
+> H
+
+¯fi(η) ∏nr=1 pη(Xi,r ) d η .
+
+Substituting the exponential-family density gives 
+
+> n
+
+∏
+
+> r=1
+
+pη(Xi,r ) = exp 
+
+{
+
+β(η)
+
+> n
+
+∑
+
+> r=1
+
+t(Xi,r ) − nA (β(η)) 
+
+} n∏
+
+> r=1
+
+h(Xi,r ).
+
+∏nr=1 h(Xi,r ) does not depend on η, so it also cancels between numerator and denominator. Bayes’ rule gives 
+
+Πi,n (B) = 
+
+∫ 
+
+> B
+
+¯fi(η) exp {n[β(η) ¯ mn − A(β(η))] } dη
+
+∫ 
+
+> H
+
+¯fi(η) exp {n[β(η) ¯ mn − A(β(η))] } dη .
+
+64 Multiplying both numerator and denominator by exp {− n[β(ηi) ¯ mn − A(β(ηi))] }
+
+allows us to write 
+
+Πi,n (B) = 
+
+∫ 
+
+> B
+
+¯fi(η)enL n (η) dη
+
+Zn
+
+,
+
+where 
+
+Ln(η) := ( β(η) − β(ηi)) ¯ mn − A(β(η)) + A(β(ηi)) and 
+
+Zn := 
+
+∫
+
+> H
+
+¯fi(η)enL n (η) dη. 
+
+Note Ln(ηi) = 0 and 
+
+Ln(η) → (β(η) − β(ηi)) A′(β(ηi)) − A(β(η)) + A(β(ηi)) = −D(μi, s −1(η)) = −Ii(η)on compact subsets of H.We first prove that 1
+
+n log Zn → 0. (F.48) For the lower bound on Zn, fix τ > 0. Since ¯mn → mi, Ln(η) → − Ii(η) uniformly on compact neighborhoods of ηi.Since Ii(ηi) = 0, choose a compact interval Jτ ⋐ H containing ηi such that, for all sufficiently large n,inf η∈Jτ Ln(η) ≥ − τ .By continuity and strict positivity of ¯fi,
+
+∫
+
+> Jτ
+
+¯fi(η) d η > 0.
+
+Therefore 
+
+Zn ≥
+
+∫
+
+> Jτ
+
+¯fi(η)enL n (η) dη ≥ e−nτ 
+
+∫
+
+> Jτ
+
+¯fi(η) d η. 
+
+Thus lim inf 
+
+> n→∞
+
+1
+
+n log Zn ≥ − τ. 
+
+Letting τ ↓ 0 gives lim inf 
+
+> n→∞
+
+1
+
+n log Zn ≥ 0.
+
+For the upper bound on Zn, for all large n we have ¯ mn ∈ A′(Θ). Define the pseudo-MLE 
+
+θn := ( A′)−1( ¯ mn), ηn := β−1(θn).
+
+Then θn → θi and ηn → ηi. Moreover, using ¯ mn = A′(θn), 
+
+Ln(ηn) − Ln(η) = ( θn − β(η)) A′(θn) − A(θn) + A(β(η)) = D(s−1(ηn), s −1(η)) .
+
+Therefore, by assumption (F.34), 
+
+Ln(η) ≤ Ln(ηn) − ˜c (η − ηn)2.
+
+Since 
+
+Ln(ηn) = D(s−1(ηn), μ i) → 0,
+
+65 boundedness of ¯fi gives 
+
+Zn ≤ ‖ ¯fi‖∞enL n(ηn )
+
+∫
+
+> H
+
+e−n˜c(η−ηn )2
+
+dη
+
+≤ ‖ ¯fi‖∞enL n(ηn )
+
+√ π
+
+n˜c .
+
+Hence lim sup 
+
+> n→∞
+
+1
+
+n log Zn ≤ 0.
+
+This proves (F.48). Now fix a compact interval K ⋐ H. Since ¯ mn → mi,
+
+Ln(η) → − D(μi, s −1(η)) = −Ii(η)uniformly on K. Hence lim sup 
+
+> n→∞
+
+1
+
+n log 
+
+∫
+
+> K
+
+¯fi(η)enL n (η) dη ≤ − inf  
+
+> η∈K
+
+Ii(η).
+
+Combining this numerator bound with (F.48) gives the compact-interval upper bound. Next let G ⊆ H be a nonempty open interval. Choose η0 ∈ G such that 
+
+Ii(η0) ≤ inf  
+
+> η∈G
+
+Ii(η) + τ. 
+
+Choose a compact interval J ⋐ G containing η0 and small enough that sup 
+
+> η∈J
+
+Ii(η) ≤ Ii(η0) + τ. 
+
+By uniform convergence of Ln on J and strict positivity of ¯fi on J,lim inf 
+
+> n→∞
+
+1
+
+n log 
+
+∫
+
+> G
+
+¯fi(η)enL n (η) dη ≥ lim inf 
+
+> n→∞
+
+1
+
+n log 
+
+∫
+
+> J
+
+¯fi(η)enL n(η) dη
+
+≥ − sup 
+
+> η∈J
+
+Ii(η) ≥ − inf  
+
+> η∈G
+
+Ii(η) − 2τ. 
+
+Using again the denominator rate (F.48), and then letting τ ↓ 0, gives the open-interval lower bound. It remains to prove the one-sided estimates. Consider a < η i. Since ηn → ηi, eventually a < η n. The function θ 7 → θ ¯mn − A(θ) is strictly concave and maximized at θn. Since β is strictly increasing, Ln(η) is increasing on {η < η n}. Therefore, for all large n,sup 
+
+> η≤a
+
+Ln(η) = Ln(a).
+
+Thus 
+
+Πi,n (η ≤ a) ≤ enL n(a)
+
+Zn
+
+,
+
+because ∫ 
+
+> {η≤a}
+
+¯fi(η) d η ≤ 1. Since Ln(a) → − Ii(a) and n−1 log Zn → 0, we obtain lim sup 
+
+> n→∞
+
+1
+
+n log Πi,n (η ≤ a) ≤ − Ii(a).
+
+The proof for b > η i is identical: eventually b > η n, Ln is decreasing on {η > η n}, and hence sup 
+
+> η≥b
+
+Ln(η) = Ln(b).
+
+This gives the upper-tail estimate. 
+
+66 The following lemma shows that, if arms i and j receive asymptotic sampling proportions qi and qj , then the posterior probability of incorrectly ordering them decays with exponent inf  
+
+> z∈[μj,μ i]
+
+{qiD(μi, z ) + qj D(μj , z )}.
+
+Lemma F.16 (Posterior Ordering Large Deviations) . Fix two arms i and j with μi > μ j . Suppose that 
+
+Ni(T )
+
+T → qi > 0, Nj (T )
+
+T → qj > 0.
+
+Then almost surely 
+
+− 1
+
+T log ΠT (μj ≥ μi) → inf  
+
+> z∈[μj,μ i]
+
+{qiD(μi, z ) + qj D(μj , z )}. (F.49) 
+
+Proof. Write 
+
+ηi = s(μi), ηj = s(μj ), ηi > η j .
+
+Recall from the proof of Lemma F.15 that, conditional on the realized history, the arm-wise posterior of 
+
+ηi = s(μi) is 
+
+Πi,T (d η) = ¯fi(η) exp {β(η)Si(T ) − Ni(T )A(β(η)) }
+
+Zi,T 
+
+dη, 
+
+where 
+
+Zi,T := 
+
+∫
+
+> H
+
+¯fi(u) exp {β(u)Si(T ) − Ni(T )A(β(u)) } du. 
+
+Because the prior is a product prior and the likelihood factors arm by arm, the full posterior factorizes: 
+
+ΠT (d η1, . . . , dηK ) = 
+
+> K
+
+⊗
+
+> ℓ=1
+
+Πℓ,T (d ηℓ).
+
+Consequently, let U ∼ Πi,T and V ∼ Πj,T denote the posterior information coordinate qualities (arm parameter) of arms i and j, then U and V are independent under the posterior, and for Borel sets B, C ⊆ H ,
+
+ΠT (U ∈ B, V ∈ C) = Πi,T (B)Πj,T (C).
+
+In particular, 
+
+ΠT (μj ≥ μi) = ΠT (ηj ≥ ηi) = ΠT (V ≥ U ).
+
+Define 
+
+Ii(u) := D(μi, s −1(u)) , Ij (v) := D(μj , s −1(v)) ,
+
+and 
+
+Cij := inf  
+
+> w∈[ηj,η i]
+
+{qiIi(w) + qj Ij (w)}.
+
+The one-arm bounds on log Πi,n of Lemma F.15 hold along every subsequence n → ∞ on the arm-wise strong-law event. Therefore they also hold along the random subsequences Ni(T ) and Nj (T ). Multiplying the one-arm exponents by Ni(T )/T → qi and Nj (T )/T → qj gives the corresponding T -speed bounds: For intervals B, C ,lim sup  
+
+> T→∞
+
+1
+
+T log {Πi,T (B)Πj,T (C)} ≤ − qi inf  
+
+> u∈B
+
+Ii(u) − qj inf  
+
+> v∈C
+
+Ij (v)when B, C are compact, and the corresponding lower bound when B, C are open. We first prove the lower bound for (F.49). Let w⋆ ∈ [ηj , η i] be a minimizer of 
+
+w 7 → qiIi(w) + qj Ij (w).
+
+67 If w⋆ ∈ (ηj , η i), choose δ > 0 so small that (w⋆ − δ, w ⋆) × (w⋆, w ⋆ + δ) ⊆ { (u, v ) : v ≥ u}.
+
+Then, by posterior product decomposition and the open-interval lower bounds in Lemma F.15, lim inf  
+
+> T→∞
+
+1
+
+T log ΠT (V ≥ U ) ≥ − qi inf   
+
+> u∈(w⋆−δ,w ⋆)
+
+Ii(u) − qj inf  
+
+> v∈(w⋆,w ⋆+δ)
+
+Ij (v).
+
+Letting δ ↓ 0 gives lim inf  
+
+> T→∞
+
+1
+
+T log ΠT (V ≥ U ) ≥ − Cij .
+
+If w⋆ = ηj , use instead the rectangle U ∈ (ηj − δ, η j ) and V ∈ (ηj , η j + δ). Since inf    
+
+> u∈(ηj−δ,η j)
+
+Ii(u) → Ii(ηj ), inf    
+
+> v∈(ηj,η j+δ)
+
+Ij (v) → Ij (ηj ) = 0 ,
+
+the same lower bound follows. Similarly if w⋆ = ηi, use U ∈ (ηi − δ, η i) and V ∈ (ηi, η i + δ). Then inf   
+
+> u∈(ηi−δ,η i)
+
+Ii(u) → Ii(ηi) = 0 , inf  
+
+> v∈(ηi,η i+δ)
+
+Ij (v) → Ij (ηi),
+
+and the same lower bound again follows. Thus lim inf  
+
+> T→∞
+
+1
+
+T log ΠT (V ≥ U ) ≥ − Cij .
+
+For the upper bound, decompose 
+
+{V ≥ U } ⊆ E− ∪ E0 ∪ E+,
+
+where E− := {U ≤ ηj }, E+ := {V ≥ ηi} and E0 := {ηj ≤ U ≤ V ≤ ηi}.The one-sided estimates in Lemma F.15 give lim sup  
+
+> T→∞
+
+1
+
+T log ΠT (E−) ≤ − qiIi(ηj ) = −qiD(μi, μ j ),
+
+and lim sup  
+
+> T→∞
+
+1
+
+T log ΠT (E+) ≤ − qj Ij (ηi) = −qj D(μj , μ i).
+
+Since Cij ≤ qiD(μi, μ j ), by taking w = ηj , and Cij ≤ qj D(μj , μ i), by taking w = ηi, both endpoint events have exponent at least Cij .It remains to control E0. The set K0 := {(u, v ) : ηj ≤ u ≤ v ≤ ηi} is compact. Fix τ > 0. By continuity of ( u, v ) 7 → qiIi(u) + qj Ij (v) on the compact square [ ηj , η i]2, there exist finitely many compact rectangles 
+
+Rm = Im × Jm, m = 1 , . . . , M, 
+
+whose union covers K0, such that each Rm ⊆ [ηj , η i]2 and inf 
+
+> (u,v )∈Rm
+
+{qiIi(u) + qj Ij (v)} ≥ inf 
+
+> (u,v )∈K0
+
+{qiIi(u) + qj Ij (v)} − τ. 
+
+By posterior product decomposition, 
+
+ΠT (E0) ≤
+
+> M
+
+∑
+
+> m=1
+
+Πi,T (Im)Πj,T (Jm),
+
+68 where Πi,T and Πj,T are the corresponding arm-wise posterior marginals. Applying the compact-interval upper bound from Lemma F.15 along the subsequences Ni(T ) and Nj (T ), we get, for each m,lim sup  
+
+> T→∞
+
+1
+
+T log {Πi,T (Im)Πj,T (Jm)} ≤ − qi inf 
+
+> u∈Im
+
+Ii(u) − qj inf 
+
+> v∈Jm
+
+Ij (v)= − inf 
+
+> (u,v )∈Rm
+
+{qiIi(u) + qj Ij (v)}.
+
+Since the cover is finite, the union bound yields lim sup  
+
+> T→∞
+
+1
+
+T log ΠT (E0) ≤ − inf 
+
+> (u,v )∈K0
+
+{qiIi(u) + qj Ij (v)} + τ. 
+
+Letting τ ↓ 0, we obtain lim sup  
+
+> T→∞
+
+1
+
+T log ΠT (E0) ≤ − inf  
+
+> ηj≤u≤v≤ηi
+
+{qiIi(u) + qj Ij (v)}.
+
+We now reduce this infimum to the diagonal ( u = v). Note the derivative 
+
+∂
+
+∂z D(μ, z ) = θ′(z) [ A′(θ(z)) − A′(θ(μ))] ,
+
+is negative for z < μ and positive for z > μ . Hence, on the interval [ ηj , η i], the map u 7 → Ii(u) is non-increasing whereas v 7 → Ij (v) is non-decreasing. Therefore, if u ≤ v, then for every w ∈ [u, v ], Ii(w) ≤ Ii(u)and Ij (w) ≤ Ij (v). Thus every feasible off-diagonal point can be moved to a diagonal point with no larger objective. Hence inf  
+
+> ηj≤u≤v≤ηi
+
+{qiIi(u) + qj Ij (v)} = inf  
+
+> w∈[ηj,η i]
+
+{qiIi(w) + qj Ij (w)} = Cij .
+
+Combining the bounds for E−, E0, and E+ by a union bound gives lim sup  
+
+> T→∞
+
+1
+
+T log ΠT (V ≥ U ) ≤ − Cij .
+
+Together with the lower bound, 
+
+− 1
+
+T log ΠT (V ≥ U ) → Cij .
+
+Returning to z = s−1(w) proves the claimed formula. 
+
+F.3.6 Asymptotic Behavior of the Certificate RT
+
+Recall we defined 
+
+C†(μ) := min   
+
+> j6=b⋆
+
+inf   
+
+> z∈[μj,μ b⋆]
+
+{
+
+p† 
+
+> b⋆
+
+(η)D(μb⋆ , z ) + p† 
+
+> j
+
+(η)D(μj , z )
+
+}
+
+. (F.50) 
+
+Lemma F.17 (Terminal Certificate Limit) . Under Algorithm 2, 
+
+RT
+
+T → C†(μ) a.s. Proof. By Lemma F.13, ̂ bT = b⋆ eventually almost surely. By Lemma F.14, 
+
+Ni(T )
+
+T → p† 
+
+> i
+
+(η) for every i. 
+
+69 Since p† 
+
+> i
+
+(η) > 0 for every arm, applying Lemma F.16 with i = b⋆ and each j 6 = b⋆ gives 
+
+− 1
+
+T log ΠT (μj ≥ μb⋆ ) → inf   
+
+> z∈[μj,μ b⋆]
+
+{
+
+p† 
+
+> b⋆
+
+(η)D(μb⋆ , z ) + p† 
+
+> j
+
+(η)D(μj , z )
+
+}
+
+.
+
+Taking the minimum over the finite set j 6 = b⋆ yields 
+
+RT
+
+T = min  
+
+> j6=b⋆
+
+{
+
+− 1
+
+T log ΠT (μj ≥ μb⋆ )
+
+}
+
+→ C†(μ).
+
+F.3.7 Lower Tail of the Limiting Certificate. 
+
+We now prove that C†(μ) has the same small lower tail as Γ 2
+
+> s
+
+/8. 
+
+Lemma F.18 (Top-Two Gap and Triple-Gap Expansions) . Under Assumption 4.2, 
+
+P(Γ s ≤ ε) = κε + o(ε), ε ↓ 0.
+
+Moreover, define Γ3,s := η(1) − η(3) for K ≥ 3, and Γ3,s := + ∞ for K = 2 , then 
+
+P(Γ 3,s ≤ ε) = O(ε2).
+
+Proof. For the top-two gap expansion, condition on arm i having information coordinate value u. The event that arm i is best and that the top-two gap is at most ε has conditional probability 
+
+∏ 
+
+> k6=i
+
+¯Fk (u) − ∏ 
+
+> k6=i
+
+¯Fk(u − ε),
+
+where ¯Fk(t) is understood to be 0 below the left endpoint of H and 1 above the right endpoint. Hence 
+
+P(Γ s ≤ ε) = 
+
+> K
+
+∑
+
+> i=1
+
+∫
+
+> H
+
+¯fi(u)
+
+∏ 
+
+> k6=i
+
+¯Fk (u) − ∏ 
+
+> k6=i
+
+¯Fk(u − ε)
+
+ du. 
+
+Let 
+
+Gi(u) := ∏ 
+
+> k6=i
+
+¯Fk(u).
+
+Then 
+
+G′
+
+> i
+
+(u) = ∑ 
+
+> j6=i
+
+¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk(u)where the derivative exists, and Gi is Lipschitz because the densities are bounded. Therefore 
+
+Gi(u) − Gi(u − ε)
+
+ε → G′
+
+> i
+
+(u)for almost every u, and the quotient is uniformly bounded. Dominated convergence gives 
+
+P(Γ s ≤ ε)
+
+ε →
+
+> K
+
+∑
+
+> i=1
+
+∑ 
+
+> j6=i
+
+∫
+
+> H
+
+¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯Fk(u) d u = κ. 
+
+For the triple-gap bound, the case K = 2 is trivial. Assume K ≥ 3, and let 
+
+M ¯f := max  
+
+> i∈[K]
+
+‖ ¯fi‖∞ < ∞.
+
+70 If Γ 3,s ≤ ε, then there exist three distinct arms i, j, k whose information coordinate values all lie in an interval of length ε below the largest of the three. Hence, by a union bound over ordered triples, 
+
+P(Γ 3,s ≤ ε) ≤ ∑ 
+
+> i,j,k distinct
+
+∫
+
+> H
+
+¯fi(u)
+
+[∫ uu−ε
+
+¯fj (v) d v
+
+] [∫ uu−ε
+
+¯fk(w) d w
+
+]
+
+du
+
+≤ K(K − 1)( K − 2) M 2¯f ε2.
+
+Define the ordered top-pair tie manifold 
+
+T ↑ := ⊎
+
+> i6=j
+
+{(i, j, u, ζ −ij ) : u ∈ H , ζ k ∈ H , ζ k < u ∀k 6 = i, j } .
+
+Here i denotes the best arm and j denotes the second-best arm. For a parameter vector η with unique best and second-best arms, define 
+
+ξ↑(η) := (b⋆, b ⋆
+
+> 2
+
+, η b⋆ , (ηk)k6 =b⋆ ,b ⋆
+
+> 2
+
+),
+
+where b⋆ is the best arm index, and b⋆ 
+
+> 2
+
+is the second-best arm index. Note that it does not include ηb⋆ 
+
+> 2
+
+, which is meant to be recovered by Γ s.On the component ( i, j ), define the finite measure 
+
+λ(d ξ) := ¯fi(u) ¯fj (u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk) d u dζ−ij .
+
+Then λ(T ↑) = κ.
+
+Lemma F.19 (Compact Localization of Top-Two Gap Density) . For every ρ > 0, there exists a compact set 
+
+Kρ ⊂ T ↑
+
+such that, for every fixed R < ∞,
+
+P{Γs ≤ Rε, ξ ↑(η) ∈ K ρ} ≥ (κ − ρ)Rε + o(ε),
+
+and 
+
+P{Γs ≤ Rε, ξ ↑(η) /∈ K ρ} ≤ ρRε + o(ε),
+
+as ε ↓ 0.Proof. Since T ↑ is a finite disjoint union of open subsets of Euclidean spaces and λ is a finite Borel measure with density with respect to Lebesgue measure on each component, λ is a finite Radon measure. In particular, it is inner regular. Choose a compact set Kρ ⊂ T ↑ such that λ(Kρ) ≥ κ − ρ.Because Kρ is compact and lies inside the open ordered tie manifold, there exists ℓρ > 0 such that, for every ( i, j, u, ζ −ij ) ∈ K ρ, ζk ≤ u − ℓρ for all k 6 = i, j .For all sufficiently small ε, uniformly over 0 ≤ r ≤ Rε , the second-arm value u − r remains above all background values on Kρ. Hence, restricted to Kρ,
+
+P{Γs ≤ Rε, ξ ↑(η) ∈ K ρ}
+
+= ∑
+
+> i6=j
+
+∫  
+
+> 1{(i,j,u,ζ −ij )∈K ρ}
+
+¯fi(u) ∏ 
+
+> k6=i,j
+
+¯fk(ζk )
+
+[∫ uu−Rε 
+
+¯fj (v) d v
+
+]
+
+du dζ−ij .
+
+By continuity of ¯fj on the compact projection of Kρ,
+
+∫ uu−Rε 
+
+¯fj (v) d v = Rε ¯fj(u) + o(ε)71 uniformly over Kρ. Therefore 
+
+P{Γs ≤ Rε, ξ ↑(η) ∈ K ρ} = Rε λ (Kρ) + o(ε) ≥ (κ − ρ)Rε + o(ε).
+
+The complement bound follows by subtracting this lower bound from the total top-two gap expansion: 
+
+P(Γ s ≤ Rε ) = κRε + o(ε).
+
+Lemma F.20 (Small Certificate Implies Small Information Gap) . There exists a constant R⋆ < ∞, depend-ing only on K and ˜c, such that 
+
+C†(μ) ≤ u =⇒ Γs ≤ R⋆√u. 
+
+Proof. Fix j 6 = b⋆, write ∆ := ∆ j,s = ηb⋆ − ηj , and a := w† 
+
+> j
+
+(η). For z ∈ [μj , μ b⋆ ], write r := s(z) − ηj ∈ [0 , ∆]. By (F.34), 
+
+D(μb⋆ , z ) + aD (μj , z ) ≥ ˜c{(∆ − r)2 + ar 2}.
+
+If a = 1, then inf  
+
+> 0≤r≤∆
+
+˜c{(∆ − r)2 + r2} = ˜c
+
+2 ∆2 ≥ ˜c
+
+2 Γ2
+
+> s
+
+.
+
+If a < 1, then by (F.45), a = Γ2  
+
+> s
+> 4˜c∆2
+
+. Thus inf  
+
+> 0≤r≤∆
+
+˜c{(∆ − r)2 + ar 2} = ˜c a
+
+1 + a ∆2 ≥ ˜ca 
+
+2 ∆2 = Γ2
+
+> s
+
+8 ,
+
+where we used a < 1. Therefore, for every challenger j,inf   
+
+> z∈[μj,μ b⋆]
+
+{D(μb⋆ , z ) + w† 
+
+> j
+
+(η)D(μj , z )} ≥ cgap Γ2
+
+> s
+
+,
+
+where cgap := min { ˜c 
+
+> 2
+
+, 1
+
+> 8
+
+} > 0. Since W †(η) ≤ K, (F.47) gives C†(μ) ≥ cgap  
+
+> K
+
+Γ2
+
+> s
+
+. Hence C†(μ) ≤ u implies Γs ≤
+
+√
+
+K
+
+cgap 
+
+√u. 
+
+Taking R⋆ := √K/c gap gives the desired result. 
+
+Lemma F.21 (Local Expansion of the Limiting Certificate) . Fix a compact set K ⊂ T ↑. Uniformly over parameter vectors satisfying ξ↑(η) ∈ K and Γs ↓ 0, we have 
+
+C†(μ) = Γ2
+
+> s
+
+8 {1 + o(1) }.
+
+Proof. Let b⋆ 
+
+> 2
+
+denote the second-best arm and put γ := Γ s.Because K is compactly contained in T ↑, there exists ℓ > 0 such that, whenever ξ↑(η) ∈ K ,
+
+ηb⋆ − ηk ≥ ℓ, k / ∈ { b⋆, b ⋆
+
+> 2
+
+},
+
+for all sufficiently small γ. Also, all relevant information coordinate values remain in a compact subset of H.The KL divergence has the uniform local Fisher coordinate expansion 
+
+D(s−1(η), s −1(v)) = 1
+
+2 (η − v)2 + O(|η − v|3), (F.51) 72 for η, v in any compact subset of H. This follows from a Taylor expansion of the KL divergence and the definition of s.For the top two arms, w† 
+
+> b⋆
+
+(η) = 1 and w†
+
+> b⋆
+> 2
+
+(η) = min 
+
+{
+
+1, γ2
+
+> 4˜c γ 2
+
+}
+
+= 1 , Hence using (F.51), inf   
+
+> z∈[μb⋆
+> 2,μ b⋆]
+
+{D(μb⋆ , z ) + D(μb⋆ 
+
+> 2
+
+, z )}
+
+= inf   
+
+> w∈[ηb⋆−γ,η b⋆]
+
+{ 1
+
+2 (ηb⋆ − w)2 + 1
+
+2 (w − ηb⋆ + γ)2
+
+}
+
++ o(γ2)= γ2
+
+4 + o(γ2).
+
+For any other challenger k /∈ { b⋆, b ⋆
+
+> 2
+
+}, its information gap ∆ k,s := ηb⋆ − ηk is bounded below by ℓ.Therefore w† 
+
+> k
+
+(η) = γ2 
+
+> 4˜c∆2
+> k,s
+
+= O(γ2), for all sufficiently small γ. Hence 
+
+W †(η) = 1 + w†
+
+> b⋆
+> 2
+
+(η) + ∑  
+
+> k / ∈{ b⋆,b ⋆
+> 2}
+
+w† 
+
+> k
+
+(η) = 2 + O(γ2).
+
+Furthermore, by the same coercivity calculation as in Lemma F.20, inf   
+
+> z∈[μk,μ b⋆]
+
+{D(μb⋆ , z ) + w†
+
+> k
+
+(η)D(μk , z )} ≥ ˜c w†
+
+> k
+
+(η)
+
+1 + w† 
+
+> k
+
+(η) ∆2 
+
+> k,s
+
+= γ2
+
+4 {1 + o(1) }.
+
+Thus min   
+
+> j6=b⋆
+
+inf   
+
+> z∈[μj,μ b⋆]
+
+{D(μb⋆ , z ) + w† 
+
+> j
+
+(η)D(μj , z )} = γ2
+
+4 {1 + o(1) }.
+
+Combining this with W †(η) = 2 + o(1) in (F.47) gives 
+
+C†(μ) = γ2
+
+8 {1 + o(1) }.
+
+The preceding estimates are uniform on K, so the proof is complete. 
+
+Lemma F.22 (Small Lower Tail of the Limiting Certificate) . As u ↓ 0,
+
+P(C†(μ) ≤ u) = κ√8u + o(√u).
+
+Proof. We prove matching lower and upper bounds. For the lower bound, fix ρ > 0 and τ ∈ (0 , 1). Choose Kρ as in Lemma F.19. By the uniform local expansion in Lemma F.21, for all sufficiently small u,
+
+{
+
+Γs ≤ (1 − τ )√8u, ξ ↑(η) ∈ K ρ
+
+}
+
+⊆ { C†(μ) ≤ u}.
+
+Indeed, on Kρ,
+
+C†(μ) = Γ2
+
+> s
+
+8 {1 + o(1) },
+
+uniformly as Γ s ↓ 0, and the factor (1 − τ )2 leaves enough slack. Therefore, using Lemma F.19 with ε = √u
+
+and R = (1 − τ )√8, 
+
+P(C†(μ) ≤ u) ≥ P
+
+(
+
+Γs ≤ (1 − τ )√8u, ξ ↑(η) ∈ K ρ
+
+)
+
+≥ (κ − ρ)(1 − τ )√8u + o(√u).
+
+73 Letting ρ ↓ 0 and then τ ↓ 0 yields lim inf 
+
+> u↓0
+
+P(C†(μ) ≤ u)
+
+√u ≥ κ√8.
+
+For the upper bound, Lemma F.20 gives 
+
+{C†(μ) ≤ u} ⊆ { Γs ≤ R⋆√u}.
+
+Fix ρ > 0, and again use the compact set Kρ. On 
+
+{C†(μ) ≤ u, ξ ↑(η) ∈ K ρ},
+
+Lemma F.20 implies Γ s → 0 uniformly as u ↓ 0. Hence the uniform local expansion gives, for all sufficiently small u,
+
+C†(μ) ≥ (1 − τ ) Γ2
+
+> s
+
+8 .
+
+Consequently, on the same event, Γs ≤
+
+√ 8u
+
+1 − τ ≤ (1 + τ )√8u, 
+
+after decreasing u if necessary and replacing τ by a smaller slack constant. Therefore 
+
+P(C†(μ) ≤ u) ≤ P{Γs ≤ (1 + τ )√8u} + P{Γs ≤ R⋆√u, ξ ↑(η) /∈ K ρ}.
+
+By Lemmas F.18 and F.19, 
+
+P(C†(μ) ≤ u) ≤ κ(1 + τ )√8u + ρR ⋆√u + o(√u).
+
+Letting u ↓ 0, then ρ ↓ 0, and finally τ ↓ 0, gives lim sup 
+
+> u↓0
+
+P(C†(μ) ≤ u)
+
+√u ≤ κ√8.
+
+Combining the two bounds proves the claim. 
+
+F.3.8 Lower Bound on the Calibration Threshold Lemma F.23 (Lower Bound on the Calibration Threshold) . For every ε ∈ (0 , 1) , there exists α0 > 0 such that, for every 0 < α ≤ α0, there exists T0(α, ε ) < ∞ such that, for all T ≥ T0(α, ε ),
+
+rT,α ≥ (1 − ε) α2T
+
+8κ2 .
+
+Proof. Set c := 1 
+
+> 8κ2
+
+and uα,ε := (1 − ε)cα 2. By Lemma F.22, 
+
+P(C†(μ) ≤ uα,ε ) = κ√8(1 − ε)c α + o(α)= √1 − ε α + o(α).
+
+Therefore, for all sufficiently small α, P(C†(μ) ≤ uα,ε ) < α . By Lemma F.17, 
+
+RT
+
+T → C†(μ) a.s. 74 Thus RT /T converges to C†(μ) in distribution. Applying the Portmanteau theorem to the closed set (−∞ , u α,ε ] gives lim sup  
+
+> T→∞
+
+P
+
+( RT
+
+T ≤ uα,ε 
+
+)
+
+≤ P(C†(μ) ≤ uα,ε ) < α. 
+
+Hence, for all sufficiently large T , P(RT ≤ uα,ε T ) < α . By the definition of rT,α as the lower α-quantile of 
+
+RT ,
+
+rT,α ≥ uα,ε T = (1 − ε) α2T
+
+8κ2 .
+
+F.3.9 Proof of Theorem F.2. 
+
+Proof. We first prove abstention calibration. By the definition of the lower α-quantile, 
+
+P(RT < r T,α ) ≤ α ≤ P(RT ≤ rT,α ).
+
+If P(RT = rT,α ) > 0, the boundary randomization in (F.44) gives 
+
+P(̂aT =?) = P(RT < r T,α ) + θT,α P(RT = rT,α ) = α. 
+
+If P(RT = rT,α ) = 0, then 
+
+P(RT < r T,α ) = P(RT ≤ rT,α ) = α, 
+
+by the defining property of the lower quantile and the absence of an atom at the quantile. Since θT,α = 0 in this case, the same conclusion holds. Therefore 
+
+AT (IC-PGWS (α)) = α. 
+
+For the undetected error probability, Lemma F.12 gives 
+
+ET (IC-PGWS (α)) ≤ (K − 1) e−rT ,α .
+
+By Lemma F.23, for every ε ∈ (0 , 1), all sufficiently small α, and all sufficiently large T ,
+
+rT,α ≥ (1 − ε) α2T
+
+8κ2 .
+
+Hence 
+
+ET (IC-PGWS (α)) ≤ (K − 1) exp 
+
+{
+
+−(1 − ε) α2T
+
+8κ2
+
+}
+
+.
+
+Taking logarithms, dividing by α2T , taking T → ∞ , then α ↓ 0, and finally ε ↓ 0, yields lim sup 
+
+> α↓0
+
+lim sup  
+
+> T→∞
+
+1
+
+α2T log ET (IC-PGWS (α)) ≤ − 1
+
+8κ2 .
+
+# Acknowledgments 
+
+The authors thank Junwen Yang (National University of Singapore) for helpful discussions during the initial phase of this work. 75 References 
+
+Amari, S. and Nagaoka, H. (2000). Methods of Information Geometry , vol. 191 of Translations of Mathe-matical Monographs . American Mathematical Society, Providence, RI. Atsidakou, A., Katariya, S., Sanghavi, S. and Kveton, B. (2023). Bayesian fixed-budget best-arm identifica-tion. 
+
+https://arxiv.org/abs/2211.08572 
+
+Audibert, J.-Y., Bubeck, S. and Munos, R. (2010). Best arm identification in multi-armed bandits. In COLT 2010 - The 23rd Conference on Learning Theory .Bartlett, P. L. and Wegkamp, M. H. (2008). Classification with a reject option using a hinge loss. Journal of Machine Learning Research , 9 1823–1840. 
+
+http://jmlr.org/papers/v9/bartlett08a.html 
+
+Camilleri, R., Xiong, Z., Fazel, M., Jain, L. and Jamieson, K. (2021). Selective sampling for online best-arm identification. In Advances in Neural Information Processing Systems (M. Ranzato, A. Beygelzimer, Y. Dauphin, P. Liang and J. W. Vaughan, eds.), vol. 34. Curran Associates, Inc. 
+
+https://proceedings.neurips.cc/paper_files/paper/2021/file/5c333c4ffd55c7a3576e6a614d81af82-Paper.pdf 
+
+Carpentier, A. and Locatelli, A. (2016). Tight (lower) bounds for the fixed budget best arm identification bandit problem. In 29th Annual Conference on Learning Theory (V. Feldman, A. Rakhlin and O. Shamir, eds.), vol. 49 of Proceedings of Machine Learning Research . PMLR, Columbia University, New York, New York, USA. 
+
+https://proceedings.mlr.press/v49/carpentier16.html 
+
+Chen, C.-H., Lin, J., Y¨ ucesan, E. and Chick, S. (2000). Simulation budget allocation for further enhancing the efficiency of ordinal optimization. Discrete Event Dynamic Systems , 10 .Chow, C. (1970). On optimum recognition error and reject tradeoff. IEEE Transactions on Information Theory , 16 41–46. Cortes, C., DeSalvo, G. and Mohri, M. (2016). Learning with rejection. In Algorithmic Learning Theory 
+
+(R. Ortner, H. U. Simon and S. Zilles, eds.). Springer International Publishing, Cham. Even-Dar, E., Mannor, S. and Mansour, Y. (2006). Action elimination and stopping conditions for the multi-armed bandit and reinforcement learning problems. Journal of Machine Learning Research , 7 1079–1105. 
+
+http://jmlr.org/papers/v7/evendar06a.html 
+
+Forney, G. (1968). Exponential error bounds for erasure, list, and decision feedback schemes. IEEE Trans-actions on Information Theory , 14 206–220. Glynn, P. and Juneja, S. (2004). A large deviations perspective on ordinal optimization. In Proceedings of the 2004 Winter Simulation Conference, 2004. , vol. 1. Hayashi, M. and Tan, V. Y. F. (2015). Asymmetric evaluations of erasure and undetected error probabilities. 
+
+IEEE Transactions on Information Theory , 61 6560–6577. Hong, L. J., Fan, W. and Luo, J. (2021). Review on ranking and selection: A new perspective. Frontiers of Engineering Management , 8 321–343. 
+
+http://dx.doi.org/10.1007/s42524-021-0152-6 
+
+Jang, K., Komiyama, J. and Yamazaki, K. (2024). Fixed confidence best arm identification in the bayesian setting. In Proceedings of the 38th International Conference on Neural Information Processing Systems .NIPS ’24, Curran Associates Inc., Red Hook, NY, USA. 76 Karnin, Z., Koren, T. and Somekh, O. (2013). Almost optimal exploration in multi-armed bandits. In 
+
+Proceedings of the 30th International Conference on Machine Learning (S. Dasgupta and D. McAllester, eds.), vol. 28 of Proceedings of Machine Learning Research . PMLR, Atlanta, Georgia, USA. 
+
+https://proceedings.mlr.press/v28/karnin13.html 
+
+Kaufmann, E., Capp´ e, O. and Garivier, A. (2016). On the complexity of best-arm identification in multi-armed bandit models. J. Mach. Learn. Res. , 17 1–42. Komiyama, J., Ariu, K., Kato, M. and Qin, C. (2024). Rate-optimal Bayesian simple regret in best arm identification. Math. Oper. Res. , 49 1629–1646. 
+
+https://doi.org/10.1287/moor.2022.0011 
+
+Komiyama, J., Tsuchiya, T. and Honda, J. (2022). Minimax optimal algorithms for fixed-budget best arm identification. In Advances in Neural Information Processing Systems (S. Koyejo, S. Mohamed, A. Agarwal, D. Belgrave, K. Cho and A. Oh, eds.), vol. 35. Curran Associates, Inc. 
+
+https://proceedings.neurips.cc/paper_files/paper/2022/file/43c18853329c7504996b255252b6cb1f-Paper-Conf 
+
+Lattimore, T. and Szepesv´ ari, C. (2020). Bandit Algorithms . Cambridge University Press. Lehmann, E. L. and Romano, J. P. (2005). Testing Statistical Hypotheses . 3rd ed. Springer, New York. Lieb, E. H. and Loss, M. (2001). Analysis , vol. 14. 2nd ed. American Mathematical Society, Providence, R.I. Merhav, N. (2008). Error exponents of erasure/list decoding revisited via moments of distance enumerators. 
+
+IEEE Transactions on Information Theory , 54 4439–4447. Nguyen, N., Aouali, I., Gy¨ orgy, A. and Vernade, C. (2025). Prior-dependent allocations for Bayesian fixed-budget best-arm identification in structured bandits. In Proceedings of The 28th International Conference on Artificial Intelligence and Statistics (Y. Li, S. Mandt, S. Agrawal and E. Khan, eds.), vol. 258 of 
+
+Proceedings of Machine Learning Research . PMLR. 
+
+https://proceedings.mlr.press/v258/nguyen25a.html 
+
+Rao, C. R. (1992). Information and the Accuracy Attainable in the Estimation of Statistical Parameters .Springer New York, New York, NY, 235–247. 
+
+https://doi.org/10.1007/978-1-4612-0919-5_16 
+
+Russo, D. (2016). Simple Bayesian algorithms for best arm identification. In 29th Annual Conference on Learning Theory (V. Feldman, A. Rakhlin and O. Shamir, eds.), vol. 49 of Proceedings of Machine Learning Research . PMLR, Columbia University, New York, New York, USA. 
+
+https://proceedings.mlr.press/v49/russo16.html 
+
+Shang, X., de Heide, R., Menard, P., Kaufmann, E. and Valko, M. (2020). Fixed-confidence guarantees for bayesian best-arm identification. In Proceedings of the Twenty Third International Conference on Artificial Intelligence and Statistics (S. Chiappa and R. Calandra, eds.), vol. 108 of Proceedings of Machine Learning Research . PMLR. 
+
+https://proceedings.mlr.press/v108/shang20a.html 
+
+Somekh-Baruch, A. and Merhav, N. (2011). Exact random coding exponents for erasure decoding. IEEE Transactions on Information Theory , 57 6444–6454. Wang, P.-A., Tzeng, R.-C. and Proutiere, A. (2023). Best arm identification with fixed budget: A large de-viation perspective. In Proceedings of the 37th International Conference on Neural Information Processing Systems . NIPS ’23, Curran Associates Inc., Red Hook, NY, USA. Yang, J., Jin, T. and Tan, V. Y. F. (2026). Asymptotically and minimax optimal regret bounds for multi-armed bandits with abstention. Transactions on Machine Learning Research .77

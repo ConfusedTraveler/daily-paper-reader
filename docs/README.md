@@ -6,46 +6,43 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-06-29
-- 运行时间：2026-06-29 21:35:31 UTC
+- 最新运行日期：2026-06-30
+- 运行时间：2026-06-30 22:14:30 UTC
 - 运行状态：成功
-- 本次总论文数：8
-- 精读区：3
-- 速读区：5
+- 本次总论文数：7
+- 精读区：1
+- 速读区：6
 
 ### 今日简报（AI）
-今日精读因果概率时序图与时间序列解释，速读上下文Bandit降维及因果发现等5篇。  
-重点关注《Estimation--Prediction Tradeoff》中因果图的估计-预测权衡，以及《Global Explanations》的K阶马尔可夫近似解释方法。  
-建议从因果图与解释性方法的结合点入手，尝试将时序模型中的因果结构用于实际预测任务。
-- 详情：[/202606/29/README](/202606/29/README)
+今日推荐7篇论文，精读1篇聚焦预测性具身导航的人类日常学习（8.0分），另有路径空间预测模型与贝叶斯最优臂识别（7.0分）值得速读。  
+最值得关注的是《HUMEMBR》提出的利用人类日常习惯预测导航路径，以及《A Path-Space Formulation》对世界模型预测与规划的统一视角。  
+建议普通读者优先精读《HUMEMBR》以理解具身AI与人类行为的融合趋势，再结合速读中的模型理论拓展认知。
+- 详情：[/202606/30/README](/202606/30/README)
 
 ### 精读区论文标签
-1. [Estimation--Prediction Tradeoff in Causal Probabilistic Temporal Graphs](/202606/29/2606.28225v1-estimation--prediction-tradeoff-in-causal-probabilistic-temporal-graphs)  
-   标签：评分：9.0/10、query:pred-limit
-   evidence：刻画了时间链接预测中估计-预测的固有权衡，揭示了可预测性的理论极限
-2. [Global Explanations for Multivariate Time Series Forecasting Models via $K$-Order Markov Approximations](/202606/29/2606.27599v1-global-explanations-for-multivariate-time-series-forecasting-models-via-k-order-markov-approximations)  
+1. [HUMEMBR: Learning Human Routines for Predictive Embodied Navigation](/202606/30/2606.30404v1-humembr-learning-human-routines-for-predictive-embodied-navigation)  
    标签：评分：8.0/10、query:pred-limit
-   evidence：识别时间序列模型的最小预测历史长度K
-3. [The Simulacrum: Decision-Theoretic Pretraining for Near-Optimal Time-Series Forecasting and Inference](/202606/29/2606.27711v1-the-simulacrum-decision-theoretic-pretraining-for-near-optimal-time-series-forecasting-and-inference)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：时间序列预测的近最优风险界限
+   evidence：预测人类位置和日常行为用于导航
 
 ### 速读区论文标签
-1. [Graph Dimensionality Reduction for Contextual Bandits: Structure-Specific Regret Bounds under Approximate Smoothness and Noisy Eigenspaces](/202606/29/2606.27917v1-graph-dimensionality-reduction-for-contextual-bandits-structure-specific-regret-bounds-under-approximate-smoothness-and-noisy-eigenspaces)  
+1. [A Path-Space Formulation of Prediction in World Models: From a Single Action to Prediction, Planning, and Irreversibility](/202606/30/2606.28751v1-a-path-space-formulation-of-prediction-in-world-models-from-a-single-action-to-prediction-planning-and-irreversibility)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：为图结构上下文集匪提供理论遗憾界，与序列推荐中的可预测性极限相关
-2. [Disentangling Continuous-Time Latent Dynamics: Identifiability of Latent SDEs via Diffusion Shifts](/202606/29/2606.28228v1-disentangling-continuous-time-latent-dynamics-identifiability-of-latent-sdes-via-diffusion-shifts)  
+   evidence：预测的理论公式及限制
+2. [Bayesian Best-Arm Identification with Abstention: A Polynomial-to-Exponential Phase Transition](/202606/30/2606.29203v1-bayesian-best-arm-identification-with-abstention-a-polynomial-to-exponential-phase-transition)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：时间序列潜在SDE的可识别性
-3. [From Causal Discovery to Implementation: An Agentic AI Framework for E-Scooter Mobility Hub Planning Across 29 German Cities](/202606/29/2606.25484v1-from-causal-discovery-to-implementation-an-agentic-ai-framework-for-e-scooter-mobility-hub-planning-across-29-german-cities)  
+   evidence：错误概率相变的理论分析
+3. [The multiply iterated law of the iterated logarithm: game-theoretic foundations of sequential detection boundaries](/202606/30/2606.28324v1-the-multiply-iterated-law-of-the-iterated-logarithm-game-theoretic-foundations-of-sequential-detection-boundaries)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：基于智能体AI的电动滑板车移动性枢纽规划
-4. [Learning Probabilistic Filters with Strictly Proper Scoring Rules](/202606/29/2606.26497v1-learning-probabilistic-filters-with-strictly-proper-scoring-rules)  
+   evidence：序贯检测边界的博弈论基础，关联理论可预测性界限
+4. [VISTA-DZ: Visual Semantic Trajectory Adaptation for Personalized Dilemma Zone Prediction](/202606/30/2606.29548v1-vista-dz-visual-semantic-trajectory-adaptation-for-personalized-dilemma-zone-prediction)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：通过严格恰当评分规则进行滤波分布的理论分析
-5. [CryptoGAT: Are Time Series Models Effective for Cryptocurrency Forecasting?](/202606/29/2606.27670v1-cryptogat-are-time-series-models-effective-for-cryptocurrency-forecasting)  
+   evidence：驾驶员困境区域个性化预测
+5. [Scene-aware Prediction of Diverse Human Movement Goals](/202606/30/2606.29942v1-scene-aware-prediction-of-diverse-human-movement-goals)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：质疑加密货币预测中时间序列模型的有效性，涉及预测极限
+   evidence：从场景预测人类移动目标
+6. [POEM: Partial-Order Enhanced Real-Time Sequential Modeling for Recommendation](/202606/30/2606.29946v1-poem-partial-order-enhanced-real-time-sequential-modeling-for-recommendation)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：实时序列推荐建模，处理动态兴趣漂移
 
 
 <div class="dpr-home-promo-card">
