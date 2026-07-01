@@ -1,0 +1,1718 @@
+Title: Improved Multi-Dimensional Forecasting for Swap Regret
+
+URL Source: https://arxiv.org/pdf/2606.29533v1
+
+Published Time: Tue, 30 Jun 2026 01:23:14 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Improved Multi-Dimensional Forecasting for Swap Regret 
+
+Joey Rivkin Ramiro N. Deo-Campo Vuong Robert Kleinberg 
+
+jbrivkin@cs.cornell.edu ramdcv@cs.cornell.edu rdk@cs.cornell.edu 
+
+Chido Onyeze Erald Sinanaj Eva Tardos 
+
+chidoonyeze@cs.cornell.edu erald@cs.cornell.edu eva.tardos@cornell.edu 
+
+Cornell University 
+
+Abstract 
+
+We study the problem of forecasting for an arbitrary number of downstream agents with unknown objectives, each of whom best responds to the forecaster’s predictions. We seek a single forecaster that guarantees sublinear swap regret for all downstream agents simultaneously. For two-dimensional outcome spaces, we give a polynomial time algorithm that guarantees 
+
+eO(√kT ) swap regret for any downstream agent with k actions. This improves over the previously known bound of eO(kT 5/8) and avoids the exponential in T runtime of prior algorithms in this setting. Our algorithm extends nicely to other low dimensional environments, retaining eO(√T )downstream swap regret while the exponent of k in the regret bound and the exponent of T in the running time both grow with dimension. For arbitrary dimension d, we give a forecasting algorithm that guarantees eO(d√kT ) swap regret, assuming the forecaster knows an upper bound 
+
+k on the number of actions available to any downstream agent, albeit with a much longer runtime. This improves upon previous high dimensional guarantees that had eO(T 2/3) dependence and required additional behavioral assumptions.  
+
+> Robert Kleinberg, Ramiro N. Deo-Campo Vuong, and Erald Sinanaj were supported in part by NSF grant CCF-2402851. Chido Onyeze was supported in part by a SPROUT Award from Cornell Engineering. Eva Tardos was supported in part by AFOSR grants FA9550-23-1-0410 and FA9550-23-1-0068, and ONR MURI grant N000142412742.
+
+1
+
+> arXiv:2606.29533v1 [cs.GT] 28 Jun 2026
+
+# 1 Introduction 
+
+Predicting the state of the world is crucial for decision making. Weather forecasts inform daily plans, stock projections inform investment decisions, and traffic estimates inform route choice for commuters. Consider a setting in which many individuals face sequential decision-making problems. Each day, every individual must make a decision, and her payoff depends both on her decision and the uncertain state of the world. Many people lack the computational resources or data to make well-informed decisions on their own. This is where a public forecaster can help, producing a shared (and hopefully well-informed) forecast that many individuals use to guide their heterogeneous decisions. A forecaster is trustworthy if individuals should feel confident treating its predictions as if they were the truth. But what does it mean to operationalize this conception of trustworthiness? How can a single forecaster fulfill the needs of many downstream agents simultaneously, each of whom could have entirely different decision tasks, action sets, and utilities? While prior work in this widely studied area evaluates predictions primarily through statistical criteria such as proper scoring rules or calibration error, a growing body of literature assesses fore-casts directly in terms of their decision-theoretic value for downstream agents. One such decision-theoretic aim, with game-theoretic foundations, is to ensure that any downstream agent who best responds to the forecasts will have low Swap Regret. In rough words, a commuter with low swap regret who “looks back” at all the days she chose to take route A would not wish she had instead taken some other route B on those same days: any such choice would have led to at least as much time spent waiting in traffic. There are many reasons to seek low Swap Regret; we highlight two. First, Swap Regret strength-ens the well-known and widely used property of low External Regret, which has been shown empir-ically to accord with decision-makers’ behavior in certain repeated decision-making environments Nekipelov et al. (2015); Noti and Syrgkanis (2021). Second, a recent line of work shows that low swap-regret shields against potential manipulation by limiting an opponent’s ability to extract excess value from them, even if the adversary knows the algorithm that the agent is running. Algorithms for sublinear Swap Regret have been known since the seminal work of Blum and Mansour (2007). However, all of these algorithms require a degree of sophistication and access to data that might not be available to a self-optimizing agent in many environments. For instance, in our running example, the commuter might travel to a new country that she knows very little about. These considerations motivate the question of whether a public forecaster can produce a sequence of predictions that, when combined with the agent’s best-response behavior, lead to Swap Regret rates comparable to Blum-Mansour. In the next sections we address this question using a model introduced by Roth and Shi (2024). 
+
+1.1 Model 
+
+We consider the following model of Roth and Shi (2024): each day t = 1 , . . . , T , an adaptive adversary sets the “state of the world” yt ∈ C , where C ⊆ Rd is a convex, compact prediction space. The public forecaster must post a prediction ˆ yt ∈ C before observing the true state. A collection of downstream agents, whose utilities depend on the unknown state yt and their chosen action a ∈ A ,best-respond to this forecast, treating ˆ yt as the true state. Formally, each agent has a utility function u : A × C → [0 , 1]. The Best Response of an agent 2with utility u is the action 
+
+BR (u, ˆy) := arg max  
+
+> a∈A
+
+u(a, ˆy).
+
+where ties are broken consistently using a fixed ordering of the actions. Given a prediction ˆ y by the forecaster, the agent will take action BR (u, ˆy). The adversary may be adaptive (and randomized): yt may depend arbitrarily on past transcript 
+
+πt−1 = ( y1: t−1, ˆy1: t−1). We assume that the utilities are affine in the outcome: for every action 
+
+a ∈ A , the map y 7 → u(a, y ) is affine on C. Note that this model is only more general than the setting in which there are finitely many possible states of the world y, like whether or not it will rain, forecasts represent probabilities over the discrete outcomes, and agents seek to maximize their expected utility. We will denote with L the ℓ∞-Lipschitz constant of a utility function (with respect to the outcome). Since the utility is bounded in [0 , 1], when C is the unit cube, L ≤ 1. For more general convex regions, this Lipschitz constant is upper bounded by d√d without loss of generality (for more discussion the reader is directed to the Appendix A.5), a fact which we will make use of in some of our results. Our goal is to design forecasting algorithms that, with high probability, imply upper bounds on expected swap regret simultaneously for every possible downstream agent. In fact, the analysis of our forecasting algorithms implies a slightly stronger result: a bound on the expectation of the maximum swap regret across all agents with a given number of actions in their decision problem. We now formalize these notions, first defining the downstream swap regret of a particular agent. 
+
+Definition 1 (Downstream Swap Regret) . Fix a transcript πT = ( y1: T , ˆy1: T ). The Downstream Swap Regret of an agent with utility u : A × C → [0 , 1] is 
+
+DSR πT (u) = max 
+
+> ϕ:A→A
+> T
+
+X
+
+> t=1
+
+[u (ϕ(BR( u, ˆyt)) , y t) − u(BR( u, ˆyt), y t)] .
+
+We extend this notion to the worst-case over all downstream agents with some number of actions below. 
+
+Definition 2 (Maximum Downstream Swap Regret) . Define the Maximum Downstream Swap Regret of a transcript πT across agents with k actions as: 
+
+M DSR πT (k) = max  
+
+> u:[ k]×C→ [0 ,1]
+
+DSR πT (u)When πT is clear from context, we omit transcripts and write DSR (u) and M DSR (k) respec-tively. Without loss of generality we can assume any action set A of size k = |A| is relabeled as [ k], maintaining the fixed ordering of actions. Further, note that any agent with fewer than k actions can be modeled by an equivalent agent with k actions by adding “dummy” actions to her set with utility 0 so M DSR (k) captures all downstream agents with at most k actions. 
+
+1.2 Our Results 
+
+In Section 2, we provide an efficient algorithm that attains the following guarantee for forecasting in low (constant) dimensions. 
+
+Theorem 1 (Informal version of Theorem 4) . Consider a prediction space C ⊆ [0 , 1] d. There is a forecasting algorithm with the following guarantee: with probability at least 1−δ over the randomness of the forecaster, for every kM DSR (k) ≤ Cdk ⌈d/ 2⌉
+
+> 2
+
+pT ln( T /δ )3where Cd is a constant depending only on the dimension d. Moreover, for a fixed constant d the forecasts can be made with per-round running time polynomial in T .
+
+For d = 2, the algorithm runs in polynomial time and guarantees that with high probability, every agent has swap regret at most O(√kT ln T ), matching the bound of Blum and Mansour (2007) (designed for a single agent) up to log factors. This improves upon the previously best known bound of O(kT 5/8pln( T )) which required running time exponential in T as in Roth and Shi (2024). Moreover, our guarantee gives a bound on the expectation of the maximum swap regret among downstream agents, a stronger guarantee than one on the maximum of their expected downstream swap regret. In higher dimensions, we show how to guarantee near optimal swap regret which scales only linearly in the dimension, when the forecaster has knowledge of an upper bound k on the number of actions available to downstream agents, as the following theorem from Section 3 outlines. 
+
+Theorem 2 (Informal version of Theorem 5) . Consider a prediction space C ⊆ [0 , 1] d. There is a forecasting algorithm with the following guarantee: given k as an input, the algorithm produces forecasts such that with probability at least 1 − 1  
+
+> T2d
+
+,
+
+M DSR πT (k) = O
+
+
+
+dL pkT ln( T )
+
+
+
+.
+
+This gives the first ˜O(√T ) dependence on the horizon beyond the one-dimensional setting for agents who directly best respond. Prior work by Roth and Shi (2024) gave a O(T 2/3) bound that relied on an added behavioral assumption that downstream agents no longer directly best respond but smoothly respond (choosing actions randomly proportional to their utility). The Downstream Swap Regret bounds in Theorems 1 and 2 depend on the size of the agent’s action set, k. It is natural to wonder if this dependence can be avoided, especially in light of the results of Hu and Wu (2024), which show that no dependence on k is necessary in dimension d = 1. In Section 4, we show that the dependence of Downstream Swap Regret on k in higher dimensions is probably unavoidable, by linking this question with the theory of forecasting algorithms that min-imize expected calibration error , a topic already known to have strong connections to Downstream Swap Regret. We exhibit a particular downstream agent, with Ω( T ) actions, whose swap regret is quadratically related to the expected calibration error of the predictions. As a consequence of this construction, we show that bounding Maximum Downstream Swap Regret by a function of the form Od(T 1−δ) for any δ > 0, with the implied constant in the Od(·) depending on dimension but not on the agent’s number of actions, would imply breakthrough results about expected calibration error in sequential forecasting. 
+
+1.3 Background 
+
+We follow the framework of Roth and Shi (2024) of minimizing downstream swap regret by con-trolling the bias conditioned on the sets of predictions that activate a particular best response. We refer to these sets as best response regions. 
+
+Definition 3 (Best Response Region) . Fix an action set A and utility function u. For any action 
+
+a ∈ A , we define its corresponding best response region to be Su,a = {ˆy ∈ C | BR (u, ˆy) = a}.
+
+We define the bias for any region S.4Definition 4 (Subset Conditional Bias) . For a subset S ⊆ C we define the conditional bias 
+
+conditioned on that subset to be 
+
+βπT (S) = 
+
+> T
+
+X
+
+> t=1
+
+1[ˆ yt ∈ S] (ˆ yt − yt)
+
+> ∞
+
+.
+
+This definition is essentially identical to that of Noarov et al. (2025), but we do not divide by 
+
+T .As observed by Noarov et al. (2025); Roth and Shi (2024), a downstream agent’s swap regret is controlled by the bias accumulated on best response regions. Intuitively, consider the days on which the agent chooses some action a (i.e. ˆ yt ∈ Su,a ). On those days, the forecasted utility of a is greater than that of any other action. If the realized outcomes, on average, are near the forecasted outcomes on the same subset of days (i.e. the conditional bias is small), then the forecasted utilities must be as well due to our assumption that the utility function is Lipschitz. In particular, this implies that action a cannot be that much worse than any action on those days. This intuition is formalized in the following lemma: 
+
+Lemma 1. Noarov et al. (2025) Fix any agent with utility function u : A × C → [0 , 1] . Let L be an upper bound for the ℓ∞-Lipschitz constant for the second argument. Then 
+
+DSR πT (u) ≤ 2L X
+
+> a∈A
+
+β(Su,a )This provides a framework for controlling downstream swap regret: maintain small conditional bias on all best response regions. In order to obtain any meaningful guarantees, the forecaster should make predictions in some predetermined finite subset of the space, in order to control the bias of the induced best response sets (which are finitely many, in contrast to the entire space of best response partitions). Thus, as in Roth and Shi (2024); Noarov et al. (2025); Hu and Wu (2024) we discretize the prediction space into a finite set. 
+
+Definition 5 (Discretized Prediction Set) . For a prediction space C ⊆ [0 , 1] d, the Discretized Prediction Set Cϵ ⊂ C is an ℓ∞-net with resolution ϵ. By taking points in a grid we can ensure 
+
+|C ϵ| ≤ (1 /ϵ )d. We always take ϵ to be 1/Poly (T ) so |C ϵ| = T O(d).
+
+Prior works in this setting Roth and Shi (2024); Noarov et al. (2025) enumerate all subsets of 
+
+Cϵ that can arise as a best response region (of some utility), and use multi-objective optimization to simultaneously guarantee low bias on all such subsets. One challenge with this approach is that, in multiple dimensions, the number of induced subsets can be extremely large, posing issues both for downstream regret bounds and computational efficiency. 
+
+1.4 Our Approach 
+
+Our forecasting algorithms, too, use multi-objective optimization to control bias. The difference is that we reformulate the multiple objectives in the optimization problem in ways that lead to effi-ciency gains. The ways these efficiency gains are achieved in low dimensions versus high dimensions are entirely opposite one another: in low dimensions the key is to reduce the number of objectives considered, while in high dimensions the key is, surprisingly, to increase it. In low dimensions, we control bias on a much simpler family of subsets (triangles or simplices) and show that best response regions can be written as a union of a bounded number of these build-ing blocks. This leads to a computationally efficient forecasting algorithm, while also improving downstream swap regret guarantees. 5In high dimensions, the geometry of best response regions becomes more complex and the number of simplices needed to compose a best response region grows exponentially in the dimension 
+
+d. This necessitates a different approach. Rather than breaking down best response regions, we enumerate all possible partitions of the discretized prediction space into best response regions, and, for each partition, control the total conditional bias aggregate across all best response regions in that partition. A central component of our analysis is showing that, although the space of utilities is infinite, the number of distinct partitions that arise is nevertheless well controlled. Strikingly, in the d = 2 case, these two seemingly opposite approaches lead to the same swap regret bound of ˜O(√kT ), both improving on previous bounds. A more detailed overview of the two approaches follows. 
+
+1.4.1 Low Dimensions – Triangulations 
+
+The forecasting algorithm of Roth and Shi (2024) for dimensions d = 1 , 2 relies on the observation that best response regions are convex. The forecasting algorithm given here relies on a tighter characterization of best response regions as convex polytopes with a number of faces bounded by the size of the action set, allowing us to control bias only on a much smaller family of sets. Consider the case of d = 2. The best response region of an action a is defined by linear comparisons u(a, ˆy) ≥ u(b, ˆy) for all other actions b, and therefore is a polygon with at most one side contributed by each other action (and 4 additional sides from the boundary of [0 , 1] 2). With k
+
+actions, each best response region is a polygon with at most k + 4 sides and so can be decomposed into at most k + 2 triangles. Therefore, the total cumulative bias summed across k best response regions is bounded by a sum over O(k2) disjoint triangles, ( O(k) for each best response region). A more careful global count improves this to O(k). Consider a graph whose nodes are best response regions and whose edges are the boundaries between them. This graph is planar because prediction space is two dimensional, and there are k nodes, one for each action. Boundaries of best response regions correspond to edges of this graph. A planar graph with k nodes can only have 
+
+O(k) edges, implying the same asymptotic bound on the total number of triangles needed. In other words, we can control the cumulative bias over the k best response regions by controlling bias on only O(k) many triangles. 
+
+Figure 1: Best-response regions partitioning a prediction space (with the dual graph of the partition depicted at right) can be further partitioned into triangular sub-regions. Beyond two dimensions, the geometry is more complex and it’s not necessarily the case that the number of simplices needed to triangulate a polytope is linear in the number of its facets. However, using the Upper Bound Theorem from convex geometry, we are able to show that we do not need more than O(k⌈d/ 2⌉) total simplices to triangulate the best response regions, where d is the dimension (see Section A.2). 6Note that the forecaster is aiming to control bias (and hence swap regret) for many downstream agents without knowing the agents’ utilities or best response regions. Therefore, our goal is to control the bias on all possible triangles of the forecast region. When the forecaster restricts to a discretized set of predictions, the number of subsets that arise from triangles or simplices is polynomial in the number of points, in contrast to the number of total convex sets which grows exponentially. This allows the forecaster to efficiently enumerate all such subsets and achieve improved bounds. The formal algorithm and analysis appear in Section 2. 
+
+1.4.2 High Dimensions – Counting Partitions 
+
+The approach of Roth and Shi (2024) for forecasting in low dimensions was to maintain unbiasedness on every convex set. However, we can do better. Observe that an action a is best response to forecast ˆ y if u(a, ˆy) ≥ u(b, ˆy) for all other actions b. For any given action b, this is a linear constraint in ˆ y, implying that best response regions are the intersections of at most k − 1 half spaces. By maintaining conditional unbiasedness on subsets of Cϵ realizable by such intersections, we can achieve swap regret O(Lkd pT ln( T )) for any downstream agent with at most k actions. This already strengthens prior high dimensional guarantees (See Appendix A.3). However, this bound incurs a √k factor greater regret than the O(√kT ) rate achievable by a single agent running a no swap regret algorithm. Intuitively, this linear dependence on k comes from summing bias across the k best response regions, and swap-regret is the total regret swapping each action to a different action. Motivated by this difficulty, we shift perspective and instead control the total bias at the level of entire best response partitions . Specifically, the forecaster enumerates every possible partition of Cϵ into best response regions that could arise from a utility function, with the goal being to control the total bias, summed across best response regions, for every such partition. The main hurdle to this approach is showing that there are not too many possible partitions for the forecaster to deal with. When the domain is restricted to the discretized prediction set, there are still infinitely many utility functions, but there are only a finite number of possible partitions. Naively, that number of partitions could be extremely large (e.g. k|C ϵ| = kT d
+
+), but we show that the number of partitions scales roughly as |C ϵ|kd = T kd 2
+
+. We do this by casting utilities on k actions as elements in parameter space 
+
+Rk(d+1) . Then, for each point in ˆ y ∈ C ϵ and pair of actions a, b we consider the hyperplane on which 
+
+u(ˆ y, a ) = u(ˆ y, b ). Distinct partitions correspond to distinct cells cut out by these hyperplanes, so the problem is reduced to counting such cells. Finally, to simultaneously control the total bias on each partition, we reduce to multiobjective optimization. We show how to write bias on one partition as the maximum of (2 d)k linear functions and show that it is sufficient to consider only ≈ T kd 2
+
+partitions. So controlling bias on all partitions requires controlling as many as N ≈ (2 d)kT kd 2
+
+linear objectives. Standard multiobjective optimiza-tion guarantees scale as pT ln( N ) where N is the number of objectives. For N ≈ (2 d)kT kd 2
+
+, the second factor dominates and this gives the O(dpkT ln( T )) downstream swap regret bound. The formal algorithm and analysis appear in Section 3. 
+
+1.5 Related Work 
+
+One of the most well known and now widely studied metrics of prediction accuracy is Expected Calibration Error (ECE), also known as ℓ1 Calibration Error. In short, the classical definition measures the ℓ1-distance of the vector of unique predictions made by the forecaster to the “cali-brated” vector: where each unique prediction is swapped to the empirical observed state. It has 7been known for quite some time, due to Foster and Vohra (1998), that a forecaster with low ECE guarantees low Swap Regret to any agent that best responds to her predictions. Their algorithm and its pessimistic guarantee, growing as O(T d+1  
+
+> d+2
+
+), remained the best we know to date for non-constant number of labels, d + 1, and were only very recently surpassed by the work of Dagan et al. (2025) for the two-label setting, which gives a guarantee of O(T 2/3−ε) for some small ε. Recently, the work of Peng (2025) gives an algorithm that achieves ℓ1 Calibration Error less than ϵT provided 
+
+T = Ω( d1/ε 2
+
+), avoiding the exponential dependence on d in the T = Ω  (1 /ε )d+2  bound implied by Foster and Vohra (1998), while substituting an exponential dependence on 1 /ε . Subsequently, Fishelson et al. (2025) generalize this result to arbitrary norms other than ℓ1 and give a stronger lower bound for ℓ1 Calibration Error. Minimizing Expected Calibration Error is statistically costly, suffering from a lower bound of Ω( T 0.54 ) (Qiao and Valiant, 2021; Dagan et al., 2025), which constitutes a barrier to obtaining ˜O(√T ) Downstream Swap Regret (or even Downstream Expected Regret) via forecasters with low ECE. However, it is also known that low ECE is not necessary for low downstream Swap Regret and various recent works provide downstream guarantees that are not achievable by standard calibration techniques. The work of Kleinberg et al. (2023) investigates downstream no External Regret and provides a novel framework and view through proper scoring rules , defining U-calibration as an efficiently attainable property to guarantee an optimal O(√T ) external regret for any downstream decision maker in the one-dimensional case. They also provide an efficient algorithm giving a downstream expected regret guarantee of O(d√T ), which was later improved by Luo et al. (2024) to the optimal O(√dT ). These guarantees in d > 1 dimensions, unlike the d = 1 guarantee from (Kleinberg et al., 2023), are for the weaker objective of maximum expected Downstream External Regret. To the best of our knowledge, for the stronger objective of expected maximum Downstream External Regret in dimension d > 1, no bounds asymptotically outperforming the bounds arising from ECE minimization were known prior to our work. In regards to the harder guarantee of No Swap Regret, a number of works also give positive results albeit in limited settings. First, Roth and Shi (2024), largely based on the framework set by Noarov et al. (2025), were able to provide an efficient forecasting algorithm that guarantees ˜O(k√T ) Swap Regret for any downstream agent with k actions in the one-dimensional setting. They extended this idea to two dimensions giving a guarantee that scales as ˜O(kT 5/8), but with an algorithm that runs in time exponential in T α for some α > 0. More recently, Hu and Wu (2024) use the ideas introduced in Li et al. (2022); Kleinberg et al. (2023) and Noarov et al. (2025) to give a near-optimal action-independent bound of O(√T log T ) in the one-dimensional setting. For a single agent with k actions minimizing Swap Regret (as opposed to a forecaster mini-mizing Downstream Swap Regret for all k-action agents simultaneously) the canonical algorithm, due to Blum and Mansour (2007), achieves a Swap Regret bound of O(√T k log k). A matching lower bound (up to constant factors) was presented by Ito (2020), improving an earlier Ω( √T k )lower bound of Blum and Mansour (2007). Remarkably, our high-dimensional forecasting algorithm (Theorem 5) achieves a Maximum Downstream Swap Regret bound of order O(√T k log T ) (omit-ting factors that depend on the dimension and Lipschitz constant), matching the Blum-Mansour bound up to the log( T ) factor. Our bounds are incomparable with the Swap Regret bounds of Peng and Rubinstein (2024); Dagan et al. (2024), which have polylogarithmic dependence on the number of actions but T 1−o(1) dependence on the time horizon. 82 Efficient Forecasting In Low Dimensions 
+
+A central barrier to computationally efficient forecasting is the large number of possible best re-sponse regions, even when restricted to the discrete prediction set Cϵ. Algorithms that explicitly enumerate all such regions necessarily incur proportionally high runtime. We avoid this blowup by replacing the (large) family of best response regions with the much smaller family of simplex-induced subsets on the discretized prediction space as defined below. 
+
+Definition 6. Define the set of simplex-induced subsets of the discretized prediction space to be 
+
+Sϵ := 
+
+(
+
+Cϵ ∩
+
+> d+1
+
+\
+
+> i=1
+
+Hi | Hi a halfspace in Rd
+
+)
+
+.
+
+We show a modest bound on the number of such induced subsets of Cϵ using VC dimension analysis, and show that any agent’s best response regions can be composed into a well-bounded number of such subsets. To maintain unbiasedness on all of these subsets, we instantiate the prediction algorithm of Noarov et al. (2025) with the collection of these simplex-induced subsets of 
+
+Cϵ. We state here the main guarantee of Noarov et al. (2025). 
+
+Theorem 3 (Noarov et al. (2025)) . Fix a convex outcome space C ⊆ [0 , 1] d, discretized prediction set Cϵ ⊂ C , and collection of subsets E ⊂ 2Cϵ . There is an algorithm producing p1, . . . , p T ∈ ∆Cϵ
+
+such that for any sequence of outcomes y1, . . . , y T ∈ C chosen by the adversary: 
+
+Eˆy′
+
+> t∼pt∀t
+> T
+
+X
+
+> t=1
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt)
+
+> ∞
+
+≤ O
+
+
+
+ln( d|E| T ) + pln( d|E| T )|nT (S)| + ϵT 
+
+
+
+where nT (S) = PTt=1 Eˆy′ 
+
+> t∼pt
+
+1[ˆ y′ 
+
+> t
+
+∈ S]. Additionally, the algorithm can be implemented with per-round running time scaling polynomially in d, |E| , and T .
+
+Using the algorithm of Noarov et al. (2025), a forecaster can be approximately unbiased on the collection of simplex-induced subsets, incurring small bias for each one that depends on the frequency ( |nT (S)|) of predicting from the set S and on the size of the collection |E| . We now state the main result of the section: a forecasting algorithm that is oblivious to the downstream agents using it and which guarantees a high probability bound on the worst case downstream swap regret, as a function of the number of actions of each agent (which is unknown to the forecaster), the dimension, and the horizon: 
+
+Theorem 4. Consider a prediction space C ⊆ [0 , 1] d and let Cϵ be an ℓ∞ net with resolution ϵ.Consider the unbiased predictions algorithm of Noarov et al. (2025) instantiated with E = {Eσ}σ∈S ϵ
+
+and ϵ = 1  
+
+> T2
+
+. Then, for any adversary (possibly adaptive and randomized), with probability at least 
+
+1 − δ the following holds simultaneously for all k:
+
+M DSR (k) ≤ Cdk ⌈d/ 2⌉
+
+> 2
+
+pT ln( T /δ )
+
+where Cd is a constant depending only on d. Moreover, the forecasts can be made with per-round running time polynomial in T d3
+
+.
+
+Observe that for d = 2 this gives a bound of O(pkT ln( T )) on expected maximum case swap regret and a O(kpT ln( T )) bound for dimensions d = 3 , 4 (by setting say δ = 1 /T 2). The first matches well known bounds for an agent optimizing for swap regret themselves, and all three, to our 9knowledge, improve on any previously known algorithms for downstream swap regret. Moreover, the algorithm is efficient (polynomial in T , for a fixed dimension d). The remainder of this section works toward proving Theorem 4. In subsection 2.1, we bound the number of simplex-induced subsets and the number of such subsets needed to compose best response regions. Then, in subsection 2.2, we show that the algorithm of Noarov et al. (2025) provides a strong high probability bound on the total bias across disjoint events. Finally, in subsection 2.3, we prove the main result. 
+
+2.1 Geometric tools to analyze the algorithm 
+
+To analyze the algorithm we must show that (1) the family Sϵ is not too large and (2) for any agent, each best response region can be broken down into a reasonable number of sets from Sϵ. The two ideas are captured by the following two lemmas. The first bounds the total number of subsets of the discretized prediction set induced by simplices, and the second shows that any agent’s best response regions can be composed by a bounded number of these simplex-induced subsets. 
+
+Lemma 2. Let P ⊂ Rd be a finite set with |P | = m, and define: 
+
+P(n) =
+
+P ∩
+
+> n
+
+\
+
+> j=1
+
+Hi | H1, . . . , H n are halfspaces in Rd
+
+ .
+
+Then the size of the collection is bounded as |P (n)| = mO(nd ).
+
+Setting n = d + 1 gives |C ϵ|O(d2) bound on the number of simplex-induced subsets. The proof of Lemma 2 proceeds by first using VC dimension analysis to bound the number of sets of discretized prediction values induced by half-spaces and then bounding the number of n-wise intersections. We rely on the following two facts about VC dimension: 
+
+Fact 1 (see e.g. Vapnik (1998)) . The VC dimension of the family of halfspaces in Rd is d + 1 .
+
+Fact 2 (Sauer-Shelah lemma, Sauer (1972); Shelah (1972)) . Let F be a family of subsets of an 
+
+m-point set with VC-dimension D. Then |F| = O(mD).Proof of Lemma 2. Let 
+
+F := {P ∩ H : H is a halfspace in Rd}.
+
+By the Sauer-Shelah lemma and the fact that the VC-dimension of halfspaces in Rd is d + 1, we have |F| = O(md+1 ). Note that every set in P(n) can be written as the intersection of n sets from 
+
+F:
+
+P ∩
+
+> n
+
+\
+
+> j=1
+
+Hj =
+
+> n
+
+\
+
+> j=1
+
+(P ∩ Hj ).
+
+Therefore, 
+
+|P (n)| ≤ |F| n = O(mn(d+1) ) = mO(nd ).
+
+The other core lemma bounds the number of simplices needed to compose the best response regions of an agent. 
+
+Lemma 3. Consider a convex, compact space C ⊆ [0 , 1] d and a finite collection of points P ⊆ C .Fix a utility function u : [ k] × C → [0 , 1] , affine in its second argument. There exists a collection S
+
+of simplices in Rd with disjoint interiors such that 
+
+10 1. |S| ≤ cdk⌈d/ 2⌉ for some constant depending only on the dimension d
+
+2. no point of P lies on the boundary of a simplex σ ∈ S 
+
+3. every point in P lies in the interior of exactly one simplex σ ∈ S 
+
+4. for every simplex σ ∈ S , the set P ∩ σ contains points from at most one best response region of u
+
+The full proof of the lemma can be found in Appendix A.2, but we sketch the main ideas here. Recall that for agents with k actions, best response regions are convex polytopes in Rd with O(k)facets. The Upper Bound Theorem McMullen (1970) from convex geometry implies that a simple convex polytope with k facets can be triangulated into O  k⌊d/ 2⌋ simplices. Applying this to each of the k best response regions gives an O(k · k⌊d/ 2⌋) upper bound on the number of simplex-induced subsets needed. To improve on this naive count, we represent each affine utility u(a, ·) as a hyperplane in Rd+1 
+
+(via standard lifting). Best response regions correspond to facets of the upper envelope. Rather than triangulating best responses separately, we triangulate the full upper envelope which induces a triangulation of the facets (and therefore the best response regions). Because the upper envelope is a d + 1-dimensional polytope with O(k) facets, it can be triangulated using O  k⌈d/ 2⌉ simplices, an improved bound in even dimensions. The main additional subtlety that arises is the case of points in the discretized prediction set landing exactly on the boundaries of simplices. However, by translation by a uniform random vector in a ball, this occurs with probability 0. Therefore, by the probabilistic method, there exists some decomposition into simplices for which no points in the discretized prediction set lie on simplex boundaries. 
+
+2.2 A high probability bound on the unbiasedness on disjoint subsets 
+
+We seek high probability bounds on maximum downstream swap regret across all possible agents. This implies bounds on the expected maximum downstream swap regret , which is stronger than typical bounds on the maximum expected downstream swap regret across downstream agents. The Theorem from Noarov et al. (2025) only bounds expected bias with respect to draws from the mixtures over predictions pt ∈ ∆Cϵ. For an adaptive adversary, who might respond to the realized draws ˆ yt ∼ pt, this does not immediately give a bound on the realized bias. However, by considering a martingale which tracks the difference between the realized bias (with respect to the realized forecasts ˆ yt) and expected bias (with respect to the randomness of draws from pt), we show that the algorithm of Noarov et al. (2025) indeed provides high probability guarantees with respect to the realized forecasts. 
+
+Lemma 4. Let C ⊆ [0 , 1] d be a convex prediction–outcome space and let E be a finite collection of subsets. For any (possibly adaptive and randomized) adversary that produces outcomes yt ∈ C 
+
+as a function of the past forecasts and outcomes πt−1, the algorithm of Noarov et al. (2025) draws predictions ˆy1, . . . , ˆyT ∈ C ϵ from p1, . . . , p T ∈ ∆Cϵ such that with probability at least 1 − δ, for every subset S ∈ E :
+
+> T
+
+X
+
+> t=1
+
+1[ˆ yt ∈ S](ˆ yt − yt)
+
+> ∞
+
+≤ c
+
+
+
+ln( d|E| T /δ ) + pln( d|E| T /δ )nT (S) + ϵT 
+
+
+
+,
+
+11 where the probability is over the randomness of both the adversary and the forecaster, nT (S) = 
+
+Eˆy′
+
+> t∼pt
+
+PTt=1 1[ˆ y′ 
+
+> t
+
+∈ S], and c is a universal constant. The algorithm can be implemented with per-round running time scaling polynomially in d, |E| , and T .
+
+The full proof, which uses Freedman’s inequality Freedman (1975) to bound the martingale, is left to the appendix (see Section A.1). The analysis of our algorithm relies on bounding the bias summed across disjoint simplex-induced subsets (which together compose an agent’s best response regions). For disjoint subsets, the counts nT (S) sum to at most T ; this observation along with Jensen’s inequality yield the following. 
+
+Lemma 5. Instantiating the algorithm with ϵ = 1 /T 2, with probability at least 1 − δ, for any set of disjoint subsets R ⊆ E , X
+
+> S∈R
+
+β(S) ≤ c′ p |R| T ln( d|E| T /δ )
+
+
+
+where c′ is a universal constant. Proof. Suppose the conditions of Lemma 4 hold. Then, 
+
+X
+
+> S∈R
+
+β(S) ≤ c X
+
+> S∈R
+
+
+
+ln( d|E| T /δ ) + pln( d|E| T /δ )nT (S) + ϵT 
+
+
+
+= c |R| ln( d|E| T /δ ) + X
+
+> S∈R
+
+pln( d|E| T /δ )nT (S) + |R| /T 
+
+!
+
+≤ c
+
+
+
+|R| ln( d|E| T /δ ) + pT ln( d|E| T /δ )|R| + |R| /T 
+
+
+
+(Jensen’s inequality) Note that the total bias across disjoint events is always bounded above by T . Either the middle term pT ln( d|E| T /δ )|R| is the largest or is itself greater than T . Therefore, setting c′ = 3 max {1, c }
+
+we get the desired guarantee. 
+
+2.3 Proof of Theorem 4 
+
+With the preceding Lemmas (2, 3, and 5) the proof of Theorem 4 is straightforward. 
+
+Proof of Theorem 4. By Lemma 1, it suffices to bound the cumulative bias conditional on the best response regions Su,a , a ∈ [k] of the agent, i.e. the sum: P 
+
+> a∈[k]
+
+β(Su,a ). Applying Lemma 3 gives a collection of disjoint simplex-induced sets s(i)
+
+> u,a
+
+, i ∈ [Na] with F 
+
+> i∈[Na]
+
+s(i) 
+
+> u,a
+
+containing exactly Su,a ∩C ϵ
+
+and P 
+
+> a∈[k]
+
+Na ≤ cdk⌈d/ 2⌉ (note that any simplex in Rd can be written as the intersection of d + 1 halfspaces). Using this decomposition and applying the triangle inequality to the biases, 
+
+X
+
+> a∈A
+
+β(Su,a ) = X
+
+> a∈A
+
+β
+
+ G
+
+> i∈[Na]
+
+s(i)
+
+> u,a
+
+ ≤ X
+
+> a∈A
+
+X
+
+> i∈[Na]
+
+β
+
+
+
+s(i)
+
+> u,a
+
+
+
+.
+
+Let |R| = P 
+
+> a∈[k]
+
+Na ≤ cdk⌈d/ 2⌉ denote the number of disjoint simplex-induced subsets R, that partition the best response regions of the agent. Since we make use of the unbiased predictions 
+
+algorithm of Noarov et al. (2025) with the collection of sets to be unbiased to, the set E of all such simplex-induced subsets, we have the following bound, with probability at least 1 − δ (from Lemma 5): 12 X
+
+> a∈A
+
+X
+
+> i∈[Na]
+
+β
+
+
+
+s(i)
+
+> u,a
+
+
+
+≤ c′ p |R| T ln ( d|E| T /δ )
+
+
+
+Now, recall that Lemma 2 bounds the cardinality of E. For our purposes we have P = Cϵ and observe that m = |P | ≤   1
+
+> ϵ
+
+d = T 2d. Thus, we can bound: 
+
+|E| ≤ T O(d3).
+
+Substituting in these bounds above and absorbing constants depending only on d into Cd gives the stated bound, as the agent was arbitrary and the high-probability event holds uniformly over all simplex-induced subsets: 
+
+M DSR (k) ≤ Cdk ⌈d/ 2⌉
+
+> 2
+
+pT ln( T /δ )Recall that the Lipschitz constant can be assumed to be polynomial in d (specifically, L ≤ d√d,see discussion in Section A.5 of the appendix), and so can be absorbed into Cd. The per-round runtime is polynomial in |E| , T , and d and so polynomial in T d3
+
+.
+
+# 3 Forecasting In High Dimensions 
+
+An agent who knows their own utilities and runs a standard swap-regret algorithm (e.g. Blum and Mansour (2007)) can guarantee swap regret ˜O(√kT ). In this section we show that a single public forecaster can achieve essentially the same ˜O(√kT ) rate simultaneously for all downstream agents 
+
+with at most k actions, up to a linear dependence on the dimension of the prediction space. 
+
+Theorem 5. Fix a prediction space C ⊆ [0 , 1] d and parameter k ∈ N. There is an algorithm that produces forecasts ˆyt based on the transcript of past history πt−1 such that for every (possibly adaptive and randomized) adversary mapping transcripts to outcomes yt, with probability at least 
+
+1 − 1  
+
+> T2d
+
+,
+
+M DSR πT (k) = O
+
+
+
+dL pkT ln( T )
+
+
+
+.
+
+3.1 Proof Overview 
+
+Rather than enforcing unbiasedness separately on each best response region, our algorithm and analysis control bias at the level of an entire best-response partition .Fix the discretized prediction set Cϵ ⊂ C ⊂ [0 , 1] d. Every utility function u induces a labeled partition of Cϵ into best response regions, i.e. a map 
+
+ρ : Cϵ → [k], ρ(ˆ y) = BR (u, ˆy).
+
+Let Dk(Cϵ) denote the set of all such realizable partitions. For a partition ρ ∈ D k(Cϵ), define its 
+
+total bias to be 
+
+βπT (ρ) := X
+
+> j∈[k]
+
+βπT (ρ−1(j)) = X
+
+> j∈[k]
+
+X
+
+> t:ρ(ˆ yt)= j
+
+(ˆ yt − yt)
+
+> ∞
+
+which (up to a factor of 2 L) bounds the downstream swap regret. We bound total bias uniformly over every realizable partition ρ that could arise from some utility function. We do this via the following steps: 13 1. First, we bound the cardinality of the set of realizable partitions |D k(Cϵ)|. We view utility functions as points in the parameter space Rk(d+1) and count the number of subsets of this space which induce different partitions. For every value ˆ y ∈ C ϵ and pair of actions a, b ∈ [k] we consider a hyperplane within the parameter space defined by u(a, ˆy) = u(b, ˆy). We bound the total number of cells that are formed by these hyperplanes which corresponds to the number of partitions. 2. Next, we encode the total bias of each partition ρ as a maximum over (2 d)k linear loss objectives, one for each possible assignment of signed coordinate directions to best-response regions in the best-response partition. 3. Combining (1) and (2) gives a family of D = (2 d)k|D k(Cϵ)| loss objectives. We then apply the multiobjective optimization framework of Lee et al. (2022) which ensures a high probability 
+
+O(pT ln( D)) bound on the maximum loss. 
+
+3.2 Bounding the number of realizable partitions 
+
+Naively, partitioning n points into k labeled sets allows for as many as kn partitions. However, given the geometric structure of best response regions we can get a much tighter bound. 
+
+Lemma 6. Fix Cϵ ⊂ C ⊂ [0 , 1] d with n = |C ϵ|. Then 
+
+|D k(Cϵ)| ≤ 
+
+> k(d+1)
+
+X
+
+> i=0
+
+  k
+
+> 2
+
+ni
+
+
+
+≤ (nk 2)k(d+1) 
+
+Proof. Each affine function u(a, ·) : C ⊂ Rd → [0 , 1] can be specified by a coefficient vector in Rd+1 ,thus an agent’s utility function u : [ k] × C → [0 , 1] can be identified with a vector in Rk(d+1) . For a point y ∈ C ϵ and pair a < b ∈ [k], let Hy, (a,b ) = {u | u(a, y ) = u(b, y )} and note that this is a hyperplane in Rk(d+1) (when thinking of utilities u as points in that space). The hyperplanes 
+
+{Hy, (a,b )}y∈C ϵ,a<b ∈[k] divide the space of utility functions into cells. All of the utility functions that correspond to a cell would induce the same partition of the points of Cϵ into best response regions. Therefore |D k(Cϵ)| is at most the number of such cells. A standard bound states that m hyperplanes divide r dimensional space into at most Pri=0 
+
+ mi
+
+ cells (see e.g. Stanley (2007)). We have m =  k
+
+> 2
+
+n
+
+hyperplanes and r = k(d + 1) is the dimension of the utility space, which yields the claim. 
+
+3.3 Encoding Total Bias as a Maximum of Loss functions 
+
+We encode the total ℓ∞ bias of a partition as a maximum over a finite family of linear loss objectives. A standard identity allows ℓ∞-norms to be written as a maximum of 2 d quantities, one for each signed direction: ∥x∥∞ = max i∈d max( xi, −xi). Using this, the sum of k many ℓ∞ norms can be written as the maximum of (2 d)k many loss objectives. The loss functions just defined are indexed by triples ( ρ, σ, I ) where ρ ∈ D k(Cϵ), σ ∈ {± 1}k and 
+
+I ∈ [d]k. Intuitively, ( σ, I ) assigns each best response region a ∈ [k] a coordinate direction Ia and sign σa.When the forecaster plays ˆ yt ∼ pt and the adversary chooses yt ∈ C , we define at = ρ(ˆ yt) and set the loss of objective ( ρ, σ, I ) to be 
+
+lρ,σ,I (ˆ yt, y t) = σat
+
+ yt,I at − ˆyt,I at
+
+ .
+
+14 For a fixed partition ρ, the cumulative loss is, 
+
+> T
+
+X
+
+> t=1
+
+lρ,σ,I (ˆ yt, y t) = X
+
+> a∈[k]
+
+σa
+
+X
+
+> t:at=a
+
+(yt,I a − ˆyt,I a ) (1) The maximum loss related to ρ is exactly the total bias on that partition 
+
+β(ρ) = X
+
+> a∈[k]
+
+X
+
+> t:at=a
+
+(yt − ˆyt)
+
+> ∞
+
+= max 
+
+> σ,I
+
+X
+
+> a∈[k]
+
+σa
+
+X
+
+> t:at=a
+
+(yt,I a − ˆyt,I a )Hence, the maximum of the family of losses ( ρ, σ, I ) is exactly the maximum total bias across all partitions. 
+
+3.4 Applying Multiobjective Optimization 
+
+To simultaneously bound all of the losses, we reduce to the multiobjective optimization algorithm of Lee et al. (2022). Their work offers an online algorithm that keeps the maximum loss across a vector of losses small. Their model applies to a more general setting, which allows for time-varying action spaces and loss functions. A specialization of their model that suffices for our setting follows (See Appendix A.4 for explanation of how their more general model implies the theorem as stated here): Consider a game between a learner and an adversary. At every timestep t = 1 , . . . , T , the learner chooses an action xt ∈ X and simultaneously, the adversary chooses an action yt ∈ Y . The learner incurs loss l(xt, y t) according to a vector loss function l(·, ·) : X × Y → [−1, 1] D with each 
+
+lj (x, ·) concave in its second argument. Let 
+
+w := sup 
+
+> y∈Y
+
+min  
+
+> x∈X
+
+max  
+
+> j∈[D]
+
+lj (x, y )i.e. the bound on the maximum loss that the learner incurs when the adversary is forced to move first and the learner can respond. The learning algorithm’s goal is to ensure that over a time horizon of T steps the learner does not suffer much more than wT loss, the additional loss is the analog of classical regret in the case of a single loss function. 
+
+Theorem 6 (Adapted from Lee et al. (2022), Theorem A.2) . Fix any δ ∈ (0 , 1) . Given T ≥ ln( D),there exists an algorithm that guarantees with probability 1 − δ over the learner’s randomness, 
+
+max 
+
+> j∈[D]
+
+( TX
+
+> t=1
+
+lj (xt, y t)
+
+)
+
+≤ 8
+
+s
+
+T ln 
+
+ Dδ
+
+
+
++ wT 
+
+We instantiate this theorem with X = Cϵ, Y = C, the losses in Equation (1), and D =(2 d)k|D (k) 
+
+> ϵ
+
+|. We set ϵ = 1 /T and δ = 1 /T 2d. Since Cϵ is an ℓ∞-net of resolution ϵ, for any 
+
+y ∈ C there exists ˆ y ∈ C ϵ with ∥y − ˆy∥∞ ≤ ϵ, which implies that w ≤ ϵ. Therefore, with probability at least 1 − δ,max 
+
+> ρ∈D (k)
+> ϵ
+
+X
+
+> a∈[k]
+
+X
+
+> t:ρ(ˆ yt)= a
+
+(ˆ yt − yt)
+
+> ∞
+
+≤ 8
+
+s
+
+T ln 
+
+ Dδ
+
+
+
++ 1 By Lemma 6 with n = |C ϵ| ≤ (1 /ϵ )d = T d we have |D (k) 
+
+> ϵ
+
+| ≤ (T dk2)k(d+1) . Therefore, 
+
+D ≤ (2 d)k(T dk2)k(d+1) .
+
+15 Taking logs and setting δ = 1  
+
+> T2d
+
+,ln 
+
+ Dδ
+
+
+
+≤ k ln(2 d) + dk (d + 1) ln( T ) + 2 k(d + 1) ln( k) + 2 d ln( T ) = O(kd 2 ln( T )) .
+
+Substituting this into Theorem 6 yields, with probability at least 1 − 1  
+
+> T2d
+
+,
+
+M DSR (k) = O
+
+
+
+LpT (kd 2 ln T )
+
+
+
+= O
+
+
+
+dL pkT ln( T )
+
+
+
+# 4 Relating Downstream Swap Regret to Calibration Error 
+
+In follow-up work to Roth and Shi (2024), Hu and Wu (2024) showed that in one dimension it is possible to guarantee ˜O(√T ) swap regret for all downstream agents without any dependence on the number of actions. This motivated an open question: is a dependence on the number of actions necessary in higher dimensions, or is it removable? In this section we give evidence to suggest it is necessary, by showing that maximal downstream swap regret of order Od
+
+ T 1−δ for any 
+
+δ > 0 — with the implied constant depending on the dimension but not on the number of actions — would imply a breakthrough result on high-dimensional calibration, namely a sequential forecasting algorithm over the d-dimensional simplex with Expected Calibration Error Od
+
+ T 1−δ/ 2. Our proof leverages d-dimensional generalizations of the well-known observations, in dimension d = 1, that average squared ℓ2-calibration error upper-bounds the square of Expected Calibration Error (e.g., Lemma 3.1.1 of Roth (2026)) and that squared ℓ2-calibration error can be interpreted as swap regret for a decision problem with the squared-loss objective (e.g., Theorem 14 of Kleinberg et al. (2023)). 
+
+Definition 7. For a transcript πT = (ˆ y1: T , y 1: T ), let P = {ˆyt : t ∈ [T ]} be the set of predicted values. For a prediction ˆy ∈ P we define its count n(ˆ y) := |{ t ∈ [T ] : ˆ yt = ˆ y}| and recalibrated prediction σ(ˆ y) :=   
+
+> P
+> t:ˆ yt=ˆ yyt
+> n(ˆ y)
+
+and let Q be the set of recalibrated predictions {σ(ˆ y) : ˆ y ∈ P }. The 
+
+ℓ1-calibration error (ECE) is 
+
+ECE (πT ) := X
+
+> ˆy∈P
+
+n(ˆ y)∥ˆy − σ(ˆ y)∥1 =
+
+> T
+
+X
+
+> t=1
+
+∥ˆyt − σ(ˆ yt)∥1
+
+The squared ℓ2 bias (a.k.a. ℓ2 calibration error) is 
+
+K2(πT ) := X
+
+> ˆy∈P
+
+n(ˆ y)∥ˆy − σ(ˆ y)∥22 =
+
+> T
+
+X
+
+> t=1
+
+∥ˆyt − σ(ˆ yt)∥22
+
+The d = 1 case of the following lemma is Lemma 3.1.1 of Roth (2026). 
+
+Lemma 7. Consider a prediction space C ⊆ [0 , 1] d. For any transcript πT ,
+
+1
+
+d
+
+ ECE (πT )
+
+T
+
+2
+
+≤ K2(πT )
+
+T ≤ ECE (πT )
+
+T
+
+Proof. Note that ˆ y − σ(ˆ y) ∈ [−1, 1] d so ∥ˆy − σ(ˆ y)∥22 ≤ ∥ ˆy − σ(ˆ y)∥1 from which the right hand inequality follows immediately. For the left inequality apply Cauchy-Schwarz, 
+
+> T
+
+X
+
+> t=1
+
+∥ˆy − σ(ˆ y)∥1
+
+!2
+
+≤ T
+
+> T
+
+X
+
+> t=1
+
+∥ˆy − σ(ˆ y)∥21
+
+Using norm equivalence, ∥ˆy − σ(ˆ y)∥21 ≤ d∥ˆy − σ(ˆ y)∥22. Dividing by T 2 completes the proof. 16 The d = 1 case of the following lemma is Theorem 14 of Kleinberg et al. (2023). 
+
+Lemma 8. Consider the prediction space C = ∆ d = {y ∈ Rd 
+
+> ≥0
+
+| P 
+
+> i∈[d]
+
+yi = 1 }. For any transcript 
+
+πT = (ˆ y1: T , y 1: T ) there exists a downstream agent with at most 2T actions with swap regret exactly  
+
+> 12
+
+K2. Consequently, 
+
+12d
+
+ ECE (πT )
+
+T
+
+2
+
+≤ 12
+
+ K2(πT )
+
+T
+
+
+
+≤
+
+ M DSR πT (2 T )
+
+T
+
+
+
+.
+
+Proof. Define an action set A and utility function u : A × C → [0 , 1] as follows: for every v ∈ Q ∪ P ,include an action av with utility 
+
+u(av, y ) := ⟨v, y ⟩ − 12 ∥v∥22 + 12 .
+
+Note that this utility is affine in y. Moreover, for v, y ∈ ∆d, ⟨v, y ⟩ ∈ [0 , 1] and ∥v∥22 ∈ [0 , 1], hence 
+
+u(av, y ) ∈ [0 , 1] as required. For a fixed y, ⟨v, y ⟩ − 12 || v|| 22 + 12 is maximized at v = y. Consequently, for any ˆ yt ∈ Q ∩ P , aˆyt = BR( u, ˆyt). Now we can compute 
+
+DSR πT (u) = max 
+
+> ϕ:A→A
+> T
+
+X
+
+> t=1
+
+u(ϕ(aˆyt ), y t) − u(aˆyt , y t)= max 
+
+> ϕ:A→A
+
+X
+
+> ˆy∈P
+
+X 
+
+> t:ˆyt=ˆ y
+
+[u(ϕ(aˆy), y t) − u(aˆy, y t)] = max 
+
+> ϕ:A→A
+
+X
+
+> ˆy∈P
+
+n (ˆ y) [ u(ϕ(aˆy), σ (ˆ y)) − u(aˆy, σ (ˆ y))] (utility is affine) = X
+
+> ˆy∈P
+
+n (ˆ y) u(aσ(ˆ y)), σ (ˆ y)) − u(aˆy, σ (ˆ y)) 
+
+= X
+
+> ˆy∈P
+
+n(ˆ y)
+
+ 
+
+⟨σ(ˆ y), σ (ˆ y)⟩ − 12 || σ(ˆ y)|| 22
+
+
+
+−
+
+
+
+⟨ˆy, σ (ˆ y)⟩ − 12 || ˆy|| 22
+
+ 
+
+= X
+
+> ˆy∈P
+
+n(ˆ y) 12 ∥ˆy − σ(ˆ y)∥22 = K2(πT )2
+
+Corollary 1. Suppose a forecasting algorithm produces transcripts πT satisfying the guarantee 
+
+E [M DSR πT (2 T )] ≤ CdT 1−δ, then also E [ECE (πT )] ≤ √2dC d · T 1−δ/ 2.
+
+Since the strongest Expected Calibration Error guarantee known for fixed dimension d ≫ 1 and 
+
+T → ∞ is T 1−O(1 /d ), Corollary 1 implies that a downstream swap regret bound of the form CdT 1−δ
+
+for constant δ > 0 and T → ∞ , independent of the number of actions, would imply a breakthrough on Expected Calibration Error for high-dimensional forecasting. Moreover, by Lemma 8, a guarantee of the form E [M DSR πT (k)] = ˜Od(√T k γ ) for every k
+
+implies E [ECE (πT )] = ˜Od(T 3/4+ γ/ 2). In particular, a downstream swap regret guarantee with subpolynomial dependence on the number of actions would imply an expected calibration error guarantee of O(T 3/4+ o(1) ) in the corresponding dimension. Since no guarantee of this form is known for d > 2, this suggests that extending the ˜O(√T ), action-independent downstream swap regret guarantees of Hu and Wu (2024) even to low dimensional settings requires new progress on multidimensional expected calibration error. 17 5 Discussion and Conclusion 
+
+We have given forecasting algorithms that guarantee low swap regret for any downstream agent who best responds to the forecasts. In particular, for two dimensional outcome spaces (e.g. the simplex over 3 classes) we give a polynomial-time algorithm that guarantees ˜O(√kT ) swap-regret for all downstream agents. This improves on prior work both in terms of the swap regret rate and computational efficiency. For general dimension d, we give an inefficient algorithm that guarantees ˜O(d√kT ) swap regret. Our bounds provide simultaneous guarantees for all decision makers without a huge statistical overhead; they match the dependence for single-agent swap regret algorithms on the time horizon ( T ) and size of action set ( k) up to logarithmic factors. The main improvements came from exploiting a sharper geometric characterization of best response regions. Several questions remain open. First, although our low-dimensional algorithm is computation-ally efficient, one of the central remaining questions is computational efficiency in high dimensions. Our high-dimensional algorithm relies on an exhaustive enumeration of an exponential number of best-response partitions. It would be interesting to develop an oracle-efficient version of the algo-rithm, replacing the explicit enumeration with an appropriate learning oracle. A second question is whether the dependence on the number of actions can be improved in low dimensions. The connection to calibration in Section 4 suggests that removing a polynomial dependence altogether would require advancements in multidimensional calibration, but do not rule out intermediate im-provements such as replacing the √k by a smaller polynomial factor. Finally, it would be natural to extend the algorithms to contextual forecasting settings, where predictions and outcomes are made conditional on observed features. 
+
+# References 
+
+Avrim Blum and Yishay Mansour. 2007. From external to internal regret. Journal of Machine Learning Research 8, 6 (2007). Yuval Dagan, Constantinos Daskalakis, Maxwell Fishelson, and Noah Golowich. 2024. From exter-nal to swap regret 2.0: An efficient reduction for large action spaces. In Proceedings of the 56th Annual ACM Symposium on Theory of Computing . 1216–1222. Yuval Dagan, Constantinos Daskalakis, Maxwell Fishelson, Noah Golowich, Robert Kleinberg, and Princewill Okoroafor. 2025. Breaking the T 2/3 Barrier for Sequential Calibration. In Proceedings of the 57th Annual ACM Symposium on Theory of Computing (Prague, Czechia) (STOC ’25) .Association for Computing Machinery, New York, NY, USA, 2007–2018. doi: 10.1145/3717823. 3718178 
+
+Maxwell Fishelson, Noah Golowich, Mehryar Mohri, and Jon Schneider. 2025. High-Dimensional Calibration from Swap Regret. In Advances in Neural Information Processing Systems , Vol. 38. Dean P. Foster and Rakesh V. Vohra. 1998. Asymptotic Calibration. Biometrika 85, 2 (1998), 379–390. http://www.jstor.org/stable/2337364 
+
+David A. Freedman. 1975. On Tail Probabilities for Martingales. The Annals of Probability 3, 1 (1975), 100–118. http://www.jstor.org/stable/2959268 
+
+Lunjia Hu and Yifan Wu. 2024. Predict to Minimize Swap Regret for All Payoff-Bounded Tasks. In 2024 IEEE 65th Annual Symposium on Foundations of Computer Science (FOCS) . 244–263. doi: 10.1109/FOCS61266.2024.00024 
+
+18 Shinji Ito. 2020. A tight lower bound and efficient reduction for swap regret. Advances in Neural Information Processing Systems 33 (2020), 18550–18559. Fritz John. 1948. Extremum problems with inequalities as subsidiary conditions, Studies and Essays Presented to R. Courant on his 60th Birthday, January 8, 1948. Sham M Kakade and Ambuj Tewari. 2008. On the generalization ability of online strongly convex programming algorithms. Advances in neural information processing systems 21 (2008). Bobby Kleinberg, Renato Paes Leme, Jon Schneider, and Yifeng Teng. 2023. U-Calibration: Fore-casting for an Unknown Agent. In Proceedings of Thirty Sixth Conference on Learning Theory (Proceedings of Machine Learning Research, Vol. 195) , Gergely Neu and Lorenzo Rosasco (Eds.). PMLR, 5143–5145. https://proceedings.mlr.press/v195/kleinberg23a.html 
+
+Carl W Lee and Francisco Santos. 2017. Subdivisions and triangulations of polytopes. In Handbook of discrete and computational geometry . Chapman and Hall/CRC, Boca Raton, FL, 415–447. Daniel Lee, Georgy Noarov, Mallesh Pai, and Aaron Roth. 2022. Online minimax multiobjective optimization: multicalibeating and other applications. In Proceedings of the 36th International Conference on Neural Information Processing Systems (New Orleans, LA, USA) (NIPS ’22) .Curran Associates Inc., Red Hook, NY, USA, Article 2106, 13 pages. Yingkai Li, Jason D Hartline, Liren Shan, and Yifan Wu. 2022. Optimization of scoring rules. In 
+
+Proceedings of the 23rd ACM Conference on Economics and Computation . 988–989. Haipeng Luo, Spandan Senapati, and Vatsal Sharan. 2024. Optimal Multiclass U-Calibration Error and Beyond. In Advances in Neural Information Processing Systems , A. Globerson, L. Mackey, D. Belgrave, A. Fan, U. Paquet, J. Tomczak, and C. Zhang (Eds.), Vol. 37. Curran Associates, Inc., 7521–7551. doi: 10.52202/079017-0241 
+
+Jiri Matousek. 2013. Lectures on discrete geometry . Vol. 212. Springer Science & Business Media, New York City, NY. Peter McMullen. 1970. The maximum numbers of faces of a convex polytope. Mathematika 17, 2 (1970), 179–184. doi: 10.1112/S0025579300002850 
+
+Denis Nekipelov, Vasilis Syrgkanis, and Eva Tardos. 2015. Econometrics for Learning Agents. In Proceedings of the Sixteenth ACM Conference on Economics and Computation (Portland, Oregon, USA) (EC ’15) . Association for Computing Machinery, New York, NY, USA, 1–18. doi: 10.1145/2764468.2764522 
+
+Georgy Noarov, Ramya Ramalingam, Aaron Roth, and Stephan Xie. 2025. High-Dimensional Pre-diction for Sequential Decision Making. In Proceedings of the 42nd International Conference on Machine Learning (Proceedings of Machine Learning Research, Vol. 267) , Aarti Singh, Maryam Fazel, Daniel Hsu, Simon Lacoste-Julien, Felix Berkenkamp, Tegan Maharaj, Kiri Wagstaff, and Jerry Zhu (Eds.). PMLR, 46762–46783. Gali Noti and Vasilis Syrgkanis. 2021. Bid prediction in repeated auctions with learning. In Pro-ceedings of the Web Conference 2021 . 3953–3964. Binghui Peng. 2025. High dimensional online calibration in polynomial time. arXiv:2504.09096 [cs.LG] https://arxiv.org/abs/2504.09096 
+
+19 Binghui Peng and Aviad Rubinstein. 2024. Fast swap regret minimization and applications to approximate correlated equilibria. In Proceedings of the 56th Annual ACM Symposium on Theory of Computing . 1223–1234. Mingda Qiao and Gregory Valiant. 2021. Stronger calibration lower bounds via sidestepping. In 
+
+Proceedings of the 53rd Annual ACM SIGACT Symposium on Theory of Computing . 456–466. Aaron Roth. 2026. Uncertain: Modern topics in uncertainty estimation . https://www.cis.upenn. edu/~aaroth/uncertainty-notes.pdf .Aaron Roth and Mirah Shi. 2024. Forecasting for Swap Regret for All Downstream Agents. In 
+
+Proceedings of the 25th ACM Conference on Economics and Computation (New Haven, CT, USA) (EC ’24) . Association for Computing Machinery, New York, NY, USA, 466–488. doi: 10. 1145/3670865.3673622 
+
+N Sauer. 1972. On the density of families of sets. Journal of Combinatorial Theory, Series A 13, 1 (1972), 145–147. doi: 10.1016/0097-3165(72)90019-2 
+
+Saharon Shelah. 1972. A combinatorial problem; stability and order for models and theories in infinitary languages. Pacific J. Math. 41, 1 (1972), 247–261. Richard Stanley. 2007. An introduction to hyperplane arrangements. Geometric Combinatorics 13 (2007), 389–496. Vladimir N. Vapnik. 1998. Statistical Learning Theory . Wiley. 
+
+# A Appendix 
+
+A.1 High Probability Martingale Bound 
+
+To convert the guarantee of Noarov et al. (2025) from expectation to high probability over the realized forecasts, we apply the following version of Freedman’s inequality Freedman (1975). 
+
+Lemma 9 (Lemma 3 in Kakade and Tewari (2008)) . Suppose X1, . . . , X T is a martingale difference sequence with |Xt| ≤ b. Let Var tXt = Var (Xt | Xt−1, . . . , X 1) .
+
+Let V = PTt=1 Var t[Xt] be the sum of conditional variances of Xt’s. Further, let σ = √V . Then we have, for any δ < 1/e and T ≥ 3,
+
+Pr 
+
+> T
+
+X
+
+> t=1
+
+Xt > max 
+
+n
+
+2σ, 3bpln(1 /δ )
+
+o p ln(1 /δ )
+
+!
+
+≤ 4 ln( T ) δ. 
+
+The conditioning on X1, . . . , X t−1 can be replaced by a conditioning on the filtration Ft−1 in the proof. Moreover, note that Var tXt = E[X2 
+
+> t
+
+|F t−1] because Xt is a martingale difference sequence. Furthermore, by considering the negation of the sequence we get the following two-sided bound. 20 Lemma 10. Suppose X1, . . . , X T is a martingale difference sequence with filtration {F t}Tt=0 and 
+
+|Xt| ≤ b. Let 
+
+V =
+
+> T
+
+X
+
+> t=1
+
+E[X2 
+
+> t
+
+|F t−1]
+
+be the sum of conditional variances of Xt’s. Then we have, for any δ < 1/e and T ≥ 3,
+
+Pr 
+
+> T
+
+X
+
+> t=1
+
+Xt > 2pV ln(1 /δ ) + 3 b ln(1 /δ )
+
+!
+
+≤ 8 ln( T )δ
+
+Using this bound, we can now prove the high probability guarantee on the algorithm of Noarov et al. (2025) from Section 2. 
+
+Lemma 4. Let C ⊆ [0 , 1] d be a convex prediction–outcome space and let E be a finite collection of subsets. For any (possibly adaptive and randomized) adversary that produces outcomes yt ∈ C 
+
+as a function of the past forecasts and outcomes πt−1, the algorithm of Noarov et al. (2025) draws predictions ˆy1, . . . , ˆyT ∈ C ϵ from p1, . . . , p T ∈ ∆Cϵ such that with probability at least 1 − δ, for every subset S ∈ E :
+
+> T
+
+X
+
+> t=1
+
+1[ˆ yt ∈ S](ˆ yt − yt)
+
+> ∞
+
+≤ c
+
+
+
+ln( d|E| T /δ ) + pln( d|E| T /δ )nT (S) + ϵT 
+
+
+
+,
+
+where the probability is over the randomness of both the adversary and the forecaster, nT (S) = 
+
+Eˆy′
+
+> t∼pt
+
+PTt=1 1[ˆ y′ 
+
+> t
+
+∈ S], and c is a universal constant. The algorithm can be implemented with per-round running time scaling polynomially in d, |E| , and T .Proof. By Theorem 3, 
+
+Eˆy′
+
+> t∼pt
+> T
+
+X
+
+> t=1
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt)
+
+> ∞
+
+= O
+
+
+
+ln( d|E| T ) + pln( d|E| T )nT (S) + ϵT 
+
+
+
+,
+
+so it suffices to show that with probability 1 − δ, the following holds for every S ∈ E 
+
+> T
+
+X
+
+> t=1
+
+
+
+1[ˆ yt ∈ S](ˆ yt − yt) − Eˆy′ 
+
+> t∼pt
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt)
+
+
+
+> ∞
+
+≤ O
+
+
+
+ln( d|E| T /δ ) + pln( d|E| T /δ )nT (S) + ϵT 
+
+
+
+.
+
+Noting that 
+
+Eˆyt∼pt [1[ˆ yt ∈ S](ˆ yt − yt) − Eˆy′ 
+
+> t∼pt
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt)] = 0 ,
+
+the restriction of Dt(S) = 1[ˆ yt ∈ S](ˆ yt − yt) − Eˆy′ 
+
+> t∼pt
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt) to any dimension j forms a martingale difference sequence with filtration Ft−1 = {p≤t, ˆy<t , y <t }. We will bound the mar-tingale by controlling the deviation at each step and applying Freedman’s inequality. Note that 
+
+∥Dt(S)∥∞ ≤ 2 and E [∥Dt(S)∥∞| F t−1] ≤ 2Eˆy′ 
+
+> t∼pt
+
+[1[ˆ y′ 
+
+> t
+
+∈ S]] and hence 
+
+E[Dt,j (S)2|F t−1] ≤ 2E[|Dt,j (S)| | F t−1] ≤ 4Eˆy′ 
+
+> t∼pt
+
+[1[ˆ y′ 
+
+> t
+
+∈ S]] .
+
+Therefore TX
+
+> t=1
+
+E[Dt,j (S)2|F t−1] ≤
+
+> T
+
+X
+
+> t=1
+
+4Eˆy′ 
+
+> t∼pt
+
+[1[ˆ y′ 
+
+> t
+
+∈ S]] = 4 nT (S).
+
+21 Applying Lemma 10 to Dt,j (E) with b = 2 gives for δ′ < 1/e and T ≥ 3
+
+P
+
+> T
+
+X
+
+> t=1
+
+Dt,j (S) ≥ 2p4nT (S) ln(1 /δ ′) + 6 ln(1 /δ ′)
+
+!
+
+≤ 8 ln( T )δ′.
+
+Taking a union bound over j ∈ [d] and S ∈ E yields 
+
+P ∃S ∈ E ,
+
+> T
+
+X
+
+> t=1
+
+Dt(S)
+
+> ∞
+
+≥ 2p4nT (S) ln(1 /δ ′) + 6 ln(1 /δ ′)
+
+!
+
+≤ 16 d|E| ln( T )δ′.
+
+Setting δ′ = δ   
+
+> 16 d|E| ln( T)
+
+< 1/e gives 
+
+P ∃S ∈ E ,
+
+> T
+
+X
+
+> t=1
+
+Dt(S)
+
+> ∞
+
+≥ 2p4nT (S) ln(16 d|E| ln( T )/δ ) + 6 ln(16 d|E| ln( T )/δ )
+
+!
+
+≤ δ
+
+hence, with probability at least 1 − δ, the following holds for every S ∈ E 
+
+> T
+
+X
+
+> t=1
+
+
+
+1[ˆ yt ∈ S](ˆ yt − yt) − Eˆy′ 
+
+> t∼pt
+
+1[ˆ y′ 
+
+> t
+
+∈ S](ˆ y′ 
+
+> t
+
+− yt)
+
+
+
+> ∞
+
+≤ O
+
+
+
+ln( d|E| T /δ ) + pln( d|E| T /δ )nT (S) + ϵT 
+
+
+
+,
+
+which completes the proof. 
+
+A.2 Triangulation Lemmas 
+
+We give here the full proof of Lemma 3 from section 2. First, we give the following geometric lemma bounding the number of simplices needed to triangulate a polytope. 
+
+Lemma 11 (Triangulation Size) . A simple polytope P ⊆ Rd with k facets can be triangulated using at most 2d!  k
+
+> ⌊d/ 2⌋
+
+ = O  d!k⌊d/ 2⌋ simplices and every vertex of these simplices will also be a vertex of P .Proof. We establish some notation. The collection of i-dimensional faces on a polytope Q ⊆ Rd is 
+
+Fi(Q) and the number of these faces is fi(Q) = |F i(Q)|. Note that fd−1(P ) = k by assumption. Finally, dim( F ) is the dimension of face F .We first bound the number of vertices f0(P ) on P using the polar/dual polytope and the upper bound Theorem (Matousek, 2013, Section 5.5). 
+
+f0(P ) = fd−1(P ◦) duality 
+
+≤ 2
+
+f0(P ◦)
+
+⌊d/ 2⌋
+
+
+
+upper bound theorem = 2 
+
+ k
+
+⌊d/ 2⌋
+
+
+
+f0(P ◦) = fd−1(P ) = k
+
+The proof is completed by showing that the number of simplices required to triangulate P is at most d!f0(P ). We specifically consider the size of the triangulation generated by the pulling triangulation algorithm Pull, formalized below, on an arbitrary ordering of the vertices v1, . . . , v m.We use the notation vF = arg min {F 0(P ) ∩ F } to denote the vertex v earliest in the fixed ordering that is a member of face F . This algorithm is defined recursively; it takes as input a face F (or the polytope P itself). At a high level, Pull identifies the vertex earliest in the ordering from 22 its input face vF and considers facets of the input polytope that do not include that vertex. It recursively triangulates these facets using lower-dimensional simplices, which are extended to higher dimensions by the addition of vF as a vertex. If dim( F ) = 0 Pull (F ) = F
+
+Otherwise Pull (F ) = [     
+
+> F′∈F dim( F)−1(F)
+> vF/∈F′
+
+{ConvHull (vF , S ) | S ∈ Pull (F ′)}
+
+We argue that Pull (P ) outputs a triangulation of P with at most d!f0(P ) simplices. It is known that Pull yields a triangulation (Lee and Santos, 2017, Section 16.2.1). Moreover, the vertices of each simplex in the Pull triangulation is also a vertex of P .Notice that each leaf in the recursion tree of Pull corresponds to a simplex in the constructed triangulation. We complete the proof by counting the number of root-to-leaf paths in the recursion tree. Fix the inputs used in such a path P, F d−1, F d−2, . . . , F 0, where dim( Fi) = i. Notice that each path has a unique sequence of inputs, and these inputs form a maximal chain of faces Fd−1 ⊇ · · · ⊇ 
+
+F0 by construction. Each i-dimensional face of a simple polytope is contained in d − i faces of i + 1 dimensions (this is verifiable using the fact that the dual/polar of a simple polytope is simplicial: each face is a simplex) (Matousek, 2013, Section 5.3). Each vertex is contained in d edges, each of which is contained in d − 1 faces of 2-dimensions, and so on. Thus, the number of maximal chains containing each vertex is d!. Using our argument that each simplex in the Pull triangulation is some unique maximal chain, we bound the number of simplices in the triangulation by summing, over each vertex, the number of maximal chains containing the vertex: 
+
+|Pull (P )| ≤ d!f0(P ) ≤ 2d!
+
+ k
+
+⌊d/ 2⌋
+
+
+
+= O(d!k⌊d/ 2⌋)Using this, we show that best response regions can collectively be decomposed into a well-controlled number of simplices. 
+
+Lemma 3. Consider a convex, compact space C ⊆ [0 , 1] d and a finite collection of points P ⊆ C .Fix a utility function u : [ k] × C → [0 , 1] , affine in its second argument. There exists a collection S
+
+of simplices in Rd with disjoint interiors such that 1. |S| ≤ cdk⌈d/ 2⌉ for some constant depending only on the dimension d
+
+2. no point of P lies on the boundary of a simplex σ ∈ S 
+
+3. every point in P lies in the interior of exactly one simplex σ ∈ S 
+
+4. for every simplex σ ∈ S , the set P ∩ σ contains points from at most one best response region of u
+
+Proof. The proof proceeds in four steps: First, we ensure every point of P has a positive margin from the boundary of its best response region. To do this we perturb each utility by adding an action-dependent constant and making sure to preserve best responses for outcomes in P . Second, we lift to Rd+1 by viewing each action’s utility u(a, ·) as the hyperplane z = u(a, y ); best response regions correspond to portions of these hyperplanes that appear on the boundary. Then, we perform a small random perturbation to ensure that the upper envelope is a simple polytope and triangulate 23 it using Lemma 11. Finally, we project back down to the best response regions in Rd and perform another small perturbation to ensure that all of the points in P lie strictly in the interiors. Define ∆ = min 
+
+> y∈Pi̸=j∈[k]
+
+n
+
+|u(i, y ) − u(j, y )| u(i, y )̸ = u(j, y )
+
+o
+
+and in case the set is empty, define ∆ := 0 .1. By construction ∆ > 0. Choose constants cj = k+1 −jk+1 ∆for j ∈ [k] and draw independent ηj ∼ Unif 
+
+
+
+0, ∆10( k+1) 
+
+
+
+. Now, define the utility function v with 
+
+v(i, y ) := u(i, y ) + ci + ηi.
+
+Observe that for any point y ∈ P we will have: 
+
+v(i, y ) − v(i, y ) = u(i, y ) − u(j, y ) + ci − cj + ηi − ηj
+
+Thus, if u(i, y ) = u(j, y ) for i < j then v(i, y ) > v (j, y ). On the other hand, if for any i̸ = j we have 
+
+u(i, p )̸ = u(j, p ) then whichever action dominated still does so under v (i.e. sgn( v(i, y ) − v(j, y )) = sgn( u(i, y ) − u(j, y )), since |(ci − cj ) + ( ηi − ηj )| < ∆ ≤ | u(i, y ) − u(j, y )|.
+
+Now, we triangulate [0 , 1] d by considering the upper envelope G (intersected with [ −1, 2] d+1 ,leaving excess margin on all sides of best response regions) of the function gv : [0 , 1] d ∋ y →
+
+max i∈[k] v(i, y ), where we linearly extend v to [0 , 1] d. The projections of the facets of this function onto [0 , 1] d partition it to the agent’s best response regions. We argue that G is simple with proba-bility 1: this is because conditional on the perturbation values of d + 1 actions, the probability that one other action attains the same utility at that unique point is zero (as it fixes its perturbation). Therefore, there exists a perturbation such that the ”lifted polytope” G is simple (and the best response partitions of P are as needed). The simple convex polytope G has at most k +2 d+2 facets by definition (we need to account for the faces of the cube of the d+1-dimensional cube). Therefore, by Lemma 11 it can be triangulated into 2( d + 1)!   k+2 d+2 
+
+> ⌊(d+1) /2⌋
+
+ = Od(k⌈d/ 2⌉) many simplices. A triangulation of G induces a triangulation of each facet F ⊆ ∂G as follows: consider all (d + 1)-simplices τ in the triangulation that intersect F , and take their intersections τ ∩ F . Each set τ ∩ F is a simplex of at most d dimensions, their interiors (if they are non-empty) are disjoint, and their union is F . Moreover, it is well known that each original ( d + 1)-simplex τ has exactly 2d+2 − 1 faces. Hence τ can contribute boundary simplices (i.e., faces contained in ∂G ) to at most 2d+2 − 1 facets of G. Therefore, summing over all facets, the total number of simplices appearing in the induced face triangulation is at most 2 d+2 − 1 times the number of ( d + 1)-simplices in the triangulation of G.Restrict the triangulation of G to the induced face simplices that lie on the facets of the actions (i.e., on facets of the form z = v(j, y ) where v(j, y ) = gv(y)), and project each such simplex to 
+
+Rd via ( y, z ) 7 → y. The images have disjoint interiors. Moreover, each point in P has distance at least ∆ /(10( k + 1) dL ) the boundary of the union of simplices that correspond to its best response region. To satisfy (2), (3), and (4) we can perform a small random translation of the entire complex of simplices of distance at most ∆ /(100( k + 1) dL ). Specifically, translate each simplex in the triangulation by the same vector ϵw , where ϵ ∈ Unif 
+
+
+
+0, ∆100( k+1) dL 
+
+
+
+and w is drawn uniformly at random from the boundary of the d dimensional unit sphere. Since the faces of each simplex have volume zero, no point in P will lie on any face almost surely. 24 A.3 Alternative Approach to High-Dimensional Forecasting 
+
+Here we give an alternate approach for high dimensional forecasting maintaining unbiasedness on every subset of the discretized prediction set that arises from the intersection of a bounded number of halfspaces. This bound is strictly worse than the bound from section 3 (by a factor of √k) and is included for expository purposes. 
+
+Theorem 7. Consider a prediction space C ⊆ [0 , 1] d. Let B(k) 
+
+> ϵ
+
+= {Cϵ ∩ B : B = T 
+
+> i∈[k]
+
+Hi; Hi ⊂
+
+Rd is a halfspace }. Using the Unbiased Predictions algorithm of Noarov et al. (2025) with E = B(k)
+
+> ϵ
+
+and ϵ = 1  
+
+> T2
+
+, then for any δ > 0, with probability at least 1 − δ,
+
+M DSR πT (k) = O(kdL pT ln( T /δ )) .
+
+Therefore, in expectation, the maximum swap regret across all possible bounded utility agents with at most k actions is O
+
+
+
+kdL pT ln( T )
+
+
+
+.Proof. Recall that |C ϵ| ≤ (1 /ϵ )d = T 2d. By Lemma 2, the number of events |E| = |C ϵ|O(dk ) =
+
+T O(d2k). Applying Lemma 5, with probability at least 1 − δ, for any set of disjoint events E′ ⊆ E ,
+
+X
+
+> E∈E ′
+
+β(E) ≤ c′ p |E ′|T ln( d|E| T /δ )
+
+
+
+= O
+
+
+
+dp|E ′|T k ln( T /δ )
+
+
+
+.
+
+Recall the early observation that every best response region of any agent with at most k actions is the intersection of the prediction space with at most k − 1 half-space and therefore every best response event of every such agent is in E. Therefore, taking E′ to be the best response events of some agent, 
+
+X
+
+> a∈A
+
+β(Eu,a ) = X
+
+> E∈E ′
+
+β(E) ≤ O
+
+
+
+dpk2T ln( T /δ )
+
+
+
+= O
+
+
+
+dk pT ln( T /δ )
+
+
+
+A.4 Adapting Multiobjective Optimization 
+
+The multiobjective optimization framework of Lee et al. (2022) considers a more general setting than stated in the body of our paper. We describe here the original setting (described in Appendix A.3 of Lee et al. (2022)) and how our simplified setting relates. The setup is a two-player sequential game between a Learner and an Adversary. The game plays out over rounds t = 1 , . . . , T . Each round, the Adversary publishes the following: (i) the Learner’s pure action set At, (ii) the Adversary’s convex action set Yt embedded in euclidean space, and (iii) a D dimensional vector loss function ℓt(·, ·) : At × Y t → [−C, C ]D. Then, the following sequence occurs: 1. The Learner chooses xt ∈ ∆At.2. The Adversary outputs yt ∈ Y t.3. The Learner outputs at ∼ xt.4. The Learner observers loss ℓt(at, y t)25 For a given round, the Probabilistic AMF value is defined as 
+
+wtA = sup 
+
+> yt∈Y t
+
+min   
+
+> σt∈∆Xt
+
+max  
+
+> j∈D
+
+Ext∼σt [ltj (xt, y t)] .
+
+We use the following guarantee. 
+
+Theorem 8 (Lee et al. (2022), Theorem A.2) . Fix any δ ∈ (0 , 1) . Given T ≥ ln( D), there exists an algorithm that guarantees with probability 1 − δ over the learner’s randomness, 
+
+max 
+
+> j∈[D]
+
+( TX
+
+> t=1
+
+ltj (xt, y t)
+
+)
+
+≤ 8C
+
+s
+
+T ln 
+
+ Dδ
+
+
+
++
+
+> T
+
+X
+
+> t=1
+
+wtA
+
+We make the following notational changes and simplifications in the main body of the paper: 
+
+• To avoid clashes of notation, we replace their usage of At and ∆ At with X t and ∆ X t, respec-tively. Moreover, we assume that the learner and adversary draw pure actions simultaneously, which only improves guarantees for the learner. We denote the learner’s pure action on round 
+
+t as xt rather than at.
+
+• We fix the actions space X , Y and loss l across time. The probabilistic AMF value is the same at every timestep therefore can be noted by a single variable w.
+
+• We fix the diameter of the decision spaces C = 1 for simplicity. 
+
+A.5 Lipschitz Constant 
+
+Here we show the Lipschitz constant L can always be assumed to be at most d√d by performing an affine transformation of the prediction space. The proof follows by transforming the John ellipsoid to a maximal euclidean ball within [0 , 1] d. The transformed space will contain a euclidean ball with diameter 1 /d . Then we show that an affine function on such a ball bounded in [0 , 1] is d√d
+
+Lipschitz in the ℓ∞ norm. Core to the proof is the famous result of John (1948), any convex body can be sandwiched between two ellipsoids which differ by dilation factor d. We give a common formulation here. 
+
+Lemma 12 (John Ellipsoid John (1948)) . For any compact, convex body K ∈ Rd there exists an ellipsoid E such that K ⊂ E while E′ ⊂ K where E is a dilation of E′ about its center by a factor of d.
+
+We use this to prove the following Lemma. 
+
+Lemma 13. Let C ⊂ Rd be convex and compact. There exists an affine bijection Φ : C → C ′ ⊆ [0 , 1] d
+
+such that for any affine utility u(a, ·) : C → [0 , 1] , the transformed utility u′(a, y ) := u(a, Φ−1(y)) is 
+
+L-Lipschitz in the ℓ∞ norm with L ≤ d√d. Moreover if C′ = [0 , 1] d then L ≤ 1.Proof. On an axis aligned hypercube with side length s, any affine function bounded in [0 , 1] is 1/s -Lipschitz in the ℓ∞ norm. This immediately gives the bound L ≤ 1 for C′ = [0 , 1] d. For the general claim, let Φ be the affine transformation mapping the John’s Ellipsoid E containing C to the Euclidean ball of norm 12 positioned at the center of [0 , 1] d. Then C′ contains a ball of diameter 1/d with the same center, which in turn contains a cube with side length 1 
+
+> d√d
+
+. Hence, L ≤ d√d. 
+
+A.6 AI disclosure 
+
+We used Gemini to develop our arguments for the pulling triangulation algorithm. Refine.ink was used to check this paper for consistency and clarity. 26

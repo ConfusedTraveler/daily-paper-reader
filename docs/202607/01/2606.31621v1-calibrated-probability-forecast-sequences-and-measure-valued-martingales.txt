@@ -1,0 +1,1240 @@
+Title: Calibrated Probability Forecast Sequences and Measure-Valued Martingales
+
+URL Source: https://arxiv.org/pdf/2606.31621v1
+
+Published Time: Wed, 01 Jul 2026 01:21:09 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+> Submitted to the Annals of Applied Probability
+
+CALIBRATED PROBABILITY FORECAST SEQUENCES AND MEASURE-VALUED MARTINGALES 
+
+BY THOMAS S. W ILKINSON 1,a AND CHRISTOPHER A. T. F ERRO 1,b   
+
+> 1Department of Mathematics and Statistics, University of Exeter, atw636@exeter.ac.uk; bc.a.t.ferro@exeter.ac.uk
+
+We consider the calibration of probability forecasts. Several notions of calibration exist when the forecaster issues a single forecast for each of the observations that is to be predicted. We extend one of these notions, auto-calibration, to the common situation in which the forecaster issues a sequence of forecasts for each observation, repeatedly updating their prediction as they receive additional information. For observations that sit in any Borel space, we show that auto-calibration is equivalent to a certain sequence of random probability measures satisfying the martingale property, and we propose a simple, statistical approach to testing this property. This provides, for the first time, a way of testing the calibration of such sequences of probability forecasts. 
+
+For the purpose of open access, the authors have applied a Creative Commons Attribution (CC BY) licence to any Author Accepted Manuscript version arising from this submission. 
+
+1. Introduction. A probability forecast takes the form of a probability measure on the set of possible values of the observation that is to be predicted. We shall denote a typical probability forecast by μ, where μ is a random probability measure. This allows the forecast to be random—in which case we implicitly refer to what the forecaster would have produced in a counterfactual reality, and how likely it was for that counterfactual to have occured—but also allows the forecast to be constant, simply equal to what the forecaster actually produced. We shall consider a property of probability forecasts called calibration . If forecasts are calibrated then the probabilities that they assign to events match the probabilities with which those events occur in observations (see [6]). In fact, there are several definitions of calibration, which vary in the strictness of the required consistency between the forecasts and observa-tions. For example, a probability forecast, μ, for an observation, Y , is called auto-calibrated 
+
+if μ = L(Y |μ), and it is called ideal with respect to a sigma algebra, Ψ, if μ = L(Y |Ψ) (see for example [17] and [8]). Assessing empirically whether or not forecasts are calibrated is an important step in im-proving forecasting systems as it can reveal biases in the forecasts, which forecasters can seek to correct. We cannot assess whether an individual forecast is calibrated, as we could only compare that forecast to a single observation value, but we can assess a collection of forecasts as a whole. A common approach is to consider rolling-event forecast sequences, (μ1, . . . , μ n),in which each forecast, μi, is made for a corresponding observation, Yi, and the value of Yi is known to the forecaster when they make their next forecast, μi+1 . Statistical properties of the forecasts are then derived under the assumption that they are calibrated and these properties are tested empirically. For example, suppose that the observations are real-valued and that the distribution function, Fi, associated with μi is continuous. Then, if μi is auto-calibrated for each i, the probability integral transform (PIT) values, Fi(Yi), are uniformly distributed on (0 , 1) ([8]). Furthermore, if, for each i, μi is ideal with respect to the σ-algebra generated 
+
+MSC2020 subject classifications: Primary 62M07, 60G25; secondary 60G57, 60G42. 
+
+Keywords and phrases: forecast, calibration, probability integral transform, random probability measure, mar-tingale, revision, efficiency. 
+
+1
+
+> arXiv:2606.31621v1 [math.ST] 30 Jun 2026 2
+
+by (Y1, . . . , Y i−1) then the PIT values are also independent ([3], [4]). Testing these properties of PIT values is a standard way of assessing the calibration of probability forecasts. In contrast to rolling-event sequences, there has been little discussion of calibration for 
+
+fixed-event sequences of probability forecasts, in which every forecast is made for the same observation, with the forecaster repeatedly updating their prediction as they receive more information. Such sequences of forecasts are common in many fields and potentially contain a lot of information about the quality of the forecasting system. In [16], Nordhaus considers fixed-event sequences of point forecasts, each of which con-sists of a single value that the observation could take. Nordhaus defines a calibration property for the fixed-event point forecast sequence (Q1, . . . , Q n) called ‘weak efficiency’, which es-sentially says that each forecast is unbiased and incorporates the information of all previous forecasts in the sequence. Nordhaus also defines the revision from one point forecast to the next, which is simply the latter subtract the former. He shows that if the forecasts are weakly efficient then the forecast sequence is a martingale: E[Qi+1 |Q1, . . . , Q i] = Qi, or equivalently 
+
+E[Qi+1 − Qi|Q1, . . . , Q i] = 0 . Thus we can assess whether the forecast sequence is weakly efficient by assessing whether the forecast revisions have expectation 0 and are uncorrelated. In [14], Mitchell considers whether the same approach can be taken to testing fixed-event sequences of probability forecasts. He shows that revisions between probability forecasts as given by the Kullback–Leibler Information Criterion need not have conditional expectation 
+
+0. This is not surprising: the KLIC is non-negative, so in order for it to have expectation 
+
+0 it must equal 0 almost surely, and so the current forecast must equal the previous one almost surely. Mitchell also suggests fixing an event defined in terms of the observation, and extracting from each probability forecast the probability assigned to that event; calibration of the probability forecast sequence then implies that the sequence of extracted probabilities forms a martingale, which we can assess by calculating the revisions as in Nordhaus’ method. In this paper, we develop a treatment of the calibration of fixed-event sequences of proba-bility forecasts that is analogous to the standard treatment for rolling-event sequences, which we outlined earlier. In particular, we define a property for fixed-event sequences which we call ‘auto-calibration’ and develop testable consequences of it in terms of ‘synthetic’ PIT val-ues. In a pleasing parallel with fixed-event point forecast sequences, we find that a calibrated fixed-event probability forecast sequence is a measure-valued martingale, and our results about synthetic PIT values apply to any sequence of random probability measures satisfying the martingale condition. In section 2, we define auto-calibration of a fixed-event probability forecast sequence and show how it can be written in terms of the martingale property. In section 3, we review the re-sults for PIT values of rolling-event sequences that we shall adapt for fixed-event sequences. In section 4, we develop our main results about calibrated probability forecast sequences and measure-valued martingales. In section 5, we re-frame some of these results in terms of revi-sions to probability forecasts. We give examples in section 6 and conclude with a discussion in section 7. Throughout, let (Ω , F, P) be a probability space. 
+
+2. Fixed-event probability forecast sequences. In this section we discuss a calibration property for fixed-event probability forecast sequences which we call auto-calibration. Let μ be a probability forecast made for an observation Y . As mathematical objects this means Y is a random element in a Borel space (S, S) and μ is a random probability measure on (S, S). We require (S, S) to be Borel (see page 14 of [12]) to ensure the regular conditional distribution L(Y |Ψ) exists and is essentially unique for any σ-algebra Ψ ⊂ F , using Theorem 8.5 of [12]. We use the standard σ-algebra on the set of probability measures on (S, S),which is generated by the evaluation maps (μ 7 → μ(A)) for A ∈ S . If (S, S) = ( R, B(R)) 
+
+then this standard σ-algebra is in fact generated by the maps (μ 7 → μ(( −∞ , y ])) for y ∈ R,by a monotone-class argument (see Theorem 1.1 of [12]). CALIBRATED PROBABILITY FORECAST SEQUENCES 3
+
+For Ψ ⊂ F a σ-algebra, we say μ is ideally calibrated given Ψ if μ = L(Y |Ψ) (see e.g. Definition 1 of [18]). We say μ is auto-calibrated if μ = L(Y |μ) (see e.g. page 5 of [17]). If μ is ideally calibrated given Ψ then it is auto-calibrated, by the Tower Law of conditional expectation. Also, if μ is auto-calibrated then it is ideally calibrated given σ(μ). Therefore, μ
+
+is auto-calibrated if and only if there exists a σ-algebra Ψ ⊂ F such that μ is ideally calibrated given Ψ.We extend these definitions to fixed-event probability forecast sequences as follows. DEFINITION 2.1. Let μ1, . . . , μ n be probability forecasts all made for an observation Y .Let Ψ1 ⊂ . . . ⊂ Ψn ⊂ F be a filtration. Then the sequence (μ1, . . . , μ n) is ideally calibrated given (Ψ 1, . . . , Ψn) if, for each i ∈ { 1, . . . , n },
+
+μi = L(Y |Ψi).
+
+DEFINITION 2.2. Let μ1, . . . , μ n be probability forecasts all made for an observation Y .Then the sequence (μ1, . . . , μ n) is auto-calibrated if, for each i ∈ { 1, . . . , n },
+
+μi = L(Y |μ1, . . . , μ i).
+
+An ideally calibrated sequence of probability forecasts for Y has each forecast in the sequence ideally calibrated for Y , but additionally the information sets Ψ1 ⊂ . . . ⊂ Ψn used by the forecaster must be nested; and an auto-calibrated sequence of probability forecasts for 
+
+Y has each forecast in the sequence auto-calibrated for Y , but additionally the information set σ(μi) used by the forecaster to make forecast μi must include all of the prior forecasts in the sequence. It seems reasonable to impose these additional requirements on the forecast sequence, since the forecaster will usually continue to have access to the data they used to make their earlier forecasts, and should keep using those data when producing their future forecasts (as long as they are still relevant). In Proposition 2.4 we will give three properties of a fixed-event probability forecast se-quence which are equivalent to auto-calibration, two of which are stated in terms of the mar-tingale property of a sequence of random probability measures. First, we give our definition of the martingale property, which is a restatement of the definition of a ‘martingale measure’ on page 219 of [9]. It is also a special case of the very general Definition 3.1.1(iii) of [10], in which the conditional expectation has been defined in terms of the Bochner integral. For our purposes, the conditional expectation E[μ|Ψ] of a random probability measure μ on a Borel space (S, S) given a σ-algebra Ψ ⊂ F is defined as in Lemma 2.10(iii) of [11] (where we can take the ring ˆS of bounded sets to be S, and the conditional expectation is clearly locally finite). This means E[μ|Ψ] is the essentially unique random probability measure on 
+
+(S, S) satisfying E[μ|Ψ]( A) = E[μ(A)|Ψ] for all A ∈ S . (To show that this property deter-mines E[μ|Ψ] up to almost sure equality we can use the same style of argument as for regular conditional distributions.) DEFINITION 2.3. Let (S, S) be a Borel space, and let μ1, . . . , μ n be random probability measures on (S, S). Then the sequence (μ1, . . . , μ n) is a martingale (on (S, S)) if, for each 
+
+i ∈ { 1, . . . , n − 1},
+
+E[μi+1 |μ1, . . . , μ i] = μi.
+
+For s ∈ S we write δs for the corresponding Dirac measure on (S, S), which is given by 
+
+δs(A) = 1(s ∈ A) for all A ∈ S .4
+
+PROPOSITION 2.4. Let μ1, . . . , μ n be probability forecasts made for an observation Y .Then the following are equivalent: 
+
+(i) there exists a filtration Ψ1 ⊂ . . . ⊂ Ψn ⊂ F such that (μ1, . . . , μ n) is ideally calibrated given (Ψ 1, . . . , Ψn);
+
+(ii) the sequence (μ1, . . . , μ n) is auto-calibrated; 
+
+(iii) the sequence (μ1, . . . , μ n) is a martingale and μn = L(Y |μ1, . . . , μ n);
+
+(iv) the sequence (μ1, . . . , μ n, δ Y ) is a martingale. 
+
+The proof of Proposition 2.4 is straightforward, and is given in the Appendix. If A1 ⊂ . . . ⊂ A n ⊂ F is a filtration where Ai represents all information available to the forecaster when they produced forecast μi, then (μ1, . . . , μ n) being ideally calibrated given 
+
+(A1, . . . , An) means that every forecast in the sequence was the best probability forecast they could have produced when it was made. That ideally calibrated forecast sequence is then auto-calibrated, which indicates that auto-calibration is a desirable property for fixed-event probability forecast sequences. Auto-calibration in fact allows the forecaster to use only a subset Ψi ⊂ A i of the information available to them and to produce the ideal forecast 
+
+L(Y |Ψi), as long as Ψ1 ⊂ . . . ⊂ Ψn, which roughly means that when each forecast is made it has to use all of the information which was used to make the prior forecasts, at a minimum. REMARK . Tsyplakov defines conditional auto-calibration in Definition 2 of [18] as fol-lows: given a probability forecast μ made for observation Y , and a σ-algebra ∆ ⊂ F , μ
+
+is conditionally auto-calibrated given ∆ if μ = L(Y |∆, μ ). This is equivalent to: there ex-ists a σ-algebra Ψ ⊂ F such that ∆ ⊂ Ψ and μ = L(Y |Ψ) . Using this definition we can say the fixed-event probability forecast sequence (μ1, . . . μ n) is auto-calibrated if and only if each forecast μi is conditionally auto-calibrated given σ(μ1, . . . , μ i−1), the history of the sequence up to μi.We now turn to the question of how to test whether a fixed-event probability forecast sequence is auto-calibrated. A possible starting point would be to extract from each forecast 
+
+μ the functional value Z
+
+h(y) μ(dy ),
+
+for some function h, assuming this integral is well-defined; if the sequence of forecasts were a martingale then the resulting sequence of functional values would also be a martingale. However, we are not aware of a statistical test of the martingale property of a sequence of real numbers. In [16], Nordhaus shows that if the sequence is a martingale then the ‘forecast revisions’, each of which is one term in the sequence subtract the previous one, will all have expectation 0 and will be uncorrelated; this can be assessed, but not tested without making further assumptions about the forecast revisions. We will later present a method for testing auto-calibration which does not require any further assumptions about the forecasts. That method will be based on the Probability Integral Transform. 
+
+3. Rolling-event probability forecast sequences. In this section, we give a technical review of the Probability Integral Transform (PIT). The PIT is used in a popular test of the calibration of rolling-event probability forecast sequences, and we prove the correctness of this test under a novel form of the null hypothesis. We will use this result in section 4 to present a test of the auto-calibration of fixed-event probability forecast sequences. CALIBRATED PROBABILITY FORECAST SEQUENCES 5
+
+A function F : R → R is called a distribution function if it is non-decreasing, right-continuous and satisfies lim y→−∞ F (y) = 0 and lim y→∞ F (y) = 1 ; in other words, if it is the Cumulative Distribution Function of some R-valued random variable. We use the stan-dard σ-algebra on the set of distribution functions, which is generated by the evaluation maps 
+
+(F 7 → F (y)) for y ∈ R. We write ϕ for the function which takes a probability measure μ on 
+
+R to the distribution function (y 7 → μ(( −∞ , y ])) . The map ϕ is a bijection, and ϕ and ϕ−1
+
+are both measurable. For Y an R-valued random variable and Ψ ⊂ F , we write FY |Ψ for the regular conditional distribution of Y given Ψ, in the form of a random distribution function; thus FY |Ψ is the essentially unique random distribution function such that for all y ∈ R, FY |Ψ(y) = P(Y ≤
+
+y|Ψ) . For F a random distribution function and Ψ ⊂ F a σ-algebra, we write E[F |Ψ] for the conditional expectation of F given Ψ, meaning E[F |Ψ] is the essentially unique random distribution function such that for all y ∈ R, E[F |Ψ]( y) = E[F (y)|Ψ] . We can then extend Definitions 2.2 and 2.3 to a sequence (F1, . . . , F n) of random distribution functions in place of a sequence (μ1, . . . , μ n) of random probability measures, in the obvious ways. Given F a distribution function and y ∈ R, we write 
+
+F−(y) = lim 
+
+> γ→y−
+
+F (γ),
+
+where γ → y− means the limit is taken as γ approaches y from below. We begin by defining the following function, which we will use to define the PIT. DEFINITION 3.1. The function Z has arguments F a distribution function, y ∈ R and 
+
+v ∈ [0 , 1] and takes values in [0 , 1] ; it is given by 
+
+Z(F, y, v ) = (1 − v)F−(y) + vF (y).
+
+The function Z is measurable; to show measurability in F for fixed y and v, we can write 
+
+F−(y) = sup 
+
+> n∈Z+
+
+F
+
+
+
+y − 1
+
+n
+
+
+
+.
+
+Note if F is continuous then Z(F, y, v ) = F (y). When defining the PIT, and again in section 5, we will have a distribution function F and an R-valued random variable Y and we will form the variable Z(F, Y, V ), where V has a standard uniform distribution U([0 , 1]) and is independent of Y . The following proposition then tells us the distribution of Z(F, Y, V ).PROPOSITION 3.2. Let F be a distribution function, and let t ∈ (0 , 1) . Let yt be given by 
+
+yt = sup {y ∈ R|F (y) ≤ t},
+
+and let vt be given by 
+
+vt =
+
+( t−F−(yt)  
+
+> F(yt)−F−(yt)
+
+F−(yt)̸ = F (yt),
+
+1 otherwise. Then 0 ≤ vt ≤ 1 and Z(F, y t, v t) = t. Let G be another distribution function. Then 
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y) = Z(G, y t, v t).
+
+We give a proof in the Appendix. In Lemma 1 of section 5.3 of [5], Ferguson states that if Y is an R-valued random variable with CDF F , and if V is an independent random variable with distribution U([0 , 1]) , then 
+
+Z(F, Y, V ) ∼ U ([0 , 1]) . The forward implication of the following lemma is an equivalent statement and follows immediately from Proposition 3.2. 6
+
+LEMMA 3.3. Let F, G be distribution functions. Then F = G if and only if for t ∈ (0 , 1) ,
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y) = t. 
+
+For a proof of the backward implication see Lemma 3.2 of [15]. (In using Proposition 3.2 to prove the forward implication we have taken the approach outlined by Ferguson. Brockwell gives an alternative proof in Lemma 2.1 of [1].) The key insight underpinning the PIT is that Z(F, Y, V ) is uniform not only if F is the CDF of Y , but also if F is a probability forecast for Y which is suitably calibrated. If F is a forecast for Y , we define the PIT of F to be Z(F, Y, V ), where V is an arbitrary U([0 , 1]) 
+
+random variable independent of Y (and independent of all other variables being considered). If Z(F, Y, V ) ∼ U ([0 , 1]) then F is said to be probabilistically calibrated (see e.g. Definition 2.6(b) of [8]). The forward implication of the following proposition says that if F is a forecast for Y
+
+which is ideally calibrated with respect to Ψ, then F is probabilistically calibrated, and in addition the PIT value is independent of Ψ.PROPOSITION 3.4. Let F be a distribution function, Ψ ⊂ F be a σ-algebra and Y be an R-valued random variable. Let V be a random variable with distribution U([0 , 1]) and independent of σ(Ψ , Y ).Then the following are equivalent: 
+
+(i) F = FY |Ψ;
+
+(ii) F is Ψ-measurable, and Z(F, Y, V ) has distribution U([0 , 1]) and is independent of Ψ.
+
+We give a proof in the Appendix, based on the Disintegration Theorem (Theorem 4.1). (Gneiting and Ranjan give essentially the same proof of (i) ⇒ (ii) in Theorem 2.8 of [8], although they do not show the independence of the PIT value from Ψ. Modeste gives a proof of the equivalence similar to ours in Proposition 3.4 of [15] but requires the underlying probability space (Ω , F, P) to be Polish.) We now consider a rolling-event sequence of probability forecasts (F1, . . . , F n) made for real-valued observations (Y1, . . . , Y n). Let V1, . . . , V n be independent and identitically dis-tributed (abbreviated to i.i.d.) U([0 , 1]) and independent of σ(F1, . . . , F n, Y 1, . . . , Y n); then for each i ∈ { 1, . . . , n }, the PIT value for Fi is Zi = Z(Fi, Y i, V i). If Fi is auto-calibrated then it is ideally calibrated with respect to σ(Fi), so it is probabilistically calibrated by Proposi-tion 3.4. Thus if each individual forecast is auto-calibrated then the PIT values Z1, . . . , Z n all have distribution U([0 , 1]) , but they need not be independent. We will show in Proposition 3.6 that the PIT values are i.i.d. U([0 , 1]) under the following condition on the forecast sequence. DEFINITION 3.5. Let μ1, . . . , μn be random probability measures on a Borel space 
+
+(S, S) and let Y1, . . . , Yn be random elements in (S, S). Then (μ1, . . . , μ n) is auto-calibrated as a rolling-event probability forecast sequence for observations (Y1, . . . , Y n) if, for each 
+
+i ∈ { 1, . . . , n },
+
+μi = L(Yi|μ1, Y 1, . . . , μ i−1, Y i−1, μ i).
+
+We extend Definition 3.5 to a sequence (F1, . . . , F n) of random distribution functions in place of (μ1, . . . , μ n) in the obvious way. REMARK . If a rolling-event forecast sequence (μ1, . . . , μ n) for observations (Y1, . . . , Y n)
+
+satisfies the condition in Definition 3.5, we can just say it is auto-calibrated. The reason for CALIBRATED PROBABILITY FORECAST SEQUENCES 7
+
+defining the condition for general sequences of random probability measures is we will need it in cases where μ1, . . . , μ n are not forecasts, or are forecasts that were originally made for observations other than Y1, . . . , Y n.REMARK . In Definition 3.5 of [15], Modeste gives the name ‘auto-calibration’ to a dif-ferent property of a rolling-event probability forecast sequence which does not imply the PIT values are i.i.d. U([0 , 1]) .REMARK . Using Tsyplakov’s definition of conditional auto-calibration again, we can say that a rolling-event sequence of probability forecasts (μ1, . . . , μ n) for observations 
+
+(Y1, . . . , Y n) is auto-calibrated if and only if each μi is conditionally auto-calibrated given 
+
+σ(μ1, Y1, . . . , μi−1, Yi−1), the history of the forecast and observation sequences up to μi.PROPOSITION 3.6. Let F1, . . . , Fn be random distribution functions and Y1, . . . , Yn be 
+
+R-valued random variables. Let V1, . . . , Vn be i.i.d. U([0 , 1]) random variables independent of σ(F1, . . . , F n, Y 1, . . . , Y n).For each i ∈ { 1, . . . , n }, let Zi = Z(Fi, Y i, V i). Then the following are equivalent: 
+
+(i) (F1, . . . , F n) is auto-calibrated as a rolling-event probability forecast sequence for ob-servations (Y1, . . . , Y n);
+
+(ii) for each i ∈ { 1, . . . , n }, Zi has distribution U([0 , 1]) and is independent of 
+
+σ(F1, . . . , F i, Y 1, . . . , Y i−1).
+
+Consequently, (i) implies Z1, . . . , Zn are i.i.d. U([0 , 1]) .
+
+PROOF . (i) ⇒ (ii): For i ∈ { 1, . . . , n }, let μi = ϕ−1(Fi).Fix i ∈ { 1, . . . , n }. Since (μ1, . . . , μ n) is auto-calibrated as a rolling-event probability fore-cast sequence for observations (Y1, . . . , Y n), we have 
+
+μi = L(Yi|μ1, Y 1, . . . , μ i−1, Y i−1, μ i).
+
+Then by Proposition 3.4, Zi has distribution U([0 , 1]) and is independent of 
+
+σ(μ1, Y 1, . . . , μ i−1, Y i−1, μ i),
+
+as required. (ii) ⇒ (i): Fix i ∈ { 1, . . . , n }. Fi is clearly σ(F1, Y 1, . . . , F i−1, Y i−1, F i)-measurable, so by Proposition 3.4, 
+
+Fi = FYi|σ(F1,Y 1,...,F i−1,Y i−1,F i),
+
+as required. Consequence of (i): For i ∈ { 1, . . . , n }, by (ii), Zi has distribution U([0 , 1]) and is inde-pendent of σ(Z1, . . . , Z i−1).REMARK . In Corollory 3.6 of [15], Modeste shows that the PIT values are i.i.d. U([0 , 1]) 
+
+if each forecast Fi is ideally calibrated with respect to the σ-algebra Ψi, where Ψ1 ⊂ . . . ⊂
+
+Ψn and σ(Y1, . . . , Y i−1) ⊂ Ψi. Our definition of auto-calibration for a forecast sequence is equivalent to there existing σ-algebras Ψ1, . . . , Ψn such that those conditions are satisfied. There are many documented approaches to testing that a sequence of numbers came from an i.i.d. U([0 , 1]) sequence of random variables, including the Kolmogorov–Smirnov test, the Cramér–von Mises test and Neyman’s smooth test. Any of these can be applied to a sequence of PIT values to test the auto-calibration of the forecast sequence. 8
+
+We now summarise an approach described by Knüppel, Krüger and Pohle in [13], using the PIT to test the calibration of a rolling-event forecast sequence where the forecasts are probability distributions on a space other than R. The idea is to transform the observation Yi
+
+into the R-valued random variable g(μi, Y i), where μi is the forecast for Yi and g is a proper scoring rule (see e.g. [7]). We then also transform the forecast into a random distribution function Γg(μi) as follows. DEFINITION 3.7. Let (S, S). Let g(μ, y ) be a measurable function of a probability mea-sure μ on (S, S) and y ∈ S, taking values in R. The function Γg takes a probability measure 
+
+μ on (S, S) to the distribution function given by 
+
+Γg(μ) = ϕ(( y 7 → g(μ, y )) ∗(μ)) ,
+
+where f∗(μ) denotes the push-forward measure. 
+
+Γg is measurable by Lemma 3.2(ii) of [12]. We can then see that auto-calibration is pre-served for the transformed sequences of forecasts and observations. PROPOSITION 3.8. Let μ1, . . . , μn be random probability measures on a Borel space 
+
+(S, S), and let Y1, . . . , Yn be random elements in (S, S), such that (μ1, . . . , μ n) is auto-calibrated as a rolling-event probability forecast sequence for observations (Y1, . . . , Y n). Let 
+
+g(μ, y ) be a measurable R-valued function of a probability measure μ on (S, S) and of y ∈ S.Then (Γ g(μ1), . . . , Γg(μn)) is auto-calibrated as a rolling-event probability forecast se-quence for observations (g(μ1, Y 1), . . . , g (μn, Y n)) .
+
+We give a proof in the Appendix. Since the transformed observations are real-valued, and the transformed forecasts are ran-dom distribution functions, we can calculate the corresponding sequence of PIT values. We can then test whether the original forecast sequence was auto-calibrated by testing whether these PIT values are i.i.d. U([0 , 1]) .
+
+4. Synthetic PIT values. In this section, we derive a testable consequence of auto-calibration for a fixed-event sequence of probability forecasts, initially requiring the observa-tion to be real-valued and then allowing it to take values in any Borel space. Our approach is to use ‘synthetic observations’ to obtain an auto-calibrated rolling-event forecast sequence, and then to use the Probability Integral Transform, which was reviewed in section 3. We call the resulting variables ‘synthetic PIT values’. We shall need the following form of the powerful Disintegration Theorem—see Theorem 8.5(ii) of [12]. THEOREM 4.1. Let η be a random element in a Borel space (T, T ) and let Ψ ⊂ F be a σ-algebra. Let μ be a version of L(η|Ψ) and let H : Ω × T → R≥0 be (Ψ ⊗ T )/B(R≥0)-measurable. Then 
+
+E[H(η)|Ψ] = 
+
+Z
+
+H(t) μ(dt ).
+
+Our method will in fact allow us to test the martingale property for finite sequences of random probability measures; we will then use Proposition 2.4 to apply it to auto-calibrated fixed-event probability forecast sequences as a special case. The following proposition allows us to rewrite the martingale property using some auxiliary random variables. CALIBRATED PROBABILITY FORECAST SEQUENCES 9
+
+PROPOSITION 4.2. Let μ1, . . . , μ n+1 be random probability measures on a Borel space 
+
+(S, S). Let X2, . . . , Xn+1 be random elements in (S, S) such that 
+
+L(( X2, . . . , X n+1 )|μ1, . . . , μ n+1 ) = μ2 ⊗ . . . ⊗ μn+1 .
+
+Then (μ1, . . . , μ n+1 ) is a martingale if and only if (μ1, . . . , μ n) is auto-calibrated as a rolling-event probability forecast sequence for observations (X2, . . . , X n+1 ).
+
+PROOF . Fix i ∈ { 1, . . . , n }. It suffices to show 
+
+L(Xi+1 |μ1, X 2, . . . , μ i−1, X i, μ i) = E[μi+1 |μ1, . . . , μ i, X 2, . . . , X i](1) 
+
+= E[μi+1 |μ1, . . . , μ i].(2) Proof of equation (1): First, note that 
+
+Xi+1 ⊥⊥ (X2, . . . , X i) | μ1, . . . , μ i+1 ,
+
+so by Theorem 8.9 of [12], 
+
+L(Xi+1 |μ1, . . . , μ i+1 , X 2, . . . , X i) = μi+1 .
+
+Let A ∈ S . Then by Theorem 4.1, 
+
+E[1(Xi+1 ∈ A)|μ1, . . . , μ i+1 , X 2, . . . , X i] = 
+
+Z
+
+1(x ∈ A) μi+1 (dx )= μi+1 (A).
+
+Therefore, by the Tower Law, 
+
+E[1(Xi+1 ∈ A)|μ1, . . . , μ i, X 2, . . . , X i] = E[μi+1 (A)|μ1, . . . , μ i, X 2, . . . , X i],
+
+which gives equation (1). Proof of equation (2): From the assumed joint distribution of X2, . . . , Xn+1 , we have 
+
+L(( X2, . . . , X i)|μ1, . . . , μ i+1 ) = μ2 ⊗ . . . ⊗ μi
+
+= L(( X2, . . . , X i)|μ1, . . . , μ i),
+
+and so by Theorem 8.9 of [12], 
+
+μi+1 ⊥⊥ (X2, . . . , X i) | μ1, . . . , μ i.
+
+Then by Theorem 8.9 of [12] again, 
+
+L(μi+1 |μ1, . . . , μ i, X 2, . . . , X i) = L(μi+1 |μ1, . . . , μ i).
+
+Equation (2) now follows from Theorem 4.1. Proposition 4.2 suggests that we can take a sequence of random probability measures and reinterpret it as a rolling-event sequence of forecasts for suitable variables X2, . . . , Xn+1 , and shows that if the original sequence is a martingale then the rolling-event forecast sequence will be auto-calibrated. We call these variables X2, . . . , Xn+1 ‘synthetic observations’, since they play the role of observations in this construction but are derived from the forecasts. Note if μn+1 = δY for an observation Y then we can choose Xn+1 = Y .The variable Xi is a random draw from the probability distribution μi, so to generate these synthetic observations we must be able to sample from probability distributions on (S, S). In the case where (S, S) = ( R, B(R)) we can write the forecasts as random distribution func-tions F1, . . . , Fn+1 and sample from them using their quantile functions. 10 
+
+For F a distribution function, we let F −1 be the corresponding quantile function, where for t ∈ (0 , 1) :
+
+F −1(t) = inf {y ∈ R|F (y) ≥ t}.
+
+The key property of F −1 we shall need is that, for all y ∈ R and t ∈ (0 , 1) ,
+
+F −1(t) ≤ y ⇐⇒ t ≤ F (y).
+
+The function F −1(t) is measurable in t since it is non-decreasing. To see that F −1(t) is measurable in F for fixed t, note that F −1(t) ∈ (−∞ , y ] ⇐⇒ F (y) ∈ [t, ∞).The following Lemma then shows we can use Xi = F −1 
+
+> i
+
+(Ui) as our synthetic observations in Proposition 4.2; results of this type are well known, but we include a proof in the Appendix for convenience. LEMMA 4.3. Let F1, . . . , Fn be random distribution functions and let Ψ ⊂ F . Let U1,. . . , Un be i.i.d. U([0 , 1]) random variables independent of σ(F1, . . . , F n, Ψ) . Then 
+
+L(( F −11 (U1), . . . , F −1 
+
+> n
+
+(Un)) |F1, . . . , F n, Ψ) = ϕ−1(F1) ⊗ . . . ⊗ ϕ−1(Fn).
+
+Since Proposition 3.6 allows us to test the auto-calibration of rolling-event probability forecast sequences made for real-valued observations, we are now ready to test the auto-calibration of a fixed-event probability forecast sequence made for a real-valued observation. PROPOSITION 4.4. Let Y be an R-valued random variable, and let F1, . . . , F n be prob-ability forecasts for Y . Let U2, . . . , Un, V1, . . . , Vn be i.i.d. U([0 , 1]) random variables inde-pendent of σ(F1, . . . , F n, Y ).For each i ∈ { 1, . . . , n − 1}, let Zi = Z(Fi, F −1
+
+> i+1
+
+(Ui+1 ), V i). Also, let Zn = Z(Fn, Y, V n).Then the following are equivalent: 
+
+(i) the sequence (F1, . . . , F n) is auto-calibrated; 
+
+(ii) for each i ∈ { 1, . . . , n }, Zi has distribution U([0 , 1]) and is independent of σ(F1, . . . , F i).Consequently, (i) implies Z1, . . . , Zn are i.i.d. U([0 , 1]) .
+
+PROOF . By Proposition 2.4, (F1, . . . , F n) is auto-calibrated if and only if (F1, . . . , F n, δ Y )
+
+is a martingale. By Lemma 4.3, 
+
+L(( F −12 (U2), . . . , F −1 
+
+> n
+
+(Un)) |F1, . . . , F n, δ Y ) = ϕ−1(F2) ⊗ . . . ⊗ ϕ−1(Fn),
+
+and so 
+
+L(( F −12 (U2), . . . , F −1 
+
+> n
+
+(Un), Y )|F1, . . . , F n, δ Y ) = ϕ−1(F2) ⊗ . . . ⊗ ϕ−1(Fn) ⊗ δY .
+
+Then by Proposition 4.2, (F1, . . . , F n, δ Y ) is a martingale if and only if (F1, . . . , F n) is auto-calibrated as a rolling-event probability forecast sequence for observations 
+
+(F −12 (U2), . . . , F −1 
+
+> n
+
+(Un), Y ).
+
+We are then done by Proposition 3.6. We call Z1, . . . , Zn−1 as defined in Proposition 4.4 ‘synthetic PIT values’, since they are PIT values based on synthetic observations; Zn is of course the ordinary PIT value for Fn.We can test that the sequence of synthetic PIT values is i.i.d. U([0 , 1]) using any of the tests we would use for ordinary PIT values. Finally for this section, we give one possible approach to testing the auto-calibration of a fixed-event probability forecast sequence for an observation that is not real-valued. CALIBRATED PROBABILITY FORECAST SEQUENCES 11 
+
+PROPOSITION 4.5. Let Y be a random element in a Borel space (S, S), and let 
+
+(μ1, . . . , μ n) be an auto-calibrated sequence of probability forecasts for Y .Let g(μ, y ) be a measurable R-valued function of a probability measure μ on (S, S) and of y ∈ S. Let X2, . . . , Xn be random elements in (S, S) satisfying 
+
+L(( X2, . . . , X n)|μ1, . . . , μ n, Y ) = μ2 ⊗ . . . ⊗ μn.
+
+Let V1, . . . , Vn be i.i.d. U([0 , 1]) random variables independent of σ(μ1, . . . , μn, Y , X2,. . . , Xn).Then for each i ∈ { 1, . . . , n − 1}, the variable Zi = Z(Γ g(μi), g (μi, X i+1 ), V i) has dis-tribution U([0 , 1]) and is independent of σ(μ1, . . . , μ i). Also, Zn = Z(Γ g(μn), g (μn, Y ), V n)
+
+has distribution U([0 , 1]) and is independent of σ(μ1, . . . , μ n). Consequently, Z1, . . . , Zn are i.i.d. U([0 , 1]) .
+
+PROOF . By Proposition 2.4, (μ1, . . . , μ n, δ Y ) is a martingale. Note that 
+
+L(( X2, . . . , X n, Y )|μ1, . . . , μ n, Y ) = μ2 ⊗ . . . ⊗ μn ⊗ δY .
+
+Then by Proposition 4.2, (μ1, . . . , μ n) is auto-calibrated as a rolling-event probability fore-cast sequence for observations (X2, . . . , X n, Y ).Then by Proposition 3.8, (Γ g(μ1), . . . , Γg(μn)) is auto-calibrated as a rolling-event prob-ability sequence for observations (g(μ1, X 2), . . . , g (μn−1, X n), g (μn, Y )) .We are then done by Proposition 3.6. 
+
+5. Probability forecast revisions. In this section we propose a definition of the revision between two probability forecasts made for a real-valued observation, and show that auto-calibration of a fixed-event probability forecast sequence can be rewritten in terms of the conditional expectations of the forecast revisions. The following definition of the function R was inspired in part by Czado, Gneiting and Held’s equation (2) in [2]—note the resemblance of their equation to our equation (3) below. DEFINITION 5.1. For F, G distribution functions, R(F, G ) : (0 , 1) 7 → [0 , 1] is given by 
+
+R(F, G )( t) = 
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y).
+
+By Proposition 3.2, R(F, G )( t) = Z(G, y t, v t), where yt and vt are defined as in the state-ment of Proposition 3.2. Note if F is continuous and strictly increasing, and G is continuous, then R(F, G )( t) = G(F −1(t)) . For all distribution functions F , all y ∈ R and all t ∈ (0 , 1) ,(3) R(F, ϕ (δy))( t) = 
+
+
+
+0 t < F −(y)  
+
+> t−F−(y)
+> F(y)−F−(y)
+
+F−(y) ≤ t < F (y)1 F (y) ≤ t, 
+
+where if F−(y) = F (y) then the second case is not reached for any t.If F, G are distribution functions and U, V are i.i.d. U([0 , 1]) variables, then the CDF of 
+
+Z(F, G −1(U ), V ) is given by, for all t ∈ R,
+
+P(Z(F, G −1(U ), V ) ≤ t) = 
+
+
+
+0 t < 0lim s→0+ R(F, G )( s) t = 0 
+
+R(F, G )( t) 0 < t < 11 1 ≤ t, 12 
+
+and so it is determined by R(F, G ); we can think of R(F, G ) as being the important part of the CDF of Z(F, G −1(U ), V ).Let I : (0 , 1) → [0 , 1] be defined by I(t) = t. By Lemma 3.3, for F, G distribution func-tions, R(F, G ) = I if and only if F = G.Note R(F, G ) is non-decreasing and right-continuous. We use the σ-algebra on the set of non-decreasing and right-continuous functions from (0 , 1) to [0 , 1] generated by (r 7 → r(t)) 
+
+for t ∈ (0 , 1) . R is a measurable function of F and G by Lemma 3.2(i) of [12]. For R′ arandom non-decreasing and right-continuous function from (0 , 1) to [0 , 1] and Ψ ⊂ F we have the conditional expectation E[R′|Ψ] with the usual properties. If F and G are forecasts for the same observation made by the same forecaster, with G
+
+made after F , then we call R(F, G ) the revision from F to G. This corresponds to Nordhaus’s definition of the forecast revision Q2 − Q1 from point forecast Q1 to point forecast Q2 in [16]. The forward implication of the following proposition shows that if (F, G ) forms part of a martingale then the revision from F to G has expectation I.PROPOSITION 5.2. Let F, G be random distribution functions, and let Ψ ⊂ F be a σ-algebra. Then the following are equivalent: 
+
+(i) F = E[G|Ψ] ;
+
+(ii) F is Ψ-measurable and E[R(F, G )|Ψ] = I.
+
+PROOF . Let U ∼ U ([0 , 1]) be independent of σ(Ψ , G ). Then for y ∈ R,
+
+P(G−1(U ) ≤ y|Ψ) = E[P(G−1(U ) ≤ y|Ψ, G )|Ψ] = E[G(y)|Ψ] = E[G|Ψ]( y),
+
+so FG−1(U )|Ψ = E[G|Ψ] .Let V ∼ U ([0 , 1]) be independent of σ(Ψ , G, U ). Then for t ∈ (0 , 1) ,
+
+E[R(F, G )|Ψ]( t) = E
+
+Z 
+
+> R
+
+Z 10
+
+1(Z(F, G −1(u), v ) ≤ t) dv du Ψ
+
+
+
+= E 1(Z(F, G −1(U ), V ) ≤ t) Ψ ,
+
+so E[R(F, G )|Ψ] = I if and only if Z(F, G −1(U ), V ) has distribution U([0 , 1]) and is inde-pendent of Ψ.We are then done by Proposition 3.4. This allows us to rewrite auto-calibration in terms of forecast revisions, as follows. PROPOSITION 5.3. Let Y be an R-valued random variable, and let F1, . . . , Fn be prob-ability forecasts for Y . Then the following are equivalent: 
+
+(i) (F1, . . . , F n) is auto-calibrated; 
+
+(ii) for i ∈ { 1, . . . , n − 1},
+
+E[R(Fi, F i+1 )|F1, . . . , F i] = I, 
+
+and 
+
+E[R(Fn, ϕ (δY )) |F1, . . . , F n] = I. CALIBRATED PROBABILITY FORECAST SEQUENCES 13 
+
+PROOF . By Proposition 2.4, (F1, . . . , F n) is auto-calibrated if and only if 
+
+(F1, . . . , F n, ϕ (δY )) 
+
+is a martingale. By Proposition 5.2, for each i ∈ { 1, . . . , n − 1}, E[Fi+1 |F1, . . . , F i] = Fi if and only if 
+
+E[R(Fi, F i+1 )|F1, . . . , F i] = I. 
+
+Also, E[ϕ(δY )|F1, . . . , F n] = Fn if and only if 
+
+E[R(Fn, ϕ (δY )) |F1, . . . , F n] = I. 
+
+Since R(F, G ) is the important part of the CDF of the synthetic PIT value between F and 
+
+G, a random draw from it will have the same distribution as a synthetic PIT value between F
+
+and G. Proposition 5.2 then suggests the following Lemma. LEMMA 5.4. Let F , G be random distribution functions and let Ψ ⊂ F be a σ-algebra. Let U be a random variable with distribution U([0 , 1]) and independent of σ(F, G, Ψ) .Then the following are equivalent: 
+
+(i) E[R(F, G )|Ψ] = I;
+
+(ii) R(F, G )−1(U ) has distribution U([0 , 1]) and is independent of Ψ.
+
+PROOF . For all t ∈ (0 , 1) ,
+
+P(R(F, G )−1(U ) ≤ t|Ψ) = E[P(R(F, G )−1(U ) ≤ t|F, G, Ψ) |Ψ] = E[P(U ≤ R(F, G )( t)|F, G, Ψ) |Ψ] = E[R(F, G )( t)|Ψ] .
+
+We can then rewrite Proposition 5.3 to mirror Proposition 4.4. COROLLARY 5.5. Let Y be an R-valued random variable, and let F1, . . . , Fn be prob-ability forecasts for Y . Let U1, . . . , Un be i.i.d. U([0 , 1]) random variables independent of 
+
+σ(F1, . . . , F n, Y ).For each i ∈ { 1, . . . , n − 1}, let Zi = R(Fi, F i+1 )−1(Ui). Let Zn = R(Fn, ϕ (δY )) −1(Un).Then the following are equivalent: 
+
+(i) (F1, . . . , F n) is auto-calibrated; 
+
+(ii) for each i ∈ { 1, . . . , n }, Zi has distribution U([0 , 1]) and is independent of σ(F1, . . . , F i).Consequently, (i) implies Z1, . . . , Zn are i.i.d. U([0 , 1]) .
+
+This allows us to test whether a fixed-event probability forecast sequence is auto-calibrated using only the sequence of forecast revisions. It may be possible instead to test the condi-tional structure of the forecast revisions described in Proposition 5.3 directly, without using auxiliary variables like U1, . . . , Un, but we leave this for future research. 14 
+
+6. Examples. We illustrate with three examples the behaviour of synthetic PIT values and forecast revisions when a fixed-event probability forecast sequence is not auto-calibrated. EXAMPLE 6.1. Let A2, . . . , An+1 be i.i.d. N (0 , 1) random variables. Let 
+
+Y =
+
+> n+1
+
+X
+
+> i=2
+
+Ai.
+
+Let Q1, . . . , Qn be defined by the following: 
+
+Qi =
+
+> i
+
+X
+
+> j=2
+
+
+
+1 − 12i+1 −j
+
+
+
+Aj ,
+
+so Q1 = 0 , and then consider a sequence of forecasts F1, . . . , Fn defined by, for all y ∈ R,
+
+Fi(y) = Φ 
+
+ y − Qi
+
+√n + 1 − i
+
+
+
+,
+
+where Φ is the standard Normal CDF. Note 
+
+Qi = 12
+
+> i−1
+
+X
+
+> j=2
+
+
+
+1 − 12i−j
+
+
+
+Aj + 12
+
+> i
+
+X
+
+> j=2
+
+Aj
+
+= 12 Qi−1 + 12 E[Y |A2, . . . , A i],
+
+so we could imagine that when the forecaster needs to produce a probability forecast Fi, they are aware that the best forecast they could produce would be centered on E[Y |A2, . . . , A i] but are reluctant to change too much from their previous forecast Fi−1, and so choose to com-promise between the two. Nordhaus discusses the tendency for forecasts to be ‘smoothed’ like this in [16]. Let U2, . . . , Un be i.i.d. U([0 , 1]) independent of σ(A2, . . . , A n+1 ). Then for each i ∈{1, . . . , n − 1}, Fi is continuous, so the synthetic PIT value between Fi and Fi+1 is 
+
+Fi(F −1
+
+> i+1
+
+(Ui+1 )) = Fi
+
+
+
+Qi+1 + √n − i Φ−1(Ui+1 )
+
+
+
+= Φ 
+
+ Qi+1 − Qi + √n − i Φ−1(Ui+1 )
+
+√n + 1 − i
+
+
+
+= Φ 
+
+Pij=2 12i+2 −j Aj + 12 Ai+1 + √n − i Φ−1(Ui+1 )
+
+√n + 1 − i
+
+!
+
+.
+
+Conditional on A2, . . . , Ai, we have 
+
+Pij=2 12i+2 −j Aj + 12 Ai+1 + √n − i Φ−1(Ui+1 )
+
+√n + 1 − i ∼ N
+
+Pij=2 12i+2 −j Aj
+
+√n + 1 − i , 4n − 4i + 1 4n − 4i + 4 
+
+!
+
+.
+
+Using the identity (4) 
+
+Z
+
+> R
+
+Φ( z) dΦ
+
+ z − μσ
+
+
+
+= Φ 
+
+ μ
+
+√1 + σ2
+
+
+
+,
+
+we can see that 
+
+E[Fi(F −1
+
+> i+1
+
+(Ui+1 )) |A2, . . . , A i] = 12 only if 
+
+> i
+
+X
+
+> j=2
+
+12i+2 −j Aj = 0 .CALIBRATED PROBABILITY FORECAST SEQUENCES 15 
+
+Note also σ(F1, . . . , F i) = σ(A2, . . . , A i). Thus the conditional distribution of the syn-thetic PIT value between Fi and Fi+1 given F1, . . . , Fi is not always U([0 , 1]) .EXAMPLE 6.2. Let A2, . . . , An+1 be i.i.d. N (0 , 1) random variables. Let 
+
+Y =
+
+> n+1
+
+X
+
+> i=2
+
+Ai.
+
+Suppose a forecaster mistakenly believes A2, . . . , An+1 are i.i.d. N (0 , 4) , and so for i ∈{1, . . . , n } they produce the forecast Fi for Y given by, for y ∈ R,
+
+Fi(y) = Φ 
+
+ y − A2 − . . . − Ai
+
+2√n + 1 − i
+
+
+
+,
+
+where Φ is the standard Normal CDF. Let U2, . . . , Un be i.i.d. U([0 , 1]) independent of A2, . . . , An+1 . Then for i ∈ { 1, . . . , n −
+
+1}, Fi is continuous, so the synthetic PIT value between Fi and Fi+1 is 
+
+Fi(F −1
+
+> i+1
+
+(Ui+1 )) = Fi
+
+
+
+A2 + . . . + Ai+1 + 2 √n − i Φ−1(Ui+1 )
+
+
+
+= Φ 
+
+ Ai+1 + 2 √n − i Φ−1(Ui+1 )2√n + 1 − i
+
+
+
+.
+
+Since Ai+1 and Φ−1(Ui+1 ) are i.i.d. N (0 , 1) ,
+
+Ai+1 + 2 √n − i Φ−1(Ui+1 )2√n + 1 − i ∼ N
+
+
+
+0, 4n − 4i + 1 4n − 4i + 4 
+
+
+
+,
+
+so Fi(F −1
+
+> i+1
+
+(Ui+1 )) ≁ U([0 , 1]) . Note the synthetic PIT values are independent of each other in this case. The forecast Fi is a probability distribution with mean A2 + . . . + Ai, which is equal to 
+
+E[Y |A2, . . . , A i], so the sequence of forecast means is efficient as a point forecast sequence. This means that if we had followed existing practice by extracting the forecast means and testing whether their revisions were uncorrelated and had expectation 0 (as described in [16]), then we would not have been able to detect the forecast miscalibration. Since the forecast Fi is continuous and strictly increasing, and the forecast Fi+1 is contin-uous, the revision R(Fi, F i+1 ) is given by, for all t ∈ R, R(Fi, F i+1 )( t) = Fi+1 (F −1 
+
+> i
+
+(t)) . In fact, 
+
+R(Fi, F i+1 )( t) = Φ 
+
+ 2√n + 1 − i Φ−1(t) − Ai+1 
+
+2√n − i
+
+
+
+,
+
+and so, using identity (4) again, 
+
+E[R(Fi, F i+1 )( t)] = Φ 
+
+ 2√n + 1 − i
+
+√4n − 4i + 1 Φ−1(t)
+
+
+
+.
+
+Thus E[R(Fi, F i+1 )] ̸ = I, as expected. EXAMPLE 6.3. We construct random distribution functions F1, F2, F3 such that the synthetic PIT values Z(F1, F −12 (U2), V 1) and Z(F2, F −13 (U3), V 2) are i.i.d. U([0 , 1]) , but the synthetic PIT value Z(F1, F −13 (U3), V 1) does not have distribution U([0 , 1]) . It may be sur-prising that this is possible, as there is no analogous possibility for rolling-event probability forecast sequences and ordinary PIT values. This example shows that there are fixed-event forecast sequences which are not auto-calibrated but whose miscalibration we cannot detect 16 
+
+by calculating the synthetic PIT values, but also that for such sequences it may be possible to detect the miscalibration in a subsequence of the forecasts by calculating the synthetic PIT values for that subsequence. Let A, B, X and Y be independent, with A, B ∼ Bernoulli   12
+
+ and X, Y ∼ U ([0 , 1]) .Let F3 be the random distribution function given by 
+
+F3(y) = 
+
+(
+
+0 y < Y 
+
+1 y ≥ Y. 
+
+Let F2 be the random distribution function defined as follows. Note 53 t − t2 + 13 t3 is a continuous and strictly increasing function taking values from 0 to 1 on [0 , 1] . Let G be its inverse function on [0 , 1] , which is also a continuous and strictly increasing function taking values from 0 to 1. If B = 1 and X ∈ (0 , 1) , let F2 be given by: 
+
+F2(y) = 
+
+
+
+0 y < 0 
+
+> 32X
+
+y 0 ≤ y < 2X2
+
+> 3
+
+X 2X2 
+
+> 3
+
+≤ y < X y X ≤ y < 11 1 ≤ y. 
+
+Otherwise, let F2 be given by: 
+
+F2(y) = 
+
+
+
+0 y < 0
+
+G(y) 0 ≤ y < 11 1 ≤ y. 
+
+Since F2 is continuous, the synthetic PIT value between F2 and F3 is F2(F −13 (U3)) , where 
+
+U3 has distribution U([0 , 1]) and is independent of σ(A, B, X, Y ). If B = 1 and X ∈ (0 , 1) ,
+
+P(F2(F −13 (U3)) ≤ t|B, X ) = 
+
+
+
+0 t < 0 
+
+> 2X
+> 3
+
+t 0 ≤ t < X t X ≤ t < 11 1 ≤ t. 
+
+Otherwise, 
+
+P(F2(F −13 (U3)) ≤ t|B, X ) = 
+
+
+
+0 t < 0 
+
+> 53
+
+t − t2 + 13 t3 0 ≤ t < 11 1 ≤ t. 
+
+Then 
+
+P(F2(F −13 (U3)) ≤ t) = E[P(F2(F −13 (U3)) ≤ t|B, X )] =
+
+
+
+0 t < 0
+
+t 0 ≤ t < 11 1 ≤ t, 
+
+so F2(F −13 (U3)) has distribution U([0 , 1]) .CALIBRATED PROBABILITY FORECAST SEQUENCES 17 
+
+Now let F1 be the random distribution function defined as follows. If A = 0 , B = 1 and 
+
+X ∈ (0 , 1) , let F1 be given by: 
+
+F1(y) = 
+
+
+
+0 y < 0 
+
+> 1
+> X
+
+y 0 ≤ y < 2X2 
+
+> 3
+> y+2 X−2X2
+> 3−2X
+> 2X2
+> 3
+
+≤ y < X y X ≤ y < 11 1 ≤ y. 
+
+If A = 1 , B = 1 and X ∈ (0 , 1) , let F1 be given by: 
+
+F1(y) = 
+
+
+
+0 y < 0 
+
+> 3
+> X
+
+y 0 ≤ y < 2X2 
+
+> 934X
+
+y + X 
+
+> 22X2
+> 9
+
+≤ y < 2X2
+
+> 3
+
+X 2X2 
+
+> 3
+
+≤ y < X y X ≤ y < 11 1 ≤ y. 
+
+Otherwise, let F1 be given by: 
+
+F1(y) = 
+
+
+
+0 y < 0
+
+G(y) 0 ≤ y < 11 1 ≤ y. 
+
+Since F1 is continuous, the synthetic PIT value between F1 and F2 is F1(F −12 (U2)) , where 
+
+U2 has distribution U([0 , 1]) and is independent of σ(A, B, X, Y, U 3).If A = 0 , B = 1 and X ∈ (0 , 1) then 
+
+P(F1(F −12 (U2)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0 
+
+> 32
+
+t 0 ≤ t < 2X
+
+> 3
+
+X 2X 
+
+> 3
+
+≤ t < X t X ≤ t < 11 1 ≤ t. 
+
+If A = 1 , B = 1 and X ∈ (0 , 1) then 
+
+P(F1(F −12 (U2)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0 
+
+> 12
+
+t 0 ≤ t < 2X
+
+> 3
+
+2t − X 2X 
+
+> 3
+
+≤ t < X t X ≤ t < 11 1 ≤ t. 
+
+Otherwise, 
+
+P(F1(F −12 (U2)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0
+
+t 0 ≤ t < 11 1 ≤ t. 
+
+Therefore, 
+
+P(F1(F −12 (U2)) ≤ t|B, X ) = E[P(F1(F −12 (U2)) ≤ t|A, B, X )|B, X ]18 
+
+=
+
+
+
+0 t < 0
+
+t 0 ≤ t < 11 1 ≤ t, 
+
+so F1(F −12 (U2)) has distribution U([0 , 1]) and is independent of σ(B, X ). Since it is clearly also independent of σ(Y, U 3), it is independent of F2(F −13 (U3)) .Finally, the synthetic PIT value between F1 and F3 is F1(F −13 (U3)) . If A = 0 , B = 1 and 
+
+X ∈ (0 , 1) then 
+
+P(F1(F −13 (U3)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0
+
+Xt 0 ≤ t < 2X
+
+> 3
+
+3t − 2Xt − 2X + 2 X2 2X 
+
+> 3
+
+≤ t < X t X ≤ t < 11 1 ≤ t. 
+
+If A = 1 , B = 1 and X ∈ (0 , 1) then 
+
+P(F1(F −13 (U3)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0 
+
+> X
+> 3
+
+t 0 ≤ t < 2X 
+
+> 34X
+> 3
+
+t − 2X2 
+
+> 32X
+> 3
+
+≤ t < X t X ≤ t < 11 1 ≤ t. 
+
+Otherwise, 
+
+P(F1(F −13 (U3)) ≤ t|A, B, X ) = 
+
+
+
+0 t < 0 
+
+> 53
+
+t − t2 + 13 t3 0 ≤ t < 11 1 ≤ t. 
+
+Then for t ∈   23 , 1,
+
+P(F1(F −13 (U3)) ≤ t) = E[P(F1(F −13 (U3)) ≤ t|A, B, X )] = − 536 + 32 t − 12 t2 + 536 t3̸
+
+= t, 
+
+so F1(F −13 (U3)) ≁ U([0 , 1]) .
+
+7. Discussion. We have presented a method for testing whether a fixed-event probability forecast sequence is calibrated. In many ways our definition of auto-calibration and the conse-quences of it are analogous to Nordhaus’ definition of weak efficiency for a fixed-event point forecast sequence in [16], and the consequences of that. A key difference is that we have pre-sented a fixed-size statistical test for auto-calibration which requires no further assumptions on the forecasts, but as far as we are aware such a test does not exist for weak efficiency. This difference seems reasonable: in producing probability forecasts rather than point forecasts, the forecaster has provided us with much more information about their beliefs. There are other issues to consider before applying our method to test real-world forecast sequences: in particular, the forecasts may not initially be presented as probability measures, and so we may need to decide how best to interpret them as such, and we will need to choose a method for testing whether the synthetic PIT values are i.i.d. U([0 , 1]) . We do not address these issues here. CALIBRATED PROBABILITY FORECAST SEQUENCES 19 
+
+Proposition 4.4 in fact shows that under auto-calibration each synthetic PIT value is inde-pendent not only of the other synthetic PIT values, but also of the forecasts earlier in the se-quence. Similarly, Proposition 3.6 shows that for rolling-event probability forecast sequences, auto-calibration implies each PIT value is independent not only of the other PIT values but also of the earlier forecasts and observations. It may be preferable to test the stronger inde-pendence properties of synthetic PIT values, perhaps using regression trees as described in Chapter 3 of [15]. Also, the null hypothesis could be modified to require each forecast to be conditionally auto-calibrated given a larger information set representing some of the data the forecaster had access to when their forecast was made, which we would expect them to have incorporated into their forecast. We could then also test whether each synthetic PIT value is independent of the corresponding one of these information sets. In a test of auto-calibration using synthetic PIT values, the null hypothesis of auto-calibration requires each forecast to be related to the distribution of the observation. However, the test should be thought of as primarily assessing the internal consistency of the forecast se-quence, meaning whether each adjacent pair of forecasts in the sequence shows the forecaster updating their prediction coherently, rather than whether the forecasts are all aligned with the observation. To see this, consider an auto-calibrated fixed-event sequence of forecasts made for one observation, and imagine testing whether it is auto-calibrated as a fixed-event probability forecast sequence for a different, completely unrelated observation. Only the last synthetic PIT value in the sequence—or rather, the ordinary PIT value for the last forecast in the sequence—is affected by the modification to the observation, so the synthetic PIT values earlier in the sequence are still i.i.d. U([0 , 1]) . Any method for testing whether the full se-quence of synthetic PIT values is i.i.d. U([0 , 1]) is then unlikely to lead to a rejection of the null hypothesis, even though presumably none of the forecasts are close to being calibrated for the new observation. The consequences of auto-calibration we have developed for a fixed-event probability fore-cast sequence are really consequences of the martingale property, and we could use them to test whether a sequence of random probability measures is a martingale with synthetic PIT values. In particular, we could state a proposition similar to Proposition 4.4 but giving an equivalence with the martingale property rather than with auto-calibration, and its proof would be essentially the same. Given a fixed-event probability forecast sequence, we could ignore the observation entirely and test whether the forecast sequence is a martingale. If we rejected that null hypothesis we would then have found that the forecast sequence is not auto-calibrated for any observation. APPENDIX: ADDITIONAL PROOFS PROOF OF PROPOSITION 2.4. (i) ⇒ (ii): For i ∈ { 1, . . . , n }, μi is Ψi-measurable. Then, since the Ψs form a filtration, for i ∈ { 1, . . . , n }, σ(μ1, ...μ i) ⊂ Ψi. For all A ∈ S , by the Tower Law: 
+
+E[1(Y ∈ A)|μ1, . . . , μ i] = E[E[1(Y ∈ A)|Ψi]|μ1, . . . , μ i]= E[μi(A)|μ1, . . . , μ i]= μi(A).
+
+(ii) ⇒ (i): For each i ∈ { 1, . . . , n }, let Ψi = σ(μ1, . . . , μ i).(ii) ⇒ (iii): For each i ∈ { 1, . . . , n − 1} and for all A ∈ S ,
+
+μi(A) = E[1(Y ∈ A)|μ1, . . . , μ i]= E[E[1(Y ∈ A)|μ1, . . . , μ i+1 ]|μ1, . . . , μ i]= E[μi+1 (A)|μ1, . . . , μ i].20 
+
+(iii) ⇒ (ii): We show μi = L(Y |μ1, . . . , μ i) by induction from i = n to i = 1 . The base case is trivial. For i ∈ { 1, . . . , n − 1}, assume μi+1 = L(Y |μ1, . . . , μ i+1 ). Then for all A ∈ S ,
+
+μi(A) = E[μi+1 (A)|μ1, . . . , μ i]= E[E[1(Y ∈ A)|μ1, . . . , μ i+1 ]|μ1, . . . , μ i]= E[1(Y ∈ A)|μ1, . . . , μ i],
+
+so indeed μi = L(Y |μ1, . . . , μ i).(iii) ⇔ (iv): The sequence (μ1, . . . , μ n, δ Y ) is a martingale if and only if (μ1, . . . , μ n) is a martingale and for all A ∈ S ,
+
+μn(A) = E[δY (A)|μ1, . . . , μ n]= E[1(Y ∈ A)|μ1, . . . , μ n],
+
+which says exactly that μn = L(Y |μ1, . . . , μ n).PROOF OF PROPOSITION 3.2. For y < y t, F (y) ≤ t since F is non-decreasing, so (5) F−(yt) ≤ t. 
+
+For y > y t, F (y) > t . Since F (yt) = lim y→y+ 
+
+> t
+
+F (y),(6) F (yt) ≥ t. 
+
+If F−(yt) < F (yt) then 0 ≤ vt ≤ 1 follows from inequalities (5) and (6), and Z(F, y t, v t) = 
+
+t is straightforward. If F−(yt) = F (yt) then in fact F−(yt) = F (yt) = t by inequalities (5) and (6), which gives 
+
+Z(F, y t, v t) = (0)( t) + (1)( t) = t.For y < y t and v ∈ [0 , 1] , Z(F, y, v ) ≤ t since F (y) ≤ t. For y > y t and v ∈ [0 , 1] ,
+
+Z(F, y, v ) > t since F (y) > t . For v ∈ [0 , v t], Z(F, y t, v ) ≤ Z(F, y t, v t) = t. And finally, for 
+
+v ∈ (vt, 1] , we have F−(yt) < F (yt) and so Z(F, y t, v ) > Z (F, y t, v t) = t. Thus, for y ∈ R
+
+and v ∈ [0 , 1] , Z(F, y, v ) ≤ t if and only if either y < y t, or y = yt and v ≤ vt.Then 
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y) = 
+
+Z
+
+> (−∞ ,y t)
+
+Z 10
+
+dv dG (y) + 
+
+Z
+
+> {yt}
+
+Z vt
+
+> 0
+
+dv dG (y)= G−(yt) + vt (G(yt) − G−(yt)) = Z(G, y t, v t),
+
+so we are done. PROOF OF PROPOSITION 3.4. (i) ⇒ (ii): Let t ∈ (0 , 1) . We shall show that 
+
+E[1(Z(F, Y, V ) ≤ t)|Ψ] = t, 
+
+so that the conditional distribution of Z(F, Y, V ) given Ψ is U([0 , 1]) , as required. We apply Theorem 4.1 with variable ξ = ( Y, V ), σ-algebra Ψ and random function 
+
+H(y, v ) = 1(Z(F, y, v ) ≤ t). Let μ = ϕ−1(F ), so that μ is a version of L(Y |Ψ) , and let 
+
+λ be the Lebesgue measure on [0 , 1] . Note that L(( Y, V )|Ψ) = μ ⊗ λ. We then have 
+
+E[1(Z(F, Y, V ) ≤ t)|Ψ] = 
+
+Z
+
+1(Z(F, y, v ) ≤ t) ( μ ⊗ λ)( dy, dv )=
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dF (y),CALIBRATED PROBABILITY FORECAST SEQUENCES 21 
+
+so we are done by Lemma 3.3. (ii) ⇒ (i): Let G be a version of FY |Ψ.Since F is Ψ-measurable, by Theorem 4.1 we have for t ∈ (0 , 1) ,
+
+E[1(Z(F, Y, V ) ≤ t)|Ψ] = 
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y).
+
+But Z(F, Y, V ) has conditional distribution U([0 , 1]) given Ψ, so for t ∈ (0 , 1) ,
+
+E[1(Z(F, Y, V ) ≤ t)|Ψ] = t. 
+
+Thus for t ∈ (0 , 1) ,(7) 
+
+Z
+
+> R
+
+Z 10
+
+1(Z(F, y, v ) ≤ t) dv dG (y) = t
+
+almost surely. Then with probability 1, equation (7) holds for t ∈ (0 , 1) ∩ Q. But both sides are right-continuous in t, so in fact with probability 1, equation (7) holds for t ∈ (0 , 1) .Then by Lemma 3.3, F = G almost surely, so F is a version of FY |Ψ as required. PROOF OF PROPOSITION 3.8. Let i ∈ { 1, . . . , n }. We have 
+
+L(Yi|μ1, Y 1, . . . , μ i−1, Y i−1, μ i) = μi.
+
+Then for A ∈ B (R), using Theorem 4.1, 
+
+E[1(g(μi, Y i) ∈ A)|μ1, Y 1, . . . , μ i−1, Y i−1, μ i] = 
+
+Z
+
+1(g(μi, y ) ∈ A) μi(dy )=
+
+Z
+
+1(z ∈ A) (( y 7 → g(μi, y )) ∗(μi))( dz )= (( y 7 → g(μi, y )) ∗(μi))( A)= ϕ−1(Γ g(μi))( A).
+
+Therefore 
+
+L(g(μi, Y i)|Γg(μ1), g (μ1, Y 1), . . . , Γg(μi−1), g (μi−1, Y i−1), Γg(μi)) = ϕ−1(Γ g(μi)) ,
+
+so we are done. PROOF OF LEMMA 4.3. For i ∈ { 1, . . . , n }, let μi = ϕ−1(Fi).To show that 
+
+L(( F −11 (U1), . . . , F −1 
+
+> n
+
+(Un)) |μ1, . . . , μ n, Ψ) = μ1 ⊗ . . . ⊗ μn,
+
+it suffices to show that μ1 ⊗ . . . ⊗ μn satisfies the defining property of the regular conditional distribution on all sets of the form 
+
+(−∞ , y 1] × . . . × (−∞ , y n]
+
+for y1, . . . , y n ∈ R, by a monotone-class argument. Using Theorem 4.1, for y1, . . . , y n ∈ R,
+
+E
+
+" nY
+
+> i=1
+
+1(F −1 
+
+> i
+
+(Ui) ≤ yi) μ1, . . . , μ n, Ψ
+
+#
+
+= E
+
+" nY
+
+> i=1
+
+1(Ui ≤ Fi(yi)) μ1, . . . , μ n, Ψ
+
+#22 
+
+=
+
+Z 10
+
+· · · 
+
+Z 10
+
+> n
+
+Y
+
+> i=1
+
+1(ui ≤ Fi(yi)) 
+
+!
+
+du 1 · · · du n
+
+=
+
+> n
+
+Y
+
+> i=1
+
+Z 10
+
+1(ui ≤ Fi(yi)) du i
+
+
+
+=
+
+> n
+
+Y
+
+> i=1
+
+Fi(yi),
+
+so we are done. 
+
+Acknowledgments. Thomas Wilkinson was supported by the Engineering and Physical Sciences Research Council [grant number EP/W524451/1]. REFERENCES 
+
+[1] B ROCKWELL , A. E. (2007). Universal residuals: a multivariate transformation. Statist. Probab. Lett. 77 
+
+1473–1478. https://doi.org/10.1016/j.spl.2007.02.008 MR2395595 [2] C ZADO , C., G NEITING , T. and H ELD , L. (2009). Predictive model assessment for count data. Biometrics 
+
+65 1254–1261. https://doi.org/10.1111/j.1541-0420.2009.01191.x MR2756513 [3] D AWID , A. P. (1984). Statistical theory. The prequential approach. J. Roy. Statist. Soc. Ser. A 147 278–292. https://doi.org/10.2307/2981683 MR763811 [4] D IEBOLD , F. X., G UNTHER , T. A. and T AY , A. S. (1998). Evaluating Density Forecasts with Applications to Financial Risk Management. International Economic Review 39 863–883. https://doi.org/10.2307/ 2527342 [5] F ERGUSON , T. S. (1967). Mathematical statistics: A decision theoretic approach . Probability and Mathe-matical Statistics, Vol. 1 . Academic Press, New York-London. MR215390 [6] G NEITING , T., B ALABDAOUI , F. and R AFTERY , A. E. (2007). Probabilistic forecasts, calibration and sharpness. J. R. Stat. Soc. Ser. B Stat. Methodol. 69 243–268. https://doi.org/10.1111/j.1467-9868. 2007.00587.x MR2325275 [7] G NEITING , T. and R AFTERY , A. E. (2007). Strictly proper scoring rules, prediction, and estimation. J. Amer. Statist. Assoc. 102 359–378. https://doi.org/10.1198/016214506000001437 MR2345548 [8] G NEITING , T. and R ANJAN , R. (2013). Combining predictive distributions. Electron. J. Stat. 7 1747–1782. https://doi.org/10.1214/13-EJS823 MR3080409 [9] H OROWITZ , J. (1985). Measure-valued random processes. Z. Wahrsch. Verw. Gebiete 70 213–236. https: //doi.org/10.1007/BF02451429 MR799147 [10] H YTÖNEN , T., VAN NEERVEN , J., V ERAAR , M. and W EIS , L. (2016). Analysis in Banach spaces. Vol. I. Martingales and Littlewood-Paley theory . Ergebnisse der Mathematik und ihrer Grenzgebiete. 3. Folge. A Series of Modern Surveys in Mathematics [Results in Mathematics and Related Areas. 3rd Series. A Series of Modern Surveys in Mathematics] 63 . Springer, Cham. MR3617205 [11] K ALLENBERG , O. (2017). Random measures, theory and applications . Probability Theory and Stochastic Modelling 77 . Springer, Cham. https://doi.org/10.1007/978-3-319-41598-7 MR3642325 [12] K ALLENBERG , O. (2021). Foundations of modern probability , third ed. Probability Theory and Stochastic Modelling 99 . Springer, Cham. https://doi.org/10.1007/978-3-030-61871-1 MR4226142 [13] K NÜPPEL , M., K RÜGER , F. and P OHLE , M.-O. (2023). Score-based calibration testing for multivariate forecast distributions. https://doi.org/10.48550/arXiv.2211.16362 [14] M ITCHELL , J. (2008). Density forecast revisions and forecast efficiency. This paper is not currently avail-able online. See https://api.semanticscholar.org/CorpusID:17382920. [15] M ODESTE , T. (2023). Évaluation et construction des prévisions probabilistes : Score et calibration dans un cadre dynamique, Theses, Université Claude Bernard - Lyon I https://theses.hal.science/tel-04517250. [16] N ORDHAUS , W. D. (1987). Forecasting Efficiency: Concepts and Applications. The Review of Economics and Statistics 69 667–674. https://doi.org/10.2307/1935962 [17] T SYPLAKOV , A. (2013). Evaluation of Probabilistic Forecasts: Proper Scoring Rules and Moments. SSRN Electronic Journal . https://doi.org/10.2139/ssrn.2236605 [18] T SYPLAKOV , A. (2020). Evaluation of Probabilistic Forecasts: Conditional Auto-calibration. https://dx.doi. org/10.2139/ssrn.2236605
