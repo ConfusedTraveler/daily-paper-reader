@@ -1,0 +1,562 @@
+Title: Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation
+
+URL Source: https://arxiv.org/pdf/2608.07998v1
+
+Published Time: Tue, 11 Aug 2026 00:31:46 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation 
+
+# Anran Zhang 
+
+arzhang@seu.edu.cn School of Computer Science and Engineering, Southeast University Nanjing, Jiangsu, China 
+
+# Jiaqi Jiang 
+
+jiaqijiang@seu.edu.cn School of Computer Science and Engineering, Southeast University Nanjing, Jiangsu, China 
+
+# Jiahui Jin ∗
+
+jjin@seu.edu.cn School of Computer Science and Engineering, Southeast University Nanjing, Jiangsu, China 
+
+# Yuhan Zhao ∗
+
+csyhzhao@comp.hkbu.edu.hk Department of Computer Science, Hong Kong Baptist University Hong Kong, China 
+
+## Abstract 
+
+Next point-of-interest (POI) recommendation predicts users’ future destinations from historical mobility sequences and has become a key component of location-based services. However, mainstream models often concentrate exposure on a small set of popular POIs, leaving long-tail merchants systematically under-exposed. While provider fairness has recently attracted increasing attention, di-rectly applying existing provider-fairness techniques to POI recom-mendation is problematic: (i) users face execution constraints ; and (ii) POIs face resource supply constraints . To address this, we pro-pose SPACE ( Supply- and Physics-Aware Conditional Embedding generation), a model-agnostic framework that improves long-tail POI exposure via virtual user generation under explicit feasibility and supply control. SPACE consists of three stages: (1) community inference to capture heterogeneous user execution constraints; (2) unbalanced optimal-transport allocation to decide how many vir-tual users each tail POI should receive from which communities under POI-specific supply budgets; and (3) constraint-guided la-tent diffusion to generate POI-conditional, community-consistent virtual user embeddings. The generated user–POI pairs can be seam-lessly used to train existing recommenders without modifying their architectures. Extensive experiments on three real-world datasets demonstrate that SPACE substantially improves provider fairness while maintaining—and often improving—recommendation accu-racy across multiple backbone models. Our code is publicly available at https://github.com/Anniran1/SPACE-main. 
+
+## CCS Concepts 
+
+• Information systems → Recommender systems ;
+
+## Keywords 
+
+Next Point-of-interest Recommendation, Fairness 
+
+> ∗Corresponding Authors.
+> This work is licensed under a Creative Commons Attribution 4.0 International License.
+> RecSys ’26, Minneapolis, MN, USA
+> © 2026 Copyright held by the owner/author(s). ACM ISBN 979-8-4007-2284-4/2026/09 https://doi.org/10.1145/3773078.3831832
+
+ACM Reference Format: 
+
+Anran Zhang, Jiaqi Jiang, Jiahui Jin, and Yuhan Zhao. 2026. Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation. In 20th ACM Conference on Recommender Systems (RecSys ’26), September 27-October 02, 2026, Minneapolis, MN, USA. ACM, New York, NY, USA, 10 pages. https://doi.org/10.1145/3773078.3831832 
+
+## 1 Introduction 
+
+Next point-of-interest (POI) recommendation aims to predict users’ future destinations from their behavioral sequences. While mod-ern recommenders [11, 29] enhance user experience by delivering accurate suggestions, they can simultaneously impose an unin-tended cost on long-tail merchants whose exposure falls far below the average [38], resulting in systematically inequitable visibility. In response, provider fairness has emerged as a central research topic, seeking to democratize exposure opportunities for underrep-resented providers [7, 28]. Beyond algorithmic parity, provider fairness in POI settings is in-tertwined with spatial justice and urban sustainability . As depicted in Figure 1, the conventional next POI recommendation model tends to recommend popular POIs with high historical exposure for users. Such feedback loops amplify "rich-get-richer" effects, funneling crowds into hotspots while accelerating regional polarization. These bias also confines users to homogenized, overcrowded enclaves, creating informational silos that hinder the discovery of local cul-ture. Therefore, ensuring provider fairness in POI recommendation is not merely an optimization preference but a sociotechnical im-perative. However, directly transplanting existing provider-fairness techniques into the POI domain is ill-suited. Unlike purely digital recommendation settings [3, 43], POI recommendation is governed by two distinctive constraints: 
+
+• User execution constraints. Unlike online actions (e.g., clicks), physical visits require tangible resources—time, en-ergy, and money—which are unevenly distributed across users. Consequently, the burden of a “fair but unsuitable” recommendation is inherently asymmetric: a car owner may accommodate a detour with minimal friction, whereas a tourist relying on public transportation can incur substantial time loss and utility degradation if redirected to a distant location merely to satisfy a fairness metric. arXiv:2608.07998v1 [cs.IR] 8 Aug 2026 RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA Zhang et al. User Profile w/o SPACE w/ SPACE       
+
+> User A
+> Low-mobility commuter
+> Mobility radius: 0.8-1.2km Top category: Coffee Shop (68%)
+> Tail-history ratio: 71%
+> User B
+> Time-constrained transit user
+> Night-active Top category: Fast Food (52%)
+> Tail-history ratio: 58%
+> User C
+> Exploration-oriented tourist
+> High exploration Top category: Attraction (68%)
+> Tail-history ratio: 64%
+> Interest Center Long-tail POI Popular POI Reachable Area
+
+Figure 1: Recommendation case studies on three types of con-strained users. The circles on the maps define the reachable radius for constrained users. The original model (w/o SPACE) tends to concentrate exposure on popular POIs, even when such recommendations are not fully aligned with users’ con-straints. In contrast, after incorporating SPACE (w/SPACE), the recommendation list contains more long-tail POIs that are both consistent with user preferences and physically reachable within their mobility budgets. 
+
+• Resource supply constraints. Physical venues operate un-der hard capacity and availability limits. For instance, niche museums may have limited ticket quotas due to space con-straints. Naively boosting the exposure of tail POIs to achieve statistical fairness can thus lead to over-recommendation, creating congestion that degrades visitor experience and overwhelms providers’ operational capacity. These constraints make POI provider fairness uniquely com-plex, meaning conventional fairness methods can severely compro-mise accuracy. For instance, directly promoting certain providers through re-ranking may ignore physical feasibility or supply limits, leading to recommendations that users cannot visit or providers cannot accommodate. Such mismatches ultimately feed back into de-graded user satisfaction and impaired system accuracy—outcomes we explicitly seek to avoid. To address this challenge, we propose SPACE ( Supply- and Physics-
+
+Aware Conditional Embedding generation), a model-agnostic frame-work that improves long-tail POI exposure by generating physically plausible virtual users under explicit supply- and execution-aware constraints. Instead of manipulating rankings in a way that may con-flict with real-world feasibility, SPACE augments training signals for tail POIs through constraint-respecting interaction synthesis: it (i) infers user communities that reflect heterogeneous mobil-ity/execution constraints, (ii) allocates augmentation quotas to tail POIs under explicit supply budgets via unbalanced optimal trans-port, and (iii) generates POI-conditional virtual user embeddings through constraint-guided latent diffusion, so that downstream rec-ommenders can be trained with improved fairness while preserving (and often improving) accuracy, as shown in Figure 1. Our main contributions are summarized as follows: 
+
+• We formalize provider fairness in POI recommendation as a 
+
+constraint-coupled problem. We show that, unlike conven-tional recommendation settings, both users and POIs in POI recommendation are subject to intrinsic physical and supply limitations, which necessitate rethinking provider fairness for this domain and lay a foundation for future work. 
+
+• We propose SPACE, a supply- and physics-aware conditional embedding generation framework that democratizes tail-POI exposure via virtual user generation. SPACE integrates com-munity inference, unbalanced-OT-based supply-constrained quota allocation, and constraint-guided latent diffusion to address domain-specific physical and supply constraints. 
+
+• Extensive experiments on three real-world datasets demon-strate that SPACE substantially improves provider fairness for various backbone recommenders without sacrificing accu-racy —and in most cases even improves it. These impressive results highlight strong practical value for real POI platforms. 
+
+## 2 Preliminaries 
+
+In this section, we formally define the provider fairness in next-POI recommendation. We then theoretically demonstrate why fairness paradigms based on unconstrained continuous optimization can become infeasible and even harmful. 
+
+## 2.1 Problem Definition 
+
+Next-POI Recommendation. Let U = {𝑢 1, . . . , 𝑢 | U | } be the set of users and V = {𝑣 1, . . . , 𝑣 | V | } be the set of POIs. Each POI 𝑣 ∈ V 
+
+is associated with geographic coordinates and semantic attributes. A check-in is a tuple 𝑞 = (𝑢, 𝑣, 𝑡 ) indicating that user 𝑢 visits POI 𝑣 
+
+at timestamp 𝑡 . For a user 𝑢 , their trajectory is T𝑢 = {𝑞 1
+
+> 𝑢
+
+, . . . , 𝑞 𝑛 𝑢  
+
+> 𝑢
+
+}.Given T𝑢 , the next POI recommendation aims to predict a list of possible POIs that the user is inclined to visit next. We denote the predicted matching utility between 𝑢 and 𝑣 as ˆ 𝑦 𝑢,𝑣 ∈ R+.
+
+Provider Fairness in POI Recommendation. Provider fairness aims to mitigate exposure bias against marginalized long-tail POIs. Let 𝑥 𝑢,𝑣 ∈ { 0, 1} indicate whether POI 𝑣 is included in user 𝑢 ’s top-𝐾 
+
+recommendation list. Thus, each recommendation request must sat-isfy Í𝑣 ∈ V 𝑥 𝑢,𝑣 ≤ 𝐾 . Let Vtail ⊂ V denote the set of long-tail POIs, following the definition in existing research[38]. We use a simple exposure proxy 𝐸 (𝑣 ) = Í𝑢 ∈ U 𝑥 𝑢,𝑣 , and define the average expo-sure of non-tail POIs as ¯ 𝐸 = 1 
+
+> | V\V tail |
+
+Í𝑣 ∈ V\V tail 𝐸 (𝑣 ). A common exposure-based provider-fairness requirement enforces that each tail POI should receive at least a fraction of this average exposure: 
+
+𝐸 (𝑣 ) =∑︁  
+
+> 𝑢 ∈ U
+
+𝑥 𝑢,𝑣 ≥ 𝜏 · ¯𝐸, ∀𝑣 ∈ V tail , (1) where 𝜏 ∈ ( 0, 1] controls the strictness of the fairness requirement. 
+
+## 2.2 Physical Constraints and Realized Utility 
+
+Unlike purely digital platforms, POI recommendation is constrained by physical feasibility on both the user side and the POI side. 
+
+• User execution constraint. Let 𝑐 𝑢,𝑣 denote the execution cost for user 𝑢 to visit POI 𝑣 (e.g., travel time/distance under a transportation mode), and let 𝐵 𝑢 be the user’s execution budget. A recommendation is executable only if 𝑐 𝑢,𝑣 ≤ 𝐵 𝑢 .Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA 
+
+• Resource supply constraint. Let 𝑆 𝑣 denote the service/supply capacity of POI 𝑣 over the considered horizon (e.g., maximum acceptable visits or ticket capacity). A physically meaningful recommendation allocation should respect Í𝑢 ∈ U 𝑥 𝑢,𝑣 ≤ 𝑆 𝑣 .These constraints distinguish digital expected utility from physi-cal realized utility : even if a model assigns high ˆ 𝑦 𝑢,𝑣 , recommending an unexecutable POI produces “fake exposure” that cannot translate into real visits. 
+
+Definition 2.1 (Realized System Utility). Given an allocation ma-trix X = [𝑥 𝑢,𝑣 ], the realized system utility is 
+
+𝑈 real (X) =∑︁  
+
+> 𝑢 ∈ U
+
+∑︁ 𝑣 ∈ V 
+
+ˆ𝑦 𝑢,𝑣 𝑥 𝑢,𝑣 I(𝑐 𝑢,𝑣 ≤ 𝐵 𝑢 ), (2) where I(·) is the indicator function. The goal is to maximize 𝑈 real (X)
+
+subject to constraints and fairness requirements. 
+
+## 2.3 Theoretical Analysis of Existing Paradigms 
+
+While many fair recommenders rely on soft regularization and end-to-end optimization, we show that POI recommendation is a combinatorial, NP-hard problem under physical constraints. Con-sequently, ignoring execution feasibility can lead to unbounded utility degradation. Theorem 2.2 (NP-Hardness of Physically Feasible Fair Allo-cation). With heterogeneous execution budgets {𝐵 𝑢 } and POI capaci-ties {𝑆 𝑣 }, the problem of finding an allocation that maximizes realized utility subject to physical feasibility is NP-hard; adding exposure-based provider fairness constraints does not simplify the problem. Consequently, continuous soft-penalty optimization does not provide feasibility guarantees for the resulting discrete top-𝐾 allocations. 
+
+Proof. We prove NP-hardness by reduction from a capacitated assignment problem. Consider a simplified setting where each user must be assigned to exactly one POI (i.e., set 𝐾 = 1), and ignore the fairness constraints (removing constraints cannot make the problem harder). Let 𝑤 𝑢,𝑣 = ˆ𝑦 𝑢,𝑣 · I(𝑐 𝑢,𝑣 ≤ 𝐵 𝑢 ) be the realized profit of assigning 𝑢 to 𝑣 . Then the decision problem becomes: max 
+
+> X
+
+∑︁ 𝑢 ∈ U ∑︁ 𝑣 ∈ V 
+
+𝑤 𝑢,𝑣 𝑥 𝑢,𝑣 (3) s.t. ∑︁  
+
+> 𝑣 ∈ V
+
+𝑥 𝑢,𝑣 = 1, ∀𝑢 ; (4) ∑︁  
+
+> 𝑢 ∈ U
+
+𝑥 𝑢,𝑣 ≤ 𝑆 𝑣 , ∀𝑣 ; 𝑥 𝑢,𝑣 ∈ { 0, 1}. (5) This is a standard capacitated assignment / generalized assignment formulation, which is NP-hard in general. Therefore, our origi-nal problem with top-𝐾 recommendation ( 𝐾 ≥ 1) and additional fairness constraints is also NP-hard. □
+
+Theorem 2.3 (Unbounded Price of Fairness Under Execu-tion Infeasibility). Enforcing exposure-based provider fairness without explicitly accounting for user execution feasibility I(𝑐 𝑢,𝑣 ≤
+
+𝐵 𝑢 ) can yield an unbounded Price of Fairness (PoF) in physical space, leading to a potentially catastrophic drop in realized utility. 
+
+Proof. Define PoF = 𝑈 OPT /𝑈 FAIR , where 𝑈 OPT is the maximum realized utility without fairness constraints and 𝑈 FAIR is the realized utility under a fairness-enforced policy. Consider an LBSN with 𝑀 users, one popular POI 𝑣 pop , and one tail POI 𝑣 tail ∈ V tail . Assume all users can execute visits to 𝑣 pop but none can execute visits to 𝑣 tail : 𝑐 𝑢,𝑣 pop ≤ 𝐵 𝑢 and 𝑐 𝑢,𝑣 tail > 𝐵 𝑢 for all 
+
+𝑢 . Let ˆ 𝑦 𝑢,𝑣 pop = 1 and ˆ 𝑦 𝑢,𝑣 tail = 1 − 𝜖 with 𝜖 → 0+. Without fairness constraints, recommending 𝑣 pop to all users yields: 
+
+𝑈 OPT =
+
+> 𝑀
+
+∑︁ 
+
+> 𝑢 =1
+
+1 · I(𝑐 𝑢,𝑣 pop ≤ 𝐵 𝑢 ) = 𝑀. (6) Now impose an exposure-based fairness constraint that forces a fraction 𝜏 ∈ ( 0, 1) of recommendations to be allocated to 𝑣 tail .In physical space, those recommendations are infeasible and con-tribute zero realized utility: 
+
+𝑈 Physical FAIR = (1 − 𝜏 )𝑀 · 1 + 𝜏𝑀 · ( 1 − 𝜖 ) · 0 = (1 − 𝜏 )𝑀. (7) Hence, PoF Physical = 𝑈 OPT 
+
+𝑈 Physical FAIR 
+
+= 𝑀 
+
+(1 − 𝜏 )𝑀 = 11 − 𝜏 −−−→ 
+
+> 𝜏 →1
+
++∞ . (8) Therefore, blindly boosting exposure for tail POIs without feasi-bility awareness can force “unexecutable” recommendations, pro-ducing fake exposures that do not convert into visits, and can arbitrarily harm realized utility. □
+
+## 3 Methodology 
+
+To address the complex provider fairness problem in POI recommen-dation, we propose SPACE ( Supply- and Physics-Aware Conditional 
+
+Embedding generation), a framework that democratizes long-tail POI exposure via virtual user generation . SPACE consists of three stages: (1) Community prototype inference , which partitions users into different communities according to their inherent constraints; (2) Supply-constrained allocation , which adaptively decides how many virtual users each tail POI should receive and from which communities; and (3) Constraint-guided generation , which produces the final virtual user embeddings conditioned on the target POI and the allocated community. The overall workflow is depicted in Figure 2. 
+
+## 3.1 Latent Constraint Discovery through Community Inference 
+
+Inspired by prior community inference studies [2, 6, 40], we di-vide users into different communities according to their inherent constraints. Intuitively, we expect this module to learn communi-ties with the following properties: (1) users assigned to the same community are relatively consistent in constraints; (2) we allow correlations between preference and constraints, but they are not fully entangled in a single community (users with similar prefer-ences may still be separated due to different constraints). With such communities, our later modules can leverage them to guide the generation of physically plausible virtual users. 
+
+3.1.1 Community Assignment. To achieve this goal, we propose a novel community inference function. First, we represent each user from two complementary views. Given user 𝑢 ’s raw behavioral features, we summarize them into: (i) the preference view x𝑝 𝑢 ,which captures the user’s preference profile using a normalized POI-category histogram, the total number of visits, the number of unique visited POIs, and an exploration diversity ratio; and (ii) the RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA Zhang et al. 𝐴 = 𝜋𝑟 !
+
+# 𝐴 = 𝜋𝑟 ! = 𝜋𝑟 !
+
+> Community-Aware Disentangled Profiling Preference View Constraint View
+> User Trajectory
+
+# 𝐴 = 𝜋𝑟 !              
+
+> Joint Training
+> Community Inference
+> Profile A Profile B Profile C
+> Constraint-Guided Diffusion Generation
+> Profile A
+> (n)
+> POI Recommender model Residual Refinement Initialized 𝒔 (𝟎) = 𝒆 𝒃𝒂𝒔𝒆 + 𝜶 & 𝜹 𝒌
+> Virtual Users Community Prototypes
+> Semantic Features Movement Patterns
+> Time Space Category Frequency
+> 𝒙 𝒖 𝒑,𝒔
+> 𝒙 𝒖 𝒑,𝒎
+> 𝒙 𝒖 𝒄,𝒔
+> 𝒙 𝒖 𝒄,𝒎
+> UOT-based Allocation
+> ℒ = 𝑳 𝒓𝒆𝒄 + 𝝀 𝒓𝒆𝒄 & + 𝑳 𝒓𝒆𝒄
+> Semantically Plausible Model-Agnostic Plugin for Training
+> Accuracy Fairness
+> MLP + GCN 𝒛 𝒖 𝒇𝒖𝒔𝒆
+> 𝒓 𝒖,𝒌
+> Physically Executable Information-Rich
+> .𝒆 𝒖
+> ∆𝑠 != 𝜖 "(𝑠 !, 𝑒 #, 𝑐 $, ℎ %!& , 𝑡)
+> /𝓓 /𝓓 𝓓
+
+Figure 2: The illustration of our proposed SPACE. constraint view x𝑐 𝑢 , which captures the user’s mobility pattern using a normalized hourly activity histogram, a day-of-week his-togram, geographic statistics of visited locations, and the average trajectory length. The former mainly reflects historical POI choices (preference), while the latter mainly reflects mobility regularities (constraints). Then, we map the two views into one constraint latent embedding z𝑐 𝑢 , which represents the user’s constraints: 
+
+z𝑐 𝑢 = MLP 𝑐 
+
+ [x𝑐 𝑢 ; x𝑝 𝑢 ] . (9) Notably, we use both x𝑝 𝑢 and x𝑐 𝑢 to build z𝑐 𝑢 because preference and constraints may influence each other. For example, stronger mobility budgets often lead to more exploratory preferences, and “nightlife” preferences imply late-hour activity patterns. This design allows us to capture the intricate interplay between constraint and preference signals. Moreover, collaborative signals are critical in recommendations. Instead of modeling each user independently, we utilize a GNN [14] to provide additional signals: 
+
+g𝑐 𝑢 = GCN (𝐺, z𝑐 𝑢 ), (10) where 𝐺 is a user graph constructed from user interactions. Based on this, we fuse multiple sources to obtain the representa-tion for community partition: 
+
+z𝑓 𝑢𝑠𝑒 𝑢 = MLP 𝑓 𝑢𝑠𝑒 
+
+ [z𝑐 𝑢 ; g𝑐 𝑢 ] . (11) Next, we adopt a commonly used soft clustering approach [27] to assign users into 𝐾 communities. We initialize a set of learn-able community prototypes C = {c1, . . . , c𝐾 }. The posterior soft community assignment is computed as: 
+
+𝑟 𝑢,𝑘 =
+
+exp 
+
+
+
+sim (z𝑓 𝑢𝑠𝑒 𝑢 , c𝑘 )/ 𝜏 
+
+Í𝐾 𝑗 =1 exp 
+
+
+
+sim (z𝑓 𝑢𝑠𝑒 𝑢 , c𝑗 )/ 𝜏 
+
+ , (12) where sim (· , ·) denotes cosine similarity and 𝜏 is a temperature hyper-parameter. Users can then be assigned to communities ac-cording to these scores. 
+
+3.1.2 Inference Loss. Although the above scheme is intuitive, there is a critical issue: the recommender’s objective is designed for rec-ommendation accuracy rather than directly supervising the com-munity inference task. Therefore, we design an auxiliary loss to support community inference from the marginal community usage: ˜r𝑘 = 1
+
+|U| ∑︁ 𝑢 ∈ U 
+
+𝑟 𝑢,𝑘 . (13) Then, we propose to learn compact and non-collapsed communities: arg min 
+
+> ΘCI
+
+Linfer = − 1
+
+|U| ∑︁ 𝑢 ∈ U 
+
+> 𝐾
+
+∑︁ 
+
+> 𝑘 =1
+
+𝑟 𝑢,𝑘 · sim (z𝑓 𝑢𝑠𝑒 𝑢 , c𝑘 )
+
+𝜏 +𝐷 KL (˜r ∥ 𝑈 (1/𝐾 )) ,
+
+(14) where 𝑈 (1/𝐾 ) denotes the uniform distribution over 𝐾 communi-ties. The first term maximizes the expected similarity between each user representation and its assigned prototype(s), thereby forming tight and coherent communities in the latent space. The second term prevents trivial solutions where all users collapse into a single community by encouraging the marginal community distribution ˜r to be close to uniform. Importantly, this regularizer does not en-force hard per-user assignments; it only discourages degenerate global partitions, which is sufficient for maintaining community coverage in downstream quota allocation and executable virtual user generation. Since this loss is only meant to regularize the community infer-ence process, we restrict parameter updates to community-inference parameters ΘCI (i.e., MLP 𝑐 , GCN, MLP 𝑓 𝑢𝑠𝑒 , and prototypes C). 
+
+## 3.2 Supply-Constrained Tail POI Allocation via Unbalanced Optimal Transport 
+
+After obtaining communities, a natural question is: can we immedi-ately start generating virtual users to increase interactions for tail POIs? The answer is no. If we blindly augment all tail POIs (e.g., generating a fixed number 𝑀 of virtual users for each tail POI), two serious biases may occur: (1) it violates the Resource Supply Constraint because real POIs have physical/service capacity limits; generating too many “virtual visits” creates unrealistic demand and Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA 
+
+may mislead the model to over-recommend niche POIs; (2) it causes distribution distortion: injecting too many positive interactions may turn a tail POI into a “fake head” item, biasing the ranking model and harming overall accuracy and user experience. Thus, we cannot pursue fairness while ignoring practical con-straints. We need a carefully designed allocation strategy that deter-mines how many virtual users each tail POI should receive and from which communities. We set a supply budget vector d, where each tail POI 𝑣 should receive around 𝑑 𝑣 (e.g., historical maximum daily visits) virtual users, drawn from multiple relevant communities. To achieve this, we design an Optimal Transport (OT) [5, 33] based allocation scheme. Let P ∈ R| V 𝑡𝑎𝑖𝑙 | × 𝐾  
+
+> +
+
+be the transport plan, where 𝑃 𝑣,𝑘 indicates the number of virtual embeddings to generate for POI 𝑣 from community 𝑘 . To allocate only from relevant com-munities, we define a cost matrix Cost that measures the distance between POI embeddings e𝑣 and community representations 𝝁 𝑘 .The OT objective is: min  
+
+> P≥0
+
+⟨P, Cost ⟩ + KL (P1 ∥ d)
+
+| {z }
+
+> Supply Constraint
+
+. (15) The first term encourages allocating a POI’s quota to more relevant communities: if a community has a lower cost (higher similarity) to the POI, then 𝑃 𝑣,𝑘 tends to be larger. The second term encourages the total allocation for each POI to be close to 𝑑 𝑣 ; deviations are allowed but penalized, and larger deviations incur larger penalties. With this allocation, each tail POI receives a reasonable mixture of communities and is pulled back to its budget 𝑑 𝑣 , avoiding be-coming a “fake head” POI. For example, a niche art museum will not be forced to match an irrelevant “scenery-preferring tourist” community because that would incur a high cost, while its total quota will be kept around 𝑑 𝑣 rather than exploding unrealistically. 
+
+## 3.3 Constraint-Guided Latent Diffusion for Virtual User Embeddings 
+
+With the community and quota allocation determined, we gen-erate Virtual User Embeddings ˜e𝑢 for each tail POI 𝑣 . Direct augmentation strategies often fail to satisfy the coupled constraints: generated users must be (i) semantically plausible (aligned with POI 
+
+𝑣 and community 𝑘 ), (ii) information-rich (avoiding mode collapse or meaningless noise), and (iii) physically executable (respecting the community’s execution characteristics). To address these chal-lenges, we propose a POI-conditional latent generator inspired by diffusion models [10, 19]. Instead of sampling from isotropic noise, we perform iterative residual denoising starting from a reli-able initialization, decomposing the complex generation process into multiple small, constraint-aware refinements. 
+
+3.3.1 Prototype-Aware Initialization. A robust generation process requires a starting point that already lies in a plausible region of the target community. For a given pair (𝑣, 𝑘 ), we construct a community-aware base state by fusing the POI representation h𝑣 
+
+with the community prototype c𝑘 :
+
+ebase = MLP base ([ h𝑣 ; c𝑘 ]) . (16) Here, c𝑘 serves as the sole community prototype, encoding the execution characteristics of community 𝑘 learned in the community inference stage. To inject diversity grounded in real user variations, we sample a real user 𝑢 from community 𝑘 and compute its deviation from the community center in the constraint latent space: 
+
+𝛿 𝑘 = z𝑐 𝑢 − ¯z𝑐 𝑘 , ¯z𝑐 𝑘 = E[z𝑐 𝑗 | 𝑗 ∈ 𝑘 ], 𝑢 ∼ Unif ({ 𝑗 : 𝑗 ∈ 𝑘 }) . (17) The initial latent state is defined as: 
+
+s(0) = ebase + 𝛼 · 𝛿 𝑘 , (18) where 𝛼 controls exploration strength. This initialization anchors generation around (𝑣, 𝑘 ) while exploring along real intra-community directions, avoiding the need to learn feasibility from scratch. 
+
+3.3.2 Iterative Residual Refinement. We introduce a conditional denoising network 𝜖 𝜃 to iteratively refine the latent state s(𝑡 ) for 
+
+𝑡 = 0, . . . ,𝑇 − 1. At each step, the network predicts a residual update conditioned on the current state, POI context, community prototype, and batch-level statistics: 
+
+Δs𝑡 = 𝜖 𝜃 
+
+
+
+s(𝑡 ) , e𝑣 , c𝑘 , hctx , 𝑡 
+
+
+
+, (19) where hctx summarizes the distribution of real user embeddings in the current batch (e.g., mean pooling), preventing the generated embeddings from drifting away from the global latent geometry. We update the state with a constant step size 𝜂 𝑡 = 1/𝑇 :
+
+s(𝑡 +1) = s(𝑡 ) + 𝜂 𝑡 Δs𝑡 . (20) After 𝑇 refinement steps, the final virtual user embedding is ob-tained as: ˜e𝑢 = s(𝑇 ) . (21) In addition, we require the generated virtual users to remain consistent with the constraint characteristics of their source com-munity. We impose the following execution regularization: arg min 
+
+> ΘGen
+
+Lexec = ReLU  ∥ ˜e𝑢 − e𝑢 ∥22 − 𝑅 2
+
+> 𝑘
+
+ , (22) Here, 𝑅 𝑘 is computed by a robust statistic: 
+
+𝑅 2 
+
+> 𝑘
+
+= Quantile 𝑞 
+
+∥e𝑢 − ¯e𝑘 ∥22 : 𝑢 ∈ 𝑘 
+
+
+
+, (23) where ¯ e𝑘 denotes the community center. This loss is essentially a “community constraint”: if the generated user is close to community 
+
+𝑘 , the generation has more freedom; otherwise, it receives a strong penalty, pushing the generation back to the community manifold and reducing implausible samples that violate community charac-teristics. Since this loss is only meant for the generation process, we restrict parameter updates to generation parameters ΘGen .
+
+## 3.4 Training 
+
+After generation, we pair the virtual users with their corresponding tail POIs to form a new dataset ˜D, and train together with the original dataset D:
+
+L =∑︁  
+
+> (𝑢,𝑖 ) ∈ D
+
+𝐿 rec (𝑢, 𝑖 ) + 𝜆 rec ∑︁   
+
+> (𝑢,𝑖 ) ∈ ˜D
+
+𝐿 rec (𝑢, 𝑖 ), (24) where 𝜆 rec balances the contribution of the augmented data. RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA Zhang et al. 
+
+Table 1: Statistics of the POI recommendation datasets.                     
+
+> Dataset #User #Poi #Cat #Check-in #Trajectory NYC 1,075 5,099 318 104,074 14,160 TKY 2,281 7,844 291 361,430 44,692 CA 4,318 9,923 301 250,780 32,920
+
+## 4 Experiments 
+
+In this section, we conduct comprehensive experiments to evaluate the performance of SPACE. Specifically, we evaluate the effective-ness of integrating SPACE in enhancing long-tail POIs’ exposure across various next POI recommendation models (4.2). We analyze the contribution of individual SPACE components to model perfor-mance (4.3). We also investigate the impact of different parameter settings on SPACE’s efficacy (4.4) and assess its efficiency for prac-tical applications (4.5). Additionally, we supplement the results on extra fairness metrics (4.6) and provide case studies (4.7). 
+
+## 4.1 Experimental Setting 
+
+4.1.1 Datasets. We conduct experiments on three publicly POI datasets collected from location-based service platforms: NYC, TKY [35], and CA [39]. All three datasets collect check-ins from real-world cities. The statistics are summarized in Table 1. 
+
+4.1.2 Baseline. To validate the effectiveness of our solution, we integrate SPACE with a wide range of representative and state-of-the-art methods. FPMC [23] and LSTPM [42] utilize Matrix Fac-torization and LSTM, respectively, to directly model user check-in sequences. GETNext [36] employs a graph-enhanced Transformer on a user-agnostic global trajectory flow map to capture collabo-rative signals. MTNet [12] and DiffuRec [17] employ generative techniques or diffusion frameworks to capture the distribution of potential next POIs. 
+
+4.1.3 Evaluation metrics. To evaluate accuracy employing standard metrics for top-K recommendations, we encompass hit rate (HR@ 𝐾 )and normalized discounted cumulative gain (NDCG@ 𝐾 ). For fair-ness measurement, we use cold-warm group fairness (CGF@ 𝐾 ), cold POI exposure (CE@ 𝐾 ), and long-tail coverage (LTC) to evalu-ate the inequality in recommendation quality between warm POIs and long-tail POIs. 
+
+4.1.4 Implementation Details. To ensure reproducibility, we im-plement all methods and apply pre-processing, dataset split, and evaluation using the POI recommendation standard settings [36]. We construct a popularity ranking by frequency, with the top 20% of POIs considered popular and the bottom 80% long-tail. We metic-ulously tune all hyperparameters on the validation sets and report the best performance for all baseline models. 
+
+## 4.2 Overall Performance Comparison 
+
+We report the overall performance results in Table 2. The key ob-servations include: 
+
+• Integrating SPACE into diverse backbones leads to substan-tial improvements in fairness metrics across nearly all datasets. This demonstrates the effectiveness of SPACE in increasing the exposure opportunities of long-tail POIs and promotes fairer recommendations. Such enhancements not only bol-ster the economic viability of niche merchants but also enrich user satisfaction by offering more diverse options. 
+
+• Beyond fairness, SPACE also yields significant performance gains on most datasets and metrics. For instance, GetNext shows a 54.85% improvement on CA. This illustrates that our synthesized virtual users effectively adhere to the dual constraints, thereby rectifying exposure bias while simulta-neously elevating overall recommendation quality. 
+
+• Notably, the fairness improvement for LSTPM is more mod-est compared to other baselines. This is primarily because LSTPM inherently mitigates exposure bias by explicitly mod-eling long- and short-term interests alongside sequential transition patterns. 
+
+## 4.3 Ablation Study 
+
+To analyze the roles of different components, we conduct ablation studies on NYC and CA datasets. As similar conclusions are drawn across all backbone models, we present only the GETNext results in Table 3 and Table 4. Specifically, “ w/o comm” removes community inference, “ w/o gen” removes generation process, “ w/o Linfer ” de-notes SPACE without community updating, and “ w/o s(0) ” denots SPACE without physics anchor. We observe that removing any com-ponent leads to performance degradation, confirming the necessity of each module for both accuracy and fairness. On the denser NYC dataset, community prototypes and physical anchors serve as vital priors-their absence significantly impairs fairness. Conversely, vir-tual user generation is more effective for CA, mitigating its extreme sparsity and severe long-tail bias. 
+
+## 4.4 Hyperparameter Study 
+
+We investigate the effect of different values of 𝜆 𝑣𝑖𝑟𝑡𝑢𝑎𝑙 , 𝛼 , and 𝜆 𝑟𝑒𝑐 
+
+on NYC, integrated with DiffuRec and GETNext in Figure 3. The parameter 𝜆 𝑣𝑖𝑟𝑡𝑢𝑎𝑙 controls the loss of the community inference. With the driving of the training compensation signal, communities are divided effectively, and the performance is improved. But when 
+
+𝜆 𝑣𝑖𝑟𝑡𝑢𝑎𝑙 is too large, community inference is easily biased by the auxiliary signal, leading to a decline. The parameter 𝛼 controls the disturbance of selecting physical anchors, which determines the balance between “diversity” and “authenticity” generated by virtual users. The trend of initial improvement followed by a decline as 𝛼 
+
+increases illustrates that the generation mechanism needs moder-ate disturbance, rather than random disturbance. The parameter 
+
+𝜆 𝑟𝑒𝑐 controls the weight of the virtual loss 𝐿 virtual in total loss. A small 𝜆 𝑟𝑒𝑐 underutilizes the fairness-aware signal, whereas a large 
+
+𝜆 𝑟𝑒𝑐 may dominate training and hurt recommendation accuracy. Overall, SPACE remains stable across a broad range of hyperparam-eter settings, and its best performance is achieved under moderate parameter values. 
+
+## 4.5 Efficiency Analysis 
+
+Figure 4 shows the computational overhead introduced by SPACE. Notably, SPACE introduces negligible additional overhead. This efficiency stems from the fact that once the community partitions are established, the generation of virtual users is a straightforward process. Given its ability to enhance performance and fairness, SPACE is well-suited for real-world applications. Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA 
+
+Table 2: Experimental results of different methods with (w) or without (w/o) our SPACE plugin (p <= 0.05). 
+
+Dataset Metric FPMC LSTPM GETNext MTNet DiffuRec w/o w w/o w w/o w w/o w w/o wNYC HR@1 ↑ 0.0963 0.1135 0.1911 0.1926 0.2219 0.2791 0.2139 0.2257 0.2127 0.2147 
+
+HR@10 ↑ 0.4922 0.4983 0.5574 0.5544 0.5676 0.6638 0.5381 0.5537 0.5378 0.5358 NDCG@10 ↑ 0.2742 0.2838 0.3608 0.3610 0.3790 0.4621 0.3671 0.3836 0.3752 0.3730 Accuracy Improvement 7.53% 0.10% 21.55% 4.30% -0.01% CGF@1 ↓ 0.0521 0.0456 0.0824 0.0814 0.0372 0.0295 0.0667 0.0618 0.0200 0.0178 
+
+CGF@10 ↓ 0.0448 0.0415 0.0738 0.0718 0.0265 0.0186 0.0621 0.0561 0.0206 0.0200 
+
+CE@1 ↑ 0.0884 0.0949 0.0457 0.0469 0.0188 0.0209 0.0091 0.0104 0.0070 0.0081 
+
+CE@10 ↑ 0.4618 0.4725 0.2494 0.2535 0.0999 0.1100 0.0470 0.0543 0.0317 0.0357 
+
+LTC ↑ 0.5469 0.5858 0.5303 0.5339 0.7306 0.7686 0.3730 0.4234 0.6913 0.7284 
+
+Fairness Improvement 7.32% 1.77% 15.40% 12.06% 9.52% 
+
+TKY HR@1 ↑ 0.1170 0.1131 0.2316 0.2325 0.1457 0.1549 0.2153 0.2159 0.1541 0.1946 
+
+HR@10 ↑ 0.4482 0.4437 0.5599 0.5622 0.3950 0.4274 0.5068 0.5150 0.4807 0.4959 
+
+NDCG@10 ↑ 0.2656 0.2628 0.3866 0.3881 0.2627 0.2803 0.3551 0.3591 0.3050 0.3317 
+
+Accuracy Improvement -1.79% 0.4% 7.07% 1.01% 12.73% 
+
+CGF@1 ↓ 0.0591 0.0581 0.0603 0.0596 0.0602 0.0562 0.0597 0.0503 0.0392 0.0365 
+
+CGF@10 ↓ 0.0544 0.0536 0.0567 0.0561 0.0593 0.0579 0.0587 0.0523 0.0394 0.0380 
+
+CE@1 ↑ 0.0342 0.0366 0.0503 0.0531 0.0027 0.0079 0.0037 0.0041 0.0067 0.0080 
+
+CE@10 ↑ 0.2977 0.2984 0.0300 0.0313 0.0214 0.0271 0.0237 0.0252 0.0305 0.0345 
+
+LTC ↑ 0.3700 0.3798 0.7417 0.7451 0.2144 0.3432 0.2361 0.2441 0.6824 0.7176 
+
+Fairness Improvement 2.61% 2.52% 57.66% 9.44% 9.62% 
+
+CA HR@1 ↑ 0.0693 0.0752 0.1135 0.1158 0.1370 0.1890 0.0992 0.1162 0.1415 0.1677 
+
+HR@10 ↑ 0.2682 0.2653 0.2975 0.3024 0.3613 0.6059 0.3001 0.3084 0.3599 0.3662 
+
+NDCG@10 ↑ 0.1606 0.1608 0.1975 0.1999 0.2379 0.3780 0.2063 0.2030 0.2416 0.2553 
+
+Accuracy Improvement 2.52% 2.30% 54.85% 6.10% 8.64% 
+
+CGF@1 ↓ 0.0269 0.0275 0.0421 0.0410 0.0473 0.0284 0.0452 0.0326 0.0218 0.0253 CGF@10 ↓ 0.0255 0.0237 0.0383 0.0378 0.0497 0.0311 0.0458 0.0371 0.0194 0.0188 
+
+CE@1 ↑ 0.0554 0.0673 0.0287 0.0307 0.0072 0.0104 0.0024 0.0039 0.0042 0.0036 CE@10 ↑ 0.2656 0.3481 0.1613 0.1654 0.0105 0.0419 0.0162 0.0209 0.0207 0.0330 
+
+LTC ↑ 0.3126 0.3443 0.6192 0.6444 0.3120 0.4672 0.1740 0.2103 0.5594 0.6081 
+
+Fairness Improvement 13.50% 3.50% 94.11% 31.85% 8.17% 
+
+Table 3: Ablation study on NYC. Method Accuracy ↑ Fairness ↑
+
+HR@1 HR@10 CE@1 CE@10 LTC 
+
+w/o comm 0.2656 0.6093 0.0144 0.0600 0.5341 
+
+w/o gen 0.2710 0.6281 0.0146 0.0645 0.5577 
+
+w/o 𝐿 infer 0.2647 0.6160 0.0136 0.0480 0.4671 
+
+w/o s(0) 0.2697 0.6221 0.0141 0.0515 0.4824 
+
+SPACE 0.2791 0.6638 0.0209 0.1100 0.7686 
+
+## 4.6 Supplement 
+
+We also conduct experiments on two other metrics, NC@ 𝐾 and GINI, as shown in Table 5. With the help of our SPACE, backbone models also achieve superior fairness performance. 
+
+## 4.7 Case Study 
+
+In this section, we illustrate how our method affects recommenda-tion behaviors for constrained users in Figure 1. Specifically, we 
+
+Table 4: Ablation study on CA. Method Accuracy ↑ Fairness ↑
+
+HR@1 HR@10 CE@1 CE@10 LTC 
+
+w/o comm 0.1906 0.5543 0.0102 0.0371 0.4217 
+
+w/o gen 0.1843 0.5618 0.0096 0.0331 0.4021 
+
+w/o 𝐿 infer 0.1893 0.5988 0.0106 0.0402 0.4270 
+
+w/o s(0) 0.1862 0.5974 0.0102 0.0381 0.4190 
+
+SPACE 0.1890 0.6059 0.0104 0.0419 0.4672 
+
+consider three representative user types, including low-mobility commuters, nighttime users relying on public transportation, and exploration-oriented tourists, and report the Top-10 recommen-dation results of GETNext with and without SPACE. Obviously, with the help of SPACE, the recommendation results are generally closer to the users’ real activity range and have better coverage of long-tail POIs, without deviating from the center of interest. RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA Zhang et al. 
+
+> (a) Diffurec w/ SPACE
+> (b) GETNext w/ SPACE
+
+Figure 3: Impact of hyperparameters on SPACE. Table 5: NC@ 𝐾 measures the proportion of long-tail POI and the GINI measures the imbalance of global exposure. Metric GETNext MTNet w/o w w/o wNC@1 ↑ 0.0356 0.1013 0.0492 0.0536 
+
+NC@10 ↑ 0.0673 0.0681 0.0726 0.0775 
+
+GINI ↓ 0.9236 0.9083 0.9210 0.9183 
+
+Improvement 62.46% 15.99% 
+
+## 5 Related Work 5.1 Next POI Recommendation 
+
+Early studies regard the visit history of a user as a sequence. Tradi-tional methods based on Markov chains (MC) and matrix factoriza-tion (MF) utilize check-in sequences [9] and user-POI interactions [25] for recommendation. FPMC [23] integrates MF with MC to cap-ture user preferences. SASRec [13] combines attention mechanisms with RNNs. HST-LSTM [15] and LSTPM [42] introduce LSTM to learn the influence of spatio-temporal or long-term information. STAN [20] further models non-adjacent check-ins through spatio-temporal interactions. To enhance the understanding of the unique spatio-temporal dependencies in POI scenes, recent studies explore diffusion models [17, 21, 48], graph-based modeling [34, 36, 37], and LLM-based models [16, 45]. Diff-POI [21] samples from a dis-tribution with diffusion algorithm to recommend POIs in novel areas. GETNext [36] and POIGDE [37] integrate global trajectory flow map and the continuous evolution of user interests from graph perspective. LLM4POI [16] and CoMaPOI [45] propose to integrate LLMs in POI recommendation tasks to address the limitations in semantic information fusion. 
+
+## 5.2 Provider Fairness in Recommendation 
+
+Researchers [4, 44] have recognized that recommendation plat-forms involve multiple stakeholders, including users [3, 22], item providers [7, 32], and the platform itself. As recommender systems increasingly cater to user intentions, a thought-provoking phenom-enon has emerged: exposure bias[8], leading to unfair treatment FPMC LSTPM GetNext MTNet DiffuRec DiffuPOI Models 050 100 150 200 250 300 Total Training Time (seconds) 
+
+> 89.7 297.6 128.1 56.0 32.7 211.6 90.6 306.1 135.8 60.2 35.8 220.5
+> Training Time Comparison
+> w/o SPACE w/ SPACE
+
+Figure 4: Training time of models on the NYC dataset, for comparison with and without SPACE. 
+
+across providers [1, 28]. To ensure provider fairness, some studies focus on mitigating popularity biases [18], attempting to alleviate these biases by promoting long-tail items [26, 31] or applying causal interventions [30, 41], thereby indirectly improving provider fair-ness. Another approach explicitly models fairness by introducing fairness measurement [8] into the recommendation process, such as regularization-based techniques [24, 46] and post-processing frameworks [47]. Recently, researchers propose to use LLMs and Agents to achieve provider fairness. FairAgent [7] builds a fairness enhancement framework based on reinforcement learning, using fairness metrics as rewards. 
+
+## 6 Conclusion 
+
+Unlike conventional settings, POI provider fairness is uniquely shaped by user execution constraints and resource supply constraints ;ignoring them can yield superficial fairness gains at the expense of accuracy. In this work, we proposed SPACE ( Supply- and Physics-
+
+Aware Conditional Embedding generation), a model-agnostic frame-work that democratizes long-tail POI exposure through constraint-respecting virtual user generation. SPACE first infers user com-munities to capture heterogeneous execution characteristics, then performs supply-constrained quota allocation for tail POIs via un-balanced optimal transport, and finally generates POI-conditional virtual user embeddings using constraint-guided latent diffusion. Extensive experiments on three real-world datasets validate the effectiveness of SPACE: it consistently enhances provider fairness for a range of backbone recommenders without sacrificing accuracy, and in most cases yields additional accuracy gains. 
+
+## Acknowledgments 
+
+This work is supported by the National Natural Science Founda-tion of China under Grants No. 62572119 and 62232004, Jiangsu Provincial Key Laboratory of Network and Information Security under Grants No.BM2003201, Key Laboratory of Computer Net-work and Information Integration of Ministry of Education of China under Grants No.93K-9, the Fundamental Research Funds for the Central Universities No.2242026K30049, and partially supported by Collaborative Innovation Center of Novel Software Technology and Industrialization, Collaborative Innovation Center of Wireless Communications Technology. We also thank the Big Data Comput-ing Center of Southeast University for providing the experiment environment and computing facility. Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA 
+
+## References 
+
+[1] Robin Burke, Nasim Sonboli, and Aldo Ordonez-Gauger. 2018. Balanced neigh-borhoods for multi-sided fairness in recommendation. In Conference on fairness, accountability and transparency . PMLR, 202–214. [2] Jiazun Chen, Yikuan Xia, Jun Gao, Zhao Li, and Hongyang Chen. 2025. Com-munitydf: A guided denoising diffusion approach for community search. In 2025 IEEE 41st International Conference on Data Engineering (ICDE) . IEEE, 460–473. [3] Weixin Chen, Yuhan Zhao, Li Chen, and Weike Pan. 2025. Leave no one behind: Fairness-aware cross-domain recommender systems for non-overlapping users. In Proceedings of the Nineteenth ACM Conference on Recommender Systems . 226– 236. [4] Francis Zac Dela Cruz, Flora D. Salim, Yonchanok Khaokaew, and Jeffrey Chan. 2024. CAPRI-FAIR: Integration of Multi-sided Fairness in Contextual POI Rec-ommendation Framework. In Proceedings of the 18th ACM Conference on Recom-mender Systems (Bari, Italy) (RecSys ’24) . Association for Computing Machinery, New York, NY, USA, 924–928. doi:10.1145/3640457.3688170 [5] Marco Cuturi. 2013. Sinkhorn distances: Lightspeed computation of optimal transport. Advances in neural information processing systems 26 (2013). [6] Jinfei Gao, Xiao Wang, Tian Gan, Jianhua Yin, Chuanchen Luo, and Liqiang Nie. 2025. Social Context-Aware Community-Level Propagation Prediction. In 
+
+Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1995–2005. [7] Huizhong Guo, Zhu Sun, Dongxia Wang, Tianjun Wei, Jinfeng Li, and Jie Zhang. 2025. Enhancing new-item fairness in dynamic recommender systems. In Proceed-ings of the 48th International ACM SIGIR conference on research and development in Information Retrieval . 1707–1716. [8] Huizhong Guo, Dongxia Wang, Zhu Sun, Haonan Zhang, Jinfeng Li, and Jie Zhang. 2024. Configurable fairness for new item recommendation considering entry time of items. In Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval . 437–447. [9] Jing He, Xin Li, Lejian Liao, Dandan Song, and William Cheung. 2016. Inferring a personalized next point-of-interest recommendation model with latent behavior patterns. In Proceedings of the AAAI conference on artificial intelligence , Vol. 30. [10] Jonathan Ho, Ajay Jain, and Pieter Abbeel. 2020. Denoising diffusion probabilistic models. Advances in neural information processing systems 33 (2020), 6840–6851. [11] Siyuan Huang, Jiahui Jin, Xin Lin, Xigang Sun, and Yukun Ban. 2025. IM-POI: Bridging ID and Multi-modal Gaps in Next POI Recommendation. In Proceedings of the 33rd ACM International Conference on Multimedia . 5979–5987. [12] Tianhao Huang, Xuan Pan, Xiangrui Cai, Ying Zhang, and Xiaojie Yuan. 2024. Learning time slot preferences via mobility tree for next poi recommendation. In 
+
+Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 38. 8535–8543. [13] Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recom-mendation. In 2018 IEEE international conference on data mining (ICDM) . IEEE, 197–206. [14] Thomas N Kipf and Max Welling. 2016. Semi-supervised classification with graph convolutional networks. arXiv preprint arXiv:1609.02907 (2016). [15] Dejiang Kong and Fei Wu. 2018. HST-LSTM: A hierarchical spatial-temporal long-short term memory network for location prediction.. In Ijcai , Vol. 18. 2341– 2347. [16] Peibo Li, Maarten de Rijke, Hao Xue, Shuang Ao, Yang Song, and Flora D Salim. 2024. Large language models for next point-of-interest recommendation. In 
+
+Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1463–1472. [17] Zihao Li, Aixin Sun, and Chenliang Li. 2023. Diffurec: A diffusion model for sequential recommendation. ACM Transactions on Information Systems 42, 3 (2023), 1–28. [18] Bo Liu, Jun Zeng, Haoran Tang, Junhao Wen, Min Gao, and Wei Zhou. 2025. AGSRec: Mitigating Popularity Bias via Attraction-Aware Graph and Semantic Enhancement for POI Recommendations. Expert Systems with Applications (2025), 130298. [19] Zhao Liu, Yichen Zhu, Yiqing Yang, Xiao Lv, Guoping Tang, Rui Huang, Qiang Luo, Ruiming Tang, and Guorui Zhou. 2026. Diffgrm: Diffusion-based generative recommendation model. In Proceedings of the ACM Web Conference 2026 . 5853– 5864. [20] Yingtao Luo, Qiang Liu, and Zhaocheng Liu. 2021. Stan: Spatio-temporal attention network for next location recommendation. In Proceedings of the web conference 2021 . 2177–2185. [21] Yifang Qin, Hongjun Wu, Wei Ju, Xiao Luo, and Ming Zhang. 2023. A diffusion model for poi recommendation. ACM Transactions on Information Systems 42, 2 (2023), 1–27. [22] Theresia Veronika Rampisela, Maria Maistro, Tuukka Ruotsalo, Falk Scholer, and Christina Lioma. 2025. Stairway to fairness: Connecting group and individ-ual fairness. In Proceedings of the Nineteenth ACM Conference on Recommender Systems . 677–683. [23] Steffen Rendle, Christoph Freudenthaler, and Lars Schmidt-Thieme. 2010. Factor-izing personalized markov chains for next-basket recommendation. In Proceedings of the 19th international conference on World wide web . 811–820. [24] Wondo Rhee, Sung Min Cho, and Bongwon Suh. 2022. Countering popularity bias by regularizing score differences. In Proceedings of the 16th ACM conference on recommender systems . 145–155. [25] Ruslan Salakhutdinov and Andriy Mnih. 2008. Bayesian probabilistic matrix factorization using Markov chain Monte Carlo. In Proceedings of the 25th interna-tional conference on Machine learning . 880–887. [26] Tobias Schnabel, Adith Swaminathan, Ashudeep Singh, Navin Chandak, and Thorsten Joachims. 2016. Recommendations as treatments: Debiasing learning and evaluation. In international conference on machine learning . PMLR, 1670– 1679. [27] Oleksandr Shchur and Stephan Günnemann. 2019. Overlapping community detection with graph neural networks. arXiv preprint arXiv:1909.12201 (2019). [28] Ashudeep Singh and Thorsten Joachims. 2018. Fairness of exposure in rankings. In Proceedings of the 24th ACM SIGKDD international conference on knowledge discovery & data mining . 2219–2228. [29] Tianao Sun, Ke Fu, Weiming Huang, Kai Zhao, Yongshun Gong, and Meng Chen. 2024. Going where, by whom, and at what time: Next location prediction considering user preference and temporal regularity. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 2784–2793. [30] Wenjie Wang, Fuli Feng, Xiangnan He, Xiang Wang, and Tat-Seng Chua. 2021. Deconfounded recommendation for alleviating bias amplification. In Proceedings of the 27th ACM SIGKDD conference on knowledge discovery & data mining . 1717– 1725. [31] Tianjun Wei, Jianghong Ma, and Tommy WS Chow. 2023. Collaborative residual metric learning. In Proceedings of the 46th international ACM SIGIR conference on research and development in information retrieval . 1107–1116. [32] Haolun Wu, Chen Ma, Bhaskar Mitra, Fernando Diaz, and Xue Liu. 2022. AMulti-Objective Optimization Framework for Multi-Stakeholder Fairness-Aware Recommendation. ACM Trans. Inf. Syst. 41, 2, Article 47 (Dec. 2022), 29 pages. doi:10.1145/3564285 [33] Yao Wu, Jian Cao, Guandong Xu, and Yudong Tan. 2021. Tfrom: A two-sided fairness-aware recommendation model for both customers and providers. In 
+
+Proceedings of the 44th international ACM SIGIR conference on research and devel-opment in information retrieval . 1013–1022. [34] Xiaodong Yan, Tengwei Song, Yifeng Jiao, Jianshan He, Jiaotuan Wang, Ruopeng Li, and Wei Chu. 2023. Spatio-temporal hypergraph learning for next POI rec-ommendation. In Proceedings of the 46th international ACM SIGIR conference on research and development in information retrieval . 403–412. [35] Dingqi Yang, Daqing Zhang, Vincent W Zheng, and Zhiyong Yu. 2014. Modeling user activity preference by leveraging user spatial temporal characteristics in LBSNs. IEEE Transactions on Systems, Man, and Cybernetics: Systems 45, 1 (2014), 129–142. [36] Song Yang, Jiamou Liu, and Kaiqi Zhao. 2022. Getnext: trajectory flow map enhanced transformer for next poi recommendation. In Proceedings of the 45th International ACM SIGIR Conference on research and development in information retrieval . 1144–1153. [37] Yuxuan Yang, Siyuan Zhou, He Weng, Dongjing Wang, Xin Zhang, Dongjin Yu, and Shuiguang Deng. 2024. Siamese learning based on graph differential equation for Next-POI recommendation. Applied Soft Computing 150 (2024), 111086. [38] Hongzhi Yin, Bin Cui, Jing Li, Junjie Yao, and Chen Chen. 2012. Challenging the long tail recommendation. arXiv preprint arXiv:1205.6700 (2012). [39] Quan Yuan, Gao Cong, Zongyang Ma, Aixin Sun, and Nadia Magnenat Thalmann. 2013. Time-aware point-of-interest recommendation. In Proceedings of the 36th international ACM SIGIR conference on Research and development in information retrieval . 363–372. [40] Anran Zhang, Xingfen Wang, and Yuhan Zhao. 2025. HACD: Harnessing attribute semantics and mesoscopic structure for community detection. In Proceedings of the Eighteenth ACM International Conference on Web Search and Data Mining .616–624. [41] Yang Zhang, Fuli Feng, Xiangnan He, Tianxin Wei, Chonggang Song, Guohui Ling, and Yongdong Zhang. 2021. Causal intervention for leveraging popularity bias in recommendation. In Proceedings of the 44th international ACM SIGIR conference on research and development in information retrieval . 11–20. [42] Pengpeng Zhao, Anjing Luo, Yanchi Liu, Jiajie Xu, Zhixu Li, Fuzhen Zhuang, Victor S Sheng, and Xiaofang Zhou. 2020. Where to go next: A spatio-temporal gated network for next poi recommendation. IEEE Transactions on Knowledge and Data Engineering 34, 5 (2020), 2512–2524. [43] Yuhan Zhao, Weixin Chen, Li Chen, and Weike Pan. 2026. The Double-Edged Sword of Knowledge Transfer: Diagnosing and Curing Fairness Pathologies in Cross-Domain Recommendation. arXiv preprint arXiv:2601.21805 (2026). [44] Yong Zheng. 2017. Multi-stakeholder recommendation: Applications and chal-lenges. arXiv preprint arXiv:1707.08913 (2017). [45] Lin Zhong, Lingzhi Wang, Xu Yang, and Qing Liao. 2025. Comapoi: A collabo-rative multi-agent framework for next poi prediction bridging the gap between trajectory and language. In Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1768–1778. [46] Ziwei Zhu, Yun He, Xing Zhao, Yin Zhang, Jianling Wang, and James Caverlee. 2021. Popularity-opportunity bias in collaborative filtering. In Proceedings of the RecSys ’26, September 27-October 02, 2026, Minneapolis, MN, USA Zhang et al. 
+
+14th ACM international conference on web search and data mining . 85–93. [47] Ziwei Zhu, Jingu Kim, Trung Nguyen, Aish Fenton, and James Caverlee. 2021. Fairness among new items in cold start recommender systems. In Proceedings of the 44th international ACM SIGIR conference on research and development in information retrieval . 767–776. [48] Jiankai Zuo and Yaying Zhang. 2024. Diff-DGMN: A diffusion-based dual graph multiattention network for POI recommendation. IEEE Internet of Things Journal 
+
+11, 23 (2024), 38393–38409.

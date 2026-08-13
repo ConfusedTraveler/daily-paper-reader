@@ -1,0 +1,2084 @@
+Title: Bernoulli–Strang–Fix Conditions: Approximation and Prediction by Sampling Kantorovich Operators
+
+URL Source: https://arxiv.org/pdf/2608.04727v1
+
+Published Time: Thu, 06 Aug 2026 00:50:14 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+BERNOULLI–STRANG–FIX CONDITIONS: APPROXIMATION AND PREDICTION BY SAMPLING KANTOROVICH OPERATORS 
+
+SREYA T ∗ AND A. ANTONY SELVAN †
+
+Abstract. In this paper, we introduce the Bernoulli–Strang–Fix conditions and their generalized versions for a vector-valued generator ϕ = ( ϕ0, . . . , ϕ ρ−1) and a periodic nonuniform sampling set 
+
+X. We use these conditions to establish exact and asymptotic polynomial reproduction properties of sampling Kantorovich operators associated with ( ϕ, X ) up to a prescribed degree. We analyze the approximation properties and convergence behavior of these operators in detail. Furthermore, we demonstrate their application to signal prediction from a finite number of past local average samples, showing that sampling Kantorovich operators can also serve as effective prediction operators. Finally, we present numerical examples based on Gaussian functions and B-splines to illustrate and validate the theoretical approximation and prediction results. 
+
+Key words. Bernoulli–Strang–Fix conditions, periodic nonuniform sampling, polynomial re-production, sampling Kantorovich operators, signal prediction, Sobolev spaces 
+
+MSC codes. 41A35, 65D10, 94A20 
+
+1. Introduction. Sampling theory is a fundamental area of research with wide-ranging applications in signal processing, approximation theory, and harmonic analy-sis. The classical Shannon sampling theorem establishes an exact reconstruction for-mula for band-limited signals using their uniformly spaced pointwise samples. Over the years, this foundational result, based on pointwise samples, whether uniform or nonuniform, has been significantly extended to broader classes of function spaces, in-cluding shift-invariant spaces, spaces modeling signals with finite rate of innovation, Sobolev spaces, and wavelet spaces. However, in many practical situations, exact pointwise measurements are not accessible. Physical measurement devices are of-ten unable to capture instantaneous values of a signal. Instead, the acquired data represent local averages of the signal over small intervals or neighborhoods. Such averaged measurements arise naturally in applications including image acquisition, communication systems, biomedical signal processing, and sensor networks. There-fore, reconstruction methods based solely on pointwise samples may not accurately model real-world sampling processes. Average sampling theory provides a natural framework for studying signal recon-struction from such local integral measurements rather than exact pointwise values. This approach yields reconstruction formulas that are both mathematically rigorous and well suited to practical acquisition systems. Sampling Kantorovich operators are closely connected to this approach, as they replace exact sample values with aver-ages of a function over suitable intervals around them. The sampling Kantorovich operator, introduced by Butzer et al. [3], is defined by (1.1) (KϕW f )( t) = ∑
+
+> l∈Z
+
+W
+
+[∫ l+1 
+
+> WlW
+
+f (y) dy 
+
+]
+
+ϕ (W t − l) , t ∈ R,
+
+where W > 0, f is a locally integrable function on R, and ϕ is a generator satisfying appropriate assumptions. Practically, the sampling Kantorovich operators reduce 
+
+> ∗
+
+Indian Institute of Technology (Indian School of Mines) Dhanbad, Dhanbad 826004, India (sreya-soman8862@gmail.com).  
+
+> †
+
+Indian Institute of Technology (Indian School of Mines) Dhanbad, Dhanbad 826004, India (antonyaans@gmail.com, corresponding author). 1arXiv:2608.04727v1 [cs.IT] 5 Aug 2026 2 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+time-jitter errors by calculating information from a neighborhood of each sampling point rather than exactly at that point. Several studies have widely investigated their approximation and convergence properties in various settings, including Lp spaces and more general Orlicz spaces; see [3, 8, 9, 33, 37]. These methods have also successfully supported applications in image reconstruction and enhancement; see [12, 13]. An important aspect in the study of approximation operators is their ability to reproduce polynomials. The classical Strang–Fix conditions characterize polynomial reproduction of quasi-interpolation operators in terms of the Fourier transform of the generator and play a fundamental role in approximation theory and finite element analysis. However, polynomial reproduction is not necessary for achieving high-order approximation. The authors in [40] constructed a quasi-interpolation scheme based on a generator that fails to satisfy the classical Strang–Fix conditions. They further introduced a generalized version of these conditions and proved that, by appropri-ately choosing a parameter depending on the sampling step, the corresponding quasi-interpolation operator satisfies an error estimate with the desired rate of convergence. The authors in [14] discussed the construction of radial kernels satisfying higher-order generalized Strang-Fix conditions. On the other hand, Maz’ya and his collaborators developed the theory of approximate approximations using generators that do not possess polynomial reproduction properties [20, 21, 22, 26, 27, 28]. However, these conditions are suitable for pointwise sampling and do not directly apply to approx-imation operators based on local average samples, including sampling Kantorovich operators. In [11], the authors extensively investigated the approximation behavior of sam-pling Kantorovich operators by deriving approximation error estimates, analyzing regularization properties, and employing Strang–Fix type conditions to character-ize convergence and approximation orders. However, to the best of our knowledge, no previous work has explicitly recognized the connection between these Strang–Fix type conditions and Bernoulli numbers. This observation motivates us to introduce the Bernoulli–Strang–Fix (BSF) conditions and their generalized versions as a natural framework for studying generators associated with sampling Kantorovich operators. These conditions enable us to derive desirable approximation orders for the sampling Kantorovich operator without requiring polynomial reproduction. The problem of predicting a signal from its past samples traces its origins to the works of Wainstein and Zubakov [39] and Brown [4]. Splettst”oßer subsequently advanced this field by developing its theoretical foundations and practical method-ologies for signal prediction. Mugler and Splettst”oßer further extended these ideas in a series of publications [29, 30, 31, 34, 35], where they presented detailed analyses and significant extensions of the early prediction models. Later, Butzer et al. de-veloped the theory of signal prediction by establishing important theoretical results and demonstrating practical applications [7, 6, 10, 5]. In particular, they provided a comprehensive survey of the prediction problem in [10], which offers valuable insights into the development of the subject. More recently, the authors in [1] investigated the convergence, approximation properties, and signal prediction from past samples using sampling expansions in shift-invariant spaces generated by smooth functions. Periodic nonuniform sampling (PNS) sets play a fundamental role in the signal prediction problem. A PNS set is a sampling sequence of the form X = {xn + ρl :0 ≤ n ≤ L − 1, l ∈ Z}, where ρ > 0 is the period of the sampling sequence, L is the number of sampling locations within each period, and ( x0, x 1, . . . , x L−1) is the offset vector specifying the sampling pattern. The concept of periodic nonuniform sampling dates back to the works of Kohlenberg [19] and Yen [41], and has since found appli-SREYA T AND A. ANTONY SELVAN 3cations in channel noise reduction [2], multiband signal analysis [16], reconstruction of bandlimited signals from function and derivative samples [32], and finite-sample reconstruction with root-exponential accuracy [38]. In our recent work [36], we devel-oped a framework for signal prediction through the perfect reconstruction of signals from shift-invariant spaces using periodic nonuniform samples of both the signal and its derivatives. In this work, we introduce the BSF conditions for a vector-valued generator ϕ = ( ϕ0, . . . , ϕ ρ−1) and a PNS set X. We then investigate signal predic-tion through sampling Kantorovich operators associated with a pair ( ϕ, X ). This extension establishes a suitable framework for analyzing signal reconstruction and prediction using sampling Kantorovich operators. Maz’ya in [24, 25] introduced the concept of approximate quasi-interpolation, which provides the construction of approximation schemes using generators without requiring polynomial reproduction properties. Inspired by this concept, we introduce an analogous framework for the Kantorovich operator associated with the pair ( ϕ, X ). The corresponding approximate sampling Kantorovich operator is defined by (Kϕ,X W,d f )( t) = 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+W
+
+ 
+
+> xn +ρl +1
+> W
+
+∫ 
+
+> xn +ρl W
+
+f (y) dy 
+
+ ϕn
+
+( W t − ρl d
+
+)
+
+, t ∈ R,
+
+where W, d ≥ 1 are positive parameters. In the particular case when X = Z, ρ = 1, and d = 1, this operator reduces to the classical sampling Kantorovich operator de-fined in (1.1). In contrast to conventional approximation processes, where convergence is typically governed by a single approximation parameter, the present framework in-volves two parameters, W and d. As these parameters increase, the approximating function may converge to the original function, offering a more flexible and generalized approach to function approximation. The major objectives of this paper are outlined with each contribution presented separately: (i) Generalized Bernoulli–Strang–Fix Conditions: We first introduce the BSF and their generalized versions for a vector-valued generator ϕ = ( ϕ0, . . . , ϕ ρ−1)and a PNS set X. We then examine their connection with vanishing moment conditions, which play a crucial role in analyzing the convergence of the sam-pling Kantorovich operator Kϕ,X W,d . We further present a constructive method for obtaining a pair ( ϕ, X ) satisfying the classical and generalized BSF conditions. (ii ) Approximation and Convergence Analysis: Using the generalized BSF con-ditions, we establish the exact and asymptotic reproducing polynomial properties up to a prescribed degree for the sampling Kantorovich operators associated with (ϕ, X ). By combining these properties with Taylor expansions, we obtain the error estimate ‖Kϕ,X W,d f − f ‖p for functions f belonging to Sobolev spaces; see Theorem 3.4 and Theorem 3.6. Furthermore, we investigate the suitable choice of d depending on W for which the approximation error converges to zero as 
+
+W → ∞ ; see Corollary 3.5. (iii ) Prediction from Local Average Samples: We investigate the prediction of signals from a finite number of past local average samples using the proposed sam-pling Kantorovich operators Kϕ,X W ; see Theorem 3.8. This demonstrates that the sampling Kantorovich operators can also be interpreted as prediction operators. (iv ) Numerical Validation: Finally, we provide numerical examples using Gaussian generators and translates of B-splines to validate the proposed approximation and 4 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+prediction results. These examples highlight the effectiveness and accuracy of the developed approximation and prediction operators. The paper is structured as follows. Section 2 introduces the classical and generalized BSF conditions within the PNS framework. We establish their equivalent moment conditions and present a constructive approach for obtaining generators satisfying these conditions. Section 3 addresses the approximation and prediction analysis of the sampling Kantorovich operators, supported by illustrative examples. 
+
+2. Generalized Bernoulli–Strang–Fix Conditions. We begin by recalling some basic notation and terminology that will be used throughout the paper. Let AC (r) 
+
+> loc
+
+(R) denote the space of all r-fold locally absolutely continuous func-tions on R, and let C∞ 
+
+> c
+
+(R) denote the space of all infinitely differentiable compactly supported functions on R. We assume that p is a real number such that 1 ≤ p ≤ ∞ .
+
+For r ∈ N, the Sobolev space Wrp (R) ≡ W r (Lp(R)) is given by 
+
+Wrp (R) := 
+
+{
+
+f ∈ Lp(R) : f (t) = g(t) a.e., g ∈ AC (r) 
+
+> loc
+
+(R), g (r) ∈ Lp(R)
+
+}
+
+.
+
+For m ∈ N0, Π m = Π m(R) denotes the space of all polynomials of degree at most m
+
+on R. A continuous function f belongs to the Wiener space W(R) if 
+
+‖f ‖W(R) := ∑
+
+> n∈Z
+
+max  
+
+> x∈[0 ,1]
+
+|f (x + n)| < ∞.
+
+The Fourier transform of a function f ∈ L1(R) is defined by ̂
+
+f(ω) = 
+
+> ∞
+
+∫
+
+> −∞
+
+f (x)e−2πiωx dx, ω ∈ R.
+
+If f and ̂ f belong to W(R), then the Poisson summation formula [15] 
+
+∑
+
+> n∈Z
+
+f (x + νn ) = 1
+
+ν
+
+∑
+
+> n∈Z
+
+̂
+
+f
+
+( nν
+
+)
+
+e2πinx/ν , ν > 0,
+
+holds for all x ∈ R with absolute convergence of both sums. For ǫ > 0 and r ∈ N, let Fr,ǫ denote the class of generators ϕ satisfying 
+
+ϕ(t) = O ((1 + |t|)−r−ǫ−1) as |t| → ∞ ,
+
+and ̂
+
+ϕ(s)(ω) = O ((1 + |ω|)−r−ǫ−1) as |ω| → ∞ , 0 ≤ s ≤ r − 1.
+
+The first condition, together with the differentiation property of the Fourier transform, implies that ̂ ϕ is r − 1 times continuously differentiable on R.The Bernoulli numbers Bn are recursively defined by 
+
+B0 = 1 , Bn = − 1
+
+n + 1 
+
+> n−1
+
+∑
+
+> k=0
+
+(n + 1 
+
+k
+
+)
+
+Bk, n ≥ 1.
+
+The Bernoulli numbers satisfy the following identity (see [17]): (2.1) 
+
+> j
+
+∑
+
+> k=0
+
+(j + 1 
+
+k
+
+)
+
+Bk = δj0,SREYA T AND A. ANTONY SELVAN 5where δj0 denotes the Kronecker delta. A generator ϕ ∈ F r,ǫ is said to satisfy the Bernoulli–Strang–Fix (BSF ) conditions of order r if ̂
+
+ϕ(j) (l) = (2 πi )j Bj δl0, j = 0 , 1, . . . , r − 1, l ∈ Z,
+
+where Bj denotes the j-th Bernoulli number. We now extend this notion to the setting of a vector-valued generator ϕ =(ϕ0, . . . , ϕ ρ−1) ∈ F ρr,ǫ together with a PNS set X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z}.
+
+We say that a pair ( ϕ, X ) satisfies the BSF conditions of order r if (2.2) 
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 πix n)k̂ ϕn(j−k)
+
+( lρ
+
+)
+
+= ρ(2 πi )j Bj δl0,
+
+for j = 0 , 1, . . . , r − 1 and l ∈ Z. Observe that these conditions reduce to the classical BSF conditions when ρ = 1 and X = Z.If the conditions (2.2) hold for l = 0 (not necessarily for non-zero integers) and 
+
+j = 0 , 1, . . . , r − 1, we say that ( ϕ, X ) satisfies the generalized BSF conditions of order 
+
+r.
+
+Lemma 2.1. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. If (ϕ, X ) satisfies the generalized BSF conditions of order r, then for 
+
+j = 0 , 1, . . . , r − 1,
+
+1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)j ϕn
+
+( t − ρl d
+
+)
+
+= Bj + O (dj−r−ǫ−1) as d → ∞ ,
+
+for every t ∈ R, with the O(·)-constant independent of t.Proof. Using the binomial expansion, we can write 
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)j ϕn
+
+( t − ρl d
+
+)
+
+= ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+xkn(−t + ρl )j−k ϕn
+
+( t − ρl d
+
+)
+
+=
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+xkn
+
+∑
+
+> l∈Z
+
+(−t + ρl )j−k ϕn
+
+( t − ρl d
+
+)
+
+.(2.3) For the function f (x) = xj ϕn
+
+( xd
+
+)
+
+, the Fourier transform is given by ̂
+
+f (ω) = d (−2πi )−ĵ ϕ(j) 
+
+> n
+
+(dω ).
+
+Since ϕ ∈ F ρr,ǫ , both f and ̂ f belong to W(R). Now applying the Poisson summation formula to the inner sum over l in (2.3), we obtain 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)j ϕn
+
+( t − ρl d
+
+)6 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+= 1
+
+ρ
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 πix n)k (−2πi )−j d j−k
+
+dω j−k (̂ϕn(d ω )) 
+
+∣∣∣∣∣ω= lρ
+
+e2πilt/ρ 
+
+(2.4) = Bj + 1
+
+ρ
+
+∑ 
+
+> l∈Z
+> l6=0
+
+Al,j (d)e2πilt/ρ ,(2.5) where 
+
+Al,j (d) = 
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 πix n)k (−2πi )−j d j−k
+
+dω j−k (̂ ϕn(d ω )) 
+
+∣∣∣∣∣ω= lρ
+
+.
+
+By using the decay estimate of ̂ ϕn, we have 
+
+|Al,j (d)| ≤ C
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 π|xn|)k (2 π)−j dj−k
+
+( ρρ + d|l|
+
+)r+ǫ+1 
+
+≤ Cd j−r−ǫ−1|l|−r−ǫ−1, for l ∈ Z and j = 0 , . . . , r − 1,
+
+where C is a constant depending only on ρ, j , and the offset vector ( x0, x 1, . . . , x ρ−1). Hence, the desired result follows immediately from (2.5). The following result is an immediate consequence of (2.4) and the uniqueness of Fourier series. 
+
+Lemma 2.2. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. Then (ϕ, X ) satisfies the BSF conditions of order r if and only if 
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)j ϕn(t − ρl ) = Bj , j = 0 , 1, . . . , r − 1.
+
+In [36], several generators θ = ( θ0, . . . , θ ρ−1) and PNS sets X = {xn + ρl : 0 ≤
+
+n ≤ ρ − 1, l ∈ Z} are constructed such that, for each j = 0 , 1, . . . , r − 1,
+
+(2.6) ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)j θn(t − ρl ) = δj0, t ∈ R.
+
+We now choose the coefficients bk, k = 0 , . . . , r − 1, such that (2.7) 
+
+> r−1
+
+∑
+
+> k=0
+
+bk(−k)j = Bj , for j = 0 , . . . , r − 1.
+
+The existence of such coefficients follows from the fact that these equations form a Van-dermonde system. Using these coefficients, define a new generator ϕ = ( ϕ0, . . . , ϕ ρ−1)by (2.8) ϕn(t) = 
+
+> r−1
+
+∑
+
+> k=0
+
+bkθn(t − k), n = 0 , . . . , ρ − 1.
+
+A direct calculation shows that the pair ( ϕ, X ) satisfies the BSF conditions of order 
+
+r.Although this construction provides a method for obtaining a pair ( ϕ, X ) sat-isfying the BSF conditions, it still requires the verification of an infinite number of SREYA T AND A. ANTONY SELVAN 7equations. In contrast, the generalized BSF conditions require verifying only a finite number of conditions, making this approach more practical and effective. To construct a pair ( ϕ, X ) satisfying the generalized BSF conditions, we first choose a real-valued function g ∈ F r,ǫ and define (2.9) ϕn(t) = 
+
+> r−1
+
+∑
+
+> m=0
+
+bmg(t − m − n), n = 0 , . . . , ρ − 1,
+
+where bm ∈ R are coefficients to be determined. Substituting the Fourier transforms of ϕn into the following equations, (2.10) 
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 πix n)k̂ ϕn(j−k)(0) = ρ(2 πi )j Bj , for j = 0 , . . . , r − 1,
+
+results in a system of r linear equations. Solving this system determines the coefficients 
+
+bm, m = 0 , . . . , r − 1, and hence the resulting pair ( ϕ, X ) satisfies the generalized BSF conditions. 
+
+3. Approximation and Prediction by Sampling Kantorovich Operators. 
+
+Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. Recall that the approximate sampling Kantorovich operator associated with the pair ( ϕ, X )is defined by (3.1) (Kϕ,X W,d f )( t) = 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+W
+
+
+
+> xn +ρl +1
+> W
+
+∫ 
+
+> xn +ρl W
+
+f (y) dy 
+
+ ϕn
+
+( W t − ρl d
+
+)
+
+, t ∈ R,
+
+where W, d ≥ 1 are positive parameters. For simplicity, we write Kϕ,X d instead of 
+
+Kϕ,X  
+
+> 1,d
+
+and Kϕ,X instead of Kϕ,X  
+
+> 1,1
+
+.
+
+Lemma 3.1. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. If (ϕ, X ) satisfies the generalized BSF conditions of order r, then for every 
+
+p ∈ Πr−1, the sampling Kantorovich operator Kϕ,X d satisfies 
+
+(Kϕ,X d p)( t) = p(t) + O
+
+d−2−ǫr−1∑
+
+> j=0
+
+∣∣∣p(j)(t)
+
+∣∣∣ as d → ∞ ,
+
+for every t ∈ R, with the O(·)-constant independent of t.Proof. Let p be a polynomial of degree less than r. Then its Taylor expansion about any point t is exact (with no remainder term). Hence, for every t, y ∈ R,(3.2) p(y) = 
+
+> r−1
+
+∑
+
+> j=0
+
+p(j)(t)
+
+j! (y − t)j .
+
+Substituting (3.2) into (3.1), we obtain ( Kϕ,X d p)( t)= 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+
+
+> xn+ρl +1
+
+∫
+
+> xn+ρl r−1
+
+∑
+
+> j=0
+
+p(j)(t)
+
+j! (y − t)j dy 
+
+ ϕn
+
+( t − ρl d
+
+)8 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+= 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+> r−1
+
+∑
+
+> j=0
+
+p(j)(t)
+
+j!
+
+> xn+ρl +1
+
+∫ 
+
+> xn+ρl
+
+(y − t)j dy ϕ n
+
+( t − ρl d
+
+)
+
+= 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+> r−1
+
+∑
+
+> j=0
+
+p(j)(t)(j + 1)! 
+
+[(xn + ρl + 1 − t)j+1 − (xn + ρl − t)j+1 ] ϕn
+
+( t − ρl d
+
+)
+
+=
+
+> r−1
+
+∑
+
+> j=0
+
+p(j)(t)(j + 1)! 
+
+> j
+
+∑
+
+> k=0
+
+(j + 1 
+
+k
+
+) 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)kϕn
+
+( t − ρl d
+
+)
+
+.(3.3) The last equality follows from the identity ( t + 1) m − tm =
+
+> m−1
+
+∑
+
+> k=0
+
+(mk
+
+)
+
+tk. Using Lemma 2.1 and (2.1), we have 
+
+∣∣∣(Kϕ,X d p)( t) − p(t)
+
+∣∣∣
+
+≤
+
+> r−1
+
+∑
+
+> j=0
+
+|p(j)(t)|
+
+(j + 1)! 
+
+> j
+
+∑
+
+> k=0
+
+(j + 1 
+
+k
+
+) ∣∣∣∣∣
+
+1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(xn + ρl − t)kϕn
+
+( t − ρl d
+
+)
+
+− Bk
+
+∣∣∣∣∣
+
+≤ C
+
+> r−1
+
+∑
+
+> j=0
+
+|p(j)(t)|
+
+(j + 1)! 
+
+> j
+
+∑
+
+> k=0
+
+(j + 1 
+
+k
+
+)
+
+dk−r−ǫ−1.
+
+This completes the proof. The previous lemma establishes an asymptotic polynomial reproduction property un-der the generalized BSF conditions. If ( ϕ, X ) satisfies the BSF conditions, then it follows from (3.3) and Lemma 2.2 that the sampling Kantorovich operator reproduces polynomials exactly. This is stated in the following lemma. 
+
+Lemma 3.2. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. If (ϕ, X ) satisfies the BSF conditions of order r, then the sampling Kantorovich operator Kϕ,X satisfies the reproducing polynomial property of order r, i.e., 
+
+Kϕ,X p = p, for every p ∈ Πr−1.
+
+The sampling Kantorovich operator Kϕ,X d can be represented as an integral op-erator of the form (Kϕ,X d f )( t) = 
+
+> ∞
+
+∫
+
+> −∞
+
+Nd(t, y )f (y) dy, t ∈ R,(3.4) where the kernel Nd is given by 
+
+Nd(t, y ) = 1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+χ[0 ,1) (y − xn − ρl )ϕn
+
+( t − ρl d
+
+)
+
+.
+
+The kernel Nd satisfies the following properties: (i) Nd(t − ρν, y ) = Nd(t, y + ρν ) , for all ν ∈ Z.
+
+(ii ) ∞∫
+
+> −∞
+
+|N d(t, ·)| dt ∈ L∞[0 , ρ ).
+
+(iii )
+
+> ∞
+
+∫
+
+> −∞
+
+(ρ + |y|)r |N d(·, y )| dy ∈ L∞[0 , ρ ). SREYA T AND A. ANTONY SELVAN 9Property ( i) is immediate from the definition of the kernel. To prove ( ii ) we use a change of variable together with the partition of unity of the characteristic function of the interval [0 , 1). Indeed, 
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| dt ≤
+
+> ∞
+
+∫
+
+> −∞
+
+∣∣∣∣∣
+
+1
+
+d
+
+∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+χ[0 ,1) (y − xn − ρl )ϕn
+
+( t − ρl d
+
+)∣∣∣∣∣ dt 
+
+≤ ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+χ[0 ,1) (y − xn − ρl )
+
+> ∞
+
+∫
+
+> −∞
+
+|ϕn(t)| dt = N < ∞,(3.5) where the constant N is independent of d. Finally, to prove ( iii ), define 
+
+Gd(t) = 
+
+> ∞
+
+∫
+
+> −∞
+
+(ρ + |y|)r |N d(t, y )| dy, t ∈ [0 , ρ ).
+
+Then it remains to show that Gd ∈ L∞[0 , ρ ). By the decay estimate of ϕn, we have 
+
+Gd(t) ≤ 1
+
+d
+
+> ∞
+
+∫
+
+> −∞
+
+(ρ + |y|)r ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+χ[0 ,1) (y − xn − ρl )
+
+∣∣∣∣ϕn
+
+( t − ρl d
+
+)∣ ∣∣∣ dy 
+
+≤ Cd
+
+> ∞
+
+∫
+
+> −∞
+
+(ρ + |y|)r ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+χ[0 ,1) (y − xn − ρl )
+
+(
+
+1 + |t − ρl |
+
+d
+
+)−r−ǫ−1
+
+dy 
+
+= Cd r+ǫ ∑
+
+> l∈Z
+> ρ−1
+
+∑ 
+
+> n=0
+> xn+ρl +1
+
+∫ 
+
+> xn+ρl
+
+(ρ + |y|)r (d + |t − ρl |)−r−ǫ−1 dy. (3.6) When y ∈ [xn + ρl, x n + ρl + 1] , we have |y| ≤ | xn + ρl | + 1 . Hence, by the triangle inequality, there exists a constant C′ > 0 (depending only on ρ) such that (3.7) (ρ + |y|) ≤ C′(1 + |l|), for y ∈ [xn + ρl, x n + ρl + 1] and l ∈ Z.
+
+Since t ∈ [0 , ρ ), by the reverse triangle inequality, (3.8) d + |t − ρl | ≥ d + ρ|l| − ρ ≥ ρ
+
+2 (1 + |l|), for |l| ≥ 3, d ≥ 1, and t ∈ [0 , ρ ).
+
+Substituting (3.7) and (3.8) in (3.6), we get 
+
+Gd(t) ≤ C′dr+ǫ
+
+[ ρ−1∑
+
+> n=0
+
+∑
+
+> |l|<3
+
+(1 + |l|)r [
+
+(d + |t − ρl |)−r−ǫ−1
+
++ ρ2
+
+2
+
+∑
+
+> |l|≥ 3
+
+(1 + |l|)−r−ǫ−1]]
+
+≤ C1dr+ǫ, for t ∈ [0 , ρ ).(3.9) Thus, Gd ∈ L∞[0 , ρ ). Similarly, we can show that there exists a constant C2 > 0independent of d such that (3.10) 
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| dy ≤ C2dr+ǫ, t ∈ [0 , ρ ).10 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+We now estimate ‖Kϕ,X d ‖p. By applying H¨ older’s inequality with 1 
+
+> p
+
++ 1 
+
+> q
+
+= 1 in (3.4), we obtain from (3.10) that 
+
+∣∣∣(Kϕ,X d f )( t)
+
+∣∣∣p
+
+=
+
+
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| | f (y)|p dy 
+
+
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| dy 
+
+
+
+> p−1
+
+≤ Cp−12
+
+(dr+ǫ)p−1
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| | f (y)|p dy. 
+
+Applying (3.5), we obtain the following estimate 
+
+∥∥∥Kϕ,X d f
+
+∥∥∥pp ≤ Cp−12
+
+(dr+ǫ)p−1
+
+> ∞
+
+∫
+
+> −∞ ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| | f (y)|p dy dt 
+
+= Cp−12
+
+(dr+ǫ)p−1
+
+> ∞
+
+∫
+
+> −∞
+
+|f (y)|p
+
+
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| dt 
+
+ dy 
+
+≤ N C p−12
+
+(dr+ǫ)p−1 ‖f ‖pp.
+
+Let M = max {N, C 2}. Then (3.11) 
+
+∥∥∥Kϕ,X d f
+
+∥∥∥p
+
+≤ M (dr+ǫ)1− 1 
+
+> p
+
+‖f ‖p ≤ M d r+ǫ‖f ‖p.
+
+The kernel Nd satisfies the assumptions analogous to those in Theorem 2.1 of [23], where the case ρ = d = 1 is considered. Following their approach, we aim to establish the error estimate ‖Kϕ,X W,d f − f ‖p for functions f belonging to Wrp (R). Let γ ∈ C∞ 
+
+> c
+
+(R) be such that 
+
+> ∞
+
+∫
+
+> −∞
+
+γ(x) dx = 1. Consider the following smoothing operator J defined by (Jf )( x) = 
+
+> ∞
+
+∫
+
+> −∞
+
+[f (x) − ∇ ruf (x)] γ(u) du, x ∈ R,
+
+where r is a positive integer and ∇ru is the r-th difference operator defined by 
+
+∇ru = ( I − Tu)r , u ∈ R,
+
+with Tu denoting the translation operator and I denoting the identity operator. The following lemma is proved in [18]. 
+
+Lemma 3.3. [18] The operator J maps locally integrable functions to finitely dif-ferentiable functions. Moreover, there is a constant C independent of p and f ∈ Lp(R)
+
+such that (i) ‖Jf ‖p ≤ C‖f ‖p
+
+(ii ) ‖(Jf )|Z‖ℓp ≤ C‖f ‖p
+
+(iii ) ‖Jf − f ‖p ≤ C ∥∥f (r)∥∥p , for every f ∈ W rp (R)
+
+(iv ) Jq = q, for every q ∈ Πr−1.SREYA T AND A. ANTONY SELVAN 11 
+
+Theorem 3.4. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. If (ϕ, X ) satisfies the generalized BSF conditions of order r, then for every 
+
+f ∈ W rp (R),
+
+∥∥∥Kϕ,X W,d f − f
+
+∥∥∥p ≤ C1 W −rdr+ǫ
+
+∥∥∥f (r)
+
+∥∥∥p +C2 W −r
+
+∥∥∥f (r)
+
+∥∥∥p +C3 d−2−ǫr−1∑
+
+> j=0
+
+W −j
+
+∥∥∥f (j)
+
+∥∥∥p ,
+
+where the constants C1, C2, and C3 are independent of f , d, p, and W .Proof. We prove the result for W = 1. The general case follows by a change of variables. Let f ∈ W rp (R). From (3.11) and part ( iii ) of Lemma 3.3, we get 
+
+∥∥∥Kϕ,X d f − f
+
+∥∥∥p ≤
+
+∥∥∥Kϕ,X d f − Kϕ,X d Jf 
+
+∥∥∥p +
+
+∥∥∥Kϕ,X d Jf − Jf 
+
+∥∥∥p + ‖Jf − f ‖p
+
+≤ (M d r+ǫ + 1 ) C
+
+∥∥∥f (r)
+
+∥∥∥p +
+
+∥∥∥Kϕ,X d Jf − Jf 
+
+∥∥∥p .(3.12) We now prove that (3.13) 
+
+∥∥∥Kϕ,X d Jf − Jf 
+
+∥∥∥p ≤ C1dr+ǫ
+
+∥∥∥f (r)
+
+∥∥∥p + C3d−2−ǫr−1∑
+
+> j=0
+
+∥∥∥f (j)
+
+∥∥∥p .
+
+We prove the result for 1 ≤ p < ∞. The case p = ∞ follows analogously by replacing the integral with the supremum throughout the argument. Set gd = Kϕ,X d Jf −Jf and define ad,t (ν) = gd(t−ρν ), for ν ∈ Z. Since gd ∈ Lp(R), we have (3.14) 
+
+∥∥∥Kϕ,X d Jf − Jf 
+
+∥∥∥pp =
+
+> ∞
+
+∫
+
+> −∞
+
+|gd(t)|p dt = ∑
+
+> νρ
+
+∫
+
+> 0
+
+|gd(t − ρν )|p dt =
+
+> ρ
+
+∫
+
+> 0
+
+‖ad,t ‖pℓp dt. 
+
+We now estimate ‖ad,t ‖lp , for t ∈ [0 , ρ ). Let qz be the ( r − 1)-th Taylor polynomial of 
+
+Jf about z ∈ R, i.e., 
+
+qz (t) = 
+
+> r−1
+
+∑
+
+> j=0
+
+(Jf )(j)(z)
+
+j! (t − z)j ,
+
+and let rz be the corresponding remainder, Jf − qz . Note that we have Jf (z) = qz (z), for every z ∈ R.
+
+Let Ed,q z (t) = Kϕ,X d qz (t) − qz (t). By property ( i) of the kernel Nd, the operator 
+
+Kϕ,X d commutes with translations by ρZ. Using this fact, we obtain 
+
+ad,t (ν) = gd(t − ρν ) = ( Kϕ,X d Jf − Jf )( t − ρν )=
+
+(
+
+Kϕ,X d (Jf − qt−ρν )
+
+)
+
+(t − ρν ) + Ed,q t−ρν (x − ρν )=
+
+(
+
+Kϕ,X d rt−ρν 
+
+)
+
+(t − ρν ) + Ed,q t−ρν (t − ρν )= Kϕ,X d Tρν rt−ρν (t) + Ed,q t−ρν (t − ρν )=
+
+> ∞
+
+∫
+
+> −∞
+
+Nd(t, y )et,y (ρν ) dy + Ed,q t−ρν (t − ρν ),12 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+where et,y (ν) = rt−ν (y − ν) = ( Tν rt−ν )( y). Now using the inequality |a + b|p ≤
+
+2p (|a|p + |b|p), we have 
+
+|ad,t (ν)|p ≤ 2p
+
+
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| | et,y (ρν )| dy 
+
+
+
+> p
+
++ ∣∣Ed,q t−ρν (t − ρν )∣∣p .
+
+Applying the generalized Minkowski’s inequality, we get 
+
+‖ad,t ‖ℓp ≤ C
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| ‖ et,y (ρ·)‖ℓp dy + ∥∥Ed,q t−v (x − ρ·)∥∥ℓp .
+
+To estimate ‖et,y (ρ·)‖ℓp , we use the integral form of the remainder in Taylor’s theorem: 
+
+et,y (ν) = rt−ν (y − ν) = ( Jf − qt−ν )( y − ν)=
+
+> 1
+
+∫
+
+> 0
+
+1(r − 1)! (Jf )(r)(t − ν + s(y − t))(1 − s)r−1(y − t)r ds 
+
+=
+
+> 1
+
+∫
+
+> 0
+
+1(r − 1)! (T−t−s(y−t)(Jf )(r)(−ν)(1 − s)r−1(y − t)r ds. 
+
+Since the operators J, Tν , and the differential operator commute with one another, we have for any t, y ∈ R and ν ∈ Z,(3.15) |et,y (ν)| ≤ | y − t|r
+
+> 1
+
+∫
+
+> 0
+
+∣∣∣(JT −t−s(y−t)f (r)(−ν)
+
+∣∣∣ ds. 
+
+Since f (r) ∈ Lp(R), we obtain from Lemma 3.3 ( ii ) that 
+
+∥∥∥(J(T−t−s(y−t)f (r))∣∣Z
+
+∥∥∥ℓp
+
+≤ C
+
+∥∥∥T−t−s(y−t)f (r)
+
+∥∥∥p = C
+
+∥∥∥f (r)
+
+∥∥∥p .(3.16) Combining (3.15) with (3.16) and using the generalized Minkowski inequality, we get 
+
+‖et,y ‖ℓp ≤ | y − t|r
+
+> 1
+
+∫
+
+> 0
+
+∥∥∥(JT −t−s(y−t)f (r))∣∣Z
+
+∥∥∥ℓp
+
+dt 
+
+≤ C|y − t|r
+
+> 1
+
+∫
+
+> 0
+
+∥∥∥f (r)
+
+∥∥∥p dt = C|y − t|r
+
+∥∥∥f (r)
+
+∥∥∥p .
+
+Hence 
+
+‖et,y (ρ·)‖ℓp ≤ ‖ et,y ‖ℓp ≤ C|y − t|r
+
+∥∥∥f (r)
+
+∥∥∥p .
+
+Using this estimate together with (3.9), we obtain for any t ∈ [0 , ρ ), 
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| ‖ et,y (ρ·)‖ℓp dy ≤ C
+
+> ∞
+
+∫
+
+> −∞
+
+|N d(t, y )| | t − y|r
+
+∥∥∥f (r)
+
+∥∥∥p dy SREYA T AND A. ANTONY SELVAN 13 
+
+≤ C
+
+∥∥∥f (r)
+
+∥∥∥p
+
+> ∞
+
+∫
+
+> −∞
+
+(ρ + |y|)r |N d(t, y )| dy 
+
+≤ C1dr+ǫ
+
+∥∥∥f (r)
+
+∥∥∥p .(3.17) Next we estimate ∥∥Ed,q t−ρν (t − ρ·)∥∥ℓp
+
+. From Lemma 3.1, we have 
+
+∣∣Ed,q t−ρν (t − ρν )∣∣ ≤ C3 d−2−ǫr−1∑
+
+> j=0
+
+∣∣∣q(j) 
+
+> t−ρν
+
+(t − ρν )
+
+∣∣∣
+
+≤ C3 d−2−ǫr−1∑
+
+> j=0
+
+∣∣∣(Jf )(j)(t − ρν )
+
+∣∣∣ ,
+
+where the constant C3 is independent of d and t. Hence 
+
+∥∥Ed,q t−ρν (t − ρ·)∥∥ℓp ≤ C3 d−2−ǫr−1∑
+
+> j=0
+
+∥∥∥(Jf )(j)(t − ρ·)
+
+∥∥∥ℓp
+
+= C3 d−2−ǫr−1∑
+
+> j=0
+
+∥∥∥JT −tf (j)(−ρ·)
+
+∥∥∥ℓp
+
+≤ C3 d−2−ǫr−1∑
+
+> j=0
+
+∥∥∥T−tf (j)
+
+∥∥∥p = C3 d−2−ǫr−1∑
+
+> j=0
+
+∥∥∥f (j)
+
+∥∥∥p .(3.18) Combining the estimates (3.17) and (3.18), and using (3.14), we obtain (3.13). Finally, the desired result follows from (3.12) and (3.13). From Theorem 3.4, we observe that the convergence of the approximation depends critically on the choice of the parameter d. Indeed, d affects the error bound in two opposite ways: increasing d decreases the last term of the error estimate, while simultaneously increasing the first term. Consequently, d cannot be arbitrarily chosen; instead, it must be selected as a function of W so that the total error goes to zero as 
+
+W → ∞ . To guarantee convergence, it is sufficient to choose d = d(W ) such that 
+
+W −r d(W )r+ǫ → 0 and d(W )−2−ǫ → 0 as W → ∞ .
+
+Under these conditions, each term in the error estimate converges to zero as W → ∞ .A natural choice is d(W ) = W α, α ≥ 0. In this case, 
+
+W −rW α(r+ǫ) → 0 as W → ∞ if and only if 0 ≤ α < rr + ǫ .
+
+Moreover, 
+
+d−2−ǫ = W −α(2+ ǫ) → 0 as W → ∞ , for every α ≥ 0.
+
+Consequently, Theorem 3.4 immediately yields the following convergent result. 
+
+Corollary 3.5. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. Define the operator 
+
+Lϕ,X W,α := Kϕ,X W,W α , 0 ≤ α < rr + ǫ .14 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+If (ϕ, X ) satisfies the generalized BSF conditions of order r, then 
+
+lim  
+
+> W→∞
+
+∥∥∥Lϕ,X W,α f − f
+
+∥∥∥p
+
+= 0 , for every f ∈ W rp (R).
+
+Theorem 3.4 establishes an approximate approximation estimate under the generalized BSF conditions. When d = 1 and ( ϕ, X ) satisfies the BSF conditions, Lemma 3.2 implies that the term Ed,q z appearing in the corresponding proof is equal to zero. Therefore, the last error term in Theorem 3.4 vanishes. As a consequence, we have the following result. 
+
+Theorem 3.6. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set. If (ϕ, X ) satisfies the BSF conditions of order r, then 
+
+∥∥∥Kϕ,X W f − f
+
+∥∥∥p ≤ C W −r
+
+∥∥∥f (r)
+
+∥∥∥p , for every f ∈ W rp (R),
+
+where C > 0 is a constant independent of f , p, and W .
+
+We now turn to the problem of signal prediction based on the sampling Kan-torovich operator associated with ( ϕ, X ). To predict a signal from a finite number of its past average samples of the signal based on this operator, it is necessary to assume that the generator ϕ has compact support contained in the interval (0 , ∞). To construct such generators satisfying the BSF conditions of order r, we employ the following technique, which was introduced by the authors in [36]. 
+
+Lemma 3.7. [36] Consider the Vandermonde system 
+
+> ρ−1
+
+∑
+
+> p=0
+
+ap(−εp)m = δm0, m = 0 , 1, . . . , ρ − 1,
+
+where ε0 < ε 1 < · · · < ε ρ−1 are given real numbers. The solution (ap)ρ−1 
+
+> p=0
+
+is unique and coincides with the Lagrange interpolation weights at x = 0 :
+
+(3.19) ap =
+
+> ρ−1
+
+∏ 
+
+> q=0
+> q6=p
+
+εq
+
+εq − εp
+
+, p = 0 , 1, . . . , ρ − 1.
+
+Let us introduce the generator ψ = ( ψ0, . . . , ψ ρ−1) by 
+
+ψn(t) = 
+
+> ρ−1
+
+∑
+
+> p=0
+
+ap ϕn(t − εp), n = 0 , . . . , ρ − 1,
+
+where the coefficients ap are precisely those given by Lemma 3.7. Then the Fourier transforms of ψn are given by ̂
+
+ψn(ω) = ̂ ϕn(ω) p(ω), where p(ω) = 
+
+> ρ−1
+
+∑
+
+> p=0
+
+ape−2πiε p ω .
+
+Note that p(m)(0) = (2 πi )mδm0. We now show that if ( ϕ, X ) satisfies the BSF condi-tions of order r, then so does ( ψ, X ). Indeed, for j = 0 , 1, . . . , r − 1, we have 
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> k=0
+
+(jk
+
+)
+
+(2 πix n)k̂ ψn 
+
+> (j−k)
+
+( lρ
+
+)
+
+=
+
+> ρ−1
+
+∑
+
+> n=0
+
+dj
+
+dω j
+
+(
+
+e2πix n(ω− lρ )̂ ψn(ω)
+
+) ∣∣∣∣∣ω= lρSREYA T AND A. ANTONY SELVAN 15 =
+
+> ρ−1
+
+∑
+
+> n=0
+
+dj
+
+dω j
+
+(
+
+e2πix n (ω− lρ )̂ ϕn(ω) p(ω)
+
+) ∣∣∣∣∣ω= lρ
+
+=
+
+> ρ−1
+
+∑
+
+> n=0
+> j
+
+∑
+
+> m=0
+
+( jm
+
+)
+
+p(m)
+
+( lρ
+
+) dj−m
+
+dω j−m
+
+(
+
+e2πix n (ω− lρ )̂ ϕn(ω)
+
+) ∣∣∣∣∣ω= lρ
+
+=
+
+> j
+
+∑
+
+> m=0
+
+( jm
+
+)
+
+p(m)
+
+( lρ
+
+)
+
+ρ(2 πi )j−mBj−mδl0 = ρ(2 πi )j Bj δl0.
+
+Let us introduce a new sampling Kantorovich operator (3.20) (Kψ,X W f )( t) = ∑
+
+> l∈Z
+> ρ−1
+
+∑
+
+> n=0
+
+(
+
+W
+
+∫ xn +ρl +1  
+
+> Wxn +ρl W
+
+f (y) dy 
+
+)
+
+ψn(W t − ρl ), t ∈ R.
+
+We assume that the functions ϕn are compactly supported with support [ T0, T 1]. Then supp( ψn) = [ T0 + ε0, T 1 + ερ−1], for n = 0 , . . . , ρ − 1.
+
+Consequently, the summation in (3.20) extends only over those values of l ∈ Z for which 
+
+T0 + ε0 ≤ W t − ρl ≤ T1 + ερ−1.
+
+This condition is equivalent to restricting l to the set Ωnt := 
+
+{
+
+l ∈ Z : t − (T1 + ερ−1 − xn − 1) 
+
+W ≤ ρl + xn + 1 
+
+W ≤ t − (T0 + ε0 − xn − 1) 
+
+W
+
+}
+
+.
+
+If we now impose the conditions ε0 > ρ − T0 and 0 ≤ x0 < x 1 < · · · < x ρ−1 ≤ ρ − 1,
+
+then 
+
+T0 + ε0 − xn − 1 > 0.
+
+This shows that the local averages used in the definition of the operator are taken only from the intervals located before the point t. Therefore, Kψ,X W depends only on past local average samples and acts as a prediction operator. Moreover, the set Ω nt
+
+contains at most 1 + 
+
+⌊ T1 −T0+ερ−1 −ε0
+
+> ρ
+
+⌋
+
+integer values of l. Hence, the evaluation of Kψ,X W f (t) requires at most 
+
+ρ
+
+(
+
+1 + 
+
+⌊ T1−T0 +ερ−1 −ε0
+
+> ρ
+
+⌋) 
+
+past local average samples of f . Since ( ψ, X ) satisfies the BSF conditions of order r,we have the following result. 
+
+Theorem 3.8. Let ϕ ∈ F ρr,ǫ and let X = {xn + ρl : 0 ≤ n ≤ ρ − 1, l ∈ Z} be a PNS set with 0 ≤ x0 < x 1 < · · · < x ρ−1 ≤ ρ − 1. Let the functions ϕn be compactly supported with support [T0, T 1]. For n = 0 , . . . , ρ − 1, define 
+
+ψn(t) = 
+
+> ρ−1
+
+∑
+
+> p=0
+
+ap ϕn(t − εp), ap =
+
+> ρ−1
+
+∏ 
+
+> q=0
+> q6=p
+
+εq
+
+εq − εp
+
+,16 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+where ρ − T0 < ε 0 < ε 1 < · · · < ε ρ−1. If (ϕ, X ) satisfies the BSF conditions of order 
+
+r, then the sampling Kantorovich operator Kψ,X W satisfies 
+
+∥∥∥Kψ,X W f − f
+
+∥∥∥p ≤ C W −r
+
+∥∥∥f (r)
+
+∥∥∥p , for all f ∈ W rp (R),
+
+where C > 0 is a constant independent of f and W . In addition, Kψ,X W f (t) can be computed using at most 
+
+ρ
+
+(
+
+1 + 
+
+⌊ T1 −T0+ερ−1 −ε0
+
+> ρ
+
+⌋) 
+
+past local average samples of f .
+
+3.1. Numerical Implementation and Simulation. We present numerical ex-amples illustrating the performance of sampling Kantorovich operators. First, we construct a pair ( ϕ, X ) satisfying the generalized BSF conditions using suitable linear combinations of shifted Gaussian functions. The corresponding approximation results are then verified for various values of the scaling parameter W . Next, we construct (ϕ, X ) satisfying the BSF conditions using appropriate linear combinations of shifted B-splines. These B-spline-based generators are subsequently employed to construct prediction operators, and their effectiveness in reconstructing a smooth signal from a finite number of past local average samples is demonstrated. The MATLAB code used to generate the numerical examples and figures is available at the following link: MATLAB code for the numerical illustrations. 
+
+Example 1: Consider the Gaussian function g : R → R defined by 
+
+g(t) = e−πt 2
+
+.
+
+The Fourier transform of g is given by ̂ g(ω) = e−πω 2
+
+. Taking r = ρ = 2 in (2.9), the generator ϕ = ( ϕ0, ϕ 1) is given by 
+
+ϕ0(t) = b0e−πt 2
+
++ b1e−π(t−1) 2
+
+and ϕ1(t) = b0e−π(t−1) 2
+
++ b1e−π(t−2) 2
+
+.
+
+We now select the PNS set X = 2 Z ∪ ( 12 + 2 Z) . For this choice of X, (2.10) yields 
+
+b0 = 32 and b1 = − 12 .
+
+Hence, the pair ( ϕ, X ) satisfies the generalized BSF conditions of order 2. Observe that the generator ϕ ∈ F 22,ǫ for every ǫ > 0. Therefore, by Corollary 3.5, for any 0 ≤ α < 1, we have lim  
+
+> W→∞
+
+∥∥∥Lϕ,X W,α f − f
+
+∥∥∥p
+
+= 0 , for every f ∈ W 2 
+
+> p
+
+(R).
+
+We now approximate the real-valued function f : R → R defined by (3.21) f (t) = e−t2/4 (sin(2 πt ) + cos( πt )) ,
+
+with α = 0 .5 using the operator Lϕ.X W, 0.5. Figure 1 illustrates the performance of the operator Lϕ,X W, 0.5 in approximating the signal f . The results show that the obtained approximation closely follows the original function. Furthermore, as the sampling parameter W increases, the approximation becomes more accurate, indicating the effectiveness of the operator in reconstructing the given signal. SREYA T AND A. ANTONY SELVAN 17          
+
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5
+> fLϕ,X
+> 10 ,0.5f
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5
+> fLϕ,X
+> 20 ,0.5f
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5
+> fLϕ,X
+> 30 ,0.5f
+
+Fig. 1: Approximations of f using Lϕ,X W, 0.5f
+
+Example 2: Recall that the B-splines are defined inductively as follows: 
+
+Q1(t) = χ[0 ,1) (t), Qm+1 (t) = 
+
+> ∞
+
+∫
+
+> −∞
+
+Qm(t − y)Q1(y) dy, m ≥ 1.
+
+The B-spline Qm is compactly supported on the interval [0 , m ] and is m − 2 times differentiable on R. Also, Qm belongs to the space F44,ǫ .Let us consider the generator θ = ( θ0, θ 1, θ 2, θ 3) defined by 
+
+θ0(t) = −19 Q4(t) + 19 Q4(t + 3) − 13 3 Q4(t + 2) + 13 3 Q4(t + 1) ,θ1(t) = 208 3 Q4(t) − 116 3 Q4(t + 3) + 40 3 Q4(t + 2) − 44 3 Q4(t + 1) ,θ2(t) = − 260 3 Q4(t) + 82 3 Q4(t + 3) − 32 3 Q4(t + 2) + 46 3 Q4(t + 1) ,θ3(t) = 112 3 Q4(t) − 20 3 Q4(t + 3) + 83 Q4(t + 2) − 4Q4(t + 1) ,
+
+and the PNS set X = 4 Z ∪ ( 14 + 4 Z) ∪ ( 12 + 4 Z) ∪ ( 34 + 4 Z) . It has been shown in [36] that ( θ, X ) satisfies (2.6) for r = 4. Solving the system (2.7), we obtain (b0, b 1, b 2, b 3) = 
+
+( 14 , 13 12 , − 512 , 112 
+
+)
+
+.
+
+Since the support of Q4 is [0 , 4], the functions θn are compactly supported in [ −3, 4], and hence the functions ϕn defined by (2.8) are compactly supported in [ −3, 7]. The graphs of the functions ϕn are shown in Figure 2. We now choose 
+
+εp = 7 + 0 .25 p, p = 1 , 2, 3, 4.
+
+Using (3.19), we obtain ( a0, a 1, a 2, a 3) = (4960 , −14384 , 13920 , −4495) . So, the new functions 
+
+ψn(t) = 
+
+> 3
+
+∑
+
+> p=0
+
+ap ϕn(t − εp),18 BSF CONDITIONS: APPROXIMATION AND PREDICTION 
+
+are compactly supported in [4 .25 , 15] . Hence, by Theorem 3.8, it follows that the operator Kψ,X W satisfies 
+
+∥∥∥Kψ,X W f − f
+
+∥∥∥p ≤ C W −4
+
+∥∥∥f (4) 
+
+∥∥∥p , for every f ∈ W 4 
+
+> p
+
+(R).
+
+Moreover, the evaluation of Kψ,X W f at any given time t requires at most 12 past local average samples of f .We approximate the function f given in (3.21) using the prediction operator 
+
+Kψ,X W . Figure 3 illustrates how the proposed prediction operator Kψ,X W recovers the signal f from the finite number of past local average samples. The results show that the predicted signal closely matches the original function, and increasing the parameter W further improves the prediction accuracy. 
+
+t   
+
+> -5 0510
+> ϕn(t)
+> -80 -60 -40 -20 020 40 60
+> ϕ1
+> φ2
+> φ3
+> φ4
+
+Fig. 2: The functions ϕn, n = 0 , 1, 2, 3.              
+
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5 fKψ,X
+> 30 f
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5 fKψ,X
+> 35 f
+> -2 -1 12-1.5 -1 -0.5 0.5 11.5
+> fKψ,X
+> 40 f
+
+Fig. 3: Approximations of f using Kψ,X W f
+
+4. Conclusion. We introduced the Bernoulli–Strang–Fix conditions and their generalized versions for vector-valued generators and periodic nonuniform sampling SREYA T AND A. ANTONY SELVAN 19 sets. We then established exact and asymptotic polynomial reproduction properties of the associated sampling Kantorovich operators and analyzed their approximation and convergence behavior. We also demonstrated that these operators effectively pre-dicted signals from a finite number of past local average samples. Finally, numerical experiments with Gaussian functions and B-splines validated the theoretical approx-imation and prediction results. The developed theory may serve as a foundation for future applications in signal reconstruction and prediction from averaged samples, including problems in signal processing, imaging, communications, and sensor net-works. Future research will extend this framework to multidimensional settings and more general sampling schemes. 
+
+Acknowledgment. The author (ST) gratefully acknowledges the Ministry of Education, Government of India, for supporting this research through the Prime Minister’s Research Fellowship and Grant (PMRF ID: 1603259). The authors ac-knowledge the use of ChatGPT (OpenAI) for language editing and improving the clarity of the manuscript. 
+
+Data Availability. Data sharing does not apply to this article as no datasets were generated or analyzed during the current study. 
+
+Conflict of interest. The authors declare that there is no conflict of interest. 
+
+REFERENCES [1] Antony Selvan, A., Bhandari, A., and Radha, R., “Approximation from shift-invariant spaces with smooth generators,” Numer. Algorithms., 101(3), 1833-1864, 2026. [2] Aragones, X., Gonzalez, J. L., and Rubio, A., Analysis and solutions for switching noise in coupling mixed signal ICs , Kluwer, Dordrecht, 1999. [3] Bardaro, C., Butzer, P.L., Stens, R.L., Vinti, G., “Kantorovich-type generalized sampling series in the setting of Orlicz spaces”, Sampling Theory Signal Image Proc., 6(1), 29–52, 2007. [4] Brown, J. L., Jr, “Uniform linear prediction of bandlimited processes from past samples”, 
+
+IEEE Trans. Inf. Theory, 18(5), 662-664, 1972. [5] Bardaro, C., Butzer, P. L., Stens, R. L., and Vinti, G., “Prediction by samples from the past with error estimates covering discontinuous signals”, IEEE Trans. Inf. Theory, 56(1), 614-633, 2009. [6] Butzer, P. L., Splettst¨ oßer, W., and Stens, P. L., “The sampling theorem and linear prediction in signal analysis”, Jahresber. Dtsch. Math.-Ver., 90(1), 1-70, 1988. [7] Butzer, P. L., and Stens, R. L., “Prediction of non-bandlimited signals from past samples in terms of splines of low degree”, Math. Nachr., 132(1), 115-130, 1987. [8] Butzer, P. L., and Stens, R. L., “Approximation of continuous and discontinuous functions by generalized sampling series”, J. Approx. Theory, 50(1), 25–39, 1987. [9] Butzer, P. L., and Stens, R. L., “Reconstruction of signals in L p(R)-space by generalized sampling series based on linear combinations of B-splines”, Integral Trans. Special Funct., 
+
+19(1), 35–58, 2008. [10] Butzer, P. L., and Stens, R. L., “Linear prediction by samples from the past”, Advanced Topics in Shannon Sampling and Interpolation Theory, 157-181, 1993. [11] Costarelli, D., and Vinti, G., “Approximation Properties of the Sampling Kantorovich Oper-ators: Regularization, Saturation, Inverse Results and Favard Classes in Lp-Spaces”, J. Fourier Anal. Appl., 28(3), 49, 2022. [12] Costarelli, D., Seracini, M., Vinti, G., “A segmentation procedure of the pervious area of the aorta artery from CT images without contrast medium”, Math. Methods Appl. Sci., 
+
+43(1), 114–133, 2020. [13] Costarelli, D., Seracini, M., Vinti, G., “A comparison between the sampling Kantorovich algorithm for digital image processing with some interpolation and quasi-interpolation methods”, Appl. Math. Comput., 374, 125046, 2020. [14] Gao, W., Wu, Z., “Constructing radial kernels with higher-order generalized Strang-Fix con-ditions”, Adv. Comput. Math., 43(5), 1355–1375, 2017. [15] Gr¨ ochenig, K., Foundations of time-frequency analysis , Applied and Numerical Harmonic 20 BSF CONDITIONS: APPROXIMATION AND PREDICTION Analysis, Birkh¨ auser Boston, Inc., Boston, MA, 2001. [16] Herley, C., and Wong, P. W., “Minimum rate sampling and reconstruction of signals with arbitrary frequency support”, IEEE Trans. Inf. Theory, 45(5), 1555–1564, 1999. [17] Ireland, K., and Rosen, M. I., A Classical Introduction to Modern Number Theory, Graduate Texts in Mathematics, Springer-Verlag, New York, 1990. [18] Jia, R. Q., and Lei, J. J., “On approximation by multi-integer translates of functions having global support”, J. Approx. Theory, 72(1), 2–23, 1993. [19] Kohlenberg, A., “Exact interpolation of band-limited functions”, J. Appl. Phys., 24(12), 1432-1436, 1953. [20] Lanzara, F., Maz’ya, V., Schmidt, G., ”Approximate approximations from scattered data”, 
+
+J. Approx. Theory, 145(2), 141–170, 2007. [21] Lanzara, F., Maz’ya, V., Schmidt, G., ”Fast cubature of volume potentials over rectangular do-mains by approximate approximations”, Appl. Comput. Harmon. Anal., 36(1), 167–182, 2014. [22] Lanzara, F., Maz’ya, V., Schmidt, G., ”Approximation of solutions to multidimensional parabolic equations by approximate approximations”, Appl. Comput. Harmon. Anal., 
+
+41(3),749-767, 2016. [23] Lei, J., Jia, R. Q., and Cheney, E. W., “Approximation from Shift-Invariant Spaces by Integral Operators”, SIAM J. Math. Anal., 28(2),481-498, 1997. [24] Maz’ya, V. “A new approximation method and its applications to the calculation of volume potentials,” Boundary point method, 3, 18, 1991. [25] Maz’ya, V., “Approximate approximations”, Proc. Eighth Conference on the Mathematics of Finite Elements and Applications VIII, MAFELAP, Brunel University, London, 77–104, 1994. [26] Maz’ya, V., Schmidt, G., ”On approximate approximations using Gaussian kernels”, IMA J. Numer. Anal., 16(1), 13–29, 1996. [27] Maz’ya, V., Schmidt, G., ”Construction of basis functions for high order approximate approx-imations”, Mathematical Aspects of Boundary Element Methods, 414, 191–202, 1999. [28] Maz’ya, V., Schmidt, G., ”On quasi-interpolation with non-uniformly distributed centers on domains and manifolds”, J. Approx. Theory, 10, 125–145, 2001. [29] Mugler, D. H., and Splettst¨ oßer, W., “Difference methods for the prediction of band-limited signals”, SIAM J. Appl. Math., 46(5), 930-941, 1986. [30] Mugler, D. H., and Splettst¨ oßer, W., “Linear prediction from samples of a function and its derivatives”, IEEE Trans. Inf. Theory, 33(3), 360-366, 1987. [31] Mugler, D. H., “Computationally efficient linear prediction from past samples of a band-limited signal and its derivative”, IEEE Trans. Inf. Theory, 36(3), 589-596, 1990. [32] A. Nathan, “On sampling a function and its derivatives”, Information and Control , 22(2), 172-182, 1973. [33] Orlova, O., Tamberg, G., “On approximation properties of generalized Kantorovich-type sam-pling operators”, J. Approx. Theory, 201, 73–86,2016. [34] Splettst¨ oßer, W., “On the prediction of band-limited signals from past samples”, Information sciences, 28(2), 115-130, 1982. [35] Splettst¨ oßer, W., “Lineare Pr¨ adiktion von nicht bandbegrenzten Funktionen”, ZAMM - J. Appl. Math. Mech., 64(5), 393–395, 1984. [36] T, Sreya., Ghosh, R., and Antony Selvan, A., “Signal Prediction by Derivative Samples from the Past via Perfect Reconstruction”, arXiv preprint arXiv:2505.03471, 2025. [37] Vinti, G., Zampogni, L.“A unifying approach to convergence of linear sampling type operators in Orlicz spaces”, Adv. Differ. Equ., 28(9-10), 885-888, 2023. [38] Strohmer, T. and Tanner, J., “Fast reconstruction methods for bandlimited functions from periodic nonuniform sampling”, SIAM J. Numer. Anal., 44(3), 1073-1094, 2006. [39] Wainstein, L.A., and Zubakov, V.D., Extraction of Signals from Noise, Translated from the Russian by R. A. Silverman. Englewood Cliffs, NJ: Prentice-Hall, 1970. [40] Wu, Z.M., Liu, J.P., “Generalized Strang–Fix condition for scattered data quasi-interpolation”, Adv. Comput. Math., 23(1), 201–214, 2005. [41] Yen, J. L., “On the nonuniform sampling of bandwidth-limited signals”, IRE Trans. Circuit Theory, 3(4), 251-257, 1956.

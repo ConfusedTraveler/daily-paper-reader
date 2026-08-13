@@ -1,0 +1,1015 @@
+Title: Sequential-Innovation Reducibility and the Innovation Spectrum
+
+URL Source: https://arxiv.org/pdf/2608.05443v1
+
+Published Time: Fri, 07 Aug 2026 00:17:00 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+# Sequential-Innovation Reducibility and the Innovation Spectrum 
+
+## Amir Leshem 
+
+Faculty of Engineering, Bar-Ilan University, Ramat Gan 52900, Israel 
+
+amir.leshem@biu.ac.il 
+
+ORCID: 0000-0002-2265-7463 
+
+Abstract 
+
+Sequential prediction naturally induces an innovation sequence consisting of the prediction errors produced by a causal predictor. We use the collection of all such innovation sequences to define the 
+
+innovation spectrum of an individual binary sequence and, from it, a new reducibility based on sequential information extraction. We show that this reducibility refines truth-table reducibility while exhibiting a fundamentally different geometry. The degree structure decomposes into two canonical regions: a truth-table spine, whose induced order is isomorphic to the truth-table degrees, and a complementary reservoir-immune region, consisting of sequences from which no infinite computable predictable reservoir can be extracted. We establish bridge constructions connecting the two regions, prove that reservoir immunity is preserved under sequential innovation, and show that the Martin–Löf-random degrees form a proper downward-closed substructure inside the reservoir-immune region. These results reveal a new geometric organization of individual sequences based on causal predictability rather than classical oracle computation. 
+
+2020 Mathematics Subject Classification. Primary 03D30, 03D32; Secondary 68Q30, 94A17. 
+
+Keywords. Computability, sequential innovation, truth-table reducibility, algorithmic randomness, Turing degrees, c.e. degrees, randomness extraction. 
+
+Funding. This research was partially supported by Israel Science Foundation grant ISF 2197/22. 
+
+# 1 Introduction 
+
+Classical oracle computation permits an algorithm to query a completed oracle at positions chosen during the computation. A causal sequential computation has less freedom. At stage n it has seen only the prefix X ↾ n
+
+and must commit before the next source bit X(n) is revealed. We record the newly disclosed information through the innovation 
+
+IXP (n) = X(n) ⊕ P (X ↾ n),
+
+where P : 2 <ω → { 0, 1} is total computable. If S = {s0 < s 1 < · · · } is an infinite computable schedule, the corresponding trace is 
+
+JXP,S (k) = IXP (sk).
+
+The schedule is fixed independently of the source values, and the prediction at sk is made before X(sk)becomes available. The resulting reducibility is related to several established restrictions on oracle computation, but it is not identical to any of them. In truth-table autoreducibility, the current oracle bit is withheld, while the machine may query other coordinates, including future coordinates [1]. In computable Lipschitz and identity-bounded Turing reducibility, the use is constrained by a rate such as n + c or n, and the induced degree structures already exhibit nontrivial density and splitting phenomena [2, 3, 4]. By contrast, our use function may grow arbitrarily, but it must increase with the output coordinate and the last queried bit must be genuinely fresh and balanced. The model is also distinct from computable selection rules and Kolmogorov–Loveland stochasticity: those notions study which source coordinates are selected, possibly adaptively or nonmonotonically, whereas our schedule is source-independent and every selected source bit participates in a prescribed causal transformation [5, 6, 7]. 1arXiv:2608.05443v1 [math.LO] 5 Aug 2026 The same causal viewpoint has a quantitative counterpart in individual-sequence prediction. In companion work [8], a computable probabilistic superpredictor achieves sublinear regret relative to every rational-valued primitive-recursive forecaster on every individual sequence, and is Bayes optimal on every Martin–Löf-random realization of a computable stationary ergodic binary source. Together, the two papers identify a causal computational interface that is strictly weaker than unrestricted oracle computation while still supporting universal prediction guarantees. We define Y ≤sir X when Y is a sequential innovation trace of X. The first main result is an exact normal form: these are precisely the truth-table computations with strictly increasing uses whose truth tables flip whenever only the final queried bit is changed. This immediately gives, 
+
+X ≤sir Y =⇒ X ≤tt Y =⇒ X ≤wtt Y =⇒ X ≤T Y. The direction reverses conceptually after quotienting into degrees: the associated equivalence relations become successively coarser, and the identity on reals induces natural surjections Dsir ↠ Dtt ↠ Dwtt ↠ DT . Thus SIR is a proper subreducibility of truth-table reducibility, while its degree partition is finer: a single truth-table or Turing degree may split into several SIR degrees. For comparison, Greenberg, Nies, and Turetsky [9] study SJT reducibility, a weak reducibility arising from strong jump traceability and partial relativization; its motivation and methods are distinct from the causal framework developed here. We briefly review the new results in this paper. For a fixed presentation X, the innovation spectrum Spec inn (X) = {deg T (Y ) : Y ≤sir X}
+
+records the Turing degrees exposed by causal traces. This spectrum is an invariant of the SIR degree, but it is not an invariant of the truth-table or Turing degree. The mechanism controlling its computable bottom is a predictable reservoir : an infinite computable set of future positions whose bits are exactly predictable from their preceding prefixes. A presentation has a computable trace exactly when such a reservoir exists, and then every truth-table reduction from that presentation can be realized as a sequential trace. Above the computable SIR degree, every target has a predictable reservoir, so SIR and truth-table reducibility coincide. Sparse computable padding places a representative of every truth-table degree in this upper region. Consequently this truth-table spine is order-isomorphic to the full truth-table degree structure, every truth-table degree has a unique greatest SIR degree, and joins on the spine are induced by effective disjoint union. Every c.e. presentation lies on the spine; in particular, c.e.-represented SIR degrees are closed under joins. For a c.e. presentation A, the presentations SIR-reducible to A are exactly the presentations truth-table reducible to A. Consequently, the truth-table degrees visible below A form the principal truth-table ideal below deg tt (A), and, after restriction to the spine, this ideal is also precisely the SIR-degree lower cone below deg sir (A). The complementary region is exactly the class of reservoir-immune presentations. Indeed, a presentation lies above the computable SIR degree if and only if it has a predictable reservoir, equivalently if and only if it is not reservoir-immune. Thus Cantor space splits exhaustively as 2ω = Usir ˙∪ RI .
+
+Both sides are dynamically natural: the truth-table spine is upward closed, whereas reservoir immunity is downward closed under SIR. Inside the RI region, the fair-coin Martin–Löf-random degrees form a proper SIR-downward-closed subclass. Every SIR trace of a random real is random, but RI also contains nonrandom presentations in abundance: every basic cylinder contains a perfect Cantor set of non-Martin–Löf-random RI reals. The second part develops the internal geometry of the random region. For a Martin–Löf-random upper degree, every lower SIR degree is either a finite causal shift in the same Turing degree or lies below a strict Turing-degree drop. Every interval of the second kind contains an order-isomorphic copy of ( Q, < )represented by random reals, whereas consecutive finite shifts form cover pairs. Moreover, the even and odd columns of one random real are incomparable and have no SIR join. At a broader level, every trace random for a computable nondegenerate Bernoulli product has below it an order-embedded copy of every computable countable partial order, represented by reals random for the same product measure. The bridge presentation ∅′ ⊕ R, with R 2-random, combines the entire c.e. degree structure with transverse random degrees and a lifted parallel family above 0′.The main structure of the SIR degrees is summarized in the following theorem: 2Theorem 1.1 (Main structural theorem: exhaustive geometry and two bridges) . Let 0sir denote the computable SIR degree, and put 
+
+Usir = {a : 0sir ≤sir a},
+
+IRI = {deg sir (X) : X ∈ RI },
+
+Rsir = {deg sir (R) : R ∈ MLR }.
+
+Then: (i) As reducibility relations, 
+
+≤sir ⊊≤tt ⊊≤wtt ⊊≤T .
+
+The induced degree quotients are related by natural surjections 
+
+Dsir ↠ Dtt ↠ Dwtt ↠ DT ,
+
+and the first map is noninjective. (ii) The upper region Usir is order-isomorphic to the truth-table degrees and is an upper semilattice. Every truth-table degree contains a unique greatest SIR degree. Every c.e. presentation belongs to Usir , and the c.e.-represented SIR degrees are closed under joins. (iii) The SIR degrees split exhaustively as 
+
+Dsir = Usir ˙∪ I RI .
+
+The RI region IRI is downward closed. The random region Rsir is a proper downward-closed subclass of IRI . More strongly, every basic cylinder contains a perfect null Cantor set contained in RI \ MLR .(iv) If B is Martin–Löf random and A ≤sir B, then either A ≡T B and A ≡sir σkB for a unique k < ω ,or A < T B and the open SIR interval between A and B contains an order-isomorphic copy of (Q, < )
+
+represented by Martin–Löf-random reals. Moreover, the even and odd columns of every Martin–Löf-random real are incomparable SIR degrees with no join. (v) There are two canonical bridge mechanisms. For every X ∈ RI , its padded presentation X∗ lies on the spine, X ≡tt X∗, and 
+
+deg sir (X) < deg sir (X∗),
+
+where X∗ represents the unique greatest SIR degree in the truth-table degree of X. Separately, if R
+
+is 2-random, then ∅′ ⊕ R is a bridge presentation whose lower SIR cone contains the c.e.-represented spine, transverse random degrees, and their lifted families above 0′.(vi) If p ∈ (0 , 1) is computable and X has a μp-Martin–Löf-random SIR trace, then every computable countable partial order embeds into the SIR degrees strictly below X, represented by μp-Martin–Löf-random reals. 
+
+The clauses are proved in Theorem 3.4, Theorem 5.13, Corollary 5.15, Theorem 5.8, Theorems 6.4 and 6.5, Theorem 6.9, and Theorem 6.2. Together they exhibit an exhaustive partition into the canonical semilattice spine and the downward-closed RI region, with the random degrees forming a proper rigid subgeometry of RI. The padding map X 7 → X∗ provides the canonical bridge within each truth-table degree, while ∅′ ⊕ R
+
+provides a mixed c.e.–random bridge. Below every Bernoulli-random trace one additionally obtains universal computable order structure. Finally, a delayed batched version of the von Neumann extractor [10] shows that every computable Bernoulli-random presentation has a fair-coin Martin–Löf-random SIR trace on a computable schedule of positive density. Consequently, its lower SIR cone contains both a native μp-random universal suborder and an extracted fair-random universal suborder. More efficient block extractors, such as those based on Elias’s type-class method [11], can improve the density, but rate optimization is not needed for the degree-theoretic conclusions developed here. The paper is organized as follows. Section 2 introduces the model and proves the exact trace characteri-zation. Section 3 places SIR among classical reducibilities. Sections 4 and 5 establish realization, reservoir immunity, the truth-table spine, and presentation-sensitivity results. Section 6 proves Bernoulli-random universality, the fair-random interval dichotomy, the no-join theorem, and the c.e.–random bridge. Section 7 proves the Bernoulli extraction theorem. 32 Sequential innovation: model and definitions 
+
+## 2.1 Predictors, traces, and calibration 
+
+We work in Cantor space 2 ω with fair-coin measure λ. For a finite string σ ∈ 2<ω , let [σ] = {X ∈ 2ω : σ ⪯ X}.
+
+All relativized notions have their standard meanings. We use K for prefix-free Kolmogorov complexity and 
+
+KA for its relativization. The effective Hausdorff dimension and strong effective dimension of a real are dim eff (X) = lim inf 
+
+> n→∞
+
+K(X ↾ n)
+
+n , Dim eff (X) = lim sup 
+
+> n→∞
+
+K(X ↾ n)
+
+n .
+
+Theorem 2.1 (Levin–Schnorr) . For every X ∈ 2ω and oracle A,
+
+X is Martin-Löf random relative to A ⇐⇒ KA(X ↾ n) ≥ n − O(1) .
+
+Hence, the effective dimension of a Martin-Löf random real is 1. 
+
+Definition 2.2 (Predictor and innovation) . An A-computable predictor is a total A-computable function 
+
+P : 2 <ω → { 0, 1}. For X ∈ 2ω , define 
+
+EP (X) = {n : P (X ↾ n)̸ = X(n)}, (1) its complement 
+
+CP (X) = {n : P (X ↾ n) = X(n)}, (2) and 
+
+IXP (n) = X(n) ⊕ P (X ↾ n).
+
+Thus EP (X) = supp( IXP ). Totality is essential: a limit-computable approximation is not an online rule unless its final value is available at prediction time. 
+
+Theorem 2.3 (Finite innovation equals relative computability) . For all A, X ∈ 2ω , the following are equivalent: (i) X ≤T A;(ii) some total A-computable predictor makes only finitely many errors on X;(iii) some total A-computable predictor has innovation sequence of finite support on X.Proof. If X ≤T A, use the predictor P (σ) = X(|σ|). Conversely, suppose P ≤T A and all errors occur before 
+
+N . Hardwire X ↾ N . Once X ↾ n has been reconstructed for n ≥ N , set X(n) = P (X ↾ n). This computes 
+
+X from A. The final equivalence follows from EP (X) = supp( IXP ). 
+
+Proposition 2.4 (Innovation homeomorphism) . For every computable predictor P , the map 
+
+ΦP (X) = IXP
+
+is a computable measure-preserving homeomorphism of 2ω . Indeed, 
+
+IXP ≡sir X, 
+
+and hence IXP ≡T X. Moreover, 
+
+K(IXP ↾ n) = K(X ↾ n) + OP (1) .
+
+4Proof. The forward reduction IXP ≤sir X is the full-schedule channel with predictor P . Given a finite innovation prefix τ , reconstruct the corresponding source prefix ̂τ recursively and put 
+
+Q(τ ) = P (̂τ ).
+
+Then 
+
+X(n) = IXP (n) ⊕ Q(IXP ↾ n),
+
+so X ≤sir IXP by the full schedule. At every length n, the induced map on 2 n is a computable bijection, so it preserves the uniform measure on length-n cylinders. The complexity identity follows from the computable inverse pair. A naive way to sparsify a sequence X is to place its bits on an infinite computable set S = s0 < s 1 < · · · ,defining Y (sk) = X(k) and assigning a fixed value 0 to all remaining coordinates. This preserves the encoded sequence but introduces an artificial computable pattern on the unused coordinates and may therefore destroy the randomness properties that motivated the construction. To retain the sequential nature of the source, we study all computable prediction channels: 
+
+Definition 2.5 (Prediction channel and trace) . A prediction channel is a pair ( P, S ), where P is a total computable predictor and S = {s0 < s 1 < · · · } is an infinite computable set. Its trace on X is 
+
+JXP,S (k) = X(sk) ⊕ P (X ↾ sk).
+
+The trace deficiency is 
+
+dP,S (X, k ) = k − K(JXP,S ↾ k).
+
+The coordinate projection onto an infinite computable schedule is a computable measure-preserving map from 2 ω to 2 ω . Together with Proposition 2.4, this gives the following. 
+
+Theorem 2.6 (Residual Levin–Schnorr calibration) . For X ∈ 2ω , the following are equivalent: (i) X is Martin-Löf random; (ii) every computable sequential innovation trace JXP,S is Martin-Löf random; (iii) for every computable prediction channel (P, S ),
+
+K(JXP,S ↾ k) ≥ k − OP,S (1); 
+
+(iv) every trace deficiency dP,S (X, k ) is bounded. The same equivalence holds relative to an arbitrary oracle A.Proof. A computable channel is a computable measure-preserving map, so it conserves Martin-Löf randomness. The complexity equivalence follows from Levin–Schnorr. Conversely, the trivial channel P ≡ 0, S = ω has trace X.
+
+Corollary 2.7 (Sequential procedures do not derandomize) . Let R be fair-coin Martin–Löf random. If 
+
+Y ≤sir R, then Y is fair-coin Martin–Löf random. Consequently, 
+
+Rsir = {deg sir (R) : R ∈ MLR }
+
+is downward closed in the SIR degrees. In particular, no computable or otherwise non-Martin–Löf-random real is SIR-reducible to R.Proof. Write Y = JRP,S . By Proposition 2.4, the map R 7 → IRP is a computable measure-preserving homeomorphism of fair-coin Cantor space. Projection onto the infinite computable schedule S is also a computable measure-preserving map onto fair-coin Cantor space. Randomness conservation therefore gives 
+
+Y ∈ MLR. Downward closure on degrees follows from transitivity and from invariance of Martin–Löf randomness under SIR equivalence. Theorem 2.6 is a calibration theorem: the universal quantifier includes the identity channel. The more structural issue is to characterize the transformations represented by nontrivial channels. 52.2 Sequential-innovation reducibility 
+
+Definition 2.8 (Sequential-innovation reducibility) . Let X, Y ∈ 2ω . We write 
+
+Y ≤sir X
+
+if there exist a total computable strictly increasing function 
+
+s : ω → ω
+
+and a uniformly computable family of truth tables 
+
+θk : 2 s(k)+1 → { 0, 1}
+
+such that, for every k, every σ ∈ 2s(k), and every b ∈ { 0, 1},
+
+θk(σb ) = b ⊕ θk(σ0) ,
+
+and 
+
+Y (k) = θk(X ↾ (s(k) + 1)) .
+
+The final query is distinguished. The output may depend arbitrarily on the past prefix, but changing only the current scheduled bit must flip the output. 
+
+Theorem 2.9 (Exact trace characterization) . For reals X, Y ∈ 2ω , the following are equivalent: (i) There are a computable strictly increasing function s and a family (θk)k∈ω of last-bit-balanced truth tables, uniformly computable in k, such that 
+
+Y (k) = θk(X ↾ (s(k) + 1)) 
+
+for every k.(ii) There is a computable prediction channel (P, S ) such that 
+
+Y = JXP,S .
+
+Proof. Suppose Y = JXP,S , where S = {s0 < s 1 < · · · } . Define 
+
+θk(σb ) = b ⊕ P (σ) (|σ| = sk).
+
+The family is uniformly computable and last-bit balanced, and 
+
+θk(X ↾ (sk + 1)) = X(sk) ⊕ P (X ↾ sk) = Y (k).
+
+Conversely, suppose Y ≤sir X via s and ( θk). For |σ| = s(k), let 
+
+P (σ) = θk(σ0) .
+
+At all other lengths set P (σ) = 0. Since s is computable and strictly increasing, P is total computable. Last-bit balance gives 
+
+θk(σb ) = b ⊕ P (σ).
+
+Thus, for S = {s(k) : k ∈ ω},
+
+Y (k) = X(s(k)) ⊕ P (X ↾ s(k)) = JXP,S (k).
+
+Proposition 2.10 (Sequential-innovation reducibility is a preorder) . The relation ≤sir is reflexive and transitive. 
+
+6Proof. Reflexivity is witnessed by s(k) = k and θk(σb ) = b, equivalently by the trivial channel. For transitivity, suppose 
+
+Y = JXP,S , Z = JYQ,T ,
+
+where S = {s0 < s 1 < · · · } and T = {t0 < t 1 < · · · } . Put uj = stj . Given a string σ of length uj , compute the finite string Yσ ↾ tj by 
+
+Yσ (i) = σ(si) ⊕ P (σ ↾ si) (i < t j ).
+
+Define, at length uj ,
+
+R(σ) = P (σ) ⊕ Q(Yσ ↾ tj ),
+
+and define R arbitrarily at all other lengths. Then 
+
+JXR,U (j) = X(stj ) ⊕ P (X ↾ stj ) ⊕ Q(Y ↾ tj )= Y (tj ) ⊕ Q(Y ↾ tj )= Z(j).
+
+Hence Z ≤sir X.This closure is a useful distinction from an ad hoc family of coordinate maps: sequential innovation traces form a natural sequential reduction preorder. 
+
+# 3 Position among classical reducibilities 
+
+Definition 3.1 (Innovation spectrum) . For X ∈ 2ω , define Spec inn (X) = {deg T (JXP,S ) : ( P, S ) is a computable channel }.
+
+By Theorem 2.9, Spec inn (X) = {deg T (Y ) : Y ≤sir X}.
+
+Proposition 3.2 (SIR-degree invariance of the spectrum) . If X ≡sir Y , then 
+
+Spec inn (X) = Spec inn (Y ).
+
+Thus the innovation spectrum is an invariant of the sequential-innovation degree. Proof. If Z ≤sir X and X ≤sir Y , transitivity gives Z ≤sir Y ; the reverse inclusion is symmetric. The innovation spectrum is not, however, an invariant of the truth-table degree, as will be shown below. For a presentation X, define its truth-table-visible degree set by TTvis( X) = {deg T (B) : B ≤tt X}.
+
+We avoid the term “cone,” since this set need not be downward closed under arbitrary Turing reducibility. 
+
+Proposition 3.3 (Truth-table visibility bound) . If Y ≤sir X, then Y ≤tt X. Consequently, 
+
+Spec inn (X) ⊆ TTvis( X).
+
+Proof. If Y = JXP,S and S = {sk}, then 
+
+Y (k) = X(sk) ⊕ P (X ↾ sk)is computable from X ↾ (sk + 1). The use sk + 1 is computable. 7Theorem 3.4 (Reducibility inclusion and degree refinement) . As binary relations on Cantor space, 
+
+≤sir ⇒≤ tt ⇒≤ wtt ⇒≤ T .
+
+Accordingly, 
+
+≡sir ⇒≡ tt ⇒≡ wtt ⇒≡ T .
+
+Writing Dρ for the quotient degrees induced by a reducibility ρ, the identity on reals induces natural surjections 
+
+Dsir ↠ Dtt ↠ Dwtt ↠ DT .
+
+The first map is noninjective: some truth-table degrees split into multiple SIR degrees. Proof. The first inclusion is Proposition 3.3, and its strictness is proved in Corollary 5.5. The remaining strict inclusions are the classical separation of truth-table, weak truth-table, and Turing reducibility; see [12, 13]. The inclusions of equivalence relations follow immediately. They make the quotient maps well defined, and surjectivity follows because every degree is represented by a real. Noninjectivity of the first quotient map is witnessed inside one truth-table degree by Corollary 5.22; the remaining classical degree collapses are standard. The distinction between truth-table and sequential-innovation reducibility is therefore not one of finite use, but of causality: at the selected coordinate, the output must depend on the current source bit in a balanced way determined by the preceding history. The exact trace characterization places sequential-innovation reducibility inside classical bounded-use computability. The comparison separates two genuinely different sources of nonuniformity: sequential balance at the newly revealed bit and partiality on counterfactual oracle prefixes. For a presentation X, define WTTvis( X) = {deg T (B) : B ≤wtt X}.
+
+Then Spec inn (X) ⊆ TTvis( X) ⊆ WTTvis( X).
+
+The first inclusion is Proposition 3.3. The second is the standard implication from truth-table to weak truth-table reducibility. A useful normal form is the following. A weak truth-table reduction may be written as a computable use function u(k) together with uniformly partial computable maps 
+
+Fk : 2 u(k) ⇀ {0, 1}
+
+such that Fk(X ↾ u(k)) = B(k). For truth-table reducibility each Fk must be total. For sequential-innovation reducibility, after increasing the use if necessary, there are total computable maps qk and a strictly increasing computable schedule ( sk)k∈ω such that 
+
+B(k) = X(sk) ⊕ qk(X ↾ sk). (3) Thus sequential-innovation reducibility is precisely truth-table computation subject to causality relative to a computable schedule: the value qk(X ↾ sk) is determined before the current source bit X(sk) is revealed. Thus the final input bit is fresh and balanced: changing only X(sk) flips the output. 
+
+Remark 3.5 (Standard bounded-use totalization) . The standard comparison of bounded reducibilities gives 
+
+B ≤wtt X =⇒ B ≤tt X ⊕ ∅ ′.
+
+Indeed, the computable use bound leaves only finitely many counterfactual oracle-answer patterns on each input, and ∅′ decides which of the corresponding finite computations halt; see [12, 13]. Consequently, if 
+
+∅′ ≤tt X, then TTvis( X) = WTTvis( X).
+
+The totality requirement on the sequential rule is essential. If the rule were required to converge only along the actual prefixes of X, the counterfactual truth tables could remain partial and the resulting notion would be closer to weak truth-table computation than to the uniform sequential transformation studied here. Strictness of the first inclusion will follow from reservoir-immune presentations in Section 5. 84 Elementary degree structure and realization 
+
+The identity channel shows that deg T (X) is always the largest degree represented in Spec inn (X). At the opposite extreme, thin Turing lower cones sharply restrict the spectrum. 
+
+Proposition 4.1 (Minimal degrees) . If X has minimal nonzero Turing degree a, then 
+
+Spec inn (X) ⊆ { 0, a}.
+
+Since a ∈ Spec inn (X), its spectrum is either {a} or {0, a}.
+
+## 4.1 Sparse and countable realization 
+
+The fixed-presentation results above constrain traces of a given real. We now turn to the complementary construction problem: which patterns can be built into a suitable presentation? 
+
+Definition 4.2 (Sparse coding) . Let S = {s0 < s 1 < · · · } be infinite and computable. Define Sparse S (B)( sk) = B(k), Sparse S (B)( n) = 0 (n / ∈ S).
+
+Theorem 4.3 (Sparse innovation representation) . Let P be a total computable predictor and let S be an infinite computable schedule. For every B ∈ 2ω there is XB such that 
+
+IXB 
+
+> P
+
+= Sparse S (B), JXB 
+
+> P,S
+
+= B, 
+
+and 
+
+XB ≡T B. 
+
+Proof. Construct XB recursively. If n / ∈ S, set 
+
+XB (n) = P (XB ↾ n).
+
+If n = sk, set 
+
+XB (sk) = P (XB ↾ sk) ⊕ B(k).
+
+The displayed trace identities are immediate. The construction computes XB from B, while B = JXB 
+
+> P,S
+
+is computable from XB .This representation separates ambient complexity from trace complexity. If S has counting function 
+
+cS (N ) = |S ∩ N |, then 
+
+K(Sparse S (B) ↾ N ) ≤ K(B ↾ cS (N )) + K(N ) + O(1) .
+
+Thus a density-zero presentation may have arbitrarily small ambient complexity rate while its normalized trace is B.
+
+Proposition 4.4 (Arbitrarily slow ambient complexity in a degree) . Let B ∈ 2ω and let g : ω → ω be computable, nondecreasing, and unbounded. There is X ≡T B such that 
+
+K(X ↾ N | N ) ≤ g(N ) + O(1) 
+
+for all sufficiently large N .Proof. Choose an infinite computable schedule S with cS (N ) ≤ g(N ) eventually and put X = Sparse S (B). Given N , the prefix X ↾ N is determined by N and the first cS (N ) bits of B.For simultaneous realization, the schedule family must have an effective owner map. Fix a computable pairing function ⟨i, k ⟩ such that, for each fixed i, the map k 7 → ⟨ i, k ⟩ is strictly increasing. Let 
+
+Ci = {⟨ i, k ⟩ : k ∈ ω}.
+
+The columns ( Ci) partition ω, and both the owner i and rank k of each coordinate are computable. 9Theorem 4.5 (Countable decoded-column realization) . Let P be a total computable predictor and let (Bi)i∈ω
+
+be any sequence of reals. There is a real X such that 
+
+JXP,C i = Bi for every i, 
+
+and 
+
+X ≡T
+
+⊕
+
+> i∈ω
+
+Bi.
+
+Consequently, 
+
+{deg T (Bi) : i ∈ ω} ⊆ Spec inn (X).
+
+Proof. At coordinate n = ⟨i, k ⟩, set recursively 
+
+X(n) = P (X ↾ n) ⊕ Bi(k).
+
+The inverse pairing map makes the construction effective from ⊕ 
+
+> i
+
+Bi. It gives JXP,C i = Bi. Conversely, all columns Bi are uniformly recoverable from X, so their effective join is computable from X.
+
+Remark 4.6. A uniformly computable family of pairwise disjoint computable sets need not have a decidable union or a computable owner map. Pairwise disjointness gives uniqueness of an owner, not an effective method for finding it. The canonical columns above make the recursive construction total and uniform. 
+
+Corollary 4.7 (Countable complexity profiles) . For any sequence (Bi), a single presentation can satisfy 
+
+K(JXP,C i ↾ k) = K(Bi ↾ k) + Oi(1) 
+
+for every i. Thus computable, K-trivial, intermediate-dimension, Martin-Löf-random, and complete traces can coexist in one suitably constructed nonrandom presentation. 
+
+Corollary 4.8 (Recursive tree realization) . Let T ⊆ ω<ω be a computable tree and let (Bτ )τ ∈T be a family of reals with effective join. Then some real X has 
+
+{deg T (Bτ ) : τ ∈ T } ⊆ Spec inn (X),
+
+and X is Turing equivalent to the effective join of the family. Proof. Enumerate the nodes of T computably and apply Theorem 4.5 to the corresponding canonical columns. 
+
+# 5 Reservoir immunity, presentation sensitivity, and visibility 
+
+The obstruction to representing an arbitrary truth-table computation is the unavailable current bit. Atruth-table evaluator may use that bit in an arbitrary way, whereas a sequential rule must commit before seeing it. A computably predictable set of future sites removes this obstruction. 
+
+Definition 5.1 (Predictable reservoir) . An infinite computable set C = {c0 < c 1 < · · · } is a predictable reservoir for X if there is a total computable predictor Q such that 
+
+Q(X ↾ cj ) = X(cj )for every j.
+
+Lemma 5.2 (Two-sided infinitude) . Let X be noncomputable and let P be a total computable predictor. Then both CP (X), E P (X) defined in Definition 2.2 are infinite. Proof. If EP (X) were finite, then the full innovation sequence 
+
+IXP (n) = X(n) ⊕ P (X ↾ n)would have finite support. Hard-coding that finite support and reconstructing X recursively from left to right would make X computable. If CP (X) were finite, the complementary predictor P (σ) = 1 − P (σ) would make only finitely many errors, and the same argument would apply. 10 Recall that an infinite set A ⊆ ω is immune if it has no infinite computably enumerable subset, and is 
+
+bi-immune if both A and its complement are immune [12, 13]. Every infinite c.e. set contains an infinite computable subset. Hence, for an infinite set A, immunity is equivalent to the absence of an infinite computable subset of A. This equivalence concerns inclusion of subsets of A and makes no assertion about Turing-degree comparability between A and the c.e. sets. 
+
+Definition 5.3 (Reservoir immunity) . A real X is reservoir-immune if, for every total computable predictor 
+
+P , both CP (X) and EP (X) are immune. Equivalently, every full innovation sequence IXP is bi-immune. 
+
+Proposition 5.4 (Computable traces and predictable reservoirs) . For every real X, the following are equivalent: 1. X has a predictable reservoir; 2. 0 ≤sir X;3. 0 ∈ Spec inn (X);4. Some computable sequential innovation trace is obtainable from X;5. X is not reservoir-immune. Proof. A predictable reservoir immediately yields the constant-zero trace, so (1) ⇒ (2) ⇒ (3) ⇒ (4). Suppose that B = JXP,S is computable, where S = {s0 < s 1 < · · · } . Define a total computable predictor Q on scheduled lengths by 
+
+Q(σ) = P (σ) ⊕ B(k) when |σ| = sk,
+
+and define it arbitrarily elsewhere. Then Q(X ↾ sk) = X(sk) for every k, so S is a predictable reservoir. Thus (4) ⇒ (1). Finally, suppose first that X is computable. Then the full schedule is a predictable reservoir, witnessed by the computable rule Q(σ) = X(|σ|). Now suppose that X is noncomputable. By Lemma 5.2, both CP (X)and EP (X) are infinite for every total computable predictor P . Hence, if X is not reservoir-immune, then for some P one of these sets contains an infinite c.e. subset and therefore an infinite computable subset. In the second case replace P by its complement. This gives a predictable reservoir. The converse is immediate. 
+
+Corollary 5.5 (The sequential refinement is proper) . The relation ≤sir is a proper refinement of truth-table reducibility. Indeed, 
+
+0 ≤tt X
+
+for every X, whereas 
+
+0 ≤sir X ⇐⇒ X is not reservoir-immune .
+
+In particular, if R is Martin-Löf random, then 0 ≤tt R but 0 ≰sir R.
+
+Proposition 5.6 (Randomness implies reservoir immunity) . Every Martin-Löf-random real is reservoir-immune. Proof. For each total computable predictor P , the full innovation transform X 7 → IXP is a computable measure-preserving bijection of Cantor space. Hence IRP is Martin-Löf random whenever R is. Every Martin-Löf- random real is bi-immune: if an infinite c.e. set W were contained in the real, then requiring successively more elements of W to be 1 would give an effective null test; the same argument applies to the complement. Therefore IRP is bi-immune for every P .
+
+Remark 5.7 (Ordinary bi-immunity is insufficient) . Reservoir immunity is strictly stronger than ordinary bi-immunity. Let B be bi-immune and define 
+
+X(2 n) = X(2 n + 1) = B(n).
+
+Then X is bi-immune, since projecting an infinite c.e. subset of X or its complement under m 7 → ⌊ m/ 2⌋
+
+would produce an infinite c.e. subset of B or its complement. Nevertheless, the odd positions form a predictable reservoir: the predictor that copies the preceding bit is correct at every odd coordinate. Thus ordinary bi-immunity blocks reservoirs for the constant predictors, but not reservoirs created by sequential dependence on the past. 11 Theorem 5.8 (Perfect RI Cantor sets inside effectively null classes) . Every nonempty basic cylinder [ρ] ⊆ 2ω
+
+contains a perfect Cantor set 
+
+C ⊆ RI \ MLR .
+
+More precisely, one may choose a binary family of nonempty clopen sets (Cτ )τ ∈2<ω and a uniformly effectively open sequence (Vs)s∈ω such that: (i) C∅ ⊆ [ρ] ∩ V0.
+
+(ii) Cτ 0 and Cτ 1 are disjoint subsets of Cτ .(iii) for every |τ | = s > 0,
+
+Cτ ⊆ Vs, λ(Cτ ) ≤ 2−2s.
+
+(iv) λ(Vs) ≤ 2−s for every s;(v) every member of 
+
+C = ⋂
+
+> s∈ω
+
+⋃ 
+
+> |τ|=s
+
+Cτ
+
+is reservoir-immune. Consequently (Vs) is a Martin–Löf test covering C, so no member of C is Martin–Löf random. No effectiveness is asserted for the fusion tree τ 7 → Cτ ; the effective nullity refers to the uniformly effectively open Martin–Löf test (Vs) covering C.Proof. Fix a uniformly effectively open sequence ( Vs)s∈ω such that each Vs is dense and 
+
+λ(Vs) ≤ 2−s. (4) Such a sequence can be constructed uniformly as a union of basic clopen cylinders. Enumerate all finite binary strings as η0, η 1, . . . . For each s and j, choose effectively an extension ̂η s,j ⪰ ηj sufficiently long that 
+
+λ([ ̂η s,j ]) ≤ 2−s−j−1, (5) and put 
+
+Vs = ⋃
+
+> j∈ω
+
+[̂η s,j ]. (6) Every basic cylinder contains one of the cylinders [ ̂η s,j ], so Vs is dense. Moreover, 
+
+λ(Vs) ≤ ∑
+
+> j∈ω
+
+2−s−j−1 = 2 −s. (7) Thus ( Vs)s∈ω is a Martin–Löf test whose components are dense. Fix an enumeration ( Pi)i∈ω of the total computable predictors and an effective enumeration ( We)e∈ω of the c.e. subsets of ω. The enumeration of the total computable predictors is used only for this existence argument and need not itself be effective. For every i, e ∈ ω and b ∈ { 0, 1}, consider the requirement 
+
+Rbi,e : We infinite = ⇒ (∃n ∈ We) IXPi (n) = b. (8) If We is infinite, define 
+
+U bi,e = ⋃ {[σc ] : |σ| = n ∈ We and c = Pi(σ) ⊕ b} . (9) We claim that U bi,e is open and dense. Openness is immediate. To prove density, let [ η] be any basic cylinder. Since We is infinite, choose n ∈ We with n ≥ | η|, and extend η to a string σ ∈ 2n. Put 
+
+c = Pi(σ) ⊕ b. (10) 12 Then [ σc ] ⊆ [η] ∩ U bi,e , and every X ∈ [σc ] satisfies 
+
+IXPi (n) = X(n) ⊕ Pi(X ↾ n)= c ⊕ Pi(σ)= b. 
+
+(11) Thus U bi,e is dense. If We is finite, put U bi,e = 2 ω . In either case, U bi,e is a dense open set. Choose a, not necessarily effective, enumeration ( Us)s∈ω of all the sets U bi,e . We now construct the family (Cτ )τ ∈2<ω by simultaneous fusion over all nodes at each finite level. Since V0 is dense and open, the intersection [ ρ] ∩ V0 is a nonempty open set. Choose a nonempty basic cylinder 
+
+C∅ ⊆ [ρ] ∩ V0. (12) Suppose that, for some s ∈ ω, pairwise disjoint nonempty basic cylinders Cτ have been chosen for all 
+
+τ ∈ 2s. Fix one such τ . Since Us and Vs+1 are dense and open, the set 
+
+Dτ = Cτ ∩ Us ∩ Vs+1 (13) is a nonempty open subset of Cantor space. We now justify carefully the choice of the two children of Cτ .Because Dτ is nonempty and open, it contains a basic cylinder [ γτ ]. Choose an integer Nτ > |γτ |
+
+sufficiently large that 2−Nτ ≤ 2−2( s+1) . (14) There are at least two distinct strings of length Nτ extending γτ . Choose two such incompatible extensions 
+
+γτ, 0 and γτ, 1 and define 
+
+Cτ 0 = [ γτ, 0], Cτ 1 = [ γτ, 1]. (15) Then Cτ 0 and Cτ 1 are nonempty disjoint basic cylinders and 
+
+Cτ j ⊆ [γτ ] ⊆ Dτ ⊆ Cτ ∩ Us ∩ Vs+1 (j = 0 , 1) . (16) Furthermore, 
+
+λ(Cτ j ) = 2 −Nτ ≤ 2−2( s+1) (j = 0 , 1) . (17) Thus the finite requirements imposed at this stage do not obstruct splitting. They merely restrict us to the nonempty open set Dτ , which still contains a basic cylinder and hence contains arbitrarily long pairs of incompatible subcylinders. Increasing their lengths also gives the required exponential measure bound. Perform this choice for every one of the finitely many nodes τ ∈ 2s. This completes the construction of level s + 1. Because each child is contained in its parent, all requirements imposed at earlier levels remain satisfied. Because each child is contained in Us, the requirement represented by Us is satisfied on every branch surviving level s + 1. Finally, every child lies in Vs+1 and satisfies the prescribed measure estimate. Define 
+
+Fs = ⋃ 
+
+> |τ|=s
+
+Cτ (18) and 
+
+C = ⋂
+
+> s∈ω
+
+Fs. (19) Each Fs is a nonempty compact clopen set, and Fs+1 ⊆ Fs. Hence C is nonempty and closed. Along each branch, the lengths of the defining cylinders increase strictly, so every branch determines a unique real. Conversely, every real in C determines a unique branch through the binary fusion tree. Since every node has two incompatible children, no member of C is isolated. Therefore C is a perfect set, and the branch map from 2 ω onto C is a homeomorphism. Thus C is a Cantor set. For every s > 0, there are exactly 2 s cylinders at level s, and each has measure at most 2 −2s. Therefore 
+
+λ(Fs) ≤ 2s2−2s = 2 −s. (20) 13 It follows that 
+
+λ(C) = 0 . (21) More importantly, every level-s cylinder is contained in Vs, and hence 
+
+C ⊆ ⋂
+
+> s∈ω
+
+Vs. (22) Since ( Vs)s∈ω is a Martin–Löf test, no member of C is Martin–Löf random. Consequently, 
+
+C ∩ MLR = ∅. (23) It remains to prove reservoir immunity. Fix X ∈ C , a total computable predictor Pi, and an infinite c.e. set We. For each b ∈ { 0, 1}, the dense open set U bi,e occurs as some Us in the enumeration. All branches surviving level s + 1, and therefore X, belong to U bi,e . By the definition of this set, there is some n ∈ We
+
+such that 
+
+IXPi (n) = b. (24) Thus both values 0 and 1 occur on We in the innovation sequence IXPi . Hence no infinite c.e. set is contained in either the zero set or the one set of IXPi . Since this holds for every total computable predictor Pi, every full innovation sequence IXPi is bi-immune. Therefore X is reservoir-immune. We have shown that 
+
+C ⊆ RI \ MLR , (25) as required. 
+
+Theorem 5.9 (Predictable-reservoir theorem) . If X has a predictable reservoir, then 
+
+B ≤tt X =⇒ B ≤sir X. 
+
+Consequently, 
+
+Spec inn (X) = TTvis( X).
+
+Proof. Let C = {cj } be predicted correctly by Q, and suppose 
+
+B(k) = g(k, X ↾ u(k)) for a total computable use u and truth-table evaluator g. Choose a computable strictly increasing sequence 
+
+j(k) such that 
+
+sk = cj(k) ≥ u(k).
+
+Define a total computable predictor P at length sk by 
+
+P (σ) = Q(σ) ⊕ g(k, σ ↾ u(k)) ,
+
+and define it arbitrarily at all other lengths. Then 
+
+JXP,S (k) = X(sk) ⊕ Q(X ↾ sk) ⊕ g(k, X ↾ u(k)) = B(k).
+
+Thus B ≤sir X. Combine this with Proposition 3.3. 
+
+Remark 5.10 (Eventual reservoirs) . If Q is correct on all but finitely many sites of C, the same construction produces a finite variant of B. Therefore the equality of degree sets Spec inn (X) = TTvis( X) still follows, even though exact equality of traces may fail at finitely many coordinates. 
+
+Corollary 5.11 (Padded representatives) . For X ∈ 2ω , define 
+
+X∗(2 n) = X(n), X∗(2 n + 1) = 0 .
+
+Then X∗ ≡tt X, the odd positions form a predictable reservoir, and 
+
+Spec inn (X∗) = TTvis( X∗).
+
+14 Remark 5.12 (The canonical presentation bridge) . If X ∈ RI, then X∗ lies in the upper region, X ≡tt X∗,and X ≤sir X∗ by projection onto the even coordinates. The reverse reduction is impossible, since it would place X above the computable SIR degree. Hence deg sir (X) < deg sir (X∗).
+
+Thus X 7 → X∗ is the canonical bridge from the RI region to the unique greatest SIR degree in the same truth-table degree. 
+
+Theorem 5.13 (The truth-table spine of the SIR degrees) . Let 
+
+Usir = {deg sir (X) : 0 ≤sir X}.
+
+Then 
+
+π : Usir −→ D tt , π(deg sir (X)) = deg tt (X),
+
+is an order isomorphism onto the truth-table degrees. Consequently: (i) Usir is an upper semilattice; (ii) every truth-table degree contains a unique greatest SIR degree, represented by any member of that truth-table degree having a predictable reservoir; (iii) if at least one of X, Y has a predictable reservoir, then their join exists in the full SIR degree structure and 
+
+deg sir (X) ∨ deg sir (Y ) = deg sir (X ⊕ Y ).
+
+Proof. The map π is well defined because SIR equivalence implies truth-table equivalence. If X, Y lie in Usir ,then the target Y has a predictable reservoir, and therefore 
+
+X ≤sir Y ⇐⇒ X ≤tt Y
+
+by Proposition 3.3 and Theorem 5.9. Hence π is an order embedding. It is surjective because Corollary 5.11 supplies, in every truth-table degree, a representative with a predictable reservoir. Fix a truth-table degree d and choose a reservoir-bearing representative Y ∈ d. Every other X ∈ d
+
+satisfies X ≤tt Y , hence X ≤sir Y . Thus the spine degree represented by Y is the unique greatest SIR degree inside d.Finally, X ⊕ Y is always an SIR upper bound of X and Y , witnessed by the even and odd coordinate projections. Let Z be any common SIR upper bound, and suppose without loss of generality that X has a predictable reservoir. Then 0 ≤sir X ≤sir Z, 
+
+so Z also has a predictable reservoir. Since X, Y ≤tt Z, truth-table closure under effective disjoint union gives X ⊕ Y ≤tt Z. The predictable-reservoir theorem now yields X ⊕ Y ≤sir Z. Hence X ⊕ Y is the least common SIR upper bound. 
+
+Corollary 5.14 (C.e. degrees on the truth-table spine) . Let A be computably enumerable. Then A has a predictable reservoir and 
+
+{B : B ≤sir A} = {B : B ≤tt A}.
+
+Thus the computable SIR degree is the least SIR degree represented by a c.e. real. Moreover: (i) if A and B are c.e. and A ≡tt B, then A ≡sir B;(ii) the c.e.-represented SIR degrees are closed under joins, with 
+
+deg sir (A) ∨ deg sir (B) = deg sir (A ⊕ B).
+
+After passing to truth-table degrees, the degrees represented below A form the principal truth-table ideal below 
+
+deg tt (A).
+
+15 Proof. If A is finite, then it is computable and the full schedule is a predictable reservoir. If A is infinite, it contains an infinite computable subset S. On S the constant-one predictor is correct, so S is a predictable reservoir. The equality of the two classes of presentations follows from Theorem 5.9 and Proposition 3.3. After passing to truth-table degrees, this equality yields the principal truth-table ideal below deg tt (A). The remaining assertions follow from Theorem 5.13; note that A ⊕ B is again c.e. 
+
+Corollary 5.15 (The exhaustive spine–RI partition) . Let 
+
+Usir = {a : 0sir ≤sir a},
+
+IRI = {deg sir (X) : X ∈ RI },
+
+Rsir = {deg sir (R) : R ∈ MLR }.
+
+Then 
+
+Dsir = Usir ˙∪ I RI .
+
+The upper region Usir is an upward-closed upper semilattice isomorphic to the truth-table degrees, whereas 
+
+IRI is downward closed. Moreover, 
+
+Rsir ⊊ IRI ,
+
+and Rsir is itself downward closed. The strictness is local and perfect: every basic cylinder contains a perfect Cantor set in RI \ MLR .Proof. By Proposition 5.4, a real lies above the computable SIR degree exactly when it is not reservoir-immune. This proves the exhaustive disjoint partition. Upward closure and the semilattice structure of Usir 
+
+follow from Theorem 5.13. If X ∈ RI and Y ≤sir X, then Y /∈ U sir , for otherwise 0 ≤sir Y ≤sir X; hence 
+
+Y ∈ RI. Thus the RI region is downward closed. Downward closure of Rsir is Corollary 2.7, and Theorem 5.8 proves that the inclusion into the RI region is proper in every basic cylinder. 
+
+Theorem 5.16 (Vanishing-density predictable reservoirs) . Let C ⊆ ω be an infinite computable set of asymptotic density zero, and enumerate its complement as D = {d0 < d 1 < · · · } . For X ∈ 2ω , define the 
+
+C-padded presentation Y by 
+
+Y (n) = 0 (n ∈ C), Y (dk) = X(k).
+
+Then 
+
+Y ≡tt X, Spec inn (Y ) = TTvis( Y ).
+
+Moreover, the lower and upper effective dimensions are preserved: 
+
+dim eff (Y ) = dim eff (X), Dim eff (Y ) = Dim eff (X).
+
+Proof. The computable zero set C is a predictable reservoir, so Theorem 5.9 gives Spec inn (Y ) = TTvis( Y ). Deleting the coordinates in C recovers X, while inserting zeroes on C computes Y from X, hence Y ≡tt X.Let 
+
+m(n) = |D ∩ n| = n − | C ∩ n|.
+
+Then m(n) = n − o(n). Uniformly in n, the prefix Y ↾ n is computable from X ↾ m(n) and n, while X ↾ m(n)is computable from Y ↾ n. Therefore 
+
+K(X ↾ m(n)) − O(log n) ≤ K(Y ↾ n) ≤ K(X ↾ m(n)) + O(log n).
+
+Since m(n)/n → 1 and m assumes every natural value, taking lower and upper limits proves both dimension equalities. 
+
+Remark 5.17 (Increasing-block implementation) . One may partition ω into computable blocks of increasing lengths and reserve only the last coordinate of each block for the value 0. The reserved coordinates then form an infinite density-zero reservoir. Thus the permanent even–odd empty column in Corollary 5.11 is a convenient normal form, not a density requirement. Arbitrarily sparse predictable sites suffice because they may be placed after the use of each desired truth-table computation. 16 Corollary 5.18 (The spectrum is not a truth-table-degree invariant) . There are X ≡tt Y with 
+
+Spec inn (X)̸ = Spec inn (Y ).
+
+Proof. Let R be Martin-Löf random and let R∗ be its padded representative. Every computable trace of R
+
+is Martin-Löf random by Theorem 2.6, so the computable degree is absent from Spec inn (R). The odd zero column of R∗ is a computable trace, so 0 ∈ Spec inn (R∗). Yet R ≡tt R∗.
+
+Theorem 5.19 (Two independent collapse criteria) . If X has a predictable reservoir and ∅′ ≤tt X, then 
+
+Spec inn (X) = TTvis( X) = WTTvis( X).
+
+Proof. The predictable-reservoir theorem gives Spec inn (X) = TTvis( X), while Remark 3.5 gives TTvis( X) = WTTvis( X). 
+
+Remark 5.20 (Qualitative versus quantitative collapse) . Theorem 5.19 concerns represented Turing degrees. It does not preserve use functions or schedule density. Totalizing a weak truth-table computation may inspect all counterfactual strings of a given bounded length, and realizing the resulting truth table as a trace may delay the output to a much later reservoir coordinate. Thus entropy and rate questions remain strictly finer than equality of visible degree sets. The preceding results describe the upper part of the SIR degree structure. We now turn to its lower boundary, where reservoir immunity prevents the computable reals from playing the role of a least degree. 
+
+Proposition 5.21 (The computable degree is minimal but not least) . All computable reals belong to one sequential-innovation degree, and this degree is minimal. It is not a least degree. More precisely, 
+
+0 ≤sir X ⇐⇒ X is not reservoir-immune .
+
+For every X, the visible set Spec inn (X) has the top element deg T (X), but it may omit 0 and need not be a Turing lower ideal. Proof. Computable reals predict one another by hard-coding the desired output, and every trace of a computable source is computable. Hence their common degree is minimal. Proposition 5.4 gives the displayed equivalence and shows that no reservoir-immune source lies above the computable sequential-innovation degree. The trivial full-schedule channel places deg T (X) in Spec inn (X). If R is Martin-Löf random, then 
+
+0 /∈ Spec inn (R) although deg T (R) belongs to the spectrum, so the spectrum is not a Turing lower ideal. 
+
+Corollary 5.22 (A truth-table degree splits into sequential-innovation degrees) . Let R be Martin-Löf random and let R∗ be any computably padded presentation with an infinite predictable reservoir. Then 
+
+R ≡tt R∗, R̸ ≡sir R∗.
+
+Thus sequential-innovation equivalence is a proper refinement of truth-table equivalence even within a single truth-table degree. Proof. The padding and deletion maps are truth-table reductions. If R ≡sir R∗, then the computable trace available from R∗ would, by transitivity, also be available from R, contradicting Proposition 5.6. The preceding statements explain the role of immunity. Ordinary bi-immunity blocks computable reservoirs visible to constant predictors, whereas reservoir immunity blocks them for every sequential computable predictor. It is exactly the obstruction preventing the computable sequential-innovation degree from lying below a presentation. 17 6 SIR spectra of random, Bernoulli, and c.e. sources 
+
+By Corollary 2.7, the fair-coin random region is closed downward under SIR: no computable sequential procedure can derandomize a Martin–Löf-random source. This rigidity coexists with extensive internal order structure created by computable coordinate geometry. We first separate finite causal delay inside one Turing degree from genuine information loss across Turing degrees. For computable p ∈ (0 , 1), let μp denote the Bernoulli product measure with one-bit marginal μp{1} = p.
+
+Lemma 6.1 (Bernoulli column independence) . Let p ∈ (0 , 1) be computable, let R be μp-Martin–Löf random, and let U, V ⊆ ω be disjoint infinite computable sets. Then 
+
+R ↾ U ∈ MLR R↾Vμp .
+
+In particular, R ↾ U ≰T R ↾ V .Proof. Enumerate U and V increasingly. The coordinate map ΘU,V (R) = (R ↾ U, R ↾ V )
+
+is computable and pushes μp forward to the product measure μp × μp. Randomness conservation for computable measure-preserving maps therefore makes Θ U,V (R) μp × μp-Martin–Löf random [14]. After interchanging the two coordinates, the product-measure form of van Lambalgen’s theorem gives R ↾ U ∈
+
+MLR R↾Vμp ; here the conditional measure is the fixed computable measure μp [15, 16, 7]. Since μp is nonatomic, no sequence computable from the oracle R ↾ V can be μp-Martin–Löf random relative to that oracle. Hence 
+
+R ↾ U ≰T R ↾ V .
+
+Theorem 6.2 (Bernoulli-random universality) . Suppose that p ∈ (0 , 1) is computable and that X has a 
+
+μp-Martin–Löf-random sequential innovation trace R ≤sir X. Then every computable countable partial order 
+
+(A, ⪯) admits an order embedding 
+
+a 7 −→ deg sir (Ra) (26) 
+
+into the SIR degrees strictly below deg sir (X), where every Ra is μp-Martin–Löf random. Consequently, below 
+
+X there are μp-random copies of every computable tree, every computable countable linear order, countably infinite antichains, and strictly increasing chains of every computable ordinal type α < ω CK  
+
+> 1
+
+.Proof. Assume that A is a computable subset of ω and that ⪯ is computable. For a ∈ A , put 
+
+Da = {b ∈ A : b ⪯ a},̂ Da = {2b : b ∈ Da}. (27) Each ̂ Da is a nonempty computable set, and reflexivity gives ̂
+
+Da ⊆̂ Dc ⇐⇒ a ⪯ c. (28) Partition the coordinates of R into canonical computable infinite columns ( Ci)i∈ω and define 
+
+Sa = ⋃
+
+> i∈
+
+̂ Da
+
+Ci, Ra = R ↾ Sa. (29) Every Ra is μp-Martin–Löf random by randomness conservation under the computable coordinate projection to Sa, and it is a sequential innovation trace of R, hence of X.If a ⪯ c, computable coordinate projection gives Ra ≤sir Rc. Conversely, if a⪯̸ c , then 2 a ∈̂ Da \̂ Dc.Apply Lemma 6.1 with U = C2a and V = Sc. It gives 
+
+R ↾ C2a ≰T Rc. (30) The left-hand side is computable from Ra, so Ra ≰T Rc, and therefore Ra ≰sir Rc.Finally, every Sa omits the infinite computable union O of all odd-indexed columns. Lemma 6.1, applied to U = O and V = Sa, gives 
+
+R ↾ O ≰T Ra. (31) Since R ↾ O ≤T R, this implies R ≰T Ra, and hence Ra <T R. If X ≤sir Ra, then R ≤sir X ≤sir Ra,contradicting R ≰T Ra. Thus every embedded degree is strictly below deg sir (X). 18 For k < ω , write 
+
+σkX(n) = X(n + k)for the k-fold left shift. 
+
+Lemma 6.3 (Finite variants and shifted innovations) . (i) If X and Y differ on only finitely many coor-dinates, then X ≡sir Y .(ii) For every total computable predictor P and every k < ω ,
+
+σkIXP ≡sir σkX. 
+
+Proof. For (i), use the full schedule and hardwire the finitely many values of X(n) ⊕ Y (n) into the predictor. The same construction works in both directions. For (ii), hardwire X ↾ k. From a prefix of σkX one can reconstruct the corresponding prefix of X and apply P , giving σkIXP ≤sir σkX. Conversely, from a prefix of σkIXP , recursively reconstruct the corresponding source prefix, again using the hardwired initial segment. This gives the reverse full-schedule SIR reduction. 
+
+Theorem 6.4 (Random interval dichotomy) . Let B be Martin–Löf random and let A ≤sir B. Exactly one of the following alternatives holds. (i) A ≡T B. Then there is a unique k < ω such that 
+
+A ≡sir σkB. 
+
+The shifts form a strict chain 
+
+· · · <sir σ2B < sir σB < sir B, 
+
+and consecutive shifts are cover pairs. More generally, the interval between σkB and B consists exactly of the k + 1 shift degrees σj B, 0 ≤ j ≤ k.(ii) A < T B. Then the open SIR interval 
+
+(deg sir (A), deg sir (B))
+
+contains an order-isomorphic copy of (Q, < ) represented entirely by Martin–Löf-random reals. Proof. Choose a channel with 
+
+A = JBP,S 
+
+after identifying S with its increasing enumeration, and put I = IBP . By Proposition 2.4, I ≡sir B and I is Martin–Löf random, while 
+
+A = I ↾ S. 
+
+Suppose first that A ≡T B. If ω \S were infinite, then van Lambalgen’s theorem applied to the computable partition S ⊔ (ω \ S) would make I ↾ (ω \ S) random relative to A. It could not be computed from A,contradicting I ≡T A. Hence S is cofinite. If k = |ω \ S|, then A is a finite variant of σkI. Lemma 6.3 gives 
+
+A ≡sir σkB.For every k, the tail projection gives σk+1 B ≤sir σkB. The reverse reduction is impossible. Indeed, put 
+
+X = σk+1 B and suppose that σkB ≤sir X via schedule sn and predictor Q. For n ≥ 1, 
+
+X(n − 1) = X(sn) ⊕ Q(X ↾ sn).
+
+Since sn ≥ n, define a total computable predictor H at length sn, for n ≥ 1, by 
+
+H(τ ) = Q(τ ) ⊕ τ (n − 1) ,
+
+where n is recovered effectively from the scheduled length sn, and define H arbitrarily elsewhere. Then 
+
+H(X ↾ sn) = X(sn) on the infinite computable tail of the schedule, contradicting reservoir immunity of the random real X. Thus the shift chain is strict. If σkB ≤sir Z ≤sir B, then Z ≡T B, so the preceding 19 classification gives Z ≡sir σj B for a unique j. The strict shift order forces 0 ≤ j ≤ k, proving the cover and finite-interval claims. Now suppose that A < T B. Then D = ω \S is infinite. Enumerate D = {d0 < d 1 < · · · } , fix a computable one-to-one enumeration ( ri)i∈ω of Q ∩ (0 , 1), and use a computable pairing function. For q ∈ Q ∩ (0 , 1) define 
+
+Dq = {d⟨i,j ⟩ : ri < q }, Tq = S ∪ Dq , Zq = I ↾ Tq .
+
+Each Tq is computable. If q < q ′, then Dq , Dq′ \ Dq , and D \ Dq′ are all infinite, because the rationals are dense and each rational index carries an infinite column. Coordinate projection gives 
+
+A ≤sir Zq ≤sir Zq′ ≤sir I ≡sir B. 
+
+Van Lambalgen’s theorem applied to each newly added or omitted infinite column shows that all three inequalities are strict already in Turing degree. Every Zq is Martin–Löf random. Hence q 7 → deg sir (Zq )embeds ( Q ∩ (0 , 1) , < ) into the open interval. 
+
+Theorem 6.5 (A random pair with no SIR join) . Let R be Martin–Löf random and define its even and odd columns by 
+
+A(n) = R(2 n), B(n) = R(2 n + 1) .
+
+Then A and B are Martin–Löf random, their SIR degrees are incomparable, and they have no join in the full SIR degree structure. Proof. The identity R = A ⊕ B and van Lambalgen’s theorem show that A and B are Martin–Löf random and Turing incomparable, hence SIR incomparable. We first isolate the mechanism producing common upper bounds. For every m < ω , put Xm = σmR.Then both A and B are SIR-reducible to Xm. For A, choose N > m and define a strictly increasing schedule by 
+
+sn = n (n < N ), sn = 2 n − m (n ≥ N ).
+
+At the finitely many initial scheduled lengths, define the predictor so that 
+
+P (Xm ↾ n) = Xm(n) ⊕ A(n) (n < N ),
+
+and extend these finitely prescribed values computably to all strings of the corresponding lengths. At every later scheduled length set P equal to zero. Since 
+
+Xm(2 n − m) = R(2 n) = A(n) (n ≥ N ),
+
+the resulting trace is exactly A. Replacing the eventual schedule by sn = 2 n + 1 − m gives B ≤sir Xm. Thus every finite tail 
+
+σmR
+
+is a common SIR upper bound of A and B.Suppose now that a join J existed. Since R is one of these common upper bounds, leastness gives 
+
+J ≤sir R. Conversely, A, B ≤sir J implies 
+
+R = A ⊕ B ≤T J. 
+
+Hence J ≡T R. The same-Turing-degree clause of Theorem 6.4 therefore yields 
+
+J ≡sir σkR
+
+for some k < ω . But σk+1 R is also a common upper bound, so leastness of J gives 
+
+J ≤sir σk+1 R. 
+
+Combining this with σkR ≤sir J gives 
+
+σkR ≤sir σk+1 R, 
+
+contradicting the strict shift chain. Thus no join exists. The common-upper-bound construction itself uses only the interleaving R = A ⊕ B. Reservoir immunity supplies the strictness of the shift chain; Martin–Löf randomness is used here to obtain incomparability and to classify every same-Turing-degree SIR descendant of R as a finite shift. 20 Upper region: truth-table spine 
+
+0sir 
+
+c.e. A c.e. BA ⊕ B
+
+Usir ∼= Dtt ; the c.e. part is shown. Joins are effective disjoint unions. 
+
+# Random subgeometry inside RI 
+
+## spine representative in deg tt (R)
+
+## RσR σ2R
+
+## ...
+
+## Reven Rodd 
+
+## incomparable; no join 
+
+## Q embeds in every interval with a strict Turing-degree drop 
+
+## Rsir is downward closed and disjoint from Usir ; the displayed random de-grees lie inside the larger RI region. 
+
+Figure 1: The truth-table spine and the random subgeometry of the complementary RI region. Reducibility arrows point upward. The upper cone above the computable degree is the truth-table spine and supports joins. Its complement is the downward-closed RI region; the figure displays the fair-coin Martin–Löf-random subclass, within which every SIR output remains random. A random presentation reduces to the unique greatest SIR degree in its truth-table degree via the padding bridge R 7 → R∗. Inside the random subgeometry, finite shifts form discrete causal layers, intervals crossing Turing degrees contain copies of Q, and the even and odd columns of R have common upper bounds but no least one. 
+
+Problem 6.6 (Beyond Martin–Löf randomness) . Determine which parts of Theorems 6.4 and 6.5 extend from Martin–Löf-random presentations to arbitrary reservoir-immune presentations. The proofs above use van Lambalgen’s theorem to ensure that every omitted infinite computable column remains noncomputable relative to the retained columns. Reservoir immunity alone does not presently supply an equivalent relative-independence principle. 
+
+Corollary 6.7 (Spectral barrenness under thin truth-table visibility) . If the truth-table-visible degree set of 
+
+X contains no two incomparable noncomputable Turing degrees, then X has no Martin-Löf-random sequential innovation trace. In particular, no real of minimal nonzero Turing degree has a Martin-Löf-random trace. Proof. Every sequential innovation trace is truth-table reducible to X. If one such trace were Martin-Löf random, Theorem 6.2, with p = 1 /2, would produce two incomparable noncomputable degrees in the truth-table-visible degree set of X.
+
+Remark 6.8. The conclusion is stronger than nonrandomness of the presentation itself. A spectrally barren real admits no computable sequential observation whose normalized innovation sequence is Martin-Löf 21 random. Conversely, a single random trace can never be an isolated witness: it automatically generates extensive random degree structure below the original presentation. If R is Martin-Löf random, every member of Spec inn (R) is represented by a Martin-Löf-random real. In particular, 
+
+0 /∈ Spec inn (R).
+
+This complexity rigidity coexists with substantial degree-theoretic structure. Theorem 6.2 subsumes the customary branching examples. In the fair-coin case it yields, strictly below every random trace, copies of every computable tree and linear order, countable antichains, dense copies of (Q, < ), and chains of every computable ordinal type. For a general computable p ∈ (0 , 1), the same structures are represented by μp-Martin–Löf-random reals. We conclude with a mixed presentation that places the c.e. truth-table spine and a transverse random family below a single SIR degree. Recall that a 2-random real is Martin-Löf random relative to ∅′, and that every 2-random degree forms a minimal pair with 0′; see [7, 17]. Fix a computable partition of the coordinates of a 2-random real R into infinite columns, 
+
+R = ⊕
+
+> i∈ω
+
+Ri, (32) and, for every nonempty computable I ⊆ ω, put 
+
+RI = ⊕
+
+> i∈I
+
+Ri. (33) 
+
+Theorem 6.9 (The c.e.–random bridge) . Let R be 2-random and put X = ∅′ ⊕ R. Then: (i) 
+
+Spec inn (X) = TTvis( X) = WTTvis( X), (34) 
+
+and every c.e. Turing degree belongs to Spec inn (X).(ii) For all nonempty computable I, J ⊆ ω, the reals RI and ∅′ ⊕ RI belong to Spec inn (X), and 
+
+RI ≤T RJ ⇐⇒ RI ≤T ∅′ ⊕ RJ ⇐⇒ ∅′ ⊕ RI ≤T ∅′ ⊕ RJ ⇐⇒ I ⊆ J. (35) 
+
+(iii) Every RI is 2-random and is Turing incomparable with every noncomputable c.e. set, whereas every 
+
+∅′ ⊕ RI lies above all c.e. degrees and is not Turing reducible to any RJ .Proof. The ∅′ component of X contains an infinite computable predictable reservoir, obtained from indices of machines that halt immediately. Hence Theorem 5.19 gives Spec inn (X) = TTvis( X) = WTTvis( X). (36) Every c.e. set is many-one reducible to ∅′, so every c.e. degree belongs to this spectrum. Each RI is a computable coordinate projection of a real that is random relative to ∅′, and is therefore 2-random. If I ⊆ J, the required reductions follow by coordinate projection. If i ∈ I \ J, relativized van Lambalgen gives 
+
+Ri ∈ MLR ∅′⊕RJ , (37) and consequently 
+
+Ri ≰T ∅′ ⊕ RJ . (38) Since Ri ≤T RI , none of the three reductions in part (ii) can hold. This proves the equivalences. All the displayed reals are truth-table reducible to X, so they belong to Spec inn (X). Finally, a 2-random real is not computable from ∅′. It therefore cannot be computed from a c.e. set. Conversely, if a noncomputable c.e. set were computable from RI , it would give a nonzero common lower bound of deg T (RI ) and 0′, contradicting their minimal-pair property. The remaining assertions follow from 
+
+∅′ ≤T ∅′ ⊕ RI and ∅′ ≰T RJ .22 At the level of SIR degrees, the c.e.-represented branch is ordered by truth-table reducibility, since c.e. presentations have predictable reservoirs. Every RI is Martin–Löf random and hence reservoir-immune. It follows that the c.e.-represented branch and the random branch are entirely SIR-incomparable: reducibility in either direction would contradict either reservoir immunity or the Turing incomparability established above. Figure 2 summarizes the resulting guaranteed suborder below deg sir (∅′ ⊕ R).                                         
+
+> deg sir (X), where X=∅′⊕R
+> Lsir ={deg sir (∅′⊕RI):
+> ∅̸=Icomputable }∅′⊕RI≤sir ∅′⊕RJ⇐⇒ I⊆J
+> c.e.-represented SIR degrees
+> ∼= c.e. truth-table degrees least element 0sir , great-est element deg sir (∅′)
+> Rsir ={deg sir (RI):
+> ∅̸=Icomputable }
+> RI≤sir RJ⇐⇒ I⊆J
+> below every lifted degree join with ∅′
+> all SIR-incomparable, including 0sir
+
+Figure 2: A guaranteed SIR suborder below deg sir (∅′ ⊕ R). The c.e.-represented branch is a copy of the c.e. truth-table degrees; the random branch is SIR-incomparable with it; and adjoining ∅′ to a random node produces the corresponding lifted node. The full lower cone may contain additional degrees. As shown in Figure 2, the lower SIR cone of ∅′ ⊕ R contains three interacting parts: the c.e.-represented spine, ordered by truth-table reducibility; a transverse family of reservoir-immune random degrees; and the corresponding lifted family above deg sir (∅′). The diagram records only this guaranteed suborder; additional degrees may also occur. 
+
+# 7 Application: fair-random traces from Bernoulli sources 
+
+The degree-theoretic results above describe the structure below a random trace. We now show that every presentation which is Martin–Löf random for a computable nondegenerate Bernoulli measure has a fair-coin Martin–Löf-random SIR trace. Moreover, the trace can be obtained on a computable schedule of positive asymptotic density. For computable p ∈ (0 , 1), let μp denote Bernoulli measure and put 
+
+q = 2 p(1 − p). (39) For two independent p-biased bits, the pair is unequal with probability q, and conditional on being unequal the orientations 01 and 10 are equiprobable. We adapt the classical von Neumann extractor [10]. The extracted bits from the sampling part of a block are used as masks only at later target coordinates in that block. Thus every mask bit is known before the corresponding target source bit is revealed. 
+
+Proposition 7.1 (Batched von Neumann extraction) . For every computable p ∈ (0 , 1) there are a total computable predictor P and a computable schedule S of positive asymptotic density such that 
+
+JXP,S ∈ MLR (40) 
+
+for every X ∈ MLR μp .Proof. Since q > 0 is computable, choose rationals r, a with 0 < 2r < a < q. (41) Hoeffding’s inequality gives, for c = 2( a − r)2 > 0, 
+
+μp
+
+(Bin( N, q ) < rN ) ≤ e−cN (42) 23 for every N . Fix an integer M with rM ≥ 1 and put 
+
+Nk = M (k + 1) 2, mk = ⌊rN k⌋. (43) Then Nk → ∞ , the series ∑ 
+
+> k
+
+e−cN k converges computably, and 
+
+Nk
+
+∑ 
+
+> j<k
+
+Nj
+
+−→ 0. (44) Partition ω computably into successive blocks. Block k consists first of a sampling segment of length 2Nk, viewed as Nk consecutive pairs, and then a target segment of length mk. Let S be the union of the target segments. On the sampling segment, apply the von Neumann rule 01 7 → 0, 10 7 → 1, (45) discarding 00 and 11. If at least mk unequal pairs occur, let Uk be the first mk extracted orientations. Otherwise put Uk = 0 mk . At the jth target coordinate of block k, the predictor outputs Uk(j); at all other lengths, define it arbitrarily. Since the entire sampling segment precedes the target segment, this defines a total computable predictor and is sequentially admissible. Let Fk be the event that fewer than mk unequal pairs occur. The number of unequal pairs has binomial distribution with parameters Nk and q, so 
+
+μp(Fk) ≤ e−cN k . (46) To verify randomness of the trace, let A be an auxiliary fair-coin tape, parsed into consecutive blocks 
+
+Ak ∈ 2mk . Define the ideal mask 
+
+˜Uk =
+
+{
+
+Uk, if Fk does not occur ,Ak, if Fk occurs . (47) Conditional on success, the first mk von Neumann orientations are exactly uniform and are independent of the target segment. On failure, the auxiliary block Ak is uniform and independent of the source. Hence each ideal mask ˜Uk is uniformly distributed on 2 mk and independent of the corresponding target segment. Different blocks are independent. Therefore, when each target segment is XORed with its ideal mask, the resulting ideal trace has fair-coin distribution. Fix X ∈ MLR μp and choose A ∈ MLR X . By van Lambalgen’s theorem, ( X, A ) is Martin–Löf random for μp × λ. The ideal trace is a computable image of ( X, A ) whose pushforward measure is λ, so randomness conservation makes it a member of MLR. The events ( Fk) are uniformly effective and have a computably convergent sum. Effective Borel–Cantelli therefore implies that only finitely many Fk occur on X. The actual trace differs from the ideal trace in only finitely many blocks, hence in only finitely many bits, and is therefore also in MLR. Finally, put 
+
+LK = ∑
+
+> k<K
+
+(2 Nk + mk). (48) Since mk = ⌊rN k⌋ and Nk → ∞ ,
+
+|S ∩ LK |
+
+LK
+
+=
+
+∑ 
+
+> k<K
+
+mk
+
+∑ 
+
+> k<K
+
+(2 Nk + mk) −→ r
+
+2 + r . (49) Since the length of block K is o(LK ), passing from a block endpoint to an intermediate position changes the density by o(1). Thus S has positive asymptotic density r/ (2 + r). 
+
+Corollary 7.2 (Bernoulli-random presentations contain a fair-random SIR universe) . Let p ∈ (0 , 1) be computable and let X ∈ MLR μp . Then there is a fair-coin Martin–Löf-random real R such that 
+
+R ≤sir X. (50) 
+
+Consequently, every computable countable partial order embeds into the SIR degrees strictly below X,represented entirely by fair-coin Martin–Löf-random reals. 
+
+24 Proof. By Proposition 7.1, some trace R = JXP,S belongs to MLR, and hence R ≤sir X. Apply Theorem 6.2 with parameter 1 /2. 
+
+Remark 7.3 (Native and extracted random suborders) . Theorem 6.2, applied directly to X ∈ MLR μp
+
+with parameter p, gives a universal computable suborder below X represented by μp-Martin–Löf-random reals. The preceding corollary gives another universal computable suborder below the same presentation, represented by fair-coin Martin–Löf-random reals. Thus, when p̸ = 1 /2, the disjoint classes MLR μp and MLR nevertheless occur together in the same SIR lower cone. This is the sense in which the SIR-degree structures associated with the two measures are intertwined; it does not assert that arbitrary degrees represented by the two classes are comparable. The density supplied by the construction decreases as the source becomes more biased. Indeed, the supply of von Neumann mask bits is governed by 
+
+q = 2 p(1 − p) = 12 − 2
+
+(
+
+p − 12
+
+)2
+
+, (51) and the construction gives density r/ (2 + r) for any rational 0 < r < q/ 2. Hence the available positive-density lower bound decreases as |p − 1/2| increases. This is a feature of the present construction, not an optimality statement. 
+
+Remark 7.4 (Rate refinements) . The batched von Neumann construction is deliberately not rate-optimal. Its purpose here is to produce a positive-density fair-random trace and thereby connect the native Bernoulli-random and fair-random parts of the SIR degree structure. The pair extractor can be replaced by finite-block type-class extraction in the manner of Elias [11], while retaining the same one-block causal delay, to obtain higher extraction densities. We do not pursue sharp rate optimization here. 
+
+# 8 Conclusion 
+
+Sequential-innovation reducibility formalizes a causal restriction on truth-table computation: each output is obtained from a fresh source bit after the predictor has committed using only the preceding history. The resulting reducibility strictly refines truth-table reducibility and induces an exhaustive geometric dichotomy. The upper cone above the computable degree is a truth-table spine, canonically isomorphic to the truth-table degrees, while its complement consists exactly of the reservoir-immune degrees and is downward closed under SIR. Within the reservoir-immune region, the Martin–Löf-random degrees form a proper downward-closed substructure with a markedly different geometry. Same-Turing-degree descent is governed by finite shifts, strict Turing-degree drops contain densely ordered random intervals, and random columns need not admit joins. The two bridge constructions clarify how the regions interact: X 7 → X∗ moves an RI presentation to the greatest SIR representative of the same truth-table degree, while ∅′ ⊕ R combines c.e. and random suborders in a single lower cone. The Bernoulli application shows that every computable μp-Martin–Löf-random presentation has a positive-density fair-coin-random SIR trace. It therefore contains both native μp-random and extracted fair-random copies of every computable countable partial order. The batched von Neumann construction is not rate-optimal; Elias-type block methods provide possible quantitative refinements. 
+
+# Acknowledgments 
+
+The author used OpenAI’s ChatGPT 5.6 as an interactive research and writing assistant during the development of this work, including to test and refine arguments, organize proofs, and improve the exposition. All mathematical claims, proofs, references, and final formulations were independently reviewed and verified by the author, who takes full responsibility for the content of the paper. 25 References 
+
+[1] Todd Ebert, Wolfgang Merkle, and Heribert Vollmer. On the autoreducibility of random sequences. 
+
+SIAM Journal on Computing , 32(6):1542–1569, 2003. [2] Rod G. Downey, Denis R. Hirschfeldt, and Geoff LaForte. Randomness and reducibility. Journal of Computer and System Sciences , 68(1):96–114, 2004. [3] George Barmpalias and Andrew E. M. Lewis. The ibT degrees of computably enumerable sets are not dense. Annals of Pure and Applied Logic , 141(1–2):51–60, 2006. [4] Adam R. Day. The computable lipschitz degrees of computably enumerable sets are not dense. Annals of Pure and Applied Logic , 161(12):1588–1602, 2010. [5] Claus-Peter Schnorr. Zufälligkeit und Wahrscheinlichkeit: Eine algorithmische Begründung der Wahrscheinlichkeitstheorie , volume 218 of Lecture Notes in Mathematics . Springer, Berlin, 1971. [6] Wolfgang Merkle, Joseph S. Miller, André Nies, Jan Reimann, and Frank Stephan. Kolmogorov–loveland randomness and stochasticity. Annals of Pure and Applied Logic , 138(1–3):183–210, 2006. [7] André Nies. Computability and Randomness . Oxford University Press, Oxford, 2009. [8] Amir Leshem. Universal individual-sequence prediction with a primitive-recursive superpredictor, 2026. arXiv:2607.25712 [cs.IT]. [9] Noam Greenberg, André Nies, and Daniel Turetsky. Characterising SJT reducibility. arXiv preprint ,2026. Version 2, 1 June 2026. [10] John von Neumann. Various techniques used in connection with random digits. In Monte Carlo Method ,volume 12 of National Bureau of Standards Applied Mathematics Series , pages 36–38. U.S. Government Printing Office, Washington, DC, 1951. [11] Peter Elias. The efficient construction of an unbiased random sequence. The Annals of Mathematical Statistics , 43(3):865–870, 1972. [12] Hartley Rogers. Theory of Recursive Functions and Effective Computability . McGraw-Hill, 1967. [13] Piergiorgio Odifreddi. Classical Recursion Theory , volume 125 of Studies in Logic and the Foundations of Mathematics . North-Holland, 1989. [14] Mathieu Hoyrup and Cristóbal Rojas. Computability of probability measures and Martin-Löf randomness over metric spaces. Information and Computation , 207(7):830–847, 2009. [15] Michiel van Lambalgen. The axiomatization of randomness. Journal of Symbolic Logic , 55(3):1143–1167, 1990. [16] Hayato Takahashi. Algorithmic randomness and monotone complexity on product space. Information and Computation , 209(2):183–197, 2011. [17] Rodney G. Downey and Denis R. Hirschfeldt. Algorithmic Randomness and Complexity . Theory and Applications of Computability. Springer, New York, 2010. 26
