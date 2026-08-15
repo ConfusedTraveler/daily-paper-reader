@@ -6,59 +6,49 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-13
-- 运行时间：2026-08-13 20:35:03 UTC
+- 最新运行日期：2026-08-15
+- 运行时间：2026-08-15 20:45:06 UTC
 - 运行状态：成功
-- 本次总论文数：13
+- 本次总论文数：9
 - 精读区：2
-- 速读区：11
+- 速读区：7
 
 ### 今日简报（AI）
-今日精读2篇、速读3篇，聚焦创新谱系与共形预测的有限样本保证。最值一看是《Sequential-Innovation Reducibility》9分，另推荐局部共形预测的边界改进结果。普通读者可从创新谱系理论入手，理解技术演进的层级结构。
-- 详情：[/202608/13/README](/202608/13/README)
+今日共筛选9篇论文，精读2篇、速读7篇，聚焦机器学习推理与决策系统。  
+最值得关注的两篇精读论文均获9.0分：一篇探讨黑盒预测下的最优推断方法，另一篇从信息论与交互视角剖析机器学习决策系统的结构极限。  
+建议优先精读上述两篇，后续可顺带浏览速读中关于社交导航规划与在线概率预测的7分工作，拓宽应用视野。
+- 详情：[/202608/15/README](/202608/15/README)
 
 ### 精读区论文标签
-1. [Sequential-Innovation Reducibility and the Innovation Spectrum](/202608/13/2608.05443v1-sequential-innovation-reducibility-and-the-innovation-spectrum)  
+1. [Optimal Inference with Black-box Predictions](/202608/15/2608.10155v1-optimal-inference-with-black-box-predictions)  
    标签：评分：9.0/10、query:pred-limit
-   evidence：通过创新序列与可归约性对序列预测进行理论分析
-2. [Beyond Marginal Validity: Finite-Sample Guarantees for Localized Conformal Prediction](/202608/13/2608.06206v1-beyond-marginal-validity-finite-sample-guarantees-for-localized-conformal-prediction)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：为局部化共形预测提供有限样本高概率保证，直接关联预测精度的理论界
+   evidence：刻画了黑盒预测下推断的信息论极限，与理论可预测性分析高度契合
+2. [On the Structural Limits of Machine Learning Decision Systems: An Information-Theoretic, Interaction-Based, and Stochastic-Dynamical Perspective](/202608/15/2608.13510v1-on-the-structural-limits-of-machine-learning-decision-systems-an-information-theoretic-interaction-based-and-stochastic-dynamical-perspective)  
+   标签：评分：9.0/10、query:pred-limit
+   evidence：研究预测决策系统在信息论与随机动力学上的固有极限
 
 ### 速读区论文标签
-1. [Equation-Free Period-Aware Forecast-Error Contraction for Estimating Negative Largest Lyapunov Exponents from Short Trajectory Ensembles](/202608/13/2608.05522v1-equation-free-period-aware-forecast-error-contraction-for-estimating-negative-largest-lyapunov-exponents-from-short-trajectory-ensembles)  
+1. [MPPI Planning with Gaussian Based Human Cost Function for Social Navigation](/202608/15/2608.08323v1-mppi-planning-with-gaussian-based-human-cost-function-for-social-navigation)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：利用预测误差收缩估计Lyapunov指数，是理论可预测性分析的核心
-2. [Learning a quantitative criterion for distinguishing chaos from noise](/202608/13/2608.07109v1-learning-a-quantitative-criterion-for-distinguishing-chaos-from-noise)  
+   evidence：直接预测行人的未来位置用于社会导航，属于人类移动模式预测
+2. [Defensive Boosting for Online Probabilistic Forecasting](/202608/15/2608.13554v1-defensive-boosting-for-online-probabilistic-forecasting)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：利用交叉预测的短期可预测性检验来区分混沌与噪声
-3. [Give the Long-tail More SPACE: Promoting Provider Fairness in Next POI Recommendation](/202608/13/2608.07998v1-give-the-long-tail-more-space-promoting-provider-fairness-in-next-poi-recommendation)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：基于历史移动序列的下一兴趣点推荐，与人类移动性预测相关
-4. [Do Time-Series Forecasters Use the Right History: Recoverability, Recovery, and Functional Use of Temporal Delays](/202608/13/2608.10433v1-do-time-series-forecasters-use-the-right-history-recoverability-recovery-and-functional-use-of-temporal-delays)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：对时间序列预测器历史使用与延迟可恢复性的理论分析
-5. [Fixed-Point Characterisations of Extremal Distributions under Partial Distributional Constraints](/202608/13/2608.04315v1-fixed-point-characterisations-of-extremal-distributions-under-partial-distributional-constraints)  
+   evidence：为在线概率预测提供Brier分数的理论保证，与预测精度上界相关
+3. [Tracing sources of epistemic uncertainty in deep learning predictions: homo- and hetero-scedastic linearized estimators](/202608/15/2608.07630v1-tracing-sources-of-epistemic-uncertainty-in-deep-learning-predictions-homo--and-hetero-scedastic-linearized-estimators)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：部分约束下极值分布的理论刻画；可应用于最坏情形可预测性界
-6. [Bernoulli--Strang--Fix Conditions: Approximation and Prediction by Sampling Kantorovich Operators](/202608/13/2608.04727v1-bernoulli--strang--fix-conditions-approximation-and-prediction-by-sampling-kantorovich-operators)  
+   evidence：将不确定性分解为偶然与认知来源，与理论可预测性分析相关
+4. [The Price of Near-Perfect Consistency in Online Metric Matching with Predictions](/202608/15/2608.08653v1-the-price-of-near-perfect-consistency-in-online-metric-matching-with-predictions)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：给出过去样本预测算子的理论条件，与预测精度界限相关
-7. [Hybrid Probabilistic Zonotopes for Identifiable and Refinable Predictive Uncertainty](/202608/13/2608.05454v1-hybrid-probabilistic-zonotopes-for-identifiable-and-refinable-predictive-uncertainty)  
+   evidence：针对带预测在线算法的理论一致性-鲁棒性权衡，给出近乎完美一致性下的鲁棒性下界
+5. [From Recoverability to Functional Use: Certifying Temporal Reports in Time-Series Forecasting](/202608/15/2608.10433v2-from-recoverability-to-functional-use-certifying-temporal-reports-in-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：预测不确定性的结构化分解与细化；支持预测中可量化可预测性分析
-8. [Align-RAG: Alignment Is All You Need for TSFM In-Context Learning](/202608/13/2608.05571v1-align-rag-alignment-is-all-you-need-for-tsfm-in-context-learning)  
+   evidence：时间序列预测中时间报告可恢复性与预测惩罚的理论分析
+6. [Retrieval-Corrected Conformal Prediction for Time Series](/202608/15/2608.10553v1-retrieval-corrected-conformal-prediction-for-time-series)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：检索增强的时间序列预测，无需微调即可适应新域，可用于时间序列预测任务
-9. [A Unified Framework for Trajectory Prediction with Explicit Planning and Reaction Decomposition](/202608/13/2608.05673v1-a-unified-framework-for-trajectory-prediction-with-explicit-planning-and-reaction-decomposition)  
+   evidence：为时间序列提供校准的保形预测区间，量化预测不确定性
+7. [Duality and Error for Predictively Oriented Inference](/202608/15/2608.10592v1-duality-and-error-for-predictively-oriented-inference)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：用于智能体运动预测的规划与反应分解统一轨迹预测框架
-10. [On equitable scoring functions and optimal forecasting behaviour](/202608/13/2608.06710v1-on-equitable-scoring-functions-and-optimal-forecasting-behaviour)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：公平评分函数与最优预测的理论分析
-11. [When GNNs Fail: Quantifying and Overcoming Temporal Correlation Volatility in Time Series](/202608/13/2608.07333v1-when-gnns-fail-quantifying-and-overcoming-temporal-correlation-volatility-in-time-series)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：量化时间序列相关性波动并分析GNN在预测中的能力局限
+   evidence：对预测导向推断的理论分析与误差界
 
 
 <div class="dpr-home-promo-card">

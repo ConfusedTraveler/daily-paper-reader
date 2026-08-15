@@ -1,0 +1,3771 @@
+Optimal Inference with Black-box Predictions
+Lucas Kania†,∗
+Abhinav Chakraborty⋄,∗
+Edward Kennedy§
+Larry Wasserman§,‡
+Sivaraman Balakrishnan§,‡
+†Department of Statistics and Data Science, University of Pennsylvania
+⋄Department of Statistics, Columbia University
+§Department of Statistics and Data Science, Carnegie Mellon University
+‡Machine Learning Department, Carnegie Mellon University
+lkania@upenn.edu, ac4662@columbia.edu, {edward,larry,siva}@stat.cmu.edu
+August 12, 2026
+Abstract
+Powerful black-box predictive models have motivated many proposals for com-
+bining observed data with predictions to perform valid statistical inference. De-
+spite this progress, the field lacks a unifying principle that explains how hypoth-
+esis tests should integrate data and predictions in a way that is both valid and
+efficient.
+In this work, we address this gap in the high-dimensional Gaussian
+sequence model.
+We characterize the information-theoretic limits of inference
+with black-box predictions when their accuracies are known and, for orthogonal
+predictions, when they are unknown.
+Building on these characterizations, we
+develop practical hypothesis tests that adapt to the unknown accuracies of the
+predictions while benefiting from strong alignment among them.
+Table of contents
+1
+Introduction
+2
+2
+Adaptation in the minimax framework
+13
+3
+Oracle inference with multiple predictions
+14
+4
+The cost of adapting to orthogonal predictions
+18
+5
+The cost of adapting to arbitrary predictions
+21
+6
+Simulations
+24
+7
+Discussion
+27
+Supplementary material
+28
+References
+50
+*These authors contributed equally.
+1
+arXiv:2608.10155v1  [math.ST]  10 Aug 2026
+
+
+1
+Introduction
+Modern scientific research often centers on evaluating whether available data supports
+or contradicts a given hypothesis. Statistical hypothesis testing provides a structured
+framework for addressing this question. At a high level, practitioners specify a reference
+distribution and apply a test to determine whether the data deviates from this baseline.
+Each test, either implicitly or explicitly, targets a specific kind of deviation and is
+designed to detect whether the data aligns more closely with an alternative distribution.
+Early developments in parametric and semi-parametric statistics emphasized the
+design of tests with strong detection power against a small set of well-specified alterna-
+tive distributions [Bickel et al., 2006, Janssen, 2000]. However, even minor deviations
+from the assumed alternative distributions can substantially reduce power [Breiman,
+2001].
+To overcome this limitation, researchers developed nonparametric tests that
+guarantee detection power across broad classes of alternatives. Yet, spreading power
+across infinitely many possibilities often weakens performance.
+In practice, effective testing strategies should strike a balance between these ex-
+tremes: concentrating power on alternatives that the data suggests are plausible, while
+spreading power broadly when no strong alternative is apparent. One promising direc-
+tion involves assumption-lean methods that leverage black-box predictions to concen-
+trate power on data-driven alternatives adaptively.
+Notable examples include prediction-powered inference [Angelopoulos et al., 2023a,
+Zrnic and Cand`es, 2024], dimension-agnostic inference for M-estimators [Kim and Ram-
+das, 2024, Takatsu and Kuchibhotla, 2025], and universal inference [Wasserman et al.,
+2020].
+These methods construct tests that integrate observed data with black-box
+approximations of the data distribution. Many rely on likelihood-ratio tests, either
+directly or via classifier-based approximations, as in likelihood-free inference [Dalmasso
+et al., 2024, Gerber et al., 2023]. However, there is no consensus on how to best fuse
+black-box predictions with empirical data.
+In this work, we study how tests can optimally integrate black-box predictions
+of the data distribution with observed data in the Gaussian sequence model. Most
+importantly, we focus on test procedures that adapt to the unknown quality of the
+predictions. These adaptive tests automatically adjust their power allocation: they
+concentrate power on a narrow range of alternative distributions when the predictions
+are informative, and distribute it more broadly when the predictions are unreliable.
+Outline. Section 1.1 summarizes our main results. Section 2 develops the minimax
+framework that we use to study adaptation to predictions with unknown quality. Sec-
+tion 3 characterizes the optimal performance of an oracle that knows the accuracy of
+each prediction. Section 4 then derives an optimal test that adapts to the unknown
+accuracy of orthogonal predictions. Section 5 extends this approach to arbitrary pre-
+dictions. Finally, Section 6 illustrates our results through simulations, and Section 7
+places our results in the broader context of the field and identifies directions for future
+research.
+2
+
+
+0̂
+θ
+θ
+ϵ
+r
+(a) Pictorial representation
+of distributions under the
+alternative hypothesis.
+0̂
+θ
+θ
+ϵ
+r
+(b) Exactly half of Sϵ is
+contained in Br.
+Figure 1: Illustrative scenarios under the alternative hypothesis.
+Notation. We write an ≲bn if there exists a positive constant C such that an ≤
+C · bn for all sufficiently large n.
+Analogously, an ≍bn denotes that an ≲bn and
+bn ≲an. We use [k] = {1, . . . , k} to denote the set of the first k natural numbers.
+Furthermore, we use the notation I(condition) to denote the indicator function that
+equals 1 if the condition is true and 0 otherwise. Whenever clear from context, we omit
+stating the random variable in expectations and variances: EP[T] = EX∼P[T(X)] and
+VP[T] = VX∼P[T(X)]. Furthermore, let Bd
+2(a, r) denote the d-dimensional Euclidean
+ball of radius r centered at a ∈Rd: Bd
+2(a, r) = {θ ∈Rd : ∥θ −a∥2 ≤r}, and Sd−1
+2
+(a, r)
+denote the surface of the sphere of radius r centered at a ∈Rd: Sd−1
+2
+(a, r) = {θ ∈
+Rd : ∥θ −a∥2 = r}. Throughout the paper, we use the inequality sign ”≥” in different
+contexts. Namely, for vectors a, b ∈Rd, we state that a ≥b if the inequality is satisfied
+entry-wise, while for functions f, g whose domains are the reals, we state that f ≥g if
+f(r) ≥g(r) for all r ∈R. Finally, we let CS(a, b) denote the cosine similarity between
+vectors a, b ∈Rd, that is, CS(a, b) = ⟨a, b⟩/(∥a∥2 · ∥b∥2) if a̸ = 0 and b̸ = 0, where
+⟨a, b⟩= aTb is the inner product between the vectors. If either of the vectors is zero,
+we let CS(a, b) = 0.
+1.1
+Overview of main results
+We study how to optimally aggregate data with auxiliary black-box predictions in
+the Gaussian sequence model. This model provides a canonical setting for minimax
+hypothesis testing and a useful benchmark for more general nonparametric regression
+problems [Ingster and Suslina, 2003, Johnstone, 2019]. In this setting, one is given access
+to n observations from a standard d-dimensional Gaussian distribution X1, . . . , Xn ∼
+N(θ, Id) with some unknown mean θ ∈Rd, and m predictions of the mean {ˆθ1, . . . , ˆθm}
+whose accuracy is unknown. The goal is to detect whether the mean of the data is zero
+(θ = 0), or far from it. In this work,
+• We characterize the optimal testing strategy of an oracle test that has access to
+the unknown predictions’ accuracies (Theorems 1 and 2).
+• For orthogonal predictions, we develop a test that adapts to the unknown accuracy
+of the predictions and establish its optimality (Theorems 3 and 4).
+3
+
+
+• For arbitrary predictions, we develop a test that adapts to the unknown accuracy
+of the predictions while benefiting from high cosine similarity among the predic-
+tions (Theorem 5). This case is practically relevant because predictions often
+come from the same black-box predictive model and are not orthogonal.
+Throughout the paper, X denotes the sample mean of the n observations, so that
+X ∼N(θ, Id/n), where Id is the d × d identity matrix. We also assume that every
+prediction is nonzero, i.e., ˆθi̸ = 0 for all i ∈[m]. Let us first consider the case where we
+do not have access to any black-box prediction. That is, one must decide if θ = 0 or if
+it is far away from the origin as measured by the ℓ2 norm:
+H0 : θ = 0 versus H1 : ∥θ∥2 ≥ϵ.
+(1)
+It has been known since the work of Ingster [1993] that the hypotheses can be distin-
+guished with nontrivial power if and only if n ≳
+√
+d·ϵ−2, which we call the prediction-free
+rate. The optimal test is based on the chi-squared test statistic:
+reject H0 if ∥X∥2
+2 is large,
+(2)
+which intuitively indicates that the strong dependence on the dimension of the data
+arises due to the optimal test checking for deviations from the null hypothesis in all
+directions.
+In this work, we show that arbitrary predictions can substantially improve the
+prediction-free rate without requiring strong assumptions about their quality. Infor-
+mative predictions help the test focus on a smaller set of directions where the null
+distribution may fail, which increases power when the predictions are reliable. Poor
+predictions, however, can point the test in unhelpful directions and reduce its effec-
+tiveness. We address this tension with tests that adapt to the unknown accuracy of
+the predictions, which we call adaptive tests. As a result, the tests improve over the
+prediction-free rate when predictions are accurate, while still recovering that rate when
+predictions are uninformative.
+Throughout this work, we consider black-box predictions as fixed non-random ob-
+jects, which is commonplace in the model selection literature [Juditsky and Nemirovski,
+2000, Nemirovski, 2000, Tsybakov, 2003]. Alternatively, one can adopt a conditional
+point of view [Balakrishnan et al., 2026], in which predictions are obtained from an in-
+dependent sample of the data. Regardless of the chosen point of view, the focus of this
+work is on instance-wise optimality, that is, the optimal use of given fixed predictions
+with an unknown fixed accuracy. That is, we do not exploit any statistical guarantees
+of the process that generates the predictions, since such guarantees are rarely available
+in practice.
+To understand how a prediction can improve inference, let us first consider an oracle
+setting where we have access to a single black-box prediction ˆθ ∈Rd, and we know its
+accuracy: ∥θ−ˆθ∥2 ≤r. We can incorporate the additional information in the hypotheses
+(1) as follows:
+H0 : θ = 0, versus H1 : ∥θ∥2 ≥ϵ and ∥θ −ˆθ∥2 ≤r.
+(3)
+4
+
+
+0
+ϵ̂
+θ
+θ
+r
+(a) Extremely informative
+prediction when Sϵ ∩Br = ∅.̂
+θ
+0
+θ
+ϵ
+r
+(b) Uninformative
+prediction when Sϵ ⊂Br.
+Figure 2: Illustrative scenarios under the alternative hypothesis.
+Note that the accuracy of the prediction is not used in the definition of the null hy-
+pothesis, which implies that a test must be valid regardless of the quality of a black-box
+prediction. This setting parallels the attractive feature of methods such as universal
+or prediction-powered inference [Wasserman et al., 2020, Angelopoulos et al., 2023a],
+whose validity does not depend on the quality of the predictions. Nevertheless, note
+that the prediction plays a key role in localizing the alternative hypothesis, which im-
+plies that the power of any test that distinguishes the hypotheses (3) must be affected
+by the accuracy of the prediction.
+To intuitively understand how a prediction might change the hardness of the testing
+problem, let us consider an adversary that attempts to confuse a tester by choosing data
+distributions under the alternative hypothesis that are as close as possible to the null
+distribution. Going back to the alternative hypothesis in (1), without a prediction, an
+adversary may choose any point on the surface of the sphere Sd−1
+2
+(0, ϵ), denoted by
+Sϵ henceforth. A test must therefore search for deviations from the null hypothesis in
+every direction on this sphere.
+A prediction restricts this geometry. Under the alternative hypothesis of (3), the
+mean of the data distribution must belong to the ball Bd
+2(ˆθ, r), denoted by Br hence-
+forth. Thus, in the worst case, the adversary can only choose points in Sϵ ∩Br, a
+spherical cap of Sϵ, as shown in Figure 1a. As this cap shrinks, testing becomes easier
+because fewer distributions under the alternative hypothesis are closer to the null dis-
+tribution. Thus, a tester must look into fewer directions to detect deviations from the
+null distribution.
+Let us consider two extreme cases to further clarify the role of the prediction. If Sϵ ⊆
+Br, see Figure 2b, the prediction does not restrict the adversary. That is, hypotheses (3)
+reduce to (1), and we expect to attain the prediction-free rate. At the other extreme,
+if Sϵ and Br are disjoint, see Figure 2a, there is a unique point under the alternative
+hypothesis that is closest to the null distribution. Thus, one can attain parametric
+rates by performing a likelihood ratio test between the null distribution and the unique
+closest distribution under the alternative [Le Cam, 1986]:
+θ∗(r) = arg inf
+θ∈Br
+∥θ∥2
+2.
+(4)
+In general, the hardness of distinguishing the hypotheses (3) must interpolate be-
+5
+
+
+tween these extreme cases. An oracle test allocates power according to the informa-
+tiveness of the prediction. When the prediction is accurate, the test concentrates all
+the detection power along the predicted direction. Conversely, when the prediction is
+uninformative, the test spreads power across all directions. Intuitively, the key quantity
+governing this interpolation should be related to the amount of information that the
+prediction has about the data distribution. Henceforth, let ˆU = ˆθ/∥ˆθ∥2 be the direction
+of the prediction, and let Π ˆU denote the projection onto the span of the prediction. We
+let γ∗(ϵ, r) denote the length of the smallest projection onto the span of the prediction
+under the alternative hypothesis
+γ2
+∗(ϵ, r) =
+inf
+θ∈Sϵ∩Br∥Π ˆUθ∥2
+2.
+(5)
+The quantity is fundamentally linked to the amount of information about the data
+distribution that is contained in the projection onto the prediction’s span. Henceforth,
+let CS(ϵ, r) denote the worst cosine similarity between the mean of the data θ and its
+projection onto the span of the prediction Π ˆUθ under the alternative hypothesis:
+CS(ϵ, r) =
+inf
+θ∈Sϵ∩Br CS (Π ˆUθ, θ) = γ∗(ϵ, r)
+ϵ
+if Sϵ ∩Br̸ = ∅,
+(6)
+where we define the cosine similarity between two vectors a and b as CS (a, b) =
+⟨a, b⟩/(∥a∥2 · ∥b∥2). Thus, as CS(ϵ, r) increases, the projection onto the prediction’s
+span becomes more informative of the mean of the data distribution.
+The following theorem summarizes the oracle performance, which, by virtue of know-
+ing the accuracy of the prediction, can decide optimally when to utilize it. We require
+that Br̸ ⊂B◦
+ϵ , where B◦
+ϵ is the interior of the ball Bϵ, i.e., B◦
+ϵ = Bϵ \ Sϵ, so that the
+alternative hypothesis (3) is not empty.
+Theorem 1. If Br̸ ⊂B◦
+ϵ , the hypotheses (3) can be tested with nontrivial power if and
+only if
+n ≳
+
+
+
+
+
+
+
+
+
+√
+d · ϵ−2
+if CS(ϵ, r) ≤c · d−1/4 and Sϵ ∩Br̸ = ∅.
+γ−2
+∗(ϵ, r)
+if CS(ϵ, r) ∈
+
+c · d−1/4, 1
+
+and Sϵ ∩Br̸ = ∅.
+∥θ∗(r)∥−2
+2
+if Sϵ ∩Br = ∅.
+where c is a positive constant. Furthermore, the rates depend continuously on the in-
+tersection Sϵ ∩Br, and are ordered from worst to best, from top to bottom.
+In broad strokes, Theorem 1 states that if the worst cosine similarity between the
+mean of the data distribution and its projection onto the prediction is low, then the
+prediction is not informative enough, and we obtain the prediction-free rate. Geometri-
+cally, the first case can be foreseen by noting that when CS(ϵ, r) ≲d−1/4, an adversary
+is allowed to choose a data distribution under the alternative hypothesis whose mean
+is orthogonal to the prediction, see Figure 1b, making the prediction uninformative.
+However, if CS(ϵ, r) is large enough, in the second case, the oracle can project the
+data onto the prediction (Π ˆUX) and make a decision based on this one-dimensional
+6
+
+
+quantity, avoiding any dependence on the ambient dimension of the data. Finally, in
+the third case, when a prediction is extremely informative, Sϵ and Br are disjoint, and
+the testing problem reduces to the binary test between H0 : θ = 0 and H1 : θ = θ∗, as
+defined in (4), which yields dimension-independent parametric rates. Hereafter, we will
+omit the case where Sϵ and Br do not intersect from the introduction, since it is related
+to the well-studied binary hypothesis testing problem and is relevant to practitioners
+only when predictions are extremely accurate.
+Practitioners may have access to multiple predictions, each of which may contain
+useful information about the data distribution. To model this setting, we extend the
+hypotheses in (3) to multiple predictions. Let r ∈Rm
++ denote the vector whose entries
+quantify the accuracy of the m black-box predictions. We then define the hypotheses
+as follows:
+H0 : θ = 0, versus H1 : ∥θ∥2 ≥ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m].
+(7)
+Note that we have written explicitly ϵ as a function of the accuracy vector r ∈Rm
++,
+as one can intuit that the more accurate the predictions are, the smaller ϵ(r) should
+be. We call the function r 7→ϵ(r) a separation curve, as it quantifies the separation
+between the null and alternative hypotheses.
+Henceforth, we let Br denote the intersection of all prediction neighborhoods, Br =
+∩m
+i=1B(ˆθi, ri), and let Π ˆUθ in (5) and (6) denote the projection onto the span of the
+predictions, where ˆU is a matrix in Rd×m, whose i-th column is given by the i-th
+predicted direction ˆui = ˆθi/∥ˆθi∥2. Since the oracle knows the accuracy of all predictions,
+it can aggregate them optimally and perform a one-dimensional test by combining their
+projections:
+reject H0 if ⟨Π ˆUX, W⟩is large,
+(8)
+where W is a vector of weights that depends on the vector of accuracies r and the
+separation curve. Thus, when predictions are informative, the performance of the oracle
+test is independent of the dimension of the data.
+Theorem 2 (Optimal performance of oracle with access to arbitrary predictions). If
+rank ˆU ≤d/2, the hypotheses (7) can be tested with nontrivial power if and only if
+ϵ(r) ≳inf
+(
+ϵ ≥0 : n ≳
+1
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+and Sϵ ∩Br̸ = ∅
+)
+,
+where we omitted the case Sϵ ∩Br = ∅.
+We remark that, albeit written succinctly, the rates in Theorem 2 match those
+in Theorem 1 when only one prediction is available. Furthermore, the interpretation
+remains the same as in the single-prediction setting. Under the alternative hypothesis,
+when the worst cosine similarity between the mean of the data distribution and its
+projection onto the span of the predictions (6) is of order o(d−1/4), then predictions do
+not offer any benefit, and the oracle test disregards them. We note that Theorems 1
+and 2 follow from Lemmas 1 and 2 in Section 3, where we further discuss them.
+7
+
+
+Predictions of unknown quality.
+In practice, we do not know the accuracy of
+the predictions. Therefore, the main goal is to construct tests that do not require that
+information to operate optimally. We formalize this requirement through the adaptivity
+framework used in minimax theory [Ingster, 2000, Gin´e and Nickl, 2016], where one aims
+to distinguish the hypotheses
+H0 : θ = 0 versus H1 : ∃r ∈Rm
++ s.t. ∥θ∥2 ≥ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m]. (9)
+Unlike the oracle setting (7), the alternative hypothesis in (9) does not reveal the
+accuracy of the predictions.
+A test for (9) must therefore adapt to this unknown
+accuracy, so we call it an adaptive test. The key question is the cost of adaptation: how
+many additional observations does the test require because it does not know the true
+prediction accuracy?
+Orthogonal predictions. To illustrate this phenomenon, let us first consider the case
+of orthogonal predictions when m ≤d to draw a comparison with Theorem 2. The
+oracle avoids any dimension dependence due to optimally aggregating predictions into
+a one-dimensional weighted projection (8) using the accuracies of the predictions. An
+adaptive test lacks this information, so it cannot perform the aggregation. However,
+since the predictions are orthogonal, it is reasonable for the adaptive test to monitor
+for deviations from the null distribution in all predicted directions:
+reject H0 if ∥Π ˆUX∥2
+2 is large, where ∥Π ˆUX∥2
+2 =
+m
+X
+i=1
+∥ΠˆuiX∥2
+2.
+(10)
+Note that all projections are equally weighted; thus, the test rejects whenever the data
+deviates from the null distribution on any of the predicted directions. Given that we
+hedge our bets in all predicted directions equally, our performance is expected to depend
+on the number of predictions.
+Theorem 3 (Performance of adaptive test with access to orthogonal predictions). If
+m ≤d/2 and predictions are orthogonal, the hypotheses (9) can be tested with nontrivial
+power if
+ϵ(r) ≳inf
+(
+ϵ ≥0 : n ≳
+√m
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+and Sϵ ∩Br̸ = ∅
+)
+,
+where we omitted the case Sϵ ∩Br = ∅.
+Theorem 3 shows that the adaptive test can require more observations than the
+oracle test in Theorem 2. The ratio between these sample sizes, called the adaptivity
+gap in the literature, can be as large as √m. This gap arises because the adaptive
+test (10) must search for deviations throughout the span of the predictions, whereas
+the oracle test (8) uses the predictions’ accuracies to aggregate the predicted directions
+into a single direction.
+When only a single prediction is available (m = 1), both
+tests search for deviations along the same predicted direction and therefore have the
+same rate-wise performance. As m grows, however, orthogonal predictions increase the
+number of directions along which the adaptive test (10) must search, while the oracle
+8
+
+
+test (8) continues to detect deviations along a single aggregated direction. Thus, having
+many orthogonal predictions can increase the cost of adaptation rather than necessarily
+improve performance.
+Is there a free lunch? Nevertheless, comparing the performance of the adaptive test
+in Theorem 3 to the prediction-free rate achieved by the chi-squared test (2) that ignores
+predictions might lead one to believe that using predictions is always beneficial. This
+advantage is true only in a rate-wise sense. That is, if the predictions are high-quality,
+the adaptive test will be more sample-efficient than the chi-squared test. However, if
+the predictions are low-quality, the adaptive test’s sample efficiency will be at most a
+constant factor worse than that of the chi-squared test.
+This phenomenon is exemplified by the simulation shown in Figure 3, where a single
+prediction is made available to each test. Details are deferred to Section 6; however,
+note that when the prediction is of high quality, the adaptive test substantially improves
+power relative to the chi-squared test that ignores the prediction. However, when the
+prediction is low-quality, the power of the adaptive test is worse than the chi-squared
+test’s power by a constant. Furthermore, note that when the prediction is high quality,
+the performance of the adaptive test is independent of the ambient dimension of the
+data.
+Optimality of the adaptive test. Although one can improve Theorem 3 for any
+fixed r ∈Rm
++, the dependence on the number of predictions is optimal among separation
+curves satisfying a natural invariance property. Namely, looking at the separation curves
+for both oracle (Theorem 2) and adaptive (Theorem 3) tests, it is clear that they assign
+the same separation to accuracy vectors that induce projections of the same length
+0.0
+0.1
+0.2
+0.3
+0.4
+0.25
+0.50
+0.75
+0.0
+0.1
+0.2
+0.3
+0.4
+0.0
+0.1
+0.2
+0.3
+0.4
+Power across ambient dimensions
+Unknown prediction's error (larger is worse)
+Power (higher is better)
+Ambient dimension d = 2
+Ambient dimension d = 10
+Ambient dimension d = 100
+Test
+Adaptive
+Chi-squared
+Projection
+Figure 3: Comparison between the chi-squared test (16), which ignores the prediction,
+the projection test (24), which always uses the prediction, and the adaptive test (26)
+that adapts to the unknown prediction’s error.
+9
+
+
+under the alternative hypothesis. The following property quantifies this idea.
+Property (Property 1 in Section 4. Same separation for equivalent accuracy vectors).
+Let r →ϵ∗(r) be a separation curve. If ϵ∗(r) = ϵ for r ∈Rm
++, it holds that ϵ∗(r′) = ϵ for
+all r′ ∈Rm
++ such that γ∗(ϵ, r) = γ∗(ϵ, r′).
+In other words, the property states that accuracy vectors that lead to equally hard
+worst-case distributions under the alternative hypotheses get assigned the same sepa-
+ration. The next theorem shows that, under Property 1, the adaptivity gap must grow
+with the ambient dimension of the prediction’s span for orthogonal predictions.
+Theorem 4. If m ≤d/2 and the predictions are orthogonal, for any separation curve
+that satisfies Property 1, the hypotheses (9) can be tested with nontrivial power only if
+ϵ(r) ≳inf
+(
+ϵ ≥0 : n ≳
+√m
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+and Sϵ ∩Br̸ = ∅
+)
+.
+The proof is based on a variant of Le Cam’s random alternative distributions [Tsy-
+bakov, 2009], which must be supported on the appropriate spherical cap under the
+alternative hypothesis.
+These constructions differ substantially from those used in
+structure-agnostic functional estimation [Balakrishnan et al., 2026], and they explain
+the faster rates achieved by the testing procedures proposed in this work in comparison
+to the functional estimation rates.
+Arbitrary predictions.
+Theorem 3 is most relevant when predictions come from
+different data sources, each of which provides independent information about the data
+distribution. In many applications, however, predictions are generated by the same
+model via resampling and are not expected to be orthogonal.
+A test such as (10) need not be optimal when predictions are not orthogonal, because
+it assigns equal weight to every predicted direction. We should rather emphasize de-
+tecting deviations in directions most aligned with the majority of predicted directions,
+and essentially ignore those directions aligned with only a few predictions.
+Henceforth, let λ1 ≥· · · ≥λk > 0 denote the nonzero singular values of ˆU, and
+˜u1, . . . , ˜uk denote the corresponding orthonormal left singular vectors of ˆU. The squared
+singular values λ2
+1 ≥· · · ≥λ2
+k > 0 are the nonzero eigenvalues of the predictions’ cosine
+similarity matrix Σ = ˆU T ˆU. Our adaptive test relies on an operation that we call the
+intrinsic projection of the data onto the span of the predictions:
+reject H0 if ∥ΠInt
+ˆU X∥2
+2 is large, where ∥ΠInt
+ˆU X∥2
+2 =
+k
+X
+i=1
+λ2
+i
+λ2
+1
+· ∥Π˜uiX∥2
+2.
+(11)
+The weighting automatically downweights directions that align poorly with the predic-
+tions. As a result, the test focuses on fewer directions in which it must detect deviations
+from the null hypothesis. The intrinsic projection test owes its name to its performance
+not depending on the ambient dimension of the span of the predictions, but on a notion
+of its intrinsic dimension.
+10
+
+
+We define the intrinsic dimension of Σ2 as Int Σ2 = Tr Σ2/∥Σ2∥op where the numer-
+ator is the trace of Σ2 and the denominator is its operator norm [Ipsen and Saibaba,
+2025]. This quantity measures the effective degree of orthogonality among the predic-
+tions. For instance, the intrinsic dimension of Σ2 equals 1 when all predictions are
+parallel, and equals m when they are orthogonal. In this work, we show that the per-
+formance of an adaptive test depends on the intrinsic dimension of Σ2 rather than the
+ambient dimension of the span of the predictions.
+Theorem 5 (Performance of adaptive test with access to arbitrary predictions). The
+hypotheses (9) can be tested with nontrivial power if
+ϵ(r) ≳inf
+(
+ϵ ≥0 : n ≳
+√
+Int Σ2
+˜γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+and Sϵ ∩Br̸ = ∅
+)
+where ˜γ2
+∗(ϵ, r) = infθ∈Sϵ∩Br∥ΠInt
+ˆU θ∥2
+2 and we omitted the case Sϵ ∩Br = ∅.
+Note that Theorem 3 depends on the ambient dimension of the predictions’ span
+(rank ˆU), whereas Theorem 5 depends on the intrinsic dimension of their squared cosine
+similarity matrix (Int Σ2). It always holds that Int Σ2 ≤rank ˆU, with equality being
+achieved when all predictions are orthogonal.
+Thus, orthogonal predictions can be
+considered a worst-case scenario for Theorem 5.
+Under orthogonality, Theorem 5 recovers Theorem 3. Its main purpose, however, is
+to show that non-orthogonal predictions can improve adaptivity. When the predictions
+share substantial information, the adaptive test depends on the lower intrinsic dimen-
+sion of the squared cosine similarity matrix rather than on the full ambient dimension of
+the predictions’ span. This distinction matters in practice because predictions produced
+from the same predictive model often are not orthogonal, which can substantially re-
+duce the intrinsic dimension. As an illustration, Figure 4 displays a simulation designed
+to be adversarial to the tests using intrinsic projection. Nevertheless, if the intrinsic
+dimension is low, adaptive methods based on intrinsic projection can outperform all
+competing methods. We defer the details to Section 6.
+1.2
+Related work
+Our work is most directly related to the literature on property testing and goodness-
+of-fit testing with black-box predictions [Jankov´a et al., 2020, Lundborg et al., 2024,
+Aliakbarpour et al., 2024]. These works establish minimax limits for their respective
+problems. We complement them by studying adaptation: for orthogonal predictions,
+we characterize the cost of not knowing their accuracies.
+To study this question, we draw on the framework of adaptive hypothesis testing
+[Spokoiny, 1996, Ingster, 2000], which considers settings in which optimal testing pro-
+cedures depend on unknown features of the alternative hypothesis, such as function
+smoothness. Adaptive tests avoid requiring these parameters and often retain nearly
+the same power as procedures that know them [Ingster and Suslina, 2003, Gin´e and
+11
+
+
+0.20
+0.25
+0.30
+0.35
+0.40
+0.0
+0.2
+0.4
+0.6
+0.8
+0.38
+0.39
+0.40
+0.41
+0.42
+0.40
+0.41
+0.42
+Power across intrinsic dimensions (d=100,m=50)
+Unknown predictions' error (larger is worse)
+Power (higher is better)
+Intrinsic dimension 
+2
+1
+Intrinsic dimension 
+2
+m/5
+Intrinsic dimension 
+2 = m
+Test
+Chi-squared
+Projection
+Intrinsic projection
+Adaptive (Intrinsic projection)
+Adaptive (Projection)
+Figure 4: Comparison between the chi-squared test (16), which ignores predictions,
+tests that always use predictions either via standard (24) or intrinsic (31) projection,
+and adaptive tests that use standard (26) or intrinsic projection (32).
+Nickl, 2016]. Our setting departs from this usual phenomenon: for orthogonal predic-
+tions, the cost of adaptation is non-negligible and can grow with the number of available
+predictions.
+More broadly, our paper contributes to the literature on structure-agnostic inference.
+Prior work has developed this perspective for functional estimation [Balakrishnan et al.,
+2026, Gu, 2025, Jin and Syrgkanis, 2025a] and extended it to causal inference [Jin et al.,
+2025, Jin and Syrgkanis, 2025b, Bonvini et al., 2024]. We extend this perspective to
+hypothesis testing with black-box predictions.
+Our work is also closely connected to prediction-powered inference and related
+semi-supervised methods [Chakrabortty and Cai, 2018, Angelopoulos et al., 2023a,
+Chakrabortty et al., 2022, Chakrabortty and Dai, 2022, Zou et al., 2026, Xu and Sun,
+2026]. In particular, our results support the asymptotic conclusion of previous work
+[Zhang et al., 2019, Angelopoulos et al., 2023b] that prediction-based estimators should
+be combined with estimators that do not use predictions to control worst-case error
+while preserving efficiency.
+A related line of work studies model aggregation, beginning with Tsybakov [2003],
+which considers how to combine multiple candidate predictors or estimators to achieve
+near-oracle performance. This perspective was subsequently developed through mirror-
+averaging and exponential-weighting methods [Juditsky et al., 2008, Dalalyan and Tsy-
+bakov, 2007] and connected to sparse aggregation [Rigollet and Tsybakov, 2012]. Al-
+though this literature focuses primarily on prediction risk rather than hypothesis test-
+ing, it is conceptually relevant because our procedures likewise aggregate information
+across multiple black-box predictions.
+12
+
+
+Finally, our treatment of nonorthogonal predictions connects to a broader litera-
+ture on statistical procedures whose performance depends on the intrinsic dimension
+or effective rank rather than the ambient dimension of the data. Existing results in-
+clude asymptotic tests whose performance scales with the intrinsic dimension [Kim and
+Ramdas, 2024], as well as concentration bounds for self-adjoint operators and random
+matrices whose rates are governed by the intrinsic dimension or effective rank [Koltchin-
+skii and Lounici, 2016, Wei and Minsker, 2017, Zhivotovskiy, 2024, Martinez-Taboada
+and Ramdas, 2026].
+2
+Adaptation in the minimax framework
+Given data X ∼Pθ drawn from the distribution Pθ = N(θ, Id/n) with unknown mean
+θ, we wish to test whether θ = 0. The predictions may encode useful structural infor-
+mation about θ, and an effective procedure should exploit this information to increase
+power. At the same time, the validity of the test must not depend on the accuracy
+of the prediction. In particular, the testing procedure should remain well defined even
+when the prediction accuracy is unknown. In this section, we formalize these desiderata
+within a minimax framework.
+Ultimately, we aim to develop methods that optimally adapt to the unknown ac-
+curacy of the black-box prediction. However, to establish a baseline performance, let
+us first consider the case where the accuracy, denoted by r, is known. This setting
+is usually referred to as an oracle setting in the literature, since algorithms may use
+accuracy to make decisions. That is, we consider the hypotheses (7):
+H0 : Pθ = P0 versus H1 : Pθ ∈P(ϵ, r)
+(12)
+where P(ϵ, r) =
+n
+Pθ : ∥θ∥2 ≥ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m]
+o
+is the localized set
+of alternative distributions with respect to accuracy vector r ∈Rm
++ and the predictions
+ˆθ1, . . . , ˆθm. However, we omit the dependence on the predictions to simplify the notation
+throughout the paper. This localization may improve power by reducing the size of the
+alternative set, while the test’s validity remains unaffected since the null hypothesis
+does not depend on the accuracy of the prediction.
+We are interested in characterizing the hardness of distinguishing the hypotheses
+(12) with respect to the quality of the predictions. Let Ψα = {ψ : P0(ψ(X) = 1) ≤α}
+denote the set of all valid tests with type-I error at most α. For any valid test ψ, we
+define its risk under the alternative hypothesis as the worst-case type-II error:
+R(P(ϵ, r), ψ) =
+sup
+P∈P(ϵ,r)
+P(ψ(X) = 0).
+In particular, if a valid test ψ controls the worst-case type-II error R(P(ϵ, r), ψ) < β, for
+β ∈(0, 1−α), we say that ψ is powerful. The minimax risk is then the best performance
+that we can achieve across all valid tests
+R∗(P(ϵ, r)) = inf
+ψ∈Ψα R(P(ϵ, r), ψ).
+(13)
+13
+
+
+We can now define the optimal oracle separation, also known as critical oracle separation
+or minimax oracle separation, as the smallest separation between the hypotheses (12)
+for which there exists a valid and powerful test.
+Definition 1 (Optimal oracle separation). Let us fix r ∈Rm
++. We say that ϵ∗(r) is
+an oracle separation for hypotheses (12), if there exists a valid test that is powerful
+for distinguishing the null and alternative hypotheses that are ϵ∗(r) close.
+That is,
+R∗(P(ϵ∗, r)) ≤β.
+Furthermore, we say that ϵ∗is an optimal oracle separation, if no valid test can be
+powerful for hypotheses (12) if ϵ(r) < ϵ∗(r). That is, R∗(P(ϵ, r)) > β if ϵ(r) < ϵ∗(r).
+We now turn to the realistic setting in which the testing algorithm does not know
+the prediction accuracy. Thus, the goal is to distinguish the hypotheses (9):
+H0 : Pθ = P0 versus H1 : ∃r ∈Rm
++ s.t. Pθ ∈P(ϵ, r).
+(14)
+Note that under the alternative hypothesis, there is no fixed accuracy vector, which
+accounts for the fact that in practice we do not know the accuracy of the predictions.
+Analogously to Definition 1, we define an optimal separation curve as the smallest
+separation between hypotheses (14) for which there exists a valid and powerful test.
+Definition 2 (Optimal separation curve). We say that ϵ∗is a separation curve for
+hypotheses (14), if there exists a valid test that distinguishes alternative hypotheses that
+are ϵ∗away. That is, R∗(P(ϵ∗)) ≤β where P(ϵ∗) = S
+r∈Rm
++ P(ϵ∗, r).
+Furthermore, we say that ϵ∗is an optimal separation curve among a set of functions
+E, if for any ϵ ∈E that significantly improves over ϵ∗, no valid test can be powerful for
+hypotheses (14). That is, if there exists a positive constant C that depends only on α
+and β such that for every ϵ ∈E, if there exists r ∈Rm
++ satisfying ϵ(r) < C · ϵ∗(r), then
+R∗(P(ϵ)) > β where P(ϵ) = S
+r∈Rm
++ P(ϵ, r).
+3
+Oracle inference with multiple predictions
+With a single prediction, there is no adaptivity gap. That is, a data-driven test can
+achieve the same rates as an oracle test that knows the predictions’ accuracy. The
+structure of the problem forces a binary decision: either exploit the prediction with a
+projection test or ignore it with a chi-squared test. However, both tests must be used
+since the mean of the data distribution might be orthogonal to the prediction. Thus,
+the only advantage of the oracle test is knowing exactly when to run each test, which
+yields at most a constant-factor improvement in efficiency over non-oracle tests.
+The situation changes when several predictions are available. Each additional pre-
+diction introduces a new direction along which deviations from the null hypothesis may
+occur. As a result, a test must determine not only whether to incorporate predictions,
+but also which ones to use to avoid diluting its power too much. An oracle, with knowl-
+edge of the accuracy of each prediction, can identify to what degree each prediction is
+14
+
+
+informative and aggregate them optimally. A non-oracle test that lacks this informa-
+tion must hedge across all predicted directions and therefore cannot reliably achieve
+the same performance. As a result, oracle and non-oracle tests generally emphasize
+different directions in which to detect deviations from the null hypothesis, and this
+mismatch creates a non-constant performance gap.
+Consider first the oracle setting, where under the alternative hypothesis we know
+the accuracies of the predictions:
+H0 : θ = 0 versus H1 : ∥θ∥2 ≥ϵ and ∥θ −ˆθi∥2 ≤ri for i ∈[m],
+(15)
+Henceforth, let Br = Tm
+i=1 Bd
+2(ˆθi, ri) denote the intersection of all the neighborhoods
+around the predictions. As commented in Section 1.1, an oracle can detect when the
+predictions are uninformative, which geometrically corresponds to Sϵ ⊂Br, in which
+case hypotheses (15) reduce to the well-studied hypotheses (1). In this case, the chi-
+squared test (2), which discards all predictions, is optimal. That is, we reject whenever
+the ℓ2 norm of the data is larger than the expected deviations under the null hypothesis:
+ψα
+χ2(X) = I
+ n · ∥X∥2
+2 ≥χ2
+d,1−α
+
+,
+(16)
+where χ2
+d,1−α is the (1 −α)-quantile of the chi-squared distribution with d degrees of
+freedom.
+Conversely, consider the case in which the predictions are highly informative; ge-
+ometrically, this corresponds to the alternative hypothesis containing a single point
+closest to the null hypothesis. This happens whenever Sϵ ∩Br is empty or a singleton.
+In this case, using a likelihood-ratio test between H0 : θ = 0 and H1 : θ = θ∗(r), see
+(4), is optimal. The likelihood ratio test is equivalent to rejecting the null hypothesis
+whenever the projection of the data onto the direction of θ∗(r) is large enough:
+ψα
+LR(X) = I
+√n ·
+
+X,
+θ∗(r)
+∥θ∗(r)∥2
+
+≥z1−α
+
+.
+(17)
+In general, using projections onto the predicted directions is a sensible choice, since
+under the alternative hypothesis, each predicted direction can serve as a means of
+detecting deviations from the null hypothesis.
+Remark 1. Let hi = ∥ˆθi∥2 be the length of the i-th prediction, and ˆui = ˆθi/hi its
+direction. Define Ai(ϵ, r) = (ϵ2 +h2
+i −r2
+i )/(2hi). Then, under the alternative hypothesis
+(15), the length of the projection onto the i-th prediction is lower bounded: ∥Πˆuiθ∥2
+2 ≥
+A2
+i,+(ϵ, r) where Ai,+(ϵ, r) = max (0, Ai(ϵ, r)) for i ∈[m].
+Given the geometric restrictions imposed by each prediction, it is not clear if the
+lower bounds in Remark 1 can be achieved. Henceforth, let γ∗be the length of the
+smallest projection onto the span of the predictions under the alternative hypothesis
+γ2
+∗(ϵ, r) =
+inf
+θ∈Br∩Sϵ∥Π ˆUθ∥2
+2
+where ˆU = [ˆu1, . . . , ˆum] ,
+(18)
+15
+
+
+and let rank ˆU = k. If Br ∩Sϵ̸ = ∅and k < d, it holds that there exists a unique vector
+A∗(ϵ, r) ∈Rk that characterizes the projection of θ onto the span of the predictions,
+i.e., γ2
+∗(ϵ, r) = ∥A∗(ϵ, r)∥2
+2. In particular, if all predictions are orthogonal, it holds that
+A∗(ϵ, r) = A+(ϵ, r), meaning that the lower bounds in Remark 1 are achieved.
+Furthermore, if Br ∩Sϵ̸ = ∅, hypotheses (15) can be reduced to testing the hypothe-
+ses:
+H0 : θ = 0 versus H1 : θ ∈arg inf
+θ∈Sϵ∩Br
+CS (Π ˆUθ, θ) .
+(19)
+Therefore, to detect the alternative hypothesis, the oracle test only needs to measure
+how aligned Π ˆUX is with any element on the alternative hypothesis (19). This choice is
+immaterial because their projection onto the span of the predictions is fixed and given
+by A∗(ϵ, r). Thus, the natural test statistic for the oracle test is proportional to the
+plug-in estimator of the worst-case cosine similarity:
+ψα
+CS(X) = I
+ 
+√n ·
+*
+Π ˆUX,
+˜θ
+∥˜θ∥2
++
+≥z1−α
+!
+where ˜θ = ˜UkA∗(ϵ, r).
+(20)
+where ˜Uk = [˜u1, . . . , ˜uk] are the k left singular vectors of ˆU associated with the non-zero
+singular values.
+In summary, if Sϵ and Br intersect, the oracle test runs the chi-squared test (16)
+whenever the minimum projection onto the span of the predictions is too small, and
+the worst-case cosine similarity test (20) otherwise. Alternatively, if Sϵ and Br do not
+intersect, a likelihood ratio test (17) suffices since there is a unique point under the
+alternative that is closest to the null hypothesis. We define our oracle test as follows:
+ψOracle(X) =
+(
+ψα/2
+χ2 (X) ∨ψα/2
+CS (X)
+if Sϵ ∩Br̸ = ∅
+ψα
+LR(X)
+if Sϵ ∩Br = ∅
+(21)
+The following lemma summarizes the performance achieved by the oracle test. The
+proof is deferred to Appendix C.1 of the supplementary material.
+Lemma 1 (Performance of oracle test with multiple predictions). For hypotheses (15),
+the alternative hypothesis is non-vacuous if Br̸ ⊂B◦
+ϵ . Furthermore, if rank ˆU < d,
+there exists a positive constant C that depends only on α and β such that the test (21)
+is powerful whenever
+n ≥C ·
+
+
+
+
+
+
+
+
+
+1
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+if Sϵ ∩Br̸ = ∅
+1
+∥θ∗(r)∥2
+2
+if Sϵ ∩Br = ∅
+We note that the rates are continuous since ∥θ∗(r)∥2
+2 = infθ∈Br∥θ∥2
+2 = infθ∈Br∥Π ˆUθ∥2
+2 if
+Sϵ and Br do not intersect.
+16
+
+
+The first case shows that the oracle test achieves the prediction-free rate when
+predictions are uninformative, which has full dependence on the ambient dimension
+of the data. Conversely, when predictions are informative, the oracle test avoids any
+dependence on the ambient dimension of the data (d) or the dimension of the span
+of the predictions (rank ˆU). This improvement should come as no surprise, given that
+the oracle test relies on a one-dimensional projection that aggregates all predictions
+(20). The second case shows that when there is a single closest distribution under the
+alternative hypothesis, the oracle test achieves parametric rates.
+3.1
+Optimality of the oracle test
+Let us first recall what is known regarding distinguishing the hypotheses (1), for which
+the chi-squared test (16) is optimal [Ingster, 1993]. An optimality proof follows from
+proving that no test can distinguish the null distribution P0 from those distributions in
+the alternative hypotheses that are closest. Given that any point on the Sϵ sphere is
+equally challenging to distinguish, we put a uniform measure on the sphere.
+H0 : θ = 0 versus H1 : θ ∼Uniform [Sϵ] .
+(22)
+We can guarantee that the above construction is valid under hypotheses (15) when-
+ever Sϵ ⊆Br, see Figure 2b. Thus, for big enough Br, the lower bound from Ingster
+[1993] must hold.
+Remark 2. For hypotheses (15), there exists a positive constant C that depends only
+on α and β, such that no valid test can be powerful whenever
+n ≤C ·
+√
+d
+ϵ2
+and Sϵ ⊆Br.
+Conversely, let us consider the case where the predictions are highly informative.
+Geometrically, this corresponds to the intersection of Sϵ and Br containing at most one
+point, implying that, under the alternative hypothesis, there is a unique point closest
+to the null hypothesis. Consequently, distinguishing the hypotheses (15) is equivalent
+to distinguishing the simple null hypothesis H0 : θ = 0 from the simple alternative
+hypothesis H1 : θ = θ∗(r), see (4).
+Remark 3. For hypotheses (15), there exists a positive constant C that depends only
+on α and β, such that no valid test can be powerful whenever
+n ≤C ·
+1
+∥θ∗(r)∥2
+2
+and Sϵ ∩Br is a singleton or the empty set.
+In summary, whenever the predictions are uninformative, we can use the unrestricted
+construction (22) since Sϵ ⊆Br, and consequently, we obtain the prediction-free rate
+by constructing a uniform measure on Sϵ under the alternative hypothesis. Conversely,
+17
+
+
+when the prediction is highly informative, we can use a simple binary hypothesis-testing
+construction, akin to assigning a uniform measure supported on a single point under
+the alternative.
+For the general case, see Figure 1a, based on (22), a natural idea is to put a uniform
+measure on the spherical cap Sϵ ∩Br. That is, using the alternative hypothesis H1 :
+θ ∼Uniform[Sϵ ∩Br], which interpolates the previously mentioned cases. Although
+that construction is valid, a sufficient approach is to focus only on those points of the
+spherical cap that minimize the length of the projection onto the span of the predictions
+(18). Namely, we look to distinguish
+H0 : θ = 0 versus H1 : θ ∼Uniform
+
+θ ∈Sϵ ∩Br : ∥Π ˆUθ∥2
+2 = γ2
+∗(ϵ, r)
+	
+.
+The distributions under the alternative hypothesis have both the property of being as
+close as possible to the null hypothesis, and minimizing the amount of information that
+predictions provide on them. Based on this construction, we prove the following limit
+on the performance of any test that attempts to distinguish hypotheses (15). The proof
+of the following lemma is deferred to Appendix C.2 of the supplementary material.
+Lemma 2. For rank ˆU ≤d/2 and hypotheses (15), there exists a positive constant C
+that depends only on α and β, such that no valid test can be powerful whenever
+n ≤C ·
+"
+1
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+#
+and Sϵ ∩Br̸ = ∅.
+Together, Remarks 2 and 3, and Lemma 2 show that the performance of the oracle
+test in Lemma 1 is optimal up to constants. Furthermore, the remarks and lemmas 1
+and 2 prove Theorems 1 and 2 in Section 1.1.
+4
+The cost of adapting to orthogonal predictions
+When predictions are orthogonal, each prediction contains some new information about
+the underlying data distribution. From the perspective of the adaptivity gap, this is
+a worst-case scenario. While the oracle test can optimally aggregate the predictions
+and avoid any dependence on the dimension of the span, non-oracle procedures might
+have to consider all possible predictions since each one of them potentially contains
+information about the data distribution not available in the others.
+As discussed in Section 2, we model the need to adapt to the unknown accuracies
+by requiring a test to distinguish between the hypotheses (15) for any accuracy vector.
+Formally, we seek a test that distinguishes
+H0 : θ = 0 versus H1 : ∃r ∈Rm
++ s.t. ∥θ∥2 ≥ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m], (23)
+where the predictions are assumed to be orthogonal. Note that the separation curve
+r 7→ϵ(r) also depends on the sample size n. However, since n remains fixed throughout
+this work, we omit this dependence from the notation.
+18
+
+
+We first approximate the projection statistic that drives the oracle test in (20).
+Under the alternative, by virtue of knowing the vector of accuracies, the oracle test can
+compute the worst cosine similarity (20). Without knowledge of the accuracy vector
+r, this information is not available. Nevertheless, we can still approximate the cosine
+similarity between Π ˆUθ and θ by measuring the length of the projection of the data
+onto the span of the predictions:
+ψα
+Proj(X) = I
+
+n · ∥Π ˆUX∥2
+2 ≥χ2
+rank ˆU,1−α
+
+.
+(24)
+Analogously to the oracle test, we must also protect ourselves against the case where
+the predictions are uninformative. However, rather than running the chi-squared test
+(16), since ∥X∥2
+2 = ∥Π ˆUX∥2
+2 + ∥Π ˆU⊥X∥2
+2, we can avoid reusing the data by simply
+rejecting the null hypothesis whenever the length of the projection onto the orthogonal
+complement of the predictions’ span is large:
+ψα
+Proj⊥(X) = I
+
+n · ∥Π ˆU⊥X∥2
+2 ≥χ2
+d−rank ˆU,1−α
+
+.
+(25)
+Thus, we might replace the oracle test (21) with the following Bonferroni aggregation
+of (24) and (25):
+ψα(X) = max
+
+ψα/2
+Proj(X), ψα/2
+Proj⊥(X)
+
+.
+(26)
+The next lemma provides a sharp characterization of the performance of this test.
+Crucially, the required sample size depends on the dimension m of the span of the
+predictions. Compared with the oracle bound in Lemma 1, the required sample size
+increases by a factor of √m. This is expected since (26) relies on a chi-squared test
+on the span of the predictions, which looks for deviations from the null hypothesis in
+all directions of the predictions’ span. The proof is deferred to Appendix D.1 of the
+supplementary material.
+Lemma 3 (The cost of adaptation to orthogonal predictions). For hypotheses (23), if
+the predictions are orthogonal, there exists a positive constant C that depends only on
+α and β such that the test (26) is valid and powerful for the separation curve
+ϵ∗(r) = inf{ϵ ≥0 : n ≥C · g(ϵ, r)}
+(27)
+where for m ≤d/2,
+g(ϵ, r) =
+
+
+
+
+
+
+
+
+
+
+
+√m
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+if Sϵ ∩Br̸ = ∅
+√m
+∥θ∗(r)∥2
+2
+if Sϵ ∩Br = ∅
+and for m > d/2, g(ϵ, r) =
+√
+d · ϵ−2.
+19
+
+
+4.1
+Characterization of optimal adaptation
+In this section, we show that Lemma 3 is optimal in the relevant adaptive sense. The
+separation curve (27), achieved by the adaptive test (26), is pointwise improvable.
+This is typical in adaptive testing problems [Gin´e and Nickl, 2016]. For example, fix an
+accuracy vector r∗∈Rm
++. A Bonferroni correction allows us to combine the adaptive test
+(26) with the oracle test (21) designed for the alternative H1 : ∥θ∥2 ≥ϵ∗(r∗) and θ ∈
+Br∗. This combined test has greater power at r∗. Such a gain, however, can occur
+only at a fixed number of accuracy vectors, and therefore does not contradict adaptive
+optimality.
+We therefore prove optimality within a class of separation curves. This class contains
+curves that assign the same separation to accuracy vectors that yield the same minimal
+projection onto the span of the predictions. In other words, if two accuracy vectors
+lead to worst-case projections of equal length onto the predictions’ span, then their
+induced alternative hypotheses are considered equally hard to distinguish from the null
+hypothesis.
+Property 1 (Same separation for equivalent accuracy vectors). Let ˜ϵ be a separation
+curve. If ˜ϵ(r) = ϵ for r ∈Rm
++, then ˜ϵ(r′) = ϵ for all r′ ∈Rm
++ such that γ∗(ϵ, r) = γ∗(ϵ, r′).
+Note that the property is natural, given that both the separation curves associated
+with the oracle test in Lemma 1 and the adaptive test in Lemma 3 satisfy it. The next
+lemma shows that, among all separation curves satisfying Property 1, the separation
+curve in Lemma 3 cannot be meaningfully improved.
+Lemma 4 (Optimality of the adaptive test (26)). For m ≤d/2 and orthogonal predic-
+tions, consider hypotheses (23) with a separation curve ˜ϵ that has Property 1. If there
+exists r∗∈Rm
++ such that ˜ϵ(r∗) < C · ϵ∗(r∗) where
+ϵ∗(r) = inf
+(
+ϵ ≥0 : n ≥C ·
+" √m
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+#
+and Sϵ ∩Br̸ = ∅
+)
+,
+(28)
+then no valid test can be powerful.
+The proof is deferred to Appendix D.2 of the supplementary material. Furthermore,
+note that Lemma 4 proves that Lemma 3 is sharp up to constants for the Sϵ ∩Br̸ = ∅
+case. Together Lemmas 4 and 3 prove Theorems 3 and 4 in Section 1.1.
+Lemma 4 strengthens the usual adaptivity guarantee, which only establishes opti-
+mality of the separation curve ϵ∗against any fully dominated separation curve [Gin´e
+and Nickl, 2016]. Such guarantees rule out any valid test with nontrivial power against
+a candidate curve ˜ϵ satisfying ˜ϵ(r) < C · ϵ∗(r) for every r ∈Rm
++. Our lower bound
+reaches the same conclusion under a weaker requirement: ϵ∗only needs to dominate ˜ϵ
+on a particular subset of accuracy vectors.
+To see why the dependence on the dimension of the prediction span is sharp, consider
+a weak oracle that, under the alternative hypothesis, knows the norm of the projection
+20
+
+
+onto the prediction span but not its direction. This oracle must distinguish
+H0 : ˆU Tθ = 0 versus H1 : ∃y ∈Sm−1
+2
+s.t. ∥ˆU Tθ∥2 = γ and ˆU Tθ = γ · y
+(29)
+where γ is known. An adversary can make this problem difficult by randomizing the
+direction of ˆU Tθ. In particular, under the alternative, the adversary may choose H1 :
+ˆU Tθ/γ ∼Uniform(Sm−1
+2
+).
+This distribution spreads the projected signal uniformly
+across all directions in the prediction span. A useful test must therefore search over the
+entire unit sphere in Rm rather than inspect a known direction. This mirrors the lower
+bound in (22), where randomizing the alternative forces the test to look for deviations
+in all directions. Consequently, the oracle can distinguish the hypotheses only when
+n ≥√m · γ−2. Thus, no test for (29) can remove the √m dependence.
+A related construction yields a lower bound for the original problem. Under the
+hypotheses (23), an adversary can draw random points under the alternative hypothesis
+satisfying
+H1 : ∥θ∥2 = ϵ and
+ˆU Tθ
+∥ˆU Tθ∥2
+∼Uniform(Sm−1
+2
+).
+(30)
+This distribution captures the correct √m dependence but does not correctly encode
+the role of γ∗(ϵ, r) = ∥A+(ϵ, r)∥2. The issue arises because ˆU Tθ may contain negative
+coordinates, which increase ∥ˆU Tθ∥2 relative to the optimal norm ∥( ˆU Tθ)+∥2. To obtain
+a tight lower bound, we must restrict the distribution to be supported on the positive
+orthant. However, replacing Sm−1
+2
+by Sm−1
+2
+∩{θ ∈Rm : θ ≥0} in (30) does not work
+because the uniform measure on the positive orthant remains too diffuse. That is, the
+concentration of one-dimensional projections of said random vectors depends on the
+dimension m. Instead, we must support the distribution on a smaller structured subset
+of the positive orthant. Let S denote the collection of all subsets of size √m from [m].
+Under the alternative hypothesis, the adversary chooses
+H1 : ∥θ∥2 = ϵ and
+ˆU Tθ
+∥ˆU Tθ∥2
+= 1S · m−1/4 where S ∼Uniform(S)
+and [1S]i = I(i ∈S). Lemma 4 utilizes this random alternative to prove that the rates
+attained by test (26) are optimal for the Sϵ ∩Br̸ = ∅case.
+5
+The cost of adapting to arbitrary predictions
+In the previous section, we considered only orthogonal predictions. In that setting, the
+test’s performance depends on the ambient dimension of the span of predictions, be-
+cause each prediction provides information about the alternative that the others cannot
+represent. This becomes overly pessimistic when predictions are not orthogonal, since
+many predictions may cluster tightly, especially when they are obtained by retraining
+the same predictive method on different subsamples of the available data.
+Henceforth, we consider the realistic scenario in which the accuracy of the predic-
+tions is unknown, and the predictions are not assumed to be orthogonal. That is, we
+21
+
+
+distinguish hypotheses (23) where the predictions span a k-dimensional subspace. That
+is, rank ˆU = k ≤min(m, d).
+To understand how non-orthogonality changes the geometry of the problem, con-
+sider using the projection test (26) we employed for the case of orthogonal predictions.
+The following lemma shows that the performance of the test depends on the ambient
+dimension of the predictions’ span, even if all predictions are highly aligned. The proof
+is deferred to Appendix E.1 of the supplementary material.
+Lemma 5 (Performance of the adaptive test that uses standard projection). For hy-
+potheses (23), there exists a positive constant C that depends only on α and β such that
+the adaptive test using standard projection (26) is powerful for the separation curve
+ϵ∗(r) = inf{ϵ ≥0 : n ≥C · g(ϵ, r)}
+where
+g(ϵ, r) =
+
+
+
+
+
+
+
+
+
+
+
+√
+k
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+if Sϵ ∩Br̸ = ∅
+√
+k
+∥θ∗(r)∥2
+2
+if Sϵ ∩Br = ∅
+We could have foreseen these results by noting that the test discards useful informa-
+tion by considering all the dimensions of the span of the predictions equally important,
+since ∥Π ˆUX∥2
+2 = Pk
+i=1∥Π˜uiX∥2
+2 where ˜u1, . . . , ˜uk are the left singular vectors of ˆU as-
+sociated with the non-zero singular values, and therefore it must pay for looking for
+deviations from the null on each of them.
+A better approach to reduce the strong dependence on the dimension of predictions’
+span is to hedge our bets and rely mostly on those directions in the span of predictions
+that are aligned with most of the predictions. As mentioned in the introduction, this
+idea leads to the test statistic that we call intrinsic projection of the data onto the span
+of the predictions (11): ∥ΠInt
+ˆU X∥2
+2 = Pk
+i=1(λ2
+i /λ2
+1) · ∥Π˜uiX∥2
+2. When the predictions are
+orthogonal, intrinsic projection coincides with standard projection ∥ΠInt
+ˆU X∥2
+2 = ∥Π ˆUX∥2
+2
+since the cosine similarity matrix becomes the identity matrix. However, when this is
+not the case, the weighting automatically disregards directions that are not aligned
+with most of the predictions, thereby avoiding reliance on the span of the predictions’
+dimension.
+Under the null hypothesis, the test statistic follows a mixture of chi-squared dis-
+tributions for which the appropriate quantile can be computed. Thus, we can use the
+following test on the intrinsic projection.
+ψα
+Int(X) = I
+ n · ∥ΠInt
+ˆU X∥2
+2 ≥q1−α
+
+(31)
+where q1−α is the (1 −α)-quantile of Pk
+i=1(λ2
+i /λ2
+1) · χ2
+1. The term intrinsic reflects the
+fact that the performance of the test depends not on the dimension of the predictions’
+22
+
+
+span itself, but on the intrinsic dimension of the squared cosine similarity matrix:
+Int Σ2 = Tr Σ2
+∥Σ2∥op
+=
+k
+X
+i=1
+λ4
+i
+λ4
+1
+This quantity provides a stable estimate of the effective dimensionality of the span of
+the predictions, as it uses the full singular value distribution rather than only counting
+nonzero directions. If all predictions coincide, their span has both an intrinsic and
+an ambient dimension of 1. A small perturbation can sharply increase the ambient
+dimension even when the predictions remain highly aligned.
+However, the intrinsic
+dimension of Σ2 will remain close to 1 since its eigenvalues will decay rapidly.
+Analogously to the case of orthogonal predictions, we expect the intrinsic projection
+test (31) to have no power when the alternative lives in the orthogonal complement of
+the span of the predictions, which can be detected by using the chi-squared test (16).
+Thus, we consider the aggregation test
+ψα(X) = max
+
+ψα/2
+Int (X), ψα/2
+χ2 (X)
+
+.
+(32)
+The following lemma summarizes the rates achieved by the test (32). The proof is
+deferred to Appendix E.1 of the supplementary material. Furthermore, we note that
+Theorem 5 in Section 1.1 is a consequence of the following lemma.
+Lemma 6 (Performance of the adaptive test that uses intrinsic projection ). For hy-
+potheses (23), there exists a positive constant C that depends only on α and β such that
+the adaptive test using intrinsic projection (32) is powerful for the separation curve
+ϵ∗(r) = inf{ϵ ≥0 : n ≥C · g(ϵ, r)}
+(33)
+where
+g(ϵ, r) =
+
+
+
+
+
+
+
+
+
+
+
+√
+Int Σ2
+˜γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+if Sϵ ∩Br̸ = ∅
+√
+Int Σ2
+∥˜θ∗(r)∥2
+2
+if Sϵ ∩Br = ∅
+and
+˜γ2
+∗(ϵ, r) =
+inf
+θ∈Sϵ∩Br∥ΠInt
+ˆU θ∥2
+2 and ∥˜θ∗(r)∥2
+2 = inf
+θ∈Br∥ΠInt
+ˆU θ∥2
+2.
+When the predictions are orthogonal, the intrinsic projection reduces to the standard
+projection. Consequently, Lemma 6 reduces to Lemma 3, since when predictions are
+orthogonal it holds that ˜γ2
+∗(ϵ, r) = γ2
+∗(ϵ, r) = ∥A+(ϵ, r)∥2
+2 and Int Σ2 = rank ˆU = k = m.
+Comparing the performance of intrinsic projection in Lemma 6 to that of the stan-
+dard projection in Lemma 5, the dependence on the dimension of the space is improved
+since it always holds that Int Σ2 ≤rank ˆU = k. However, this comes at the cost of a
+smaller projection since ∥ΠInt
+ˆU θ∥2
+2 ≤∥Π ˆUθ∥2
+2 for every θ ∈Rd.
+23
+
+
+5.1
+Dependence on the intrinsic dimension
+From an information standpoint, the projection test (24) discards valuable information
+about the relative importance of each orthogonal direction within the predictions’ span.
+The intrinsic projection test (31) does not discard this information. Intuitively, we
+expect the test based on intrinsic projection to perform better than the test based on
+standard projection when the predictions are aligned, since their span will have a low
+intrinsic dimension.
+To intuitively understand why we should expect its performance to depend on the in-
+trinsic dimension of Σ2, note that the intrinsic projection test (31) measures the norm of
+the random vector (Λk/λ1)· ˜U T
+k X whose mean is (Λk/λ1)· ˜U T
+k θ and has covariance matrix
+(Λ2
+k/λ2
+1)/n. Based on the work of Laurent et al. [2012], we expect to be able to detect a
+deviation on the intrinsic projection of the data (H0 : θ = 0 versus H1 : ∥ΠInt
+ˆU θ∥2 ≥γ)
+as soon as n ≥
+p
+Tr Λ4
+k/λ4
+1/γ2, where Tr Λ4
+k/λ4
+1 = Int Σ2. The constructions used by
+Laurent et al. [2012] do not directly apply to hypotheses (23) but can be adapted to our
+problem. First, consider all the separation curves that satisfy the following property.
+Property 2. Let ˜ϵ be a separation curve, and ˜γ(ϵ, r) = ∥A(ϵ, r)∥2/∥ˆU∥op. If ˜ϵ(r) = ϵ
+for r ∈Rm
++, then ˜ϵ(r′) = ϵ for all r′ ∈Rm
++ such that ˜γ(ϵ, r) = ˜γ(ϵ, r′).
+The following lemma provides some evidence for the potential dependence on the
+intrinsic dimension for adaptive tests. Compared to Lemma 6, the lower bound on
+the separation curve provided by Lemma 7 is loose since it depends on ˜γ rather than
+˜γ∗. Nevertheless, it conveys the message that the performance of adaptive tests should
+depend on the intrinsic dimension of Σ2. The proof is deferred to Appendix E.2 of the
+supplementary material.
+Lemma 7 (Dependence of any adaptive test on the intrinsic dimension). For rank ˆU ≤
+d/2, consider hypotheses (23) with a separation curve ˜ϵ that satisfies Property 2. If
+there exists r ∈Rm
++ such that ˜ϵ(r) < C · ˜ϵ∗(r) where
+˜ϵ∗(r) = inf
+(
+ϵ ≥0 : n ≥C′ ·
+ √
+Int Σ2
+˜γ2(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and ϵ ≥
+r
+m
+Int Σ2 · ˜γ(ϵ, r)
+)
+,
+(34)
+then no test can be valid and powerful.
+6
+Simulations
+In this section, we compare tests that differ in how they use the available predictions.
+The chi-squared test (16) ignores predictions, whereas the projection test (24) and
+the intrinsic projection test (31) always use the predictions regardless of their quality.
+We also consider two adaptive tests based on standard projection (26) and intrinsic
+projection (32).
+24
+
+
+A trial consists of sampling a set of m predictions {ˆθ1, . . . , ˆθm} that span an m-
+dimensional subspace and whose pairwise cosine similarities are all equal to ρ ∈[0, 1),
+obtaining an observation X from an adversarial distribution under the alternative hy-
+pothesis, providing the observation and the predictions to a test, and recording whether
+the test rejects the null hypothesis.
+Henceforth, let n ∈N be the sample size, d ∈N be the ambient dimension of the
+data, m ∈[d −1] be the number of predictions, ϵ ∈R+ be the required separation,
+r = ¯r · 1m ∈Rm
++ be the vector of accuracies, so that all predictions have the same
+accuracy, and h = ¯h · 1m ∈Rm
++ be the vector of norms, so that all predictions have the
+same norm. We assume that r has been chosen so that Sϵ ∩Br̸ = ∅is satisfied.
+We first sample m predicted directions that span an m-dimensional subspace and
+whose pairwise cosine similarities are all equal to ρ. Let Σρ = (1−ρ)·Im+ρ·1m1T
+m be the
+target cosine-similarity matrix, and let Σρ = LLT be its Cholesky decomposition. We
+sample G ∈Rd×m with Gi,j
+iid∼N(0, 1), let G = QR be its reduced QR decomposition,
+and set ˆU =
+
+ˆu1, . . . , ˆum
+
+= QLT.
+Since QTQ = Im, it follows that ˆU T ˆU = Σρ.
+Therefore, ∥ˆui∥2 = 1 for every i ∈[m] and CS(ˆui, ˆuj) = ρ for every distinct i, j ∈[m].
+Thus, the m predicted directions {ˆu1, . . . , ˆum} are random vectors on the unit sphere
+with pairwise cosine similarity ρ. Furthermore, we let ˆθi = ¯h · ˆui for i ∈[m].
+Second, we sample an adversarially chosen θ based on the construction used to prove
+Lemma 2:
+θ = ˜UmA∗(ϵ, r) + ˜U ⊥
+mz ·
+q
+ϵ2 −∥A∗(ϵ, r)∥2
+2.
+(35)
+Here, the columns of ˜Um form an orthonormal basis for the span of {ˆu1, . . . , ˆum}, the
+columns of ˜U ⊥
+m form an orthonormal basis for its orthogonal complement, and z is
+sampled from Uniform(Sd−m−1
+2
+). Since m < d and Sϵ∩Br̸ = ∅, A∗(ϵ, r) is the unique m-
+dimensional vector satisfying ∥A∗(ϵ, r)∥2
+2 = infθ∈Br∩Sϵ∥Π ˆUθ∥2
+2. Because the predictions
+{ˆθ1, . . . , ˆθm} have the same accuracy, norm, and pairwise cosine similarity, it holds that
+∥A∗(ϵ, r)∥2 = γ∗(ϵ, r) = ˜γ∗(ϵ, r). Thus, every θ sampled from (35) is adversarial to tests
+that rely on standard or intrinsic projection. Finally, we sample X|θ ∼N(θ, Id/n) and
+provide the observation X and the predictions to the test under evaluation.
+Throughout the simulations, we set α = 0.05, n = 100, and ϵ = ¯h = 0.3, and vary
+¯r from rmin to rmax. We choose rmin so that the assumption Sϵ ∩Br̸ = ∅holds; that is,
+rmin = min{˜r ∈R+ : Sϵ ∩B˜r·1m̸ = ∅} = ϵ · [2 −2
+p
+(1 + (m −1)ρ) /m]1/2. Furthermore,
+we choose rmax = ϵ·
+√
+2 so that ∥A∗(ϵ, rmax·1m)∥2 = 0, which implies that any projection
+onto the span of the predictions contains no useful information. For every configuration
+and test, we estimate power using 1,000 independent trials.
+Consider the case of a single prediction. We set m = 1 and consider ambient
+dimensions d ∈{2, 10, 100}. When m = 1, the preceding construction samples one
+predicted direction ˆu1 uniformly from the unit sphere. Figure 3 shows the results. Note
+that the chi-squared test suffers from the curse of dimensionality, whereas the projection
+test (24) does not, provided that the prediction is of high quality. However, for a low-
+quality prediction, the projection test performs worse than the chi-squared test. This
+25
+
+
+is expected, as the projection test alone is not adaptive. A good trade-off between the
+projection and chi-squared tests is obtained by the adaptive test (26), which closely
+tracks the power of the projection test when the prediction is good but remains close to
+the power of the chi-squared test when the prediction is uninformative. This simulation
+illustrates that the adaptive test (26) achieves a rate-wise free lunch, as described in
+Section 1.1.
+For orthogonal predictions, we set d = 100 and sample {ˆu1, . . . , ˆum} for m ∈
+{10, 25, 50} from the unit sphere such that they are orthogonal (ρ = 0). Figure 5 shows
+the results. Note that we progressively increase the number of orthogonal predicted
+directions until the number of predictions equals half of the ambient dimension of the
+data, since Lemma 3 indicates that the adaptive test offers no rate-wise advantage over
+the chi-squared test at that point. Since the predictions are orthogonal, they represent
+the worst case from a geometric perspective, as this forces both the projection test (24)
+and the adaptive test (26) to look for deviations from the null hypothesis in all predicted
+directions. Nevertheless, when the predictions are of high quality, prediction-based tests
+can still outperform the chi-squared test that ignores them.
+For aligned predictions, we set d = 100 and sample {ˆu1, . . . , ˆum} for m = 50 from
+the unit sphere such that they span an m-dimensional subspace and all pairwise cosine
+similarities are equal to ρ. In this setting, it holds that
+Int Σ2
+ρ = 1 + (m −1) ·
+
+1 −ρ
+1 + (m −1)ρ
+2
+.
+Thus, by controlling their cosine similarity, we can control the intrinsic dimension of
+Σ2
+ρ. For instance, if predictions are orthogonal (ρ = 0), it follows that Int Σ2
+ρ = m, while
+0.35
+0.37
+0.39
+0.41
+0.1
+0.2
+0.3
+0.4
+0.5
+0.38
+0.39
+0.40
+0.41
+0.42
+0.40
+0.41
+0.42
+Power across number of orthogonal predictions (d=100)
+Unknown predictions' error (larger is worse)
+Power (higher is better)
+m = 10 predictions
+m = 25 predictions
+m = 50 predictions
+Test
+Adaptive
+Chi-squared
+Projection
+Figure 5: Comparison between the chi-squared test (16), which ignores predictions, the
+projection test (24), which always uses all predictions, and the adaptive test (26), which
+optimally adapts to the predictions’ errors.
+26
+
+
+if predictions are almost parallel (ρ ≈1), we have Int Σ2
+ρ ≈1. For this experiment,
+we choose values for ρ so that Int Σ2
+ρ is approximately 1, m/5, or m. Figure 4 shows
+the results. First, note that when the predictions are orthogonal, methods based on
+intrinsic and standard projection perform equally. However, when there is high cosine
+similarity among the predictions, tests based on intrinsic projection, such as (31) and
+(32), benefit from this alignment and outperform those based on standard projection.
+Furthermore, the adaptive intrinsic-projection test (32) appropriately relies on or ig-
+nores the predictions, providing a good trade-off between the intrinsic projection test
+(31) and the chi-squared test (16).
+7
+Discussion
+In this work, we have sought to provide answers to the question of optimal data aggre-
+gation with predictions, such as those produced by machine learning models. Although
+our results concern the Gaussian sequence model, the fundamental ideas are geometric
+in nature and therefore provide a way to generalize to other models. That is, insofar
+as a space is equipped with an inner product, both standard and intrinsic projections
+can be realized.
+At a high level, it is worth recalling that the problems of estimating and testing with
+access to black-box predictions are substantially different. As expected, when testing
+with black-box predictions, we are achieving faster rates than comparable estimation
+problems with similar guarantees. More importantly, testing requires only information
+about the direction of a prediction. As a result, a prediction may remain useful for
+testing even when it lies far from the target, provided that it aligns well with the target
+of inference. Thus, decision-making can rely on predictions with weaker guarantees
+than those needed for estimation.
+This observation suggests a practical criterion for training predictive models when
+their outputs feed into downstream decisions. In that setting, high cosine similarity with
+the target should matter more than distance to the target itself. This shift in evaluation
+could also yield computational gains, since in many modern machine learning pipelines,
+the cost of generating a prediction often increases with its quality. Therefore, decision
+procedures that use weaker yet well-aligned predictions may reduce computational cost
+without sacrificing operational performance.
+Finally, other works have approached the problem of decision-making with black-
+box predictions by constructing confidence sets and then making decisions based on
+them. Although equivalent to the testing framework explored in this work, due to the
+duality between confidence sets and testing procedures, the width of said confidence
+sets is not fully indicative of the performance of decision-making based on them. This is
+because their width is fundamentally dominated by the rates of functional estimation,
+which typically differ from those of testing.
+Confidence sets remain highly useful for human-in-the-loop decision-making because
+they communicate information about the uncertainty involved in the decision-making
+27
+
+
+process. However, as we move into automatic decision-making applications, the testing
+perspective becomes increasingly relevant, as it is solely concerned with the operational
+performance of large volumes of decisions without the need to interpret any single de-
+cision. Thus, we expect that the testing perspective will be a worthwhile framework
+for advancing research on large-scale automated decision-making with black-box pre-
+dictions.
+Acknowledgments The authors thank Alexandra Carpentier, Ryan Tibshirani, Arun
+Kumar Kuchibhotla, Mikael Kuusela, Chad Schafer, Tudor Manole, and Richard Sam-
+worth for useful comments and discussions during the development of this work.
+SUPPLEMENTARY MATERIAL
+Table of contents
+A General upper bound on the performance of tests
+29
+A.1 Bonferroni correction . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+30
+B General lower bound on the performance of tests
+30
+C Oracle inference
+31
+C.1 Performance of the oracle test (Lemma 1)
+. . . . . . . . . . . . . . . .
+31
+C.2 Lower bound on the performance of oracle tests (Lemma 2) . . . . . . .
+34
+D Adapting to orthogonal predictions
+36
+D.1 Performance of the adaptive test (Lemma 3) . . . . . . . . . . . . . . .
+36
+D.2 Lower bound on the performance of adaptive tests (Lemma 4) . . . . .
+38
+E Adapting to arbitrary predictions
+44
+E.1
+Performance of adaptive tests (Lemmas 5 and 6) . . . . . . . . . . . . .
+44
+E.2
+Lower bound on the performance of adaptive tests (Lemma 7) . . . . .
+46
+References
+50
+28
+
+
+A
+General upper bound on the performance of tests
+The following proposition provides a means to determine when a test controls both type-
+I and type-II errors uniformly over the null and alternative hypotheses, respectively.
+In particular, (A.2) is good enough to capture, up to constants that depend on type-I
+and type-II errors, the minimum distance between the hypotheses required for a test
+to distinguish them.
+Proposition A.1. Let P0 and P1(ϵ) be sets of distributions, and given data X ∼P
+consider the hypotheses
+H0 : P ∈P0 versus H1 : P ∈P1(ϵ).
+Let T be a test statistic, and q1−α(P, T) denote the (1 −α)-quantile of the test statistic
+under the distribution P
+q1−α(P, T) = inf {u : P(T > u) ≤α} .
+Define the test
+ψ(X) = I(T(X) > t) where t = sup
+P∈P0
+q1−α(P, T),
+then the test controls the type-I error uniformly over the null hypothesis:
+sup
+P∈P0
+P(ψ(X) = 1) ≤α .
+Furthermore, if it holds that
+t ≤inf
+P∈P1 EP[T(X)] −
+s
+VP[T(X)]
+β
+,
+(A.1)
+the test controls the type-II error uniformly over the alternative hypothesis
+sup
+P∈P1
+P(ψ(X) = 0) ≤β .
+Consequently, the critical separation ϵ∗is upper bounded by ϵ:
+ϵ∗= inf{ϵ ≥0 :
+inf
+ψ∈Ψα(P0) sup
+P∈P1(ϵ)
+P(ψ(X) = 0) ≤β} ≤ϵ.
+Finally, since q1−α(P, T) ≤EP[T(X)] +
+p
+VP[T(X)]/α, it follows that (A.1) is implied
+by
+sup
+P∈P0
+EP[T(X)] +
+r
+VP[T(X)]
+α
+≤inf
+P∈P1 EP[T(X)] −
+s
+VP[T(X)]
+β
+.
+(A.2)
+29
+
+
+A.1
+Bonferroni correction
+Proposition A.2. Let P0 and P1(ϵ) be sets of distributions, and given data X ∼P
+consider the hypotheses
+H0 : P ∈P0 versus H1 : P ∈P1(ϵ).
+Let ψα
+i for i ∈{1, 2} be tests such that they control the type-I error uniformly by α.
+Additionally, they control the type-II error uniformly by β whenever ϵ ≥ϵi respectively.
+Then, the test
+ψα(X) = ψα·C
+1
+(X) ∨ψα·(1−C)
+2
+(X)
+for C ∈(0, 1)
+controls the type-I error uniformly by α.
+Furthermore, it controls the type-II error
+uniformly by β whenever ϵ ≥ϵ1 ∧ϵ2.
+Proof. Under the null hypothesis, we have that
+sup
+P∈P0
+EP [ψα] = sup
+P∈P0
+EP
+h
+ψα·C
+1
+∨ψα·(1−C)
+2
+i
+= sup
+P∈P0
+EP
+
+ψα·C
+1
+
++ EP
+h
+ψα·(1−C)
+2
+i
+−EP
+h
+ψα·C
+1
+∧ψα·(1−C)
+2
+i
+≤α
+Under the alternative hypothesis, it follows that
+inf
+P∈P1 EP [ψα] ≥
+inf
+P∈P1(ϵ)
+
+EP
+
+ψα·C
+1
+
+∨EP
+h
+ψα·(1−C)
+2
+i
+≥1 −β
+whenever ϵ ≥ϵ1 ∧ϵ2.
+B
+General lower bound on the performance of tests
+Proposition B.1 (Ingster and Suslina [2003],Tsybakov [2009]). Let P0 be a distribution
+and P1(ϵ) be a set of distributions, and given data X ∼P consider the hypotheses
+H0 : P = P0 versus H1 : P ∈P1(ϵ).
+Let π be a distribution supported on P1(ϵ). It follows that minimax risk (13) is lower
+bounded
+R∗(P1(ϵ)) > β if χ2 (EP∼πP, P0) ≤Cα,β
+where Cα,β is a positive constant that depends only on α and β.
+30
+
+
+C
+Oracle inference
+C.1
+Performance of the oracle test (Lemma 1)
+The proof of Lemma 1 depends on the performance of the chi-squared test (Lemma
+C.1) and the quantification of the worst-case projection onto the span of the predictions
+under the alternative hypothesis (Lemma C.2). In the following, we state both lemmas
+and prove Lemma 1. The proof of Lemma C.2 is provided at the end of this appendix.
+The following lemma quantifies the performance of the chi-squared test.
+Lemma C.1 (Ingster [1993]). For hypotheses (15), there exists a positive constant C
+that depends only on α and β such that the chi-squared test (16) is powerful whenever
+n ≥C ·
+√
+d
+ϵ2 .
+The next lemma quantifies the worst-case projection onto the span of the predictions
+under the alternative hypothesis.
+Lemma C.2. If rank ˆU < d and Sϵ ∩Br̸ = ∅, it follows that there exists a unique
+(rank ˆU)-dimensional vector A∗(ϵ, r) such that
+A∗(ϵ, r) = arg inf
+θ∈Sϵ∩Br
+∥Π ˆUθ∥2
+2.
+We proceed to prove Lemma 1.
+Proof of Lemma 1. In the following, we indicate the conditions under which the chi-
+squared test (16), the worst-case cosine similarity test (20), and the likelihood-ratio
+test (17) are valid and powerful. Finally, we combine the conditions to state when the
+oracle test (21) is valid and powerful.
+Throughout the proof, we let rank ˆU = k, and let the reduced singular value decom-
+position of ˆU be
+ˆU = ˜UkΛk ˜V T
+k ,
+(C.1)
+where the columns of ˜Uk span the same k-dimensional subspace spanned by ˆU. Fur-
+thermore, let the columns of ˜U ⊥
+k be a basis for its orthogonal complement, a (d −k)-
+dimensional subspace.
+Analysis when Sϵ and Br are not disjoint. If Sϵ ∩Br̸ = ∅, the oracle test (21)
+performs a Bonferroni correction between the chi-squared test (16) and the worst-case
+cosine similarity test (20):
+ψ(X) = ψα/2
+χ2 (X) ∨ψα/2
+CS (X)
+if Sϵ ∩Br̸ = ∅.
+(C.2)
+Let us first analyze the chi-squared test. By Lemma C.1, it follows that the oracle test
+is powerful whenever
+n ≥C0 ·
+√
+d
+ϵ2
+and Sϵ ∩Br̸ = ∅.
+(C.3)
+31
+
+
+where C0 is a constant that depends only on β and α. Turning to the worst cosine
+similarity test (20), it holds that ψα/2
+CS (X) = I
+ Tr(X) ≥z1−α/2
+
+where
+Tr(X) = √n ·
+D
+˜U T
+k X, ˜u(ϵ, r)
+E
+and ˜u(ϵ, r) =
+A∗(ϵ, r)
+∥A∗(ϵ, r)∥2
+.
+By (C.2), Proposition A.1, and the fact that
+EPθ[Tr(X)] = √n ·
+D
+˜U T
+k θ, ˜u(ϵ, r)
+E
+and VPθ[Tr(X)] = 1
+∀θ ∈Rd,
+it holds that the oracle test is powerful whenever
+inf
+θ∈H1(ϵ,r) EPθ[Tr(X)] ≥C1 · 1 and Sϵ ∩Br̸ = ∅
+(C.4)
+where H1(ϵ, r) = {θ ∈Rd : ∥θ∥2 ≥ϵ and θ ∈Br} and C1 is a constant that depends
+on β and α. Since Sϵ ∩Br̸ = ∅, it holds that
+inf
+θ∈H1(ϵ,r) EPθ[Tr(X)] =
+inf
+θ∈Sϵ∩Br EPθ[Tr(X)].
+We compute the RHS of (C.4). Since k < d and Sϵ ∩Br̸ = ∅, it follows by Lemma C.2
+that there exists a unique k-dimensional vector A∗(ϵ, r) such that
+∥A∗(ϵ, r)∥2
+2 =
+inf
+θ∈Br∩Sϵ∥Π ˆUθ∥2
+2 =
+inf
+θ∈Br∩Sϵ∥˜U T
+k θ∥2
+2 = γ2
+∗(ϵ, r).
+Consequently, it holds that
+D
+˜U T
+k θ −A∗(ϵ, r), A∗(ϵ, r)
+E
+≥0
+∀θ ∈Br ∩Sϵ,
+and
+inf
+θ∈Br∩Sϵ
+D
+˜U T
+k θ, A∗(ϵ, r)
+E
+=
+inf
+θ∈Br∩Sϵ∥A∗(ϵ, r)∥2
+2 +
+D
+˜U T
+k θ −A∗(ϵ, r), A∗(ϵ, r)
+E
+= ∥A∗(ϵ, r)∥2
+2.
+Therefore, it holds that
+inf
+θ∈Sϵ∩Br EPθ[Tr(X)] = √n · ∥A∗(ϵ, r)∥2 = √n · γ∗(ϵ, r).
+(C.5)
+Thus, by (C.4) and (C.5), it holds that the oracle test (21) is powerful whenever
+√n · γ∗(ϵ, r) ≥C1 and Sϵ ∩Br̸ = ∅,
+(C.6)
+where C1 is a positive constant that depends only on α and β. Finally, by (C.3), (C.6)
+and Proposition A.2, the oracle test is valid and powerful whenever
+n ≥C2 ·
+ 
+1
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and Sϵ ∩Br̸ = ∅,
+(C.7)
+32
+
+
+where C2 is a positive constant that depends only on α and β.
+Analysis of oracle test when Sϵ and Br are disjoint. When Sϵ ∩Br = ∅, there is
+a unique point under the alternative hypothesis that is closest to the null hypothesis,
+and the oracle test performs a likelihood ratio between them:
+ψ(X) = ψα
+LR(X)
+if Sϵ ∩Br = ∅.
+It follows that the oracle test is powerful whenever
+n ≥C3 · ∥θ∗(r)∥−2
+2
+and Sϵ ∩Br = ∅,
+(C.8)
+where C3 is a positive constant that depends only on α and β.
+In summary, by (C.7) and (C.8), it holds that the oracle test (21) is valid and powerful
+whenever
+n ≥C ·
+
+
+
+
+
+
+
+
+
+1
+γ2
+∗(ϵ, r) ∧
+√
+d
+ϵ2
+if Sϵ ∩Br̸ = ∅
+1
+∥θ∗(r)∥2
+2
+if Sϵ ∩Br = ∅
+where C is a positive constant that depends only on α and β.
+We finish this appendix by proving Lemma C.2.
+Proof of Lemma C.2. Let rank ˆU = k, using the reduced singular value decomposition
+of ˆU (C.1), we can rewrite A∗(ϵ, r) as
+A∗(ϵ, r) = arg inf
+a∈A(ϵ,r)
+∥a∥2
+2 where A(ϵ, r) =
+n
+˜U T
+k θ : θ ∈Sϵ ∩Br
+o
+⊆Rk.
+(C.9)
+Since Sϵ ∩Br̸ = ∅, it follows that A(ϵ, r)̸ = ∅. We prove that if k < d, it holds that
+A(ϵ, r) =
+n
+a ∈Rk : ∥a∥2 ≤ϵ and ˆU T ˜Uka ≥A(ϵ, r)
+o
+.
+Thus, A(ϵ, r) is the intersection of a convex ball and closed half-spaces, so it is closed
+and convex. Consequently, the minimizer of (C.9) is unique.
+First, we prove that for any a ∈Rk such that ∥a∥2 ≤ϵ and ˆU T ˜Uka ≥A(ϵ, r),
+there exists a θ ∈Sϵ ∩Br such that ˜U T
+k θ = a. Since k < d, there exists unit vector
+z ∈span ˜U ⊥
+k . Let
+θ = ˜Uka + z ·
+q
+ϵ2 −∥a∥2
+2.
+By definition, it follows that ∥θ∥2 = ϵ and ˜U T
+k θ = a. Furthermore, for i ∈[m], it holds
+that
+∥θ −ˆθi∥2
+2 = ∥θ∥2
+2 + h2
+i −2hi · ⟨θ, ˆui⟩
+= ∥θ∥2
+2 + h2
+i −2hi ·
+D
+˜Uka, ˆui
+E
+= ∥θ∥2
+2 + h2
+i −2hi · [ ˆU T ˜Uka]i
+33
+
+
+Since ˆU T ˜Uka ≥A(ϵ, r), it follows that
+∥θ −ˆθi∥2
+2 ≤ϵ2 + h2
+i −2hi · Ai(ϵ, r) = r2
+i .
+Thus, θ ∈Br, and consequently, ˜U T
+k θ = a and θ ∈Br ∩Sϵ.
+For the reverse inclusion, we prove that for any θ ∈Sϵ ∩Br such that ˜U T
+k θ = a, it
+holds that ∥a∥2 ≤ϵ and ˆU T ˜Uka ≥A(ϵ, r). Decompose θ as
+θ = ˜Uka + z where z ∈span ˜U ⊥
+k .
+Since θ ∈Sϵ, it holds that ϵ2 = ∥θ∥2
+2 = ∥a∥2
+2 + ∥z∥2
+2. Thus, ∥a∥2 ≤ϵ. Furthermore,
+since θ ∈Br, for i ∈[m], it holds that
+r2
+i ≥∥θ −ˆθi∥2
+2 = ϵ2 + h2
+i −2hi · [ ˆU T ˜Uka]i,
+which is equivalent to
+[ ˆU T ˜Uka]i ≥Ai(ϵ, r) for i ∈[m].
+That is, ˆU T ˜Uka ≥A(ϵ, r). In summary, ∥a∥2 ≤ϵ and ˆU T ˜Uka ≥A(ϵ, r).
+C.2
+Lower bound on the performance of oracle tests (Lemma
+2)
+We will need the following result before proving Lemma 2.
+Proposition C.1 (Ingster and Suslina [2003]). Let Pθ denote the distribution N(θ, Id/n)
+for θ ∈Rd. Consider P0 and Pπ = Eθ∈π[Pθ]. It holds that
+1 + χ2 (Pπ, P0) = Eθ,θ′ iid
+∼π [h(θ, θ′)] where h(θ, θ′) = exp (n · ⟨θ, θ′⟩).
+We proceed to prove Lemma 2.
+Proof of Lemma 2. Let rank ˆU = k, and let the reduced singular value decomposition
+of ˆU be
+ˆU = ˜UkΛk ˜V T
+k
+where Λk = Diagonal(λ1, . . . , λk),
+λ2
+1 ≥· · · ≥λ2
+k > 0, ˜Uk spans the same k-dimensional subspace spanned by ˆU. Further-
+more, let ˜U ⊥
+k be a basis for its orthogonal complement, a (d −k)-dimensional subspace.
+Since k ≤d/2 and Sϵ ∩Br̸ = ∅, it follows by Lemma C.2 that there exists a unique
+k-dimensional vector A∗(ϵ, r) that satisfies
+∥A∗(ϵ, r)∥2
+2 =
+min
+θ∈Sϵ∩Br∥Π ˆUθ∥2
+2 =
+min
+θ∈Sϵ∩Br∥˜U T
+k θ∥2
+2.
+(C.10)
+Define π to be the distribution of θ where
+θ = ˜Uk · A∗(ϵ, r) +
+ρ(ϵ)
+√
+d −k · ˜U ⊥
+k · z,
+(C.11)
+34
+
+
+where z ∼Uniform
+ √
+d −k · Sd−k−1
+2
+
+and ρ(ϵ) =
+p
+ϵ2 −∥A∗(ϵ, r)∥2
+2.
+Note that by
+(C.10),
+∥A∗(ϵ, r)∥2
+2 =
+min
+θ∈Sϵ∩Br∥Π ˜Ukθ∥2
+2 ≤
+min
+θ∈Sϵ∩Br∥θ∥2
+2 = ϵ2.
+Thus, ρ(ϵ) is well defined. Furthermore, by the definition of π, it holds that
+∥θ∥2 = ϵ and ˆU Tθ = ˜VkΛkA∗(ϵ, r)
+∀θ ∈supp π.
+By (C.10), it follows that there exists ˜θ ∈Br ∩Sϵ such that
+A∗(ϵ, r) = ˜U T
+k ˜θ.
+Consequently, we have that
+∥θ∥2 = ϵ and ˆU Tθ = ˜VkΛk ˜U T
+k ˜θ = ˆU T ˜θ ≥A(ϵ, r)
+∀θ ∈supp π,
+since any ˜θ ∈Sϵ ∩Br satisfies the constraint ˆU T ˜θ ≥A(ϵ, r). This implies that π is
+supported on the alternative hypothesis since
+∥θ∥2 = ϵ and ∥θ −ˆθi∥2 ≤ri for i ∈[m] ⇐⇒∥θ∥2 = ϵ and ˆU Tθ ≥A(ϵ, r).
+By Proposition C.1 and (C.11), it holds that
+1 + χ2 (Pπ, P0) = Eθ,θ′ iid
+∼π exp (n · ⟨θ, θ′⟩)
+where
+⟨θ, θ′⟩= ∥A∗(ϵ, r)∥2
+2 + ρ2(ϵ)
+d −k · ⟨z, z′⟩and z, z′ iid∼Uniform
+√
+d −k · Sd−k−1
+2
+
+.
+Hence, we have that
+1 + χ2 (Pπ, P0) = exp
+ n · ∥A∗(ϵ, r)∥2
+2
+
+· Ez,z′ iid
+∼Uniform(
+√
+d−k·Sd−k−1
+2
+) exp
+nρ2(ϵ)
+d −k · ⟨z, z′⟩
+
+.
+Since the distribution of z is C0-sub-Gaussian, where C0 is a positive constant that does
+not depend on d, it follows that
+1 + χ2 (Pπ, P0) ≤exp
+ n · ∥A∗(ϵ, r)∥2
+2
+
+· Ez′ exp
+C2
+0
+2 ·
+n2
+(d −k)2 · ρ4(ϵ) · ∥z′∥2
+2
+
+where ∥z′∥2
+2 = d −k. Thus, for any η > 0, there exists Cη such that χ2 (Pπ, P0) ≤η,
+whenever
+n · ∥A∗(ϵ, r)∥2
+2 + C2
+0
+2 ·
+n2
+d −k · ρ4(ϵ) ≤Cη.
+Using the assumption that rank ˆU = k ≤d/2 and the fact that ρ4(ϵ) ≤ϵ4, the above
+equation is implied by
+n · ∥A∗(ϵ, r)∥2
+2 + C2
+0 · n2
+d · ϵ4 ≤Cη.
+The statement of the lemma follows by Proposition B.1.
+35
+
+
+D
+Adapting to orthogonal predictions
+D.1
+Performance of the adaptive test (Lemma 3)
+If tighter control on the type-I error is needed, we can alternatively aggregate the test
+statistics of the test (24) and (25):
+ψα(X) = I
+ 
+n · ∥Π ˆUX∥2
+2
+p
+rank ˆU
++ n ·
+∥Π ˆU⊥X∥2
+2
+p
+d −rank ˆU
+≥q1−α
+!
+(D.1)
+where q1−α is the (1 −α)-quantile of the mixture
+χ2
+rank ˆU
+p
+rank ˆU
++
+χ2
+d−rank ˆU
+p
+d −rank ˆU
+.
+The test (D.1) achieves the same type-I and type-II error guarantees as the test (26)
+up to constants. Thus, we prove Lemma 3 using the test (D.1), but note that the same
+result holds for the test (26).
+Proof of Lemma 3. Since the predictions are mutually orthogonal, rank ˆU = k = m.
+Thus, k and m are equal. Throughout the proof, we use k rather than m.
+Power analysis for the test (D.1). For the test statistic of the adaptive test (D.1),
+it holds that
+n · ∥Π ˆUX∥2
+2
+√
+k
++ n · ∥Π ˆU⊥X∥2
+2
+√
+d −k
+∼χ2
+k (n · ∥Π ˆUθ∥2
+2)
+√
+k
++ χ2
+d−k (n · ∥Π ˆU⊥θ∥2
+2)
+√
+d −k
+∀θ ∈Rd.
+Let H1 denote the set of distributions under the alternative hypothesis
+H1 =
+[
+r∈Rk
++
+H1(ϵ(r), r)
+where H1(ϵ, r) =
+n
+θ ∈Rd : ∥θ∥2 ≥ϵ and ∥θ −ˆθi∥2 ≤ri for i ∈[k]
+o
+.
+By Proposition A.1, it follows that the test (D.1) controls the type-II error by β when-
+ever
+n · inf
+θ∈H1 f(θ) ≥C where f(θ) = ∥Π ˆUθ∥2
+2
+√
+k
++ ∥Π ˆU⊥θ∥2
+2
+√
+d −k
+(D.2)
+and C is a constant that only depends on α and β.
+Minimum projection. We proceed to characterize the minimum projection onto the
+span of ˆU. For any θ ∈H1, there exists r ∈Rk
++ such that θ ∈H1(ϵ(r), r). Furthermore,
+note that
+γ2
+∗(ϵ(r), r) ≤ϵ2(r) ⇐⇒Sϵ(r) ∩Br̸ = ∅where Br =
+k\
+i=1
+Bd
+2(ˆθi, ri).
+36
+
+
+In particular, if γ2
+∗(ϵ(r), r) ≤ϵ2(r), we have that
+inf
+θ∈H1(ϵ(r),r) f(θ) =
+inf
+θ∈H1(ϵ(r),r)
+∥Π ˆUθ∥2
+2
+√
+k
++ϵ2(r) −∥Π ˆUθ∥2
+2
+√
+d −k
+and
+inf
+θ∈H1(ϵ(r),r)∥Π ˆUθ∥2
+2 = γ2
+∗(ϵ(r), r).
+Therefore, the solution to the optimization is
+inf
+θ∈H1(ϵ(r),r) f(θ) =
+inf
+∥Π ˆ
+Uθ∥2
+2∈[γ2∗(ϵ(r),r),ϵ2(r)]
+∥Π ˆUθ∥2
+2
+√
+k
++ ϵ2(r) −∥Π ˆUθ∥2
+2
+√
+d −k
+=
+
+
+
+
+
+
+
+
+
+ϵ2(r)
+√
+k
+if k > d/2
+γ2
+∗(ϵ(r), r)
+√
+k
++ ϵ2(r) −γ2
+∗(ϵ(r), r)
+√
+d −k
+if k ≤d/2
+≥
+
+
+
+
+
+
+
+
+
+ϵ2(r)
+√
+d
+if k > d/2 or
+ k ≤d/2 and γ2
+∗(ϵ(r), r) ≤ϵ2(r) · ck
+
+γ2
+∗(ϵ(r), r)
+√
+k
+if k ≤d/2 and ϵ2(r) · ck ≤γ2
+∗(ϵ(r), r) ≤ϵ2(r)
+where ck =
+hq
+d
+k −1 + 1
+i−1
+. Equivalently, it holds that
+inf
+θ∈H1(ϵ(r),r) f(θ) ≥
+
+
+
+
+
+
+
+
+
+ϵ2(r)
+√
+d
+if k > d/2
+γ2
+∗(ϵ(r), r)
+√
+k
+∧ϵ2(r)
+√
+d
+if k ≤d/2 and Sϵ(r) ∩Br̸ = ∅
+(D.3)
+Disjoint neighborhoods. Conversely, it holds that
+γ2
+∗(ϵ(r), r) > ϵ2(r) ⇐⇒Sϵ(r) ∩Br = ∅where Br =
+k\
+i=1
+Bd
+2(ˆθi, ri)
+Thus, for all θ ∈Br it holds that ∥θ∥2 > ϵ(r). Thus, H1(ϵ(r), r) = Br, and the weighted
+minimum projection of θ onto the spans of ˆU and ˆU ⊥does not depend on ϵ(r):
+inf
+θ∈H1(ϵ(r),r) f(θ) = inf
+θ∈Br f(θ) = inf
+θ∈Br
+∥Π ˆUθ∥2
+2
+√
+k
++ ∥Π ˆU⊥θ∥2
+2
+√
+d −k
+We can rewrite this optimization. Namely, let
+θ = ˆUx + ˆU ⊥z where x ∈Rk and z ∈Rd−k.
+Since ˆU has orthonormal columns, it follows that
+∥θ∥2
+2 = ∥x∥2
+2 + ∥z∥2
+2 and ∥θ −ˆθi∥2
+2 = ∥x −hi · ei∥2
+2 + ∥z∥2
+2 for i ∈[k].
+37
+
+
+Thus, we can rewrite the optimization problem as
+inf
+x∈Rk,z∈Rd−k
+∥x∥2
+2
+√
+k
++
+∥z∥2
+2
+√
+d −k s.t. ∥x∥2
+2 ≥
+k
+X
+i=1
+∥x∥2
+2 + h2
+i −r2
+i + ∥z∥2
+2
+2hi
+2
++
+.
+Note that z̸ = 0 increases ∥z∥2
+2 and the norm of x due to the constraint. Thus, the
+optimizer sets z = 0. Therefore, we have that
+inf
+θ∈H1(ϵ(r),r) f(θ) = inf
+θ∈Br f(θ) = inf
+θ∈Br
+∥Π ˆUθ∥2
+2
+√
+k
++ ∥Π ˆU⊥θ∥2
+2
+√
+d −k = inf
+θ∈Br
+∥Π ˆUθ∥2
+2
+√
+k
+Recalling that infθ∈Br∥Π ˆUθ∥2
+2 = infθ∈Br∥θ∥2
+2, it follows that
+inf
+θ∈H1(ϵ(r),r) f(θ) = inf
+θ∈Br f(θ) = inf
+θ∈Br
+∥θ∥2
+2
+√
+k
+= ∥θ∗(r)∥2
+2
+√
+k
+(D.4)
+where θ∗(r) is the unique closest point to the null hypothesis, defined in (4).
+In summary, by (D.3) and (D.4), for any θ ∈H1, there exists r ∈Rk
++ such that
+θ ∈H1(ϵ(r), r), and it holds that
+inf
+θ∈H1(ϵ(r),r) f(θ) ≥
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ϵ2(r)
+√
+d
+if k > d/2
+γ2
+∗(ϵ(r), r)
+√
+k
+∧ϵ2(r)
+√
+d
+if k ≤d/2 and Sϵ(r) ∩Br̸ = ∅
+∥θ∗(r)∥2
+2
+√
+k
+if Sϵ(r) ∩Br = ∅
+(D.5)
+Consequently, by (D.5) and the definition of ϵ(r), see (27), it follows that
+n · inf
+θ∈H1 f(θ) = inf
+r∈Rk
++
+
+n ·
+inf
+θ∈H1(ϵ(r),r) f(θ)
+
+≥inf
+r∈Rk
++
+C ≥C.
+Thus, by (D.2), the type-II error is uniformly controlled under the alternative hypothesis
+by the projection test (D.1).
+D.2
+Lower bound on the performance of adaptive tests (Lemma
+4)
+Proof of Lemma 4. Given any separation curve ˜ϵ, define
+P(˜ϵ, r) =
+n
+Pθ : ∥θ∥2 ≥˜ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m]
+o
+,
+38
+
+
+and let P(˜ϵ) denote the set of distributions under the alternative hypothesis
+P(˜ϵ) =
+[
+r∈Rm
++
+P(˜ϵ, r).
+(D.6)
+For any ˜ϵ separation curve that satisfies Property 1, we need to show that if
+∃r ∈Rm
++ s.t. ˜ϵ(r) ≤C · ϵ∗(r) =⇒R∗(P(˜ϵ)) > β.
+We prove this statement using the contrapositive.
+For any ˜ϵ separation curve that
+satisfies Property 1, we show that if
+R∗(P(˜ϵ)) ≤β =⇒∀r ∈Rm
++, ˜ϵ(r) ≥C · ϵ∗(r).
+Consider a separation curve ˜ϵ that satisfies Property 1 and R∗(P(˜ϵ)) ≤β.
+Fix
+r ∈Rm
++. Then by Lemma D.2, for ϵ = ˜ϵ(r) it holds that
+n ≥C ·
+ √
+d
+ϵ2 ∧
+√m
+γ2
+∗(ϵ, r)
+!
+and γ∗(ϵ, r) ≤ϵ
+(D.7)
+and C is a positive constant that depends only on α and β. Since Sϵ ∩Br̸ = ∅⇐⇒
+γ∗(ϵ, r) ≤ϵ, (D.7) is equivalent to
+n ≥C ·
+ √
+d
+ϵ2 ∧
+√m
+γ2
+∗(ϵ, r)
+!
+and Sϵ ∩Br̸ = ∅.
+By definition of ϵ∗(r), see (28), it holds that
+ϵ∗(r) = inf
+(
+ϵ ≥0 : n ≥C ·
+ √
+d
+ϵ2 ∧
+√m
+γ2
+∗(ϵ, r)
+!
+and Sϵ ∩Br̸ = ∅
+)
+.
+where we used the fact that Sϵ ∩Br̸ = ∅⇐⇒γ∗(ϵ, r) ≤ϵ. Thus, it must hold that
+˜ϵ(r) = ϵ ≥ϵ∗(r). Since r ∈Rm
++ in the previous argument was arbitrary, the argument is
+valid for all r ∈Rm
++, which concludes the proof.
+Before proving Lemma D.2, we prove a looser result to warm up and get a simplified
+idea of the lower bound construction. First, we introduce a looser version of Property
+1:
+Property 3 (Same separation for equivalent accuracy vectors). Let γ(ϵ, r) = ∥A(ϵ, r)∥2.
+If ˜ϵ(r) = ϵ for r ∈Rm
++, then ˜ϵ(r′) = ϵ for all r′ ∈Rm
++ such that γ(ϵ, r) = γ(ϵ, r′).
+Note that the only difference between the sharp result of Lemma D.2 and the looser
+result of Lemma D.1 is that the former uses ∥A+(ϵ, r)∥2 in the rates while the latter
+uses the sub-optimal choice of ∥A(ϵ, r)∥2.
+39
+
+
+Lemma D.1. For m ≤d/2, given separation curve ˜ϵ with Property 3 and r ∈Rm
++, it
+holds that if
+n < C ·
+ √m
+γ2(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and γ(ϵ, r) ≤ϵ
+where ϵ = ˜ϵ(r), γ(ϵ, r) = ∥A(ϵ, r)∥2, and C is a positive constant that depends on α and
+β, then the minimax risk (13) over P(˜ϵ) (D.6) is not controlled: R∗(P(˜ϵ)) > β.
+Proof of Lemma D.1. Since the predictions are mutually orthogonal, rank ˆU = k = m.
+Thus, k and m are equal. Throughout the proof, we use k rather than m. Henceforth,
+fix r∗∈Rk
++ and let
+ϵ = ˜ϵ(r∗) and γ = γ(ϵ, r∗) = ∥A(ϵ, r∗)∥2.
+Constructing accuracy vectors that match the desired norm.
+Given y ∈
+Sk−1
+2
+(0, 1), γ and ϵ, define k-dimensional vector r(ϵ, γ, y) as follows
+ri =
+q
+ϵ2 + h2
+i −2hiyiγ for i ∈[k].
+If 0 ≤γ ≤ϵ, it follows that
+ϵ2 + h2
+i −2hiyiγ ≥(ϵ −hi)2 ≥0 for i ∈[k],
+which guarantees that r(ϵ, γ, y) ∈Rk
++. Furthermore, it holds that
+A(ϵ, r) = γ · y and ∥A(ϵ, r)∥2 = γ for r = r(ϵ, γ, y).
+Constructing distribution supported on the alternative hypothesis. Recall
+that ˆU spans a k-dimensional subspace. Henceforth, let ˆU ⊥be a basis for its orthogonal
+complement, a (d −k)-dimensional subspace. Let π be the distribution of
+θ = ˆUA(ϵ, r) + ˆU ⊥z ·
+ρ(γ)
+√
+d −k
+(D.8)
+where r = r
+
+ϵ, γ,
+y
+√
+k
+
+, ρ(γ) =
+p
+ϵ2 −γ2 and
+y ∼Uniform
+√
+k · Sk−1
+2
+
+, z ∼Uniform
+√
+d −k · Sd−k−1
+2
+
+and y ⊥⊥z.
+By definition of π it holds that
+∀θ ∈supp π, ∃y ∈Sk−1
+2
+s.t. ˆU Tθ = A( ϵ , r(ϵ, γ, y) ) and ∥θ∥2 = ϵ,
+thus
+∀θ ∈supp π, ∃y ∈Sk−1
+2
+s.t. ∥θ∥2 = ϵ and ∥θ −ˆθi∥2 ≤ri(ϵ, γ, y) for i ∈[k].
+Finally, Property 3 implies that π is supported on the alternative hypothesis.
+40
+
+
+Chi-squared distance between null hypothesis and mixture. By Proposition
+C.1 and (D.8), it holds that
+1 + χ2 (Pπ, P0) = Eθ,θ′ iid
+∼π exp (n · ⟨θ, θ′⟩)
+where
+⟨θ, θ′⟩= γ2
+k ⟨y, y′⟩+ ρ2(γ)
+d −k · ⟨z, z′⟩.
+Hence, we have that
+1 + χ2 (Pπ, P0) = Ey,y′ exp
+nγ2
+k
+· ⟨y, y′⟩
+
+· Ez,z′ exp
+nρ2(γ)
+d −k · ⟨z, z′⟩
+
+.
+Since the distributions of y and z are C0-sub-Gaussian, where C0 is a positive constant
+that does not depend on d, it follows that
+1 + χ2 (Pπ, P0) ≤Ey′ exp
+C2
+0
+2 · n2
+k2 · γ4 · ∥y′∥2
+2
+
+· Ez′ exp
+C2
+0
+2 ·
+n2
+(d −k)2 · ρ4(γ) · ∥z′∥2
+2
+
+where ∥y′∥2
+2 = k and ∥z′∥2
+2 = d −k. Thus, for any η > 0, there exists Cη such that
+χ2 (Pπ, P0) ≤η, whenever
+n2 · γ4
+k +
+n2
+d −k · ρ4(γ) ≤Cη
+where Cη is a positive constant that depends only on η. Thus, by Proposition B.1, it
+follows that there exists a positive constant C that depends only on α and β such that
+whenever
+n < C · min
+ √
+k
+γ2 ,
+√
+d −k
+ϵ2 −γ2
+!
+and γ2 ≤ϵ2,
+it follows that R∗(P(˜ϵ)) > β. The statement of the lemma follows by noting that for
+k ≤d/2, it holds that
+min
+ √
+k
+γ2 ,
+√
+d −k
+ϵ2 −γ2
+!
+≥˜C · min
+ √
+k
+γ2 ,
+√
+d
+ϵ2
+!
+where ˜C is a positive constant.
+We are ready to improve the lower bound argument by proving Lemma D.2. The
+construction in Lemma D.1 is loose because for some θ in the support of π, some of
+the entries of ˆU Tθ are allowed to be negative. Thus, we should restrict the support of
+π so that ˆU Tθ ≥0 element-wise. A natural idea is to restrict y in (D.8) to belong to
+the positive orthant, but doing so would destroy the sub-Gaussian property on which
+the lemma relies. This is because y ∼Uniform({x ∈Rm s.t. ∥x∥= √m and x ≥0})
+is C-sub-Gaussian but C depends on the dimension m.
+To correct this issue in the proof of Lemma 4, we will construct the support of π
+using sparse y vectors that belong to the positive orthant. We will use the standard
+fact about the hypergeometric and binomial distributions.
+41
+
+
+Proposition D.1 (Convex ordering of hypergeometric and binomial random variables).
+For X ∼Hypergeometric(N, k, n) and Y ∼Binomial(n, k
+N ), it holds that E[f(X)] ≤
+E[f(Y )] for every convex function f. Consequently, for every λ ≥0 it holds that
+E[exp(λX)] ≤E[exp(λY )] =
+
+1 −k
+N + k
+N exp(λ)
+n
+≤exp
+k · n
+N (eλ −1)
+
+In the following, we prove Lemma D.2.
+Lemma D.2. For m ≤d/2, given separation curve ˜ϵ with Property 1 and r ∈Rm
++, it
+holds that if
+n < C ·
+ √
+d
+ϵ2 ∧
+√m
+γ2
+∗(ϵ, r)
+!
+and γ∗(ϵ, r) ≤ϵ,
+where ϵ = ˜ϵ(r), γ∗(ϵ, r) = ∥A+(ϵ, r)∥2, and C is a positive constant that depends on α
+and β, then the minimax risk (13) over P(˜ϵ) (D.6) is not controlled: R∗(P(˜ϵ)) > β.
+Proof. Since the predictions are mutually orthogonal, rank ˆU = k = m. Thus, k and
+m are equal. Throughout the proof, we use k rather than m. Henceforth, fix r∗∈Rk
++,
+and let
+ϵ = ˜ϵ(r∗) and γ = γ∗(ϵ, r∗) = ∥A+(ϵ, r∗)∥2.
+Constructing accuracy vectors that match the desired norm. Given a subset
+S ⊆{1, . . . , k} of size M ∈[k], γ and ϵ, define the k-dimensional vector r(ϵ, γ, S) as
+follows
+ri =
+s
+ϵ2 + h2
+i −2hiγ · I(i ∈S)
+√
+M
+for i ∈[k].
+If 0 ≤γ ≤ϵ, it follows that
+ϵ2 + h2
+i −2hiγ · I(i ∈S)
+√
+M
+≥(ϵ −hi)2 ≥0 for i ∈[k],
+which guarantees that r(ϵ, γ, S) ∈Rk
++. Furthermore, it holds that
+Ai(ϵ, r) = γ · I(i ∈S)
+√
+M
+≥0 and ∥A+(ϵ, r)∥2 = γ for r = r(ϵ, γ, S).
+Constructing a distribution supported on the alternative hypothesis. Recall
+that ˆU spans a k-dimensional subspace. Henceforth, let ˆU ⊥be a basis for its orthogonal
+complement, a (d −k)-dimensional subspace. Furthermore, let S denote the collection
+of all
+  k
+M
+
+subsets of [k] having size M. Let π be the distribution of
+θ = ˆUA(ϵ, r) + ˆU ⊥z ·
+ρ(γ)
+√
+d −k
+(D.9)
+where r = r (ϵ, γ, S), ρ(γ) =
+p
+ϵ2 −γ2, and
+S ∼Uniform (S) , z ∼Uniform
+√
+d −k · Sd−k−1
+2
+
+and S ⊥⊥z.
+42
+
+
+By definition of π it holds that
+∀θ ∈supp π, ∃S ∈S s.t. ˆU Tθ = A( ϵ , r(ϵ, γ, S) ) and ∥θ∥2 = ϵ,
+thus
+∀θ ∈supp π, ∃S ∈S s.t. ∥θ∥2 = ϵ and ∥θ −ˆθi∥2 ≤ri(ϵ, γ, S) for i ∈[k].
+Due to Property 1, it holds that π is supported on the alternative hypothesis.
+Chi-squared distance between null hypothesis and mixture. By Proposition
+C.1 and (D.9), it holds that
+1 + χ2 (Pπ, P0) = Eθ,θ′ iid
+∼π exp (n · ⟨θ, θ′⟩)
+where
+⟨θ, θ′⟩= γ2
+M · |S ∩S′| + ρ2(γ)
+d −k · ⟨z, z′⟩.
+Hence, we have that
+1 + χ2 (Pπ, P0) = ES,S′ exp
+nγ2
+M · |S ∩S′|
+
+· Ez,z′ exp
+nρ2(γ)
+d −k · ⟨z, z′⟩
+
+.
+(D.10)
+Bound for second term in RHS of (D.10). Since the distribution of z is C0-sub-
+Gaussian, where C0 is a positive constant that does not depend on d, it follows that
+Ez,z′ exp
+nρ2(γ)
+d −k · ⟨z, z′⟩
+
+≤Ez′ exp
+C2
+0
+2 ·
+n2
+(d −k)2 · ρ4(γ) · ∥z′∥2
+2
+
+= exp
+C2
+0
+2 ·
+n2
+d −k · ρ4(γ)
+
+where we used the fact that ∥z′∥2
+2 = d −k in the last equality.
+Bound for first term in RHS of (D.10). Fix S′, and note that |S ∩S′| can be
+rewritten as follows
+|S ∩S′| =
+X
+i∈S′
+I(i ∈S)
+Fix S′. Consider an urn containing k balls labeled by [k], with the M = |S′| balls
+indexed by S′ colored red and the remaining k−M balls colored blue. Drawing M = |S|
+balls uniformly without replacement produces the subset S. Therefore, |S ∩S′| is the
+number of red balls drawn, and hence
+|S ∩S′| |S′ ∼Hypergeometric(k, M, M).
+Since the RHS does not depend on S′, it follows that
+|S ∩S′| ∼Hypergeometric(k, M, M).
+43
+
+
+By Proposition D.1, it holds that
+ES,S′ exp
+nγ2
+M · |S ∩S′|
+
+≤exp
+M 2
+k
+·
+
+exp
+nγ2
+M
+
+−1
+
+Bound for (D.10). Choosing M =
+√
+k, it follows that
+1 + χ2 (Pπ, P0) ≤exp
+
+exp
+nγ2
+√
+k
+
+−1 + C2
+0
+2 ·
+n2
+d −k · ρ4(γ)
+
+Thus, for any η > 0, there exists Cη such that χ2 (Pπ, P0) < η, whenever
+exp
+nγ2
+√
+k
+
+−1 + C2
+0
+2 ·
+n2
+d −k · ρ4(γ) < Cη.
+where Cη is a positive constant that depends on η. Thus, by Proposition B.1, it follows
+that there exists a positive constant C that depends on α and β such that whenever
+n < C · min
+ √
+k
+γ2 ,
+√
+d −k
+ϵ2 −γ2
+!
+and γ2 ≤ϵ2,
+it follows that R∗(P(˜ϵ)) > β. The statement of the lemma follows by noting that for
+k ≤d/2, it holds that
+min
+ √
+k
+γ2 ,
+√
+d −k
+ϵ2 −γ2
+!
+≥˜C · min
+ √
+k
+γ2 ,
+√
+d
+ϵ2
+!
+where ˜C is a positive constant.
+E
+Adapting to arbitrary predictions
+E.1
+Performance of adaptive tests (Lemmas 5 and 6)
+In the following, we provide a proof of Lemma 6. We omit the proof of Lemma 5 since
+it is analogous.
+Proof of Lemma 6. Distribution of test statistic of the intrinsic projection test
+(31). Recall that ˆU is the d × m matrix where the i-th column is the prediction ˆui. Let
+k = rank( ˆU) ≤min(m, d). Then by the singular value decomposition we have that
+ˆU = ˜UkΛk ˜V T
+k
+where ˜Uk ∈Rd×k, Λk ∈Rk×k and ˜Vk ∈Rm×k
+(E.1)
+where both ˜Uk and ˜Vk have orthonormal columns, and
+Λk = Diagonal(λ1, . . . , λk) s.t. λ2
+1 ≥λ2
+2 ≥· · · ≥λ2
+k > 0.
+44
+
+
+Therefore, it holds that
+T ˆU(X) =
+n
+∥ˆU∥2
+op
+· ∥ˆU TX∥2
+2 =
+k
+X
+i=1
+λ2
+i
+λ2
+1
+· ∥√n · Π˜uiX∥2
+2.
+It always holds that
+T ˆU(X) ∼
+k
+X
+i=1
+λ2
+i
+λ2
+1
+· χ2
+1
+ n · ∥Π˜uiθ∥2
+2
+
+∀θ ∈Rd
+where each term is independent. Thus, the expectation and variance are
+λ2
+1 · EPθ [T ˆU(X)] = ∥λ∥2
+2 + n ·
+k
+X
+i=1
+λ2
+i · ∥Π˜uiθ∥2
+2
+= ∥λ∥2
+2 + n · ∥Λk ˜U T
+k θ∥2
+2
+= ∥λ∥2
+2 + n · ∥ˆU Tθ∥2
+2,
+(E.2)
+λ4
+1 · VPθ [T ˆU(X)] = 2 · ∥λ∥4
+4 + 4n ·
+k
+X
+i=1
+λ4
+i · ∥Π˜uiθ∥2
+2,
+≤2 · ∥λ∥4
+4 + 4 · λ2
+1 · n · ∥Λk ˜U T
+k θ∥2
+2
+= 2 · ∥λ∥4
+4 + 4 · λ2
+1 · n · ∥ˆU Tθ∥2
+2.
+(E.3)
+Condition for the intrinsic projection test to be powerful. Henceforth, let ϵ(r)
+be an arbitrary separation curve, and let H1 denote the set of distributions under the
+alternative hypothesis
+H1 =
+[
+r∈Rm
++
+H1(ϵ(r), r) where H1(ϵ, r) =
+
+θ ∈Rd : ∥θ∥2 ≥ϵ and θ ∈Br
+	
+.
+By (E.2), (E.3), and Proposition A.1, it follows that the intrinsic projection test (31)
+is powerful whenever
+n · inf
+θ∈H1∥ˆU Tθ∥2
+2 ≥C ·
+ ∥λ∥2
+4 + λ2
+1
+
+where C is a constant that only depends on α and β. Noting that ∥λ∥2
+4 ≥λ2
+1, the above
+is implied by
+n · inf
+θ∈H1∥ˆU Tθ∥2
+2 ≥2C · ∥λ∥2
+4.
+Equivalently, the condition can be written as follows
+n · inf
+θ∈H1
+∥ˆU Tθ∥2
+2
+λ2
+1
+≥2C ·
+√
+Int Σ2 since ∥λ∥2
+4
+λ2
+1
+=
+s
+Tr Σ2
+∥Σ2∥op
+=
+√
+Int Σ2.
+(E.4)
+45
+
+
+The minimum intrinsic projection. For any θ ∈H1, there exists r ∈Rm
++ such that
+θ ∈H1(ϵ(r), r). Since θ ∈H1(ϵ(r), r), it holds that H1(ϵ(r), r)̸ = ∅and consequently
+Br̸ ⊂B◦
+ϵ(r). Therefore, one of two situations must happen: either Br ∩Sϵ(r)̸ = ∅, or
+Br ∩Sϵ(r) = ∅. Consequently,
+inf
+θ∈H1(ϵ(r),r)
+∥ˆU Tθ∥2
+2
+λ2
+1
+=
+(
+˜γ2
+∗(ϵ(r), r)
+if Br ∩Sϵ(r)̸ = ∅
+∥˜θ∗(r)∥2
+2
+if Br ∩Sϵ(r) = ∅
+(E.5)
+Condition for the aggregated test to be powerful. Since
+inf
+θ∈H1∥ˆU Tθ∥2
+2 = inf
+r∈Rm
++
+inf
+θ∈H1(ϵ(r),r)∥ˆU Tθ∥2
+2,
+by (E.4) and (E.5), the test is powerful whenever
+2C ≤n · inf
+r∈Rm
++
+1
+√
+Int Σ2 ·
+(
+˜γ2
+∗(ϵ(r), r)
+if Br ∩Sϵ(r)̸ = ∅
+∥˜θ∗(r)∥2
+2
+if Br ∩Sϵ(r) = ∅
+(E.6)
+Furthermore, by Lemma C.1, we know that the chi-squared test is powerful whenever
+n · inf
+r∈Rm
++
+ϵ2(r)
+√
+d
+≥C′
+(E.7)
+where C′ is a positive constant that depends on α and β. Consequently, by (E.6), (E.7),
+and Proposition A.2 it holds that the aggregated test (32) is powerful whenever
+2C ∨C′ ≤n ·
+ 
+inf
+r∈Rm
++
+ϵ2(r)
+√
+d
+
+∧inf
+r∈Rm
++
+1
+√
+Int Σ2 ·
+(
+˜γ2
+∗(ϵ(r), r)
+if Br ∩Sϵ(r)̸ = ∅
+∥˜θ∗(r)∥2
+2
+if Br ∩Sϵ(r) = ∅.
+!
+which is implied by
+2C ∨C′ ≤n · inf
+r∈Rm
++
+ 
+ϵ2(r)
+√
+d
+∧
+1
+√
+Int Σ2 ·
+(
+˜γ2
+∗(ϵ(r), r)
+if Br ∩Sϵ(r)̸ = ∅
+∥˜θ∗(r)∥2
+2
+if Br ∩Sϵ(r) = ∅.
+!
+The lemma is proved by noting that ϵ(r) = ϵ∗(r), see (33), satisfies the above condition.
+E.2
+Lower bound on the performance of adaptive tests (Lemma
+7)
+The proof of Lemma 7 follows by an argument analogous to that used for Lemma 4.
+Proof of Lemma 7. Given any separation curve ˜ϵ, let
+P(˜ϵ, r) =
+n
+Pθ : ∥θ∥2 ≥˜ϵ(r) and ∥θ −ˆθi∥2 ≤ri for i ∈[m]
+o
+,
+46
+
+
+and
+P(˜ϵ) =
+[
+r∈Rm
++
+P(˜ϵ, r).
+(E.8)
+For any ˜ϵ separation curve that satisfies Property 2, we need to show that if
+∃r ∈Rm
++ s.t. ˜ϵ(r) ≤C · ˜ϵ∗(r) =⇒R∗(P(˜ϵ)) > β.
+We prove this statement using the contrapositive. For any r 7→˜ϵ(r) separation curve
+that satisfies Property 2, we show that if
+R∗(P(˜ϵ)) ≤β =⇒∀r ∈Rm
++, ˜ϵ(r) ≥C · ˜ϵ∗(r).
+Consider a separation curve ˜ϵ that satisfies Property 2 and R∗(P(˜ϵ)) ≤β.
+Fix
+r ∈Rm
++; then, by Lemma E.1, for ϵ = ˜ϵ(r), it holds that
+n ≥C ·
+ √
+Int Σ2
+˜γ2(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and ˜γ(ϵ, r) ·
+r
+m
+Int Σ2 ≤ϵ,
+where C is a positive constant that depends only on α and β. Finally, by definition of
+˜ϵ∗(r), see (34), it holds that
+˜ϵ∗(r) = inf
+(
+ϵ ≥0 : n ≥C ·
+ √
+Int Σ2
+˜γ2(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and ˜γ(ϵ, r) ·
+r
+m
+Int Σ2 ≤ϵ
+)
+,
+Thus, it must hold that ˜ϵ(r) ≥˜ϵ∗(r). Since r ∈Rm
++ in the previous argument was
+arbitrary, the argument is valid for all r ∈Rm
++, which concludes the proof.
+In the following, we prove the necessary Lemma E.1.
+Lemma E.1. For k ≤d/2, given separation curve ˜ϵ with Property 2 and r ∈Rm
++, it
+holds that if
+n < C ·
+ √
+Int Σ2
+˜γ2(ϵ, r) ∧
+√
+d
+ϵ2
+!
+and ˜γ(ϵ, r) ·
+r
+m
+Int Σ2 ≤ϵ
+where ϵ = ˜ϵ(r), ˜γ2(ϵ, r) = ∥A(ϵ, r)∥2
+2/∥ˆU∥2
+op, and C is a positive constant that depends
+on α and β, then the minimax risk (13) on P(˜ϵ) (E.8) is not controlled: R∗(P(˜ϵ)) > β.
+Proof of Lemma E.1. Henceforth, fix r∗∈Rm
++ and let
+ϵ = ˜ϵ(r∗) and γ = γ(ϵ, r∗) = ∥A(ϵ, r∗)∥2.
+Constructing accuracy vectors that match the desired norm. Given y ∈Sm−1
+2
+,
+γ and ϵ, define the m-dimensional vector r(ϵ, γ, y) as follows
+ri =
+q
+ϵ2 + h2
+i −2hiyiγ for i ∈[m].
+47
+
+
+Since maxi∈[m] |yi| ≤1, if 0 ≤γ ≤ϵ, it follows that
+ϵ2 + h2
+i −2hiyiγ ≥(ϵ −hi)2 ≥0 for i ∈[m],
+which guarantees that r(ϵ, γ, y) ∈Rm
++. Furthermore, it holds that
+A(ϵ, r) = γ · y and ∥A(ϵ, r)∥2 = γ for r = r(ϵ, γ, y).
+Constructing distribution supported on the alternative hypothesis. Recall
+that ˆU = ˜UkΛk ˜V T
+k is the reduced-form singular value decomposition of ˆU, see (E.1),
+where ˜Uk spans a k-dimensional subspace. Henceforth, let ˜U ⊥
+k be a basis for its orthog-
+onal complement, a (d −k)-dimensional subspace. Let π be the distribution of
+θ = ˜UkΛ−1
+k
+· yw · γ + ˜U ⊥
+k z ·
+ρ(γ)
+√
+d −k
+(E.9)
+where
+ρ(γ) =
+q
+ϵ2 −∥Λ−1
+k yw∥2
+2 · γ2 and z ∼Uniform
+√
+d −k · Sd−k−1
+2
+
+and
+yw = Λ2
+kw
+∥λ∥2
+4
+, w ∈{−1, 1}k and wi
+iid∼Uniform ({−1, 1}) for i ∈[k].
+We require that ϵ2 ≥∥Λ−1
+k yw∥2
+2 · γ2. Noting that
+∥Λ−1
+k yw∥2
+2 = ∥λ∥2
+2
+∥λ∥4
+4
+= Tr Σ
+Tr Σ2 =
+m
+Tr Σ2 =
+m
+m + P
+i̸=j ⟨ˆui, ˆuj⟩2,
+said condition is satisfied whenever
+ϵ2 ≥
+m
+Int Σ2 ·
+γ2
+∥ˆU∥2
+op
+.
+By definition of π it holds that, for all θ ∈supp π,
+∃w ∈{−1, 1}k s.t. ∥θ∥2 = ϵ and ˆU Tθ = γ · ˜Vkyw = A(ϵ, r),
+where r = r(ϵ, γ, ˜Vkyw) and ∥˜Vkyw∥2 = 1 since ∥yw∥2
+2 = 1 and ˜Vk has orthonormal
+columns. Thus
+∀θ ∈supp π, ∃w ∈{−1, 1}k s.t. ∥θ∥2 = ϵ and ∥θ −ˆθi∥2 ≤ri(ϵ, γ, ˜Vkyw) for i ∈[m]
+Finally, by Property 2, it holds that π is supported on the alternative hypothesis.
+Chi-squared distance between null hypothesis and mixture. By Proposition
+C.1 and (E.9), it holds that
+1 + χ2 (Pπ, P0) = Eθ,θ′ iid
+∼π exp (n · ⟨θ, θ′⟩)
+48
+
+
+where
+⟨θ, θ′⟩=
+γ2
+∥λ∥4
+4
+·
+k
+X
+i=1
+λ2
+i · wiw′
+i + ρ2(γ)
+d −k · ⟨z, z′⟩.
+Hence, we have that
+1 + χ2 (Pπ, P0) = Ew,w′ exp
+ 
+nγ2
+∥λ∥4
+4
+·
+k
+X
+i=1
+λ2
+i · wiw′
+i
+!
+· Ez,z′ exp
+nρ2(γ)
+d −k · ⟨z, z′⟩
+
+.
+Since the distribution of z is C0-sub-Gaussian, where C0 is a positive constant that does
+not depend on d, it follows that
+Ez,z′ exp
+nρ2(γ)
+d −k · ⟨z, z′⟩
+
+≤Ez′ exp
+C2
+0
+2 ·
+n2
+(d −k)2 · ρ4(γ) · ∥z′∥2
+2
+
+,
+where ∥z′∥2
+2 = d −k. Furthermore, it holds that
+Ew,w′ exp
+ 
+nγ2
+∥λ∥4
+4
+·
+k
+X
+i=1
+λ2
+i · wiw′
+i
+!
+=
+k
+Y
+j=1
+cosh
+nγ2λ2
+j
+∥λ∥4
+4
+
+≤exp
+ n2γ4
+2∥λ∥4
+4
+
+.
+Thus, for any η > 0, there exists Cη such that χ2 (Pπ, P0) ≤η, whenever
+n2 ·
+γ4
+∥λ∥4
+4
++
+n2
+d −k · ρ4(γ) ≤Cη,
+where Cη is a positive constant that depends on η. Using the assumption that k ≤d/2,
+by Proposition B.1, it follows that there exists a positive constant C that depends on
+α and β such that whenever
+n < C · min
+ 
+∥λ∥2
+4
+γ2 ,
+√
+d
+ϵ2
+!
+, ϵ2 ≥
+m
+Int Σ2 ·
+γ2
+∥ˆU∥2
+op
+, and k ≤d/2,
+it follows that R∗(P(˜ϵ)) > β. The statement of the lemma follows by noting that
+∥λ∥2
+4
+γ2
+=
+√
+Int Σ2
+γ2/∥Σ∥op
+=
+√
+Int Σ2
+γ2/∥ˆU∥2
+op
+since Int Σ2 = Tr Σ2
+∥Σ2∥op
+= ∥λ∥4
+4
+∥Σ∥2
+op
+.
+49
+
+
+References
+Maryam Aliakbarpour, Piotr Indyk, Ronitt Rubinfeld, and Sandeep Silwal. Optimal
+algorithms for augmented testing of discrete distributions. In Advances in Neural
+Information Processing Systems, volume 37, pages 11186–11227, 2024.
+Anastasios N. Angelopoulos, Stephen Bates, Clara Fannjiang, Michael I. Jordan, and
+Tijana Zrnic. Prediction-powered inference. Science, 382(6671):669–674, 2023a.
+Anastasios N. Angelopoulos, John C. Duchi, and Tijana Zrnic.
+PPI++: Efficient
+prediction-powered inference, 2023b. arXiv:2311.01453.
+Sivaraman Balakrishnan, Edward H. Kennedy, and Larry Wasserman. The fundamental
+limits of structure-agnostic functional estimation. Statistical Science, 41(3):659–670,
+2026.
+Peter J. Bickel, Ya’acov Ritov, and Thomas M. Stoker. Tailor-made tests for goodness
+of fit to semiparametric hypotheses. The Annals of Statistics, 34(2):721–741, 2006.
+Matteo Bonvini, Edward H. Kennedy, Oliver Dukes, and Sivaraman Balakrishnan.
+Doubly-robust inference and optimality in structure-agnostic models with smooth-
+ness, 2024. arXiv:2405.08525.
+Leo Breiman. Statistical modeling: The two cultures (with comments and a rejoinder
+by the author). Statistical Science, 16(3):199–231, 2001.
+Abhishek Chakrabortty and Tianxi Cai.
+Efficient and adaptive linear regression in
+semi-supervised settings. The Annals of Statistics, 46(4):1541–1572, 2018.
+Abhishek Chakrabortty and Guorong Dai. A general framework for treatment effect
+estimation in semi-supervised and high dimensional settings, 2022. arXiv:2201.00468.
+Abhishek Chakrabortty, Guorong Dai, and Raymond J. Carroll. Semi-supervised quan-
+tile estimation: Robust and efficient inference in high dimensional settings, 2022.
+arXiv:2201.10208.
+Arnak S. Dalalyan and Alexandre B. Tsybakov. Aggregation by exponential weighting
+and sharp oracle inequalities. In Learning Theory, volume 4539 of Lecture Notes in
+Computer Science, pages 97–111, 2007.
+Niccol`o Dalmasso, Luca Masserano, David Zhao, Rafael Izbicki, and Ann B. Lee.
+Likelihood-free frequentist inference: Bridging classical statistics and machine learn-
+ing for reliable simulator-based inference.
+Electronic Journal of Statistics, 18(2):
+5045–5090, 2024.
+Patrik R´obert Gerber, Tianze Jiang, Yury Polyanskiy, and Rui Sun. Kernel-based tests
+for likelihood-free hypothesis testing. In Advances in Neural Information Processing
+Systems, volume 36, pages 15680–15715, 2023.
+50
+
+
+Evarist Gin´e and Richard Nickl. Mathematical Foundations of Infinite-Dimensional
+Statistical Models. Cambridge Series in Statistical and Probabilistic Mathematics.
+Cambridge University Press, 2016.
+Yihong Gu. Open problem: Structure-agnostic minimax risk for partial linear model. In
+Shipra Agrawal and Aaron Roth, editors, Proceedings of the Thirty-Eighth Conference
+on Learning Theory, volume 291 of Proceedings of Machine Learning Research, pages
+6220–6224, 2025.
+Yuri I. Ingster. Asymptotically minimax hypothesis testing for nonparametric alterna-
+tives. I, II and III. Mathematical Methods of Statistics, 2:85–114, 171–189, 249–268,
+1993.
+Yuri I. Ingster. Adaptive chi-square tests. Journal of Mathematical Sciences, 99(2):
+1110–1119, 2000.
+Yuri I. Ingster and Irina A. Suslina. Nonparametric Goodness-of-Fit Testing Under
+Gaussian Models, volume 169 of Lecture Notes in Statistics. Springer New York,
+2003.
+Ilse C. F. Ipsen and Arvind K. Saibaba. Stable rank and intrinsic dimension of real
+and complex matrices. SIAM Journal on Matrix Analysis and Applications, 46(3):
+1988–2007, 2025.
+Jana Jankov´a, Rajen D. Shah, Peter B¨uhlmann, and Richard J. Samworth. Goodness-
+of-fit testing in high dimensional generalized linear models. Journal of the Royal
+Statistical Society Series B: Statistical Methodology, 82(3):773–795, 2020.
+Arnold Janssen. Global power functions of goodness of fit tests. The Annals of Statistics,
+28(1):239–253, 2000.
+Jikai Jin and Vasilis Syrgkanis. Sharp structure-agnostic lower bounds for general linear
+functional estimation, 2025a. arXiv:2512.17341.
+Jikai Jin and Vasilis Syrgkanis. Structure-agnostic optimality of doubly robust learn-
+ing for treatment effect estimation.
+In Shipra Agrawal and Aaron Roth, editors,
+Proceedings of the Thirty-Eighth Conference on Learning Theory, volume 291 of Pro-
+ceedings of Machine Learning Research, pages 3159–3160, 2025b. Extended abstract;
+full version available as arXiv:2402.14264.
+Jikai Jin, Lester Mackey, and Vasilis Syrgkanis. It’s hard to be normal: The impact of
+noise on structure-agnostic estimation. In Advances in Neural Information Processing
+Systems, volume 38, pages 164176–164245, 2025.
+Iain M. Johnstone. Gaussian estimation: Sequence and wavelet models. Unpublished
+manuscript, 2019.
+Anatoli Juditsky and Arkadii Nemirovski. Functional aggregation for nonparametric
+regression. The Annals of Statistics, 28(3):681–712, 2000.
+51
+
+
+Anatoli Juditsky, Philippe Rigollet, and Alexandre B. Tsybakov. Learning by mirror
+averaging. The Annals of Statistics, 36(5):2183–2206, 2008.
+Ilmun Kim and Aaditya Ramdas. Dimension-agnostic inference using cross U-statistics.
+Bernoulli, 30(1):683–711, 2024.
+Vladimir Koltchinskii and Karim Lounici. Asymptotics and concentration bounds for
+bilinear forms of spectral projectors of sample covariance. Annales de l’Institut Henri
+Poincar´e, Probabilit´es et Statistiques, 52(4):1976–2013, 2016.
+B´eatrice Laurent, Jean-Michel Loubes, and Cl´ement Marteau. Non-asymptotic min-
+imax rates of testing in signal detection with heterogeneous variances. Electronic
+Journal of Statistics, 6:91–122, 2012.
+Lucien Le Cam. Asymptotic Methods in Statistical Decision Theory. Springer Series in
+Statistics. Springer New York, 1986.
+Anton Rask Lundborg, Ilmun Kim, Rajen D. Shah, and Richard J. Samworth. The
+projected covariance measure for assumption-lean variable significance testing. The
+Annals of Statistics, 52(6):2851–2878, 2024.
+Diego Martinez-Taboada and Aaditya Ramdas. Intrinsic-dimension empirical bernstein
+inequalities for bounded self-adjoint operators, 2026. arXiv:2605.15278.
+Arkadi Nemirovski.
+Topics in non-parametric statistics.
+In Pierre Bernard, editor,
+Lectures on Probability Theory and Statistics, volume 1738 of Lecture Notes in Math-
+ematics, pages 85–277. Springer Berlin, Heidelberg, 2000.
+Philippe Rigollet and Alexandre B. Tsybakov. Sparse estimation by exponential weight-
+ing. Statistical Science, 27(4):558–575, 2012.
+Vladimir G. Spokoiny.
+Adaptive hypothesis testing using wavelets.
+The Annals of
+Statistics, 24(6):2477–2498, 1996.
+Kenta Takatsu and Arun Kumar Kuchibhotla.
+Bridging root-n and non-standard
+asymptotics:
+Dimension-agnostic
+adaptive
+inference
+in
+M-estimation,
+2025.
+arXiv:2501.07772.
+Alexandre B. Tsybakov. Optimal rates of aggregation. In Learning Theory and Kernel
+Machines, volume 2777 of Lecture Notes in Computer Science, pages 303–313, 2003.
+Alexandre B. Tsybakov. Introduction to Nonparametric Estimation. Springer Series in
+Statistics. Springer New York, 2009.
+Larry Wasserman, Aaditya Ramdas, and Sivaraman Balakrishnan. Universal inference.
+Proceedings of the National Academy of Sciences, 117(29):16880–16890, 2020.
+Xiaohan Wei and Stanislav Minsker. Estimation of the covariance structure of heavy-
+tailed distributions.
+In Advances in Neural Information Processing Systems, vol-
+ume 30, pages 2859–2868, 2017.
+52
+
+
+Shirong Xu and Will Wei Sun.
+Do more predictions improve statistical inference?
+filtered prediction-powered inference, 2026. arXiv:2602.10464.
+Anru Zhang, Lawrence D. Brown, and T. Tony Cai. Semi-supervised inference: General
+theory and estimation of means. The Annals of Statistics, 47(5):2538–2566, 2019.
+Nikita Zhivotovskiy.
+Dimension-free bounds for sums of independent matrices and
+simple tensors via the variational principle. Electronic Journal of Probability, 29(13):
+1–28, 2024.
+Runjia Zou, Daniela Witten, and Brian Williamson. Generalized prediction-powered
+inference, with application to binary classifier evaluation, 2026. arXiv:2602.10332.
+Tijana Zrnic and Emmanuel J. Cand`es. Cross-prediction-powered inference. Proceedings
+of the National Academy of Sciences, 121(15):e2322083121, 2024.
+53

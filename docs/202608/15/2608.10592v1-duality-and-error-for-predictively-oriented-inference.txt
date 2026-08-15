@@ -1,0 +1,2290 @@
+Title: Duality and Error for Predictively Oriented Inference
+
+URL Source: https://arxiv.org/pdf/2608.10592v1
+
+Published Time: Wed, 12 Aug 2026 00:43:38 GMT
+
+Number of Pages: 25
+
+Markdown Content:
+DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 
+
+BY AURYA JAVEED 1,a , D REW P. K OURI 1,b ,TERESA PORTONE 1,c AND REBEKAH WHITE 1,d    
+
+> 1Optimization and Uncertainty Quantification, Sandia National Laboratories, Albuquerque, NM, United States of America ,
+> aasjavee@sandia.gov; bdpkouri@sandia.gov; ctporton@sandia.gov; drebwhit@sandia.gov
+
+Predictively oriented (PrO) inference quantifies uncertainty by select-ing a distribution over model parameters to optimize a scoring rule applied to the induced predictive distribution, together with a divergence penalty from a reference distribution. By applying the scoring rule after averaging model densities, PrO inference targets predictive performance, accounting for model misspecification. We focus on the logarithmic score with general 
+
+ϕ-divergence regularization. Our contributions are twofold. First, we derive a finite-dimensional dual formulation of PrO inference. For n observations, the dual problem has n + 1 variables. We establish zero-duality-gap crite-ria and optimality conditions that relate the primal and dual solutions. When primal and dual solutions exist, these conditions yield a semi-analytical rep-resentation of the PrO posterior and certificates for assessing the accuracy of numerical solutions. For Kullback–Leibler regularization, the posterior has an exponential form. Second, we derive a finite-sample excess predictive-risk bound for approximate PrO posteriors that separates sampling fluctuation, approximation under a divergence budget, regularization, and numerical opti-mization error. The result applies even when the benchmark predictive risk is not attained by any probability distribution over the model parameters having finite divergence from the reference distribution. We use an exactly solvable categorical example to show that predictive-risk convergence can imply con-vergence to a unique predictive distribution even though the parameter dis-tributions have no weak limit on the original parameter space. The example also shows that different ϕ-divergences can require different regularization schedules. We conclude with a misspecified Gaussian location-mixture ex-ample that illustrates the dual computation, primal recovery, and numerical accuracy checks. 
+
+1. Introduction. Probabilistic inference provides a framework for quantifying uncer-tainty and forming predictions from observational data. The predictive performance of such methods can deteriorate under model misspecification, that is, when the statistical model does not contain the data-generating distribution. Methods such as generalized Bayesian inference and Gibbs posteriors [1, 15, 16, 7] have been developed in part to improve robustness to mis-specification. These methods nevertheless remain parameter-oriented: they evaluate losses associated with individual model components and then average those losses under a probabil-ity distribution over the parameters. Under misspecification, this focus on model components can lead to predictive distributions that do not adequately represent uncertainty [8]. Predictively oriented (PrO) inference [9] has been proposed as a framework that directly targets prediction. PrO inference formulates posterior construction as an infinite-dimensional regularized optimization problem over probability distributions on the model parameters. The objective combines a loss term, which measures predictive agreement with the observed data through a statistical scoring rule, and a divergence term that regularizes the candidate poste-rior by discouraging departure from a reference (i.e., prior) distribution. The key distinction 
+
+MSC2020 subject classifications. Primary 62F15, 90C46, 90C15. 
+
+Keywords and phrases. Optimization, conjugate duality, stochastic programming, posterior predictive distri-butions, misspecification, generalized Bayes. 
+
+1arXiv:2608.10592v1 [stat.ME] 11 Aug 2026 2
+
+between PrO and Bayesian or generalized Bayesian formulations is the order in which aver-aging and scoring occur. Let Θ denote the parameter space, pθ the model density for θ ∈ Θ,
+
+Q a probability distribution on Θ, and x a point in the sample space. In the logarithmic case considered here, the distinction is 
+
+Z
+
+> Θ
+
+− log pθ(x) dQ (θ) versus − log 
+
+Z 
+
+> Θ
+
+pθ(x) dQ (θ)
+
+
+
+.
+
+The first expression averages the logarithmic losses of the individual model components, whereas the second applies the logarithmic loss after averaging the component densities and therefore scores the resulting predictive distribution directly. Although conceptually appealing in its alignment with the predictive goals of many in-ference problems, the formulation of PrO inference as an infinite-dimensional optimization problem presents challenges for computation and theoretical analysis. Existing approaches have largely treated this problem through variational or particle-based techniques [9]. We instead use tools from convex analysis to derive a finite-dimensional dual formulation of the PrO problem for the logarithmic score and general ϕ-divergence regularization. The resulting dual problem has only n + 1 scalar variables, where n is the number of observations, even when the primal problem is infinite dimensional. We provide conditions under which the pri-mal and dual problems have the same optimal value and the dual optimum is attained. We also derive optimality conditions that relate the primal and dual solutions. When a primal so-lution exists, these conditions recover its density relative to the prior, and hence its predictive distribution, from the dual variables and also provide certificates for assessing the accuracy of numerical solutions. For Kullback–Leibler (KL) regularization, the optimal density relative to the prior has an explicit exponential form. Our second primary contribution is an analysis of predictive-risk error for approximate PrO posteriors. We take as a benchmark the infimum of the predictive risk over admissible probability distributions having finite divergence. This infimum need not be attained and may be approachable only along a sequence of distributions whose divergences increase without bound. To account for this possibility, we introduce an approximation profile that records the smallest excess predictive risk achievable under a given divergence budget. We derive a finite-sample excess-risk bound that separates finite-sample fluctuations, approximation under the divergence budget, regularization, and inexact numerical optimization. The bound yields predictive-risk consistency when these effects vanish and convergence rates when their magnitudes can be quantified. This analysis is complementary to the work of [9], which establishes broad predictive guarantees for PrO posteriors and compares their behavior with Bayesian and Gibbs methods. To make our theoretical results concrete, we consider two examples. The first is an ex-actly solvable categorical example that demonstrates the importance of allowing nonattain-ment. In the example, no probability distribution over the original parameter space attains the benchmark predictive risk. Nevertheless, any sequence of such distributions whose pre-dictive risks approach the benchmark induces predictive distributions that converge in total variation to a unique limit. The probability distributions over the parameters themselves do not converge weakly on the original parameter space; instead, their mass moves toward the excluded boundary of that space. For this example, our conclusion goes beyond the general predictive-performance guarantee of [9]: it identifies the limiting predictive distribution and characterizes the behavior of the distributions over the parameters even though no optimal parameter distribution exists. We also obtain sharp approximation rates for KL and χ2 diver-gences, showing that the two penalties require different regularization schedules. The second example considers a misspecified Gaussian location-mixture model. We first specialize the predictive-risk bound to this setting and then illustrate the KL dual computation, primal re-covery, and numerical optimality checks. DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 3
+
+The remainder of the paper is organized as follows. Section 2 introduces the relevant notation, the statistical model, predictive distributions, and the variational formulation of Bayesian inference. Section 3 defines the ϕ-divergence regularization, formalizes the em-pirical PrO problem, and states the assumptions used in our analysis. Section 4 derives the dual PrO problem, establishes stability and optimality conditions, and specializes the results to KL regularization. Section 5 develops the predictive-risk analysis. Section 6 presents the categorical and Gaussian location-mixture examples. Finally, Section 7 concludes. 
+
+2. Background and notation. This section introduces the data, statistical model, pre-dictive distributions, and notation used throughout the paper. We also briefly review the vari-ational formulation of Bayesian inference to provide context for the PrO problem in the next section. 2.1. Data and statistical model. Let (X, X ) be a measurable sample space. We observe 
+
+X1, . . . , X n iid 
+
+∼ P0,
+
+where P0 is the data-generating distribution on (X, X ). For a probability measure P on 
+
+(X, X ) and a P -integrable function ψ, we write 
+
+P ψ := 
+
+Z
+
+> X
+
+ψ dP. 
+
+The empirical measure is Pn := n−1 Pni=1 δXi , where δx denotes the Dirac probability mea-sure at x; hence 
+
+Pnψ = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ψ(Xi).
+
+To approximate the data-generating distribution P0, let (Θ , T ) be a measurable parameter space, and let 
+
+{Pθ : θ ∈ Θ}
+
+be a statistical model on (X, X ). Let Π be a prior probability measure on (Θ , T ). Assume that 
+
+Pθ ≪ μ, θ ∈ Θ,
+
+where μ is a common σ-finite measure on (X, X ) and ≪ denotes absolute continuity. We write 
+
+pθ := dP θ
+
+dμ ,
+
+and assume that the map (x, θ ) 7 → pθ(x) is jointly measurable. 2.2. Predictive distributions. We call a probability measure Q on (Θ , T ) a mixing dis-tribution. The predictive distribution induced by Q is the probability measure PQ on (X, X )
+
+defined by 
+
+PQ(A) := 
+
+Z
+
+> Θ
+
+Pθ(A) dQ (θ), A ∈ X .
+
+Tonelli’s theorem implies that PQ ≪ μ. A density of PQ with respect to μ is 
+
+pQ(x) := 
+
+Z
+
+> Θ
+
+pθ(x) dQ (θ), x ∈ X.4
+
+2.3. Bayesian inference. For comparison with the PrO problem presented in the next sec-tion, we review the variational formulation of Bayesian inference. For a probability measure 
+
+Q on (Θ , T ), the Kullback–Leibler divergence of Q from Π is 
+
+DKL (Q∥Π) := 
+
+Z
+
+> Θ
+
+log 
+
+ dQ dΠ
+
+
+
+dQ, Q ≪ Π,
+
++∞, otherwise .
+
+Under standard regularity conditions, the Bayesian posterior minimizes (1) −
+
+Z
+
+> Θ
+
+(
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log pθ(Xi)
+
+)
+
+dQ (θ) + 1
+
+n DKL (Q∥Π) 
+
+over probability measures Q on (Θ , T ) [4, 5]. The first term in (1) averages the logarithmic losses of the individual model distributions under Q. Generalized Bayesian methods retain this variational structure while replacing the negative log-likelihood with a general loss [1]. In contrast, PrO inference applies the logarithmic loss directly to the predictive distribution 
+
+PQ, as formalized in Section 3. 
+
+3. Problem formulation. This section specifies the admissible mixing distributions and divergence regularization, formulates the empirical PrO problem, and states the assumptions used in the duality analysis. 3.1. Admissible mixing distributions and divergence. Let E be a vector space of real-valued, T -measurable functions, identified up to Π-almost-sure equality. The additional structure imposed on E is stated in Assumption 3.1. Define the admissible class of mixing distributions by (2) QE := 
+
+
+
+Q : Q is a probability measure on (Θ , T ), Q ≪ Π, dQ dΠ ∈ E 
+
+
+
+.
+
+Under the identification q = dQ/d Π, the corresponding set of admissible mixing densities is 
+
+C := 
+
+
+
+q ∈ E :
+
+Z
+
+> Θ
+
+q d Π = 1 , q ≥ 0 Π -almost surely 
+
+
+
+.
+
+Conversely, every q ∈ C defines a mixing distribution Q ∈ Q E by 
+
+Q(A) := 
+
+Z
+
+> A
+
+q d Π, A ∈ T .
+
+Let ϕ : R → [0 , +∞] be a lower-semicontinuous convex function satisfying 
+
+ϕ(1) = 0 and ϕ(t) = + ∞ for t < 0.
+
+For a probability measure Q on (Θ , T ), define its ϕ-divergence from Π by 
+
+Dϕ(Q∥Π) := 
+
+Z
+
+> Θ
+
+ϕ
+
+ dQ dΠ (θ)
+
+
+
+dΠ( θ), Q ≪ Π,
+
++∞, otherwise .
+
+The associated integral functional Φ : E → [0 , +∞] is 
+
+Φ( q) := 
+
+Z
+
+> Θ
+
+ϕ(q(θ)) dΠ( θ).DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 5
+
+Thus, if Q ∈ Q E and q = dQ/d Π, then 
+
+Dϕ(Q∥Π) = Φ( q).
+
+The convention ϕ(t) = + ∞ for t < 0 encodes the nonnegativity of a mixing density in the extended real-valued functional Φ. Finally, define the Fenchel conjugate of ϕ by 
+
+ϕ∗(s) := sup 
+
+> t∈R
+
+{st − ϕ(t)} = sup 
+
+> t≥0
+
+{st − ϕ(t)}, s ∈ R.
+
+The corresponding conjugacy relation for the integral functional Φ is recorded in Remark 3.2. 3.2. PrO inference. Given the observations X1, . . . , X n, define 
+
+fi(θ) := pθ(Xi), i = 1 , . . . , n. 
+
+We regard each fi as a fixed measurable function on Θ. For a mixing distribution Q, define the predictive log loss by 
+
+ℓQ(x) := − log pQ(x),
+
+with the convention that ℓQ(x) = + ∞ when pQ(x) = 0 . If Q ≪ Π and q = dQ/d Π, then 
+
+PnℓQ = − 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log pQ(Xi) = − 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log 
+
+Z 
+
+> Θ
+
+fi(θ)q(θ) dΠ( θ)
+
+
+
+.
+
+Unlike the data-fit term in (1), this expression averages the model densities before applying the logarithmic loss. For a regularization parameter εn > 0, the PrO problem has the equiva-lent measure-space and density-space formulations (Pn) inf 
+
+> Q∈Q E
+
+{PnℓQ + εnDϕ(Q∥Π) } = inf 
+
+> q∈C
+
+"
+
+− 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log 
+
+Z
+
+> Θ
+
+fi(θ)q(θ) dΠ( θ) + εnΦ( q)
+
+#
+
+.
+
+We refer to the common optimization problem in ( Pn) as the primal PrO problem, or simply the primal problem, and let val( Pn) denote its optimal value. Since Q 7 → pQ(Xi) is linear, 
+
+z 7 → − log z is convex on (0 , +∞), and Dϕ( · ∥ Π) is convex, the objective in ( Pn) is convex in Q. When the infimum in ( Pn) is attained, let Q⋆n ∈ Q E denote an exact PrO solution and write q⋆n := dQ ⋆n 
+
+> dΠ
+
+. More generally, for an optimization tolerance ξn ≥ 0, a ξn-approximate PrO solution is any bQn ∈ Q E satisfying (3) Pnℓ bQn + εnDϕ( bQn∥Π) ≤ val (Pn) + ξn.
+
+We write bqn := d bQn 
+
+> dΠ
+
+. When ξn = 0 , bQn is an exact PrO solution. 3.3. Standing assumptions. The dual PrO problem is formulated in a paired function space setting. A vector space V of real-valued, T -measurable functions is called decompos-able in association with Π if ( i) it contains all bounded real-valued, T -measurable functions and ( ii ) for all u ∈ V and E ∈ T , the function χE u ∈ V , where χE denotes the characteristic function of E. Since Π is a finite measure, this definition of decomposability coincides with that in [12]. ASSUMPTION 3.1 (Problem assumptions). For each realized sample X1, . . . , X n, the following conditions hold. 6
+
+1. The spaces E and E∗ are decomposable vector spaces of real-valued, T -measurable func-tions that are paired with respect to the bilinear form 
+
+⟨q, q ∗⟩ =
+
+Z
+
+> Θ
+
+q(θ)q∗(θ) dΠ( θ), q ∈ E , q∗ ∈ E ∗,
+
+which means E and E∗ have locally convex topologies that are compatible with the bilinear form [11]. The space E∗ need not be the entirety of the topological dual space of E.2. The functions f1, . . . , f n ∈ E ∗.3. There exists q◦ ∈ C ∩ dom Φ such that 
+
+Z
+
+> Θ
+
+fi(θ)q◦(θ) dΠ( θ) > 0, i = 1 , . . . , n. 
+
+The first two conditions imply that the maps q 7 → R 
+
+> Θ
+
+q d Π and 
+
+q 7 →
+
+Z
+
+> Θ
+
+fiq d Π, i = 1 , . . . , n, 
+
+are continuous linear functionals on E. The third condition ensures that ( Pn) is feasible. REMARK 3.2 (Fenchel conjugate). Let σ(E, E∗) denote the weak topology on E induced by the pairing ⟨· , ·⟩ ; that is, the coarsest topology for which q 7 → ⟨ q, q ∗⟩ is continuous for every 
+
+q∗ ∈ E ∗. The integral functionals generated by ϕ and ϕ∗ are proper. Indeed, decomposability of E implies that 1 ∈ E , and 
+
+Φ(1) = 
+
+Z
+
+> Θ
+
+ϕ(1) dΠ = 0 .
+
+Moreover, since ϕ ≥ 0 and ϕ(1) = 0 , we have ϕ∗(0) = − inf t∈R ϕ(t) = 0 . Because 0 ∈ E ∗,
+
+Z
+
+> Θ
+
+ϕ∗(0) dΠ = 0 .
+
+The functional Φ is convex because ϕ is convex. By [12, Theorem 3C], decomposability of 
+
+E and E∗ implies that Φ is σ(E, E∗)-lower semicontinuous and that (4) Φ∗(q∗) := sup 
+
+> q∈E
+
+{⟨ q, q ∗⟩ − Φ( q)} =
+
+Z
+
+> Θ
+
+ϕ∗(q∗(θ)) dΠ( θ), q∗ ∈ E ∗.
+
+In particular, (4) applies to every q∗ ∈ span {1, f 1, . . . , f n}.REMARK 3.3 (Examples of spaces). Suppose that Θ = {θ1, . . . , θ K } and Πj := Π( {θj }) >
+
+0. We may take E = E∗ = RK with the weighted pairing ⟨q, s ⟩ = PKj=1 Πj qj sj . Then 
+
+C =
+
+q ∈ RK :
+
+> K
+
+X
+
+> j=1
+
+Πj qj = 1 qj ≥ 0
+
+
+
+with 
+
+Φ( q) = 
+
+> K
+
+X
+
+> j=1
+
+Πj ϕ(qj ) and Φ∗(s) = 
+
+> K
+
+X
+
+> j=1
+
+Πj ϕ∗(sj ).
+
+The density q ≡ 1, corresponding to Q = Π , is feasible and has zero divergence. If, in addi-tion, 
+
+pΠ(Xi) = 
+
+> K
+
+X
+
+> j=1
+
+Πj fi(θj ) > 0, i = 1 , . . . , n, DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 7
+
+then q ≡ 1 satisfies the third condition in Assumption 3.1. For infinite-dimensional models, typical choices include paired Lebesgue spaces Lp(Π) 
+
+and Lp′
+
+(Π) , as well as complementary Orlicz spaces. The appropriate choice depends on the growth of ϕ and the integrability of the functions fi.
+
+4. Duality. Section 4.1 establishes the existence of the dual formulation of the density-based PrO posterior optimization problem, and Section 4.2 provides conditions under which this formulation is stable, that is, when ( i) the optimal values of the primal and dual problems coincide and ( ii ) the dual problem has a solution. The latter section then establishes necessary optimality conditions that relate the solutions of the primal problem and the dual problem to obtain a novel semi-analytical form for the PrO posterior along with certificates that verify the accuracy of approximate solutions of the dual problem. Section 4.3 shows that in the case of the KL regularization, the optimality conditions yield a posterior that has an exponential form. Section 4.4 provides verifiable sufficient conditions under which stability is achieved and discusses these conditions in the context of some specific problem classes. 4.1. Deriving the dual problem. The dual problem is derived from the PrO problem in the standard way: the PrO problem is embedded into a parameterized family of optimization problems with the dual problem derived from the optimal-value function of that family. For notational convenience, let 
+
+Tn : E → Rn, (Tnq)i := 
+
+Z
+
+> Θ
+
+fi(θ)q(θ) dΠ( θ), i = 1 , . . . , n. 
+
+By Assumption 3.1, each coordinate of Tn is a continuous linear functional on E, and hence 
+
+Tn is continuous. Define the extended real-valued convex function 
+
+g(z) := 
+
+
+
+− 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+log zi, z ∈ Rn
+
+> ++
+
+,
+
++∞, z / ∈ Rn
+
+> ++
+
+.
+
+For Q ≪ Π with density q = dQ/d Π, we have (Tnq)i = pQ(Xi), i = 1 , . . . , n , and therefore 
+
+g(Tnq) = PnℓQ.
+
+It follows that the primal PrO problem ( Pn) can be written as 
+
+inf 
+
+> q∈E
+
+
+
+g(Tnq) + εnΦ( q) : 
+
+Z
+
+> Θ
+
+q(θ) dΠ( θ) = 1 
+
+
+
+,
+
+where the nonnegativity constraint is encoded by Φ, since ϕ(t) = + ∞ for t < 0. We define a family of optimization problems parameterized by (u, r ) ∈ Rn × R through the optimal-value function 
+
+vn(u, r ) := inf 
+
+> q∈E
+
+
+
+g(Tnq + u) + εnΦ( q) : 
+
+Z
+
+> Θ
+
+q(θ) dΠ( θ) = 1 + r
+
+
+
+.
+
+Note that vn(0 , 0) is the primal problem ( Pn). To state the dual problem compactly, for 
+
+α ∈ Rn 
+
+> ++
+
+:= (0 , +∞)n, define the weighted average 
+
+(α, f (θ)) n := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αifi(θ).8
+
+PROPOSITION 4.1 (Dual formulation). Suppose Assumption 3.1 holds. The dual prob-lem associated with the primal problem ( Pn) is (Dn) sup 
+
+> α∈Rn
+> ++
+> η∈R
+
+(
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − η − εn
+
+Z
+
+> Θ
+
+ϕ∗
+
+ (α, f (θ)) n − ηεn
+
+
+
+dΠ( θ)
+
+)
+
+.
+
+PROOF . Note that vn(u, r ) = inf q∈E Fn(q, u, r ), where 
+
+Fn(q, u, r ) := 
+
+
+
+g(Tnq + u) + εnΦ( q),
+
+Z
+
+> Θ
+
+q d Π = 1 + r, 
+
++∞, otherwise .
+
+For α ∈ Rn 
+
+> ++
+
+and η ∈ R, the Lagrangian associated with Fn [11] is 
+
+Ln(q, α, η ) := inf 
+
+> u∈Rn
+> r∈R
+
+(
+
+Fn(q, u, r ) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αiui + ηr 
+
+)
+
+= inf 
+
+> u∈Rn
+
+(
+
+g(Tnq + u) + εnΦ( q) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αiui + η
+
+Z 
+
+> Θ
+
+q d Π − 1
+
+)
+
+.
+
+Setting z = Tnq + u, so that u = z − Tnq, gives 
+
+inf 
+
+> u∈Rn
+
+(
+
+g(Tnq + u) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αiui
+
+)
+
+= − 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αi(Tnq)i + inf 
+
+> z∈Rn
+
+(
+
+g(z) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αizi
+
+)
+
+.
+
+Moreover, since g(z) = + ∞ outside Rn
+
+> ++
+
+,
+
+inf 
+
+> z∈Rn
+
+(
+
+g(z) + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+αizi
+
+)
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+inf  
+
+> zi>0
+
+{− log zi + αizi} = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi),
+
+where the last equality follows from (5) −(1 + log αi) = sup 
+
+> zi>0
+
+{− αizi + log zi}, αi > 0.
+
+Therefore, 
+
+Ln(q, α, η ) = −
+
+Z
+
+> Θ
+
+(α, f )nq d Π + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) + εnΦ( q) + η
+
+Z 
+
+> Θ
+
+q d Π − 1
+
+
+
+.
+
+The dual problem associated with ( Pn) is 
+
+sup 
+
+> α∈Rn
+> ++
+> η∈R
+
+inf  
+
+> q∈E
+
+Ln(q, α, η ).
+
+For fixed (α, η ),
+
+inf  
+
+> q∈E
+
+Ln(q, α, η ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − η + inf 
+
+> q∈E
+
+
+
+εnΦ( q) −
+
+Z
+
+> Θ
+
+ (α, f )n − ηq d Π
+
+
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − η − εnΦ∗
+
+ (α, f )n − ηεn
+
+
+
+.
+
+Finally, the integral-conjugate representation in Remark 3.2 gives 
+
+Φ∗
+
+ (α, f )n − ηεn
+
+
+
+=
+
+Z
+
+> Θ
+
+ϕ∗
+
+ (α, f (θ)) n − ηεn
+
+
+
+dΠ( θ),
+
+which yields ( Dn). DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 9
+
+4.2. Stability and optimality conditions. Our next result characterizes the absence of a duality gap, i.e., of a discrepancy between the optimal values of the primal and dual problems, by the behavior of the value function vn at the origin. THEOREM 4.2 (Duality and stability). Suppose Assumption 3.1 holds and vn(0 , 0) is fi-nite. Then there is no duality gap between (Pn) and (Dn) if and only if the value function vn
+
+is lower semicontinuous at (0 , 0) . More specifically, if vn is finite and continuous in a neigh-borhood of (0 , 0) , then the PrO problem is stable: there is no duality gap and the supremum in the dual problem is attained. 
+
+PROOF . A convex value function that is finite and lower semicontinuous at the origin is equivalent to equality of the optimal values of the primal and dual optimization problems, with a finite common value [6, Chapter III, Proposition 2.1]. Suppose further that vn is finite and continuous in a neighborhood of (0 , 0) . Then vn is subdifferentiable at (0 , 0) ; hence there is no duality gap and the supremum in ( Dn) is attained [6, Chapter III, Proposition 2.2]. The optimality conditions below are obtained from the equality case of the Fenchel–Young inequality. We therefore recall the subdifferential, which characterizes when this equality holds [13]. For a proper convex function ψ : R → (−∞ , +∞], define 
+
+∂ψ (s) := {t ∈ R : ψ(v) ≥ ψ(s) + t(v − s) for every v ∈ R} .
+
+COROLLARY 4.3 (Optimality conditions). Suppose that Assumption 3.1 holds, that there is no duality gap, and that the primal and dual optima are attained at Q⋆n and (α⋆, η ⋆), respec-tively. Let q⋆n = dQ ⋆n/d Π. Then 
+
+q⋆n(θ) ∈ ∂ϕ ∗
+
+ (α⋆, f (θ)) n − η⋆
+
+εn
+
+
+
+, Π-almost surely ,(6) 
+
+1 = 
+
+Z
+
+> Θ
+
+q⋆n(θ) dΠ( θ),(7) 
+
+α⋆i =
+
+Z 
+
+> Θ
+
+fi(θ)q⋆n(θ) dΠ( θ)
+
+−1
+
+= 1
+
+pQ⋆n (Xi) , i = 1 , . . . , n. (8) If ϕ∗ is differentiable at the relevant points, then (9) q⋆n(θ) = ( ϕ∗)′
+
+ (α⋆, f (θ)) n − η⋆
+
+εn
+
+
+
+, Π-almost surely .
+
+Note that, for approximate dual variables, (6) characterizes candidate primal solutions, while (7) and (8) provide certificates for assessing approximate satisfaction of the primal–dual op-timality conditions. PROOF . By strong duality, the primal and dual optimal values coincide at q⋆n and (α⋆, η ⋆).Rearranging this equality gives 
+
+Φ( q⋆n) + Φ ∗
+
+ (α⋆, f )n − η⋆
+
+εn
+
+
+
+=
+
+Z
+
+> Θ
+
+(α⋆, f (θ)) n − η⋆
+
+εn
+
+q⋆n(θ) dΠ( θ).
+
+This is the Fenchel–Young inequality for Φ holding with equality, which is possible if and only if (6) holds. Primal feasibility implies (7), and equality in (5) holds only if α = 1 /z ,which implies (8). If ϕ∗ is differentiable at the relevant points, then the subdifferential inclu-sion reduces to (9). 10 
+
+REMARK 4.4 (Primal attainment). Stability gives dual attainment and zero duality gap; it does not by itself give existence of a primal minimizer. Primal attainment follows separately from lower semicontinuity and inf-compactness of 
+
+q 7 → g(Tnq) + εnΦ( q)
+
+on the affine set {q : R q d Π = 1 }. See [2, Theorem 2.6]. This condition is automatic in finite mixtures, where the feasible set is a simplex. In infinite-dimensional settings, norm compact-ness is generally too strong, and one typically works with a weaker topology. 4.3. KL regularization. We now specialize the general dual formulation and optimality conditions to KL regularization. In this case, the normalization multiplier can be eliminated analytically and the resulting PrO posterior has an exponential form. COROLLARY 4.5 (KL regularization). Suppose that Assumption 3.1 holds, and let 
+
+ϕ(t) = 
+
+(
+
+t log t − t + 1 , t ≥ 0,
+
++∞, t < 0,
+
+where 0 log 0 = 0 . Then ϕ∗(s) = es − 1, s ∈ R. Consequently, the dual problem in Proposi-tion 4.1 becomes (10) sup 
+
+> α∈Rn
+> ++
+> η∈R
+
+(
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − η − εn
+
+Z
+
+> Θ
+
+
+
+exp 
+
+ (α, f (θ)) n − ηεn
+
+
+
+− 1
+
+
+
+dΠ( θ)
+
+)
+
+.
+
+For fixed α, define 
+
+Zn(α) := 
+
+Z
+
+> Θ
+
+exp 
+
+ (α, f (θ)) n
+
+εn
+
+
+
+dΠ( θ).
+
+Whenever Zn(α) < ∞, the maximizing value of η is (11) η(α) = εn log Zn(α).
+
+The KL dual problem can therefore be written as (12) sup 
+
+> α∈Rn
+> ++
+> Zn(α)<∞
+
+(
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − εn log Zn(α)
+
+)
+
+.
+
+If there is no duality gap and the primal and dual optima are attained, then the exact primal solution has the exponential form (13) q⋆n(θ) = exp (( α⋆, f (θ)) n/ε n)
+
+Zn(α⋆) , Π-almost surely ,
+
+where the dual variables satisfy the fixed-point equations (14) α⋆i =
+
+Z 
+
+> Θ
+
+fi(θ) exp (( α⋆, f (θ)) n/ε n)
+
+Zn(α⋆) dΠ( θ)
+
+−1
+
+= 1
+
+pQ⋆n (Xi) , i = 1 , . . . , n. 
+
+PROOF . Substituting ϕ∗(s) = es − 1 into ( Dn) gives (10). For fixed α, the η-dependent part of the dual objective is 
+
+− η − εn
+
+Z
+
+> Θ
+
+
+
+exp 
+
+ (α, f (θ)) n − ηεn
+
+
+
+− 1
+
+
+
+dΠ( θ)= −η − εn exp 
+
+
+
+− ηεn
+
+ Z 
+
+> Θ
+
+exp 
+
+ (α, f (θ)) n
+
+εn
+
+
+
+dΠ( θ) + εn.DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 11 
+
+Differentiating with respect to η gives the first-order condition 
+
+−1 + exp 
+
+
+
+− ηεn
+
+ Z 
+
+> Θ
+
+exp 
+
+ (α, f (θ)) n
+
+εn
+
+
+
+dΠ( θ) = 0 .
+
+Equivalently, 
+
+exp 
+
+
+
+− ηεn
+
+ Z 
+
+> Θ
+
+exp 
+
+ (α, f (θ)) n
+
+εn
+
+
+
+dΠ( θ) = 1 ,
+
+which yields (11). At this value of η,
+
+Z
+
+> Θ
+
+
+
+exp 
+
+ (α, f (θ)) n − η(α)
+
+εn
+
+
+
+− 1
+
+
+
+dΠ( θ) = 0 ,
+
+so (10) reduces to (12). Finally, since (ϕ∗)′(s) = exp( s), (9) implies 
+
+q⋆n(θ) = exp 
+
+ (α⋆, f (θ)) n − η⋆
+
+εn
+
+
+
+,
+
+and hence (13) is a consequence of (11). The fixed-point equations (14) follow from (8). 4.4. Practical stability conditions. We next give verifiable sufficient conditions under which the value function vn is finite and continuous at the origin. By Theorem 4.2, these conditions guarantee stability of the PrO problem; the subsequent remark describes common settings in which they are satisfied. COROLLARY 4.6 (Practical stability conditions). Suppose that Assumption 3.1 holds. Assume that there exists ¯q ∈ dom Φ such that 
+
+Z
+
+> Θ
+
+¯q d Π = 1 ,
+
+Z
+
+> Θ
+
+fi ¯q d Π > 0, i = 1 , . . . , n, 
+
+and such that 
+
+(1 + r)¯ q ∈ dom Φ 
+
+for every real number r in a neighborhood of zero. Suppose also that there exists α0 ∈ Rn
+
+> ++
+
+such that (15) Φ∗
+
+ (α0, f )n
+
+εn
+
+
+
+< ∞.
+
+Then vn is finite and continuous in a neighborhood of (0 , 0) . Consequently, the PrO problem is stable: there is no duality gap and the supremum in the dual problem is attained. If the infimum in the primal problem is also attained, the optimality conditions in Corollary 4.3 hold. PROOF . For r sufficiently close to zero, define qr = (1 + r)¯ q. Then R qr dΠ = 1 + r. Since every coordinate of Tn ¯q is strictly positive, we have for all (u, r ) sufficiently close to (0 , 0) 
+
+that 
+
+Tnqr + u = (1 + r)Tn ¯q + u ∈ Rn
+
+> ++
+
+.
+
+Next, since qr ∈ dom Φ for r near zero, it follows that 
+
+vn(u, r ) ≤ εnΦ( qr) + g(Tnqr + u) < +∞12 
+
+for (u, r ) near (0 , 0) . It remains to rule out vn(u, r ) = −∞ locally. Fix α0 ∈ Rn 
+
+> ++
+
+satisfying (15). By (5) applied coordinatewise, 
+
+g(Tnq + u) ≥ − 
+
+Z
+
+(α0, f )nq d Π − 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+α0 
+
+> i
+
+ui + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log α0 
+
+> i
+
+).
+
+Moreover, by the Fenchel–Young inequality, 
+
+εnΦ( q) −
+
+Z
+
+(α0, f )nq d Π ≥ − εnΦ∗
+
+ (α0, f )n
+
+εn
+
+
+
+> −∞ .
+
+Adding the preceding two inequalities ensures vn(u, r ) > −∞ for (u, r ) near the origin. We have shown that vn is real-valued in a neighborhood of (0 , 0) . Since vn is convex on the finite-dimensional perturbation space, it is continuous in that neighborhood and subdifferentiable at the origin. The conclusion then follows from Theorem 4.2. REMARK 4.7 (Restrictiveness of the stability condition). The condition in Corollary 4.6 is mild in the finite-sample problems considered here. If the reference predictive density is positive at every observed point, then one may take ¯q ≡ 1:
+
+Z
+
+fi dΠ = pΠ(Xi) > 0, i = 1 , . . . , n. 
+
+The rescaling condition is then satisfied by the usual ϕ-divergences, including KL. For KL regularization, the conjugate-finiteness condition (15) is equivalent to 
+
+Zn(α0) = 
+
+Z
+
+> Θ
+
+exp 
+
+ (α0, f (θ)) n
+
+εn
+
+
+
+dΠ( θ) < ∞
+
+for at least one α0 ∈ Rn
+
+> ++
+
+. This condition is automatic for finite mixtures and for compact parameter spaces with bounded likelihood functions. Unbounded likelihood functions require either an appropriate integrability condition or a restriction of the parameter space. 
+
+5. Predictive risk error. Given observed data X1, . . . , X n, PrO inference is an opti-mization problem over mixing distributions on the parameter space. Recall that bQn denotes an approximate solution to this problem and P bQn the predictive distribution it induces. In this section, we study the behavior of P bQn in the large-data limit n → ∞ . While [9] establishes broad predictive guarantees for PrO posteriors and compares them with Bayes and Gibbs dis-tributions, our analysis focuses on predictive risk. Specifically, we consider: (i) the predictive risk of the PrO approximate solution, R(P bQn ), defined as the expected log-loss of the den-sity p bQn under the data-generating distribution; (ii ) the benchmark predictive risk R⋆ over admissible mixing distributions having finite divergence from the prior; and (iii ) the excess predictive risk 
+
+R(PQ) − R ⋆.
+
+Our goal is to determine how quickly R(P bQn ) approaches R⋆.We derive a bound that decomposes the excess predictive risk into four effects: finite-data fluctuations, approximation of the benchmark risk by finite-divergence mixing distributions, regularization, and numerical optimization. Our analysis does not require the infimum defin-ing R⋆ to be attained. DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 13 
+
+5.1. Excess predictive risk. For a predictive distribution P with density p, define its pre-dictive risk by 
+
+R(P ) := −P0 log p = −
+
+Z
+
+> X
+
+log p(x) dP 0(x).
+
+When the relevant quantities are finite, differences in predictive risk are equivalent to differ-ences in forward KL divergence from the data-generating distribution, namely, (16) R(P ) − R (P ′) = KL( P0∥P ) − KL( P0∥P ′).
+
+Recall the admissible mixture class QE from (2). To compare predictive distributions gen-erated by mixing distributions at different levels of divergence from the prior, for ρ ≥ 0,define 
+
+Qρ := {Q ∈ Q E : Dϕ(Q∥Π) ≤ ρ} , Q∞ := [
+
+> ρ< ∞
+
+Qρ.
+
+The parameter ρ is a divergence budget: increasing ρ enlarges the comparison class and may improve its predictive performance but can also increase the regularization term in the PrO problem. We think of Qρ as comparison classes rather than alternative estimators. Define the benchmark predictive risk over the finite-divergence mixing class as 
+
+R⋆ := inf 
+
+> Q∈Q ∞
+
+R(PQ),
+
+and assume R⋆ < ∞. Note that the infimum defining R⋆ need not be attained by a mixing distribution in Q∞. To quantify how well mixing distributions with a controlled divergence from the prior can approximate the benchmark predictive risk, define the approximation pro-file (17) A(ρ) := inf 
+
+> Q∈Q ρ
+
+{R (PQ) − R ⋆} .
+
+Since the sets Qρ increase with ρ, the approximation profile A is nonincreasing. Moreover, 
+
+A(ρ) ↓ 0 as ρ → ∞ . This is because, for every η > 0, there is a Qη such that 
+
+R(PQη ) − R ⋆ < η, 
+
+so taking ρ ≥ Dϕ(Qη∥Π) implies A(ρ) < η . If R⋆ = R(PQ⋆ ) for some Q∗ ∈ Q ∞, then 
+
+A(ρ) = 0 for every ρ ≥ Dϕ(Q⋆∥Π) .
+
+Thus, there is no approximation cost once the comparison class contains a mixing distribution that attains the benchmark predictive risk. The approximation profile A is needed for the more general case in which the benchmark is not attained in Q∞, but can be approached by mixing distributions with increasingly large divergence budgets. To control the effect of replacing the integral that defines R with its finite-data counterpart, define 
+
+∆∞ 
+
+> n
+
+:= sup 
+
+> Q∈Q ∞
+
+|(Pn − P0)ℓQ|.
+
+This quantity is the largest difference between the empirical and expected log-loss over the mixing distributions having finite divergence with respect to the prior. THEOREM 5.1 (Excess predictive risk bound). Let bQn satisfy (3) . Then 
+
+(18) R(P bQn ) − R ⋆ ≤ R (P bQn ) − R ⋆ + εnDϕ( bQn∥Π) ≤ 2∆ ∞ 
+
+> n
+
++ inf  
+
+> ρ≥0
+
+{A(ρ) + εnρ} + ξn.14 
+
+PROOF . Fix ρ < ∞ and Q ∈ Q ρ. Approximate optimality gives 
+
+Pnℓ bQn + εnDϕ( bQn∥Π) ≤ PnℓQ + εnDϕ(Q∥Π) + ξn.
+
+Adding (P0 − Pn)ℓ bQn − R ⋆ to both sides and using Dϕ(Q∥Π) ≤ ρ yields 
+
+R(P bQn ) − R ⋆ + εnDϕ( bQn∥Π) 
+
+≤ (P0 − Pn)ℓ bQn + ( Pn − P0)ℓQ + R(PQ) − R ⋆ + εnρ + ξn.
+
+Since bQn, Q ∈ Q ∞, both finite-data terms are bounded above by ∆∞ 
+
+> n
+
+. Therefore, 
+
+R(P bQn ) − R ⋆ + εnDϕ( bQn∥Π) ≤ 2∆ ∞ 
+
+> n
+
++ R(PQ) − R ⋆ + εnρ + ξn.
+
+Taking the infimum over Q ∈ Q ρ gives 
+
+R(P bQn ) − R ⋆ + εnDϕ( bQn∥Π) ≤ 2∆ ∞ 
+
+> n
+
++ A(ρ) + εnρ + ξn,
+
+and taking the infimum over ρ ≥ 0 gives (18). The infimum term in (18) balances approximation and regularization. Increasing ρ en-larges the comparison class Qρ, so the approximation profile A(ρ) cannot increase, while the upper bound εnρ for the regularization becomes larger. Thus, Theorem 5.1 separates the excess predictive risk into four effects, grouped into three terms: the finite-data fluctuation term ∆∞ 
+
+> n
+
+, the approximation–regularization term, and the numerical optimization error ξn.The following corollary gives corresponding bounds on the rate of convergence and sufficient conditions under which the predictive risk converges to the benchmark predictive risk. COROLLARY 5.2 (Rates for excess predictive risk). Suppose ∆∞ 
+
+> n
+
+= Op(rn) and ξn =
+
+Op(sn). Then 
+
+R(P bQn ) − R ⋆ = Op
+
+
+
+rn + inf 
+
+> ρ≥0
+
+{A(ρ) + εnρ} + sn
+
+
+
+.
+
+In particular: 1. If the benchmark predictive risk R⋆ is attained by a mixing distribution Q⋆ ∈ Q ∞, then the infimum term is at most εnDϕ(Q⋆∥Π) .2. If A(ρ) ≤ Cρ −β for all sufficiently large ρ, where β > 0, then 
+
+inf 
+
+> ρ≥0
+
+{A(ρ) + εnρ} = O
+
+
+
+εβ/ (β+1) 
+
+> n
+
+
+
+.
+
+3. If A(ρ) ≤ Ce −aρ for all sufficiently large ρ, where a > 0, then 
+
+inf 
+
+> ρ≥0
+
+{A(ρ) + εnρ} = O
+
+
+
+εn log 1
+
+εn
+
+
+
+.
+
+If ∆∞ 
+
+> n
+
+= op(1) , ξn = op(1) , and εn → 0, then (19) R(P bQn ) → R ⋆ in probability .
+
+The same conclusions hold almost surely when the corresponding bounds on the finite-data and optimization terms hold almost surely. DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 15 
+
+PROOF . The rate statement follows from (18). The three specific bounds follow by com-paring with Q⋆, by choosing ρ of order ε−1/(β+1)  
+
+> n
+
+, and by choosing ρ = a−1 log(1 /ε n), re-spectively. It remains to verify that the infimum term converges to zero whenever εn → 0.Let η > 0. By the definition of R⋆, there exists Qη ∈ Q ∞ such that 
+
+R(PQη ) − R ⋆ < η
+
+2 .
+
+Set ρη = Dϕ(Qη∥Π) < ∞. Since Qη ∈ Q ρη ,
+
+A(ρη) < η
+
+2 .
+
+For all sufficiently large n, also εnρη < η/ 2. Therefore 
+
+inf 
+
+> ρ≥0
+
+{A(ρ) + εnρ} ≤ A(ρη) + εnρη < η. 
+
+Since η is arbitrary, the deterministic term converges to zero. The probability and almost-sure conclusions now follow from (18). When (16) holds, the convergence in (19) is equivalently convergence of the forward-KL value: 
+
+KL( P0∥P bQn ) → inf 
+
+> Q∈Q ∞
+
+KL( P0∥PQ).
+
+This statement concerns only the convergence of predictive distributions. It does not imply the convergence of the mixing distributions bQn.
+
+6. Examples. The two examples below illustrate complementary regimes of the preced-ing theory. The first is a categorical example in which the benchmark predictive risk is not attained by any mixing distribution on the original parameter space. We derive sharp approxi-mation rates under KL and χ2 regularization and show that they lead to different rate-optimal regularization schedules. We then characterize the limiting behavior of the predictive and mixing distributions. Finally, combining these results with control of the finite-data fluctu-ation term yields end-to-end excess-risk bounds through Theorem 5.1. The second example considers a misspecified Gaussian location-mixture model. After replacing the continuous parameter space by a fixed grid, we specialize Theorem 5.1 to obtain an end-to-end excess-risk bound for the discretized model. We then use the reduced KL dual problem and its optimality conditions to compute numerical solutions and assess their accuracy. 6.1. Categorical example. Let X = {1, 2, 3}, Θ = ( −1, 1) , and let Π be uniform on 
+
+(−1, 1) . Since X is finite, we identify each probability distribution on X with its probabil-ity mass vector, with coordinates ordered as (1,2,3). For θ ∈ (−1, 1) , define 
+
+pθ := 
+
+ 3 − θ2 + θ
+
+8 , 3 − θ2 − θ
+
+8 , 1 + θ2
+
+4
+
+
+
+,
+
+and take 
+
+P0 := 
+
+ 16 , 16 , 23
+
+
+
+.
+
+For a mixing distribution Q, write 
+
+m1(Q) = 
+
+Z
+
+θ dQ (θ), m2(Q) = 
+
+Z
+
+θ2 dQ (θ).16 
+
+Then (20) PQ =
+
+ 3 − m2(Q) + m1(Q)8 , 3 − m2(Q) − m1(Q)8 , 1 + m2(Q)4
+
+
+
+.
+
+Since m2(Q) < 1 for every mixing distribution on (−1, 1) , PQ(3) < 1/2, whereas P0(3) = 2/3. Thus, the data-generating distribution is not represented by any mixing distribution. Let 
+
+P † := 
+
+ 14 , 14 , 12
+
+
+
+.
+
+To describe the relationship between P † and the model class, we equip the probability distri-butions on X with the total-variation distance, 
+
+∥P − P ′∥TV := sup 
+
+> A∈X
+
+|P (A) − P ′(A)| = 12
+
+X
+
+> x∈X
+
+|P (x) − P ′(x)|.
+
+Let M∞ = {PQ : Q ∈ Q ∞} and denote its closure in the total variation distance by M∞. The comparison class Q∞, and therefore potentially the benchmark predictive risk R⋆, depends on the choice of divergence. In the present example, however, the KL and χ2 divergences yield the same benchmark predictive risk and the same limiting predictive distribution. The following proposition makes this precise. PROPOSITION 6.1 ( R⋆ not attained by a mixing distribution). For each of the two choices 
+
+Dϕ = DKL and Dϕ = Dχ2 ,
+
+the distribution P † belongs to M∞ and (21) R(P0) < R(P †) = R⋆ < inf  
+
+> θ∈(−1,1)
+
+R(Pθ),
+
+but P † is not attained by any mixing distribution on (−1, 1) . After extending the parameter space to [−1, 1] , the unique mixing distribution representing P † is (22) Q† = 12 δ−1 + 12 δ1.
+
+This distribution is singular with respect to the continuous prior and therefore has infinite KL and χ2 divergence from Π.PROOF . For 0 < δ < 1, let Qδ be the distribution with one half of its mass placed uni-formly on (−1, −1 + δ) and the other half placed uniformly on (1 − δ, 1) . The density of this distribution with respect to Π is δ−1 on these two intervals and zero elsewhere, so it has finite KL and χ2 divergence. Symmetry gives 
+
+m1(Qδ) = 0 , m2(Qδ) = 1 − δ + δ2
+
+3 .
+
+Consequently, (23) PQδ =
+
+ 14 + δ
+
+8 − δ2
+
+24 , 14 + δ
+
+8 − δ2
+
+24 , 12 − δ
+
+4 + δ2
+
+12 
+
+
+
+−→ P †
+
+in total variation as δ → 0. Hence P † ∈ M ∞. To show that P † achieves the benchmark predictive risk R⋆, observe that 
+
+> 3
+
+X
+
+> x=1
+
+P0(x)
+
+P †(x) PQ(x) = 56 + m2(Q)6 < 1DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 17 
+
+for every mixing distribution Q on (−1, 1) . Hence, using log u ≥ 1 − 1/u ,
+
+KL( P0∥PQ) − KL( P0∥P †) = 
+
+> 3
+
+X
+
+> x=1
+
+P0(x) log P †(x)
+
+PQ(x) ≥ 1 −
+
+> 3
+
+X
+
+> x=1
+
+P0(x)
+
+P †(x) PQ(x) > 0.
+
+Since PQδ → P † and the KL divergence is continuous at P †,
+
+inf 
+
+> Q∈Q ∞
+
+KL( P0∥PQ) = KL( P0∥P †) ⇐⇒ R⋆ = R(P †),
+
+but the infimum is not attained by any Q ∈ Q ∞. Since P0̸ = P †, the strict positivity of the KL divergence implies R(P0) < R(P †), which is the leftmost inequality in (21). A direct calculation shows 
+
+inf 
+
+> θ∈(−1,1)
+
+n
+
+R(Pθ) − R (P †)
+
+o
+
+= 16 log 43 > 0,
+
+where the infimum is approached as θ → ± 1. This proves the rightmost inequality in (21). Finally, PQ = P † would require m1(Q) = 0 and m2(Q) = 1 , which is impossible on (−1, 1) .On [−1, 1] , the condition m2(Q) = 1 forces all of the mass onto the two endpoints, and 
+
+m1(Q) = 0 forces equal masses, establishing (22). The two inequalities in (21) illustrate distinct features of prediction under model misspec-ification. First, the benchmark predictive risk is strictly smaller than the predictive risk of every individual model Pθ . Second, the data-generating distribution is not represented by the predictive mixture class. The first phenomenon is termed “non-trivial misspecification” in [9], whereas “convex recovery” refers to the stronger property that the data-generating distribution belongs to the predictive mixture class. Thus, this example exhibits non-trivial misspecification without convex recovery. The predictive convergence guarantee for non-trivial misspecification in [9] does not re-quire convex recovery, but it assumes the existence of a mixing distribution having finite KL divergence from the prior and whose induced predictive distribution attains the benchmark predictive risk R⋆. The present example falls outside this setting. Extending the parameter space to [−1, 1] allows P † to be represented by the Q† in (22). Since Q† is singular with respect to the continuous prior, it has infinite KL and χ2 divergence. Thus, the extension provides a representation of the predictive limit without changing Q∞.6.1.1. Divergence-specific approximation rates. For the sequence of mixing distribu-tions Qδ constructed above, 
+
+DKL (Qδ∥Π) = log(1 /δ ) and Dχ2 (Qδ∥Π) := 
+
+Z  dQ δ
+
+dΠ − 1
+
+2
+
+dΠ = δ−1 − 1.
+
+Using (23), the corresponding excess predictive risk is 
+
+R(PQδ ) − R (P †) = − 13 log 
+
+
+
+1 + δ
+
+2 − δ2
+
+6
+
+
+
+− 23 log 
+
+
+
+1 − δ
+
+2 + δ2
+
+6
+
+
+
+= δ
+
+6 + O(δ2),
+
+where the final equality follows from a Taylor expansion at δ = 0 . Choosing δ = e−ρ for KL divergence and δ = (1 + ρ)−1 for χ2 divergence gives, for all sufficiently large ρ,(24) AKL (ρ) ≤ Ce −ρ and Aχ2 (ρ) ≤ C
+
+1 + ρ ,
+
+where AKL and Aχ2 denote the approximation profiles defined using KL and χ2 divergence, respectively. The next result shows that these upper bounds are sharp and, in the KL case, identifies the leading constant. 18 
+
+PROPOSITION 6.2 (Sharp approximation rates). For the KL divergence, (25) lim  
+
+> ρ→∞
+
+eρAKL (ρ) = 13e .
+
+For the χ2 divergence, there exist constants 0 < c < C < ∞ and ρ0 > 0 such that (26) cρ ≤ Aχ2 (ρ) ≤ Cρ for every ρ ≥ ρ0.
+
+The proof is deferred to Section A in the appendix. The divergence-specific approximation rates in Proposition 6.2 lead to different approximation–regularization trade-offs. By Corol-lary 5.2 and Proposition 6.2, 
+
+inf 
+
+> ρ≥0
+
+{AKL (ρ) + ερ } = O
+
+
+
+ε log 1
+
+ε
+
+
+
+and inf 
+
+> ρ≥0
+
+{Aχ2 (ρ) + ερ } = O(ε1/2).
+
+Balancing a finite-data contribution of order n−1/2 with the deterministic approximation– regularization term gives (27) εn = 1
+
+√n log n for KL and εn = 1
+
+n for χ2.
+
+The two regularization schedules reflect the different costs of concentrating mass on sets having small prior probability: the KL divergence grows logarithmically in the reciprocal prior mass, whereas the χ2 divergence grows at a reciprocal-mass rate. More generally, the approximation rate is determined jointly by the prior mass of parameter regions that support mixing distributions with near-benchmark predictive risk and by the cost, under the chosen divergence, of concentrating on those regions. 6.1.2. Predictive and mixing-distribution limits. We next show that for the categorical example, convergence of the predictive risk has different implications for the predictive and mixing distributions. The predictive distributions converge to P †, whereas the mixing distri-butions move their mass toward the boundary of the parameter space and have no admissible weak limit. PROPOSITION 6.3 (Predictive convergence and boundary concentration). Let {Qn} be any sequence of mixing distributions on (−1, 1) such that R(PQn ) → R (P †). Then (28) ∥PQn − P †∥TV → 0,
+
+whereas for every η ∈ (0 , 1) ,(29) Qn{ | θ| ≤ 1 − η } → 0.
+
+Thus, {Qn} has no weak limit that is a probability distribution on (−1, 1) . If instead each Qn
+
+is regarded as a probability distribution on [−1, 1] , then (30) Qn ⇝ 12 δ−1 + 12 δ1.
+
+PROOF . By (20), PQ is determined by the tuple (m1(Q), m 2(Q)) . Every subsequence of {(m1(Qn), m 2(Qn)) } has a further subsequence converging in [−1, 1] × [0 , 1] . Continu-ity of the predictive risk and uniqueness of the minimizing predictive distribution P † force 
+
+m1(Qn) → 0 and m2(Qn) → 1, which proves (28). For fixed η > 0,
+
+1 − m2(Qn) = 
+
+Z
+
+(1 − θ2) dQ n(θ) ≥  1 − (1 − η)2 Qn{| θ| ≤ 1 − η},DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 19 
+
+which proves (29). A weak probability limit on (−1, 1) would assign zero mass to every set {| θ| < 1 − η} and hence zero mass to their union, which is all of (−1, 1) ; therefore no such limit exists. On [−1, 1] , every subsequential weak limit is supported on the two endpoints. The condition m1(Qn) → 0 forces equal endpoint masses, so the only possible limit is (30). To specialize Theorem 5.1 to the categorical example, it remains to control the finite-data fluctuation term ∆∞ 
+
+> n
+
+. Every coordinate of pθ is at least 1/8, and this lower bound is preserved under mixing. Hence 0 ≤ ℓQ(x) ≤ log 8 for every mixing distribution Q and every 
+
+x ∈ X, which gives (31) ∆∞ 
+
+> n
+
+≤ (log 8) 
+
+> 3
+
+X
+
+> x=1
+
+|Pn(x) − P0(x)|.
+
+The multinomial central limit theorem therefore implies ∆∞ 
+
+> n
+
+= Op(n−1/2). The strong law of large numbers and (31) also ensure ∆∞ 
+
+> n
+
+→ 0 almost surely. If a computed solution has a primal optimal value error of gn, then it satisfies (3) with 
+
+ξn = gn. Combining the ∆∞ 
+
+> n
+
+bound with Theorem 5.1 and proposition 6.2 yields 
+
+R(P bQn ) − R ⋆ = Op
+
+
+
+n−1/2 + εn log(1 /ε n) + gn
+
+
+
+under KL regularization and 
+
+R(P bQn ) − R ⋆ = Op
+
+
+
+n−1/2 + ε1/2 
+
+> n
+
++ gn
+
+
+
+under χ2 regularization. With the divergence-specific regularization schedules in (27) and 
+
+gn = Op(n−1/2), both excess-risk bounds are of order n−1/2.6.2. Gaussian mixture example. The categorical example treats a setting in which the benchmark predictive risk is not attained. We now consider a misspecified Gaussian location-mixture model and replace its continuous parameter space by a fixed grid for computation. In the resulting finite-cardinality model, the benchmark predictive risk is attained. This sec-ond example connects the predictive-convergence and duality results. We first specialize the excess-risk bound in Theorem 5.1 to the discretized model, obtaining a theoretical bench-mark for the convergence of the predictive risk. Then we solve the reduced KL dual problem from Corollary 4.5, recover the fitted mixture weights from the dual variables, and assess numerical accuracy using the optimality conditions in Corollary 4.5 and the primal and dual optimal values. Finally, we compare the observed decay of the excess predictive risk with the rate supplied by the specialized bound. The example is not intended to compare primal and dual algorithms. Rather, it illustrates the dimension reduction provided by the dual formulation: the primal problem is posed over mixing distributions, whereas the reduced dual problem has one coordinate per observation. The data-generating distribution is the skewed, heavy-tailed mixture 
+
+P0 = 0 .55 t5(−1.2, 0.75) + 0 .30 N (1 .1, 0.35 2) + 0 .15 N (2 .8, 0.90 2).
+
+Here, t5(μ, s ) is a Student-t distribution with five degrees of freedom, location μ, and scale 
+
+s. We write N (μ, σ 2) for a normal distribution with mean μ and variance σ2. Set 
+
+Θ = [ −5, 5] and Pθ = N (θ, 0.32).
+
+The induced predictive distributions are Gaussian location mixtures with variances 0.32 and locations restricted to Θ. This mixture class cannot reproduce the polynomial tails of the Student-t component of P0. Thus, there is no mixing distribution Q on Θ for which PQ = P0.20 
+
+For computation, we replace the continuum Θ by K = 100 equally spaced locations 
+
+θ1, . . . , θ K and take the uniform grid prior Πj = 1 /K . Let 
+
+WK := 
+
+w ∈ RK 
+
+> +
+
+:
+
+> K
+
+X
+
+> j=1
+
+wj = 1 
+
+ .
+
+A mixing vector w ∈ WK induces the predictive distribution Pw with density 
+
+pw(x) = 
+
+> K
+
+X
+
+> j=1
+
+wj
+
+1
+
+σ φ
+
+ x − θj
+
+σ
+
+
+
+, σ := 0 .3,
+
+where φ is the standard normal density. Let Pw† be a grid-restricted KL projection of P0,namely, let 
+
+w† ∈ arg min 
+
+> w∈WK
+
+{− P0 log pw} .
+
+The P0-expectations in population quantities like this are evaluated by quadrature. For the grid-restricted KL projection, 
+
+KL( P0∥Pw† ) ≈ 0.0201 .
+
+6.2.1. Specialization of Theorem 5.1. For the discretized problem, 
+
+∆∞ 
+
+> n
+
+= sup 
+
+> w∈WK
+
+|(Pn − P0)( − log pw)| = sup 
+
+> w∈WK
+
+|(Pn − P0) log pw| .
+
+To control this term, we first obtain a common bound for the losses. Since |θj | ≤ 5, each Gaussian component satisfies 
+
+1
+
+σ√2π exp 
+
+
+
+− (|x| + 5) 2
+
+2σ2
+
+
+
+≤ pθj (x) = 1
+
+σ φ
+
+ x − θj
+
+σ
+
+
+
+≤ 1
+
+σ√2π .
+
+Since pw is a convex combination of the component densities, the same bounds hold for pw.It follows that there exists C < ∞ such that (32) sup 
+
+> w∈WK
+
+| log pw(x)| ≤ C(1 + x2).
+
+The data-generating distribution P0 has a finite fourth moment, so the right-hand side of (32) is square-integrable under P0. In addition to this square-integrability, we must control the complexity of the losses. Every mixture density is a linear combination of the K fixed component densities: 
+
+pw =
+
+> K
+
+X
+
+> j=1
+
+wj pθj .
+
+The density class is therefore contained in a vector space of dimension at most K and is VC-subgraph by [14, Lemma 2.6.16]. Since s 7 → − log s is monotone, the loss class 
+
+{− log pw : w ∈ WK }
+
+is also VC-subgraph by [14, Lemma 2.6.20 ( viii )]. The covering bound for VC-subgraph classes [14, Theorem 2.6.7], together with the square-integrable bound above, verifies the conditions of [14, Theorem 2.5.2]. Consequently, for fixed K,
+
+√n∆∞ 
+
+> n
+
+= sup 
+
+> w∈WK
+
+√n(Pn − P0) log pw = Op(1) .DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 21 
+
+The population minimizer w† belongs to WK , and the uniform grid prior satisfies 
+
+KL( w†∥Π) ≤ log K, 
+
+so applying Theorem 5.1 with w† gives (33) R(P bwdual  
+
+> n
+
+) − R (Pw† ) = Op
+
+
+
+n−1/2 + εn + ξn
+
+
+
+,
+
+which motivates setting εn = n−1/2.6.2.2. Numerical results. For samples X1, . . . , X n iid 
+
+∼ P0, we compute the specialization of the reduced KL dual problem in (12). We have 
+
+bαn ∈ arg max 
+
+> α∈Rn
+> ++
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(1 + log αi) − εn log 
+
+
+
+> K
+
+X
+
+> j=1
+
+Πj exp 
+
+ (α, f (θj )) n
+
+εn
+
+ , εn = n−1/2.
+
+The corresponding mixture weights follow from (13): 
+
+bwdual  
+
+> n,j
+
+= Πj exp {(bαn, f (θj )) n/ε n}
+
+PKℓ=1 Πℓ exp {(bαn, f (θℓ)) n/ε n} , j = 1 , . . . , K. 
+
+The reduced dual problem is solved numerically using L-BFGS-B [3, 10, 17]. We use the sample sizes n ∈ { 8, 16 , 32 , 64 , 128 , 256 , 512 , 1024 , 2048 , 4096 } and repeat the experiment over 100 independent data sets. For every fitted predictive distribution, the reported excess risk is 
+
+R(P bwdual  
+
+> n
+
+) − R (Pw† ).−8 −6 −4 −2 0 2 4 6 8    
+
+> x
+> 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35 density
+> Predictive densities
+> p0
+> pw†
+> p̂
+> wdual
+> n
+> 10 110 210 3
+> sample size n
+> 10 −2
+> 10 −1
+> 10 0
+> population excess risk
+> Risk decay
+> median excess risk 10--90% band
+> n−1/2
+> n−1
+
+FIG 1. Dual computation under misspecification. Left: the true density p0, its KL projection pw† onto the K =100 component grid mixture class, and the fitted predictive density p bwdual  
+
+> n
+
+obtained from one sample with n =4096 . Right: excess risk over 100 independently generated data sets. The solid curve is the pointwise median, and the shaded region is the 10–90% band; the reference lines are proportional to n−1/2 and n−1.
+
+The left panel of Figure 1 illustrates two sources of error. The difference between p0 and 
+
+pw† reflects approximation error by the chosen grid mixture class, whereas the difference between p bwdual  
+
+> n
+
+and pw† reflects finite-sample estimation error. The fitted predictive density 
+
+p bwdual  
+
+> n
+
+is close to the projected predictive density pw† over the central part of the distribution. The right panel compares the decay of the population excess risk with two reference rates. 22 
+
+The n−1/2 line is the conservative rate supplied by (33) for εn = n−1/2 and when the numer-ical optimization error is negligible. The n−1 line is included as a visual benchmark; it has not been established theoretically. Across the displayed runs, the largest absolute deviation from the α fixed-point condition in (14) is 9.71 × 10 −5, and the largest absolute difference between the primal and dual optimal values is 4.03 × 10 −11 . These small optimization resid-uals indicate that numerical error is unlikely to materially affect the patterns shown in the figure. 
+
+7. Conclusion. This paper analyzes predictively oriented (PrO) inference under the log-arithmic score and a broad class of ϕ-divergence penalties. This specializes the general scoring-rule framework of [9] while broadening the regularization beyond the KL diver-gence. The PrO problem is posed over probability distributions on the parameter space and may therefore be infinite dimensional. The dual problem, by contrast, has only n + 1 scalar variables: one variable for each observation and one normalization multiplier. Under stability conditions derived in Section 4, the primal and dual optimal values agree and the dual optimum is attained. When a primal solution also exists, the optimality condi-tions recover its density relative to the prior from the dual variables and provide fixed-point and primal–dual certificates for assessing the accuracy of numerical solutions. For KL reg-ularization, the normalization multiplier can be eliminated analytically, and the recovered density has an explicit exponential form. The analysis in Section 5 accommodates approximate PrO posteriors and does not re-quire the benchmark predictive risk to be attained. The resulting excess-risk bound isolates the effects of sampling, approximation under a finite divergence budget, regularization, and numerical error. This decomposition yields conditions for predictive-risk consistency and provides convergence rates when the individual terms can be controlled. Taken together, the two examples in Section 6 show that the theory applies in regimes with and without attainment of the benchmark predictive risk. The categorical example demon-strates that predictive distributions may converge to a unique limit even when the underlying mixing distributions have no weak limit on the original parameter space. It also shows that the choice of divergence can materially affect the approximation–regularization tradeoff and the regularization schedule. The misspecified Gaussian location-mixture example demonstrates how the predictive-risk analysis and the dual PrO problem can be used together. Several directions remain open within the framework developed here. First, obtaining sharper rates from the excess-risk bound requires model-specific control of the empirical-process term and the approximation profile. Second, although conditions relating predictive convergence to convergence of the mixing distributions have been studied for PrO posteri-ors [9], it would be useful to understand how such conditions interact with nonattainment and with sequences whose divergences grow without bound. Third, since the dual formula-tion replaces an infinite-dimensional primal problem with an optimization problem whose dimension grows linearly with the sample size, developing algorithms that exploit the struc-ture of this formulation at scale is an important computational direction. Finally, extending duality and predictive-risk analyses under nonattainment from the logarithmic score to other proper scoring rules is a natural direction for future work. APPENDIX A: PROOF OF PROPOSITION 6.2 PROOF . The mixing distributions Qδ establish the upper bounds in (24) for both diver-gences. We first sharpen the KL bound by solving the corresponding constrained problem. For a mixing distribution Q on (−1, 1) , let Q− denote its image under θ 7 → − θ, and set 
+
+Q = 12 (Q + Q−).DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 23 
+
+Since the prior is symmetric, DKL (Q−∥Π) = DKL (Q∥Π) , and convexity of KL divergence in its first argument gives DKL (Q∥Π) ≤ DKL (Q∥Π) . Reflection interchanges the first two coordinates of PQ. Since the first two coordinates of P0 are equal, R(PQ− ) = R(PQ). More-over, PQ = 12 (PQ + PQ− ), so convexity of predictive risk gives 
+
+R(PQ) ≤ 12 R(PQ) + 12 R(PQ− ) = R(PQ).
+
+It is therefore enough to consider symmetric mixing distributions. For m ∈ [0 , 1] , define 
+
+r(m) := − 13 log 3 − m
+
+8 − 23 log 1 + m
+
+4 .
+
+If Q is symmetric, then m1(Q) = 0 and R(PQ) = r(m2(Q)) . Furthermore, 
+
+r′(m) = 3m − 53(3 − m)(1 + m) < 0, 0 ≤ m ≤ 1.
+
+Thus, among symmetric mixing distributions, minimizing predictive risk is equivalent to maximizing the second moment. For λ > 0, define 
+
+Zλ := 
+
+Z 1
+
+> −1
+
+exp( λu 2) dΠ( u) and dQ λ
+
+dΠ (θ) = exp( λθ 2)
+
+Zλ
+
+,
+
+and write, within this proof, 
+
+mλ := 
+
+Z
+
+θ2 dQ λ(θ) and ρλ := DKL (Qλ∥Π) .
+
+For any Q ≪ Π,(34) 0 ≤ DKL (Q∥Qλ) = DKL (Q∥Π) − λ
+
+Z
+
+θ2 dQ (θ) + log Zλ.
+
+For Q = Qλ, ρλ = λm λ − log Zλ. Combining this identity with (34) gives 
+
+λ
+
+Z 
+
+θ2 dQ (θ) − mλ
+
+
+
+≤ DKL (Q∥Π) − ρλ.
+
+Hence, every mixing distribution Q satisfying DKL (Q∥Π) ≤ ρλ has m2(Q) ≤ mλ. To see that Qλ solves the predictive-risk problem at radius ρλ, let Q be any such mixing distribution. Its symmetrization Q is also feasible, satisfies m2(Q) = m2(Q), and has no larger predictive risk. Since r is strictly decreasing, 
+
+R(PQ) ≥ R (PQ) = r(m2(Q)) ≥ r(mλ) = R(PQλ ).
+
+Therefore, Qλ minimizes predictive risk over all mixing distributions with KL divergence at most ρλ. Since mλ = (log Zλ)′, differentiation gives 
+
+dρ λ
+
+dλ = λ Var Qλ (θ2) > 0.
+
+Thus, λ 7 → ρλ is continuous and strictly increasing. Since Π is uniform on (−1, 1) ,
+
+Zλ =
+
+Z 10
+
+eλu 2
+
+du. 
+
+An expansion at the endpoint u = 1 gives 
+
+Zλ = eλ
+
+2λ
+
+1 + O(λ−1) , mλ = 1 − λ−1 + O(λ−2),24 
+
+and therefore (35) ρλ = log(2 λ) − 1 + O(λ−1).
+
+In particular, ρλ ↓ 0 as λ ↓ 0 and ρλ ↑ ∞ as λ ↑ ∞ , so every positive radius corresponds to a unique value of λ. Since r(1) = R(P †) and r′(1) = −1/6, a Taylor expansion of r at m = 1 
+
+gives (36) R(PQλ ) − R (P †) = r(mλ) − r(1) = 16λ + O(λ−2).
+
+Since Qλ solves the constrained problem at radius ρλ,
+
+AKL (ρλ) = R(PQλ ) − R (P †).
+
+Combining (35) and (36) yields 
+
+eρλ AKL (ρλ) = 13e + o(1) ,
+
+which proves (25). We next prove the lower bound for χ2 divergence. Let Q ≪ Π satisfy Dχ2 (Q∥Π) ≤ ρ.Then Z  dQ dΠ
+
+2
+
+dΠ ≤ 1 + ρ. 
+
+For 0 < δ < 1, let Bδ = {θ : |θ| > 1 − δ}. Since Π( Bδ) = δ, the Cauchy–Schwarz inequality gives 
+
+Q(Bδ) ≤ p(1 + ρ)δ. 
+
+Choose δ = {4(1 + ρ)}−1. Then Q(Bδ) ≤ 1/2, so at least one half of the mass of Q lies where |θ| ≤ 1 − δ. Consequently, 
+
+1 − m2(Q) = 
+
+Z
+
+(1 − θ2) dQ (θ) ≥ 18(1 + ρ) .
+
+The preceding symmetrization argument also applies to the χ2 divergence: reflection pre-serves the divergence, and convexity in its first argument implies Dχ2 (Q∥Π) ≤ Dχ2 (Q∥Π) .Moreover, m2(Q) = m2(Q) and R(PQ) ≤ R (PQ). Since −r′(m) ≥ 1/6 for 0 ≤ m ≤ 1, the mean value theorem gives 
+
+R(PQ) − R (P †) ≥ r(m2(Q)) − r(1) ≥ 16 {1 − m2(Q)} ≥ 148(1 + ρ) .
+
+Together with the upper bound in (24), this proves (26). 
+
+Acknowledgements. This work is funded by the Sandia Laboratory Research and Devel-opment Program. We acknowledge use of GPT 5.5 and 5.6 to assist in drafting the manuscript text, structuring the mathematical derivations, and generating the simulation code. This article has been authored by an employee of National Technology & Engineering Solutions of Sandia, LLC under Contract No. DE-NA0003525 with the U.S. Department of Energy (DOE). The employee owns all right, title and interest in and to the article and is solely responsible for its contents. The United States Government retains and the publisher, by accepting the article for publication, acknowledges that the United States Government retains a non-exclusive, paid-up, irrevocable, world-wide license to publish or reproduce the published form of this article or allow others to do so, for United States Government pur-poses. The DOE will provide public access to these results of federally sponsored research in accordance with the DOE Public Access Plan 
+
+https://www.energy.gov/downloads/doe-public-access-plan DUALITY AND ERROR FOR PREDICTIVELY ORIENTED INFERENCE 25 
+
+REFERENCES 
+
+[1] BISSIRI , P. G., H OLMES , C. C. and W ALKER , S. G. (2016). A General Framework for Updating Belief Distributions. Journal of the Royal Statistical Society: Series B (Statistical Methodology) 78 1103–1130. https://doi.org/10.1111/rssb.12158 [2] BONNANS , J. F. and S HAPIRO , A. (2000). Perturbation Analysis of Optimization Problems . Springer Series in Operations Research . Springer. https://doi.org/10.1007/978-1-4612-1394-9 [3] BYRD , R. H., L U, P., N OCEDAL , J. and Z HU , C. (1995). A Limited Memory Algorithm for Bound Constrained Optimization. SIAM Journal on Scientific Computing 16 1190–1208. https://doi.org/10.1137/ 0916069 [4] CATONI , O. (2007). PAC-Bayesian Supervised Classification: The Thermodynamics of Statistical Learning .
+
+Institute of Mathematical Statistics Lecture Notes–Monograph Series 56 . Institute of Mathematical Statis-tics, Beachwood, OH. https://doi.org/10.1214/074921707000000391 [5] DONSKER , M. D. and V ARADHAN , S. R. S. (1975). Asymptotic Evaluation of Certain Markov Process Expectations for Large Time. I. Communications on Pure and Applied Mathematics 28 1–47. https://doi. org/10.1002/cpa.3160280102 [6] EKELAND , I. and T EMAM , R. (1999). Convex Analysis and Variational Problems . Classics in Applied Mathematics 28 . Society for Industrial and Applied Mathematics, Philadelphia, PA. https://doi.org/10.1137/ 1.9781611971088 [7] JIANG , W. and M ARTIN , M. T. (2008). Gibbs posterior for variable selection in high-dimensional classifi-cation and data mining. The Annals of Statistics 36 2207–2231. https://doi.org/10.1214/07-AOS547 [8] KLEIJN , B. J. K. and VAN DER VAART , A. W. (2012). The Bernstein-von-Mises theorem under misspeci-fication. Electronic Journal of Statistics 6 354–381. https://doi.org/10.1214/12-EJS675 [9] MCLATCHIE , Y., C HÉRIEF -A BDELLATIF , B.-E., F RAZIER , D. T. and K NOBLAUCH , J. (2025). Predic-tively Oriented Posteriors. arXiv preprint. https://doi.org/10.48550/arXiv.2510.01915 [10] MORALES , J. L. and N OCEDAL , J. (2011). Remark on “Algorithm 778: L-BFGS-B: Fortran Subroutines for Large-Scale Bound-Constrained Optimization”. ACM Transactions on Mathematical Software 38 7:1–7:4. https://doi.org/10.1145/2049662.2049669 [11] ROCKAFELLAR , R. T. (1974). Conjugate Duality and Optimization . CBMS-NSF Regional Conference Series in Applied Mathematics 16 . Society for Industrial and Applied Mathematics, Philadelphia, PA. https://doi.org/10.1137/1.9781611970524 [12] ROCKAFELLAR , R. T. (1976). Integral functionals, normal integrands and measurable selections. In Non-linear Operators and the Calculus of Variations . Lecture Notes in Mathematics 543 155–207. Springer, Berlin, Heidelberg. https://doi.org/10.1007/BFb0079944 [13] ROCKAFELLAR , R. T. and W ETS , R. J. B. (1998). Variational Analysis . Springer, Berlin. https://doi.org/ 10.1007/978-3-642-02431-3 [14] VAN DER VAART , A. W. and W ELLNER , J. A. (2023). Weak Convergence and Empirical Processes: With Applications to Statistics , 2 ed. Springer Series in Statistics . Springer International Publishing, Cham. https: //doi.org/10.1007/978-3-031-29040-4 [15] ZHANG , T. (2006). Information-theoretic upper and lower bounds for statistical estimation. IEEE Transac-tions on Information Theory 52 1307–1321. https://doi.org/10.1109/TIT.2005.864439 [16] ZHANG , T. (2007). From ϵ-entropy to KL-entropy: Analysis of minimum information complexity density estimation. The Annals of Statistics 34 . https://doi.org/10.1214/009053606000000704 [17] ZHU , C., B YRD , R. H., L U, P. and N OCEDAL , J. (1997). Algorithm 778: L-BFGS-B: Fortran Subroutines for Large-Scale Bound-Constrained Optimization. ACM Transactions on Mathematical Software 23 550– 560. https://doi.org/10.1145/279232.279236
