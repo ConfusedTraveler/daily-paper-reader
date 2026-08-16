@@ -1,0 +1,69 @@
+{
+  "label": "2026-08-16",
+  "date": "2026-08-16",
+  "generated_at": "2026-08-16T20:36:06",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202608/16/2608.08323v2-mppi-planning-with-gaussian-based-human-cost-function-for-social-navigation",
+      "section": "quick",
+      "title_en": "MPPI Planning with Gaussian-Based Human Cost Function for Social Navigation",
+      "authors": "Chinmay Mundane",
+      "date": "2026-08-08",
+      "pdf": "https://arxiv.org/pdf/2608.08323v2",
+      "score": "6.0",
+      "evidence": "预测行人移动以支持社交导航",
+      "tldr": "社会导航中，机器人必须预测行人未来轨迹，而非仅依赖当前位置。现有MPPI规划器通常将行人视为静态点障碍，导致动态场景下碰撞风险高。为此，我们提出PGIF成本函数，将行人预测传播至整个规划时域，构建随运动方向拉伸的各向异性高斯排斥场，形成运动锥危险区。在300个随机人群场景中，PGIF-MPPI在三个密度级别均实现0%碰撞率，而基线MPPI最高碰撞率达82%，同时计算开销无明显增加，保障了实时规划性能。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Safe robot navigation in crowded spaces requires planning that accounts for where people will be, not only where they are now. Model Predictive Path Integral (MPPI) control is an effective sampling-based planner, but many implementations encode humans as static point obstacles at their current positions, underestimating risk in dynamic scenes. We propose Predictive Gaussian Interaction Fields (PGIF), a spatiotemporal cost formulation that propagates pedestrian predictions forward over the full planning horizon and encodes them as anisotropic Gaussian repulsive fields aligned with each pedestrian's direction of motion. The forward spread of each field grows with the pedestrian's speed, creating a motion cone danger zone that penalises robot trajectories entering the pedestrian's path of travel more strongly than those approaching from behind. The formulation is closed-form and fully parallelisable across rollouts, adding no measurable computational overhead. Evaluated over 300 randomised crowd scenarios at three density levels, PGIF-MPPI achieves a 0% collision rate at every density level, compared with up to 82% for vanilla MPPI, while maintaining real-time planning performance.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/16/2608.08675v1-efficient-test-time-scaling-for-llm-based-time-series-forecasting",
+      "section": "quick",
+      "title_en": "Efficient Test-Time Scaling for LLM-based Time Series Forecasting",
+      "authors": "Xuan-May Le, Minh-Tuan Tran, Ling Luo, Uwe Aickelin, Dinh Phung, Trung Le",
+      "date": "2026-08-09",
+      "pdf": "https://arxiv.org/pdf/2608.08675v1",
+      "score": "6.0",
+      "evidence": "基于大语言模型的时间序列预测及高效测试时扩展，与时间序列可预测性及精度提升相关。",
+      "tldr": "长时间序列预测需保持趋势和季节等全局结构。现有大语言模型预测器通过测试时扩展提升精度，但计算开销高，且随预测长度增加易产生全局形状失配。本文提出SCALER框架，先以轻量变换器预测未来动态的粗粒度形状，再将其作为紧凑指导，驱动大语言模型进行固定步长的粗到细残差令牌细化，显著减少处理令牌数并省去基于奖励模型的选择。实验显示，SCALER在长短期和零样本预测上超越强基线，同时大幅降低推理成本，为高效大语言模型时间序列预测提供了新方案。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Long-term time series forecasting benefits from preserving global structure such as trends and seasonality. Recent LLM-based forecasters often improve accuracy through test-time scaling (e.g., iterative refinement), but these methods are computationally expensive and increasingly prone to global-shape mismatch as the prediction horizon extends. We propose SCALER, a coarse-to-fine forecasting framework that first employs a lightweight Transformer tailored to long-term shape modeling to predict a coarse representation of future dynamics. This predicted shape then serves as a compact guide for an LLM to perform test-time scaling via iterative coarse-to-fine residual token refinement, while processing substantially fewer tokens at each step. By guiding refinement with an explicit future-shape prediction, SCALER reduces reliance on long description prompts, and its fixed-step refinement avoids costly reward-model-based selection, further lowering computational overhead. Experimental results demonstrate that SCALER outperforms strong forecasting baselines in long-term, short-term and zero-shot forecasting while significantly reducing the inference cost associated with scaled LLM for time series forecasting. Code: https://github.com/xuanmay2701/SCALER.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/16/2608.10149v1-reats-llm-reasoning-based-ensemble-learning-for-adaptive-time-series-forecasting",
+      "section": "quick",
+      "title_en": "REATS: LLM Reasoning-based Ensemble Learning for Adaptive Time Series Forecasting",
+      "authors": "Xu Zhang, Chang Xu, Hui Sun, Nan Ma, Zijian Zhang, Peng Wang, Wei Wang, Li Zhao",
+      "date": "2026-08-10",
+      "pdf": "https://arxiv.org/pdf/2608.10149v1",
+      "score": "6.0",
+      "evidence": "利用大语言模型推理的时间序列集成预测方法，与时间序列可预测性研究相关。",
+      "tldr": "现实时间序列复杂多样，单一预测模型难以在所有样本上稳定领先，现有集成学习依赖固定规则或数值黑盒，缺乏可解释性。REATS利用大模型推理，设计智能集成路由器，将原始序列转化为混合文本-数值表示并检索相似样本先验，通过思维链产生样本自适应权重；采用多行权重监督和百分比表格减少幻觉，以SFT+GRPO两阶段微调增强性能。在八个基准上超越竞争集成基线，同时提供自然语言解释，并展示强迁移学习与未知模型泛化能力。此研究为时间序列集成提供了可解释、自适应的新范例。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Due to the diversity of real-world time series, no single forecasting model consistently dominates across all samples. Ensemble learning addresses this by combining complementary model strengths, yet existing methods rely on fixed rules or black-box models based solely on numerical inputs, failing to leverage LLM reasoning for interpretable weighting decisions. We propose REATS, which leverages LLM reasoning capabilities as an intelligent ensemble router that jointly processes textual temporal pattern descriptions and numerical features to produce interpretable, sample-adaptive ensemble weights through chain-of-thought reasoning. To enable effective LLM-based ensembling, we study its key design choices and propose: (i) a structured input pipeline that transforms raw time series into hybrid textual--numerical representations with fixed token cost, enabling rule-based chain-of-thought construction without API dependency, augmented with retrieved similar-sample priors; (ii) a diverse multi-row weight supervision scheme coupled with a token-efficient percentage-table format that reduces numerical complexity and mitigates LLM hallucinations; and (iii) a two-stage fine-tuning framework combining SFT with GRPO, where a reciprocal reward mapping transforms the continuous unbounded MSE gap into bounded signals with amplified near-oracle sensitivity, addressing the uniform sensitivity and outlier-dominated advantage compression inherent in naive reward designs for regression-based GRPO. Experiments on eight benchmarks demonstrate that REATS outperforms competitive ensemble baselines while providing natural language explanations and demonstrating strong transfer learning and out-of-domain generalization to unseen candidate models.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/16/2608.10620v1-probabilistic-forecasting-via-post-processing-prediction-errors-in--or-out-of-sample",
+      "section": "quick",
+      "title_en": "Probabilistic forecasting via post-processing prediction errors: In- or out-of-sample?",
+      "authors": "Piotr Zaborowski, Arkadiusz Lipiecki, Fotios Petropoulos, Rafał Weron",
+      "date": "2026-08-11",
+      "pdf": "https://arxiv.org/pdf/2608.10620v1",
+      "score": "6.0",
+      "evidence": "比较概率后处理方法以量化预测不确定性",
+      "tldr": "针对点预测系统缺乏不确定性量化的问题，本文提出混合后处理框架，将预测误差后处理与模型特定尺度化结合。基于M4竞赛14407个月度序列，对Theta、指数平滑和ARIMA的点预测应用历史模拟、保形预测、分位回归和GARCH后处理。跨视距平均，所有变体较基准提升最高4.6%，样本内校准在12种组合中11种优于样本外，且长视距优势更大。无需重估模型即可实现有效概率预测。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Many forecasting systems produce point forecasts even when decisions require information about uncertainty. We investigate whether post-processing methods can systematically improve upon traditional Gaussian predictive distributions constructed from in-sample residuals. We propose a hybrid framework that combines forecast error post-processing with model-specific scaling of forecast uncertainty across horizons. For a comprehensive evaluation, we apply historical simulation, conformal prediction, quantile regression, and GARCH-based post-processing to point forecasts generated by Theta, exponential smoothing, and ARIMA models. Using 14,407 monthly series from the M4 competition and forecast horizons of 1 to 12 months, we evaluate performance using the continuous ranked probability score and rank-based statistical comparisons. Averaged across horizons, all post-processing variants improve upon the benchmark predictive distributions, with gains of up to 4.6%. In-sample calibration outperforms its out-of-sample counterpart in 11 of the 12 model-method combinations, although the preferred post-processing method depends on the base model and forecast horizon. The advantage of in-sample calibration generally increases at longer horizons. Our results show that organisations can extend existing point-forecasting systems to provide useful uncertainty quantification without computationally intensive repeated model re-estimation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
