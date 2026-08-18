@@ -1,0 +1,2894 @@
+Title: Information Bottleneck under Perfect Privacy
+
+URL Source: https://arxiv.org/pdf/2608.11003v1
+
+Published Time: Wed, 12 Aug 2026 01:14:20 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+> 1
+
+# Information Bottleneck under Perfect Privacy 
+
+Junle Zhong, Mohamad Assaad, Sreejith Sreekumar 
+
+Abstract —In this work, we study the information bottleneck under perfect privacy, with particular emphasis on the active-rate regime, where the representation-rate constraint is binding and directly limits the achievable utility. The goal is to construct a representation that preserves utility-relevant information while remaining statistically independent of a sensitive variable. This exact independence requirement introduces an additional con-straint beyond the classical rate-relevance tradeoff and must be explicitly incorporated into the optimization. To this end, we develop an alternating direction method of multipliers (ADMM)-based method tailored to the resulting problem structure. Under suitable regularity conditions, we establish global convergence of the generated sequence, characterize its convergence rate through the Kurdyka–Łojasiewicz exponent, and extend the analysis to inexact block updates. 
+
+Index Terms —Information bottleneck, perfect privacy, privacy-utility trade-off (PUT), alternating direction method of multipli-ers (ADMM), convergence rate analysis, mutual information. 
+
+I. I NTRODUCTION 
+
+The information bottleneck (IB) problem was first intro-duced in [1] as a fundamental framework for extracting a compressed representation of an observed source while preserving information relevant to a prescribed task. Given random variables (X, Y ) with joint distribution PXY , the IB problem seeks a stochastic mapping PU |X that maximizes the relevant information I(U ; Y ) subject to a representation-rate constraint I(X; U ) ≤ R. It therefore characterizes the tradeoff between the complexity of a representation and the task-relevant information retained by that representation. This rate–relevance viewpoint has motivated extensive studies of the theoretical properties, operational interpretations, and com-putational realization of IB problems [2], [3]. However, when the observed data are correlated with sen-sitive attributes, controlling only representation rate and task relevance is insufficient to prevent the disclosure of private information. The leakage of sensitive information from learned or released representations has therefore become a central concern in privacy-aware representation design. This concern has motivated a broad class of privacy–utility tradeoff for-mulations, in which a data-release mechanism is designed to balance data utility against privacy protection [4]–[6]. Within the mutual-information-based setting, a prominent formulation is the privacy funnel (PF), which characterizes the tradeoff between the information retained about a useful variable and the information leaked about a sensitive variable [7]. The most stringent privacy requirement in this framework is perfect privacy, under which the released representation must be   
+
+> The authors are with Laboratoire des Signaux et Syst` emes (L2S), CNRS, CentraleSup´ elec, Universit´ e Paris-Saclay, 91190 Gif-sur-Yvette, France (e-mail: junle.zhong@centralesupelec.fr; mohamad.assaad@centralesupelec.fr; sreejith.sreekumar@centralesupelec.fr).
+
+statistically independent of the sensitive variable, equivalently satisfying zero information leakage [8], [9]. 
+
+A. Related work 
+
+Information-theoretic privacy-preserving representation de-sign has been studied under several privacy criteria. In the nonzero-leakage regime, the privacy funnel formulates the design of a privacy mechanism as the optimization of astochastic mapping that generates the released representation while controlling the leakage about the private variable [7]. Re-lated mutual-information-based formulations derive privacy-utility bounds, structural properties, and mechanism-design principles under privacy leakage constraints [5]. However, since positive leakage is allowed, they do not enforce the exact independence required by perfect privacy. The zero-leakage regime has also been studied under the notion of perfect privacy, where the released representation is required to be statistically independent of the private variable. Existing works have characterized its fundamental limits, identified feasibility conditions for extracting nontrivial utility, and derived privacy-utility functions in which perfect privacy appears as the zero-leakage case [6], [8]. Structural properties and computational characterizations have also been established for finite alphabet settings, including linear pro-gramming formulations for mechanism design [9]. However, they do not explicitly impose a representation-rate constraint 
+
+I(X; U ) ≤ R, under which the resulting problem no longer admits the same linear programming treatment. In [10], the trade-off among complexity, leakage, and utility is studied in a data-driven setting through a unified information-theoretic framework. This formulation is relevant to rate-constrained privacy-preserving representation design, as rate and privacy requirements can be jointly modeled through an information-theoretic Lagrangian. However, the associated algorithmic treatment relies on variational surrogate bounds instead of directly optimizing the original Lagrangian. Consequently, the relation between the surrogate objective and the original problem is not explicitly characterized. In addition, exact equality constraints are not directly handled, and stationarity or convergence guarantees for the resulting nonconvex optimization procedure are not provided. The interaction between a representation rate constraint and perfect privacy was studied more directly in [11]. In particular, when the rate constraint is inactive, the maximum utility under perfect privacy admits a linear programming characterization, which can be viewed as a generalization of [9]. In this regime, the rate budget is sufficiently large and therefore does not affect the optimal privacy–utility operating point. Related information-theoretic characterizations were further developed in [12], [13]. These works studied achievable lower arXiv:2608.11003v1 [cs.IT] 11 Aug 2026 2
+
+bounds on the maximum achievable utility and established the existence of corresponding representations without and with a rate constraint, respectively. The latter further extends the perfect-privacy setting to bounded leakage I(S; U ) ≤ ϵ,with ϵ = 0 recovering perfect privacy. Both works rely on extensions of the Functional Representation Lemma (FRL) and the Strong Functional Representation Lemma (SFRL) to obtain the corresponding achievability results. However, determining the underlying conditional distributions remains challenging. In many practical settings, the representation rate is limited, making the rate constraint active. Although existing studies provide useful characterizations of the achievable utility under privacy and rate constraints, they do not directly provide a numerical method with convergence guarantees for the perfect-privacy problem in this regime. This motivates the exact constrained formulation and convergence analysis developed in this paper. From an algorithmic perspective, ADMM provides a natural tool for constrained optimization. Since its early development in [14], [15], ADMM and its variants have been widely used for linearly constrained composite problems. More recently, convergence guarantees have also been established for certain nonconvex and nonsmooth ADMM schemes under appropri-ate structural assumptions [16], [17]. In information-theoretic optimization, ADMM was introduced to the information bot-tleneck problem in [18], and a provably convergent ADMM-based information bottleneck method was further developed in [19]. A related framework based on Douglas–Rachford splitting and ADMM was proposed in [20] for a class of Markovian information-theoretic optimization problems, in-cluding formulations connected to the information bottleneck and the privacy funnel. Nevertheless, the joint treatment of utility maximization, representation-rate control, and exact perfect-privacy constraints falls outside the direct scope of that formulation. In addition, although its convergence analysis is developed under the structural assumptions of the proposed composite model, how probability-simplex constraints are ac-commodated in these analyses is not made explicit. Standard nonconvex ADMM analyses often rely on struc-tural assumptions such as full rank conditions, range inclusion between the constraint matrices, and Lipschitz continuity of the gradient associated with the last updated primal block. In many such analyses, the latter two conditions are used jointly to bound successive dual differences by successive changes in the last primal block. This control is crucial for handling the increase induced by the dual update and establishing descent of the augmented Lagrangian. These assumptions can be restrictive in information theoretic optimization, where the constraint matrices may be rank deficient and probability constraints introduce nonsmooth indicator functions into the block objectives. Moreover, when the augmented Lagrangian itself does not satisfy the required descent property, construct-ing an appropriate Lyapunov function becomes an additional challenge. To address these difficulties, methods based on perturbed dual updates have recently been developed to relax some of the restrictive assumptions used in standard nonconvex ADMM analyses [21]–[25]. The modified dual update pro-vides additional control of both the dual sequence and the feasibility residual, making the perturbation principle partic-ularly relevant to the present formulation with rank deficient constraints. Building on this principle, we develop an ADMM method tailored to the rate constrained perfect privacy prob-lem. Rather than directly applying a general perturbed frame-work as in [25], we exploit the specific strongly convex and weakly convex structure of the objective, retain the probability constraints in the block optimality conditions, and introduce proximal regularization only in the block where it is needed to control negative curvature. We further construct a Lyapunov function adapted to the perturbed dual update to establish the required descent property. Furthermore, by exploiting the Kurdyka–Łojasiewicz property of the Lyapunov function, we establish the finite length property and the whole sequence convergence. Moreover, we characterize the convergence rate in terms of the associated KŁ exponent. 
+
+B. Contributions 
+
+The main contributions of this work are summarized as follows.  
+
+> •
+
+We investigate the active-rate information bottleneck un-der perfect-privacy constraint. In contrast to weighted leakage formulations, perfect privacy is imposed directly on the representation mechanism, avoiding the need to identify an unknown privacy multiplier capable of recov-ering the zero-leakage boundary. This leads to a direct solver with convergence guarantees for the active-rate perfect-privacy information bottleneck problem.  
+
+> •
+
+We propose an ADMM-based computational framework tailored to the resulting nonconvex, nonsmooth, and rank-deficient constrained problem. To the best of our knowledge, this is the first perturbed dual ADMM frame-work for finite-alphabet information-theoretic optimiza-tion. The probability set constraints are explicitly incor-porated into both the block updates and the associated optimality conditions.  
+
+> •
+
+We construct a Lyapunov function to establish conver-gence of the generated sequence toward a first-order so-lution of the constrained formulation. By further exploit-ing the Kurdyka–Łojasiewicz property of the Lyapunov function, we characterize the convergence rates in terms of the associated KŁ exponent.  
+
+> •
+
+We further extend the analysis to inexact solutions of the block subproblems under controlled error conditions, and establish sufficient conditions for preserving convergence. 
+
+C. Organization 
+
+The remainder of this paper is organized as follows. Sec-tion II introduces the notations and preliminary definitions used throughout the paper. Section III presents the rate-constrained perfect privacy problem and its equivalent refor-mulation. Section IV develops the proposed ADMM-based algorithm. Section V establishes the convergence properties of the proposed method. Section VI further derives the con-vergence rates under the Kurdyka–Łojasiewicz framework. Section VIII presents numerical experiments to illustrate the 3
+
+effectiveness of the proposed method. Finally, Section IX concludes the paper. II. P RELIMINARIES 
+
+A. Notations 
+
+Throughout this paper, uppercase letters, such as X, denote random variables, which may be vector-valued. Calligraphic letters, such as X , denote finite alphabets. The corresponding lowercase letters, such as x, denote realizations of random variables. Bold lowercase letters, such as x, denote vector-valued realizations and vectors. Bold uppercase letters, such as A, denote matrices and linear operators. The symbols 0n,
+
+1n, and In denote the n-dimensional zero column vector, the 
+
+n-dimensional all-ones column vector, and the n × n identity matrix, respectively. For a discrete random variable X over a finite alphabet 
+
+X , its probability mass function is represented by the col-umn vector pX ≜ pX (x) 
+
+> x∈X
+
+. For two discrete random variables X and Y , the conditional distribution from X to 
+
+Y is represented by the column-stochastic matrix PY |X ≜pY |X (y|x) 
+
+> y∈Y , x ∈X
+
+. Thus, pX (x) and pY |X (y|x) denote scalar probability values, whereas pX and PY |X denote the corresponding column vector and matrix representations. For a positive integer n, Rn denotes the n-dimensional Euclidean space. For an iterative sequence, xk denotes the value of x at the k-th iteration. For vectors x, y ∈ Rn, ⟨x, y⟩ := x⊤y denotes the Eu-clidean inner product and, unless otherwise specified, ∥x∥ := p⟨x, x⟩ denotes the Euclidean norm. For a positive semidef-inite matrix M, we write ∥x∥2 
+
+> M
+
+:= x⊤Mx . The smallest eigenvalue of a matrix M is denoted by λmin (M). Im( M)
+
+denotes the image space of M and ⊗ denotes the Kronecker product. The transpose of M is denoted by M⊤. For symmet-ric matrices M and N, the notation M ≻ N (M ⪰ N) means that M − N is positive definite (positive semidefinite). For a matrix M ∈ Rm×n, vec( M) ∈ Rmn denotes the column-wise vectorization of M, obtained by stacking its columns from left to right. The differential operator and subdifferential operator are denoted by ∇ and ∂.
+
+B. Definitions 
+
+For an extended real-valued function f : Rn → R ∪ { +∞} ,
+
+dom f := {x : f (x) < +∞} denotes its effective domain. For a set C ⊆ Rn, ιC denotes its indicator function, i.e., ιC (x) = 0 
+
+if x ∈ C and ιC (x) = + ∞ otherwise. The distance from x to 
+
+C is denoted by dist( x, C) := inf y∈C ∥x − y∥.
+
+Definition 1 (Proper function) . An extended-valued function 
+
+f : Rn → R ∪ { +∞} is proper if 
+
+dom f̸ = ∅ and f (x) > −∞ , ∀ x ∈ Rn.
+
+Definition 2 (Lower semicontinuity) . An extended-valued function f : Rn → R ∪ { +∞} is lower semicontinuous at 
+
+x if f (x) ≤ lim inf y→x f (y). It is lower semicontinuous if it is lower semicontinuous at every x ∈ Rn.
+
+Definition 3 (Normal cone) . For a closed convex set C ⊆ Rn,the normal cone to C at x ∈ C is defined as 
+
+NC (x) := {v ∈ Rn : ⟨v, y − x⟩ ≤ 0, ∀ y ∈ C} .
+
+Definition 4 (Regular and limiting subdifferentials [26]) . Let 
+
+f : Rn → R∪{ +∞} be finite at x. The regular subdifferential of f at x is defined as 
+
+b∂f (x):= 
+
+v ∈ Rn : lim inf y→x, 
+
+> y̸=x
+
+f (y) − f (x) − ⟨ v, y − x⟩∥y − x∥ ≥ 0
+
+ .
+
+The limiting subdifferential of f at x is defined as 
+
+∂f (x) := 
+
+(
+
+v ∈ Rn : ∃ xk → x, f (xk) → f (x),
+
+vk ∈ b∂f (xk), vk → v as k → +∞
+
+)
+
+.
+
+Remark 1. If f is differentiable at x, then b∂f (x) = ∂f (x) = 
+
+{∇ f (x)}. We use crit f := {x : 0 ∈ ∂f (x)} to denote the set of critical points of f .
+
+Definition 5 (Lipschitz differentiability) . A differentiable func-tion f : Rn → R is said to be Lf -Lipschitz differentiable if 
+
+∥∇ f (x) − ∇ f (y)∥ ≤ Lf ∥x − y∥, ∀x, y ∈ Rn.
+
+Definition 6 (Strong convexity [26]) . A proper function f :
+
+Rn → R ∪ { +∞} is strongly convex with modulus μ > 0 if 
+
+f (x) − μ 
+
+> 2
+
+∥x∥2 is convex. 
+
+Remark 2. For a strongly convex function f with modulus 
+
+μ > 0, any x1, x2 ∈ dom f , and u1 ∈ ∂f (x1), u2 ∈ ∂f (x2),it holds that 
+
+⟨u1 − u2, x1 − x2⟩ ≥ μ∥x1 − x2∥2.
+
+Moreover, the strong convexity of f also yields 
+
+f (x1) − f (x2) − ⟨ u1, x1 − x2⟩ ≤ − μ
+
+2 ∥x1 − x2∥2.
+
+Definition 7 (Restricted weak convexity [20]) . A function f :
+
+Rn → [0 , +∞) is said to be ω-restricted weakly convex with respect to a matrix A ∈ Rm×n, where ω ≥ 0, if f ∈ C1 and 
+
+f (y) ≥ f (x) + ⟨∇ f (x), y − x⟩ − ω
+
+2 ∥A(y − x)∥2
+
+for all x, y ∈ Rn.
+
+Remark 3. For an ω-restricted weakly convex function f with respect to A, we have 
+
+⟨∇ f (x1) − ∇ f (x2), x1 − x2⟩ ≥ − ω ∥A(x1 − x2)∥2 .
+
+Definition 8 (KŁ property [27]) . Let f : Rn → R ∪ { +∞} 
+
+be proper and lower semicontinuous. The function f is said to satisfy the Kurdyka-Łojasiewicz property at ¯x ∈ dom ∂f 
+
+if there exist η > 0, a neighborhood N (¯ x) of ¯x, and a continuous concave function φ : [0 , η ) → R+ such that 
+
+φ(0) = 0 , φ is continuously differentiable on (0 , η ), φ′(s) > 0
+
+for all s ∈ (0 , η ), and 
+
+φ′(f (x) − f (¯ x)) dist( 0, ∂f (x)) ≥ 1
+
+whenever x ∈ N (¯ x) and f (¯ x) < f (x) < f (¯ x) + η.
+
+Remark 4. If f satisfies the KŁ property at every point of 
+
+dom ∂f , then f is called a KŁ function. 4
+
+III. P ROBLEM FORMULATION 
+
+Let X, Y , and S be discrete random variables over finite alphabets X , Y, and S, respectively. The variable X represents the observed source, Y the utility-relevant variable, and S
+
+the sensitive variable. A privacy mechanism is specified by a conditional distribution PU |X , which maps X to a released representation U over a finite alphabet U. The cardinality |U| 
+
+is fixed throughout this paper. Accordingly, the induced joint distribution satisfies the Markov chain 
+
+(Y, S ) → X → U. 
+
+The utility of the released representation is quantified by the mutual information I(U ; Y ), which measures the amount of information that U preserves about the utility-relevant variable Y . The representation rate is quantified by the mutual information I(X; U ), which measures the amount of infor-mation about the observed source X retained in U . For a prescribed rate budget R ≥ 0, the rate constraint is given by 
+
+I(X; U ) ≤ R. The privacy leakage is measured by I(S; U ).This paper focuses on the perfect privacy regime, namely 
+
+I(S; U ) = 0 . Let 
+
+Q ≜
+
+n
+
+PU |X ∈ R|U|×|X | ≥0 : 1⊤|U| PU |X = 1⊤|X | 
+
+o
+
+denote the set of all admissible mechanisms. The rate-constrained privacy-utility tradeoff under perfect privacy (RCPP) problem is then formulated as 
+
+max    
+
+> PU|X∈Q
+
+I(U ; Y )s.t. I(X; U ) ≤ R, I(S; U ) = 0 .
+
+(P1) The trivial source independent mechanism is always feasible for (P1) when R ≥ 0, but it yields I(U ; Y ) = 0 . Hence, feasibility alone does not guarantee that the problem admits a useful representation. This motivates the following definition of nontrivial perfect privacy. 
+
+Definition 9 (Nontrivial of perfect privacy [9], [11]) . Perfect privacy is nontrivial if there exists a mapping PU |X whose output U is statistically dependent on the useful data Y , while being statistically independent of the private data S.
+
+Remark 5. For finite alphabets, a nontrivial perfect-privacy mechanism exists if and only if 
+
+dim  N (PS|X ) ∩ N (PY |X )⊥ ≥ 1.
+
+Throughout this work, we assume that this condition holds. The role of the rate constraint depends on the prescribed value of R. To make this point precise, we define the maximum utility achievable under perfect privacy as 
+
+J⋆ 
+
+> PP
+
+≜ max    
+
+> PU|X∈Q :
+> I(S;U)=0
+
+I(U ; Y ),
+
+and define the critical rate 
+
+R⋆ ≜ min      
+
+> PU|X∈Q :
+> I(S;U)=0
+> I(U;Y)= J⋆
+> PP
+
+I(X; U ).
+
+For any R ≥ R⋆, the rate constraint does not change the maximum perfect-private utility: a perfect-private mechanism achieving J⋆ 
+
+> PP
+
+is already feasible under the rate budget. Thus, the problem reduces to the perfect privacy case with-out an active rate limitation, which can be handled through a linear programming formulation [11]. By contrast, when 
+
+0 < R < R ⋆, the rate constraint restricts the set of admissible perfect-private mechanisms and directly affects the attainable utility. This paper focuses on this active-rate regime, where representation-rate control, utility and perfect privacy must be addressed simultaneously. Following the Lagrange multiplier treatment commonly used in the IB method, we consider the following functional associated with (P1): 
+
+LRCPP 
+
+PU |X
+
+ ≜ I(X; U ) − βI (U ; Y ), (1) where β ≥ 0 is a prescribed tradeoff parameter. By the data processing inequality under Y → X → U , we have 
+
+I(U ; Y ) ≤ I(X; U ). Therefore, for any β ≤ 1,
+
+I(X; U ) − βI (U ; Y ) ≥ (1 − β)I(X; U ) ≥ 0,
+
+and the value 0 is achieved by the trivial representation satisfying U ⊥ X. Thus, the Lagrange-multiplier formulation admits a trivial global solution for β ≤ 1 [28]. Let β⋆ denote the tradeoff parameter associated with the critical rate R⋆.The active-rate regime 0 < R < R ⋆ therefore corresponds to the nontrivial parameter range 0 < β < β ⋆. Accordingly, the subsequent analysis is restricted to the nontrivial regime 
+
+1 < β < β ⋆.The RCPP problem is then considered in the following form: min    
+
+> PU|X∈Q
+
+I(X; U ) − βI (U ; Y )s.t. I(S; U ) = 0 .
+
+(P2) 
+
+Remark 6. In the nondegenerate case, the rate constraint can be represented through an appropriate Lagrange multiplier 
+
+β, as in the standard information bottleneck formulation. Accordingly, we consider the Lagrangian form (P2) in the subsequent analysis. 
+
+The perfect privacy condition is equivalent to the statistical independence between S and U , i.e., pU |S (u|s) = pU (u) for all u ∈ U and all s ∈ S with pS (s) > 0. Under the Markov chain S → X → U , we have 
+
+PU |S = PU |X PX|S , pU = PU |X pX .
+
+Thus, the marginal consistency and perfect privacy conditions are respectively given by 
+
+pU = PU |X pX , PU |S = pU 1⊤|S| .
+
+We next express these relations in vector form. Let x ≜
+
+pU , z ≜ vec( PU |X ). Then the two relations above can be combined into the single linear constraint Ax − Bz = 0,
+
+where 
+
+A ≜
+
+ I|U| 
+
+0|S||U|×|U| 
+
+
+
+, B ≜
+
+" pT 
+
+> X
+
+⊗ I|U| 
+
+PT 
+
+> X|S
+
+− 1|S| pT
+
+> X
+
+
+
+⊗ I|U| 
+
+#
+
+.5
+
+Let ∆U denote the probability simplex over U. Then the Lagrange-multiplier problem in (P2) can be written as 
+
+min  
+
+> x,z
+
+I(X; U ) − βI (U ; Y )s.t. Ax − Bz = 0,
+
+x ∈ ∆U , z ∈ Q .
+
+(P3) Based on the constrained reformulation in (P3), we further rewrite the information objective in a composite form. Since 
+
+x represents the marginal distribution of U , the entropy term 
+
+H(U ) depends only on x. The remaining conditional entropy terms are evaluated according to the distribution induced by the release mechanism represented by z. For a prescribed parameter 1 < β < β ⋆, we have 
+
+I(X; U ) − βI (U ; Y ) = (1 − β)H(U ) − H(U |X) + βH (U |Y ).
+
+In a manner similar to the entropy decomposition used for the IB objective in [19], define 
+
+F 0(x) ≜ (1 − β)H(U ), H0(z) ≜ −H(U |X) + βH (U |Y ),F 1(x) ≜ ι∆U (x), H1(z) ≜ ιQ(z).
+
+Let 
+
+F (x) ≜ F 0(x) + F 1(x), H(z) ≜ H0(z) + H1(z).
+
+The probability constraints x ∈ ∆U and z ∈ Q are therefore incorporated into the nonsmooth parts of F and H, respec-tively. Hence, (P3) can be written compactly as 
+
+min  
+
+> x,z
+
+F (x) + H(z)s.t. Ax − Bz = 0. (P4) This formulation preserves the information theoretic struc-ture of the RCPP problem while revealing a linearly con-strained two block composite structure. The x-block repre-sents the marginal distribution of the released representation, with its simplex constraint included through F 1. The z-block represents the privacy mechanism and contains the conditional entropy terms, with its probability constraints included through 
+
+H1. The linear constraint Ax − Bz = 0 enforces marginal consistency and perfect privacy. This structure provides the basis for the ADMM algorithm developed in the next section. IV. P ROPOSED APPROACH 
+
+Although (P4) has a two block linearly constrained form, the direct use of a standard ADMM scheme does not by itself yield the convergence analysis needed for the present problem. Existing convergence results for linearly constrained composite information theoretic problems typically rely on structural conditions such as range compatibility between the constraint matrices and smoothness of the objective term associated with the last updated primal block. These conditions are not directly satisfied by (P4): the variables themselves are constrained to probability sets: x lies in the simplex ∆U , while 
+
+z lies in the set Q of conditional probability distributions. When these constraints are incorporated into the objective through the indicator functions ι∆U and ιQ, the corresponding block objectives become nonsmooth. Consequently, the block optimality conditions contain normal cone terms associated with these probability sets, and these terms have to be retained in the convergence analysis. Motivated by the perturbed dual-update schemes in [24], [25], which were developed for broad classes of nonconvex and nonsmooth optimization problems, we specialize their per-turbation principle to the structure of (P4), rather than seeking to extend the general problem classes considered therein. This specialization leads to a different design of the primal updates and requires a problem-specific convergence analysis. On the theoretical side as well, while [25] establishes a complexity bound by showing the existence of an approximately stationary point within the first K iterations, we go beyond the result in [25] and provide a convergence proof of the entire sequence. For instance, we exploit the KŁ property which we prove in the paper, and derive convergence rates for both the Lyapunov error and the distance to the limit point in terms of the KŁ exponent. Our results show that while the convergence rate is sublinear in general, linear convergence rate can be achieved under some assumptions. In particular, the objective exhibits a strongly convex– weakly convex block structure [19]. For the x-block, the strong convexity of the corresponding objective component, together with the augmented quadratic term, provides sufficient curva-ture for the descent estimate. Hence, no additional proximal regularization is required in the x-update. By contrast, the z-block is generally nonconvex and nonsmooth, and it does not contain a strongly convex component that uniformly dominates its possible negative curvature. A proximal term is therefore introduced only in the z-subproblem to provide the additional curvature and control of successive iterates required by the convergence analysis. The smooth terms are retained in their original form rather than linearized in the ADMM subproblems. This is particularly important for the x-block, since retaining its strongly convex component allows the associated curvature to be used directly in the descent analysis. Linearizing this component at the current outer iterate would remove that curvature from the subproblem, and an additional proximal term would generally be required to recover it, together with an extra algorithmic parameter. Although the resulting subproblems do not neces-sarily admit closed-form solutions, they can be approximated efficiently by projected gradient iterations over the correspond-ing probability sets. The implementation details are provided in Section VIII. Therefore, we introduce the following perturbed augmented Lagrangian as the basis of the proposed method: 
+
+Lρ,τ (x, z, λ) ≜ F 0(x) + F 1(x) + H0(z) + H1(z)+ ⟨(1 − τ )λ, Ax − Bz ⟩ + ρ
+
+2 ∥Ax − Bz ∥2 ,
+
+where ρ > 0 is the penalty parameter and τ ∈ (0 , 1) is a perturbation parameter. In addition to the perturbed multiplier update, the z-subproblem is regularized by the proximal term 
+
+γ
+
+2 ∥z − zk∥2
+
+> Q
+
+, γ ≥ 0, Q ⪰ 0.
+
+This term controls successive changes in the probability vari-ables and provides the additional regularization required for 6
+
+the subsequent descent analysis. The resulting solver is then given by: 
+
+xk+1 ∈ arg min 
+
+> x
+
+n
+
+F 0(x) + F 1(x) + (1 − τ )λk,
+
+Ax − Bz k + ρ
+
+2 Ax − Bz k 2 o
+
+,
+
+(2a) 
+
+zk+1 ∈ arg min 
+
+> z
+
+n
+
+H0(z) + H1(z) + (1 − τ )λk,
+
+Ax k+1 − Bz + ρ
+
+2 Ax k+1 − Bz 2
+
++ γ
+
+2 ∥z − zk∥2
+
+> Q
+
+o
+
+,
+
+(2b) 
+
+λk+1 = (1 − τ )λk + ρ  Ax k+1 − Bz k+1  . (2c) These updates constitute the proposed proximal perturbed ADMM method for solving (P4). The complete procedure, including the initialization and termination criterion, is sum-marized in Algorithm 1. 
+
+Algorithm 1 Proximal Perturbed ADMM Method for (P4) 
+
+Require: Algorithmic parameters ρ, τ , γ and Q satisfying (6), tolerance ϵ > 0, maximum iteration number K. 
+
+> 1:
+
+Initialize x0 ∈ ∆U , z0 ∈ Q , λ0, and set k ← 0. 
+
+> 2:
+
+repeat 
+
+> 3:
+
+xk+1 ∈ arg min 
+
+> x
+
+n
+
+F 0(x) + F 1(x) + (1 − τ )λk,
+
+Ax − Bz k + ρ
+
+2 Ax − Bz k 2 o
+
+.
+
+> 4:
+
+zk+1 ∈ arg min 
+
+> z
+
+n
+
+H0(z) + H1(z) + (1 − τ )λk,
+
+Ax k+1 − Bz + ρ
+
+2 Ax k+1 − Bz 2
+
++ γ
+
+2 ∥z − zk∥2
+
+> Q
+
+o
+
+.
+
+> 5:
+
+λk+1 = (1 − τ )λk + ρ  Ax k+1 − Bz k+1  . 
+
+> 6:
+
+k ← k + 1 . 
+
+> 7:
+
+until k = K or ∥Ax k − Bz k∥ ≤ ϵ 
+
+> 8:
+
+return xk, zk, and λk.V. C ONVERGENCE ANALYSIS 
+
+We now establish the convergence results of Algorithm 1. For notational convenience, define uk :=  xk, zk, λk, u∗ :=  x∗, z∗, λ∗, where u∗ denotes an accumulation point of the sequence {uk}k∈N. The following assumptions are imposed throughout this section. 
+
+Assumption 1 (Feasibility) . Problem (P4) is feasible, and its set of stationary points is nonempty. 
+
+Assumption 2 (Uniform positivity) . There exists a constant 
+
+ϵ > 0 such that, for every iterate generated by Algorithm 1, 
+
+pkU (u) ≥ ϵ, pkU |X (u|x) ≥ ϵ, 
+
+for all u ∈ U and all x ∈ X .
+
+Under Assumption 2, F 0 is μF 0 -strongly convex, where 
+
+μF 0 > 0 denotes the corresponding strong convexity modu-lus [19]. Moreover, by [20, Lemma 3], H0 is ωH0 -restricted weakly convex with respect to B1 := pT 
+
+> X
+
+⊗I|U| , where ωH0 ≥
+
+0 denotes the corresponding modulus. In our formulation, the matrix B is given by the vertical concatenation 
+
+B =
+
+B1
+
+B2
+
+
+
+, B2 := 
+
+
+
+PT 
+
+> X|S
+
+− 1|S| pT
+
+> X
+
+
+
+⊗ I|U| .
+
+Since ∥Bz ∥2 = ∥B1z∥2 + ∥B2z∥2, we have 
+
+H0(z) + ωH0
+
+2 ∥Bz ∥2 = H0(z) + ωH0
+
+2 ∥B1z∥2 + ωH0
+
+2 ∥B2z∥2.
+
+The first two terms on the right-hand side define a convex function by the restricted weak convexity of H0 with respect to B1, while the last term is convex. Therefore, H0 is also 
+
+ωH0 -restricted weakly convex with respect to the matrix B.To establish convergence, we need a Lyapunov function that satisfies a sufficient descent property and is bounded from below. In the present setting, the augmented Lagrangian itself cannot directly serve as a Lyapunov function, since the positive term induced by the dual update cannot be directly controlled by the successive primal changes. We therefore first derive two auxiliary results to identify and control these terms. 
+
+Proposition 1. For the sequence {uk}k∈N generated by Al-gorithm 1, we have 
+
+ρ
+
+2η1
+
+∥xk+1 − xk∥2 
+
+> A⊤A
+
+− μF 0 ∥xk+1 − xk∥2
+
++ ∥zk+1 − zk∥2 
+
+> Ez
+
+− τρ ∥λk+1 − λk∥2
+
+≥∥ zk+1 − zk∥2 
+
+> Dz
+
+− ∥ zk − zk−1∥2
+
+> Dz
+
++ 1 − τ
+
+2ρ ∥λk+1 − λk∥2 − 1 − τ
+
+2ρ ∥λk − λk−1∥2.
+
+(3) 
+
+where 
+
+Ez := ( ωH0 + 2 ρη 1) B⊤B, Dz := ρη 1B⊤B + γ
+
+2 Q.
+
+This proposition establishes an inter-iteration inequality that produces a descent term involving the current dual change, while controlling the remaining quantities by changes from the preceding iteration. This dual descent term is crucial for compensating for the positive contribution of the dual update and for constructing the Lyapunov function. The proof is provided in Appendix A. 
+
+Proposition 2. For the sequence {uk}k∈N generated by Al-gorithm 1, we have 
+
+
+
+Lρ,τ (xk+1 , zk+1 , λk+1 ) − τ (1 − τ )2ρ ∥λk+1 ∥2
+
+
+
+−
+
+
+
+Lρ,τ (xk, zk, λk) − τ (1 − τ )2ρ ∥λk∥2
+
+
+
+≤ − 12 ∥xk+1 − xk∥2  
+
+> μF0I+ρA⊤A
+
+− 12 ∥zk+1 − zk∥2(ρ−ωH0 )B⊤B+2 γQ
+
++ (1 − τ )(2 − τ )2ρ ∥λk+1 − λk∥2.
+
+(4) 7
+
+This proposition characterizes the one-step variation of the augmented Lagrangian and reveals the positive contribution induced by the dual update. Combined with the dual descent term established in Proposition 1, this inequality provides the basis for introducing the correction terms in the Lyapunov function defined below. The proof is given in Appendix B. To simplify the notation used throughout the following analysis, we define wk+1 := (xk+1 , zk+1 , λk+1 , zk, λk).
+
+Accordingly, the associated Lyapunov function P(wk+1 ) is defined as follows. 
+
+P(wk+1 ) := Lρ,τ (xk+1 , zk+1 , λk+1 ) − τ (1 − τ )2ρ ∥λk+1 ∥2
+
++ d
+
+"
+
+∥zk+1 − zk∥2 
+
+> Dz
+
++ 1 − τ
+
+2ρ ∥λk+1 − λk∥2
+
+#
+
+.
+
+(5) where d > 0 is chosen to establish sufficient descent and lower boundedness of the Lyapunov sequence. The correction terms in (5) are chosen so as to absorb the history-dependent quantities appearing in Proposition 1. We next establish the sufficient descent and lower boundedness properties of the resulting Lyapunov sequence {P (wk)}k∈N.
+
+Lemma 1 (Sufficient descent of the Lyapunov sequence) . Sup-pose that Assumptions 1–2 hold. If the algorithmic parameters 
+
+ρ, τ , γ, and Q are chosen such that there exist auxiliary constants d > 0 and η1 > 0 satisfying 
+
+ρ > 0, 0 < τ < 1, γ > 0, Q ≻ 0,η1 ≥ d, d > (1 − τ )(2 − τ )2τ ,
+
+2γλ min (Q) > [ωH0 + 2 d (ωH0 + 2 ρη 1) − ρ]+ ∥B∥2.
+
+(6) 
+
+Here, d and η1 are auxiliary parameters used only in the convergence analysis. Then, for every k ∈ N,
+
+P(wk+1 ) − P (wk) ≤ − 12 ∥xk+1 − xk∥2
+
+> Mx
+
+− 12 ∥zk+1 − zk∥2 
+
+> Mz
+
+− aλ∥λk+1 − λk∥2,
+
+where 
+
+Ez := ( ωH0 + 2 ρη 1) B⊤B,
+
+Mx := (1 + 2 d) μF 0 I +
+
+
+
+1 − dη1
+
+
+
+ρA⊤A ≻ 0,
+
+Mz := ( ρ − ωH0 )B⊤B + 2 γQ − 2dEz ≻ 0,aλ := dτ ρ − (1 − τ )(2 − τ )2ρ > 0.
+
+Consequently, the Lyapunov sequence {P (wk)}k∈N is mono-tonically nonincreasing, and there exists a constant C1 > 0
+
+such that 
+
+P(wk+1 ) − P (wk)
+
+≤ − C1
+
+ ∥xk+1 − xk∥2 + ∥zk+1 − zk∥2 + ∥λk+1 − λk∥2 ,
+
+(7) 
+
+where 
+
+C1 := min 
+
+ 12 λmin (Mx), 12 λmin (Mz), a λ
+
+
+
+> 0.
+
+The proof is given in Appendix C. 
+
+Lemma 2 (Lower boundedness of the Lyapunov sequence) .
+
+Suppose that Assumptions 1–2 hold and that the parameter conditions in Lemma 1 are satisfied. Then the dual sequence 
+
+{∥ λk∥} k∈N is bounded from above. Moreover, the Lyapunov sequence {P (wk)}k∈N is bounded from below. 
+
+The proof is given in Appendix D. The above lemmas establish the two key properties of the Lyapunov sequence required for the subsequent convergence analysis. Since the perturbed dual update may leave a nonzero asymptotic feasibility residual when τ > 0, we first introduce the following ϵ-KKT condition to characterize the accumula-tion points of the generated sequence. 
+
+Definition 10. Consider the following inequalities with ϵ ≥ 0:
+
+dist  0, ∇F 0(x∗) + ∂F 1(x∗) + A⊤λ∗ ≤ ϵ, (8a) 
+
+dist  0, ∇H0(z∗) + ∂H 1(z∗) − B⊤λ∗ ≤ ϵ, (8b) 
+
+∥Ax ∗ − Bz ∗∥ ≤ ϵ. (8c) 
+
+If a point (x∗, z∗, λ∗) satisfies (8a) , (8b) , and (8c) , it is referred to as an ϵ-KKT point. 
+
+The following theorem establishes boundedness and asymp-totic regularity of the generated sequence {uk}k∈N and char-acterizes each of its accumulation points in terms of the above approximate stationarity condition. 
+
+Theorem 1 (Subsequential convergence and approximate stationarity) . Suppose that Assumptions 1–2 hold and the parameter conditions in Lemma 1 are satisfied. Then the sequence {uk}k∈N is bounded and therefore has at least one accumulation point. Moreover, the successive differences vanish, namely, 
+
+xk+1 − xk → 0, zk+1 − zk → 0, λk+1 − λk → 0.
+
+Furthermore, the asymptotic feasibility residual satisfies 
+
+lim sup 
+
+> k→∞
+
+∥Ax k+1 − Bz k+1 ∥ ≤ τρ lim sup 
+
+> k→∞
+
+∥λk∥.
+
+Consequently, every accumulation point u∗ is an ϵ-KKT point of (P4) , with 
+
+ϵ := τρ lim sup 
+
+> k→∞
+
+∥λk∥.
+
+The proof is given in Appendix E. VI. C ONVERGENCE RATE ANALYSIS 
+
+The previous section established boundedness, subsequen-tial convergence, and approximate stationarity of the sequence generated by Algorithm 1. In this section, we strengthen these results under the Kurdyka-Łojasiewicz framework by proving convergence of the entire sequence and deriving its asymptotic rates. 
+
+Lemma 3 (Subgradient bound) . Suppose that Assumptions 1– 2 hold and the parameter conditions in Lemma 1 are satisfied. Then there exists a constant C2 > 0 such that, for every k ∈ N,
+
+dist  0, ∂ wP(wk+1 )
+
+≤ C2
+
+ ∥xk+1 − xk∥2 + ∥zk+1 − zk∥2 + ∥λk+1 − λk∥21/2 .8
+
+The proof is given in Appendix F. 
+
+Lemma 4 (KŁ property of P). Suppose that Assumptions 1–2 hold, then Lyapunov function P is a KŁ function. In particular, for any critical point w∗ ∈ dom ∂P, there exist constants 
+
+C3 > 0, θ ∈ [0 , 1) , ν > 0, and a neighborhood N (w∗) of w∗
+
+such that 
+
+dist( 0, ∂ wP(w)) ≥ C3 (P(w) − P (w∗)) θ (9) 
+
+for all w ∈ N (w∗) satisfying P(w∗) < P(w) < P(w∗) + ν. 
+
+The proof is given in Appendix G. By Theorem 1, there exists a subsequence {ukj }j∈N such that ukj → u∗. Since the successive differences vanish, we also have zkj −1 → z∗ and λkj −1 → λ∗. Thus, wkj → w∗.
+
+The indicator terms in P vanish along this subsequence and at its limit, and all remaining terms are continuous. Hence, 
+
+P(wkj ) → P(w∗), which verifies the limiting continuity condition in [27]. Lemmas 1, 2, 4, together with the limiting continuity yield the following result. 
+
+Lemma 5 (Finite length property and the whole sequence convergence [27, Theorem 2.9]) . Suppose that Assumptions 1– 2 hold and that the parameter conditions in Lemma 1 are satisfied. Then the sequence {wk}k∈N has a finite length, i.e., 
+
+> +∞
+
+X
+
+> k=0
+
+∥wk+1 − wk∥ < +∞,
+
+and the generated sequence converges to an unique accumu-lation point w∗.
+
+Following the standard KŁ analysis framework in [27], [29], we combine the sufficient descent inequality, the subgradient bound, and the KŁ inequality to derive a recursion for the Lyapunov error. Let ek := P(wk) − P (w∗). The following lemma gives the resulting recursion. 
+
+Lemma 6. Suppose that Assumptions 1–2 hold and the parameter conditions in Lemma 1 are satisfied. Then there exist k0 ∈ N, θ ∈ [0 , 1) , and ¯C := C1C23
+
+> C22
+
+> 0 such that 
+
+ek − ek+1 ≥ ¯Ce 2θk+1 , ∀ k ∈ N, k ≥ k0. (10) The proof is given in Appendix H. We now use the above relation to establish the convergence rates of the entire generated sequence, and the Lyapunov error according to the KŁ exponent. 
+
+Theorem 2 (Convergence rate of the Lyapunov error sequence 
+
+{ek}k∈N). Suppose that Assumptions 1–2 hold and that the parameter conditions in Lemma 1 are satisfied, let w∗ be the limit established in Lemma 5. Then the Lyapunov error sequence {ek}k∈N satisfies the following rates: 
+
+(i) If θ = 0 , then ek = 0 for all sufficiently large k.
+
+(ii) If θ ∈ (0 , 1/2] , then 
+
+ek ≤ ek0
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+−(k−k0) , ∀ k ∈ N, k ≥ k0.
+
+(11) (iii) If θ ∈ (1 /2, 1) , then there exists a constant μ > 0 such that 
+
+ek ≤  μ(k − k0) + e1−2θk0
+
+− 12θ−1 , ∀ k ∈ N, k ≥ k0.
+
+(12) The proof is given in Appendix I. 
+
+Theorem 3 (Convergence rate of the sequence {uk}k∈N).
+
+Suppose that Assumptions 1–2 hold and that the parameter conditions in Lemma 1 are satisfied, there exists a constant 
+
+C > 0 such that the following rates hold: 
+
+(i) If θ = 0 , then uk = u∗ for all sufficiently large k.
+
+(ii) If θ ∈ (0 , 1/2] , then ∀k ∈ N, k ≥ k0 + 1 ,
+
+∥uk − u∗∥ ≤ C√ek0
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+− k−1−k02 . (13) (iii) If θ ∈ (1 /2, 1) , then ∀k ∈ N, k ≥ k0 + 1 ,
+
+∥uk − u∗∥ ≤ C  μ(k − 1 − k0) + e1−2θk0
+
+− 1−θ 
+
+> 2θ−1
+
+. (14) The proof is given in Appendix J. The preceding theorem characterizes the local convergence rate of the generated sequence {uk}k∈N toward their limit. We next use this estimate to obtain a finite iteration threshold beyond which every subsequent iterate satisfies a prescribed approximate KKT condition. Since θ ∈ (1 /2, 1) corresponds to the sublinear regime and provides the weakest convergence guarantee among the three cases, we state the result for this regime. 
+
+Corollary 1 (Eventual ϵ-KKT guarantee) . Suppose that As-sumptions 1–2 hold and the parameter conditions in Lemma 1 are satisfied. With θ ∈ (1 /2, 1) . Then there exist constants 
+
+CKKT > 0 and k0 ∈ N such that, for any prescribed accuracy 
+
+¯ϵ > ϵ , every uk+1 , k ≥ K¯ϵ , k ∈ N, is a ¯ϵ-KKT point with 
+
+K¯ϵ := k0 + 1 + 
+
+&
+
+1
+
+μ
+
+" CKKT 
+
+¯ϵ − ϵ
+
+ 2θ−11−θ
+
+− e1−2θk0
+
+#
+
+> +
+
+'
+
+.
+
+The proof is provided in Appendix K. VII. I NEXACT SUBPROBLEM ERROR ANALYSIS 
+
+We next consider the practical case where the two primal subproblems are solved only approximately. Since the preced-ing convergence analysis relies on the first-order optimality conditions of the subproblems, rather than on their exact global solutions, the analysis can be extended by allowing controlled residuals in these conditions. For each k ∈ N, let ek+1  
+
+> x
+
+and ek+1  
+
+> z
+
+denote the residuals associated with the x- and z-subproblems, respectively. The inexact updates are assumed to satisfy 
+
+0 ∈ ∇ F 0(xk+1 ) + ∂F 1(xk+1 ) + (1 − τ )A⊤λk
+
++ ρA⊤  Ax k+1 − Bz k + ek+1  
+
+> x
+
+, (15a) 
+
+0 ∈ ∇ H0(zk+1 ) + ∂H 1(zk+1 ) − (1 − τ )B⊤λk
+
+− ρB⊤  Ax k+1 − Bz k+1  + γQ(zk+1 − zk) + ek+1  
+
+> z
+
+.
+
+(15b) Moreover, the residuals are assumed to be square summable: 
+
+> ∞
+
+X
+
+> k=0
+
+ ∥ek+1  
+
+> x
+
+∥2 + ∥ek+1  
+
+> z
+
+∥2 < +∞. (16) The following proposition shows that the convergence guar-antee for the exact updates is preserved under this condition. 9
+
+Proposition 3 (Convergence under inexact block updates) .
+
+Suppose that Assumptions 1–2 hold and the parameter con-ditions in Lemma 1 are satisfied. If the inexact updates satisfy (15) and (16) , then the conclusions of Theorem 1 remain valid. 
+
+The proof is given in Appendix L. VIII. N UMERICAL RESULTS 
+
+In this section, we evaluate the proposed algorithm on a discrete rate-constrained perfect-privacy information bottle-neck problem. The experiments are designed to assess both the achievable rate–utility tradeoff and the effectiveness of the imposed perfect-privacy constraint. All mutual information quantities are reported in nats. The experiments are conducted using the synthetic distri-bution adopted in [11]. The corresponding joint distribution 
+
+pS,X,Y is given by 
+
+PSX = 0 .125 
+
+
+
+1 1 0 01 1 0 00 0 1 10 0 1 1
+
+ , PY |X =
+
+
+
+0.4 0.60.2 0.80.3 0.70.1 0.9
+
+
+
+> ⊤
+
+.
+
+and the representation alphabet is chosen as |U| = 2 . The proposed perturbed proximal ADMM is implemented using in-exact block updates. The subproblems are solved by projected gradient descent method onto probabilistic simplex [30]. The proposed method is compared with three representative algorithms for the conventional information bottleneck prob-lem, namely the perturbed ADMM IB algorithm, the iterative IB algorithm [1], and the Douglas–Rachford splitting (DRS) IB algorithm [20]. The perturbed ADMM IB algorithm uses the same update scheme as the proposed method, but is applied to the conventional IB problem obtained by removing the per-fect privacy constraint. These methods optimize the standard rate–utility tradeoff without explicitly enforcing the perfect-privacy constraint. For all methods, the tradeoff parameter is varied to generate the corresponding operating points on the rate–utility curve. Fig. 1 compares the rate–utility tradeoffs obtained by the proposed RCPP method and the three conventional IB algo-rithms. The RCPP curve is generated by solving the proposed problem under different representation-rate constraints. Thus, each point on the blue curve represents the utility achieved for a different rate limit R, while satisfying the perfect-privacy constraint I(S; U ) = 0 . By varying R, the proposed method traces out the rate–utility tradeoff under perfect privacy and illustrates how the representation-rate constraint affects the attainable utility. As expected, I(U ; Y ) increases with I(X; U ) for all the considered methods. The three conventional IB algorithms produce nearly overlapping curves over the tested range, indicating that they obtain comparable operating points for the standard IB formulation. The RCPP curve follows the same overall trend but generally lies below other curves. This difference is expected because the RCPP representation need to satisfy the additional constraint I(S; U ) = 0 . 
+
+> Fig. 1. Rate–utility performance comparison among the RCPP solution and the considered IB algorithms.
+
+Nevertheless, the utility gap remains relatively small over the tested rate range, indicating that perfect privacy incurs only a moderate utility loss for the considered distribution. More-over, as the rate limit increases, the RCPP solution approaches the perfect-privacy utility reported in [11], indicating that the rate constraint gradually becomes inactive. To further illustrate the privacy-preserving capability of the proposed method, Fig. 2 reports the utility-to-privacy ratio 
+
+I(U ; Y )max {I(U ; S), 10 −12 } ,
+
+where the numerical floor is introduced only to avoid division by zero when the computed privacy leakage reaches machine precision. The vertical axis is shown on a logarithmic scale. Since the proposed method explicitly enforces I(S; U ) = 0 ,the computed privacy leakage remains at numerical precision over the entire range of representation rates, resulting in utility-to-privacy ratios that are several orders of magnitude larger than those achieved by the conventional IB algorithms. In con-trast, the baseline IB methods optimize utility without directly controlling the information leakage about the private variable, and consequently their utility-to-privacy ratios remain close to unity over most operating points. These results demonstrate that the proposed method effectively enforces perfect privacy while maintaining competitive rate–utility performance. Overall, the numerical results validate the effectiveness of the proposed algorithm. The algorithm produces high-quality solutions that closely approach the utility achieved by conven-tional information bottleneck methods while simultaneously satisfying the perfect-privacy constraint to numerical precision. IX. C ONCLUSION 
+
+In this work, we proposed a perturbed proximal ADMM solver for the information bottleneck problem with a rate constraint and a perfect privacy constraint over finite alpha-bets, with particular emphasis on the regime where the rate constraint is active. Unlike formulations based on a leak-age penalty, the proposed method computes perfect privacy mechanisms by enforcing the zero leakage constraint directly while retaining an explicit information rate constraint. The 10  
+
+> Fig. 2. Utility-to-privacy ratio versus the rate for the RCPP solution and the considered IB algorithms.
+
+resulting constrained problem is nonconvex and nonsmooth, and involves rank deficient linear constraints induced by the probability and perfect privacy requirements. We proved convergence of the proposed algorithm through a Lyapunov analysis that accounts for the probability constraints in the constrained formulation. We further obtained conver-gence rate results based on the KŁ property and extended the convergence guarantee to inexact block updates. An interesting open problem is the extension of the proposed framework to multiuser settings and the investigation of the resulting information-theoretic optimization problems. APPENDIX APROOF OF PROPOSITION 1The first-order optimality conditions of the two primal subproblems in (2a) and (2b) are given by 
+
+∇F 0(xk+1 ) + νF 1 
+
+> xk+1
+
++ (1 − τ )A⊤λk
+
++ ρA⊤  Ax k+1 − Bz k = 0 , (17a) 
+
+∇H0(zk+1 ) + νH1 
+
+> zk+1
+
+− (1 − τ )B⊤λk
+
+− ρB⊤  Ax k+1 − Bz k+1  + γQ(zk+1 − zk) = 0 .
+
+(17b) where 
+
+νF 1 
+
+> xk+1
+
+∈ ∂F 1(xk+1 ) = N∆U (xk+1 ),
+
+νH1 
+
+> zk+1
+
+∈ ∂H 1(zk+1 ) = NQ(zk+1 ).
+
+Using the dual update (2c), the optimality condition of the 
+
+x-subproblem (2a) can be rewritten as 
+
+∇F 0(xk+1 ) + A⊤λk+1 + ρA⊤B(zk+1 − zk), x − xk+1 
+
+= −
+
+D
+
+νF 1 
+
+> xk+1
+
+, x − xk+1 E
+
+.
+
+Similarly, in iteration k, we have 
+
+∇F 0(xk) + A⊤λk + ρA⊤B(zk − zk−1), x − xk
+
+= −
+
+D
+
+νF 1 
+
+> xk
+
+, x − xkE
+
+.
+
+Taking x = xk in the first relation and x = xk+1 in the second relation, and then adding them together, we obtain 
+
+∇F 0(xk+1 ) − ∇ F 0(xk) + A⊤(λk+1 − λk), xk − xk+1 
+
++ ρ A⊤B(zk+1 − zk) − (zk − zk−1) , xk − xk+1 
+
+=
+
+D
+
+νF 1 
+
+> xk
+
+− νF 1 
+
+> xk+1
+
+, xk − xk+1 E
+
+≥ 0,
+
+(18) where the last inequality follows from the monotonicity of the subdifferential of the closed proper convex function F 1 [31, Corollary 31.5.2]. Similarly, by the first-order optimality conditions of the z-subproblem at iterations k + 1 and k, and following the same derivation as above, we obtain 
+
+∇H0(zk+1 ) − ∇ H0(zk) − B⊤(λk+1 − λk), zk − zk+1 
+
++ γQ(zk+1 − zk) − (zk − zk−1), zk − zk+1 
+
+=
+
+D
+
+νH1 
+
+> zk
+
+− νH1 
+
+> zk+1
+
+, zk − zk+1 E
+
+≥ 0.
+
+(19) Now we will analyze the LHS of (18) and (19). Applying the strong monotonicity relation in Remark 2 to 
+
+F 0, with x1 = xk+1 , x2 = xk, u1 = ∇F 0(xk+1 ), and u2 =
+
+∇F 0(xk), yields 
+
+∇F 0(xk+1 ) − ∇ F 0(xk), xk − xk+1 ≤ − μF 0 ∥xk+1 −xk∥2.
+
+(20) Moreover, for any η1 > 0, Young’s inequality gives 
+
+ρ A⊤B (zk+1 − zk) − (zk − zk−1) , xk − xk+1 
+
+≤ ρη 1
+
+2 B (zk+1 − zk) − (zk − zk−1) 2
+
++ ρ
+
+2η1
+
+A(xk+1 − xk) 2
+
+≤ρη 1∥Bz k+1 − Bz k∥2 + ρη 1∥Bz k − Bz k−1∥2
+
++ ρ
+
+2η1
+
+∥xk+1 − xk∥2
+
+> A⊤A
+
+.
+
+(21) where the second inequality follows from ∥a−b∥2 ≤ 2∥a∥2 +2∥b∥2.
+
+Since H0 is ωH0 -restricted weakly convex with respect to 
+
+B, from Remark 3, we have 
+
+∇H0(zk+1 ) − ∇ H0(zk), zk−zk+1 ≤ ωH0 ∥Bz k+1 −Bz k∥2.
+
+(22) Using the weighted norm identity 2⟨Q(a−b), a⟩ = ∥a∥2 
+
+> Q
+
+−∥b∥2 
+
+> Q
+
++ ∥a − b∥2
+
+> Q
+
+, we get 
+
+γQ(zk+1 − zk) − (zk − zk−1), zk − zk+1 
+
+= − γ
+
+2 ∥zk+1 − zk∥2 
+
+> Q
+
++ γ
+
+2 ∥zk − zk−1∥2
+
+> Q
+
+− γ
+
+2 (zk+1 − zk) − (zk − zk−1) 2 
+
+> Q
+
+.
+
+(23) 11 
+
+Next, we analyze the dual-related terms. 
+
+A⊤(λk+1 − λk), xk − xk+1 
+
++ −B⊤(λk+1 − λk), zk − zk+1 
+
+> (2c)
+
+= 1
+
+ρ λk+1 − λk, λk − (1 − τ )λk−1 − λk+1 + (1 − τ )λk
+
+= − 1
+
+ρ ∥λk+1 − λk∥2 + 1 − τρ λk+1 − λk, λk − λk−1
+
+= − 1 + τ
+
+2ρ ∥λk+1 − λk∥2 + 1 − τ
+
+2ρ ∥λk − λk−1∥2
+
+− 1 − τ
+
+2ρ (λk+1 − λk) − (λk − λk−1) 2 ,
+
+(24) where the last equality follows from the identity 2⟨a, b⟩ =
+
+∥a∥2 + ∥b∥2 − ∥ a − b∥2 with a = λk+1 − λk and b =
+
+λk − λk−1.Finally, by combining (18)-(24), we obtain 
+
+0 ≤ ρ
+
+2η1
+
+∥xk+1 − xk∥2 
+
+> A⊤A
+
+− μF 0 ∥xk+1 − xk∥2
+
++ ( ωH0 + ρη 1) ∥Bz k+1 − Bz k∥2
+
++ ρη 1∥Bz k − Bz k−1∥2
+
+− 1 + τ
+
+2ρ ∥λk+1 − λk∥2 + 1 − τ
+
+2ρ ∥λk − λk−1∥2
+
+− γ
+
+2 ∥zk+1 − zk∥2 
+
+> Q
+
++ γ
+
+2 ∥zk − zk−1∥2
+
+> Q
+
+− 1 − τ
+
+2ρ (λk+1 − λk) − (λk − λk−1) 2
+
+− γ
+
+2 (zk+1 − zk) − (zk − zk−1) 2 
+
+> Q
+
+.
+
+(25) Since 0 < τ < 1 and γ ≥ 0, then the last two terms in (25) are non-positive. Hence, after rearrangement, we have 
+
+ρ
+
+2η1
+
+∥xk+1 − xk∥2 
+
+> A⊤A
+
+− μF 0 ∥xk+1 − xk∥2
+
++ ∥zk+1 − zk∥2 
+
+> Ez
+
+− τρ ∥λk+1 − λk∥2
+
+≥∥ zk+1 − zk∥2 
+
+> Dz
+
+− ∥ zk − zk−1∥2
+
+> Dz
+
++ 1 − τ
+
+2ρ ∥λk+1 − λk∥2 − 1 − τ
+
+2ρ ∥λk − λk−1∥2.
+
+where 
+
+Ez := ( ωH0 + 2 ρη 1) B⊤B, Dz := ρη 1B⊤B + γ
+
+2 Q.
+
+we therefore complete the proof. APPENDIX BPROOF OF PROPOSITION 2We prove the one-step descent estimate by decomposing the change of the augmented Lagrangian into the contributions of the x-update, the z-update, and the dual update. 
+
+a) x-update: We first estimate the change of the aug-mented Lagrangian with respect to the x-block while keeping 
+
+(zk, λk) fixed. We have 
+
+Lρ,τ (xk+1 , zk, λk) − L ρ,τ (xk, zk, λk)= F (xk+1 ) − F (xk) + (1 − τ )λk, Ax k+1 − Ax k
+
++ ρ
+
+2 ∥Ax k+1 − Bz k∥2 − ρ
+
+2 ∥Ax k − Bz k∥2
+
+= F 0(xk+1 ) − F 0(xk) + (1 − τ )λk, Ax k+1 − Ax k
+
++ ρ
+
+2 ∥Ax k+1 − Bz k∥2 − ρ
+
+2 ∥Ax k − Bz k∥2
+
+> (17a)
+
+= F 0(xk+1 ) − F 0(xk) − ∇F 0(xk+1 ), xk+1 − xk
+
+− ρ Ax k+1 − Bz k, Ax k+1 − Ax k + ρ
+
+2 ∥Ax k+1 − Bz k∥2
+
+− ρ
+
+2 ∥Ax k − Bz k∥2 −
+
+D
+
+νF 1 
+
+> xk+1
+
+, xk+1 − xkE
+
+≤ − μF 0
+
+2 ∥xk+1 − xk∥2 − ρ
+
+2 ∥Ax k+1 − Ax k∥2
+
+= − 12 ∥xk+1 − xk∥2  
+
+> μF0I+ρA⊤A
+
+.
+
+(26) The second equality follows from F = F 0 + F 1 and 
+
+F 1 = ι∆U . Indeed, since νF 1 
+
+> xk+1
+
+∈ ∂F 1(xk+1 ), we have 
+
+∂F 1(xk+1 )̸ = ∅, and hence xk+1 ∈ ∆U . Similarly, xk ∈ ∆U .Thus, F 1(xk+1 ) = F 1(xk) = 0 . The inequality in (26) then follows directly from Remark 2 applied to F 0, the identity  
+
+> 12
+
+∥a∥2 − 12 ∥a−b∥2 = ⟨a, b⟩− 12 ∥b∥2, with a = Ax k+1 −Bz k
+
+and b = Ax k+1 − Ax k, and the convex subdifferential inequality of F 1:
+
+−
+
+D
+
+νF 1 
+
+> xk+1
+
+, xk+1 − xkE
+
+=
+
+D
+
+νF 1 
+
+> xk+1
+
+, xk − xk+1 E
+
+≤ F 1(xk) − F 1(xk+1 ) = 0 .
+
+b) z-update: We next estimate the change with respect to the z-block while fixing (xk+1 , λk). Using the first-order condition of the z-subproblem, we obtain 
+
+Lρ,τ (xk+1 , zk+1 , λk) − L ρ,τ (xk+1 , zk, λk)= H0(zk+1 ) − H0(zk) + H1(zk+1 ) − H1(zk)
+
+− (1 − τ )B⊤λk, zk+1 − zk + ρ
+
+2 ∥Ax k+1 − Bz k+1 ∥2
+
+− ρ
+
+2 ∥Ax k+1 − Bz k∥2
+
+> (17b)
+
+= H0(zk+1 ) − H0(zk) − ∇H0(zk+1 ), zk+1 − zk
+
++ H1(zk+1 ) − H1(zk) −
+
+D
+
+νH1 
+
+> zk+1
+
+, zk+1 − zkE
+
++ ρ Ax k+1 − Bz k+1 , Bz k+1 − Bz k − γ∥zk+1 − zk∥2
+
+> Q
+
++ ρ
+
+2 ∥Ax k+1 − Bz k+1 ∥2 − ρ
+
+2 ∥Ax k+1 − Bz k∥2
+
+≤ ωH0
+
+2 ∥Bz k+1 − Bz k∥2 − ρ
+
+2 ∥Bz k+1 − Bz k∥2
+
+− γ∥zk+1 − zk∥2
+
+> Q
+
+= − 12 ∥zk+1 − zk∥2(ρ−ωH0 )B⊤B+2 γQ.
+
+(27) The inequality in (27) is obtained by using the ωH0 -restricted weak convexity of H0 with respect to B, the convexity of H1,and the identity 12 ∥a∥2 − 12 ∥a + b∥2 = −⟨ a, b⟩ − 12 ∥b∥2, with 
+
+a = Ax k+1 − Bz k+1 and b = Bz k+1 − Bz k.12 
+
+c) λ-update: It remains to quantify the change induced by the dual update. By (2c), we have 
+
+Lρ,τ (xk+1 , zk+1 , λk+1 ) − L ρ,τ (xk+1 , zk+1 , λk)
+
+> (2c)
+
+= 1 − τρ λk+1 − λk, (λk+1 − λk) + τ λk
+
+= (1 − τ )(2 − τ )2ρ ∥λk+1 − λk∥2
+
++ τ (1 − τ )2ρ
+
+ ∥λk+1 ∥2 − ∥ λk∥2 .
+
+(28) In the last equality, we used 
+
+2 λk+1 − λk, λk = ∥λk+1 ∥2 − ∥ λk∥2 − ∥ λk+1 − λk∥2.
+
+Summing (26), (27), and (28), then we complete the proof. APPENDIX CPROOF OF LEMMA 1Based on Proposition 1 and Proposition 2, we have the following relationship: 
+
+P(wk+1 ) − P (wk)
+
+≤ − 12 xk+1 − xk 2 
+
+> Mx
+
+− 12 zk+1 − zk 2
+
+> Mz
+
+− aλ∥λk+1 − λk∥2,
+
+(29) where 
+
+Ez := ( ωH0 + 2 ρη 1) B⊤B,
+
+Mx := (1 + 2 d) μF 0 I +
+
+
+
+1 − dη1
+
+
+
+ρA⊤A,
+
+Mz := ( ρ − ωH0 )B⊤B + 2 γQ − 2dEz,aλ := dτ ρ − (1 − τ )(2 − τ )2ρ .
+
+By the parameter conditions in Lemma 1, we can easily verify that Mx ≻ 0, Mz ≻ 0, a λ > 0. Therefore, from (29), 
+
+P(wk+1 ) − P (wk)
+
+≤ − C1
+
+ ∥xk+1 − xk∥2 + ∥zk+1 − zk∥2 + ∥λk+1 − λk∥2 ,
+
+where 
+
+C1 := min 
+
+ 12 λmin (Mx), 12 λmin (Mz), a λ
+
+
+
+> 0.
+
+This proves the desired sufficient descent estimate. APPENDIX DPROOF OF LEMMA 2Since F and H are lower bounded on the corresponding probability sets, there exist constants F and H such that 
+
+F (xk) ≥ F , H(zk) ≥ H, ∀k ∈ N.
+
+Let P := F +H. Under the parameter conditions of Lemma 1, the additional quadratic terms in P are nonnegative. Hence, by the definition of P, for every k ∈ N,
+
+P(wk+1 ) ≥ P + (1 − τ ) λk+1 , Ax k+1 − Bz k+1 
+
+− τ (1 − τ )2ρ ∥λk+1 ∥2.
+
+Using the dual update (2c), we have 
+
+(1 − τ ) λk+1 , Ax k+1 − Bz k+1 − τ (1 − τ )2ρ ∥λk+1 ∥2
+
+= (1 − τ )(2 − τ )2ρ ∥λk+1 ∥2 − (1 − τ )2
+
+ρ λk+1 , λk
+
+= 1 − τ
+
+2ρ ∥λk+1 ∥2 − (1 − τ )2
+
+2ρ ∥λk∥2
+
++ (1 − τ )2
+
+2ρ ∥λk+1 − λk∥2.
+
+Consequently, by dropping the last nonnegative term, we obtain 
+
+P(wk+1 ) ≥ P + 1 − τ
+
+2ρ ∥λk+1 ∥2 − (1 − τ )2
+
+2ρ ∥λk∥2. (30) Choose 
+
+M := max 
+
+
+
+∥λ0∥2, 2ρτ (1 − τ )
+
+ P(w0) − P 
+
+< +∞.
+
+We next prove by induction that 
+
+∥λk∥2 ≤ M, ∀ k ∈ N.
+
+The claim is trivial for k = 0 . Let K ∈ N be fixed and assume that 
+
+∥λk∥2 ≤ M, k = 0 , 1, . . . , K. 
+
+We show that the same bound holds for k = K + 1 .If ∥λK+1 ∥2 ≤ ∥ λK ∥2, then ∥λK+1 ∥2 ≤ ∥ λK ∥2 ≤ M. 
+
+If instead ∥λK+1 ∥2 > ∥λK ∥2, then, since 0 < τ < 1, we have 0 < 1 − τ < 1. Hence, by (30) with k = K,
+
+P(wK+1 ) ≥ P + 1 − τ
+
+2ρ ∥λK+1 ∥2 − (1 − τ )2
+
+2ρ ∥λK ∥2
+
+≥ P + 1 − τ
+
+2ρ ∥λK+1 ∥2 − (1 − τ )2
+
+2ρ ∥λK+1 ∥2
+
+= P + τ (1 − τ )2ρ ∥λK+1 ∥2.
+
+By the nonincreasing property of {P (wk)}k∈N established in Lemma 1, we have 
+
+∥λK+1 ∥2 ≤ 2ρτ (1 − τ )
+
+ P(wK+1 ) − P 
+
+≤ 2ρτ (1 − τ )
+
+ P(w0) − P  ≤ M. 
+
+Thus, ∥λK+1 ∥2 ≤ M in both cases, and the induction is complete. Using this bound in (30), we obtain, for all k ∈ N,
+
+P(wk+1 ) ≥ P − (1 − τ )2
+
+2ρ M > −∞ .
+
+Therefore, the Lyapunov sequence {P (wk)}k∈N is bounded from below. This completes the proof. 13 
+
+APPENDIX EPROOF OF THEOREM 1We first sum the sufficient descent inequality and use the lower boundedness of the Lyapunov sequence to show that the successive changes of the primal and dual variables are square summable and hence converge to zero. Summing (7) from k = 0 to K − 1, we obtain 
+
+C1
+
+> K−1
+
+X
+
+> k=0
+
+
+
+∥xk+1 − xk∥2 + ∥zk+1 − zk∥2
+
++ ∥λk+1 − λk∥2
+
+≤ P (w0) − P (wK ).
+
+Letting K → ∞ and using the lower boundedness of 
+
+{P (wk)}k∈N, we obtain 
+
+> ∞
+
+X
+
+> k=0
+
+
+
+∥xk+1 − xk∥2 + ∥zk+1 − zk∥2
+
++ ∥λk+1 − λk∥2
+
+< +∞.
+
+Consequently, 
+
+xk+1 − xk → 0, zk+1 − zk → 0, λk+1 − λk → 0.
+
+(31) Since xk and zk remain in the corresponding probabil-ity feasible sets, the sequences {xk}k∈N and {zk}k∈N are bounded. In addition, Lemma 2 shows that {∥ λk∥} k∈N is bounded from above, and hence the sequence {λk}k∈N is bounded. Thus, {uk}k∈N is bounded and has at least one accumulation point. Then there exists a subsequence {ukj }j∈N
+
+such that ukj → u∗. By (31), we also have ukj +1 → u∗.
+
+We next verify the stationarity conditions. From (17), the first-order conditions of x-subproblem and z-subproblem can be rewritten as 
+
+−ρA⊤B(zk+1 −zk) ∈ ∇ F 0(xk+1 )+ ∂F 1(xk+1 )+ A⊤λk+1 ,
+
+−γQ(zk+1 − zk) ∈ ∇ H0(zk+1 ) + ∂H 1(zk+1 ) − B⊤λk+1 .
+
+Setting k = kj and passing to the limit as j → ∞ , together with the vanishing successive differences, the continuity of 
+
+∇F 0 and ∇H0, and the closedness of the limiting subdiffer-ential, yields 
+
+0 ∈ ∇ F 0(x∗) + ∂F 1(x∗) + A⊤λ∗, (32) 
+
+0 ∈ ∇ H0(z∗) + ∂H 1(z∗) − B⊤λ∗. (33) It remains to estimate the feasibility residual. The dual update (2c) gives 
+
+Ax k+1 − Bz k+1 = 1
+
+ρ (λk+1 − λk) + τρ λk.
+
+Therefore, 
+
+∥Ax k+1 − Bz k+1 ∥ ≤ 1
+
+ρ ∥λk+1 − λk∥ + τρ ∥λk∥.
+
+Taking the limit superior and using λk+1 −λk → 0, we obtain 
+
+lim sup 
+
+> k→∞
+
+∥Ax k+1 − Bz k+1 ∥ ≤ τρ lim sup 
+
+> k→∞
+
+∥λk∥.
+
+Since ukj +1 → u∗, it follows that 
+
+Ax kj +1 − Bz kj +1 → Ax ∗ − Bz ∗.
+
+Therefore, 
+
+∥Ax ∗ − Bz ∗∥ ≤ τρ lim sup 
+
+> k→∞
+
+∥λk∥. (34) The stationarity conditions (32) and (33), together with the feasibility bound (34), constitute the ϵ-KKT conditions at u∗,where 
+
+ϵ := τρ lim sup 
+
+> k→∞
+
+∥λk∥.
+
+Hence, u∗ is an ϵ-KKT point. This completes the proof. APPENDIX FPROOF OF LEMMA 3Let w :=  x, z, λ, z′, λ′ denote the argument of P. We then estimate the components of ∂wP(wk+1 ) separately. 
+
+a) x-component: Using the first-order condition (17a), we obtain 
+
+dist  0, ∂ xP(wk+1 )
+
+≤ ∇F 0(xk+1 ) + νF 1 
+
+> xk+1
+
++ (1 − τ )A⊤λk+1 
+
++ρA⊤(Ax k+1 − Bz k+1 )
+
+= (1 − τ )A⊤(λk+1 − λk) + ρA⊤B(zk − zk+1 )
+
+≤ (1 − τ )∥A⊤∥ ∥ λk+1 − λk∥ + ρ∥A⊤B∥ ∥ zk+1 − zk∥.
+
+(35) 
+
+b) z-component: Similarly, by the first-order condi-tion (17b), we have 
+
+dist  0, ∂ zP(wk+1 )
+
+≤ ∇H0(zk+1 ) + νH1 
+
+> zk+1
+
+− (1 − τ )B⊤λk+1 
+
+− ρB⊤(Ax k+1 − Bz k+1 ) + 2 dρη 1B⊤B(λk+1 − λk)+ dγ Q(λk+1 − λk)
+
+= (1 − τ )B⊤(λk − λk+1 ) + 2 dρη 1B⊤B(zk+1 − zk)+ ( d − 1) γQ(zk+1 − zk)
+
+≤(1 − τ )∥B⊤∥ ∥ λk+1 − λk∥
+
++  2dρη 1∥B⊤B∥ + |d − 1|γ∥Q∥ ∥zk+1 − zk∥.
+
+(36) 
+
+c) λ-component: From the dual update (2c), we have 
+
+dist  0, ∂ λP(wk+1 )
+
+= (1 − τ )( Ax k+1 − Bz k+1 ) + d 1 − τρ (λk+1 − λk)
+
+− τ (1 − τ )
+
+ρ λk+1 
+
+= (1 − τ )( d + 1 − τ )
+
+ρ ∥λk+1 − λk∥.
+
+(37) 14 
+
+d) Auxiliary components: For the auxiliary variable z′,we have 
+
+dist  0, ∂ z′ P(wk+1 )
+
+= −2dρη 1B⊤B(zk+1 − zk) − dγ Q(zk+1 − zk)
+
+≤  2dρη 1∥B⊤B∥ + dγ ∥Q∥ ∥zk+1 − zk∥.
+
+(38) For the auxiliary variable λ′, it follows that 
+
+dist  0, ∂ λ′ P(wk+1 ) = d 1 − τρ ∥λk+1 − λk∥. (39) Combining (35)–(39), we obtain 
+
+dist  0, ∂ wP(wk+1 ) ≤ Csg  
+
+> λ
+
+∥λk+1 − λk∥ + Csg  
+
+> z
+
+∥zk+1 − zk∥,
+
+where 
+
+Csg  
+
+> λ
+
+:= (1 − τ )( ∥A⊤∥ + ∥B⊤∥) + (1 − τ )(2 d + 1 − τ )
+
+ρ > 0,Csg  
+
+> z
+
+:= ρ∥A⊤B∥ + 4 dρη 1∥B⊤B∥ + ( |d − 1| + d)γ∥Q∥ > 0.
+
+Let C2 := p(Csg  
+
+> λ
+
+)2 + ( Csg  
+
+> z
+
+)2. Then, 
+
+dist  0, ∂ wP(wk+1 )
+
+≤C2
+
+ ∥λk+1 − λk∥2 + ∥zk+1 − zk∥21/2
+
+≤C2
+
+ ∥xk+1 − xk∥2 + ∥zk+1 − zk∥2 + ∥λk+1 − λk∥21/2 .
+
+This completes the proof. APPENDIX GPROOF OF LEMMA 4The proof of this lemma is based mainly on proving the following result: 
+
+Lemma 7 (Definability of the Lyapunov function P). The Lyapunov function P is definable in Rexp := ( R, +, ·, <, exp) .
+
+The proof of this lemma is provided in Appendix M. By this lemma, the Lyapunov function P is Rexp -definable, where 
+
+Rexp is an o-minimal structure by Wilkie’s theorem [32]. Moreover, Appendix N shows that P is proper and lower semicontinuous. Hence, [33, Theorem 14] implies that P
+
+satisfies the Kurdyka–Łojasiewicz property at every point in 
+
+dom ∂P. This completes the proof. APPENDIX HPROOF OF LEMMA 6The proof consists in combining the sufficient descent inequality, the subgradient bound, and the KŁ inequality to derive a recursion for the Lyapunov error [27]. By Lemmas 1 and 3, we have 
+
+P(wk) − P (wk+1 ) ≥ C1
+
+C22
+
+dist 2 0, ∂ wP(wk+1 ) . (40) Recall that w∗ is the limit point of {wk}k∈N. By the conver-gence result established above, 
+
+wk → w∗, P(wk) → P (w∗),
+
+and w∗ is a critical point of P. Hence, by Lemma 4, there exists k0 ∈ N such that 
+
+dist  0, ∂ wP(wk+1 ) ≥ C3eθk+1 , ∀ k ∈ N, k ≥ k0.
+
+Combining this inequality with (40) yields 
+
+ek − ek+1 = P(wk) − P (wk+1 ) ≥ C1C23
+
+C22
+
+e2θk+1 .
+
+Therefore, defining ¯C := C1C23
+
+> C22
+
+> 0, we obtain 
+
+ek − ek+1 ≥ ¯Ce 2θk+1 , ∀ k ∈ N, k ≥ k0.
+
+This completes the proof. APPENDIX IPROOF OF THEOREM 2Inspired by [27], [29], [34], we provide an error decaying recursion for different values of θ.
+
+a) θ = 0 : then Lemma 6 gives ek − ek+1 ≥ ¯C whenever 
+
+ek+1 > 0. Since {ek}k∈N is nonnegative, this cannot occur infinitely often. Hence, ek = 0 for all sufficiently large k.
+
+b) θ ∈ (0 , 1/2] : We first consider θ ∈ (0 , 1/2) . If 
+
+ek0 = 0 , then the nonnegativity and monotonicity of {ek}k∈N
+
+imply that ek = 0 for all k ∈ N, k ≥ k0, and the conclusion follows immediately. Hence, assume ek0 > 0. Since {ek}k∈N
+
+is nonincreasing and 2θ − 1 < 0, we have 
+
+e2θk+1 = ek+1 e2θ−1 
+
+> k+1
+
+≥ ek+1 e2θ−1 
+
+> k0
+
+, ∀ k ∈ N, k ≥ k0.
+
+Combining this inequality with (10) yields 
+
+ek+1 ≤ 11 + ¯Ce 2θ−1
+
+> k0
+
+ek.
+
+Iterating the above inequality gives 
+
+ek ≤ ek0
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+−(k−k0) , ∀ k ∈ N, k ≥ k0.
+
+Next, let θ = 1 /2. In this case, (10) reduces to 
+
+ek+1 ≤ 11 + ¯C ek.
+
+Hence, 
+
+ek ≤ ek0 (1 + ¯C)−(k−k0), ∀ k ∈ N, k ≥ k0.
+
+Therefore, for every θ ∈ (0 , 1/2] ,
+
+ek ≤ ek0
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+−(k−k0) , ∀ k ∈ N, k ≥ k0.
+
+c) θ ∈ (1 /2, 1) : If ek = 0 for some sufficiently large k,then the nonnegativity and monotonicity of {ek}k∈N imply that 
+
+ej = 0 for all j ≥ k, and the conclusion follows immediately. Hence, we only need to consider the case ek > 0 for all 
+
+k ≥ k0. Since {ek}k∈N is nonincreasing and 2θ − 1 > 0, we have 
+
+0 < ¯Ce 2θ−1 
+
+> k+1
+
+≤ ¯Ce 2θ−1 
+
+> k0
+
+, ∀ k ∈ N, k ≥ k0.
+
+Moreover, (10) yields 
+
+e1−2θk+1 − e1−2θk ≥ e1−2θk+1 
+
+h
+
+1 −  1 + ¯Ce 2θ−1
+
+> k+1
+
+1−2θ i
+
+.
+
+For every s ∈ 0, ¯Ce 2θ−1
+
+> k0
+
+ , the Lagrange mean value theorem applied to ψ(s) = (1 + s)1−2θ gives 
+
+1 − (1 + s)1−2θ ≥ 2θ − 1
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+2θ s. 15 
+
+Taking s = ¯Ce 2θ−1 
+
+> k+1
+
+, we obtain 
+
+e1−2θk+1 − e1−2θk ≥ (2 θ − 1) ¯C
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+2θ . (41) Defining 
+
+μ := (2 θ − 1) ¯C
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+2θ > 0,
+
+and summing (41) from k0 to k − 1, we obtain 
+
+e1−2θk ≥ e1−2θk0 + μ(k − k0).
+
+Since 1 − 2θ < 0, it follows that 
+
+ek ≤  μ(k − k0) + e1−2θk0
+
+− 12θ−1 , ∀ k ∈ N, k ≥ k0.
+
+This completes the proof. APPENDIX JPROOF OF THEOREM 3Let Sk+1 := ∥xk+1 − xk∥ + ∥zk+1 − zk∥ + ∥λk+1 − λk∥.
+
+Since uk → u∗, the triangle inequality gives, for every k ≥ k0,
+
+∥uk − u∗∥ ≤ X
+
+> p≥k
+
+∥up+1 − up∥ ≤ X
+
+> p≥k
+
+Sp+1 . (42) Let ψ(s) := 1 
+
+> C3(1 −θ)
+
+s1−θ . Since ψ is concave, we have 
+
+ψ(ek) − ψ(ek+1 ) ≥ ψ′(ek)( ek − ek+1 ).
+
+Moreover, (7) can be written as 
+
+ek − ek+1 
+
+≥ C1
+
+ ∥xk+1 − xk∥2 + ∥zk+1 − zk∥2 + ∥λk+1 − λk∥2
+
+≥ C1
+
+3 S2
+
+> k+1
+
+.
+
+(43) where the last inequality follows from the Cauchy–Schwarz inequality (Pni=1 ai)2 ≤ n Pni=1 a2 
+
+> i
+
+, applied with n = 3 to 
+
+∥xk+1 − xk∥, ∥zk+1 − zk∥, and ∥λk+1 − λk∥.For all sufficiently large k, the KŁ property at wk gives 
+
+ψ′(ek) dist  0, ∂ wP(wk) ≥ 1.
+
+Combining these inequalities, we obtain 
+
+Sk+1 ≤
+
+r 3
+
+C1
+
+  ψ(ek) − ψ(ek+1 ) dist  0, ∂ wP(wk) 12 .
+
+Therefore, for any χ > 0, Young’s inequality gives 
+
+Sk+1 ≤ 3χ
+
+2C1
+
+ ψ(ek) − ψ(ek+1 ) + 12χ dist  0, ∂ wP(wk) .
+
+Applying Lemma 3 at wk yields 
+
+Sk+1 ≤ 3χ
+
+2C1
+
+ ψ(ek) − ψ(ek+1 ) + C2
+
+2χ Sk. (44) Choose χ > C 2/2 and set δ := 1 − C2 
+
+> 2χ
+
+> 0. Summing (44) from p = k to N , and using the following inequalities: 
+
+> N
+
+X
+
+> p=k
+
+ ψ(ep) − ψ(ep+1 ) ≤ ψ(ek),
+
+> N
+
+X
+
+> p=k
+
+Sp ≤ Sk +
+
+> N
+
+X
+
+> p=k
+
+Sp+1 ,
+
+we obtain 
+
+δ
+
+> N
+
+X
+
+> p=k
+
+Sp+1 ≤ 3χ
+
+2C1
+
+ψ(ek) + C2
+
+2χ Sk.
+
+Letting N → ∞ gives 
+
+X
+
+> p≥k
+
+Sp+1 ≤ 3χ
+
+2C1δ ψ(ek) + C2
+
+2χδ Sk. (45) Combining (42) and (45), we obtain 
+
+∥uk − u∗∥ ≤ 3χ
+
+2C1δ ψ(ek) + C2
+
+2χδ Sk.
+
+Since 
+
+ψ(ek) = 1
+
+C3(1 − θ) e1−θk
+
+and by (43), we have 
+
+Sk ≤
+
+r 3
+
+C1
+
+pek−1 − ek ≤
+
+r 3
+
+C1
+
+√ek−1,
+
+it follows that 
+
+∥uk − u∗∥ ≤ Cae1−θk + Cb
+
+√ek−1,
+
+where 
+
+Ca := 3χ
+
+2C1C3(1 − θ)δ > 0, Cb := C2
+
+2χδ 
+
+r 3
+
+C1
+
+> 0.
+
+Since {ek}k∈N is nonincreasing, we have ek ≤ ek−1, and hence e1−θk ≤ e1−θk−1. Therefore, 
+
+∥uk − u∗∥ ≤ Cae1−θk−1 + Cb
+
+√ek−1
+
+≤ C max e1−θk−1, √ek−1 , (46) where C := Ca + Cb > 0.We now distinguish three cases according to the value of θ.
+
+a) θ = 0 : By Theorem 2, ek = 0 after finitely many iterations. It then follows from (46) that uk = u∗ for all sufficiently large k ∈ N.
+
+b) θ ∈ (0 , 1/2] : Since 1 − θ ≥ 1/2 and ek → 0, for all sufficiently large k ∈ N, max e1−θk−1, √ek−1 = √ek−1.
+
+By (11), we get 
+
+∥uk − u∗∥ ≤ C√ek0
+
+ 1 + ¯Ce 2θ−1
+
+> k0
+
+− k−1−k02 , ∀k ≥ k0 + 1 .
+
+c) θ ∈ (1 /2, 1) : Since 1 − θ < 1/2 and ek → 0, for all sufficiently large k ∈ N, max e1−θk−1, √ek−1 = e1−θk−1.
+
+Consequently, (12) gives 
+
+∥uk − u∗∥ ≤ C  μ(k − 1 − k0) + e1−2θk0
+
+− 1−θ 
+
+> 2θ−1
+
+.
+
+This completes the proof. 16 
+
+APPENDIX KPROOF OF COROLLARY 1Define 
+
+rk+1  
+
+> x
+
+:= dist  0, ∇F 0(xk+1 ) + ∂F 1(xk+1 ) + ATλk+1  ,rk+1  
+
+> z
+
+:= dist  0, ∇H0(zk+1 ) + ∂H 1(zk+1 ) − BTλk+1  ,rk+1 c := Ax k+1 − Bz k+1 .
+
+The block optimality conditions and the dual update yield 
+
+rk+1  
+
+> x
+
+≤ ρ∥ATB∥∥ zk+1 − zk∥, rk+1  
+
+> z
+
+≤ γ∥Q∥∥ zk+1 − zk∥.
+
+By Theorem 3, there exists C > 0 such that 
+
+∥uk − u∗∥ ≤ C  μ(k − 1 − k0) + e1−2θk0
+
+− 1−θ
+
+> 2θ−1
+
+for every k ≥ k0 + 1 . Hence, there exist constants Cx, C z > 0
+
+such that 
+
+rk+1  
+
+> x
+
+≤ CxΦk, rk+1  
+
+> z
+
+≤ CzΦk,
+
+where 
+
+Cx = 2 Cρ ∥A⊤B∥, Cz = 2 Cγ ∥Q∥
+
+Φk :=  μ(k − 1 − k0) + e1−2θk0
+
+− 1−θ 
+
+> 2θ−1
+
+.
+
+Moreover, since Ax ∗ − Bz ∗ = τρ λ∗, we have 
+
+rk+1 c ≤ ϵ + ∥A∥∥ xk+1 − x∗∥ + ∥B∥∥ zk+1 − z∗∥≤ ϵ + CcΦk
+
+where Cc = ∥A∥ + ∥B∥ > 0. Therefore, by choosing 
+
+CKKT ≥ max {Cx, C z, C c},
+
+the three residuals satisfy 
+
+max rk+1  
+
+> x
+
+, r k+1  
+
+> z
+
+, r k+1 c ≤ ϵ∗ + CKKT Φk.
+
+For every k ≥ K¯ϵ , k ∈ N, the definition of K¯ϵ gives 
+
+μ(k − 1 − k0) + e1−2θk0 ≥
+
+ CKKT 
+
+¯ϵ − ϵ
+
+ 2θ−11−θ
+
+.
+
+Consequently, 
+
+CKKT Φk ≤ ¯ϵ − ϵ, 
+
+and hence 
+
+max rk+1  
+
+> x
+
+, r k+1  
+
+> z
+
+, r k+1 c ≤ ¯ϵ. 
+
+Thus, every uk+1 , k ≥ K¯ϵ , k ∈ N, is a ¯ϵ-KKT point. APPENDIX LPROOF OF PROPOSITION 3
+
+a) Sufficient descent: Following the same derivation as in Appendix A, the inexact first-order conditions introduce the additional inner-product terms 
+
+ek+1  
+
+> x
+
+− ek
+
+> x
+
+, xk − xk+1 and ek+1  
+
+> z
+
+− ek 
+
+> z
+
+, zk − zk+1 
+
+For any ηx, η z > 0, Young’s inequality gives 
+
+ek+1  
+
+> x
+
+− ek
+
+> x
+
+, xk − xk+1 
+
+≤ 1
+
+ηx
+
+∥ek+1  
+
+> x
+
+∥2 + 1
+
+ηx
+
+∥ek
+
+> x
+
+∥2 + ηx
+
+2 ∥xk+1 − xk∥2,
+
+ek+1  
+
+> z
+
+− ek 
+
+> z
+
+, zk − zk+1 
+
+≤ 1
+
+ηz
+
+∥ek+1  
+
+> z
+
+∥2 + 1
+
+ηz
+
+∥ek 
+
+> z
+
+∥2 + ηz
+
+2 ∥zk+1 − zk∥2.
+
+Accordingly, we have the following inexact descent results: 
+
+ρ
+
+2η1
+
+∥xk+1 − xk∥2 
+
+> A⊤A
+
+− μF 0 ∥xk+1 − xk∥2
+
++ ∥zk+1 − zk∥2 
+
+> Ez
+
+− τρ ∥λk+1 − λk∥2
+
++ ηx
+
+2 ∥xk+1 − xk∥2 + ηz
+
+2 ∥zk+1 − zk∥2
+
++ 1
+
+ηx
+
+∥ek+1  
+
+> x
+
+∥2 + 1
+
+ηx
+
+∥ek
+
+> x
+
+∥2 + 1
+
+ηz
+
+∥ek+1  
+
+> z
+
+∥2 + 1
+
+ηz
+
+∥ek 
+
+> z
+
+∥2
+
+≥∥ zk+1 − zk∥2 
+
+> Dz
+
+− ∥ zk − zk−1∥2
+
+> Dz
+
++ 1 − τ
+
+2ρ ∥λk+1 − λk∥2 − 1 − τ
+
+2ρ ∥λk − λk−1∥2.
+
+(47) Similarly, the descent arguments in Appendix B extend to the inexact updates by accounting for the additional residual term introduced in the first-order condition of each primal block. Applying Young’s inequality to these terms gives, respectively, 
+
+Lρ,τ (xk+1 , zk, λk) − L ρ,τ (xk, zk, λk)
+
+≤ − 12 ∥xk+1 − xk∥2  
+
+> μF0I+ρA⊤A
+
++ 12αx
+
+∥ek+1  
+
+> x
+
+∥2 + αx
+
+2 ∥xk+1 − xk∥2.
+
+(48) 
+
+Lρ,τ (xk+1 , zk+1 , λk) − L ρ,τ (xk+1 , zk, λk)
+
+≤ − 12 ∥zk+1 − zk∥2(ρ−ωH0 )B⊤B+2 γQ
+
++ 12αz
+
+∥ek+1  
+
+> z
+
+∥2 + αz
+
+2 ∥zk+1 − zk∥2.
+
+(49) Combining (28) and (47)-(49), we obtain 
+
+P(wk+1 ) − P (wk)
+
+≤ − 12 xk+1 − xk 2 
+
+> Mx
+
+− 12 zk+1 − zk 2
+
+> Mz
+
+− aλ∥λk+1 − λk∥2
+
++ d ηx
+
+2 ∥xk+1 − xk∥2 + d ηz
+
+2 ∥zk+1 − zk∥2
+
++ d 1
+
+ηx
+
+∥ek+1  
+
+> x
+
+∥2 + d 1
+
+ηx
+
+∥ek
+
+> x
+
+∥2 + d 1
+
+ηz
+
+∥ek+1  
+
+> z
+
+∥2 + d 1
+
+ηz
+
+∥ek 
+
+> z
+
+∥2
+
++ 12αx
+
+∥ek+1  
+
+> x
+
+∥2 + αx
+
+2 ∥xk+1 − xk∥2
+
++ 12αz
+
+∥ek+1  
+
+> z
+
+∥2 + αz
+
+2 ∥zk+1 − zk∥2
+
+≤ − 12 xk+1 − xk 2 
+
+> fMx
+
+− 12 zk+1 − zk 2
+
+> fMz
+
+− aλ∥λk+1 − λk∥2 + εk+1 
+
+(50) 17 
+
+where 
+
+fMx := Mx − (dη x + αx) I,
+
+fMz := Mz − (dη z + αz) I,aλ := dτ ρ − (1 − τ )(2 − τ )2ρ > 0,εk+1 := 
+
+
+
+d 1
+
+ηx
+
++ 12αx
+
+
+
+∥ek+1  
+
+> x
+
+∥2 + d 1
+
+ηx
+
+∥ek
+
+> x
+
+∥2
+
++
+
+
+
+d 1
+
+ηz
+
++ 12αz
+
+
+
+∥ek+1  
+
+> z
+
+∥2 + d 1
+
+ηz
+
+∥ek 
+
+> z
+
+∥2 ≥ 0.
+
+Since Mx ≻ 0 and Mz ≻ 0, the auxiliary parameters 
+
+ηx, η z, α x, α z > 0 can be chosen sufficiently small so that 
+
+dη x + αx < λ min (Mx), dη z + αz < λ min (Mz).
+
+Consequently, fMx ≻ 0 and fMz ≻ 0. Therefore, Dropping the nonpositive terms in (50) and summing from j = 0 to k
+
+gives 
+
+P(wk+1 ) ≤ P (w0) + 
+
+> k
+
+X
+
+> j=0
+
+εj+1 
+
+≤ P := P(w0) + 
+
+> ∞
+
+X
+
+> j=0
+
+εj+1 , ∀ k ∈ N.
+
+Thus, the inexact Lyapunov sequence is uniformly bounded from above. 
+
+b) Lower boundedness: Unlike the exact case, the Lya-punov sequence {P (wk)}k∈N is not necessarily nonincreas-ing. Since εk+1 is a nonnegative linear combination of 
+
+∥ek+1  
+
+> x
+
+∥2, ∥ek
+
+> x
+
+∥2, ∥ek+1  
+
+> z
+
+∥2, and ∥ek 
+
+> z
+
+∥2, the summability con-dition in (16) implies that P∞ 
+
+> k=0
+
+εk+1 < +∞. Therefore, dropping the nonpositive terms in (50) and summing from 
+
+j = 0 to k yield 
+
+P(wk+1 ) ≤ P (w0) + 
+
+> k
+
+X
+
+> j=0
+
+εj+1 
+
+≤ P := P(w0) + 
+
+> ∞
+
+X
+
+> j=0
+
+εj+1 < +∞, ∀ k ∈ N.
+
+Thus, the inexact Lyapunov sequence is uniformly bounded from above. The remainder of the boundedness argument follows as in the exact case, with P(w0) replaced by P.Accordingly, define 
+
+M := max 
+
+
+
+∥λ0∥2, 2ρτ (1 − τ )
+
+ P − P 
+
+.
+
+The induction argument then yields ∥λk∥2 ≤ M, ∀ k ∈ N.
+
+Consequently, with this modified bound, {P (wk)}k∈N is bounded from below. 
+
+c) Stationarity and ϵ-KKT Conditions: From the inexact first-order conditions of the two block subproblems and the dual update, we obtain 
+
+dist  0, ∇F 0(xk+1 ) + ∂F 1(xk+1 ) + A⊤λk+1 
+
+≤ ρ∥A⊤B∥∥ zk+1 − zk∥ + ∥ek+1  
+
+> x
+
+∥,
+
+and 
+
+dist  0, ∇H0(zk+1 ) + ∂H 1(zk+1 ) − B⊤λk+1 
+
+≤ γ∥Q∥∥ zk+1 − zk∥ + ∥ek+1  
+
+> z
+
+∥.
+
+By (50), the lower boundedness of the Lyapunov sequence, and the summability of {εk+1 }k∈N, the successive differences are square summable. Hence, ∥zk+1 − zk∥ → 0. In addition, the assumed square summability of the inexactness residuals gives 
+
+∥ek+1  
+
+> x
+
+∥ → 0, ∥ek+1  
+
+> z
+
+∥ → 0. Hence, both stationarity residuals converge to zero. Passing to the limit along a convergent subsequence shows that 
+
+0 ∈ ∇ F 0(x∗) + ∂F 1(x∗) + A⊤λ∗
+
+and 
+
+0 ∈ ∇ H0(z∗) + ∂H 1(z∗) − B⊤λ∗.
+
+Together with the same asymptotic feasibility bound as in the exact case, this shows that every accumulation point of the inexact iterate sequence is an ϵ-KKT point. APPENDIX MPROOF OF DEFINABILITY OF P IN Rexp 
+
+Recall that, for a definable set A ⊆ Rn, a function 
+
+f : A → Rm is definable if its graph gph f := {(x, f (x)) : 
+
+x ∈ A} is an Rexp -definable subset of Rn+m [35]. We shall use the following standard properties of definable sets and functions [36]. i) Every semialgebraic set is Rexp -definable, since Rexp ex-pands the real field. ii) If fi : Rm → R, i = 1, . . . , M , are Rexp -definable functions, then any finite sum, product, scalar multiple, and composition of the fi’s is again Rexp -definable. iii) If C ⊂ Rm is Rexp -definable and f : Rm → R is Rexp -definable, then the sets 
+
+{u ∈ C : f (u) = 0 }, {u ∈ C : f (u) ≥ 0},
+
+{(u, r ) : u ∈ C, r = f (u)}, {(u, r ) : u ∈ C, r ≥ f (u)}
+
+are Rexp -definable. These facts follow from the closure of definable sets under finite Boolean operations, Cartesian prod-ucts, and projections. We now verify the Rexp -definability of each component of P.
+
+a) Definability of F 1(x) = ι∆U and F 1(z) = ιQ:
+
+The probability simplex set ∆U is a polyhedral. Since polyhe-dral sets are semialgebraic, ∆U is Rexp -definable. The finite-valued graph of ι∆U is 
+
+gph ι∆U = {(x, r ) ∈ Rnx × R : x ∈ ∆U , r = 0 }.
+
+Since both conditions x ∈ ∆U and r = 0 are Rexp -definable, 
+
+gph ι∆U is Rexp -definable. Thus ι∆U is an Rexp -definable extended-valued function. Equivalently, 
+
+epi ι∆U = {(x, r ) : x ∈ ∆U , r ≥ 0} = ∆ U × [0 , +∞)
+
+is Rexp -definable. Similarly, 
+
+epi ιQ = {(z, r ) : z ∈ Q , r ≥ 0} = Q × [0 , +∞)
+
+is Rexp -definable. 18 
+
+b) Definability of the entropy-related terms: 
+
+Define 
+
+h(t) := 
+
+(
+
+t log t, t > 0,
+
+0, t = 0 .
+
+The logarithm is Rexp -definable. Indeed, by the graph criterion for definable maps, 
+
+gph(log) = {(t, y ) ∈ R2 : t > 0, y = log t}
+
+= {(t, y ) ∈ R2 : t > 0, t = exp( y)},
+
+which is Rexp -definable because exp , the order relation, and equality are definable in Rexp . Since multiplication is also definable in Rexp , the function t 7 → t log t is Rexp -definable on 
+
+(0 , +∞). Furthermore, h is obtained from t 7 → t log t and the constant function 0 by a finite piecewise definable construction on the definable sets (0 , +∞) and {0}. Hence h is Rexp -definable on [0 , +∞).For finite alphabets, entropy and conditional entropy can be written as finite sums of functions of the form h(ai(·)) , where each ai(·) is an affine probability expression or a marginal probability obtained by finite summation. Since each ai is an affine map in finitely many variables, it is polynomial and therefore Rexp -definable. By closure of definable functions under composition, each h ◦ ai is Rexp -definable. By closure under finite sums and scalar multiplications, it follows that 
+
+H(U ), H (U |X), H (U |Y ) are Rexp -definable. Consequently, 
+
+F 0(x), H 0(z) are Rexp -definable. 
+
+c) Definability of ⟨λ, Ax − Bz ⟩:
+
+For fixed matrices A and B, this term is 
+
+⟨λ, Ax − Bz ⟩ = λ⊤Ax − λ⊤Bz .
+
+In coordinates, this is a finite sum of monomials of degree at most two in the entries of (x, z, λ). Therefore, it is a polynomial function 
+
+(x, z, λ) 7 → λ⊤Ax − λ⊤Bz 
+
+on a finite-dimensional Euclidean space. Hence it is semial-gebraic and thus Rexp -definable. 
+
+d) Definability of quadratic and norm terms: 
+
+The quadratic penalty term satisfies 
+
+∥Ax − Bz ∥2 = ( Ax − Bz )⊤(Ax − Bz ),
+
+which is a polynomial function of (x, z). Hence 
+
+(x, z) 7 → ρ
+
+2 ∥Ax − Bz ∥2
+
+is Rexp -definable. Similarly, the Lyapunov correction terms satisfy 
+
+∥Bz − B¯z∥2 = ( Bz − B¯z)⊤(Bz − B¯z),
+
+∥λ − ¯λ∥2 = ( λ − ¯λ)⊤(λ − ¯λ),
+
+and 
+
+∥z − ¯z∥2 
+
+> Q
+
+= ( z − ¯z)⊤Q(z − ¯z).
+
+Since B and Q are fixed matrices, each of these terms is a polynomial function. Moreover, ∥λ∥2 = λ⊤λ is polynomial in λ. Therefore all quadratic and norm terms in P are semialgebraic and hence 
+
+Rexp -definable. APPENDIX NPROPERNESS AND LOWER SEMICONTINUITY OF P
+
+Recall that w =  x, z, λ, z′, λ′. Define 
+
+C := ∆ U × Q × Rnλ × Q × Rnλ .
+
+Then, the Lyapunov function admits the representation 
+
+P(w) = Ψ( w) + ιC (w),
+
+where Ψ comprises all real-valued terms of P, and 
+
+ιC (w) = ι∆U (x) + ιQ(z).
+
+Since ∆U and Q are nonempty, C̸ = ∅. Under the convention 
+
+0 log 0 = 0 , the entropy terms in Ψ are finite on the corre-sponding probability simplices, and all remaining terms are finite-valued. Hence, dom P = C̸ = ∅. Furthermore, 
+
+P(w) > −∞ , ∀ w.
+
+Therefore, P is proper. To establish lower semicontinuity, recall that the indicator function ιC is lower semicontinuous if and only if its set C is closed [26, Chapter 1]. Since ∆U and 
+
+Q are closed, their Cartesian product with the corresponding Euclidean spaces is also closed. Therefore, C is closed, and hence ιC is lower semicontinuous. Moreover, the finite-valued part Ψ is continuous on C. Hence, as the sum of a continuous finite-valued function and lower semicontinuous extended-valued functions, P is lower semicontinuous. REFERENCES [1] N. Tishby, F. C. Pereira, and W. Bialek, “The information bottleneck method,” 2000. [Online]. Available: https://arxiv.org/abs/ physics/0004057 [2] P. Harremo¨ es and N. Tishby, “The information bottleneck revisited or how to choose a good distortion measure,” in 2007 IEEE International Symposium on Information Theory . IEEE, 2007, pp. 566–570. [3] S. Asoodeh and F. P. Calmon, “Bottleneck problems: An information and estimation-theoretic view,” Entropy , vol. 22, no. 11, p. 1325, 2020. [4] F. du Pin Calmon and N. Fawaz, “Privacy against statistical inference,” in 2012 50th annual Allerton conference on communication, control, and computing (Allerton) . IEEE, 2012, pp. 1401–1408. [5] L. Sankar, S. R. Rajagopalan, and H. V. Poor, “Utility-privacy tradeoffs in databases: An information-theoretic approach,” IEEE Transactions on Information Forensics and Security , vol. 8, no. 6, pp. 838–852, 2013. [6] S. Asoodeh, M. Diaz, F. Alajaji, and T. Linder, “Information extraction under privacy constraints,” Information , vol. 7, no. 1, 2016. [Online]. Available: https://www.mdpi.com/2078-2489/7/1/15 [7] A. Makhdoumi, S. Salamatian, N. Fawaz, and M. M´ edard, “From the information bottleneck to the privacy funnel,” in 2014 IEEE Information Theory Workshop (ITW 2014) , 2014, pp. 501–505. [8] F. P. Calmon, A. Makhdoumi, and M. M´ edard, “Fundamental limits of perfect privacy,” in 2015 IEEE International Symposium on Information Theory (ISIT) , 2015, pp. 1796–1800. [9] B. Rassouli and D. G¨ und¨ uz, “On perfect privacy,” IEEE Journal on Selected Areas in Information Theory , vol. 2, no. 1, pp. 177–191, 2021. [10] B. Razeghi, F. P. Calmon, D. Gunduz, and S. Voloshynovskiy, “Bottle-necks club: Unifying information-theoretic trade-offs among complexity, leakage, and utility,” IEEE Transactions on Information Forensics and Security , vol. 18, pp. 2060–2075, 2023. [11] S. Sreekumar and D. G¨ und¨ uz, “Optimal privacy-utility trade-off under a rate constraint,” in 2019 IEEE International Symposium on Information Theory (ISIT) , 2019, pp. 2159–2163. [12] A. Zamani, T. J. Oechtering, and M. Skoglund, “On the privacy-utility trade-off with and without direct access to the private data,” IEEE Transactions on Information Theory , vol. 70, no. 3, pp. 2177–2200, 2024. [13] A. Zamani, A. Changizi, and M. Skoglund, “On information theoretic fairness: From perfect to bounded demographic parity,” IEEE Transac-tions on Information Theory , vol. 72, no. 7, pp. 5122–5138, 2026. 19 
+
+[14] D. Gabay and B. Mercier, “A dual algorithm for the solution of nonlinear variational problems via finite element approximation,” 
+
+Computers & Mathematics with Applications , vol. 2, no. 1, pp. 17– 40, 1976. [Online]. Available: https://www.sciencedirect.com/science/ article/pii/0898122176900031 [15] R. Glowinski and A. Marroco, “Sur l’approximation, par ´ el´ ements finis d’ordre un, et la r´ esolution, par p´ enalisation-dualit´ e d’une classe de probl` emes de dirichlet non lin´ eaires,” Revue franc ¸aise d’automatique, in-formatique, recherche op´ erationnelle. Analyse num´ erique , vol. 9, no. R2, pp. 41–76, 1975. [16] M. Hong, Z.-Q. Luo, and M. Razaviyayn, “Convergence analysis of alternating direction method of multipliers for a family of nonconvex problems,” SIAM Journal on Optimization , vol. 26, no. 1, pp. 337–364, 2016. [Online]. Available: https://doi.org/10.1137/140990309 [17] Y. Wang, W. Yin, and J. Zeng, “Global convergence of admm in nonconvex nonsmooth optimization,” Journal of Scientific Computing ,vol. 78, no. 1, pp. 29–63, Jan 2019. [Online]. Available: https: //doi.org/10.1007/s10915-018-0757-z [18] F. Bayat and S. Wei, “Information bottleneck problem revisited,” in 
+
+2019 57th Annual Allerton Conference on Communication, Control, and Computing (Allerton) , 2019, pp. 40–47. [19] T.-H. Huang and A. el Gamal, “A provably convergent information bottleneck solution via admm,” in 2021 IEEE International Symposium on Information Theory (ISIT) , 2021, pp. 43–48. [20] T.-H. Huang, A. E. Gamal, and H. E. Gamal, “A linearly convergent douglas-rachford splitting solver for markovian information-theoretic optimization problems,” IEEE Transactions on Information Theory ,vol. 69, no. 5, pp. 3372–3399, 2023. [21] J. Koshal, A. Nedi´ c, and U. V. Shanbhag, “Multiuser optimization: Distributed algorithms and error analysis,” SIAM Journal on Optimization , vol. 21, no. 3, pp. 1046–1081, 2011. [Online]. Available: https://doi.org/10.1137/090770102 [22] D. Hajinezhad and M. Hong, “Perturbed proximal primal–dual algorithm for nonconvex nonsmooth optimization,” Mathematical Programming , vol. 176, no. 1, pp. 207–245, Jul 2019. [Online]. Available: https://doi.org/10.1007/s10107-019-01365-4 [23] Y. Zhang, E. Dall’Anese, and M. Hong, “Online proximal-admm for time-varying constrained convex optimization,” IEEE Transactions on Signal and Information Processing over Networks , vol. 7, pp. 144–155, 2021. [24] Y. Yang, Q.-S. Jia, Z. Xu, X. Guan, and C. J. Spanos, “Proximal admm for nonconvex and nonsmooth optimization,” Automatica , vol. 146, p. 110551, 2022. [Online]. Available: https://www.sciencedirect. com/science/article/pii/S0005109822004125 [25] Y. Zhou, X. Shi, L. Guo, J. Cao, and M. Abdel-Aty, “Perturbed proximal gradient admm for nonconvex composite optimization,” IEEE Transactions on Automatic Control , pp. 1–8, 2026. [26] R. T. Rockafellar and R. J. Wets, Variational analysis . Springer, 1998. [27] H. Attouch, J. Bolte, and B. F. Svaiter, “Convergence of descent methods for semi-algebraic and tame problems: proximal algorithms, forward–backward splitting, and regularized gauss–seidel methods,” 
+
+Mathematical Programming , vol. 137, no. 1, pp. 91–129, Feb 2013. [Online]. Available: https://doi.org/10.1007/s10107-011-0484-9 [28] T. Wu, I. Fischer, I. L. Chuang, and M. Tegmark, “Learnability for the information bottleneck,” in Proceedings of The 35th Uncertainty in Artificial Intelligence Conference , ser. Proceedings of Machine Learning Research, R. P. Adams and V. Gogate, Eds., vol. 115. PMLR, 22–25 Jul 2020, pp. 1050–1060. [Online]. Available: https://proceedings.mlr.press/v115/wu20b.html [29] P. Frankel, G. Garrigos, and J. Peypouquet, “Splitting methods with variable metric for kurdyka–łojasiewicz functions and general convergence rates,” Journal of Optimization Theory and Applications ,vol. 165, no. 3, pp. 874–900, Jun 2015. [Online]. Available: https://doi.org/10.1007/s10957-014-0642-3 [30] J. Duchi, S. Shalev-Shwartz, Y. Singer, and T. Chandra, “Efficient projections onto the l1-ball for learning in high dimensions,” in Proceedings of the 25th International Conference on Machine Learning , ser. ICML ’08. New York, NY, USA: Association for Computing Machinery, 2008, p. 272–279. [Online]. Available: https://doi.org/10.1145/1390156.1390191 [31] R. T. Rockafellar, Convex analysis . Princeton university press, 1997, vol. 28. [32] A. J. Wilkie, “Model completeness results for expansions of the ordered field of real numbers by restricted pfaffian functions and the exponential function,” Journal of the American Mathematical Society , vol. 9, no. 4, pp. 1051–1094, 1996. [Online]. Available: http://www.jstor.org/stable/2152916 [33] J. Bolte, A. Daniilidis, A. Lewis, and M. Shiota, “Clarke subgradients of stratifiable functions,” SIAM Journal on Optimization , vol. 18, no. 2, pp. 556–572, 2007. [Online]. Available: https://doi.org/10.1137/060670080 [34] M. Yashtini, “Multi-block nonconvex nonsmooth proximal admm: Convergence and rates under kurdyka–łojasiewicz property,” Journal of Optimization Theory and Applications , vol. 190, no. 3, pp. 966–998, Sep 2021. [Online]. Available: https://doi.org/10.1007/s10957-021-01919-7 [35] L. P. D. v. d. Dries, Tame Topology and O-minimal Structures , ser. Lon-don Mathematical Society Lecture Note Series. Cambridge University Press, 1998. [36] L. van den Dries and C. Miller, “Geometric categories and o-minimal structures,” Duke Mathematical Journal , vol. 84, no. 2, pp. 497 – 540, 1996. [Online]. Available: https://doi.org/10.1215/ S0012-7094-96-08416-1

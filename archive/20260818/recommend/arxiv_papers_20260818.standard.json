@@ -1,0 +1,317 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-18T19:30:43.684950+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 6,
+    "quick_skim_target": 11,
+    "quick_selected": 6
+  },
+  "deep_dive": [
+    {
+      "id": "2608.15472v1",
+      "source": "arxiv",
+      "title": "Optimal Lower Bounds for Networked Information Aggregation",
+      "abstract": "The problem of networked information aggregation, studied in Kearns et al. (2026), involves a group of learners situated on the vertices of a directed acyclic graph $G$, each learning a linear predictor $\\widehat Y$ for a fixed random variable $Y$ given access to a local feature, as well as the predictors learnt by its parents. Learning proceeds iteratively, with learners ordered according to a topological sort of $G$. The main quantity of interest is the error incurred by the current learner, constrained to this flow of information, with respect to the best linear predictor using all the features seen so far. When the studied error is the MSE, i.e., $\\mathbb{E} (\\widehat Y - Y)^2$, Kearns et al. (2026) show that the error is at most $O(1/\\sqrt{D})$ along a path of length $D$. They also obtain a hard instance where the MSE is lower bounded by $Ω(1/D)$, leaving the correct order open. In this work, we resolve this central open problem, and obtain a family of worst case problem instances with a MSE lower bound of $Ω(1/\\sqrt{D})$.   By exploiting invariances in the structure of the learnt predictors, our analysis generalizes to all convex loss functions $\\ell(\\widehat Y, Y)$ satisfying regularity conditions which include strong convexity in a ball around the origin, and that the ideal predictor minimizing the population loss is positively correlated with the label. We show that networked information aggregation on a gaussian instance in our worst case family incurs an $\\ell$-error lower bounded by $Ω(1/\\sqrt{D})$ with respect to this ideal predictor. We demonstrate that a variety of common losses satisfy these regularity conditions. In particular, the logistic loss satisfies them, and hence our analysis also closes the gap between the upper and lower bounds in Bateni et al. (2026).",
+      "authors": [
+        "Ambar Pal"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "stat.ML"
+      ],
+      "published": "2026-08-16T01:36:33+00:00",
+      "link": "https://arxiv.org/pdf/2608.15472v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Derives optimal lower bounds on prediction error in networked information aggregation, directly relevant to theoretical bounds on prediction accuracy.",
+      "llm_evidence_cn": "推导了网络信息聚合中预测误差的最优下界，直接关联预测精度的理论界。",
+      "llm_evidence": "推导了网络信息聚合中预测误差的最优下界，直接关联预测精度的理论界。",
+      "canonical_evidence": "推导了网络信息聚合中预测误差的最优下界，直接关联预测精度的理论界。",
+      "llm_tldr_en": "This paper establishes optimal lower bounds for prediction error in a network of learners aggregating linear predictors, providing fundamental limits on information aggregation accuracy.",
+      "llm_tldr_cn": "本文研究有向无环图上多个学习者通过局部特征与父节点预测器迭代学习预测目标任务的问题。作者在线性预测框架下分析了当前学习者的MSE误差相对于使用全部特征的全局最优预测器的偏差，并推导出该误差随路径深度变化的最优下界。这一结果揭示了信息聚合网络在结构约束下的预测极限，对理解分布式预测的理论边界具有重要意义。",
+      "llm_tldr": "本文研究有向无环图上多个学习者通过局部特征与父节点预测器迭代学习预测目标任务的问题。作者在线性预测框架下分析了当前学习者的MSE误差相对于使用全部特征的全局最优预测器的偏差，并推导出该误差随路径深度变化的最优下界。这一结果揭示了信息聚合网络在结构约束下的预测极限，对理解分布式预测的理论边界具有重要意义。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2608.16120v1",
+      "source": "arxiv",
+      "title": "When More Data Become Less Informative: Finite-Precision Periodicization and Collapse of Forecast-Error Lyapunov Estimates",
+      "abstract": "Largest Lyapunov exponents (LLEs) quantify exponential sensitivity, but data-driven estimates are often obtained from finite-precision trajectories. We show that increasing the length of a single reduced-precision chaotic record can eventually degrade a forecast-error LLE estimate. Using the logistic map at r=4, an ESP32 single-precision trajectory is reproduced bit-for-bit by NumPy float32. Across 10,000 random float32 initial conditions, every trajectory reaches an exact recurrence before iteration 7612. For one long float32 record, the estimated LLE changes from 0.6853 at N=15,000 to 0.1827 at N=20,000 and approximately zero at N=30,000 as exact train-test histories saturate. At N=100,000, the long float32 record gives 0.0016, whereas independently restarted length-100 trajectories give 0.6917; matched float64 controls remain near ln(2)=0.6931. The collapse is reproduced for 28 representative initial conditions, and its onset is strongly correlated with the recurrence scale set by transient length and digital period (Pearson r=0.982). Thus, finite-state recurrence can turn additional samples into duplicate futures rather than new dynamical information, while independent restarts substantially delay this saturation.",
+      "authors": [
+        "Andrei Velichko",
+        "Viet-Thanh Pham"
+      ],
+      "primary_category": "nlin.CD",
+      "categories": [
+        "nlin.CD",
+        "math.DS",
+        "physics.comp-ph"
+      ],
+      "published": "2026-08-17T05:25:15+00:00",
+      "link": "https://arxiv.org/pdf/2608.16120v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "shows finite-precision chaotic records collapse forecast-error Lyapunov estimates, a data limit for predictability quantification",
+      "llm_evidence_cn": "发现有限精度混沌记录使预测误差李雅普诺夫估计崩溃，构成可预测性量化的数据极限",
+      "llm_evidence": "发现有限精度混沌记录使预测误差李雅普诺夫估计崩溃，构成可预测性量化的数据极限",
+      "canonical_evidence": "发现有限精度混沌记录使预测误差李雅普诺夫估计崩溃，构成可预测性量化的数据极限",
+      "llm_tldr_en": "Reports that lengthening finite-precision chaotic records can collapse forecast-error largest Lyapunov exponent estimates, exposing a fundamental limit on data-driven predictability quantification.",
+      "llm_tldr_cn": "数据驱动的最大李雅普诺夫指数常用来量化混沌系统的可预测性，但有限精度轨迹可能破坏该估计。论文发现，在逻辑斯蒂映射r=4下，单精度轨迹会在有限步内出现精确回归；随着记录长度从1.5万增至10万，预测误差李雅普诺夫估计从0.6853下降到约0。这并非随机波动，而是训练测试历史饱和导致的系统性崩溃。结果表明，更多数据在有限精度下可能变得信息更少，提示可预测性评估必须考虑数值精度的影响。",
+      "llm_tldr": "数据驱动的最大李雅普诺夫指数常用来量化混沌系统的可预测性，但有限精度轨迹可能破坏该估计。论文发现，在逻辑斯蒂映射r=4下，单精度轨迹会在有限步内出现精确回归；随着记录长度从1.5万增至10万，预测误差李雅普诺夫估计从0.6853下降到约0。这并非随机波动，而是训练测试历史饱和导致的系统性崩溃。结果表明，更多数据在有限精度下可能变得信息更少，提示可预测性评估必须考虑数值精度的影响。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.15929v1",
+      "source": "arxiv",
+      "title": "Unified Pedestrian Path Prediction Using Inverse Reinforcement Learning",
+      "abstract": "Pedestrian path prediction is crucial for enhancing the safety of autonomous vehicles and advanced driver-assistance systems. Previous studies explored different learning-task formulations for pedestrian path prediction and compared these formulations using shallow neural networks, but did not extend this analysis to more complex deep-learning models. This paper adapts the Spatial-Temporal Graph Attention Network (STGAT) to a unified pedestrian path prediction framework and introduces state and action definitions specific to STGAT. The resulting formulations support deterministic and stochastic policies, one-time and sequential decision-making, and reinforcement-learning algorithms including REINFORCE and proximal policy optimization. The proposed learning-task formulations improve prediction performance across the selected benchmark datasets compared with the standard supervised-learning formulation. These results demonstrate that reformulating the decision process and training objective can improve an advanced pedestrian trajectory prediction architecture and may provide a path toward improving other graph-based prediction models.",
+      "authors": [
+        "Šimon Sukup",
+        "Ariyan Bighashdel",
+        "Pavol Jancura"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-08-16T20:51:48+00:00",
+      "link": "https://arxiv.org/pdf/2608.15929v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "pedestrian path prediction as human mobility pattern prediction, not limits analysis",
+      "llm_evidence_cn": "行人路径预测属于人类移动模式预测，但未进行极限分析",
+      "llm_evidence": "行人路径预测属于人类移动模式预测，但未进行极限分析",
+      "canonical_evidence": "行人路径预测属于人类移动模式预测，但未进行极限分析",
+      "llm_tldr_en": "Unifies pedestrian path prediction formulations under STGAT with inverse reinforcement learning, supporting deterministic/stochastic policies and RL algorithms; directly targets human mobility prediction but not predictability limits.",
+      "llm_tldr_cn": "行人路径预测对自动驾驶与辅助驾驶安全至关重要。本文在空间-时间图注意力网络（STGAT）框架下统一多种路径预测任务形式，支持确定性/随机策略、一次性/序列决策，并整合逆强化学习（REINFORCE、PPO等）算法。通过统一的状态与动作定义，框架可适应不同学习范式的深度模型。该工作直接针对人类移动（行人）模式预测，但未分析可预测性极限，因而与用户需求部分契合。",
+      "llm_tldr": "行人路径预测对自动驾驶与辅助驾驶安全至关重要。本文在空间-时间图注意力网络（STGAT）框架下统一多种路径预测任务形式，支持确定性/随机策略、一次性/序列决策，并整合逆强化学习（REINFORCE、PPO等）算法。通过统一的状态与动作定义，框架可适应不同学习范式的深度模型。该工作直接针对人类移动（行人）模式预测，但未分析可预测性极限，因而与用户需求部分契合。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2608.10433v4",
+      "source": "arxiv",
+      "title": "From Recoverability to Functional Use: Auditing Temporal Reports in Time-Series Forecasting",
+      "abstract": "Time-series forecasters increasingly accompany numerical predictions with explicit temporal reports, such as delays or selected history, but a correct report need not describe the information actually used by the forecast. We separate this problem into three questions: whether the target temporal structure is recoverable from the observed trajectory, whether the model reports it correctly, and whether the forecast functionally depends on the reported history. For point delays, we show that accurate prediction does not imply correct temporal use: two candidate delays can become statistically distinguishable as the trajectory grows even when substituting one for the other incurs little per-step prediction error. On controlled time-series tasks, learned forecasters can remain primarily dependent on history outside the reported structure even when the target is recoverable, the report is correct, and the forecast is accurate. Finally, report-controlled routing substantially improves report--forecast alignment without an observed loss in predictive accuracy. These results motivate separate statistical and functional validation of temporal reports.",
+      "authors": [
+        "Qipeng Qian",
+        "Yuntao Qian"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-11T03:30:36+00:00",
+      "link": "https://arxiv.org/pdf/2608.10433v4",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Analyzes recoverability of temporal structure in time-series forecasts, addressing limits of what can be known from observed trajectories",
+      "llm_evidence_cn": "分析时间序列预测中时间结构的可恢复性，探讨从观测轨迹可获知信息的极限",
+      "llm_evidence": "分析时间序列预测中时间结构的可恢复性，探讨从观测轨迹可获知信息的极限",
+      "canonical_evidence": "分析时间序列预测中时间结构的可恢复性，探讨从观测轨迹可获知信息的极限",
+      "llm_tldr_en": "Audits temporal reports in time-series forecasting by separating recoverability, report correctness, and functional dependence, showing accurate prediction does not imply correct temporal use.",
+      "llm_tldr_cn": "时间序列预测模型常常附带延迟或选中历史等时间报告，但报告正确不等于模型真正使用了该信息。论文将问题拆分为可恢复性、报告正确性和功能依赖三个问题，证明精确预测并不意味着正确的时间使用：即使替换延迟对逐步预测误差影响很小，随着轨迹增长两个候选延迟也可能被统计区分。通过对受控时间序列的分析，为审计预测模型时间报告提供了方法，也揭示了时间结构可恢复性与功能使用之间的理论区别。",
+      "llm_tldr": "时间序列预测模型常常附带延迟或选中历史等时间报告，但报告正确不等于模型真正使用了该信息。论文将问题拆分为可恢复性、报告正确性和功能依赖三个问题，证明精确预测并不意味着正确的时间使用：即使替换延迟对逐步预测误差影响很小，随着轨迹增长两个候选延迟也可能被统计区分。通过对受控时间序列的分析，为审计预测模型时间报告提供了方法，也揭示了时间结构可恢复性与功能使用之间的理论区别。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.11003v1",
+      "source": "arxiv",
+      "title": "Information Bottleneck under Perfect Privacy",
+      "abstract": "In this work, we study the information bottleneck under perfect privacy, with particular emphasis on the active-rate regime, where the representation-rate constraint is binding and directly limits the achievable utility. The goal is to construct a representation that preserves utility-relevant information while remaining statistically independent of a sensitive variable. This exact independence requirement introduces an additional constraint beyond the classical rate-relevance tradeoff and must be explicitly incorporated into the optimization. To this end, we develop an alternating direction method of multipliers (ADMM)-based method tailored to the resulting problem structure. Under suitable regularity conditions, we establish global convergence of the generated sequence, characterize its convergence rate through the Kurdyka-Lojasiewicz exponent, and extend the analysis to inexact block updates.",
+      "authors": [
+        "Junle Zhong",
+        "Mohamad Assaad",
+        "Sreejith Sreekumar"
+      ],
+      "primary_category": "cs.IT",
+      "categories": [
+        "cs.IT",
+        "cs.LG"
+      ],
+      "published": "2026-08-11T14:50:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.11003v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Information-theoretic framework quantifying limits on achievable utility, transferable to theoretical predictability analysis",
+      "llm_evidence_cn": "信息论框架量化可达效用的极限，可迁移到理论可预测性分析",
+      "llm_evidence": "信息论框架量化可达效用的极限，可迁移到理论可预测性分析",
+      "canonical_evidence": "信息论框架量化可达效用的极限，可迁移到理论可预测性分析",
+      "llm_tldr_en": "Analyzes information bottleneck under perfect privacy, showing how representation-rate constraints directly limit achievable utility, with an ADMM-based solver and convergence guarantees.",
+      "llm_tldr_cn": "在完美隐私条件下研究信息瓶颈问题，关注表示速率约束绑定时的活跃速率区，这时表示速率约束直接限制了可达到的效用。目标是构造既保留效用相关信息又与敏感变量统计独立的表示，为此开发了基于ADMM的求解方法并证明全局收敛。该框架提供了隐私约束下效用上界的一般理论，可借鉴来分析预测准确性的理论界限，尽管不直接涉及时间序列或移动性。",
+      "llm_tldr": "在完美隐私条件下研究信息瓶颈问题，关注表示速率约束绑定时的活跃速率区，这时表示速率约束直接限制了可达到的效用。目标是构造既保留效用相关信息又与敏感变量统计独立的表示，为此开发了基于ADMM的求解方法并证明全局收敛。该框架提供了隐私约束下效用上界的一般理论，可借鉴来分析预测准确性的理论界限，尽管不直接涉及时间序列或移动性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.11114v1",
+      "source": "arxiv",
+      "title": "Two-stage Odd Residual Flows for Mean-Preserving Probabilistic Time Series Forecasting",
+      "abstract": "Probabilistic forecasting plays an essential role in risk-sensitive decision-making, particularly in long-horizon settings. However, existing approaches often face a fundamental trade-off between distributional flexibility and accurate mean prediction. Traditional parametric methods, such as Mean Variance Estimation (MVE), can suffer from degraded point accuracy when trained under joint Negative Log-Likelihood (NLL) objectives, while modern-flexible generative models, including Normalizing Flows and Diffusion Models, typically rely on costly Monte Carlo sampling and may yield suboptimal mean estimates. To address this limitation, we propose Two-stage Odd Residual Flows (TORF), a framework that decouples mean forecasting from uncertainty estimation. In the first stage, a pre-trained deterministic model is used to produce an accurate mean prediction. In the second stage, a Restricted Normalizing Flow, with strictly odd functions learns flexible residual distributions around the point forecast, guaranteeing mean preservation from the first stage without sampling. Experiments show that TORF achieves state-of-the-art deterministic accuracy (NMAE) while providing strong density estimation performance (CRPS) on short and long-horizon forecasting.",
+      "authors": [
+        "Kiran Madhusudhanan",
+        "Christian Klötergens",
+        "Lars Schmidt-Thieme",
+        "Vijaya Krishna Yalavarthi"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-08-11T16:22:47+00:00",
+      "link": "https://arxiv.org/pdf/2608.11114v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "probabilistic time series forecasting decouples mean and uncertainty, useful for quantifying predictability",
+      "llm_evidence_cn": "概率时间序列预测解耦均值与不确定性，可用于量化可预测性",
+      "llm_evidence": "概率时间序列预测解耦均值与不确定性，可用于量化可预测性",
+      "canonical_evidence": "概率时间序列预测解耦均值与不确定性，可用于量化可预测性",
+      "llm_tldr_en": "Proposes Two-stage Odd Residual Flows (TORF) to decouple mean forecasting from uncertainty modeling in probabilistic time series forecasting, preserving accurate means while providing distributions; supports uncertainty quantification.",
+      "llm_tldr_cn": "针对概率时间序列预测中分布灵活性与均值预测准确性难以兼顾、且生成模型采样代价高的问题，提出两阶段奇残差流(TORF)，将均值预测与不确定性建模解耦，在保持准确点预测的同时拟合完整分布，避免了昂贵的蒙特卡洛采样。该方法为长时程风险敏感预测提供了实用的概率建模工具，可用于量化预测不确定性与可预测性。",
+      "llm_tldr": "针对概率时间序列预测中分布灵活性与均值预测准确性难以兼顾、且生成模型采样代价高的问题，提出两阶段奇残差流(TORF)，将均值预测与不确定性建模解耦，在保持准确点预测的同时拟合完整分布，避免了昂贵的蒙特卡洛采样。该方法为长时程风险敏感预测提供了实用的概率建模工具，可用于量化预测不确定性与可预测性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.15362v1",
+      "source": "arxiv",
+      "title": "Prediction Inference of Time Series with Standard ReLU Deep Neural Networks",
+      "abstract": "We propose a methodology based on the standard ReLU Deep Neural Networks (DNN) to make predictions and quantify their uncertainty. Classically, people rely on linear, non-linear, or non-parametric kernel methods to fit and then predict the time series. As the universal approximation ability was revealed for DNN, its application has become more and more popular for prediction tasks in various scientific areas. However, the corresponding uncertainty quantification has not been studied thoroughly. Particularly, the uncertainty in prediction will consist of two parts: (1) the future variability; (2) the estimation variability within training data. To capture both variabilities, we build the so-called pertinent prediction interval (PPI) with the DNN model estimator. We first explore the consistency property of the DNN estimator with beta-mixing dependent data. Subsequently, we show that the implied forward bootstrap series is still beta-mixing and possesses the same stationary distribution as the original time series in probability, which is a key condition to enable the PPI. Lastly, the desired PPI is built after imposing minimal conditions on the limiting distribution of predictive roots. Simulations and real-data analysis are deployed to challenge our approach with standard non-parametric methods.",
+      "authors": [
+        "Kejin Wu"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG",
+        "stat.CO"
+      ],
+      "published": "2026-08-15T18:36:06+00:00",
+      "link": "https://arxiv.org/pdf/2608.15362v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "builds prediction intervals for time series to quantify uncertainty in forecasts",
+      "llm_evidence_cn": "构建时间序列预测区间以量化预报不确定性",
+      "llm_evidence": "构建时间序列预测区间以量化预报不确定性",
+      "canonical_evidence": "构建时间序列预测区间以量化预报不确定性",
+      "llm_tldr_en": "Proposes standard ReLU DNN methodology for time series prediction and uncertainty quantification, building pertinent prediction intervals that capture both future and estimation variability.",
+      "llm_tldr_cn": "时间序列预测中通常依赖线性或非线性方法，但对不确定性的量化研究不足。该论文提出基于标准ReLU深度神经网络的方法，预测时间序列并构建相关预测区间（PPI），同时刻画未来波动性和训练数据参数估计不确定性。通过对两部分变异性的显式建模，能够给出更可靠的预测区间。该工作为时间序列预测中的不确定性量化提供了一种实用工具，但并未直接推导可预测性的理论界限。",
+      "llm_tldr": "时间序列预测中通常依赖线性或非线性方法，但对不确定性的量化研究不足。该论文提出基于标准ReLU深度神经网络的方法，预测时间序列并构建相关预测区间（PPI），同时刻画未来波动性和训练数据参数估计不确定性。通过对两部分变异性的显式建模，能够给出更可靠的预测区间。该工作为时间序列预测中的不确定性量化提供了一种实用工具，但并未直接推导可预测性的理论界限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16415v1",
+      "source": "arxiv",
+      "title": "Scalable Gaussian Process Regression via Deterministic Trigonometric Features: Uniform Bounds for Safe Model Predictive Control",
+      "abstract": "Learning-based Model Predictive Control (MPC) using Gaussian processes (GPs) is an effective approach for safe control in the presence of model mismatch. High-probability safety guarantees typically require uncertainty bounds that hold uniformly over the entire state--input domain, but existing bounds are available only for full GP regression. Since exact GP inference scales poorly with the number of data points, its deployment is impractical in large-data regimes. We close this gap by developing a scalable GP framework that admits the derivation of uniform uncertainty bounds. We formalize a deterministic trigonometric feature Gaussian process (DTF-GP), a finite-dimensional kernel approximation based on discretized trigonometric features that reduces GP regression to Bayesian linear regression in feature space. We derive a high-probability uniform uncertainty bound for the proposed DTF-GP and provide its closed-form solution for the squared-exponential kernel case. Finally, we integrate the DTF-GP into a learning-based MPC scheme and demonstrate that it provides high-probability safety guarantees and exploration performance comparable to a full GP while improving computational efficiency in large-data regimes.",
+      "authors": [
+        "Julius Jagdt",
+        "Johanna Menn",
+        "Sebastian Trimpe",
+        "Melanie N. Zeilinger",
+        "Anna Scampicchio"
+      ],
+      "primary_category": "eess.SY",
+      "categories": [
+        "eess.SY"
+      ],
+      "published": "2026-08-17T11:12:51+00:00",
+      "link": "https://arxiv.org/pdf/2608.16415v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Provides uniform uncertainty bounds for scalable GP regression, contributing to theoretical bounds on prediction.",
+      "llm_evidence_cn": "为可扩展高斯过程回归提供统一的置信界，贡献于预测的理论界限。",
+      "llm_evidence": "为可扩展高斯过程回归提供统一的置信界，贡献于预测的理论界限。",
+      "canonical_evidence": "为可扩展高斯过程回归提供统一的置信界，贡献于预测的理论界限。",
+      "llm_tldr_en": "This paper introduces deterministic trigonometric feature Gaussian processes that admit uniform uncertainty bounds, making safe MPC scalable and providing theoretical guarantees on prediction uncertainty.",
+      "llm_tldr_cn": "本文提出确定性三角特征高斯过程，在有限维核近似下推得对整个状态-输入空间一致适用的高概率不确定度界，从而将安全模型预测控制中的安全性保证扩展到大规模数据场景。该工作弥补了现有全GP回归统一界无法扩展的空白，使基于学习的控制在数据较多时仍能获得可验证的安全保障。这种预测不确定度的理论界分析对于更广泛的可预测性研究具有参考价值。",
+      "llm_tldr": "本文提出确定性三角特征高斯过程，在有限维核近似下推得对整个状态-输入空间一致适用的高概率不确定度界，从而将安全模型预测控制中的安全性保证扩展到大规模数据场景。该工作弥补了现有全GP回归统一界无法扩展的空白，使基于学习的控制在数据较多时仍能获得可验证的安全保障。这种预测不确定度的理论界分析对于更广泛的可预测性研究具有参考价值。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

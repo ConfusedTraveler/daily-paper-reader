@@ -1,0 +1,2197 @@
+Title: Optimal Lower Bounds for Networked Information Aggregation
+
+URL Source: https://arxiv.org/pdf/2608.15472v1
+
+Published Time: Tue, 18 Aug 2026 00:53:43 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# Optimal Lower Bounds for Networked Information Aggregation 
+
+## Ambar Pal ∗
+
+ambarpal@amazon.com 
+
+## Amazon Responsible AI August 18, 2026 
+
+Abstract 
+
+The problem of networked information aggregation, studied in Kearns et al. (2026), involves a group of learners situated on the vertices of a directed acyclic graph G, each learning a linear predictor ̂ Y for a fixed random variable Y given access to a local feature, as well as the predictors learnt by its parents. Learning proceeds iteratively, with learners ordered according to a topological sort of G. The main quantity of interest is the error incurred by the current learner, constrained to this flow of information, with respect to the best linear predictor using all the features seen so far. When the studied error is the MSE, i.e., E(̂Y − Y )2, Kearns et al. (2026) show that the error is at most O(1 /√D) along a path of length D. They also obtain a hard instance where the MSE is lower bounded by Ω(1 /D ), leaving the correct order open. In this work, we resolve this central open problem, and obtain a family of worst case problem instances with a MSE lower bound of Ω(1 /√D). By exploiting invariances in the structure of the learnt predictors, our analysis generalizes to all loss functions ℓ(̂Y , Y ) satisfying regularity conditions which include strong convexity in a ball around the origin, and that the ideal predictor minimizing the population loss is positively correlated with the label. We show that networked information aggregation on a gaussian instance in our worst case family incurs an ℓ-error lower bounded by Ω(1 /√D) with respect to this ideal predictor. We demonstrate that a variety of common losses satisfy these regularity conditions. In particular, the logistic loss satisfies them, and hence our analysis also closes the gap between the upper and lower bounds in Bateni et al. (2026). 
+
+# Contents 
+
+1 Problem Setup 22 Main Results 2
+
+2.1 Least Squares Regression . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22.2 Logistic Regression . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32.3 General Convex Loss . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+
+3 Overall proof technique 34 Least Squares Regression 4
+
+4.1 Vertex Transformations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44.2 Coefficient invariants . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54.3 Cumulative-sum lower bound . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64.4 Controlling the cumulative sum . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+5 Regression with a Convex Loss 8
+
+5.1 MSE . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 95.2 Logistic Loss . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 5.3 Huber and other Losses . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 
+
+> ∗
+
+This work is not related to AP’s position at Amazon. 
+
+1arXiv:2608.15472v1 [cs.LG] 16 Aug 2026 A Omitted Proofs for Section 4 11 
+
+A.1 Proof of Lemma 4.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11 A.2 Proof of Lemma 4.2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13 A.3 Proof of Lemma 4.3 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 14 A.4 Proof of Lemma 4.4 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 15 A.5 Proof of Theorem 4.6 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 A.6 Proof of Lemma 4.5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16 
+
+B Omitted Proofs for Section 5 18 
+
+B.1 Proof of Lemma B.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18 B.2 Proof of Lemma B.2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19 
+
+# 1 Problem Setup 
+
+We have a group of learners V each of which try to learn a predictor ̂ Yi for a random variable Y , that obtains a low population loss E ℓ(̂ Yi, Y ). These learners are arranged in the form of a directed acyclic graph G = ( V, E), where an edge ( i, j ) ∈ E exists whenever learner j has access to the predictor learnt by learner i. Each learner has knowledge of a local set of features , i.e., random variables Xi that may be predictive of Y . Additionally, each learner i has access to the predictors ̂ Yj learnt by its parents in G.Learning proceeds iteratively following along vertices ordered by a topological sort of G. At each itera-tion, the current learner j obtains a linear predictor ̂ Yj by solving the optimization problem min ̂ Y E ℓ(̂Y , Y )over ̂ Y constrained to be linear in the features accessible to learner j, i.e., Xj ∪ { ̂ Yi : ( i, j ) ∈ E} . For the purposes of our analysis, it will be sufficient to assume that both these sets are singletons, i.e., Xj = {Xj }
+
+for all learners j, and each j has at most one parent par( j) in G.For ℓ(̂Y , Y ) = ( ̂ Y − Y )2, the above becomes the so-called networked information aggregation setup studied by Kearns et al. (2026). In this work, we will analyze a generalization of the worst case instance for this problem studied by Kearns et al. (2026), and show that the error decays along the path at a rate inversely proportional to the square root of the length of the path. Further, we will see that the same lower bound applies to logistic regression, studied in Bateni et al. (2026). 
+
+# 2 Main Results 
+
+Worst Case Instance Family. Let Z1, . . . , Z k be random variables such that E Zi = 0 , E Z2 
+
+> i
+
+= 1 for i ∈ { 1, 2, . . . , k }, and E ZiZj = 0 whenever i̸ = j for i, j ∈ { 1, 2, . . . , k }. Let the learners be 
+
+V = {1, 2, . . . , k · (k − 1) }, and the edges E be given by 1 −→ 2 · · · −→ k −→ k + 1 −→ k + 2 −→ · · · −→ 2k −→ · · · −→ k · (k − 1) .
+
+We define the pass p to be the group of learners 
+
+{(p − 1) · k + 1 , (p − 1) · k + 2 , . . . , (p − 1) · k + k}.
+
+For each vertex i, we let the local feature set be a singleton, given by the random variable Xi. For the first vertex on pass p, we let X(p−1) ·k+1 = Z1, and for each 2 ≤ i ≤ k, we let X(p−1) ·k+i = Zi − Zi−1.Note that the set of all features viewed in each pass is the same. Finally, we define the label Y = Zk.Recall that each learner solves an optimization program to minimize the population loss L with respect to the features it has access to. We define Err ℓ(i) = E ℓ(̂ Yi, Y ), and our results provide bounds on the error at the end of each pass p, defined as Err ℓp = E ℓ(̂ Yp·k, Y ) for p ∈ { 1, 2, . . . , k − 1}. Our results can be divided according to the loss used. 
+
+## 2.1 Least Squares Regression 
+
+Setting the loss to be the mean squared error, i.e., ℓMSE (̂Y , Y ) = ( ̂Y − Y )2 recovers the setup studied in Kearns et al. (2026). Each learner i solves the optimization problem min  
+
+> α,β ∈R
+
+E
+
+[(αX i + β̂ Yi−1 − Y )2]
+
+(1) 2to obtain the predictor ̂ Yi = αiXi + βî Yi−1, with the convention ̂ Y0 = 0. Note that the ideal linear predictor at the end of each pass, given access to all the features seen so far, obtains zero error, as ̂
+
+Y ⋆ = X1 + X2 + . . . + Xk = Y obtains ℓMSE (̂Y ⋆, Y ) = 0. Our main result is 
+
+Theorem 2.1 (Simplified MSE lower bound) . For every instance in the worst case family, and every 
+
+1 ≤ p ≤ k − 1,
+
+Err MSE  
+
+> p
+
+≥ 136 √p .
+
+For a fixed k, along with the matching upper bound of O( 1√p ) in Kearns et al. (2026, Corollary 3.10), this settles the correct order of dependence on depth for learning with the MSE loss in the networked information aggregation model. Theorem 2.1 contains simplified constants for clarity, the full result is in Theorem 4.6. 
+
+## 2.2 Logistic Regression 
+
+Setting ℓ to be the logistic loss, ℓlogistic (̂Y , Y ) = −σ(Y ) log σ(̂ Y ) − (1 − σ(Y )) · log(1 − σ(̂Y )), where 
+
+σ(y) = 11+exp( −y) recovers the setup studied in Bateni et al. (2026). Note that we require a slight transformation of the random variables in Bateni et al. (2026) to keep our exposition consistent: our Y
+
+is a real-valued random variable, which is transformed into their binary label probability using σ(Y ), and similarly our real-valued ̂ Y is viewed as the logit learnt by each learner in their setup to produce the probability σ(̂Y ) of predicting the label 1 in their setup. Similar to (1), each learner i now solves the optimization problem min  
+
+> α,β ∈R
+
+E
+
+[
+
+ℓlogistic 
+
+(αX i + β̂ Yi−1, Y )]
+
+.
+
+Note that the ideal linear predictor at the end of each pass is still ̂ Y ⋆ = ∑ 
+
+> i
+
+Xi = Y , but it no longer achieves zero error, as ℓlogistic (Y, Y ) = ℓlogistic (Zk, Z k) is non-negative in general. We hence show 
+
+Theorem 2.2 (Simplified Logistic error lower bound) . For the instance in the worst case family where 
+
+Z1, Z 2, . . . , Z k
+
+> i.i.d.
+
+∼ N (0 , 1) , for every 1 ≤ p ≤ k − 1,
+
+Err logistic  
+
+> p
+
+≥ 110 4√p + Err logistic ,⋆ ,
+
+where Err logistic ,⋆ = E ℓlogistic (Zk, Z k).
+
+For a fixed k, along with the matching upper bound of O( 1√p ) in Bateni et al. (2026, Theorem 3.8), this settles the correct order of dependence on depth for learning with the logistic loss in the networked information aggregation model. Theorem 2.2 contains simplified constants, and is in fact proved in Section 5.2 as an application of our more general result Theorem 2.3. 
+
+## 2.3 General Convex Loss 
+
+Finally, we generalize our lower bound arguments to a differentiable loss ℓ. Subject to a few regularity conditions including strong convexity in a ball around the origin and differentiability, we show that, 
+
+Theorem 2.3 (Simplified general error lower bound) . For the gaussian instance in the worst case family where Z1, Z 2, . . . , Z k
+
+> i.i.d.
+
+∼ N (0 , 1) , for any convex loss ℓ satisfying (Regular-I ) and (Regular-II ), for every 1 ≤ p ≤ k − 1, we have, 
+
+Err ℓp ≥ μ
+
+72 √p + Err ℓ,⋆ ,
+
+where Err ℓ,⋆ = E ℓ(Zk, Z k), and μ is the strong convexity parameter in (Regular-I ).
+
+# 3 Overall proof technique 
+
+We now describe the high level proof technique, and then derive each result in the subsequent sections. Note that the learnt predictor is a linear combination of the latent variables, Z1, Z 2, . . . , Z k, which we will denote by ∑ 
+
+> i
+
+aiZi in the following, for coefficients a = ( a1, . . . , a k) ∈ Rk. Further, we will denote the coefficients at the last vertex of pass p as a(p). The first four steps apply to learning with ℓMSE , and the rest extend the arguments to other losses. 31. In each pass p, we divide the vertices into three types: Type I is the starting vertex k · (p − 1) + 1, Type II consists of the intermediate vertices, k · (p − 1) + i for 2 ≤ i ≤ k − 1, and Type III is the final vertex k · p. We then compute a closed form expression for the coefficients at each vertex as a transformation of the coefficients of its predecessor, in Lemma 4.1. Specifically, each vertex type corresponds to one such transformation T : T1 sets a1 to zero and rescales, Ti, for 2 ≤ i ≤ k − 1averages two adjacent coefficients in a and rescales, and Tk averages the last two coefficients in a,rescales, and adds (0 , . . . , 0, − 12 , 12 ). 2. Lemma 4.2 then derives the coefficient invariants at the end of every pass. In particular, 
+
+∑
+
+> j
+
+aj = 0 , ak = 1 − Err MSE  
+
+> p
+
+, ak − ak−1 = 1 , ak−1 = − Err MSE  
+
+> p
+
+.
+
+It also identifies that only the last p + 1 coefficients are non-zero (in a(p)) at the end of pass p, and that all of these are negative except the last coefficient a(p) 
+
+> k
+
+.3. The zero-sum invariant, along with the fact that Err MSE  
+
+> p
+
+= ∑k−1 
+
+> i=k−p
+
+a2 
+
+> i
+
++ (1 − ak)2 at the last vertex of pass p, is enough to recover the lower bound in Kearns et al. (2026). To see this, apply Cauchy– Schwarz to 
+
+ak−p + · · · + ak−1 + ( ak − 1) = −1,
+
+to obtain Err MSE  
+
+> p
+
+≥ 1 
+
+> p+1
+
+. Lemma 4.3 generalizes the above idea, applying Cauchy–Schwarz to the last 
+
+N + 1 coefficients instead, 
+
+ak−N + · · · + ak−1 + ( ak − 1) = ck−N − 1, where ci =
+
+> k
+
+∑
+
+> j=i
+
+aj ,
+
+and obtains Err MSE  
+
+> p
+
+≥ (1 − ck−N )2
+
+N + 1 .
+
+Now, it is enough to show that ck−N is low enough (say 1 − ck−N ≥ 1/3), for some N ≲ √p.4. To control ck−N , Lemma 4.4 obtains the recurrence relationship relating a(p) to all the previous 
+
+a(i), i < p . This recurrence involves complicated non-linear terms in the coefficients through the normalization factors. However, a technical manipulation allows us to bypass analysis of the normal-ization terms by bounding the ratio of the partial sum of these coefficients to (1 −Err MSE  
+
+> p
+
+). Lemma 4.4 contains this argument, allowing us to obtain 
+
+ck−N ≲ exp 
+
+(
+
+− N 2
+
+p
+
+)
+
+,
+
+completing our argument. The above argument can be neatly extended to more general losses satisfying some regularity condi-tions, including strong convexity, by utilizing a conditioning argument for regression under misspecified losses developed in Li and Duan (1989). This extension is presented in Section 5. 
+
+# 4 Least Squares Regression 
+
+In this section, we analyze learning on any problem instance in our worst case family, with the MSE loss 
+
+ℓMSE = ( ̂Y − Y )2, and provide details for steps (1-4) outlined in Section 3. 
+
+## 4.1 Vertex Transformations 
+
+Every prediction is a linear combination of the latent variables Z1, . . . , Z k. In the following, suppose that the prediction output by the parent of a vertex is ̂
+
+Y =
+
+> k
+
+∑
+
+> j=1
+
+aj Zj , a = ( a1, . . . , a k).
+
+Then, Lemma 4.1 provides the prediction output of each vertex in terms of a.4Lemma 4.1 (Vertex Transformations) . Define the linear operators A1, A 2, . . . , A k, where A1a = (0 , a 2, . . . , a k)
+
+set the first coefficient to zero, and Aia = (a1, . . . , 12 (ai−1 + ai), 12 (ai−1 + ai), a i+1 , . . . , a k
+
+) for 2 ≤ i ≤ k
+
+replace ai−1 and ai by their average and leave the other coordinates unchanged. With the convention that  
+
+> 00
+
+= 0 , the transformation at the i-th vertex in pass p is as follows. (i) At the Type-I learner k(p − 1) + 1 , assigned Xk(p−1)+1 = Z1,
+
+T1(a) = s1(a)A1a, s1(a) = ak
+
+∑kj=2 a2
+
+> j
+
+.
+
+(ii) At a Type-II learner k(p − 1) + i, assigned Xk(p−1)+ i = Zi − Zi−1 for 2 ≤ i ≤ k − 1,
+
+Ti(a) = si(a)Aia, si(a) = ak
+
+∥Aia∥22
+
+.
+
+(iii) At the Type-III learner kp , assigned Xkp = Zk − Zk−1,
+
+Tk(a) = sk(a)Aka + b, sk(a) = ak−1 + ak
+
+2 ∑k−2 
+
+> j=1
+
+a2 
+
+> j
+
++ ( ak−1 + ak)2 b = (0 , . . . , 0, − 12 , 12 ).
+
+Note 1. Observe that each vertex map Ti is invariant to positive scaling, i.e., for every t > 0, Ti(ta) = 
+
+Ti(a). Consequently, when we compose the maps in one pass, we ignore all intermediate positive nor-malizations until the final Type-III update. 
+
+## 4.2 Coefficient invariants 
+
+Recall from Section 3 that 
+
+a(p) = ( a(p)1 , . . . , a (p) 
+
+> k
+
+)is defined to be the coefficient vector at the end of pass p. Lemma 4.2 then obtains a few important properties of coefficient vectors that the learners output. 
+
+Lemma 4.2 (Coefficient invariants) . For the coefficient vector a returned by any vertex, the last coor-dinate is related to the MSE error as 
+
+ak = 1 − Err MSE , (2) 
+
+the coefficients sum to zero, k∑
+
+> j=1
+
+aj = 0 , (3) 
+
+and the squared norm is given by k∑
+
+> j=1
+
+a2 
+
+> j
+
+= ak. (4) 
+
+For the coefficient vector ai returned by vertex k ≤ i ≤ k(k − 1) , we have that 12 ≤ aik < 1. Further, for 1 ≤ p ≤ k − 1, for the coefficient vector a(p) = apk returned by the last vertex of pass p, the last two coordinates are related as 
+
+a(p) 
+
+> k
+
+− a(p) 
+
+> k−1
+
+= 1 , (5) 
+
+hence 
+
+a(p) 
+
+> k−1
+
+= − Err MSE  
+
+> p
+
+. (6) 
+
+Finally, the signs of the coefficient vector after each pass are given by 
+
+a(p) 
+
+> j
+
+= 0 (j < k − p), a(p) 
+
+> j
+
+< 0 (k − p ≤ j < k ), a(p) 
+
+> k
+
+≥ 12 . (7) 54.3 Cumulative-sum lower bound 
+
+Fix a pass 1 ≤ p ≤ k − 1 and define 
+
+c(p) 
+
+> i
+
+=
+
+> k
+
+∑
+
+> j=i
+
+a(p) 
+
+> j
+
+, 1 ≤ i ≤ k. 
+
+Lemma 4.3 (Cumulative-sum bound) . For every integer 0 ≤ N ≤ k − 1,
+
+Err MSE  
+
+> p
+
+≥ (1 − c(p) 
+
+> k−N
+
+)2
+
+N + 1 . (8) Taking N = p, equations (3) and (7) give c(p) 
+
+> k−p
+
+= 0, and therefore Err MSE  
+
+> p
+
+≥ 1
+
+p + 1 , (9) showing the error lower bound of Kearns et al. (2026, Theorem 5.3) is valid for any instance in our worst case family. Our improvement over (9) comes from showing that c(p) 
+
+> k−N
+
+is small even for N ≲ √p.
+
+## 4.4 Controlling the cumulative sum 
+
+In this section, we upper bound c(p) 
+
+> k−N
+
+. In principle, one could directly try to iterate the recurrence 
+
+a(p) = Tk ◦ Tk−1 ◦ . . . ◦ T1(a(p−1) ) to obtain a(p), and calculate the cumulative sum from the resultant vector. This direct approach does not seem to work, as keeping track of the normalization factors accumulating at each pass is difficult. In the following, we instead tightly utilize the invariances we have developed in Lemma 4.2 to circumvent tracking the normalization factors, and solve a more manageable recurrence. For ease of exposition, we change coordinates to count from the right edge of the vector a(p). We ignore the only positive entry a(p) 
+
+> k
+
+, since it is determined by the remaining entries through the zero-sum invariant. Define 
+
+w(p) 
+
+> i
+
+= −a(p)
+
+> k−i
+
+, 1 ≤ i ≤ k − 1. (10) From the coefficient invariances (2), (3), (6), and (7), we get w(p) 
+
+> i
+
+≥ 0 for all 1 ≤ i ≤ k − 1, 
+
+w(p)1 = Err MSE  
+
+> p
+
+,
+
+> k−1
+
+∑
+
+> i=1
+
+w(p) 
+
+> i
+
+= c(p) 
+
+> k
+
+= 1 − Err MSE  
+
+> p
+
+,
+
+> k−1
+
+∑ 
+
+> i=N+1
+
+w(p) 
+
+> i
+
+= c(p) 
+
+> k−N
+
+. (11) 
+
+Proof Strategy. We pause here to comment on the proof strategy, as it involves an important ma-nipulation. We will show that c(p) 
+
+> k−N
+
+/c (p) 
+
+> k
+
+≤ γp(N ) for some small γp(N ), which will then imply via (11) that c(p) 
+
+> k−N
+
+≤ γp(N )(1 − Err MSE  
+
+> p
+
+) < γ p(N ). This manipulation incurs a slack of Err MSE  
+
+> p
+
+due to the second inequality, but, as we will see, allows us to go around reasoning about the scaling altogether, due to the ratio c(p) 
+
+> k−N
+
+/c (p) 
+
+> k
+
+.
+
+Lemma 4.4 (One-pass recurrence) . There are positive normalization factors ηp, and a linear transfor-mation T : Rk−1 → Rk−1 such that for 1 ≤ p ≤ k − 2,
+
+w(p+1) = ηpT w(p) + Err MSE  
+
+> p+1
+
+e1, w(1) = 12 e1, (12) 
+
+where 
+
+(T w)i =
+
+
+
+0, i = 1 ,
+
+> k−i
+
+∑
+
+> t=0
+
+2−(t+1) wi−1+ t, 2 ≤ i ≤ k − 1. . (13) 
+
+Consequently (letting an empty product equal 1), 
+
+w(p+1) =
+
+> p+1
+
+∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+( p∏
+
+> r=s
+
+ηr
+
+)
+
+T p+1 −se1. (14) 6Lemma 4.4 thus shows that the vector w(p+1) is a weighted sum of the p + 1 vectors T ne1 for 0 ≤ n ≤ p. This is useful for our purposes, as the cumulative sums of w(p+1) is then equal to a weighted sum of the cumulative sums of T ne1. The following lemma lets us use this structure, by calculating the cumulative sums of T ne1.
+
+Lemma 4.5 (Cumulative sums) . For 0 ≤ p ≤ k − 2 and 0 ≤ N ≤ k − 1, define the cumulative sum 
+
+c(p, N ) = 
+
+> k−1
+
+∑ 
+
+> i=N+1
+
+(T pe1)i . (15) 
+
+Then, we have 
+
+c(p, N ) = 
+
+(2p − Np
+
+)
+
+2−(2 p−N ), 0 ≤ N ≤ p, 
+
+0, p < N ≤ k − 1.
+
+(16) 
+
+Consequently, for 1 ≤ N ≤ p ≤ k − 2,
+
+c(p, N )
+
+c(p, 0) = 
+
+> N−1
+
+∏
+
+> j=0
+
+2( p − j)2p − j ≤ exp 
+
+(
+
+− N (N − 1) 4p
+
+)
+
+. (17) The proof of Lemma 4.5 is done cleanly using the theory of generating functions, and is deferred to Appendix A.6. We now have the machinery needed to prove our main Theorem 2.1. 
+
+Proof of Theorem 2.1. Note that for p ≤ 3, we have 1 
+
+> p+1
+
+≥ 136 √p , so (9) is sufficient to show the result. For p ≥ 4, we have 
+
+c(p)
+
+> k−N
+> (11)
+
+=
+
+> k−1
+
+∑ 
+
+> i=N+1
+
+w(p)
+
+> i
+> (14)
+
+=
+
+> k−1
+
+∑ 
+
+> i=N+1
+> p
+
+∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+(p−1∏
+
+> r=s
+
+ηr
+
+) (T p−se1
+
+)
+
+> i
+> (15)
+
+=
+
+> p
+
+∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+(p−1∏
+
+> r=s
+
+ηr
+
+)︸ ︷︷ ︸
+
+> >0
+
+c(p − s, N )
+
+> (17)
+
+≤ exp 
+
+(
+
+− N (N − 1) 4( p − 1) 
+
+) p∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+(p−1∏
+
+> r=s
+
+ηr
+
+)
+
+c(p − s, 0) (18) = exp 
+
+(
+
+− N (N − 1) 4( p − 1) 
+
+) k−1∑
+
+> i=1
+
+( p∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+(p−1∏
+
+> r=s
+
+ηr
+
+)
+
+T p−se1
+
+)
+
+> i
+> (11)
+
+= exp 
+
+(
+
+− N (N − 1) 4( p − 1) 
+
+)
+
+(1 − Err MSE  
+
+> p
+
+)
+
+≤ exp 
+
+(
+
+− N (N − 1) 4( p − 1) 
+
+)
+
+, (19) where (18) follows from (17) when 1 ≤ N ≤ p − s ≤ p − 1, and c(p − s, N ) = 0 when N > p − s. Let 
+
+N = ⌈2√p⌉. Then N ≥ 2√p ≥ 2 and N − 1 ≥ 2√p − 1 ≥ √p, implying N (N − 1) ≥ 2p ≥ 2( p − 1). Equation (19) now yields 
+
+c(p) 
+
+> k−N
+
+≤ e−1/2 < 23 .
+
+Now applying Lemma 4.3, we have Err MSE  
+
+> p
+
+≥ (1 − c(p) 
+
+> k−N
+
+)2
+
+N + 1 ≥ (1 /3) 2
+
+4√p = 136 √p .
+
+Finally, for p = 1, we have Err MSE  
+
+> p
+
+= 1 /2, which satisfies the above. 7Improving constants. The constant 1 /36 is loose in the above: Theorem 4.6 performs improved book-keeping to show a tighter lower bound. 
+
+Theorem 4.6. For every 2 ≤ p ≤ k − 1 and t > 0 such that ⌈t√p − 1 + 1 ⌉ ≤ k − 1,
+
+Err MSE  
+
+> p
+
+≥ (1 − e−t2/4)2
+
+t√p − 1 + 3 . (20) Using t = 3 in Theorem 4.6, gives approximately Err MSE  
+
+> p
+
+≥ 13.75 √p when p and k are large enough. 
+
+# 5 Regression with a Convex Loss 
+
+In this section, we analyze learning with a general loss ℓ(̂ Y , Y ) that is convex in the first argument, subject to a few regularity conditions, which are satisfied by several common losses. Unlike Section 4, we will specialize to the gaussian instance in our worst case family, assuming Z1, . . . , Z k
+
+> i.i.d.
+
+∼ N (0 , 1). Recall that Xk(p−1)+ j = Zj − Zj−1 for 1 ≤ j ≤ k, 1 ≤ p ≤ k − 1, and the predictor output by learner i
+
+is ̂ Yi = αiXi + βî Yi−1, where ( αi, β i) is the solution to min  
+
+> α,β ∈R
+
+E ℓ(αX i + β̂ Yi−1, Z k
+
+), (21) with ̂ Y0 = 0 , Z 0 = 0. Note that for all i, both Xi and ̂ Yi−1 are linear combinations of {Z1, . . . , Z k}.Defining L(a) = E ℓ(∑ 
+
+> j
+
+aj Zj , Z k), our first regularity condition requires that the population loss be differentiable, strongly convex on a radius 2 neighborhood around the origin, and minimized at the true label: 
+
+L is differentiable, μ-strongly convex on {a : ∥a∥2 ≤ 2}, and minimized at ek (Regular-I )Further, the second regularity condition we impose on ℓ is that the predictor minimizing the pop-ulation loss be positively correlated with the label, i.e., for a random variable E ∼ N (0 , γ 0(1 − γ0)) independent of Zk, and scalar 12 ≤ γ0 ≤ 1, we have min  
+
+> γ∈R
+
+E ℓ(γ(E + γ0Zk), Z k) is attained at γ ∈ (0 , 2] (Regular-II )Using ( Regular-I ) and ( Regular-II ), we give an inductive argument showing that learning with 
+
+ℓ incurs a Ω(1 /√p) error relative to the best linear predictor, matching the dependence that we saw for learning with MSE in Section 4. In particular, we will prove the following: 
+
+Lemma 5.1. ̂ Yi is a positive scaled multiple of ̂ Yi, MSE for all i ≥ 0, where ̂ Yi, MSE and ̂ Yi are the predictors output by the learner i when learning with MSE (1) , and ℓ (21) , respectively. Proof. The base case is verified trivially as ̂ Y0 =̂ Y0,MSE = 0. Assume that the inductive hypothesis is true for i − 1, i.e., ̂ Yi−1 = γi−1̂ Yi−1,MSE for some γi−1 > 0. Decompose Zk =̂ Yi, MSE + E1, where E1 is a random variable independent of ( Xi,̂ Yi−1). It can be seen that E1 is not zero. The key observation needed now comes from Li and Duan (1989): their conditioning argument can be replicated by expanding (21) as follows, 
+
+E ℓ(αX i + β̂ Yi−1, Z k
+
+) = E E 
+
+(
+
+ℓ(αX i + β̂ Yi−1, Z k
+
+)|̂Yi, MSE , E 1
+
+)
+
+≥ E
+
+(
+
+ℓ(E(αX i + β̂ Yi−1|̂Yi, MSE , E 1
+
+), Z k)
+
+)
+
+where the inequality is due to Jensen’s inequality applied to the convex function ℓ(·, z ) for any fixed z.Further, E1 ⊥ (Xi,̂ Yi−1) implies E1 ⊥̂ Yi, MSE , as ̂ Yi, MSE is a linear combination of Xi and ̂ Yi−1,MSE =(1 /γ i−1)̂Yi−1. Hence, 
+
+E(αX i + β̂ Yi−1|̂ Yi, MSE , E 1) = E(αX i + β̂ Yi−1|̂Yi, MSE ).
+
+Now, αX i + β̂ Yi−1 and ̂ Yi, MSE are both linear combinations of {Z1, . . . , Z k}, i.e., they are zero-mean, jointly gaussian random variables. Hence for some γ ∈ R, we have 
+
+E(αX i + β̂ Yi−1|̂Yi, MSE ) = γ̂ Yi, MSE .
+
+8We have thus shown that the objective of (21), at every feasible predictor is lower bounded by the objective at a predictor of the form γ̂ Yi, MSE . Further, this predictor is feasible for (21), as ̂ Yi−1 =
+
+γi−1̂ Yi−1,MSE with γi−1̸ = 0. This shows that there always exists a minimizer of (21) of the form 
+
+γ̂ Yi, MSE , for some γ ∈ R. The optimization problem (21) now reduces to min  
+
+> γ∈R
+
+E ℓ(γ̂ Yi, MSE , Z k).
+
+For completing the argument, we need to show that this minimizer γ⋆ exists, is positive, and unique, implying that it is indeed output by learner i. We handle i ≥ k and 1 ≤ i ≤ k − 1 separately. For all i ≥ k, by Lemma 4.2, we have ̂ Yi, MSE = E2 + aikZk, for some 12 ≤ aik ≤ 1, and E2 a gaussian independent of Zk with Var( E2) = aik(1 −aik). Then, ( Regular-II ) implies that γ⋆̂ Yi, MSE is a minimizer of (21) for γ⋆ ∈ (0 , 2]. Further, the coefficients of ̂ Yi, MSE satisfy ∥ai∥22 = aik < 1 (Lemma 4.2) implying that γ⋆̂ Yi, MSE lies in the region where ( Regular-I ) guarantees that the population loss is strongly convex. Along with the convexity of ℓ, this ensures that γ⋆̂ Yi, MSE is the unique minimizer. For 1 ≤ i ≤ k − 1, ̂ Yi, MSE = 0, implying that the zero predictor is a minimizer for (21). Now ℓ is convex, and ( Regular-I ) guarantees strong convexity near 0, implying that the zero predictor is the unique minimizer. Let the predictor 1 at the end of pass p be aMSE when learning on the gaussian instance with ℓMSE ,and aℓ when learning with a loss ℓ. From Lemma 5.1, we have that aℓ = γaMSE , and obtain 
+
+∥aℓ − ek∥22 = ∥γaMSE − ek∥22
+
+= γ2∥aMSE ∥22 − 2γa MSE  
+
+> k
+
++ 1 = γ2aMSE  
+
+> k
+
+− 2γa MSE  
+
+> k
+
++ aMSE  
+
+> k
+
+− aMSE  
+
+> k
+
++ 1 = (1 − γ)2aMSE  
+
+> k
+
++ (1 − aMSE  
+
+> k
+
+) (22) 
+
+≥ Err MSE  
+
+> p
+
+,
+
+where we have invoked Lemma 4.2 on multiple steps, and define Err MSE  
+
+> p
+
+as the error obtained by the predictor aMSE . Now using Theorem 2.1, we have shown the following result. 
+
+Theorem 5.2 (MSE when learning with a regular loss) . For learning with a loss ℓ satisfying (Regular-I )
+
+and (Regular-II ), for the gaussian instance in the worst case family where Z1, Z 2, . . . , Z k
+
+> i.i.d.
+
+∼ N (0 , 1) ,for every 1 ≤ p ≤ k − 1, we have, 
+
+E(̂ Y(p) − Y )2 ≥ 136 √p ,
+
+where ̂ Y(p) denotes the predictor learnt by the last vertex on pass p.
+
+To obtain a bound on Err ℓ instead, we use ( Regular-II ) on (22) to get ∥aℓ − ek∥22 ≤ aMSE  
+
+> k
+
++ (1 −
+
+aMSE  
+
+> k
+
+) ≤ 1. Along with ∥ek∥2 ≤ 1, this shows ∥aℓ∥2 ≤ 2. Thus, when ℓ satisfies both ( Regular-II ) and (Regular-I ), we have Err ℓp − Err ℓ,⋆ = L(aℓ) − L(ek) ≥ (aℓ − ek)⊤∇L(ek) + μ
+
+2 ∥aℓ − ek∥2 ≥ μ
+
+72 √p .
+
+We have hence proved Theorem 2.3, and can apply it to several losses to obtain a Ω( 1√p ) error lower bound as corollaries. For the following discussion, fix a scalar γ0 ∈ [1 /2, 1], and let E ∼ N (0 , γ 0(1 − γ0)) be independent of Zk. Further, denote the vector Z = ( Z1, Z 2, . . . , Z k). 
+
+## 5.1 MSE 
+
+For LMSE (a) = E(∑ 
+
+> j
+
+aj Zj − Zk)2, we have 
+
+LMSE (a) = E(Z⊤(a − ek)) 2 = E(a − ek)⊤ZZ ⊤(a − ek) = ∥a − ek∥22,  
+
+> 1Recall that we refer to the coefficients ainstead of the predictor
+
+̂ Y = ∑   
+
+> jajZjwhen non-ambiguous from context.
+
+9which is differentiable, strongly convex with μ = 2, and minimized at ek. Thus ( Regular-I ) is verified. Further, 
+
+E(γ(E + γ0Zk) − Zk)2 = γ2γ0(1 − γ0) + ( γγ 0 − 1) 2 = γ2γ0 − 2γγ 0 + 1 = ( γ − 1) 2γ0 + (1 − γ0),
+
+which has a unique minimizer at γ = 1. Thus, ( Regular-II ) is verified, and we recover the Ω( 136 √p )lower bound in Theorem 2.1, as expected. 
+
+## 5.2 Logistic Loss 
+
+Recall that Llogistic (a) = E ℓlogistic (a⊤Z, Z k), where ℓlogistic (̂y, y ) = −σ(y) log σ(̂y) − (1 − σ(y)) log(1 −
+
+σ(̂y)) with σ(t) = (1 + exp( −t)) −1. Taking derivatives, we get 
+
+∂∂ ˆy ℓlogistic (ˆ y, y ) = σ(ˆ y) − σ(y), and ∂2
+
+∂ ˆy2 ℓlogistic (ˆ y, y ) = σ(ˆ y)(1 − σ(ˆ y)) > 0 for finite ̂y. 
+
+Thus, L is differentiable and convex everywhere, and strongly convex in any bounded domain, e.g., 
+
+{a : ∥a∥2 ≤ 2}. Further, ∇L(a) = E ((σ(a⊤Z) − σ(Zk)) Z) = 0 when a = ek, implying that L has a unique minimizer at ek. We still need to explicitly obtain the strong convexity parameter μ. We have [∇2L(a)] 
+
+> u,v
+
+= E σ′(a⊤Z)ZuZv , i.e., 
+
+∇2L(a) = E σ′(a⊤Z)ZZ ⊤.
+
+By rotational symmetry of the gaussian Z, we can replace Z by RZ for any rotation matrix R. Specif-ically, take R such that R⊤a = ∥a∥2e1. This gives ∇2L(a) = R E σ′(Z1∥a∥2)ZZ ⊤R⊤. As a result, we have 
+
+[R⊤∇2L(a)R] 
+
+> u,v
+
+=
+
+
+
+0, u̸ = v
+
+E σ′(Z1∥a∥2)Z21 , u = v = 1 
+
+E σ′(Z1∥a∥2), u = v̸ = 1 
+
+.
+
+Thus, ∇2L(a) ≽ μI k, where the strong convexity parameter μ = inf ∥a∥2≤2 min {E σ′(Z1∥a∥2)Z21 , E σ′(Z1∥a∥2)}.Lemma B.1 completes this argument and gives μ ≥ 0.048. Thus, ( Regular-I ) is verified. Define F (γ) = E ℓlogistic (γ(E + γ0Zk), Z k), and note that F is strongly convex in [0 , 2]. Further Lemma B.2, shows that F ′(0) < 0 and F ′(1) ≥ 0, showing that the unique minimizer γ∗ lies in (0 , 1], verifying ( Regular-II ). Subsequently, applying Theorem 2.3 proves Theorem 2.2. 
+
+## 5.3 Huber and other Losses 
+
+For any fixed δ > 0, define the Huber loss (Huber, 1964) as L(a) = E ℓhuber ,δ (a⊤Z −Zk) = E ℓhuber ,δ (( a−
+
+ek)⊤Z), where 
+
+ℓhuber ,δ (t) = 
+
+{ 12 t2, |t| ≤ δ, δ|t| − δ2 
+
+> 2
+
+, |t| > δ .
+
+As earlier, it is clear that L is differentiable, strongly convex in {a : ∥a∥2 ≤ 2}, and the minimizer is obtained at a = ek. We need to obtain the strong convexity parameter μ. We have 
+
+∇L(a) = E
+
+(
+
+1 (|(a − ek)⊤Z| ≤ δ) ZZ ⊤(a − ek) + 1 (|(a − ek)⊤Z| > δ ) δsgn( Z⊤(a − ek)) Z
+
+)
+
+.
+
+Again, due to the rotational symmetry of the gaussian Z, we replace Z by RZ for a rotation matrix such that R⊤(a − ek) = ∥a − ek∥2e1. This gives ∇2L(a) = E 1 (∥a − ek∥2|Z1| ≤ δ) RZZ ⊤R⊤. When 
+
+a = ek, we have ∇2L(a) = I. Otherwise, the expression simplifies to 
+
+[R⊤∇2L(a)R] 
+
+> u,v
+
+=
+
+
+
+0, u̸ = v
+
+E 1
+
+(
+
+|Z1| ≤ δ 
+
+> ∥a−ek∥2
+
+)
+
+Z21 , u = v = 1 
+
+P
+
+(
+
+|Z1| ≤ δ 
+
+> ∥a−ek∥2
+
+)
+
+, u = v̸ = 1 
+
+.
+
+As with ∥a − ek∥2 ≤ 3, we get that the strong convexity parameter μ ≥ min {E 1(|Z1| ≤ δ/ 3) Z21 , P(|Z1| ≤ 
+
+δ/ 3) } > 0. This completes verification of ( Regular-I ). 10 Further, defining H(γ) = E ℓhuber ,δ (γ(E + γ0Zk) − Zk), we note that similar to the MSE, γ(E +
+
+γ0Zk) − Zk ∼ N (0 , (γ − 1) 2γ0 + (1 − γ0)), hence, H(γ) = E ℓhuber ,δ (√(γ − 1) 2γ0 + (1 − γ0)Z1), which decreases as the variance of the random variable inside ℓhuber ,δ decreases. Hence, the unique minimizer is γ = 1, verifying ( Regular-II ). Very similar analyses can be performed for other losses, like ℓ(̂y, y ) = ρ(̂y − y), or ℓ(̂y, y ) = −ŷy + ρ(̂y)for a suitably normalized, strongly convex ρ. Finally, we note that the constant 2 in the regularity conditions can be generalized to c ≥ 1 to show the same result, with minor modifications in the proofs. 
+
+# Acknowledgements and Disclosure of AI Usage 
+
+We thank Aaron Roth and Michael Kearns for helpful discussions. Additionally, GPT 5.6 was used to discover the reference (Li and Duan, 1989), shorten lengthy algebra in the generating function proof of Lemma 4.5, discover the elementary proof of Lemma B.1 by bounding the cosh function, and discover other losses that our argument applies to in Section 5.3. 
+
+# A Omitted Proofs for Section 4 
+
+## A.1 Proof of Lemma 4.1 
+
+Lemma A.1 (Vertex Transformations) . Define the linear operators A1, A 2, . . . , A k, where A1a = (0 , a 2, . . . , a k)
+
+set the first coefficient to zero, and Aia = (a1, . . . , 12 (ai−1 + ai), 12 (ai−1 + ai), a i+1 , . . . , a k
+
+) for 2 ≤ i ≤ k
+
+replace ai−1 and ai by their average and leave the other coordinates unchanged. With the convention that  
+
+> 00
+
+= 0 , the transformation at the i-th vertex in pass p is as follows. (i) At the Type-I learner k(p − 1) + 1 , assigned Xk(p−1)+1 = Z1,
+
+T1(a) = s1(a)A1a, s1(a) = ak
+
+∑kj=2 a2
+
+> j
+
+.
+
+(ii) At a Type-II learner k(p − 1) + i, assigned Xk(p−1)+ i = Zi − Zi−1 for 2 ≤ i ≤ k − 1,
+
+Ti(a) = si(a)Aia, si(a) = ak
+
+∥Aia∥22
+
+.
+
+(iii) At the Type-III learner kp , assigned Xkp = Zk − Zk−1,
+
+Tk(a) = sk(a)Aka + b, sk(a) = ak−1 + ak
+
+2 ∑k−2 
+
+> j=1
+
+a2 
+
+> j
+
++ ( ak−1 + ak)2 b = (0 , . . . , 0, − 12 , 12 ).
+
+Proof. The objective in (1) is the squared Euclidean norm of the residual coefficient vector. We consider each vertex type separately. At a Type-I learner, the objective is 
+
+E
+
+αZ 1 + β
+
+> k
+
+∑
+
+> j=1
+
+aj Zj − Zk
+
+
+
+> 2
+
+
+
+= ( α + βa 1)2 +
+
+> k−1
+
+∑
+
+> j=2
+
+(βa j )2 + ( βa k − 1) 2. (23) For every fixed β, we may set α = −βa 1, which makes the first term zero. The remaining objective is 
+
+β2
+
+> k
+
+∑
+
+> j=2
+
+a2 
+
+> j
+
+− 2βa k + 1 .
+
+It is minimized at 
+
+β = ak
+
+∑kj=2 a2
+
+> j
+
+= s1(a).
+
+11 The new coefficient vector is therefore 
+
+β(0 , a 2, . . . , a k) = s1(a)A1a,
+
+which proves (i). At a Type-II learner in position i, assigned Xk(p−1)+ i = Zi − Zi−1, the objective is 
+
+E
+
+α(Zi − Zi−1) + β
+
+> k
+
+∑
+
+> j=1
+
+aj Zj − Zk
+
+
+
+> 2
+
+
+
+= ∑
+
+> j / ∈{ i−1,i,k }
+
+(βa j )2 + ( −α + βa i−1)2 + ( α + βa i)2 + ( βa k − 1) 2. (24) For fixed β, the terms containing α are minimized at 
+
+α = β
+
+2 (ai−1 − ai).
+
+At this value of α, both affected predictor coefficients equal 
+
+β
+
+2 (ai−1 + ai).
+
+Thus the new coefficient vector before optimizing over β is βA ia, and the objective becomes 
+
+β2∥Aia∥22 − 2βa k + 1 .
+
+It is minimized at 
+
+β = ak
+
+∥Aia∥22
+
+= si(a),
+
+which proves (ii). At a Type-III learner, the objective is 
+
+E
+
+α(Zk − Zk−1) + β
+
+> k
+
+∑
+
+> j=1
+
+aj Zj − Zk
+
+
+
+> 2
+
+
+
+=
+
+> k−2
+
+∑
+
+> j=1
+
+(βa j )2 + ( −α + βa k−1)2 + ( α + βa k − 1) 2. (25) For fixed β, the terms containing α are minimized at 
+
+α = 1 + β(ak−1 − ak)2 .
+
+Substituting this value gives 
+
+β2
+
+
+
+> k−2
+
+∑
+
+> j=1
+
+a2 
+
+> j
+
++ 12 (ak−1 + ak)2
+
+ − β(ak−1 + ak) + 12 .
+
+The minimizing value of β is 
+
+β = ak−1 + ak
+
+2 ∑k−2 
+
+> j=1
+
+a2 
+
+> j
+
++ ( ak−1 + ak)2 = sk(a).
+
+At this value, the first k − 2 predictor coefficients are βa j , while the last two are 
+
+β
+
+2 (ak−1 + ak) − 12 , β
+
+2 (ak−1 + ak) + 12 .
+
+Hence the new coefficient vector is 
+
+βA ka + (0 , . . . , 0, − 12 , 12 ) = sk(a)Aka + b,
+
+which proves (iii). 12 A.2 Proof of Lemma 4.2 
+
+Lemma A.2 (Coefficient invariants) . For the coefficient vector a returned by any vertex, the last coor-dinate is related to the MSE error as 
+
+ak = 1 − Err MSE , (2) 
+
+the coefficients sum to zero, k∑
+
+> j=1
+
+aj = 0 , (3) 
+
+and the squared norm is given by k∑
+
+> j=1
+
+a2 
+
+> j
+
+= ak. (4) 
+
+For the coefficient vector ai returned by vertex k ≤ i ≤ k(k − 1) , we have that 12 ≤ aik < 1. Further, for 1 ≤ p ≤ k − 1, for the coefficient vector a(p) = apk returned by the last vertex of pass p, the last two coordinates are related as 
+
+a(p) 
+
+> k
+
+− a(p) 
+
+> k−1
+
+= 1 , (5) 
+
+hence 
+
+a(p) 
+
+> k−1
+
+= − Err MSE  
+
+> p
+
+. (6) 
+
+Finally, the signs of the coefficient vector after each pass are given by 
+
+a(p) 
+
+> j
+
+= 0 (j < k − p), a(p) 
+
+> j
+
+< 0 (k − p ≤ j < k ), a(p) 
+
+> k
+
+≥ 12 . (7) 
+
+Proof. Fix a learner i whose returned predictor has coefficient vector a = ( a1, . . . , a k), and write 
+
+Y = Zk,̂ Y =̂ Yi =
+
+> k
+
+∑
+
+> j=1
+
+aj Zj , Err = Err( i) = E[( Y −̂ Y )2].
+
+By the least-squares program (1), ̂ Y is the orthogonal projection of Y onto the feasible linear space 
+
+Si = span {Xi,̂ Yi−1}.
+
+Thus the residual Y −̂ Y is orthogonal to every element of Si. In particular, because ̂ Y ∈ S i,
+
+E[( Y −̂ Y )̂ Y ] = 0 . (26) As E[Zr Zs] = 1{r = s}, we have E[Ŷ Y ] = ak and E[̂ Y 2] = ∑kj=1 a2 
+
+> j
+
+. Substituting these two identities into (26) gives ak = ∑kj=1 a2 
+
+> j
+
+, proving (4). Finally, E[Y 2] = E[Z2 
+
+> k
+
+] = 1, so expanding the squared error and using (4) yields Err = E[Y 2] − 2 E[Ŷ Y ] + E[̂ Y 2] = 1 − 2ak +
+
+> k
+
+∑
+
+> j=1
+
+a2 
+
+> j
+
+= 1 − ak.
+
+This proves (2). Note that this error is non-increasing along the path as every vertex may retain its incoming predictor by setting the coefficient of its newly assigned feature to zero. At the first Type-III learner, the error is 1 /2 by (27), hence every learner from that point onward has 0 ≤ Err ≤ 1/2. We will further obtain Err ̸ = 0 shortly due to the zero-sum condition. Along with (2), this gives 1 /2 ≤ ak < 1. It remains to prove (3), (5), (6), and (7). For 1 ≤ p ≤ k − 1 and 1 ≤ i ≤ k, let a(p,i ) be the vector returned by learner k(p − 1) + i. Set a(0) = 0. Then 
+
+a(p, 0) = a(p−1) , a(p,i ) = Ti(a(p,i −1) ), a(p,k ) = a(p).
+
+The final update in every pass has the form 
+
+a(p,k ) = sk(a(p,k −1) )Aka(p,k −1) + b.
+
+The last two coordinates of Aka(p,k −1) are equal, while those of b are −1/2 and 1 /2. Their difference is therefore 1, proving (5). Combining this identity with (2) gives (6). 13 We first prove (3). During the first pass, Ti(0) = 0 for i < k , and the Type-III vertex outputs 
+
+a(1) = (0 , . . . , 0, − 12 , 12 ), Err 1 = 12 . (27) Thus (3) holds throughout the first pass. At its end, only the last two coordinates can be nonzero. In each later pass, the left-to-right Type-II updates can extend the support by at most one coordinate to the left, while the Type-I and Type-III maps do not extend it further. Hence, before every Type-I update in the regime p ≤ k − 1, the first coordinate is zero, so the Type-I output is a scalar multiple of the same zero-sum vector. Every Type-II averaging operator preserves the coordinate sum, as does scalar multiplication. Finally, Ak preserves the coordinate sum, and the entries of b sum to zero. Induction over the passes proves (3) at every vertex. We now prove (7) by induction over the passes. Equation (27) is the base case. For the induction step, fix 2 ≤ p ≤ k − 1, and assume that (7) holds at the end of pass p − 1. Since a(p−1) 1 = 0, the Type-I map at the start of pass p is the identity: by (4), its scale is a(p−1) 
+
+> k
+
+∑kj=2 (a(p−1)   
+
+> j)2
+
+= 1. Hence a(p, 1) = a(p−1) . Every Type-II scale is positive: its numerator satisfies ak > 0 by (2) and error monotonicity, and its denominator is positive. Therefore, scaling does not change support or signs. Before the Type-II updates, the induction hypothesis gives zero coordinates for j ≤ k −p and negative coordinates for k − p + 1 ≤ j ≤ k − 1. The updates through i = k − p average pairs of zeros. The update at i = k − p + 1 averages the pair ( ak−p, a k−p+1 ), making both entries negative, and every subsequent update averages two negative entries. Consequently, just before the Type-III update, 
+
+a(p,k −1)  
+
+> j
+
+= 0 (j < k − p), a(p,k −1)  
+
+> j
+
+< 0 (k − p ≤ j ≤ k − 1) .
+
+Equation (3) and the preceding sign pattern give 
+
+a(p,k −1)  
+
+> k−1
+
++ a(p,k −1)  
+
+> k
+
+= −
+
+> k−2
+
+∑
+
+> j=1
+
+a(p,k −1)  
+
+> j
+
+> 0.
+
+This is the numerator of the Type-III scale, whose denominator is positive. Thus the Type-III scale is positive as well. For j ≤ k − 2, the Type-III map only multiplies a(p,k −1)  
+
+> j
+
+by its positive scale, so the support and signs above persist. It remains to check j = k − 1. Equation (6) gives a(p) 
+
+> k−1
+
+= − Err p, where Err p > 0because the zero-sum condition rules out zero error. Finally, error monotonicity and Err 1 = 1 /2 give 
+
+a(p) 
+
+> k
+
+= 1 − Err p ≥ 12 .
+
+This completes the induction and proves (7). 
+
+## A.3 Proof of Lemma 4.3 
+
+Lemma A.3 (Cumulative-sum bound) . For every integer 0 ≤ N ≤ k − 1,
+
+Err MSE  
+
+> p
+
+≥ (1 − c(p) 
+
+> k−N
+
+)2
+
+N + 1 . (8) 
+
+Proof. Recall that using E[ZiZj ] = 1{i = j}, we have Err p = ∑
+
+> j<k
+
+(a(p) 
+
+> j
+
+)2 + ( a(p) 
+
+> k
+
+− 1) 2.
+
+The last N + 1 residual coefficients sum to 
+
+> k−1
+
+∑
+
+> j=k−N
+
+(−a(p) 
+
+> j
+
+) + (1 − a(p) 
+
+> k
+
+) = 1 − c(p) 
+
+> k−N
+
+.
+
+Cauchy–Schwarz on these N + 1 terms gives (1 − c(p) 
+
+> k−N
+
+)2 ≤ (N + 1) 
+
+
+
+> k−1
+
+∑
+
+> j=k−N
+
+(a(p) 
+
+> j
+
+)2 + (1 − a(p) 
+
+> k
+
+)2
+
+ ≤ (N + 1) Err p .
+
+14 A.4 Proof of Lemma 4.4 
+
+Lemma A.4 (One-pass recurrence) . There are positive normalization factors ηp, and a linear transfor-mation T : Rk−1 → Rk−1 such that for 1 ≤ p ≤ k − 2,
+
+w(p+1) = ηpT w(p) + Err MSE  
+
+> p+1
+
+e1, w(1) = 12 e1, (12) 
+
+where 
+
+(T w)i =
+
+
+
+0, i = 1 ,
+
+> k−i
+
+∑
+
+> t=0
+
+2−(t+1) wi−1+ t, 2 ≤ i ≤ k − 1. . (13) 
+
+Consequently (letting an empty product equal 1), 
+
+w(p+1) =
+
+> p+1
+
+∑
+
+> s=1
+
+Err MSE 
+
+> s
+
+( p∏
+
+> r=s
+
+ηr
+
+)
+
+T p+1 −se1. (14) 
+
+Proof. Let a(p+1 ,i ) be the coefficient vector after the i-th learner in pass p + 1, for 0 ≤ i ≤ k − 1. Thus 
+
+a(p+1 ,0) = a(p), and a(p+1 ,k −1) is the vector returned by learner pk + k − 1, the last Type-II learner. For 1 ≤ i ≤ k − 1, Lemma 4.1 gives 
+
+a(p+1 ,i ) = Ti
+
+(a(p+1 ,i −1) ) = si
+
+(a(p+1 ,i −1) )Aia(p+1 ,i −1) .
+
+As shown in the proof of (7), a(p)1 = 0 and the Type-I scale is 1. Hence a(p+1 ,1) = a(p). Then, by Note 1, we may ignore the positive scales introduced by the Type-II vertices when determining the vector entering the Type-III vertex. More precisely, define 
+
+˜a(p+1 ,k −1) := Ak−1 · · · A2a(p).
+
+Then a(p+1 ,k −1) is a positive scalar multiple of ˜a(p+1 ,k −1) . Since Tk is scale invariant, the final up-date may be computed from ˜a(p+1 ,k −1) . The operators A2, . . . , A k−1 successively replace the pairs (a1, a 2), . . . , (ak−2, a k−1) by their averages. Define 
+
+m0 = 0 , mj = 12
+
+(
+
+mj−1 + a(p)
+
+> j+1
+
+)
+
+, 1 ≤ j ≤ k − 2.
+
+At learner pk + 2, assigned Xpk +2 = Z2 − Z1, the first two entries are replaced by m1 = a(p)2 /2. At the next learner, the second and third entries are replaced by m2 = ( m1 + a(p)3 )/2, and so on. It follows inductively that, after all Type-II learners, the vector entering the final learner (ignoring the scale) is 
+
+˜a(p+1 ,k −1) = ( m1, . . . , m k−2, m k−2, a (p) 
+
+> k
+
+).
+
+The running-average recurrence has the explicit form 
+
+mj =
+
+> j+1
+
+∑
+
+> r=2
+
+2−(j−r+2) a(p) 
+
+> r
+
+. (28) The Type-III map applies Ak, multiplies by a positive scale, which we denote by ηp, and then adds 
+
+b = (0 , . . . , 0, − 12 , 12 ). Since w omits coordinate k, the additive term b affects only w1 among the profile coordinates. By Lemma 4.2, specifically (6), 
+
+w(p+1) 1 = −a(p+1)  
+
+> k−1
+
+= Err p+1 .
+
+For 2 ≤ i ≤ k −1, set j = k −i, substitute r = k −(i−1+ t), and use (10) with a(p)1 = 0. Equation (28) then gives 
+
+w(p+1)  
+
+> i
+
+= −ηpmk−i = ηpk−i∑
+
+> t=0
+
+2−(t+1) w(p) 
+
+> i−1+ t
+
+= ηp(T w(p))i.
+
+We have thus proved (12), which, on iteration, gives (14). 15 A.5 Proof of Theorem 4.6 
+
+Theorem 4.6. For every 2 ≤ p ≤ k − 1 and t > 0 such that ⌈t√p − 1 + 1 ⌉ ≤ k − 1,
+
+Err MSE  
+
+> p
+
+≥ (1 − e−t2/4)2
+
+t√p − 1 + 3 . (20) 
+
+Proof. Retaining the exact dependence on N in (19) (which was derived for p ≥ 4, but holds for p = 2 , 3as well), Lemma 4.3 gives, for every integer 1 ≤ N ≤ k − 1, Err p ≥ (1 − exp {− N (N − 1) /(4( p − 1)) })2
+
+N + 1 . (29) Take 
+
+N =
+
+⌈
+
+t√p − 1 + 1 
+
+⌉
+
+in (29). Then 
+
+N (N − 1) ≥ t2(p − 1) , N + 1 ≤ t√p − 1 + 3 ,
+
+which proves (20). 
+
+## A.6 Proof of Lemma 4.5 
+
+Lemma A.5 (Cumulative sums) . For 0 ≤ p ≤ k − 2 and 0 ≤ N ≤ k − 1, define the cumulative sum 
+
+c(p, N ) = 
+
+> k−1
+
+∑ 
+
+> i=N+1
+
+(T pe1)i . (15) 
+
+Then, we have 
+
+c(p, N ) = 
+
+(2p − Np
+
+)
+
+2−(2 p−N ), 0 ≤ N ≤ p, 
+
+0, p < N ≤ k − 1.
+
+(16) 
+
+Consequently, for 1 ≤ N ≤ p ≤ k − 2,
+
+c(p, N )
+
+c(p, 0) = 
+
+> N−1
+
+∏
+
+> j=0
+
+2( p − j)2p − j ≤ exp 
+
+(
+
+− N (N − 1) 4p
+
+)
+
+. (17) 
+
+Proof of Lemma 4.5. We will obtain a generating function V (x, y ) containing the coefficients ( T pe1)i,and then obtain the cumulative sum c(p, N ) from V (x, y ). For the rest of this proof, x, y are free variables, unrelated to their usage elsewhere in the manuscript. 
+
+Functional equation for V . For 1 ≤ i, j ≤ k − 1, define 
+
+vi,j = (T i−1e1
+
+) 
+
+> j
+
+,
+
+and note the boundary conditions v1,1 = 1, v1,j = 0 for j ≥ 2, and vi, 1 = 0 for i ≥ 2. For i, j ≥ k, we define vi,j = 0. Now, for i, j ≥ 2, the definition of T gives 
+
+vi,j = ∑
+
+> t≥0
+
+2−(t+1) vi−1,j −1+ t,
+
+which can be rewritten as the recurrence 
+
+vi,j = 12 vi−1,j −1 + 12 vi,j +1 . (30) Now, we arrange the coefficients vi,j on a formal power series by defining 
+
+V (x, y ) = ∑
+
+> i,j ≥1
+
+vi,j xiyj .
+
+16 Further, let V2(x) = ∑ 
+
+> i≥1
+
+vi, 2xi be the formal power series obtained from the second column of the coefficient matrix. Now using the recurrence (30), we get 
+
+∑
+
+> i,j ≥2
+
+vi,j xiyj = 12
+
+∑
+
+> i,j ≥2
+
+vi−1,j −1xiyj + 12
+
+∑
+
+> i,j ≥2
+
+vi,j +1 xiyj ,
+
+which obtains 
+
+V (x, y ) − xy = xy 
+
+2 V (x, y ) + 12y
+
+(V (x, y ) − xy − y2V2(x))
+
+using the boundary conditions. Equivalently, 
+
+(2y − xy 2 − 1) V (x, y ) = 2 xy 2 − xy − y2V2(x). (31) 
+
+Solving for V . We will now apply the so-called kernel method to solve (31) for V (x, y ). Let 
+
+P (x, y ) = 2 y − xy 2 − 1, Q(x, y ) = 2 xy 2 − xy − y2V2(x),
+
+so that (31) is P (x, y )V (x, y ) = Q(x, y ). Letting 
+
+U (x) = 1 − √1 − xx and ˜U (x) = 1 + √1 − xx ,
+
+be the roots of P (x, y ) viewed as a polynomial in y, we have 
+
+P (x, y ) = −x(y − U (x))( y − ˜U (x)) and Q(x, y ) = y ((2 x − V2(x)) y − x) .
+
+Note that U (x) is the only formal power series among the roots, the other root ˜U (x) contains the term 1/x . It is tempting to substitute y = U (x) in (31) to obtain V2(x), and eventually V (x, y ). However, we must be cautious, as [ x0]U (x)̸ = 0, and the composition of power series might not be well defined. Fortunately, we observe from the recurrence (30) that vi,j = 0 for j ≥ i + 1. Hence, the coefficient of xa
+
+in V (x, y ), denoted [ xa]V (x, y ), is a polynomial in y for all a ≥ 0, and substituting a formal power series for y yields a valid formal power series V (x, U (x)). Since P (x, U (x)) = 0, (31) shows that Q(x, U (x)) = 0. We thus have (2 x − V2(x)) U (x) = x, which in turn shows 
+
+Q(x, y ) = xU (x) y(y − U (x)) .
+
+Consequently, recalling V (x, y ) = Q(x, y )/P (x, y ), we have 
+
+V (x, y ) = (x/U (x)) y(y − U (x)) 
+
+−x(y − U (x))( y − ˜U (x)) = yU (x) ˜U (x) − yU (x) = xy 
+
+1 − xyU (x) = xy 
+
+1 − y(1 − √1 − x) ,
+
+where the last equality uses U (x) ˜U (x) = 1 /x .
+
+Extracting the partial sum. To obtain c(p, N ), we see that [xp+1 yN ](1 − y)−1V (x, y ) = 
+
+> N
+
+∑
+
+> j=1
+
+vp+1 ,j = c(p, 0) − c(p, N ),
+
+from which the required partial sum is obtained as 
+
+c(p, N ) = [ xp+1 yN ](1 − y)−1(V (x, 1) − V (x, y )) .
+
+Letting u(x) = 1 − √1 − x, we have 
+
+V (x, 1) − V (x, y )1 − y = x
+
+(1 − u(x))(1 − yu (x)) = x
+
+1 − u(x)
+
+∑
+
+> r≥0
+
+yr u(x)r ,
+
+which implies 
+
+c(p, N ) = [ xp] u(x)N
+
+1 − u(x) . (32) 17 We would ideally like to apply the Lagrange inversion formula to solve (32) using the implicit form 
+
+u(x) = x · (2 − u(x)) −1. (33) However, direct application leads to a cumbersome calculation involving sums of binomial coefficients. It is easier to apply a variant instead (see (Flajolet and Sedgewick, 2009, Appendix A.6, A.13)). To do this, we differentiate (33) to get u′(x) = 12(1 −u(x)) , which then gives 
+
+ddx u(x)N +1 = ( N + 1) u(x)N u′(x) = N + 1 2
+
+u(x)N
+
+1 − u(x) .
+
+Let H be any formal power series H(x). Then we have [ xp]H′(x) = ( p + 1)[ xp+1 ]H(x). Therefore, we have [xp] u(x)N
+
+1 − u(x) = 2
+
+N + 1 [xp] ddx u(x)N +1 = 2( p + 1) 
+
+N + 1 [xp+1 ]u(x)N +1 .
+
+Now recall the Lagrange inversion formula which gives [ xa]H(u) = 1 
+
+> a
+
+[ua−1]( H′(u)ϕ(u)a) for a formal power series u(x) satisfying the functional form u = xϕ (u), [ x0]u = 0, any formal power series H, and 
+
+ϕ(0) ̸ = 0. Applying this with ϕ(u) = (2 − u)−1, and H(u) = uN +1 , we have [xp+1 ]u(x)N +1 = N + 1 
+
+p + 1 [up−N ](2 − u)−(p+1) .
+
+Hence, for 0 ≤ N ≤ p, we use the generalized binomial coefficients to get [xp] u(x)N
+
+1 − u(x) = 2[ up−N ](2 − u)−(p+1) = 2 
+
+(−(p + 1) 
+
+p − N
+
+)
+
+(−1) p−N 2−(p+1) −(p−N ) = 2 N −2p
+
+(2p − Np
+
+)
+
+.
+
+Further, [ x0]u(x) = 0, implies that the coefficient [ xp] u(x)N 
+
+> 1−u(x)
+
+= 0 for all p < N . Finally, 
+
+c(p, N )
+
+c(p, 0) = 2 N
+
+(2p−Np
+
+)(2pp
+
+) = 
+
+> N−1
+
+∏
+
+> j=0
+
+(
+
+1 − j
+
+2p − j
+
+)
+
+≤ exp 
+
+− 
+
+> N−1
+
+∑
+
+> j=0
+
+j
+
+2p
+
+ = exp 
+
+(
+
+− N (N − 1) 4p
+
+)
+
+,
+
+for all 1 ≤ N ≤ p, where we have used 1 − x ≤ e−x and 2 p − j ≤ 2p for the inequality. 
+
+# B Omitted Proofs for Section 5 
+
+## B.1 Proof of Lemma B.1 
+
+Lemma B.1. Let G ∼ N (0 , 1) . For every 0 ≤ r ≤ 2,
+
+min {E[σ′(rG )] , E[G2σ′(rG )] } ≥ 112 √3 > 0.048 .
+
+Proof. Let S ∼ Unif {− 1, 1} be a Rademacher random variable. Since E[S] = 0 and S ∈ [−1, 1], Hoeffding’s lemma gives, for every u ∈ R,
+
+eu + e−u
+
+2 = E[euS ] ≤ exp 
+
+( u2(1 − (−1)) 2
+
+8
+
+)
+
+= eu2/2. (34) From the definition σ(t) = (1 + e−t)−1, applying (34) with u = t/ 2 gives 
+
+σ′(t) = e−t
+
+(1 + e−t)2 = 1(et/ 2 + e−t/ 2)2 = 14
+
+( et/ 2 + e−t/ 2
+
+2
+
+)−2
+
+≥ 14
+
+(
+
+et2/8)−2
+
+= 14 e−t2/4.
+
+Consequently, for every r ≥ 0, 
+
+σ′(rG ) ≥ 14 e−r2G2/4. (35) 18 For a ≥ 0, first write each expectation against the standard Gaussian density: 
+
+E[e−aG 2
+
+] = 1
+
+√2π
+
+∫
+
+> R
+
+e−(1+2 a)x2/2 dx, 
+
+E[G2e−aG 2
+
+] = 1
+
+√2π
+
+∫
+
+> R
+
+x2e−(1+2 a)x2/2 dx. 
+
+Under the change of variables z = √1 + 2 a x , we have dx = (1 + 2 a)−1/2 dz and x2 = (1 + 2 a)−1z2.Hence 
+
+E[e−aG 2
+
+] = (1 + 2 a)−1/2 1
+
+√2π
+
+∫
+
+> R
+
+e−z2/2 dz = (1 + 2 a)−1/2,
+
+E[G2e−aG 2
+
+] = (1 + 2 a)−3/2 1
+
+√2π
+
+∫
+
+> R
+
+z2e−z2/2 dz = (1 + 2 a)−3/2,
+
+where the last equalities use that the standard Gaussian density integrates to one and E[G2] = 1, respectively. Taking a = r2/4 in these identities and using (35) gives 
+
+E[σ′(rG )] ≥ 14
+
+(
+
+1 + r2
+
+2
+
+)−1/2
+
+,
+
+E[G2σ′(rG )] ≥ 14
+
+(
+
+1 + r2
+
+2
+
+)−3/2
+
+.
+
+Since 1 + r2/2 ≥ 1 and r ≤ 2, both expectations are at least 14
+
+(
+
+1 + r2
+
+2
+
+)−3/2
+
+≥ 14 (3) −3/2 = 112 √3 .
+
+## B.2 Proof of Lemma B.2 
+
+Lemma B.2. Fix γ0 ∈ [1 /2, 1] . Let Z ∼ N (0 , 1) and E ∼ N (0 , γ 0(1 − γ0)) be independent, and define 
+
+F (γ) = E ℓlogistic 
+
+(γ(E + γ0Z), Z ).
+
+Then F ′(0) < 0 and F ′(1) ≥ 0.Proof. Let X = E + γ0Z. Since E and Z are independent, mean zero gaussian random variables, we have that X is a mean zero gaussian with variance Var( X) = Var( E) + γ20 Var( Z) = γ0(1 − γ0) + γ20 = γ0.
+
+Further, Cov( X, Z ) = γ0, and 
+
+F ′(γ) = E [( σ(γX ) − σ(Z))X] = γ0 {γ E[σ′(γX )] − E[σ′(Z)] } ,
+
+where the last equality follows by applying Stein’s identity in the form E[f (E1)E2] = Cov( E1, E 2) E f ′(E1)for centered jointly gaussian random variables ( E1, E 2). Let G ∼ N (0 , 1). At γ = 0, 
+
+F ′(0) = −γ0 E[σ′(G)] < 0,
+
+because γ0 > 0 and σ′(G) > 0 almost surely. At γ = 1, we get 
+
+F ′(1) = γ0 {E[σ′(√γ0G)] − E[σ′(G)] } .
+
+Fix any g ∈ R. Since γ0 ≤ 1, we have |√γ0g| ≤ | g|. Moreover, σ′(t) = ( et/ 2 +e−t/ 2)−2, i.e., σ′(t) = σ′(|t|)and σ′ decreases on [0 , ∞). Hence 
+
+σ′(√γ0g) = σ′(|√γ0g|) ≥ σ′(|g|) = σ′(g).
+
+Taking expectations and using γ0 > 0 shows that F ′(1) ≥ 0. 19 References 
+
+Mohammadhossein Bateni, Zahra Hadizadeh, MohammadTaghi Hajiaghayi, Mahdi JafariRaviz, and Shayan Taherijam. Networked information aggregation for binary classification. In Forty-third Inter-national Conference on Machine Learning , 2026. P. Flajolet and R. Sedgewick. Analytic Combinatorics . Cambridge University Press, 2009. URL https: //doi.org/10.1017/CBO9780511801655 .P. J. Huber. Robust estimation of a location parameter. The Annals of Mathematical Statistics , 35(1): 73–101, 1964. URL https://doi.org/10.1214/aoms/1177703732 .M. Kearns, A. Roth, and E. Ryu. Networked information aggregation via machine learning. In Proceedings of the Annual ACM–SIAM Symposium on Discrete Algorithms (SODA) , 2026. K.-C. Li and N. Duan. Regression analysis under link violation. The Annals of Statistics , 17(3):1009– 1052, 1989. URL https://doi.org/10.1214/aos/1176347254 .20

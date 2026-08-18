@@ -1,0 +1,331 @@
+Title: When More Data Become Less Informative: Finite-Precision Periodicization and Collapse of Forecast-Error Lyapunov Estimates
+
+URL Source: https://arxiv.org/pdf/2608.16120v1
+
+Published Time: Tue, 18 Aug 2026 01:36:59 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# When More Data Become Less Informative: Finite-Precision Periodicization and Collapse of Forecast-Error Lyapunov Estimates 
+
+Andrei Velichko a,1, ∗, Viet-Thanh Pham b,2 
+
+> aInstitute of Physics and Technology, Petrozavodsk State University, 33 Lenina Prospekt, Petrozavodsk, Republic of Karelia, 185910, Russia
+> bFaculty of Electronics Technology, Industrial University of Ho Chi Minh City, Ho Chi Minh City, Vietnam
+
+Abstract 
+
+Largest Lyapunov exponents (LLEs) quantify exponential sensitivity, but data-driven estimates are often obtained from finite-precision trajectories. We show that increasing the length of a single reduced-precision chaotic record can eventually degrade a forecast-error LLE estimate. Using the logistic map at r = 4 , an ESP32 single-precision trajectory is reproduced bit-for-bit by NumPy float32 . Across 10,000 random float32 initial conditions, every trajectory reaches an exact recurrence before iteration 7612. For one long 
+
+float32 record, the estimated LLE changes from 0.6853 at N = 15 ,000 to 
+
+0.1827 at N = 20 ,000 and approximately zero at N = 30 ,000 as exact train– test histories saturate. At N = 100 ,000 , the long float32 record gives 0.0016 ,whereas independently restarted length-100 trajectories give 0.6917 ; matched 
+
+float64 controls remain near ln(2) = 0 .6931 . The collapse is reproduced for 28 representative initial conditions, and its onset is strongly correlated with the recurrence scale set by transient length and digital period (Pearson 
+
+r = 0 .982 ). Thus, finite-state recurrence can turn additional samples into duplicate futures rather than new dynamical information, while independent restarts substantially delay this saturation. 
+
+Keywords: Lyapunov exponent, finite precision, digital chaos, logistic map,   
+
+> ∗Corresponding author.
+> Email address: velichkogf@gmail.com (Andrei Velichko)
+> 1ORCID: 0000-0002-9341-1831.
+> 2ORCID: 0000-0001-5151-9812. arXiv:2608.16120v1 [nlin.CD] 17 Aug 2026
+
+k-nearest neighbors, forecast error, embedded computing 
+
+1. Introduction 
+
+A positive largest Lyapunov exponent (LLE) is one of the standard quan-titative signatures of chaos. Classical time-series methods infer exponential instability from the evolution of nearby reconstructed trajectories or tangent-space surrogates [2, 3, 4]. More recently, data-driven and machine-learning formulations have broadened this viewpoint: reservoir and supervised-learning models can recover chaotic instability information from observed trajecto-ries [5, 6], while our previous work estimated the LLE directly from the logarithmic growth of out-of-sample multi-horizon forecast error [1]. In that formulation, a predictor is trained on a scalar record, absolute forecast errors are geometrically averaged, and the slope of log E(h) versus horizon h serves as an LLE proxy. The method is attractive for short experimental records because it does not require explicit governing equations. Finite precision introduces a separate and well-established issue. A de-terministic digital map has a finite state space; once an exact machine state repeats, its complete future must also repeat. Consequently, sufficiently long finite-precision trajectories consist of a transient followed by an exact digital cycle. Periodicity induced by floating-point representation has been documented for the logistic map and other low-dimensional maps [7, 8], and broader studies have characterized how precision, rounding, switching, and state-space structure influence digital-chaos complexity and degradation [10, 9, 11]. A particularly important implication of this literature is that reduced precision should not be viewed only as a small numerical perturbation. Digital-chaos studies describe finite-word-length implementations as effective dynam-ical systems with their own reachable states, transients, cycle structure, and basin organization [11, 8, 9]. Several mitigation schemes have therefore been developed to extend digital periods or break repeated-state trapping, including self-perturbation and delay/disturbance strategies [12, 13]. The engineering motivation is substantial: chaotic maps are implemented on FPGA, DSP, microcontrollers, and embedded processors for pseudorandom generation, cryptography, control, and signal processing [14, 15, 16, 17, 20]. In such settings, single precision or fixed-point arithmetic can be a deliberate trade-off for speed, memory, area, or power. 2The missing link addressed here is what happens when this finite-state digital recurrence meets a forecast-based Lyapunov estimator. The litera-ture contains extensive work on finite-precision degradation and, separately, on time-series/ML estimation of Lyapunov exponents. To the best of our knowledge, however, previous studies have not explicitly shown a positive forecast-error LLE estimate decreasing toward zero as record length increases after exact digital recurrence begins, nor identified finite-precision dupli-cate histories with identical futures as a mechanism for artificially perfect prediction in kNN/analogue forecasting. This distinction matters because nearest-neighbor forecasting becomes qualitatively different once a test history appears exactly in the training catalog. The mechanism is simple but consequential. Suppose that after a transient 
+
+μ a digital orbit has period P . Then 
+
+vn+P = vn, xn+P +h = xn+h, (1) for any history vector vn and forecast horizon h fully contained in the cycle. If the training set contains K exact copies of a test history, a K-nearest-neighbor predictor can return an identical future, so e(h) = 0 up to the numerical floor. A forecast-error LLE estimator then observes a nearly flat log E(h)
+
+profile and reports bλ ≈ 0, even though the intended real-valued system may still have a positive LLE. This is different from the known use of precision-or rounding-induced pseudo-orbit separation to estimate positive Lyapunov growth [18, 19]: our focus is the opposite long-record limit, where finite-state recurrence suppresses forecast-error growth. This question also changes the usual interpretation of “more data.” For or-dinary statistical learning, larger training sets generally improve neighborhood coverage. In a deterministic finite-state chaotic record, however, sufficiently late samples may add exact copies rather than new dynamical information. The practical issue is therefore not whether a reduced-precision processor computes its arithmetic incorrectly. On the contrary, it may compute the specified finite-precision map exactly, while the long-time dynamics of that map has become periodic. For on-device chaos diagnostics, edge computing, embedded experiments, or digitally generated test signals, this distinction can determine whether a long record still represents the instability of the intended real-valued system. The present study isolates this effect using the logistic map at r = 4 , for which the real-valued reference is λ = ln 2 . First, an ESP32 implementation 3is validated against NumPy float32 ; the trajectories agree bit-for-bit over 
+
+1,000 ,001 stored values, so large systematic sweeps can subsequently be carried out in software without treating hardware and Python float32 as different dynamical objects. Second, 10,000 random initial conditions are used to characterize exact digital recurrence and the dominant period structure. Third, we measure how the kNN forecast-error LLE changes as one continuous record is lengthened and directly compare the transition with exact train–test neighbor saturation. Fourth, the same total data budget is redistributed among independently restarted short trajectories to test whether acquisition strategy can preserve access to the pre-periodic chaotic transient. Finally, a stratified multi-seed experiment shows that the collapse is not specific to 
+
+x0 = 0 .2 and that its onset is quantitatively linked to the transient μ, period 
+
+P , neighbor count K, and train fraction. The remainder of this paper is organized as follows. Section 2 describes the finite-precision logistic-map realizations, hardware validation, forecast-error LLE estimator, and long-record and restarted acquisition protocols. Section 3 presents the digital-cycle statistics, the long-record LLE collapse, its relation to exact-neighbor saturation, and the multi-seed recurrence-scale analysis. Section 4 discusses the mechanism, practical implications for reduced-precision computation, and the broader interpretation of forecast-error saturation as a recurrence diagnostic. Finally, Section 5 summarizes the main conclusions. 
+
+2. Methods 
+
+2.1. Reference system and numerical realizations 
+
+We consider the logistic map 
+
+xn+1 = rx n(1 − xn), r = 4 . (2) For the ideal real-valued system at r = 4 , the reference LLE is 
+
+λref = ln 2 ≈ 0.693147 . (3) Two numerical realizations were used. The reduced-precision realization evaluates Eq. (2) in IEEE-like single precision using the operation order 
+
+xn+1 = float32 (4 .0f xn (1 .0f − xn)) , (4) where all operands are single-precision values. A float64 realization from the same quantized initial condition serves as a higher-precision numerical control. 4The hardware validation used an ESP32 implementation and a long record with the initial condition stored as x0 = 0 .20000000298023224 . The record contained 1,000 ,001 values. The corresponding NumPy float32 trajectory was generated with the same operation order. After establishing exact agree-ment, the systematic initial-condition and data-budget sweeps were performed in Python. 
+
+2.2. Exact finite-precision cycles 
+
+For a deterministic finite-precision trajectory, we define the first exact recurrence by 
+
+xμ+P = xμ, (5) with equality tested at the machine-bit level. Here μ is the transient length before the digital cycle and P is the exact cycle period. Once this equality occurs, determinism implies 
+
+xμ+P +h = xμ+h, h ≥ 0. (6) Thus, the number of distinct states visited before the first repeated state is 
+
+μ + P .Cycle statistics were first evaluated for 10,000 unique random float32 
+
+initial conditions in (0 , 1) . Exact periods and transient lengths were identified using a vectorized Floyd cycle-detection procedure and verified from the generated trajectories. A set of 130 valid long ESP32 records was retained as an independent hardware spot check of the dominant digital periods. 
+
+2.3. kNN multi-horizon forecast-error LLE 
+
+The LLE estimator follows the forecast-error principle introduced in [1]. A history vector of length Y is constructed as 
+
+vn = ( xn, x n+1 , . . . , x n+Y −1). (7) For each test history, the K nearest training histories are found in Euclidean distance. The future at horizon h is predicted by averaging the corresponding 
+
+K training futures. With xi(h) denoting the true test future and bxi(h) the prediction, the absolute forecast error is 
+
+ei(h) = |xi(h) − bxi(h)|. (8) 5The geometric mean absolute error (GMAE) is evaluated as 
+
+E(h) = exp 
+
+"
+
+1
+
+NtNtX
+
+> i=1
+
+ln (max( ei(h), ε )) 
+
+#
+
+, (9) where ε = 10 −12 is a numerical floor. The estimated exponent is the least-squares slope 
+
+ln E(h) ≈ C + bλh. (10) The present experiments use Y = 5 , K = 3 , and horizons h = 1 , . . . , 5.These settings deliberately stay close to the previously published positive-LLE formulation so that the present study tests a change in the data-generating regime rather than a new estimator design. 
+
+2.4. Long-record and restarted-trajectory protocols 
+
+For the long-record protocol, one continuous trajectory of total length 
+
+N is split chronologically: the first 70% forms the training region and the last 30% the test region. Windows are fully contained within their respective regions, and no random train–test mixing is used. For the restarted protocol, the same total data budget is distributed among independent trajectories of length 100. Whole trajectories, rather than individual windows, are assigned to training and test sets using the same 70/30 fraction. This prevents overlapping windows from the same short trajectory from appearing on both sides of the split. The analysis excludes the first 20 points of each trajectory when forming histories. The total budgets ranged from 10 3 to 10 6 stored points. To diagnose the mechanism of collapse, we additionally record the fraction of test histories whose Kth nearest-neighbor distance is exactly zero, 
+
+Fexact ,K = #{i : di,K = 0 }
+
+Nt
+
+. (11) For K = 3 , Fexact ,K = 1 means that every queried test history has at least three exact copies in the training set. Because all exact copies of a deterministic cycle have identical futures, the kNN forecast becomes exact apart from the numerical floor in Eq. (9). 62.5. Generality across initial conditions 
+
+To determine whether the collapse is specific to the control seed x0 = 0 .2,10,000 candidate float32 seeds were classified by (μ, P ). A stratified subset of 28 representative initial conditions was then selected across the observed digital periods P ∈ { 1, 136 , 143 , 436 , 836 , 4344 } and across a broad range of transient lengths. For each seed, long-record float32 and matched float64 
+
+LLE curves were computed over N = 2 ,000 –100 ,000 .For a cycle of period P , a simple estimate of the data scale at which K
+
+exact copies can become available in the training region is 
+
+N pred  
+
+> K
+
+≈ μ + KP ftrain 
+
+, (12) with ftrain = 0 .7. This is not used as a fitted model; it is an interpretable recurrence scale against which the observed collapse is compared. 
+
+3. Results 
+
+3.1. Hardware validation reveals two distinct finite-precision time scales 
+
+The first result separates two effects that occur on very different time scales. For the control seed, the ESP32 single-precision trajectory and NumPy 
+
+float32 trajectory were identical at the bit level for all 1,000 ,001 stored values. Hence the software implementation can be treated as an exact emulator of the tested hardware arithmetic for subsequent sweeps. By contrast, the float64 trajectory begins to differ from float32 imme-diately because the arithmetic precision is different. The early difference is exponentially amplified. Fitting ln |x32  
+
+> n
+
+− x64  
+
+> n
+
+| over iterations n = 1 , . . . , 10 
+
+gives a slope of 0.695625 , only about 0.36% above ln 2 . This observation is consistent with previous work using numerical pseudo-orbit differences to access positive Lyapunov growth [18, 19]; it is used here as a validation and motivation rather than claimed as a new LLE estimator. At much longer times the same float32 control trajectory ceases to behave as an aperiodic chaotic record. Its first exact repeated state occurs at 
+
+μ = 1744 , P = 4344 , μ + P = 6088 . (13) All later values repeat the same period-4344 digital cycle. Thus a million-point record contains an early region that displays the expected Lyapunov sensitivity but, after only a few thousand iterations, overwhelmingly consists of exact repetitions of a finite machine cycle. 70 10 20 30 40 50 60 Iteration n       
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> xn
+> (a) Early trajectories
+> float32 (ESP32 = NumPy) float64
+> 0510 15 20 Iteration n
+> 16
+> 14
+> 12
+> 10
+> 8
+> 6
+> 4
+> 2
+> Log absolute difference
+> (b) Precision-induced divergence
+> ln| x32
+> nx64
+> n|
+> fit slope = 0.6956 reference ln 2 = 0.6931
+
+Figure 1: Hardware validation and early precision sensitivity for the logistic map at 
+
+r = 4 . (a) The ESP32 and NumPy float32 realizations coincide bit-for-bit; the float64 
+
+trajectory separates visibly after the first tens of iterations. (b) The early logarithmic 
+
+float32 –float64 separation has slope 0.6956 , close to the real-valued LLE ln 2 = 0 .6931 .Table 1: Exact digital-period distribution for 10,000 random float32 initial conditions at 
+
+r = 4 .
+
+Period P Count Fraction (%) 1 1919 19.19 136 9 0.09 143 3 0.03 436 283 2.83 836 1062 10.62 4344 6724 67.24 
+
+3.2. Exact periodicization is typical, not exceptional 
+
+The control cycle is not a special feature of x0 = 0 .2. Every one of the 10,000 tested random float32 initial conditions reached an exact repeated state. Only six digital periods were observed in this sweep (Table 1). The period-4344 cycle dominated, attracting 67 .24% of the initial conditions. A period-1 state, corresponding to collapse to an exact fixed machine value, accounted for 19 .19% . Periods 836 and 436 accounted for another 10 .62% 
+
+and 2.83% , respectively; periods 136 and 143 were rare. The transient length μ had median 790 and maximum 3268. More directly relevant to long-record information content, the first exact repeat index 
+
+μ + P had median 4651 and maximum 7612. Therefore, in this 10,000-seed 81 136 143 436 836 4344 Exact digital period P          
+
+> 10 1
+> 10 0
+> 10 1
+> Initial conditions (%)
+> 19.19% 0.09% 0.03% 2.83% 10.62% 67.24%
+> (a) Period distribution, 10,000 float32 seeds
+> 01000 2000 3000 4000 5000 6000 7000 First exact repeat index +P
+> 020 40 60 80 100 Cumulative fraction (%)
+> (b) Time to exact digital recurrence
+> median = 4651 max = 7612
+
+Figure 2: Finite-precision periodicization across 10,000 random float32 initial conditions. (a) The digital state space is dominated by a small number of exact cycles, especially 
+
+P = 4344 . (b) The cumulative distribution of the first exact repeat index μ + P shows that all tested trajectories repeat by iteration 7612 (median 4651). 
+
+experiment, no float32 trajectory contributed a new state beyond 7612 iterations before entering exact repetition. A nominal record of one million points can consequently be dominated at the > 99% level by repeated traversal of a finite digital cycle rather than by exploration of new states. The independent hardware set was consistent with this structure: all 130 valid long ESP32 records entered exact cycles, with the same dominant period families. Because the systematic software implementation had already been validated bit-for-bit against the ESP32 control trajectory, the larger 10,000-seed sweep is used for the statistics below. 
+
+3.3. A long float32 record drives the forecast-error LLE to zero 
+
+Figure 3a shows the main result. At small and intermediate data budgets, the long-record float32 estimate is close to the positive reference value, with ordinary finite-sample variability. For example, 
+
+bλ32 ,long (15 ,000) = 0 .6853 , (14) which is close to ln 2 . Increasing the same record by only a few thousand points causes a sharp change: 
+
+bλ32 ,long (20 ,000) = 0 .1827 , (15) 
+
+bλ32 ,long (30 ,000) = 0 .000245 . (16) 910 3 10 4 10 5 10 6      
+
+> Total data budget N
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 Estimated
+> (a) Forecast-error LLE
+> float32 long float64 long float32 restarted float64 restarted reference ln 2
+> 10 310 410 510 6
+> Total data budget N
+> 020 40 60 80 100 Exact-neighbor fraction  Fexact,  K (%)
+> (b) Exact-neighbor saturation ( K= 3)
+> float32 long float64 long float32 restarted float64 restarted
+
+Figure 3: Central experiment: data-budget dependence of the forecast-error LLE. (a) A single long float32 record exhibits a sharp collapse from a positive LLE estimate to approximately zero, while the float64 controls remain near ln 2 . Restarted float32 
+
+trajectories delay the degradation. (b) Exact-neighbor fraction Fexact ,K , defined as the fraction of test histories for which all K = 3 nearest neighbors in the training set are exact zero-distance matches. The rapid increase of Fexact ,K toward unity coincides with the long-record float32 LLE collapse. 
+
+For N ≥ 30 ,000 the estimator remains essentially at zero, reaching −0.0027 
+
+at N = 10 6.This collapse is directly synchronized with the appearance of multiple exact neighbors in the training set (Fig. 3b). At N = 15 ,000 , only 1.31% of queried test histories have all three nearest neighbors at exactly zero distance. At N = 20 ,000 , this fraction jumps to 73 .94% , and at N = 30 ,000 it reaches 
+
+100% . Once three exact copies of the same digital-cycle history are present in training, all three neighbors have the same deterministic future as the test history. The kNN average therefore reproduces the future exactly, ei(h) = 0 ,and the GMAE is pinned to the numerical floor across all forecast horizons. The line in Eq. (10) becomes flat and bλ → 0.The matched float64 long-record control does not show this behavior on the tested scale. Its exact-neighbor fraction remains zero and the estimate converges toward the real-valued reference, reaching 0.6991 at N = 10 5 and 
+
+0.6953 at N = 10 6.
+
+3.4. Restarted short trajectories preserve dynamical information longer 
+
+The key practical comparison uses an equal total data budget but changes how the data are organized. At N = 100 ,000 , one continuous float32 record 10 Table 2: Matched N = 100 ,000 data budget. The underlying estimator and split rule are unchanged; only precision and data organization differ. 
+
+Condition bλ Fexact ,K (%) 
+
+float32 , long 0.0016 100.00 
+
+float32 , restarted 0.6917 1.17 
+
+float64 , long 0.6991 0.00 
+
+float64 , restarted 0.7019 0.00 Reference real-valued map 0.6931 –is already deep in its repeated digital cycle and gives 
+
+bλ32 ,long = 0 .0016 . (17) Distributing the same 100,000 stored points among 1000 independently restarted trajectories of length 100 gives 
+
+bλ32 ,restart = 0 .6917 , (18) which is very close to ln 2 . The corresponding float64 values are 0.6991 and 
+
+0.7019 , respectively (Table 2). Thus, at a matched data budget, the loss of the LLE is not caused by an insufficient number of samples; it is caused by how the finite-precision samples revisit the same deterministic states. Restarting is not an unlimited cure. At very large total budgets, indepen-dently restarted float32 trajectories themselves begin to collide in the finite state space. For the restarted protocol, Fexact ,K rises from 1.17% at N = 10 5
+
+to 7.52% at N = 3 × 10 5 and 26 .31% at N = 10 6. In parallel, the estimated LLE decreases from 0.6917 to 0.6454 and 0.5164 . Restarting therefore delays 
+
+finite-state saturation by preventing one short cycle from dominating the entire record, but it cannot make the finite state space infinite. 
+
+3.5. Collapse scale follows the digital period across initial conditions 
+
+The multi-seed experiment confirms that the phenomenon is not tied to the control initial condition. All 28 representative float32 seeds, spanning six exact digital periods and a broad range of transient lengths, reached a regime with Fexact ,K ≥ 0.5 within the tested budgets. All 28 also reached 
+
+|bλ| ≤ 0.1. At the maximum tested budget N = 100 ,000 , the mean float32 
+
+estimate across these deliberately stratified seeds is 0.00024 (range −0.00468 
+
+11 10 4 10 5                      
+
+> Long-record budget N
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 Median
+> (a) Collapse across digital periods
+> P= 1
+> P= 136
+> P= 143
+> P= 436
+> P= 836
+> P= 4344 reference ln 2
+> 05000 10000 15000 20000 25000 30000 Predicted recurrence scale ( + 3 P)/0.7
+> 05000 10000 15000 20000 25000 30000 First tested  N with | |  0.1
+> (b) Predicted vs observed collapse scale
+> P= 1
+> P= 136
+> P= 143
+> P= 436
+> P= 836
+> P= 4344
+> y=x
+
+Figure 4: Generality across initial conditions. (a) Median float32 LLE estimates grouped by exact digital period. Shorter cycles lead to earlier collapse. The 28-seed set is stratified by period and therefore is not intended to represent natural basin probabilities. (b) The observed collapse scale tracks the interpretable recurrence scale (μ + 3 P )/0.7.
+
+to 0.00478 ), whereas the matched float64 mean is 0.69749 (range 0.68430 
+
+to 0.70575 ), with zero exact-K saturation in all float64 cases. Importantly, the position of the collapse changes systematically with the digital period. Short cycles such as P = 436 and P = 836 cause much earlier loss of the positive forecast-error slope than the dominant P = 4344 cycle (Fig. 4a). The simple recurrence scale from Eq. (12), 
+
+N pred 3 ≈ μ + 3 P
+
+0.7 , (19) strongly correlates with the first tested data budget at which |bλ| ≤ 0.1:Pearson r = 0 .982 and Spearman ρ = 0 .969 . The same predicted scale correlates with the onset of Fexact ,K ≥ 0.5 with Pearson r = 0 .985 and Spearman ρ = 0 .959 . These correlations are not introduced as a universal law, because the exact transition also depends on history length, neighbor multiplicity, split geometry, and sampling. They nevertheless demonstrate that the estimator collapse is controlled by the finite-state recurrence structure rather than by a peculiar property of one seed. 
+
+4. Discussion 
+
+The experiments expose a failure mode that is easy to miss when a chaotic record is inspected only over short time scales. In the first tens of iterations, 12 the float32 and float64 trajectories display exactly the expected signature of chaos: a microscopic numerical mismatch grows at approximately the positive Lyapunov rate. If the analysis stopped there, reduced precision would appear to be only a matter of trajectory reproducibility. The long-time behavior is qualitatively different. Because the float32 map is a deterministic finite-state system, the trajectory eventually becomes periodic, and after cycle capture a long record is no longer sampling an aperiodic chaotic orbit of the ideal real-valued map. The result should be placed against two established strands of literature. First, finite-precision periodicization and dynamical degradation are known properties of digital chaos, and previous work has analyzed cycle lengths, finite-state graphs, dominant basins, and strategies for disrupting recurrence [7, 8, 10, 9, 11, 12, 13]. Second, prediction- and learning-based approaches to chaotic dynamics have demonstrated that useful instability information can be extracted from data without explicit tangent equations [5, 6, 1]. The contribution here is the connection between these two strands: exact digital recurrence changes the statistical learning problem itself by creating duplicate histories with duplicate futures. This distinction is crucial for forecast-based estimators. The estimator in Eq. (10) does not measure the derivative of the mathematical map directly; it measures how out-of-sample predictive uncertainty grows with forecast horizon. Before digital recurrence dominates, nearby histories have nearby but not identical futures and the forecast-error growth reflects the underlying chaotic expansion. After exact periodicization, the learning problem changes. Training and test sets can contain exact copies of the same history, and a deterministic nearest-neighbor model can retrieve the future without uncer-tainty. A flat forecast-error profile is then interpreted as bλ ≈ 0, even though the real-valued logistic map at r = 4 remains strongly chaotic. The important practical implication is that more data can reduce the validity of the dynamical inference . Conventional statistical intuition favors larger data sets because they reduce variance and improve neighborhood coverage. Here that intuition is initially correct: the LLE estimates approach 
+
+ln 2 as the data budget increases. Beyond the finite-state recurrence scale, however, additional data are mostly duplicate visits to already known machine states. Neighborhood coverage becomes perfect for the wrong reason. The estimator is no longer limited by sampling error; it is limited by the mismatch between the intended real-valued system and the periodic digital surrogate that generated the data. 13 This effect should be considered whenever data-driven chaos diagnostics are run on reduced-precision or resource-constrained devices. The ESP32 experiment is useful in this context because it demonstrates that the phe-nomenon is not a peculiarity of a Python simulation: the tested hardware arithmetic is reproduced bit-for-bit by the software float32 emulation. Once this equivalence is established, large software sweeps characterize the same finite-state implementation efficiently. The broader engineering lesson is that precision choice is part of the dynamical model. A microcontroller or edge device that uses single precision may faithfully execute its arithmetic while still producing a long-time state graph that is qualitatively different from the corresponding real-valued chaotic map. Most existing countermeasures to digital-chaos degradation modify the generator, for example by perturbing repeated states, coupling maps, intro-ducing delays, or increasing effective dimensionality [12, 13, 14]. Our restarted protocol addresses a different question: if the scientific target is the instability of the underlying real-valued dynamics, can the data-acquisition protocol avoid over-sampling the eventual machine cycle without modifying the map itself? This distinction is useful for experiments and simulations in which repeated initialization is available but the implemented arithmetic cannot be changed. The restarted-trajectory result suggests a simple mitigation when the scientific target is the underlying positive LLE rather than the asymptotic machine cycle. Instead of collecting one extremely long continuous record, the same data budget can be distributed across many short trajectories initialized independently before any individual trajectory reaches its digital cycle. At N = 100 ,000 this changes the float32 estimate from essentially zero to 0.6917 without changing the kNN estimator. This is not a numerical correction to the map; it is a data-acquisition strategy that preserves access to the pre-periodic chaotic transient. The method is particularly natural in simulations, repeatable experiments, and digitally generated test signals where restarts are available. The restarted protocol also reveals the fundamental limit of this strategy. As the number of short trajectories becomes very large, finite-state collisions occur across trajectories, and exact neighborhoods reappear. Thus, the relevant concept is not simply “short is better than long,” but rather finite-state occupancy . A useful acquisition protocol should keep the effective fraction of exact duplicate histories below the level at which the predictor becomes dominated by memorized futures. The exact threshold will depend 14 on numerical precision, predictor architecture, history dimension, noise, and the number K of neighbors. Beyond Lyapunov-exponent estimation, the same mechanism suggests a practical diagnostic of recurrence and information saturation in sequential data. If newly acquired samples increasingly reproduce previously observed history–future patterns, nearest-neighbor forecasts become progressively more exact and the forecast-error growth slope tends toward zero. A systematic decay of the estimated growth slope, particularly when accompanied by an increasing exact- or near-exact-neighbor fraction such as Fexact ,K , can therefore indicate that a record is becoming dominated by recurrent patterns rather than supplying genuinely new dynamical information. This interpretation is not unique to strict periodicity: stable dynamics, noise floors, leakage, or other forms of regularity can also flatten forecast-error growth. The proposed use should therefore be regarded as a recurrence/information-saturation diagnostic rather than as a standalone periodicity test. The present study is deliberately based on a single canonical map. This keeps the mechanism transparent: the reference exponent is exactly known, the finite-state cycle structure can be measured exhaustively over many seeds, and the hardware/software equivalence can be validated directly. The goal is therefore not to claim a universal period law for all maps, but to demonstrate a general mechanism that follows from deterministic finite-state recurrence and can contaminate forecast-based dynamical inference. The multi-seed and multi-period results show that the collapse is not peculiar to x0 = 0 .2 or to one digital cycle. Future work can test other maps, fixed-point arithmetic, half precision, noisy measurements, and predictors that do not explicitly memorize nearest neighbors. A second limitation is that the real-valued reference and the digital implementation answer different dynamical questions. After exact cycle capture, the asymptotic float32 machine system is periodic; a near-zero forecast-error slope is therefore not “wrong” if the scientific object of interest is the finite-state digital automaton itself. It becomes misleading only when the analyst interprets the estimate as the LLE of the intended real-valued chaotic system. This distinction should be stated explicitly in embedded and digital-chaos studies. 15 5. Conclusions 
+
+This work demonstrates that finite-precision periodicization can fundamen-tally alter a data-driven forecast-error Lyapunov estimate. In the logistic-map benchmark, single-precision trajectories first display the expected Lyapunov-rate sensitivity to numerical perturbations and then, after only a few thousand steps, enter exact digital cycles. Across 10,000 random initial conditions, every float32 trajectory repeated before iteration 7612, with a period-4344 
+
+cycle attracting about two thirds of the seeds. For one long record, these repetitions eventually saturate the kNN training and test sets with exact copies. The forecast becomes artificially exact, the multi-horizon GMAE loses its exponential growth, and the estimated positive LLE collapses toward zero. At a matched 100,000-point budget, one continuous float32 record gives bλ = 0 .0016 , whereas independently restarted short trajectories give bλ = 0 .6917 , close to the real-valued value ln 2 .Higher-precision controls remain close to the reference. The collapse occurs across multiple initial conditions and digital periods, with its onset strongly related to the finite-state recurrence scale (μ + KP )/f train .The practical conclusion is that record length alone is not a reliable measure of information content in reduced-precision chaotic data. When the objective is to infer the dynamics of an underlying real-valued system, long records from a finite-state implementation should be checked for exact recurrence, and restarted acquisition or higher precision should be considered before simply collecting more data. 
+
+CRediT authorship contribution statement Andrei Velichko: Conceptualization, Methodology, Software, Formal analysis, Visualization, Writing - original draft. Viet-Thanh Pham: Hard-ware implementation, Data acquisition, Validation, Discussion, Writing -review and editing. 
+
+Declaration of competing interest 
+
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper. 16 Data and code availability 
+
+The data and Python code supporting the findings of this study are available from the corresponding author upon reasonable request. 
+
+Funding 
+
+This research was funded by the Russian Science Foundation, grant number 22-11-00055-P. 
+
+References 
+
+[1] A. Velichko, M. Belyaev, P. Boriskov, A novel approach for estimating largest Lyapunov exponents in one-dimensional chaotic time series using machine learning, Chaos: An Interdisciplinary Journal of Nonlinear Science 35 (10) (2025) 101101. https://doi.org/10.1063/5.0289352. [2] A. Wolf, J.B. Swift, H.L. Swinney, J.A. Vastano, Determining Lyapunov exponents from a time series, Physica D: Nonlinear Phenomena 16 (3) (1985) 285–317. https://doi.org/10.1016/0167-2789(85)90011-9. [3] M.T. Rosenstein, J.J. Collins, C.J. De Luca, A practical method for calcu-lating largest Lyapunov exponents from small data sets, Physica D: Non-linear Phenomena 65 (1–2) (1993) 117–134. https://doi.org/10.1016/0167-2789(93)90009-P. [4] U. Parlitz, Estimating Lyapunov Exponents from Time Series, in: C. Skokos, G.A. Gottwald, J. Laskar (Eds.), Chaos Detection and Predictabil-ity , Lecture Notes in Physics, vol. 915, Springer, Berlin, Heidelberg, 2016, pp. 1–34. https://doi.org/10.1007/978-3-662-48410-4_1. [5] J. Pathak, Z. Lu, B.R. Hunt, M. Girvan, E. Ott, Using machine learning to replicate chaotic attractors and calculate Lyapunov exponents from data, Chaos 27 (12) (2017) 121102. https://doi.org/10.1063/1.5010300. [6] D. Ayers, J. Lau, J. Amezcua, A. Carrassi, V. Ojha, Supervised machine learning to estimate instabilities in chaotic systems: Estimation of local Lyapunov exponents, Quarterly Journal of the Royal Meteorological Society 149 (2022) 1236–1262. https://doi.org/10.1002/qj.4450. 17 [7] K.J. Persohn, R.J. Povinelli, Analyzing logistic map pseudorandom number generators for periodicity induced by finite precision floating-point representation, Chaos, Solitons & Fractals 45 (3) (2012) 238–245. https://doi.org/10.1016/j.chaos.2011.12.006. [8] Z. Galias, Periodic Orbits of the Logistic Map in Single and Double Precision Implementations, IEEE Transactions on Circuits and Systems II: Express Briefs 68 (2021) 3471–3475. https://doi.org/10.1109/TCSII.2021.3081604. [9] M. Klöwer, P.V. Coveney, E.A. Paxton, T.N. Palmer, Periodic orbits in chaotic systems simulated at low precision, Scientific Reports 13 (1) (2023) 11410. https://doi.org/10.1038/s41598-023-37004-4. [10] M. Antonelli, L. De Micco, H.A. Larrondo, O.A. Rosso, Complexity of Simple, Switched and Skipped Chaotic Maps in Finite Precision, Entropy 
+
+20 (2) (2018) 135. https://doi.org/10.3390/e20020135. [11] C. Fan, Q. Ding, Analysis and resistance of dynamic degradation of digital chaos via functional graphs, Nonlinear Dynamics 103 (2021) 1081–1097. https://doi.org/10.1007/s11071-020-06160-x. [12] L. Merah, P. Lorenz, A.-P. Adda, A New and Efficient Scheme for Improving the Digitized Chaotic Systems From Dynamical Degradation, IEEE Access 9 (2021) 88997–89008. https://doi.org/10.1109/ACCESS.2021.3089913. [13] B. Li, K. Sun, H. Wang, W. Liu, A delay-disturbance method to counteract the dynamical degradation of digital chaotic systems and its application, Chaos, Solitons & Fractals 182 (2024) 114843. https://doi.org/10.1016/j.chaos.2024.114843. [14] Q. Wang, S. Yu, C. Li, J. Lü, X. Fang, C. Guyeux, J.M. Bahi, Theoretical Design and FPGA-Based Implementation of Higher-Dimensional Digital Chaotic Systems, IEEE Transactions on Circuits and Systems I: Regular Papers 63 (3) (2016) 401–412. https://doi.org/10.1109/TCSI.2016.2515398. [15] L.G. de la Fraga, E. Torres-Pérez, E. Tlelo-Cuautle, C. Mancillas-López, Hardware implementation of pseudo-random number genera-18 tors based on chaotic maps, Nonlinear Dynamics 90 (2017) 1661–1670. https://doi.org/10.1007/s11071-017-3755-z. [16] A. Flores-Vergara, E.E. García-Guerrero, E. Inzunza-González, O. López-Bonilla, E. Rodríguez-Orozco, J. Cárdenas-Valdez, E. Tlelo-Cuautle, Implementing a chaotic cryptosystem in a 64-bit embedded system by using multiple-precision arithmetic, Nonlinear Dynamics 96 (2019) 497– 516. https://doi.org/10.1007/s11071-019-04802-3. [17] D. Murillo-Escobar, M. Murillo-Escobar, C. Cruz-Hernández, A. Arellano-Delgado, R. López-Gutiérrez, Pseudorandom number gener-ator based on novel 2D Hénon-Sine hyperchaotic map with micro-controller implementation, Nonlinear Dynamics 111 (2022) 6773–6789. https://doi.org/10.1007/s11071-022-08101-2. [18] M.L.C. Peixoto, E.G. Nepomuceno, S.A.M. Martins, M.J. Lacerda, Com-putation of the largest positive Lyapunov exponent using rounding mode and recursive least square algorithm, Chaos, Solitons & Fractals 112 (2018) 36–43. https://doi.org/10.1016/j.chaos.2018.04.032. [19] S. Zhou, X.-Y. Wang, Z. Wang, C. Zhang, A novel method based on the pseudo-orbits to calculate the largest Lyapunov exponent from chaotic equations, Chaos 29 (2019) 033125. https://doi.org/10.1063/1.5087512. [20] V.V. Huynh, A. Ouannas, X. Wang, V.-T. Pham, X.Q. Nguyen, F.E. Al-saadi, Chaotic Map with No Fixed Points: Entropy, Implementation and Control, Entropy 21 (3) (2019) 279. https://doi.org/10.3390/e21030279. 19
