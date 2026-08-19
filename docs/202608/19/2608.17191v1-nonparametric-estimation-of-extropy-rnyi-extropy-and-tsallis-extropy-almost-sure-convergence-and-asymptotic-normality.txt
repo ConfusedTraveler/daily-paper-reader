@@ -1,0 +1,1000 @@
+Title: Nonparametric Estimation of Extropy, Rényi Extropy, and Tsallis Extropy: Almost Sure Convergence and Asymptotic Normality
+
+URL Source: https://arxiv.org/pdf/2608.17191v1
+
+Published Time: Wed, 19 Aug 2026 00:17:39 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# Nonparametric Estimation of Extropy, Rényi Extropy, and Tsallis Extropy: Almost Sure Convergence and Asymptotic Normality 
+
+## Amadou Diadie BA LERSTAD, Gaston Berger University, Saint-Louis, Sénégal ba1amadou@yahoo.fr ba.amadou-diadie@ugb.edu.sn 
+
+Résumé 
+
+This paper proposes a nonparametric estimation procedure for extropy and its extensions, namely the α-Rényi and α-Tsallis extropies, for finite discrete random variables. We establish almost sure rates of convergence and asymptotic normality for the plug-in estimators. The theoretical results are validated through a comprehensive simulation study. The findings provide a solid foundation for the use of extropy-based measures in practical applications, including forecasting, risk assessment, and decision-making under uncertainty. 
+
+Mathematics Subject Classifications (MSC2020) : 62G05, 62G20, 62B10, 62N05, 94A17 
+
+Key Words and Phrases : Extropy, Rényi extropy, Tsallis extropy, Nonparametric esti-mation, Almost sure convergence, Asymptotic normality, Plug-in estimators, Information measures 
+
+# 1 Introduction 
+
+## 1.1 Motivation 
+
+While entropy has long been the dominant measure of uncertainty in probability and information theory, extropy offers a complementary and often more insightful perspective. Entropy emphasizes the uncertainty associated with events that occur, but it largely overlooks the role of rare or non-occurring events. Extropy, on the other hand, highlights the uncertainty of what does not happen and is far more sensitive to low-probability outcomes. This makes it particularly valuable in fields such as risk analysis, decision theory, finance, and reliability engineering, where rare but impactful events play a crucial role. 
+
+Definition 1.1. Let X be a discrete random variable defined on the probability space 
+
+(Ω , A, P) with finite support X = {c1, c 2, . . . , c r} (r ≥ 2) with probability mass function 
+
+pi = P(X = ci) for i ∈ I = {1, . . . , r }.
+
+The Shannon extropy of the random variable X is given by (see [1]) 1arXiv:2608.17191v1 [stat.ME] 17 Aug 2026 J(p) = −
+
+> r
+
+X
+
+> i=1
+
+(1 − pi) log(1 − pi). (1) Extropy is usually measured in bits (if log 2 is used), nats (if the natural logarithm is used), or hartleys (if log 10 is used). For ease of computation and notation, we use the natural logarithm, since logarithms of different bases are related by a constant factor. Extropy measures the average uncertainty associated with the complement of each outcome. While entropy emphasizes diversity among likely events, extropy highlights the uncertainty embedded in the complementary probabilities. To generalize this concept, two important one-parameter families of extropy measures have been proposed : 
+
+a) The Rényi extropy of the random variable X is defined by (see [2]) 
+
+JR,α (p) = 11 − α log 
+
+> r
+
+X
+
+> i=1
+
+(1 − pi)α
+
+!
+
+, α ∈ (0 , 1) ∪ (1 , ∞). (2) This measure is applied in tunable tail-sensitivity in information measures and decision rules with adjustable risk aversion (see [2]). 
+
+b) The Tsallis extropy of the random variable X is defined by (see [3]) 
+
+JT,α (p) = 11 − α
+
+> r
+
+X
+
+> i=1
+
+(1 − pi)α − 1
+
+!
+
+, α ∈ (0 , 1) ∪ (1 , ∞). (3) This measure is used in pattern recognition, modeling non-extensive and long-tailed systems, and in robust criteria where complement probabilities matter. As α → 1, both measures converge to the Shannon extropy J(p). The parameter α
+
+regulates sensitivity to small or large probabilities : values α < 1 give more weight to rare events, while α > 1 emphasize dominant events. From a practical perspective, these generalized extropies are powerful tools for asses-sing uncertainty in systems where small probabilities carry significant meaning, such as reliability analysis, risk assessment, and decision-making under uncertainty. Unlike en-tropy, which may underestimate uncertainty in highly concentrated distributions, extropy and its generalized forms provide a richer, complementary picture. 
+
+c) In the study of Rényi-Tsallis extropies, a central quantity is the functional 
+
+Sα(p) = 
+
+> r
+
+X
+
+> i=1
+
+(1 − pi)α, α ∈ (0 , 1) ∪ (1 , ∞), (4) and its empirical version 
+
+bSα =
+
+> r
+
+X
+
+> i=1
+
+(1 − bpin)α. (5) where bpn denotes the empirical distribution of a multinomial sample of size n. The quantity 
+
+Sα appears naturally as an intermediate functional in the definition of several generalized extropies, and its behavior governs the corresponding statistical properties of their plug–in estimators. The asymptotic behavior of bSα governs that of the Rényi and Tsallis extropy estimators. 21.2 Applications 
+
+Extropy has emerged as a fundamental dual measure to entropy, providing a com-plementary perspective on uncertainty by quantifying the information contained in the unlikeliness or residual aspects of outcomes. While entropy captures the average infor-mation associated with the actualization of events, extropy focuses on the uncertainty of what does not occur, thereby offering a more balanced assessment of probabilistic systems. This duality has significant implications across disciplines. 
+
+1.2.1 Risk Analysis and Finance 
+
+Extropy highlights rare catastrophic outcomes often hidden in entropy-based ana-lysis, improving robustness in portfolio management, insurance, and policy design (see [1, 3, 4, 5]). Rényi/Tsallis generalizations allow tunable emphasis on the tail (when α < 1)or dominant events (when α > 1) . Recently, Rényi extropy has been applied to cryp-tocurrency risk analysis, demonstrating superior capability in capturing non-Gaussian dynamics compared to traditional entropy-based methods. The study by [6] integrates Rényi extropy with machine learning models (XGBoost and k-NN) for price prediction of Bitcoin and Ethereum, showing significant improvements over conventional approaches. Additionally, [7] introduced extropy-based models for portfolio optimization under uncer-tainty, proposing mean-variance-extropy frameworks that provide more robust investment strategies. 
+
+1.2.2 Decision Theory 
+
+In uncertain environments, extropy reflects the uncertainty about alternative actions not taken. Rényi and Tsallis extropy offer flexible tools for decision support under risk aversion or ambiguity preferences. Recent work by [8] on partial law invariance and risk measures has explored entropic and extropic risk measures for financial decision-making under uncertainty, providing new theoretical foundations for risk-aware decision processes. 
+
+1.2.3 Machine Learning and Artificial Intelligence 
+
+Extropy provides valuable tools for evaluating uncertainty in classifier outputs by focusing on non-selected labels, complementing entropy-based uncertainty sampling in active learning. Recent developments include : — [9] applied residual and past versions of Tsallis and Rényi extropy to the softmax function in classification tasks, with applications to real data fitted to ARIMA models ; — [10] proposed a ϕ-extropy divergence measure for binary classification via optimal thresholding. The method was compared with ten standard machine learning algo-rithms (logistic regression, SVM, random forest, k-NN, Naive Bayes, LDA, QDA, AdaBoost, gradient boosting, and decision trees) on heart disease detection data, with evaluation metrics including precision, recall, and F1-score ; — [11] developed an extropy rate-based method for feature selection, demonstrating competitive performance against established methods such as entropy rate and other state-of-the-art variable selection techniques ; — [12] released the RenyiExtropy package for R, providing computational tools for entropy and extropy measures (Shannon, Rényi, Tsallis) for discrete probability 3distributions, with applications in information theory, statistics, and machine lear-ning. 
+
+1.2.4 Reliability and Survival Analysis 
+
+Cumulative residual extropy and its dynamic extensions provide refined tools for mo-deling system lifetimes and medical survival data. [13] studied cumulative entropies and extropies for lifetime distributions, while [14] introduced dynamic cumulative residual ex-tropy with applications in reliability engineering. These measures are particularly useful for assessing the remaining uncertainty in aging systems and medical prognosis. 
+
+1.2.5 Pattern Recognition 
+
+[3] demonstrated the application of Tsallis extropy as a measure of discrimination in pattern recognition tasks, establishing its properties, bounds, and comparative advantages over traditional methods. 
+
+1.2.6 Health Data Analysis 
+
+[15] explored weighted Tsallis extropy applied to human health data, allowing emphasis on rare but severe health events. The weighting mechanism enables practitioners to focus on critical health outcomes, making it particularly valuable in epidemiological studies and clinical decision-making. 
+
+1.2.7 Information Theory and Statistics 
+
+Extropy complements entropy-based measures in coding, inference, and divergence analysis, often yielding advantages in small-sample or imbalanced data scenarios (see [16, 17]). [17] introduced nonparametric estimators for extropy with applications to testing uniformity, while [18] proposed kernel-based density estimators for extropy, investigating their asymptotic properties including consistency. 
+
+## 1.3 Previous Work on Estimation 
+
+Various estimation techniques have been developed to quantify extropy in different contexts : — [17] introduced nonparametric estimators for extropy with applications in testing uniformity, establishing a foundation for frequency-based estimation ; — [18] and [19] proposed kernel-based density estimators for extropy. The former investigated the asymptotic properties (consistency) of the estimator, while the latter compared the performance of kernel-based estimators with other nonpara-metric methods ; — [20] proposed a Bayesian approach based on the Dirichlet process for the estimation of extropy, providing a fully probabilistic framework for uncertainty quantification ; — [21] introduced negative cumulative extropy with applications in various statistical problems, including compressive sensing [22] ; — Recent work by [6] and [10] has integrated extropy measures with machine learning frameworks, opening new avenues for data-driven uncertainty quantification. 4Despite this growing body of work, to our knowledge, no results regarding the almost sure consistency and the asymptotic normality of Shannon, Rényi, and Tsallis extropy estimators were known prior to this work. Our contribution fills this gap by providing a unified asymptotic theory for these important measures. 
+
+## 1.4 Main Contribution 
+
+Our main contribution may be summarized as follows. Given an i.i.d. sample X1, . . . , X n
+
+from X with distribution p, we derive almost sure convergence and central limit theorems for Shannon, α-Rényi, and α-Tsallis extropies. Our method consists of first obtaining general laws for an arbitrary functional of the form 
+
+F (p) = X
+
+> i∈I
+
+ϕ(pi), (6) where ϕ : (0 , 1) → R is a twice continuously differentiable function. The results on the functional F (p), which is also known as the functional ϕ-extropy, will lead to those of the extropies mentioned above. 
+
+## 1.5 Overview of the Paper 
+
+The remainder of the paper is organized as follows. In Section 2, we present the distribution limit for the empirical functional ϕ-extropy. Section 3 derives the asymptotic limit laws for Shannon, Rényi, and Tsallis extropies. Section 4 contains the proofs of the main results. Section 5 presents a comprehensive simulation study, including convergence properties and an application to forecasting. Finally, Section 6 concludes the paper and discusses future research directions. 
+
+# 2 Distribution Limit for Empirical Functional ϕ-Extropy 
+
+## 2.1 Notation and Main Results 
+
+Let X be a random variable defined on the probability space (Ω , A, P) taking values in X = {c1, c 2, . . . , c r}, with probability distribution p = ( pi)1≤i≤r such that for any 
+
+i ∈ I = {1, 2, . . . , r },
+
+pi = P(X = ci). (7) In general, the full probability distribution p = ( pi)1≤i≤r is unknown. Let X1, . . . , X n
+
+be n i.i.d. copies of X according to p. For a given i ∈ I, define the easiest and most objective estimator of pi and based on the i.i.d. sample X1, . . . , X n be n :
+
+bpin = 1
+
+n
+
+> n
+
+X
+
+> j=1
+
+1ci (Xj ), (8) where 
+
+1ci (Xj ) = 
+
+(
+
+1 if Xj = ci,
+
+0 otherwise .
+
+5For a fixed i ∈ I, this empirical estimator bpin of pi is strongly consistent and asympto-tically normal. Precisely, when n tends to infinity, 
+
+bpin − pia.s. 
+
+→ 0, (9) 
+
+√n(bpin − pi) D
+
+⇝ N (0 , p i(1 − pi)) , (10) where symbols a.s. 
+
+→ and D
+
+⇝ denote respectively almost sure convergence and convergence in distribution .These asymptotic properties derive from the law of large numbers and central limit theo-rem. The corresponding plug-in estimators of the r.v X are obtained by replacing p by bpn :
+
+J(bpn) = −
+
+> r
+
+X
+
+> i=1
+
+(1 − bpin) log(1 − bpin) (11) 
+
+JR,α (bpn) = 11 − α log 
+
+> r
+
+X
+
+> i=1
+
+(1 − bpin)α
+
+!
+
+(12) and JT,α (bpn) = 11 − α
+
+> r
+
+X
+
+> i=1
+
+(1 − bpin)α − 1
+
+!
+
+(13) 
+
+Remark 2.1 . Theses plug-in estimators are biased in finite samples. However, when n is large, the bias is of order O(n−1), and the bias-corrected versions differ from the uncor-rected ones only by terms of order O(n−1). Consequently, the uncorrected and corrected estimators are asymptotically equivalent. Therefore, all asymptotic results presented in this paper (consistency, asymptotic normality, and confidence intervals) apply equally to both versions. For a detailled study of finite-sample bias correction, we refer the reader to the companion paper [23]. 
+
+## 2.2 Functional ϕ-Extropy 
+
+Definition 2.1. Let ϕ : (0 , 1) → R be a twice continuously differentiable function. The functional ϕ-extropy of the probability distribution p = ( pi)i∈I is given by 
+
+F (p) = X
+
+> i∈I
+
+ϕ(pi). (14) This functional encompasses the extropy measures of interest as special cases : — For ϕ(s) = −(1 − s) log(1 − s), we obtain the Shannon extropy J(p) (see (1)) ; — For ϕ(s) = (1 − s)α, we obtain the functional Sα(p) from which Rényi and Tsallis extropies are derived (see (2) and (3)). Thus, the results obtained for the functional F (p) will directly apply to the particular cases of Shannon, Rényi, and Tsallis extropies. Based on (8), we define the empirical functional ϕ-extropy : 
+
+F (bpn) = X
+
+> i∈I
+
+ϕ(bpin). (15) 62.3 Main Theorem 
+
+We now state the main result concerning the almost sure convergence and asymptotic normality of the empirical functional ϕ-extropy F (bpn) (see (15)). Define 
+
+AF (p) = X
+
+> i∈I
+
+|ϕ′(pi)|, (16) and 
+
+σ2 
+
+> F
+
+(p) = X
+
+> i∈I
+
+pi(1 − pi)( ϕ′(pi)) 2 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2ϕ′(pi)ϕ′(pj ). (17) 
+
+Theorem 2.1. Let p = ( pi)i∈I be a probability distribution and bpn = ( bpin)i∈I be generated by an i.i.d. sample X1, . . . , X n from X according to p. Then the following asymptotic results hold : 
+
+lim sup 
+
+> n→∞
+
+|F (bpn) − F (p)|
+
+an
+
+≤ AF (p) a.s. , (18) 
+
+√n(F (bpn) − F (p)) D
+
+⇝ N (0 , σ 2 
+
+> F
+
+(p)) as n → +∞, (19) 
+
+where an = sup i∈I |bpin − pi|.
+
+# 3 Extropies Asymptotic Limit Laws 
+
+## 3.1 Asymptotic Behavior of Sα(bpn)
+
+In the following corollary, we establish the almost sure convergence and the asymptotic normality of the estimator bSα(bpn).Let bSα(bpn) defined by (5) and for α ∈ (0 , 1) ∪ (1 , ∞), set 
+
+ASα (p) = α X
+
+> i∈I
+
+(1 − pi)α−1 (20) and 
+
+σ2 
+
+> Sα
+
+(p) = α2 X
+
+> i∈I
+
+pi(1 − pi)2α−1 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2(1 − pi)α−1(1 − pj )α−1
+
+!
+
+.(21) 
+
+Corollary 3.1. Under the same assumptions as in Theorem 2.1 the following hold : 
+
+lim sup 
+
+> n→∞
+
+|Sα(bpn) − Sα(p)|
+
+an
+
+≤ ASα (p) a.s. , (22) 
+
+√n(Sα(bpn) − Sα(p)) D
+
+⇝ N (0 , σ 2 
+
+> Sα
+
+(p)) as n → +∞. (23) 73.2 Asymptotic Behavior of the Shannon Extropy Estimator. 
+
+The Corollary 3.2 below establishes the asymptotic behavior of the Shannon extropy estimator. Let J(bpn) define by (11) and set 
+
+AJ (p) = X
+
+> i∈I
+
+|1 + log(1 − pi)|, (24) and 
+
+σ2 
+
+> J
+
+(p) = X
+
+> i∈I
+
+pi(1 − pi)(1 + log(1 − pi)) 2
+
+−2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2(1 + log(1 − pi))(1 + log(1 − pj )) . (25) 
+
+Corollary 3.2. Under the same assumptions as in Theorem 2.1, the following asymptotic results hold : 
+
+lim sup 
+
+> n→∞
+
+|J(bpn) − J(p)|
+
+an
+
+≤ AJ (p) a.s. , (26) 
+
+√n(J(bpn) − J(p)) D
+
+⇝ N (0 , σ 2 
+
+> J
+
+(p)) as n → +∞. (27) 
+
+## 3.3 Asymptotic Behavior of the Rényi Extropy Estimator 
+
+The Corollary 3.3 below establishes the asymptotic behavior of the Rényi extropy estimator. Let JR,α (bpn) defined by (12) and for α ∈ (0 , 1) ∪ (1 , ∞) set 
+
+AR,α (p) = α
+
+|1 − α|Sα(p)
+
+X
+
+> i∈I
+
+(1 − pi)α−1 (28) and 
+
+σ2
+
+> R,α
+
+(p) =
+
+ α
+
+(1 − α)Sα(p)
+
+2 X
+
+> i∈I
+
+pi(1 − pi)2α−1
+
+−2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2(1 − pi)α−1(1 − pj )α−1
+
+!
+
+. (29) 
+
+Corollary 3.3. Under the same assumptions as in Theorem 2.1, the following asymptotic results hold : 
+
+lim sup 
+
+> n→∞
+
+|JR,α (bpn) − JR,α (p)|
+
+an
+
+≤ AR,α (p) a.s. , (30) 
+
+√n(JR,α (bpn) − JR,α (p)) D
+
+⇝ N (0 , σ 2
+
+> R,α
+
+(p)) as n → +∞. (31) 83.4 Asymptotic Behavior of the Tsallis Extropy Estimator 
+
+The Corollary 3.4 below establishes the asymptotic behavior of the Tsallis extropy estimator. Let JT,α (bpn) be defined by (13) and for α ∈ (0 , 1) ∪ (1 , ∞) set 
+
+AT,α (p) = α
+
+|α − 1|
+
+X
+
+> i∈I
+
+(1 − pi)α−1 (32) and 
+
+σ2
+
+> T,α
+
+(p) =
+
+ αα − 1
+
+2 X
+
+> i∈I
+
+pi(1 − pi)2α−1
+
+−2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2(1 − pi)α−1(1 − pj )α−1
+
+!
+
+. (33) 
+
+Corollary 3.4. Under the same assumptions as in Theorem 2.1, the following asymptotic results hold : 
+
+lim sup 
+
+> n→∞
+
+|JT,α (bpn) − JT,α (p)|
+
+an
+
+≤ AT,α (p) a.s. , (34) 
+
+√n(JT,α (bpn) − JT,α (p)) D
+
+⇝ N (0 , σ 2
+
+> T,α
+
+(p)) as n → +∞. (35) 
+
+# 4 Proofs 
+
+Before presenting the proofs, we introduce the following notations. For a fixed i ∈ I,denote 
+
+∆in = bpin − pi, δn(pi) = 
+
+r npi
+
+∆in,
+
+and 
+
+an = sup 
+
+> i∈I
+
+|∆in|.
+
+We recall that, since for a fixed i ∈ I, nbpin has a binomial distribution with parameters 
+
+n and success probability pi, we have 
+
+E[bpin] = pi and Var( bpin) = pi(1 − pi)
+
+n .
+
+By the asymptotic Gaussian limit of the multinomial law (see, for example, [24]), we have 
+
+(δn(pi), i ∈ I) D
+
+⇝ Z(p) ∼ N (0 , Σp) as n → +∞, (36) where Z(p) = ( Zpi , i ∈ I)T is a centered Gaussian random vector of dimension #( I) = r
+
+with covariance elements 
+
+(Σ p)(i,j ) = (1 − pi)δi,j − √pipj (1 − δi,j ), (37) where δi,j =
+
+(
+
+1 if i = j
+
+0 otherwise where (i, j ) ∈ I2
+
+94.1 Proof of Theorem 2.1 
+
+Let ϕ : (0 , 1) → R be a twice continuously differentiable function. Then for fixed i ∈ I,we have 
+
+ϕ(bpin) = ϕ(pi + ∆ in) = ϕ(pi) + ∆ inϕ′(pi + θ1(i)∆ in), (38) by the mean value theorem applied to ϕ, where θ1(i) is some number lying in (0 , 1) .Applying the mean value theorem again to ϕ′ :
+
+ϕ′(pi + θ1(i)∆ in) = ϕ′(pi) + θ1(i)∆ inϕ′′ (pi + θ2(i)∆ in), (39) where θ2(i) is some number lying in (0 , 1) .We can write (38) as 
+
+ϕ(bpin) = ϕ(pi) + ∆ inϕ′(pi) + θ1(i)(∆ in)2ϕ′′ (pi + θ2(i)∆ in). (40) Now we have by summation over i ∈ I :
+
+F (bpn) − F (p) = X
+
+> i∈I
+
+∆inϕ′(pi) + X
+
+> i∈I
+
+θ1(i)(∆ in)2ϕ′′ (pi + θ2(i)∆ in). (41) Hence 
+
+|F (bpn) − F (p)| ≤ an
+
+X
+
+> i∈I
+
+|ϕ′(pi)| + a2
+
+> n
+
+X
+
+> i∈I
+
+|ϕ′′ (pi + θ2(i)∆ in)|.
+
+Therefore, 
+
+lim sup 
+
+> n→∞
+
+|F (bpn) − F (p)|
+
+an
+
+≤ AF (p) a.s. , (42) since an
+
+> a.s.
+
+−−→ 0 as n → +∞ and 
+
+X
+
+> i∈I
+
+|ϕ′′ (pi + θ2(i)∆ in)| → X
+
+> i∈I
+
+|ϕ′′ (pi)| < ∞.
+
+This proves (18). Now we prove (19). From (41), we obtain 
+
+√n(F (bpn) − F (p)) = X
+
+> i∈I
+
+√piδn(pi)ϕ′(pi) + √nR n, (43) where 
+
+Rn = X
+
+> i∈I
+
+θ1(i)(∆ in)2ϕ′′ (pi + θ2(i)∆ in).
+
+Using (36), we obtain 
+
+X
+
+> i∈I
+
+√piδn(pi)ϕ′(pi) D
+
+⇝ X
+
+> i∈I
+
+ϕ′(pi)√piZpi as n → +∞, (44) which follows a centered normal law with variance σ2 
+
+> F
+
+(p) where 
+
+σ2 
+
+> F
+
+(p) = X
+
+> i∈I
+
+pi(1 − pi)( ϕ′(pi)) 2 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2ϕ′(pi)ϕ′(pj )
+
+10 since 
+
+Var X
+
+> i∈I
+
+√piϕ′(pi)Zpi
+
+!
+
+= X
+
+> i∈I
+
+Var ( ϕ′(pi)√piZpi ) + 2 X
+
+> (i,j )∈I2,i ̸=j
+
+Cov  ϕ′(pi)√piZpi , ϕ ′(pj )√pj Zpj
+
+
+
+= X
+
+> i∈I
+
+pi(1 − pi)( ϕ′(pi)) 2 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+pipj
+
+√pipj ϕ′(pi)ϕ′(pj ). (45) The proof will be complete if we show that √nR n converges to zero in probability. We have 
+
+|√nR n| ≤ √na 2
+
+> n
+
+X
+
+> i∈I
+
+|ϕ′′ (pi + θ2(i)∆ in)|.
+
+By the Bienaymé-Chebyshev inequality, for any ϵ > 0 and for fixed i ∈ I,
+
+P(√n(bpin − pi)2 ≥ ϵ) = P
+
+
+
+|bpin − pi| ≥ √ϵn1/4
+
+
+
+≤ pi(1 − pi)
+
+ϵn 1/2 .
+
+Hence √na 2 
+
+> n
+
+= op(1) since P 
+
+> i∈I
+
+|ϕ′′ (pi + θ2(i)∆ in)| < ∞.This proves (19) and ends the proof of Theorem 2.1. 
+
+## 4.2 Proofs of Corollaries 
+
+A- The proofs of Corollaries 3.1 and 3.2 are direct adaptation of Theorem 2.1 with respectively ϕ(s) = (1 − s)α and ϕ(s) = −(1 − s) log(1 − s).
+
+B- Proof of Corollary 3.3. For α ∈ (0 , 1) ∪ (1 , ∞), the α-Rényi extropy is expressed through Sα(p) = P 
+
+> i∈I
+
+ϕ(pi) with ϕ(s) = (1 − s)α.We have 
+
+JR,α (bpn) − JR,α (p) = 11 − α (log Sα(bpn) − log Sα(p)) = 11 − α log 
+
+
+
+1 + Sα(bpn) − Sα(p)
+
+Sα(p)
+
+
+
+.
+
+Using a Taylor expansion of log(1 + y), it follows that, almost surely, 
+
+JR,α (bpn) − JR,α (p) = 1(1 − α)Sα(p) (Sα(bpn) − Sα(p)) . (46) This, combined with (22) of Corollary 3.1, proves (30). Now from (43), we obtain 
+
+√n(Sα(bpn) − Sα(p)) = √n X
+
+> i∈I
+
+∆inϕ′(pi) + op(1) ,
+
+where ϕ′(pi) = −α(1 − pi)α−1.Hence, dividing each member by √nS α(p) gives 11 Sα(bpn)
+
+Sα(p) = 1 + 
+
+P 
+
+> i∈I
+
+∆inϕ′(pi)
+
+Sα(p) + op(1) .
+
+By Taylor expansion of log(1 + y), it follows that, almost surely 
+
+log Sα(bpn) − log Sα(p) = 
+
+P 
+
+> i∈I
+
+∆inϕ′(pi)
+
+Sα(p) + Op
+
+ 1
+
+n
+
+
+
+.
+
+but 
+
+X
+
+> i∈I
+
+√piδn(pi)ϕ′(pi) D
+
+⇝ X
+
+> i∈I
+
+ϕ′(pi)√piZpi , as n → +∞,
+
+> D
+
+⇝ N  0, σ 2
+
+> R
+
+(p) as n → +∞,
+
+where 
+
+σ2
+
+> R
+
+(p) = X
+
+> i∈I
+
+pi(1 − pi)( ϕ′(pi)) 2 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2ϕ′(pi)ϕ′(pj ),
+
+using (44). Finally 
+
+√n (JR,α (bpn) − JR,α (p)) D
+
+⇝ N  0, σ 2
+
+> R,α
+
+(p) as n → +∞,
+
+where 
+
+σ2
+
+> R,α
+
+(p) = 
+
+ α
+
+(1 − α)Sα(p)
+
+2
+
+X
+
+> i∈I
+
+pi(1 − pi)2α−1 − 2 X
+
+> (i,j )∈I2,i ̸=j
+
+(pipj )3/2(1 − pi)α−1(1 − pj )α−1
+
+
+
+This proves (31) and ends the proof of the Corollary 3.3. 
+
+C- Proof of Corollary 3.4. Since the Tsallis extropy is related to Sα(p) through a linear transformation, the proof follows directly from (22) and (23) . 
+
+# 5 Simulation Study 
+
+## 5.1 Motivation 
+
+In this section, we conduct a comprehensive simulation study to : 1. validate the asymptotic theory established in Section 3, namely the almost sure convergence and asymptotic normality of the plug-in estimators ; 2. illustrate the practical behavior of the estimators for finite sample sizes ; 3. demonstrate the relevance of extropy-based measures in a forecasting context. 12 5.2 Experimental Setup 
+
+We generate M = 1000 independent samples of sizes n = 10 , 20 , 50 , 100 , 200 , 500 , 1000 , 2000 
+
+from a multinomial distribution with r = 5 categories and probability vector 
+
+p = (0 .40 , 0.30 , 0.15 , 0.10 , 0.05) .
+
+This distribution represents a realistic scenario with one dominant category (40%) and a tail of decreasing probabilities, mimicking many real-world forecasting situations. For each sample, we compute the following plug-in estimators : — The Shannon extropy : bJ = −
+
+> r
+
+X
+
+> i=1
+
+(1 − bpi) log(1 − bpi) (see (1)) ; — The Rényi extropy for α = 0 .5 and α = 3 :
+
+bJR,α = 11 − α log 
+
+> r
+
+X
+
+> i=1
+
+(1 − bpi)α
+
+!
+
+(see (2)) ; — The Tsallis extropy for α = 0 .5 and α = 3 :
+
+bJT,α = 11 − α
+
+> r
+
+X
+
+> i=1
+
+(1 − bpi)α − 1
+
+!
+
+(see (3)). The true values J, JR,α , and JT,α are computed using the true probability vector p.
+
+## 5.3 Shannon Extropy : Results 
+
+Figure 1 – Shannon extropy estimator. (a) Convergence of bJ to J(p) (red dashed line) with 95% confidence band. (b) Histogram of standardized estimates for n = 2000 (overlaid with standard normal density). (c) Q-Q plot for n = 2000 . The simulation results provide empirical support for the theoretical convergence and asymptotic normality results. 
+
+Figure 1 presents the convergence and asymptotic normality of the Shannon extropy estimator. Three panels are displayed in a single row : 13 — Panel (a) : Convergence of bJ to the true value J(p) with 95% confidence bands. As n increases, the estimate stabilizes around the true value and the confidence bands shrink, confirming the almost sure convergence established in Corollary 3.2. — Panel (b) : Histogram of the standardized estimates for n = 2000 , overlaid with the standard normal density. The excellent agreement confirms the asymptotic normality result. — Panel (c) : Q-Q plot for n = 2000 . The alignment of points with the diagonal line provides further visual confirmation of normality. 
+
+## 5.4 Rényi Extropy : Results 
+
+Figure 2 presents the results for the Rényi extropy estimator with α = 0 .5 (top row) and α = 3 (bottom row). Six panels are displayed in a 3 × 2 layout : For α = 0 .5 (top row), which gives more weight to rare events, the estimator exhibits larger finite-sample variability. The convergence is still clearly visible, and the histogram and Q-Q plot confirm asymptotic normality. For α = 3 (bottom row), which emphasizes dominant events, the variability is smaller. The convergence is faster, and the normality is also confirmed. 
+
+Figure 2 – Rényi extropy estimator. Top row ( α = 0 .5) : (a) Convergence of bJR, 0.5 to 
+
+JR, 0.5 with 95% confidence band. (b) Histogram of standardized estimates for n = 2000 .
+
+(c) Q-Q plot for n = 2000 . Bottom row ( α = 3 ) : (d) Convergence of bJR, 3 to JR, 3 with 95% confidence band. (e) Histogram of standardized estimates for n = 2000 . (f ) Q-Q plot for n = 2000 . The simulation results provide empirical support for the theoretical convergence and asymptotic normality results for both values of α.
+
+## 5.5 Tsallis Extropy : Results 
+
+Figure 3 presents the results for the Tsallis extropy estimator with α = 0 .5 (top row) and α = 3 (bottom row). Six panels are displayed in a 3 × 2 layout : For α = 0 .5 (top row), the estimator shows behavior similar to the Rényi case, with convergence and normality confirmed. 14 For α = 3 (bottom row), the convergence is faster and the variability is smaller, as expected for a parameter emphasizing dominant events. 
+
+Figure 3 – Tsallis extropy estimator. Top row ( α = 0 .5) : (a) Convergence of bJT, 0.5 to 
+
+JT, 0.5 with 95% confidence band. (b) Histogram of standardized estimates for n = 2000 .
+
+(c) Q-Q plot for n = 2000 . Bottom row ( α = 3 ) : (d) Convergence of bJT, 3 to JT, 3 with 95% confidence band. (e) Histogram of standardized estimates for n = 2000 . (f ) Q-Q plot for n = 2000 . The simulation results provide empirical support for the theoretical convergence and asymptotic normality results for both values of α.
+
+## 5.6 Interpretation of the Simulation Results 
+
+From Figures 1–3, the following conclusions can be drawn : 1. Consistency : For Shannon, Rényi, and Tsallis extropies, all estimators converge to their true values as n increases. The 95% confidence bands shrink with increasing sample size, confirming the almost sure convergence established in Corollaries 3.2– 3.4. 2. Asymptotic normality : For all estimators, the histograms for n = 2000 show excellent agreement with the standard normal distribution, and the Q-Q plots align closely with the diagonal line. This confirms the asymptotic normality results established in Corollaries 3.2–3.4. 3. Effect of α : For α = 0 .5, which gives more weight to rare events, the estimators exhibit larger finite-sample variability. For α = 3 , which emphasizes dominant events, the variability is smaller. In all cases, the convergence and normality are confirmed. 4. Shannon vs generalized extropies : The Shannon extropy estimator shows the fastest convergence among the three measures, as it does not involve the additional parameter α. The Rényi and Tsallis estimators require slightly larger sample sizes to achieve similar precision. 15 5.7 Application to Forecasting 
+
+5.7.1 Context 
+
+In many forecasting applications, such as portfolio management, weather prediction, or demand planning, the forecaster is interested not only in the most likely outcome but also in the uncertainty associated with alternative scenarios. Extropy, by measuring the uncertainty of what does not happen, provides a valuable complementary tool for assessing the robustness of probabilistic forecasts. 
+
+5.7.2 The Forecasting Problem 
+
+We consider a forecaster who needs to predict the probability distribution of r = 5 
+
+possible outcomes. The true distribution is assumed to be : 
+
+p = (0 .40 , 0.30 , 0.15 , 0.10 , 0.05) .
+
+The forecaster observes n past observations and uses them to estimate the extropy of the underlying distribution. A low extropy value indicates that the uncertainty is concentrated on the complementary events being well understood, while a high extropy value suggests that the alternative scenarios remain unpredictable. 
+
+5.7.3 Simulation Design 
+
+We simulate M = 1000 independent samples of sizes n = 20 , 50 , 100 , 200 , 500 and compute the plug-in estimates of the Shannon, Rényi ( α = 0 .5), and Tsallis ( α = 0 .5)extropies. For each sample size and each estimator, we compute the mean estimate and its 95% confidence interval. 
+
+5.7.4 Results 
+
+Figure 4 presents the forecasting results. Panel (a) shows the evolution of the Shannon extropy estimate with 95% confidence intervals as the sample size increases. The estimate converges to the true value J(p) = 0.837862 nats (red dashed line), and the confidence intervals shrink, indicating improved precision. For n ≥ 100 , the estimate is already very close to the true value, and the confidence interval is narrow enough for practical purposes. Panel (b) compares the RMSE of the three estimators. The Shannon extropy estimator achieves the lowest RMSE for all sample sizes, followed by the Tsallis and Rényi estimators. This is expected since the Shannon extropy does not involve the additional parameter α,which introduces extra variability. However, all three estimators show rapid improvement as n increases, with negligible differences for n ≥ 200 .
+
+5.7.5 Forecasting Implications 
+
+From a forecasting perspective, the results suggest the following guidelines : 1. For reliable extropy estimation in forecasting applications, a sample size of at least 
+
+n = 100 is recommended. For n < 100 , the uncertainty (measured by the confidence interval width) may be too large for practical decision-making. 2. The choice of α should reflect the forecaster’s risk appetite : 16 Figure 4 – Forecasting application. (a) Evolution of the Shannon extropy estimate bJ
+
+with 95% confidence intervals as a function of sample size n. The estimate converges to the true value J(p) (red dashed line). The shaded area represents the 95% confidence interval. (b) Comparison of estimation accuracy (RMSE) for Shannon, Rényi ( α = 0 .5), and Tsallis ( α = 0 .5) extropies. — α < 1 for rare-event awareness (e.g., financial crashes, natural disasters). This gives more weight to low-probability outcomes, which is crucial in risk-sensitive applications. — α > 1 for focus on dominant outcomes (e.g., demand planning for best-selling products). This emphasizes the most likely scenarios. — α = 1 corresponds to the Shannon extropy, which provides a balanced perspec-tive. 3. The asymptotic confidence intervals perform well for n ≥ 100 , enabling the construc-tion of uncertainty bounds for extropy-based forecasts. This allows practitioners to quantify the reliability of their extropy estimates. 4. Extropy provides a complementary perspective to entropy : while entropy says 
+
+the system appears predictable , extropy warns there is still uncertainty about what might go wrong . This duality is particularly valuable in risk management and robust decision-making. 17 5.7.6 Decision-Theoretic Insight 
+
+The forecasting application highlights a key decision-theoretic insight : when probabi-lities are highly skewed, entropy tends to underestimate hidden risks, while extropy better captures the uncertainty associated with low-probability, high-impact events. Hence, ex-tropy provides a more reliable framework for robust decision-making under risk, especially in contexts such as : — Finance : anticipating rare market crashes ; — Public policy : accounting for low-probability disasters ; — Healthcare : managing rare but severe diseases. In such domains, extropy complements or surpasses entropy as a guide for risk-aware and resilient strategic decisions. 
+
+## 5.8 Conclusion of the Simulation Study 
+
+The simulation results confirm the theoretical findings for Shannon, Rényi, and Tsallis extropies : — All plug-in estimators are consistent (they converge to their true values) ; — The asymptotic normal approximation works well for n ≥ 100 ;— The choice of α affects the finite-sample behavior but not the asymptotic conver-gence ; — The Shannon extropy estimator converges faster than the generalized versions ; — The estimators are suitable for forecasting applications where rare-event awareness is critical. These results provide a solid foundation for the use of extropy-based measures in practical forecasting problems, such as portfolio risk assessment, demand planning, and decision-making under uncertainty. 
+
+# 6 Conclusion 
+
+In this paper, we have established the almost sure convergence and asymptotic norma-lity of the plug-in estimators for Shannon, Rényi, and Tsallis extropies. Explicit formulas for the asymptotic variances were derived, enabling the construction of confidence inter-vals. The simulation study confirmed the theoretical results and illustrated the practical relevance of extropy-based measures in forecasting applications. As noted in Section 2, these estimators are biased in finite samples, although the bias vanishes at rate O(n−1). A comprehensive study of the finite-sample bias and its correction is developed in the companion paper [23], where explicit bias formulas and corrected estimators are provided. Future work includes extending the results to countably infinite alphabets (with sui-table tail conditions) and developing bootstrap-based variance estimators for improved finite-sample performance. 
+
+# Acknowledgements 
+
+I wish to acknowledge Professor Gane Samb Lo , my former PhD supervisor, whose guidance marked the beginning of my journey into research. He introduced me to the spirit and practice of scientific research, taught me how to approach mathematical 18 problems with rigor and curiosity, and showed me the path of research. I remain deeply grateful for his mentorship and for the lasting influence of his guidance on my work. 
+
+# Références 
+
+[1] Lad F., Sanfilippo G., Agro G. (2015) Extropy : complementary dual of entropy. 
+
+Statist. Sci. 30(1), 40–58. [2] Liu, J. and Xiao, F. (2023) Rényi extropy. Taylor and Francis Ltd , Vol 52, N’16, 5836-5847. [3] Balakrishnan, N. ; Buono, F. ; Longobardi, M. (2022) On Tsallis extropy with an application to pattern recognition. Stat. Probab. Lett. 180, 109241. [4] Qiu, G., & Jia, K. (2019) Cumulative residual extropy and its properties. Commun. Stat. Theory Methods , 48(9), 2237–2254. [5] Bruno, F., & Longobardi, M. (2020) A dual measure of uncertainty : the Deng en-tropy. Entropy , 22(5), 582. [6] Lochaba, R., Batra, L., & Taneja, H.C. (2026) Rényi extropy revisited : Enhanced framework for cryptocurrency risk analysis with machine learning. Commun. Stat. Theory Methods , 55(15), 5164–5188. doi :10.1080/03610926.2026.2629496 [7] Shi, G., Sheng, Y., Ahmadzade, H., & Tahmasebi, S. (2025) Extropy : Dual of entropy for uncertain random variables and its applications. J. Ind. Manag. Optim. 21(5), 4025–4040. doi :10.3934/jimo.2025041 [8] Shen, Y., & Van Oosten, Z. (2026) Partial Law Invariance and Risk Measures. Ma-nagement Science , 72(7). doi :10.1287/mnsc.2024.06518 [9] Jawal, T.M., Fatima, N., Sayed-Ahmed, N., Aldallal, R., & Mohamed, M.S. (2022) Residual and Past Discrete Tsallis and Rényi Extropy with an Application to Softmax Function. Entropy , 24(12), 1732. doi :10.3390/e24121732 [10] Kharazmi, O., Contreras-Reyes, J.E., Erol, C., & Yalcin, F. (2026) ϕ-Extropy com-plexity measure : Extensions and applications. Physica A : Statistical Mechanics and its Applications , 686, 131278. doi :10.1016/j.physa.2026.131278 [11] Kumar, N., & Vijay, V. (2025) Extropy Rate : Properties and Application in Feature Selection. arXiv :2507.11242 .[12] Mahesh, D., Rajesh, G., & Jayalekshmi, S. (2026) RenyiExtropy : Entropy and Ex-tropy Measures for Probability Distributions (Version 0.4.0) [R package]. CRAN. doi :10.32614/CRAN.package.RenyiExtropy [13] Di Crescenzo, A., & Longobardi, M. (2019) On cumulative entropies and extropies for lifetime distributions. Probab. Eng. Inf. Sci. 33(1), 111–132. [14] Asadi, M., Zohrevand, Y., & Di Crescenzo, A. (2018) Dynamic cumulative residual extropy and its applications. J. Stat. Plan. Inference 196, 1–15. [15] Aldallal, R.A., Barakat, H.M., & Mohamed, M.S. (2025) Exploring weighted Tsallis extropy : Insights and applications to human health. AIMS Mathematics 10(2), 2191– 2222. [16] Hood, C., & Schilling, M.F. (2015) The extropy of a distribution. Entropy , 17(7), 4439–4455. 19 [17] Qiu, G., & Jia, K. (2018) The estimators of extropy with applications in testing uniformity. J. Nonparametr. Stat. 30(2), 406–422. [18] Jahanshahi, S.M.A., Zarei, H., & Khamar, A.H. (2020) On the nonparametric esti-mation of extropy. Commun. Stat. Theory Methods 49(15), 3728–3745. [19] Alizadeh Noughabi, H., & Jarrahiferiz, J. (2020) Estimating extropy via kernel den-sity estimator. J. Korean Stat. Soc. 49(4), 1157–1173. [20] Al-Labadi, L. (2020) Bayesian estimation of extropy and goodness of fit tests. Entropy 
+
+22(11), 1243. [21] Tahmasebi, S. ; Toomaj, A. (2020) On negative cumulative extropy with applications. 
+
+Commun. Stat. Theory Methods 51, 5025–5047. [22] Kazemi, M.R. ; Tahmasebi, S. ; Buono, F. ; Longobardi, M. (2021) Fractional Deng Entropy and Extropy and Some Applications. Entropy 23, 623. [23] Ba, A.D. (2026) Finite-Sample Bias Correction for Plug-in Estimators of Extropy, Rényi Extropy, and Tsallis Extropy. arXiv :7962087 [math.ST] .[24] Lo, G.S. (2016) Weak Convergence (IA). Sequences of random vectors. SPAS Books Series . Saint-Louis, Senegal - Calgary, Canada. doi :10.16929/sbs/2016.0001. 20

@@ -1,0 +1,2696 @@
+Title: On the Estimation of Chernoff Information
+
+URL Source: https://arxiv.org/pdf/2608.17916v1
+
+Published Time: Wed, 19 Aug 2026 01:08:29 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# On the Estimation of Chernoff Information 
+
+Kadircan Aksoy 
+
+Institute for Space Research German Aerospace Center (DLR) Chair of Communications and Information Theory Technische Universit¨ at Berlin 
+
+Berlin, Germany kadircan.aksoy@dlr.de 
+
+Peter Jung 
+
+Institute for Space Research German Aerospace Center (DLR) Chair of Communications and Information Theory Technische Universit¨ at Berlin 
+
+Berlin, Germany peter.jung@dlr.de 
+
+Abstract —Chernoff information is a fundamental divergence measure characterizing the optimal error exponent in Bayesian binary hypothesis testing, with applications in information fusion, time-series analysis, and statistical learning theory. However, closed-form expressions exist only for simple parametric families, and nonparametric estimation remains difficult because the quantity is defined as an optimization of the unnormalized R´ enyi divergence over its order. We reformulate this optimization via a derivative condition, whose zero locates the optimal mixture parameter, and estimate the derivative directly using a k-nearest-neighbor method. We prove the L2-consistency of the derivative estimator under mild regularity conditions on the densities and their domain. Coupled with a bisection procedure that locates the optimal parameter up to arbitrary precision, this yields an estimator for Chernoff information. 
+
+Index Terms —Hypothesis Testing, Chernoff Information, k-NN Estimator 
+
+I. I NTRODUCTION 
+
+Binary hypothesis testing is one of the most fundamental problems in statistics. Given a sequence of random observations X1, . . . , X n
+
+> i.i.d.
+
+∼ X, we wish to decide between two hypotheses H0 : X ∼ P vs. H1 : X ∼ Q. Any decision rule δn : X n → { 0, 1} incurs two types of error: the type-I error αn(δn) = P ⊗n(δn = 1) ; the probability of falsely rejecting H0, and the type-II error βn(δn) = Q⊗n(δn = 0) ;the probability of failing to detect H1. There is an inherent tradeoff between the two, no decision rule can drive both to zero simultaneously for finite n, and the central question is how fast they can be made to decay as n → ∞ .In the asymmetric setting, the Neyman–Pearson lemma [1] establishes that fixing αn ≤ ε and minimizing βn is achieved by a likelihood ratio threshold test, with the optimal βn
+
+decaying at an exponential rate e−nD KL (P ∥Q) [2], where 
+
+DKL (P ∥Q) := 
+
+Z
+
+> X
+
+p(x) log p(x)
+
+q(x) dμ (x) (1) is the Kullback–Leibler divergence between P and Q [3]. In the symmetric Bayesian setting with priors π = ( π0, π 1), we instead minimize the total probability of error: 
+
+P (n)∗ 
+
+> e
+
+(π) = inf 
+
+> δn
+
+[π0 αn(δn) + π1 βn(δn)] . (2) A classical result due to Chernoff [4] establishes that P (n)∗ 
+
+> e
+
+(π)
+
+also decays exponentially in n, but with an exponent that is independent of the prior π. In fact, for any π0, π 1 ∈ (0 , 1) 
+
+with π0 + π1 = 1 we have 
+
+lim  
+
+> n→∞
+
+− 1
+
+n log P (n)∗ 
+
+> e
+
+(π) = C(P, Q ), (3) where C(P, Q ), called the Chernoff information , is defined as: 
+
+C(P, Q ) := sup 
+
+> s∈[0 ,1]
+
+− log Cs(P, Q ), s.t. (4) 
+
+Cs(P, Q ) := 
+
+Z
+
+> X
+
+p(x)sq(x)1−s dμ (x), (5) with Cs(P, Q ) : [0 , 1] → (0 , 1] 1 denoting the Chernoff Functional of order s, assuming P and Q are commonly dominated by a measure μ on X .The Chernoff functional is directly related to the R´ enyi diver-gence [7] of order s,
+
+Rs(P ∥Q) := 1
+
+s − 1 log Cs(P, Q ), (6) through 
+
+− log Cs(P, Q ) = (1 − s)Rs(P ∥Q), (7) so that 
+
+C(P, Q ) = sup 
+
+> s∈[0 ,1]
+
+(1 − s)Rs(P ∥Q), (8) meaning that Chernoff information is the maximum of the R´ enyi divergence with its (1 − s)−1 normalization removed. Since log Cs(P, Q ) is strictly convex whenever P̸ = Q,2 with 
+
+log C0(P, Q ) = log C1(P, Q ) = 0 , the supremum is attained at an interior point s∗ ∈ (0 , 1) with C(P, Q ) > 0. Therefore the optimal s∗ is the unique solution to 
+
+dds log Cs(P, Q )
+
+> s=s∗
+
+= EPs∗
+
+
+
+log p(X)
+
+q(X)
+
+
+
+= 0 , (9) 
+
+> 1
+
+The range can be obtained via a simple application of H¨ older’s inequality [5]), also see [6]. 
+
+> 2
+
+The second derivative d2 
+
+> ds 2
+
+log Cs(P, Q ) = Var Ps [log( p/q )] is strictly positive unless log( p/q ) is μ-a.e. constant. arXiv:2608.17916v1 [cs.IT] 18 Aug 2026 where 
+
+ps(x) = p(x)sq(x)1−s
+
+R 
+
+> X
+
+p(x)sq(x)1−s dμ (x) (10) is the tilted density at parameter s. Interestingly, at the optimum s∗, C(P, Q ) attains the following relation with KL divergence: 
+
+C(P, Q ) = DKL (Ps∗ ∥P ) = DKL (Ps∗ ∥Q) (11) II. R ELATED WORK 
+
+A. k-Nearest-Neighbor Density Estimation 
+
+k-nearest-neighbor (k-NN)-based density estimators [8] exploit a simple geometric fact: in a region of Rd where the density p is approximately locally constant, the volume of the ball containing the k nearest neighbors of a point 
+
+x among n samples is approximately k/ (np (x)) . Inverting this relationship yields a pointwise, non-parametric density estimate, which is convergent when k grows sub-linearly with 
+
+n [9], [10]. 3
+
+Formally, let X1, . . . , X n
+
+> i.i.d.
+
+∼ P and let ρk,n (x) denote the Euclidean distance from x to its k-th nearest neighbor in 
+
+{X1, . . . , X n}. The k-NN density estimate of p at x is 
+
+bpk,n (x) = kn · ¯c · ρk,n (x)d , (12) where ¯c = πd/ 2/Γ( d/ 2 + 1) is the volume of the unit ball in 
+
+Rd and Γ( z) = R ∞ 
+
+> 0
+
+tz−1e−t dt denotes the gamma function. Intuitively, the ball of radius ρk,n (x) centered at x contains exactly k sample points, so the empirical mass in that ball is 
+
+k/n , giving the density estimate above. 
+
+B. kNN Estimate of the Chernoff Functional 
+
+Recall that 
+
+Cs(P, Q ) := 
+
+Z
+
+> X
+
+p(x)sq(x)1−s dμ (x) = EX∼P
+
+" q(X)
+
+p(X)
+
+1−s#
+
+(13) Given i.i.d samples Xn = {X1, X 2...X n}, Xi
+
+> i.i.d.
+
+∼ P and 
+
+Y m = {Y1, Y 2...Y m} i.i.d. 
+
+∼ Q, let ρk(i) be the distance from 
+
+Xi to its k-th nearest neighbor among {Xj }j̸ =i, and let 
+
+νk(i) be the distance from Xi to its k-th nearest neighbor among {Yj }mj=1 . Using the k-NN density-ratio approximation described above we can write 
+
+q(Xi)
+
+p(Xi) ≈ (n − 1) ρk(i)d
+
+mν k(i)d := ri, (14) [11] uses ri to estimate Cs(P, Q ) by averaging over the P -samples. The resulting ( L2-consistent) estimator has the form 
+
+bCs(Xn, Y m) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Bk,s r1−si (15)  
+
+> 3Note for finite k, pointwise estimates can be biased and must be corrected depending on the quantity of interest where the density estimate is used.
+
+where 
+
+Bk,s = Γ( k)2
+
+Γ( k − s + 1)Γ( k + s − 1) . (16) The multiplicative factor Bk,s is the finite-k correction term arising from the limiting Erlang law of k-NN volume terms 
+
+ri (see proofs in Appendix, particularly Lemma 6 and 13 for a derivation). III. P ROPOSED ESTIMATOR 
+
+We wish to construct an estimator bC(Xn, Y m) for the true Chernoff information C(P, Q ) such that it is L2-consistent: 
+
+lim 
+
+> n,m →∞
+
+E[ bC(Xn, Y m)] = C(P, Q ) (17) 
+
+lim 
+
+> n,m →∞
+
+E[( bC(Xn, Y m) − C(P, Q )) 2] = 0 . (18) [6] has shown that one can approximate s∗ up to arbitrary precision |s∗ − bs| < ε in O(log 1 
+
+> ε
+
+) time by exploiting the 
+
+information geometry (see [12] for a detailed reference on the subject) with a simple bisection algorithm. Yet this depends crucially on the step of comparing two KL terms: 
+
+DKL (Pbs∥P ) vs DKL (Pbs∥Q) for the current guess of the mixing parameter bs. In general, if the densities p and q
+
+are available, one can compute this analytically (given the integral is tractable) but from merely samples, it is non-trivial to sample from the mixed distribution Pbs and re-utilize a KL divergence estimator, e.g from [13]. [14] overcomes this by constructing a neural estimator for 
+
+Cs(P, Q ), similar to MINE for mutual information [15] and solving the convex optimization over s directly. The consistency of this estimator however, crucially depends on an assumption that the density ratio estimate ri is itself consistent. Neural estimators of this kind such as MINE, are known to suffer from high variance and bias that grows with the true divergence [16]. [14] likewise reports degradation and sensitivity to hyperparameters. Instead, we rewrite the bisection condition from [6] as the derivative condition from equation (9). Note that: 
+
+DKL (Pbs∥P ) > D KL (Pbs∥Q) (19) 
+
+⇐⇒ EPbs
+
+
+
+log p(X)
+
+q(X)
+
+
+
+< 0 (20) 
+
+⇐⇒ Ds(P, Q ) := dds log Cs(P, Q ) s=bs
+
+< 0 (21) Therefore, one can instead check the sign of the derivative in the bisection step. A natural estimate of this derivative is via a finite difference 
+
+∆h(s) := bCs+h − bCs−h
+
+2h , h > 0. (22) However, this approach is not reliable due to the unknown finite-sample bias of bCs. To make this precise, write the estimator as 
+
+bCs = Cs + bn(s), (23) where bn(s) denotes an unknown bias term. Then 
+
+∆h(s) = Cs+h − Cs−h
+
+2h + bn(s + h) − bn(s − h)2h . (24) Assuming Cs is twice continuously differentiable, a Taylor expansion yields 
+
+Cs+h − Cs−h
+
+2h = C′
+
+> s
+
+(s) + O(h2), (25) so that 
+
+∆h(s) = C′
+
+> s
+
+(s) + O(h2) + bn(s + h) − bn(s − h)2h . (26) Hence the sign of ∆h(s) coincides with the sign of the true derivative C′
+
+> s
+
+(s) only if 
+
+|C′
+
+> s
+
+(s)| > O(h2) + bn(s + h) − bn(s − h)2h . (27) The difficulty arises because the bias term has an unknown relation to s. In particular, even if bn(s) is small in magnitude, the difference quotient 
+
+bn(s + h) − bn(s − h)2h (28) may become arbitrarily large as h shrinks, unless bn is sufficiently regular in s.Indeed, near the optimum s∗, we have C′
+
+> s
+
+(s∗) ≈ 0, so the above condition fails more dramatically in a neighborhood of 
+
+s∗, as the sign of ∆h(s) is increasingly determined by the bias-induced term. For high precision applications this may be fatal. Moreover, decreasing h amplifies the bias contribution through the factor 1/h , while increasing h increases the deterministic approximation error O(h2).To combat this, we develop an estimator cDs(Xn, Y m) directly for the derivative, by differentiating the estimator from [11]: 
+
+cCs(Xn, Y m) = 1
+
+n
+
+X Bk,s r1−si (29) We begin by simply noting that 
+
+dds log cCs(Xn, Y m) =  
+
+> dds
+
+cCs(Xn, Y m)
+
+cCs(Xn, Y m) (30) Then we have for the numerator: 
+
+dds cCs(Xn, Y m) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+∂sBk,s r1−si − Bk,s log rir1−si
+
+(31) Taking the log of Bk,s 
+
+log Bk,s = 2 log Γ( k) − log Γ( k + 1 − s) (32) 
+
+− log Γ( k − 1 + s) (33) 
+
+=⇒ ∂s log Bk,s = ψ(k + 1 − s) − ψ(k − 1 + s) (34) 
+
+=⇒ ∂sBk,s = Bk,s [ψ(k + 1 − s) − ψ(k − 1 + s)] 
+
+(35) Bringing the two terms together and noting that the Bk,s 
+
+factors cancel, we obtain the derivative estimator: 
+
+cDs(Xn, Y m) = Gk,s −
+
+> 1
+> n
+
+Pni=1 rγi log ri
+
+> 1
+> n
+
+Pni=1 rγi
+
+, where (36) 
+
+Gk,s := ψ(k + γ) − ψ(k − γ) and γ := 1 − s. 
+
+(37) Combining cDs with the bisection algorithm from [6], we get the procedure in Algorithm 1.
+
+Algorithm 1 Sample based estimator for Chernoff information 
+
+Require: Two sample sets Xn = {X1, X 2...X n}, Xi
+
+> i.i.d.
+
+∼ P
+
+and Y m = {Y1, Y 2...Y m}, Y j
+
+> i.i.d.
+
+∼ Q, precision parameter 
+
+ε > 0, integer k ≥ 5 
+
+> 1:
+
+sm ← 0, sM ← 1 
+
+> 2:
+
+ri ← (n−1) ρk (i)d  
+
+> mν k(i)d
+
+with ρk(i), ν k(i) the distance of point 
+
+Xi to its k-th neighbour in Xn \ Xi and Y m, respectively.  
+
+> 3:
+
+while |sM − sm| > ε do  
+
+> 4:
+
+ˆs ← (sm + sM )/2, γ ← 1 − ˆs 
+
+> 5:
+
+Gk,s ← ψ(k + γ) − ψ(k − γ) 
+
+> 6:
+
+bDs ← Gk,s − 1    
+
+> n
+> Pni=1 rγilog ri
+> 1
+> n
+> Pni=1 rγi
+
+, k-NN derivative estimate at ˆs 
+
+> 7:
+
+if bDs > 0 then  
+
+> 8:
+
+sM ← ˆs 
+
+> 9:
+
+else  
+
+> 10:
+
+sm ← ˆs 
+
+> 11:
+
+end if  
+
+> 12:
+
+end while  
+
+> 13:
+
+Bk,s ← Γ( k)2 
+
+> Γ( k+γ)Γ( k−γ)
+> 14:
+
+C ← − log( Bk,s 1
+
+> n
+
+Pni=1 rγi ), k-NN estimate of Chernoff information  
+
+> 15:
+
+return C
+
+A priori, it is not the case that consistency of bCs implies the consistency of its derivative. However, for our particular bDs,this turns out to be the case, which we now show. IV. A SYMPTOTIC CONSISTENCY 
+
+Throughout the rest of the text, let M ⊆ Rd be a domain such that supp (P ) = supp (Q) = M, with densities p = dP/dμ 
+
+and q = dQ/dμ against the Lebesgue measure μ over M. We make the following standing assumptions: 
+
+Assumption 1 (Bounded domain) . Let M be bounded with diameter D := sup x,y ∈M ∥x − y∥.
+
+Assumption 2 (Bounded densities) . Let Cp, C q , c p, c q ∈ R>0
+
+be constants s.t, for almost all x ∈ M ,
+
+cp < p (x) < C p, cq < q (x) < C q . (38) 
+
+Assumption 3 (Volume regularity of the domain) . Let rM > 0
+
+such that 
+
+inf  
+
+> 0<δ ≤1
+
+inf 
+
+> x∈M
+
+V (B(x, δ ) ∩ M )
+
+V (B(x, δ )) = rM (39) i.e, over a shrinking sequence of balls, the domain M can not shrink arbitrarily quickly. 
+
+Remark 1. The bounded-domain and lower-bound assump-tions are needed to keep the log ri terms finite. [13] instead assumes μ-regularity, a set of μth -moment conditions on 
+
+log p(x) and log ∥x − y∥ that keep log ri finite in expectation. However [11] points out that the proof in [13] under this condition is flawed, as it applies the reverse Fatou lemma (see [17]) under conditions where it does not hold. As a result, adapting μ-regularity in place of Assumptions 1 and 2 could relax both, but we retain them for proof simplicity. 
+
+We now state moment bounds on the k-NN volume terms, which will be needed for asymptotic consistency proofs. 
+
+Lemma 1 (Moments) . ∀| β| < k , we have 
+
+sup 
+
+> n,m,i
+
+E
+
+h
+
+r βi
+
+i
+
+< ∞. (40) 
+
+Lemma 2 (Log-weighted moments) . ∀| β| < k, θ ≥ 0, we have 
+
+sup 
+
+> n,m,i
+
+E
+
+h
+
+r βi log ri 
+
+> θ
+
+i
+
+< ∞. (41) The proof for both can be found in Appendix A. The key idea is to use the lower and upper bounds on the densities from Assumption 2 to bound the probability of 
+
+k-NN ball volumes growing or shrinking arbitrarily fast. Combined with Assumption 1, which prevents the samples from being arbitrarily far apart, this yields the moment bounds. Note that these lemmas introduce a constraint on the minimum 
+
+k that can be used. In particular; for retrieving Lp-consistency, we need to have k > 2p. This fact becomes clear during the consistency proofs (see Appendix B). Therefore in practice, unless stated otherwise, we take k = 5 to ensure L2-consistency and all theorem/lemmas are stated with k ≥ 5.
+
+A. L1-Consistency 
+
+Theorem 3. For k ≥ 5, the derivative estimator bDs(Xn, Y m)
+
+is L1-consistent: 
+
+lim  
+
+> n,m →∞
+
+EP ⊗n,Q ⊗m
+
+ bDs(Xn, Y m) − Ds(P, Q )  = 0 . (42) 
+
+Proof (Sketch). Fix P, Q and s, and define 
+
+as = B−1
+
+> k,s
+
+Cs(P, Q ), bs = B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q )
+
+An = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r γi Bn = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r γi log ri.
+
+with bDs = Gk,s − Bn/A n. We first analyze An and Bn
+
+separately to show E[An] → as and E[Bn] → bs. Then we establish the convergence of the ratio E[Bn/A n] → bs/a s.Since An is exactly the estimator for Cs(P, Q ) from [11], its consistency follows verbatim. Centrally, the pointwise kNN volume terms ri converge in distribution to Erlang laws Erlang( k, ¯cp (xi)) by a counting argument. Using the closed-form moments of these laws yields E[An] → as.For Bn, we proceed similarly and differentiate the corresponding moment expressions. Justification for interchanging differentiation and expectation follows from dominated convergence, using an integrable envelope for the log-weighted terms. This yields E[Bn] → bs.To establish the convergence of the ratio, we show the follow-ing: 1) Both terms have zero asymptotic variance: Var( An) → 0
+
+and Var( Bn) → 0.2) By Chebyshev’s inequality [5], 
+
+P(|An − E[An]| ≥ ε) ≤ Var( An)
+
+ε2 → 0, ∀ε > 0,
+
+hence An
+
+> P
+
+−→ as and Bn
+
+> P
+
+−→ bs (since E[An] → as). 3) For as̸ = 0, the Continuous Mapping theorem [18] implies Bn
+
+> An
+> P
+
+−→ bs 
+
+> as
+
+.
+
+4) Finally, the ratio family {Bn/A n}n≥1 is uniformly inte-grable and by Vitali’s convergence theorem [19]: 
+
+E
+
+ Bn
+
+An
+
+− bs
+
+as
+
+
+
+→ 0.
+
+Plugging as and bs back, we obtain 
+
+lim  
+
+> n,m →∞
+
+E
+
+
+
+Gk,s − Bn
+
+An
+
+
+
+= Ds(P, Q ), (43) 
+
+after adding the correction term Gk,s .B. L2-Consistency 
+
+Theorem 4. For k ≥ 5, the derivative estimator bDs(Xn, Y m)
+
+is L2-consistent: 
+
+lim  
+
+> n,m →∞
+
+EP ⊗n,Q ⊗m[( bDs(Xn, Y m) − Ds(P, Q )) 2] = 0 
+
+Proof (Sketch). We have already most of the ingredients needed to show this statement. Similar to Theorem 3, we first show the L2 convergence of An and Bn to then argue for the convergence of their ratio. Let again bDs = Gk,s − Bn 
+
+> An
+
+and recall that 
+
+An
+
+> P
+
+−→ as, Bn
+
+> P
+
+−→ bs with as = B−1
+
+> k,s
+
+Cs(P, Q ) and 
+
+bs = B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q ).Furthermore we have Var( An) → 0 and Var( Bn) → 0
+
+together with convergence of the means; from these we obtain 
+
+AnL2
+
+−−→ as and BnL2
+
+−−→ bs.To apply Vitali’s theorem again, we show the squared family  Bn
+
+> An
+
+2
+
+> n≥1
+
+is also uniformly integrable where the proof goes analogously to the L1 lemma, which together with convergence in probability implies Bn 
+
+> An
+
+→ bs 
+
+> as
+
+in L2. Therefore we have 
+
+lim  
+
+> n,m →∞
+
+E
+
+h
+
+( bDs − Ds)2i
+
+= lim  
+
+> n,m →∞
+
+E
+
+"
+
+Gk,s − Bn
+
+An
+
+− Ds
+
+2#
+
+(44) 
+
+= lim  
+
+> n,m →∞
+
+E
+
+" Bn
+
+An
+
+− bs
+
+as
+
+2#
+
+= 0 . (45) 
+
+C. Consistency of the Bisection 
+
+Theorems 3 and 4 establish the asymptotic consistency of the derivative estimator bDs for any fixed s. This does not by itself imply that the bisection algorithm, driven by bDs, locates the correct root s∗. We conclude this section by showing that the bisection via bDs also approximates s∗ to arbitrary precision. 
+
+Theorem 5 (Consistency of the bisection) . Let s∗ ∈ (0 , 1) be the unique root of Ds and ˆsn,m ∈ (0 , 1) , denote the bisection estimate with n, m samples and precision parameter ε > 0.Then ∀η > 0 with s∗ ± η ∈ (0 , 1) ,
+
+lim  
+
+> n,m →∞
+
+P(|ˆsn,m − s∗| > η + ε) = 0 . (46) 
+
+Proof. Fix η > 0 s.t s∗ ± η ∈ (0 , 1) and define 
+
+∆( η) := min { | Ds∗−η |, |Ds∗+η | } > 0. (47) By monotonicity of Ds (established in Section I), every s with 
+
+|s−s∗| ≥ η satisfies |Ds| ≥ ∆( η). The trick is to see that only a sign flip by the estimator results in large error. Concretely, if 
+
+sign( bDs)̸ = sign( Ds), then bDs and Ds lie on opposite sides of 0. We get 
+
+sign( bDs)̸ = sign( Ds) = ⇒ | bDs − Ds| ≥ | Ds| ≥ ∆( η).
+
+(48) Taking the probabilities of each event and applying Markov’s inequality along with L1-consistency (Theorem 3) gives, ∀s
+
+s.t |s − s∗| ≥ η:
+
+P  sign( bDs)̸ = sign( Ds) ≤ P | bDs − Ds| ≥ ∆( η) (49) 
+
+≤ E[| bDs − Ds|]∆( η) → 0, (50) Note that this holds at any fixed s with |s − s∗| ≥ η. Since the bisection runs for T = O(log 1 
+
+> ε
+
+) steps, there are at most 
+
+2T distinct points the algorithm can visit, and which of them it visits depends on the samples. A union bound over all of them gives 
+
+P(|ˆsn,m − s∗| > η + ε) ≤ 2T max s E[| bDs − Ds|]∆( η) → 0,
+
+(51) as T is finite and the maximum is taken over the finitely many points the algorithm can visit. If no sign flip occurs at any 
+
+s with |s − s∗| ≥ η, the interval [sm, s M ] always contains a point within η of s∗, and it has width at most ε on termination, giving |ˆsn,m − s∗| ≤ η + ε.           
+
+> Fig. 1. Estimator performance vs. sample size for P∼ N [0 ,1] (0 .4,0.2)
+> and Q∼ N [0 ,1] (0 .6,0.2) . The bisection is performed for 10 iterations for each sample size. We observe convergence around 10 3−10 4samples. 95% confidence intervals (over 50 trials) are also reported.
+
+V. E XPERIMENTAL RESULTS 
+
+We conduct experiments on simple datasets to verify the convergence of the estimator for feasible sample sizes and distributions. Appendix C contains more plots for different parameter settings for the families described here. 
+
+A. Symmetric Truncated Gaussians 
+
+First, we study a symmetric pair of truncated Gaussians on 
+
+M = [0 , 1] , as a closed-form sanity check. For mean μ and deviation σ > 0, let N[0 ,1] (μ, σ ) denote the Gaussian truncated to [0 , 1] . Note that it has density 
+
+pμ,σ (x) = 1
+
+σ Z (μ, σ ) ϕ
+
+ x − μσ
+
+
+
+(52) 
+
+Z(μ, σ ) := Φ 
+
+ 1 − μσ
+
+
+
+− Φ
+
+ −μσ
+
+
+
+, (53) where ϕ, Φ are the standard normal density and CDF. Pick a 
+
+δ ∈ (0 , 1/2) and set 
+
+P ∼ N [0 ,1] 
+
+  12 − δ, σ  , Q ∼ N [0 ,1] 
+
+  12 + δ, σ  , (54) It is easy to check that Assumption 1 and 3 hold with D = 1 
+
+and rM = 1 /2. Moreover, both densities are continuous and strictly positive on the compact set [0 , 1] , hence bounded above and away from zero (Assumption 2). Since the densities are symmetric, i.e q(x) = p(1 − x), ∀x ∈
+
+[0 , 1] , we have that Cs is symmetric about s = 1 /2. As Cs is also convex with C0 = C1 = 1 , we immediately get s∗ = 1 /2.Therefore we can express C(P, Q ) as: 
+
+C(P, Q ) = − log C1/2(P, Q ) (55) 
+
+= − log 
+
+Z 10
+
+pp(x) p(1 − x) dx 
+
+= − log 
+
+Z 10
+
+e−δ2/2σ2
+
+σ√2π Z (μ, σ ) e−(x−1/2) 2/2σ2
+
+dx 
+
+= δ2
+
+2σ2 + log Z( 12 − δ, σ ) − log Z( 12 , σ ). (56) Figure 1 shows the convergence rate of the estimator for δ =0.1 and σ = 0 .2. Indeed, for ∼ 10 4 samples, we observe 
+
+cDs, ˆs∗ and bC(P, Q ) are all within 10 −4 of their ground truth values. Fig. 2. Estimator performance vs. sample size for P ∼ Exp [0 ,1] (1 .0) and        
+
+> Q∼Exp [0 ,1] (8 .0) , restricted on the unit interval M= [0 ,1] . The bisection is performed for 10 iterations for each sample size. Convergence is around
+> 10 3−10 4. Shaded areas are 95% confidence intervals over 50 trials.
+
+B. Truncated Exponentials 
+
+As a canonical family, we study truncated exponentials. We fix the domain again to be the unit interval M = [0 , 1] and let 
+
+Exp [0 ,1] (λ) denote the exponential law with parameter λ > 0
+
+and density (on [0 , 1] ): 
+
+pλ(x) = λe −λx 
+
+Z(λ) , Z(λ) = 
+
+Z 10
+
+λe −λx dx = 1 − e−λ (57) Take P ∼ Exp [0 ,1] (λ1) and Q ∼ Exp [0 ,1] (λ2) for λ1, λ 2 > 0.Then both Cs and Ds have closed forms: 
+
+Cs(P, Q ) = 
+
+Z 10
+
+p(x)sq(x)1−s dx (58) 
+
+= λs
+
+> 1
+
+λ1−s
+
+> 2
+
+Z(λ1)sZ(λ2)1−s
+
+1 − e−λ(s)
+
+λ(s) . (59) with λ(s) := sλ 1 + (1 − s)λ2, the geometric mixture of the parameters. Taking logarithms and differentiating in s, with 
+
+λ′(s) = λ1 − λ2,
+
+Ds(P, Q ) = log λ1Z(λ2)
+
+λ2Z(λ1) + ( λ1 − λ2)
+
+ e−λ(s)
+
+1 − e−λ(s) − 1
+
+λ(s)
+
+
+
+.
+
+(60) 
+
+Ds = 0 is a transcendental equation, so the analytic form of s∗ is not known, but it can be approximated to machine precision by a bisection procedure similar to our Algorithm 1. Note that this is on the exact value of Ds, unlike our sample based estimator cDs.Figure 2 shows results for λ1 = 1 .0 and λ2 = 8 .0, with convergence rates similar to the truncated Gaussian case. Fig-ure 3 extends to higher-dimensional densities on Md = [0 , 1] d
+
+and shows the effect of dimension on the number of samples required for convergence, suggesting a sample complexity exponential in the dimension d (see the Conclusion for further discussion), as is expected to be inherited from the k-NN density-ratio estimator. Interestingly, the s∗ search converges at roughly the same rate across the tested dimensions. Since the bisection requires only the sign of cDs, the root location may be more robust to the dimension-driven error growth that affects the divergence estimate itself.                                            
+
+> Fig. 3. Convergence rate vs dimensionality of the distributions. x-axis is the number of samples while y is the error from ground truth for both s∗
+> and C(P, Q ). Each curve is for a pair of distributions on Md= [0 ,1] d
+> with P∼Exp [0 ,1] ([1 .0] d)and Q∼Exp [0 ,1] ([8 .0] d). Interestingly, as dimensions increase the convergence rate for the sstays the same while the estimated bCsstarts to decline in quality.
+> Fig. 4. Chernoff information between MNIST digit classes as a function of per-class sample size n=m, estimated on d= 32 PCA components. Orange curve is bC(2 ,3) between the two’s and three’s while blue is a null-consistency check, bC(3 ,3) , computed from disjoint halves of the three samples. Bands show 95% confidence intervals over 50 repetitions. bC(3 ,3) stays near zero, while bC(2 ,3) is non-zero from as few as 10 samples, so the estimator separates the two classes despite the small sample regime. Absolute bC(2 ,3)
+> values are likely underestimates.
+
+C. MNIST Class Conditionals 
+
+Finally, we perform an experiment similar to [20] by studying the Chernoff information between the two’s and three’s, denoted C(2 , 3) , in the handwritten digit dataset MNIST [21]. We apply a PCA with d = 32 components to reduce the computational load and prevent overflow errors due to exponential scaling. We also plot a ”null-consistency check”; by using samples only from the three class to report C(3 , 3) .Since they come from the same distribution, we expect 
+
+bC(3 , 3) ≈ 04.Figure 4 shows the bC(2 , 3) and bC(3 , 3) curves (as well as the mixing parameters ˆs(2 , 3) and ˆs(3 , 3) ) as a function of sample size. The reported bC(2 , 3) is likely far from the true value; the PCA projection can only reduce the divergence by the Data Processing Inequality [22], while the finite-sample bias of the estimator adds an error of unknown sign. It is interesting to note that with as few as 10 −50 samples, the estimator yields a non-zero bC(2 , 3) , while bC(3 , 3) stays around zero, suggesting that the estimator is able to distinguish between two sample sets easily.     
+
+> 4Note here that the mixing parameter s∗is not unique as the Cscurve is flat and not strictly convex.
+
+VI. C ONCLUSION 
+
+We introduced and analyzed a k-NN based estimator for Chernoff information, combining a derivative estimator with a bisection search over the mixing parameter s ∈ (0 , 1) . We then established the L1- and L2-consistency of the derivative estimator under mild regularity conditions on the underlying domain and the densities of the associated distributions, along with the convergence of the bisection to s∗ up to its precision parameter. We further validated the estimator against analytically tractable ground truths using truncated exponential and truncated Gaussians on bounded domains. We further demonstrated its applicability to real high-dimensional data by distinguishing the class-conditional distributions of MNIST digits. A notable limitation of the present analysis is that it is entirely asymptotic. No finite-sample guarantees or bias/variance trade-offs are provided, and the rate at which the estimator converges remains unknown. Moreover, the direction of the bias is unknown (i.e., whether it yields an under- or overestimate). In-deed, we argued that this prevents the use of a finite-difference estimator for the derivative and motivated the construction of 
+
+bDs. In future work, we plan to derive the dependence of the bias and variance on n, m, k, and the smoothness of the underlying densities p, q (similar to works such as [23] and [24] for other divergences). REFERENCES [1] J. Neyman and E. S. Pearson, “Ix. on the problem of the most efficient tests of statistical hypotheses,” Philosophical Transactions of the Royal Society of London. Series A, Containing Papers of a Mathematical or Physical Character , vol. 231, no. 694-706, pp. 289–337, 1933. [2] H. Chernoff, “Large-sample theory: Parametric case,” The Annals of Mathematical Statistics , vol. 27, no. 1, pp. 1–22, 1956. [3] S. Kullback and R. A. Leibler, “On information and sufficiency,” The annals of mathematical statistics , vol. 22, no. 1, pp. 79–86, 1951. [4] H. Chernoff, “A measure of asymptotic efficiency for tests of a hypoth-esis based on the sum of observations,” The Annals of Mathematical Statistics , pp. 493–507, 1952. [5] R. Durrett, Probability: theory and examples . Cambridge university press, 2019, vol. 49. [6] F. Nielsen, “Revisiting chernoff information with likelihood ratio exponential families,” Entropy , vol. 24, no. 10, 2022. [Online]. Available: https://www.mdpi.com/1099-4300/24/10/1400 [7] A. R´ enyi, “On measures of entropy and information,” in Proceedings of the fourth Berkeley symposium on mathematical statistics and probabil-ity, volume 1: contributions to the theory of statistics , vol. 4. University of California Press, 1961, pp. 547–562. [8] K. Fukunaga and L. Hostetler, “Optimization of k nearest neighbor density estimates,” IEEE Transactions on information theory , vol. 19, no. 3, pp. 320–326, 1973. [9] D. O. Loftsgaarden and C. P. Quesenberry, “A nonparametric estimate of a multivariate density function,” The Annals of Mathematical Statistics ,vol. 36, no. 3, pp. 1049–1051, 1965. [10] W. Gao, S. Oh, and P. Viswanath, “Demystifying fixed k-nearest neighbor information estimators,” IEEE Transactions on Information Theory , vol. 64, no. 8, pp. 5629–5661, 2018. [11] B. Poczos and J. Schneider, “On the estimation of α-divergences,” in 
+
+Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics , ser. Proceedings of Machine Learning Research, G. Gordon, D. Dunson, and M. Dud´ ık, Eds., vol. 15. Fort Lauderdale, FL, USA: PMLR, 11–13 Apr 2011, pp. 609– 617. [Online]. Available: https://www.cs.cmu.edu/ ∼bapoczos/articles/ poczos11alphaTR.pdf [12] S.-i. Amari, Information geometry and its applications . Springer, 2016. [13] Q. Wang, S. R. Kulkarni, and S. Verd´ u, “Divergence estimation for mul-tidimensional densities via k-nearest-neighbor distances,” IEEE Trans-actions on Information Theory , vol. 55, no. 5, pp. 2392–2405, 2009. [14] A. Nichani, H. Hsu, H. Jeong et al. , “Does privacy always harm fairness? data-dependent trade-offs via chernoff information neural estimation,” 
+
+arXiv preprint arXiv:2601.13698 , 2026. [15] M. I. Belghazi, A. Baratin, S. Rajeshwar, S. Ozair, Y. Bengio, A. Courville, and D. Hjelm, “Mutual information neural estimation,” in International conference on machine learning . PMLR, 2018, pp. 531–540. [16] J. Song and S. Ermon, “Understanding the limitations of variational mutual information estimators,” arXiv preprint arXiv:1910.06222 , 2019. [17] E. H. Lieb and M. Loss, Analysis . American Mathematical Soc., 2001, vol. 14. [18] A. W. Van der Vaart, Asymptotic statistics . Cambridge university press, 2000, vol. 3. [19] G. Vitali, “Sull’integrazione per serie,” Rendiconti del Circolo Matem-atico di Palermo (1884-1940) , vol. 23, no. 1, pp. 137–155, 1907. [20] F. P´ erez-Cruz, “Kullback-leibler divergence estimation of continuous distributions,” in 2008 IEEE international symposium on information theory . IEEE, 2008, pp. 1666–1670. [21] Y. LeCun, “The mnist database of handwritten digits,” http://yann. lecun. com/exdb/mnist/ , 1998. [22] Y. Polyanskiy and Y. Wu, “Lecture notes on information theory,” MIT OpenCourseWare, 2016, course 6.441, Spring 2016. [Online]. Available: https://ocw.mit.edu/courses/6-441-information-theory-spring-2016/ [23] P. Zhao and L. Lai, “Minimax optimal estimation of kl divergence for continuous distributions,” IEEE Transactions on Information Theory ,vol. 66, no. 12, pp. 7787–7811, 2020. [24] M. Noshad, K. R. Moon, S. Y. Sekeh, and A. O. Hero, “Direct estimation of information divergence using nearest neighbor ratios,” in 2017 IEEE International Symposium on Information Theory (ISIT) . IEEE, 2017, pp. 903–907. [25] N. Leonenko, L. Pronzato, and V. Savani, “A class of r´ enyi information estimators for multidimensional densities,” 2008. [26] C. D. L. V. Poussin, “Sur l’int´ egrale de lebesgue,” Transactions of the American Mathematical Society , pp. 435–501, 1915. APPENDIX APROOFS OF LEMMA 1/2 Before we state the proofs, we define some basic notation and restate relevant results from [11]. Recall the k-NN volume ratio around a point Xi is defined as 
+
+ri := (n − 1) ρk(i)d
+
+m ν k(i)d , (61) with ρk(i) the Euclidean distance from Xi to its k-th nearest neighbour among {Xj }nj=1 ,j ̸ =i, and νk(i) the distance from Xi
+
+to its k-th nearest neighbour among {Yj }mj=1 , for n > k + 1 , m > k . It is convenient to write 
+
+ζn(x) := ( n − 1) ρk(1) d, θm(x) := mν k(1) d (62) so that, conditioning on X1 = x,
+
+r1 = ζn(x)
+
+θm(x) . (63) Write ¯c for the volume of the unit ball in Rd and B(x, R ) for the closed ball of radius R about x. Further define the following quantities: 
+
+Pn,u,x := 
+
+Z
+
+> M∩B (x,R n(u))
+
+p(t) d t, Rn(u) :=   un−1
+
+1/d . (64) 
+
+Pn,u,x corresponds to the amount of probability mass p assigns on a region of volume u around the point x. Note simply that Rn(u) is the radius of the ball of volume u. Now we are ready to state the key lemma from [11] that determines the distribution of the scaled volume term ζn(x):
+
+Lemma 6 (Lemma 17 in [11]) . Conditional on X1 = x, the random variable ζn(x) = ( n − 1) ρk(1) d has distribution function 
+
+Fn,k,x (u) = P(ζn(x) < u | X1 = x) (65) 
+
+= 1 −
+
+> k−1
+
+X
+
+> j=0
+
+n − 1
+
+j
+
+
+
+P jn,u,x 
+
+ 1 − Pn,u,x 
+
+n−1−j (66) 
+
+Proof (Sketch). The event ζn(x) < u occurs exactly when at least k of the points from {X2, X 3, .., X n} fall inside the ball 
+
+B(x, R n(u)) . Since each sample is taken independently, this corresponds to a Binomial experiment on n−1 points with success probability Pn,u,x . The probability of at least k successes is therefore equal to Fn,k,x (u).
+
+Next, we upper and lower bound Pn,u,x . Two further quantities of interest are: 
+
+λmin := cp rM ¯c, λmax := Cp ¯c. (67) with cp, C p, r M defined under Assumptions 2 and 3. 
+
+Lemma 7 (Boundedness of ball masses) . Under the standing assumptions 1 - 3, we have 
+
+(i) For all u > 0, all n, and almost all x ∈ M ,
+
+Pn,u,x ≤ λmax 
+
+un − 1 . (68) (ii) For all u with Rn(u) < 1 (equivalently, u < n − 1), all n, and almost all x ∈ M ,
+
+Pn,u,x ≥ λmin 
+
+un − 1 . (69) (iii) For all u with Rn(u) ≥ 1 (equivalently, u ≥ n − 1), all n, and almost all x ∈ M ,
+
+Pn,u,x ≥ λmin . (70) 
+
+Proof. (i) Since p ≤ Cp and intersection only shrinks the ball, 
+
+Pn,u,x ≤ Cp V (B(x, R n(u)) ∩ M ) ≤ Cp V (B(x, R n(u))) (71) 
+
+= Cp ¯c R n(u)d (72) 
+
+= λmax 
+
+un − 1 . (73) (ii) Since p ≥ cp and Rn(u) < 1, Assumption 3 applies with δ = Rn(u), giving V (B(x, R n(u)) ∩ M ) ≥ rM ¯cR n(u)d, hence 
+
+Pn,u,x ≥ cprM ¯cR n(u)d = λmin u/ (n − 1) .
+
+(iii) For Rn(u) ≥ 1 we have B(x, 1) ⊆ B (x, R n(u)) , so V (B(x, R n(u)) ∩ M ) ≥ V (B(x, 1) ∩ M ) ≥ rM ¯c by Assumption 3, and the bound follows on multiplying by cp.Finally, we state two elementary facts without proof, to be used throughout. 
+
+Lemma 8. The following hold (a) For p ∈ [0 , 1] , 1 − p ≤ e−p.(b) For 0 ≤ j ≤ n − 1 and n > 1, n ∈ N,
+
+n − 1
+
+j
+
+
+
+≤ (n − 1) j
+
+j!
+
+A. Positive Moments of ζn(x)
+
+Lemma 9. For any fixed t > 0,
+
+ess sup 
+
+> x∈M
+
+sup 
+
+> n>k
+
+E ζn(x)t | X1 = x < ∞. (74) 
+
+Proof. By the Layer-Cake Identity [17] (see also Lemma 31 of [11]) we have, 
+
+E ζn(x)t = t
+
+Z ∞
+
+> 0
+
+ut−1 1 − Fn,k,x (u) du. (75) First, we treat the small n regime where k < n < 2k:For each such n, Assumption 1 gives ρk(1) ≤ D almost surely, so ζn(x) ≤ (n − 1) Dd ≤ (2 k − 1) Dd almost surely. Hence 
+
+E[ζn(x)t] ≤ ((2 k−1) Dd)t, independent of x. Since there are only finitely many such n, this contributes a finite supremum to the overall bound. Therefore, for the remainder of the proof, assume n ≥ 2k, so that (n−1−j)/(n−1) ≥ 1/2 for every j ≤ k −1.We now separate the expectation into three regions on u:
+
+Case 0 < u < n − 1: Both bounds of Lemma 7 apply. For each j ≤ k − 1,
+
+n − 1
+
+j
+
+
+
+P jn,u,x ≤ (n − 1) j
+
+j! · P jn,u,x (Lem. 8(b)) 
+
+≤ (n − 1) j
+
+j! ·
+
+ λmax un − 1
+
+j
+
+((68)) 
+
+= (λmax u)j
+
+j! , (76) and 
+
+(1 − Pn,u,x )n−1−j ≤ exp  −(n − 1 − j) Pn,u,x 
+
+ (Lem. 8(a)) 
+
+≤ exp 
+
+
+
+−(n − 1 − j) λmin un − 1
+
+
+
+((69)) 
+
+= exp 
+
+
+
+− n − 1 − jn − 1 λmin u
+
+
+
+(77) 
+
+≤ e−λmin u/ 2, (n ≥ 2k)Summing over j and applying (65), 
+
+1 − Fn,k,x (u) ≤
+
+> k−1
+
+X
+
+> j=0
+
+(λmax u)j
+
+j!
+
+!
+
+e−λmin u/ 2, 0 < u < n − 1. (78) Plugging back to the layer-cake identity, we get: 
+
+t
+
+Z n−10
+
+ut−1 1 − Fn,k,x (u) du (79) 
+
+≤ t
+
+Z ∞
+
+> 0
+
+ut−1
+
+> k−1
+
+X
+
+> j=0
+
+(λmax u)j
+
+j!
+
+!
+
+e−λmin u/ 2 du (80) 
+
+= t
+
+> k−1
+
+X
+
+> j=0
+
+λj
+
+> max
+
+j!
+
+Z ∞
+
+> 0
+
+ut+j−1 e−λmin u/ 2 du, (81) Each term in the sum is a polynomial-times-exponential integrand ut+j−1e−λmin u/ 2; since exponential decay dominates any polynomial growth, every such integral is finite and their finite sum is finite. 
+
+Case n − 1 ≤ u ≤ (n − 1) Dd: For u ≥ n − 1, Lemma 7(iii) gives Pn,u,x ≥ λmin . For each j ≤ k − 1,
+
+n − 1
+
+j
+
+
+
+P jn,u,x ≤ (n − 1) j
+
+j! · 1 (Lem. 8(b), P ≤ 1)
+
+≤ (n − 1) k−1
+
+(k − 1)! , (j ≤ k − 1 < n − 1)and 
+
+(1 − Pn,u,x )n−1−j ≤ exp  −(n − 1 − j) Pn,u,x 
+
+ (Lem. 8(a)) 
+
+≤ e−(n−1−j)λmin ((70)) 
+
+≤ e−(n−k)λmin (j ≤ k − 1)
+
+≤ e−λmin n/ 2. (n ≥ 2k)Summing over j ≤ k − 1 and applying (65), 
+
+1 − Fn,k,x (u) ≤ k · (n − 1) k−1
+
+(k − 1)! e−λmin n/ 2. (82) The right-hand side is independent of u, so the contribution of this range to (75) is bounded by 
+
+t
+
+Z (n−1) Dd
+
+> n−1
+
+ut−1 · k · (n − 1) k−1
+
+(k − 1)! e−λmin n/ 2 du (83) 
+
+= k(n − 1) k−1
+
+(k − 1)! e−λmin n/ 2 ·
+
+h
+
+(n − 1) tDdt − (n − 1) ti
+
+(84) 
+
+≤ k D dt 
+
+(k − 1)! (n − 1) t+k−1 e−λmin n/ 2. (85) Similar to the previous case, this is a polynomial in n multiplied by a decaying exponential in n; exponential decay dominates polynomial growth, so the supremum is finite. 
+
+Case u > (n − 1) Dd: Here Rn(u) > D, so the ball is larger than the domain; B(x, R n(u)) ⊇ M and therefore 
+
+Pn,u,x = R 
+
+> M
+
+p(t) d t = 1 , hence 1 − Fn,k,x (u) = 0 and this range contributes nothing to (75). Combining all cases plus the small n range yields a finite supremum over n, x .
+
+B. Negative Moments of ζn(x)
+
+Lemma 10. For any fixed t with 0 < t < k ,
+
+ess sup 
+
+> x∈M
+
+sup 
+
+> n>k
+
+E ζn(x)−t | X1 = x < ∞. (86) 
+
+Proof. By the Layer-Cake Identity [17] (see also Lemma 32 in [11]), for t > 0,
+
+E ζn(x)−t = t
+
+Z ∞
+
+> 0
+
+u−t−1 Fn,k,x (u) d u. (87) We can rewrite (65) as follows (using the ”flipped” counting argument) 
+
+Fn,k,x (u) = 
+
+> n−1
+
+X
+
+> j=k
+
+n − 1
+
+j
+
+
+
+P jn,u,x (1 − Pn,u,x )n−1−j (88) Here we need to only distinguish two cases for u
+
+Case u > 1: Using only Fn,k,x (u) ≤ 1,
+
+t
+
+Z ∞
+
+> 1
+
+u−t−1Fn,k,x (u) d u ≤ t
+
+Z ∞
+
+> 1
+
+u−t−1 du (89) 
+
+= t
+
+ u−t
+
+−t
+
+∞
+
+> 1
+
+= t · 1
+
+t = 1 , (90) for t ∈ (0 , k ). Intuitively, this corresponds to the ”unproblematic” region where the negative moment can not get arbitrarily large since the ball volume is already large enough (whose inverse powers will be small). 
+
+Case 0 < u ≤ 1: Dropping the factors (1 − Pn,u,x )n−1−j ≤ 1 in (65), 
+
+Fn,k,x (u) = 
+
+> n−1
+
+X
+
+> j=k
+
+n − 1
+
+j
+
+
+
+P jn,u,x (1 − Pn,u,x )n−1−j (91) 
+
+≤
+
+> n−1
+
+X
+
+> j=k
+
+n − 1
+
+j
+
+
+
+P jn,u,x ≤
+
+> n−1
+
+X
+
+> j=k
+
+(λmax u)j
+
+j! , (92) where the last step follows from Lemma 8(b) and (68). Since each term is positive, we extend the sum to n → ∞ and pull the uk term out 
+
+Fn,k,x (u) ≤
+
+> ∞
+
+X
+
+> j=k
+
+(λmax u)j
+
+j! = uk
+
+> ∞
+
+X
+
+> j=k
+
+λj
+
+> max
+
+uj−k
+
+j! (93) Noting that u ≤ 1 = ⇒ uj−k ≤ 1 we get 
+
+Fn,k,x (u) ≤ uk
+
+> ∞
+
+X
+
+> j=k
+
+λj
+
+> max
+
+j! ≤ ukeλmax , (94) by the power series expansion of ex. Hence 
+
+t
+
+Z 10
+
+u−t−1Fn,k,x (u) d u ≤ eλmax t
+
+Z 10
+
+uk−t−1 du (95) 
+
+= eλmax tk − t , for t ∈ (0 , k ). (96) Adding the two parts yields the claim. Note that the bound depends only on t, k and λmax .
+
+Remark 2. The integrability of the small u region introduces the constraint on k, since for k < t , the integrand gets arbitrarily large as u → 0.
+
+Remark 3. The negative-moment proof uses only the upper bound on Pn,u,x (which is free from V (B ∩ M ) ≤ V (B)). Neither Assumption 3 nor Assumption 1 is invoked. Both are used only in the positive-moment proof but we state the lemma with all for symmetry and readability. 
+
+Finally, note that by symmetry, propositions 9 and 10 apply equally to θm(x) (with p replaced by q, the constants (cp, C p) 7 →
+
+(cq , C q ) and the binomial distributions Bin (n − 1, P n,u,x ) 7 → Bin (m, Q m,u,x ) for m ≥ k). We now have all the needed intermediate results to state the proofs. C. Proof of Lemma 1 
+
+Recall the claim, ∀| β| < k , we have 
+
+sup 
+
+> n>k,m ≥k,i
+
+E
+
+h
+
+r βi
+
+i
+
+< ∞. (97) Since all samples are i.i,d, we take i = 1 . Conditioning on X1 = x and using (63) together with the conditional independence of ζn(x) (a function of the X-sample) and θm(x) (a function of the Y -sample), 
+
+E
+
+h
+
+r β 
+
+> 1
+
+| X1 = x
+
+i
+
+(98) 
+
+=E ζn(x)β | X1 = x · E θm(x)−β | X1 = x (99) If β > 0, both factors are finite uniformly: the first by Lemma 9, the second by Lemma 10 (applied to θm at exponent β < k ). If β < 0, swap the roles; the first factor is a negative moment of ζn of order |β| < k , finite by Lemma 10, and the second is a positive moment of θm, finite by Lemma 9. 
+
+D. Proof of Lemma 2 
+
+Recall the claim, ∀| β| < k, θ ≥ 0, we have 
+
+sup 
+
+> n,m,i
+
+E
+
+h
+
+r βi log ri 
+
+> θ
+
+i
+
+< ∞. (100) For every θ ≥ 0 and every η > 0 there is a constant Cθ,η < ∞ with 
+
+| log v|θ ≤ Cθ,η 
+
+ vη + v−η , v > 0. (101) 
+
+For v ≥ 1: (log v)θ /v η → 0 as v → ∞ , so the ratio is bounded on [1 , ∞).
+
+For 0 < v ≤ 1: substitute w = 1 /v to reduce to the previous case. In both cases the bound is uniform in v, with constant depending only on θ and η, so set the maximum of the two to be Cθ,η .Apply (101) with v = ri and an η > 0 chosen small enough that |β| + η < k , which is possible since |β| < k strictly. Then 
+
+r βi log ri 
+
+> θ
+
+≤ Cθ,η 
+
+ r β+ηi + r β−ηi
+
+, (102) and |β ± η| ≤ | β| + η < k . Taking expectations and applying Lemma 1 to each term concludes the proof. APPENDIX BPROOFS OF THEOREM 3/4 
+
+A. Limits of E[An] and E[Bn]
+
+We begin by defining the relevant quantities again: 
+
+An = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r γi Bn = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r γi log ri. (103) 
+
+as = B−1
+
+> k,s
+
+Cs(P, Q ), bs = B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q ) (104) with bDs = Gk,s −Bn/A n. As mentioned before, the consistency of An is proven in [11], which we state now for completeness. 
+
+Lemma 11 (Theorem 6 in [11]) . For the estimator An and k > 1 we have 
+
+lim  
+
+> n,m →∞
+
+E[An(Xn, Y m)] = B−1
+
+> k,s
+
+Cs(P, Q ) = as (105) 
+
+Remark 4. One needs to check that our assumptions are as strong as that of the assumptions in [11]. Indeed we have the following: (a) Satisfied by choice of γ = 1 − s ∈ (0 , k ).(b) Satisfied by Assumption 2: p ≥ cp > 0.(c) Uniform Lebesgue approximability is used to bound the kNN ball volumes; an equivalent formulation is proved in Lemma 7 following again from Assumption 2. (d) Follows from Assumptions 1 and 2: boundedness of M and p ≤ Cp give uniform control over the integral of H(x, p, δ, 1) .(e) Follows from Assumption 1: ∥x − y∥γ ≤ Dγ < ∞ uniformly, so R 
+
+> M
+
+∥x − y∥γ p(y) dy ≤ Dγ < ∞ for all x.(f) Same argument as (e) by Fubini’s Theorem [17]. (g) Satisfied by Assumption 2: q ≤ Cq < ∞.
+
+The following lemma states the consistency of Bn:
+
+Lemma 12. For the estimator Bn and k ≥ 5 we have 
+
+lim  
+
+> n,m →∞
+
+E[Bn(Xn, Y m)] = B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q ) = bs (106) 
+
+Proof. Writing the expectation explicitly and using that Xi are i.i.d, we condition on X1 = x and define the following four functions, 
+
+fn(x) := E[ζγn | X1 = x], efn(x) := E[ζγn log ζn | X1 = x], (107) 
+
+gm(x) := E[θ−γm | X1 = x], egm(x) := E[θ−γm log θm|X1 = x]. (108) Here fn, efn are the γ-moment and log-weighted γ-moment of the p-sample k-NN volumes and similarly gm, egm the (−γ)-moment and log-weighted (−γ)-moment of the q-sample. The conditional expectation is 
+
+E[rγ 
+
+> 1
+
+log r1 | X1 = x] = efn(x) gm(x) − egm(x) fn(x), (109) and integrating against the law of X1, for any n > k ,
+
+E[Bn] = 
+
+Z
+
+> M
+
+ efn(x) gm(x) − egm(x) fn(x)
+
+
+
+p(x) dx. (110) The finiteness of each term is given by Lemmas 1/2 but we need to identify the exact values now. For fixed n, m , Lemma 6 gives the CDF of each volume term. This CDF is known to converge in law to Erlang variables, and the moments of Erlang variables are known in closed form, so the following lemma from [11], stated without proof, combines these results. 
+
+Lemma 13. [Lemma 16/18 in [11], also see [25]] For almost all x ∈ M , F n,k,x →nweakly Fk,x where Fk,x is the Erlang variable with parameter λ(x) = ¯ cp (x) and cumulative distribution function: 
+
+Fk,x (u) = 1 − exp( −λu )
+
+> k−1
+
+X
+
+> j=0
+
+(λu )j
+
+j! (111) 
+
+and density 
+
+fx,k (u) = 1Γ( k) λk(x)uk−1 exp( −λ(x)u) (112) 
+
+Moreover for any β ∈ R (with β + k > 0) it has β’th moment: 
+
+Mx(β) = 
+
+Z ∞
+
+> 0
+
+uβ fx,k (u)du = λ(x)−β Γ( k + β)Γ( k) (113) Weak convergence from Lemma 13 does not by itself give convergence in moments; E[ζn(x)γ | X1 = x] → E[ζ(x)γ ].Lemma 14 establishes this via uniform integrability. 
+
+Lemma 14 (Theorem 20/21 in [11]) . Let k + γ > 0. Then for almost all x ∈ M ,
+
+lim  
+
+> n→∞
+
+fn(x) = E[ζ(x)γ ] = M px (γ) = (¯ c p (x)) −γ Γ( k + γ)Γ( k) , (114) 
+
+where ζ(x) ∼ Erlang( k, ¯c p (x)) is the weak limit of ζn(x). Likewise, if k − γ > 0, then for almost all x ∈ M ,
+
+lim  
+
+> m→∞
+
+gm(x) = E[θ(x)−γ ] = M qx (−γ) = (¯ c q (x)) γ Γ( k − γ)Γ( k) , (115) 
+
+where θ(x) ∼ Erlang( k, ¯c q (x)) is the weak limit of θm(x).Proof. By Lemma 13, ζn(x) →d ζ(x) with ζ(x) ∼ Erlang( k, ¯c p (x)) . Since u 7 → uγ is continuous on (0 , ∞) and ζn(x) ∈
+
+(0 , ∞) almost surely, the Continuous Mapping theorem [18] gives ζn(x)γ →d ζ(x)γ . Convergence in distribution does not transfer to expectations in general, so we invoke the limit-of-moments criterion (Lemma 12 in [11], after van der Vaart [18]): if Zn →d Z with Zn, Z ≥ 0 and there exists ϵ > 0 with lim sup n E[Z1+ ϵn ] < ∞, then E[Zn] → E[Z]. Applying this to 
+
+Zn = ζn(x)γ , it suffices to exhibit an ϵ > 0 with k + γ(1 + ϵ) > 0 and 
+
+lim sup 
+
+> n→∞
+
+E[ζn(x)γ(1+ ϵ) | X1 = x] < ∞ for a.a. x ∈ M , (116) which directly follows from Lemma 9. Hence fn(x) = E[ζn(x)γ | X1 = x] → E[ζ(x)γ ], and Lemma 13 evaluates the limit as 
+
+M px (γ). The statement for gm is identical: θm(x) →d θ(x), apply the criterion with exponent −γ (requiring k − γ > 0 and ϵ
+
+small enough that k − γ(1 + ϵ) > 0, then Lemma 10 suffices), and evaluate the (−γ)-moment via Lemma 13. For the log terms ffn and fgm, start by simply noting 
+
+∂∂β uβ fx,k (u) = uβ log u f x,k (u) (117) Thus, if we could justify moving the partial derivative inside the expectation, we can compute the values of ffn, fgm by an argument identical to above. The following lemma establishes the justification via dominated convergence [17]. The proof follows a similar structure to Lemma 2. 
+
+Lemma 15. For almost all x ∈ M and β ∈ R, s.t β + k > 0, we have 
+
+∂∂β Mx(β) = λ(x)−β Γ( k + β)Γ( k)
+
+ ψ(k + β) − log λ(x). (118) 
+
+= E[uβ log u | X1 = x] (119) 
+
+Proof. Fix β in a neighborhood of γ, e.g. β ∈ [γ/ 2, 3γ/ 2] . We construct an integrable envelope in this interval by considering the cases when log u > 0 and log u < 0 separately. 
+
+Case 0 < u < 1: Since β ≥ γ/ 2, we have uβ ≤ uγ/ 2 on (0 , 1) , hence 
+
+uβ | log u| ≤ uγ/ 2| log u| = uγ/ 4 uγ/ 4| log u| ≤ C1 uγ/ 4, (120) where C1 = sup u∈(0 ,1) uγ/ 4| log u| = 4 
+
+> eγ
+
+.
+
+Case u > 1: Since β ≤ 3γ/ 2,
+
+uβ | log u| ≤ u3γ/ 2 log u ≤ C2u3γ/ 2+1 , (121) where C2 = sup u> 1 u−1 log u = 1 
+
+> e
+
+. Hence, for C := max {C1, C 2},
+
+|uβ log u| ≤ C
+
+
+
+uγ/ 41(0 ,1) (u) + u3γ/ 2+1 1(1 ,∞)(u)
+
+
+
+. (122) For completeness, at u = 1 note simply that u| log u| = 0 . Hence, we can define the envelope, with fx,k (u) the Erlang density from Lemma 13 
+
+gx(u) := C
+
+
+
+uγ/ 41(0 ,1) (u) + u3γ/ 2+1 1(1 ,∞)(u)
+
+
+
+fx,k (u). (123) For 0 < u < 1, gx(u) behaves like uk−1+ γ/ 4 (which is integrable for k > 1), and for u > 1 the exponential decay of fx,k (u)
+
+ensures integrability. Hence we have gx ∈ L1(0 , ∞) and by Dominated Convergence [17], 
+
+ddβ Mx(β) = 
+
+Z ∞
+
+> 0
+
+uβ log u f x,k (u) du = E[ζ(x)β log ζ(x)] . (124) Differentiating Mx(β) and evaluating at β = γ yields 
+
+E[ζ(x)γ log ζ(x)] = λ(x)−γ Γ( k + γ)Γ( k)
+
+ ψ(k + γ) − log λ(x). (125) As an immediate corollary we get 
+
+Corollary 16. For almost all x ∈ M and γ s.t. k + γ > 0 and k − γ > 0lim 
+
+> n→∞
+
+efn(x) = (¯ cp (x)) −γ Γ( k + γ)Γ( k)
+
+ ψ(k + γ) − log(¯ cp (x)) , (126) 
+
+lim  
+
+> n→∞
+
+egm(x) = (¯ cq (x)) γ Γ( k − γ)Γ( k)
+
+ ψ(k − γ) − log(¯ cq (x)) . (127) Thus the limit of each conditional expectation is identified. The final step is to justify switching the limit and the expectation. However, since the conditional moments are already established to be pointwise bounded by Lemmas 9- 10, Dominated Convergence of E[Bn] follows from a constant envelope. The next lemma makes this argument precise. 
+
+Lemma 17. Under the standing assumptions 1 - 3, for k ≥ 5, we have 
+
+lim  
+
+> n,m →∞
+
+E[Bn] = 
+
+Z
+
+> M
+
+
+
+lim 
+
+> n→∞
+
+efn(x) lim  
+
+> m→∞
+
+gm(x) (128) 
+
+− lim  
+
+> m→∞
+
+egm(x) lim  
+
+> n→∞
+
+fn(x)
+
+
+
+p(x) dx, (129) 
+
+the four inner limits being those of Lemma 14 and Corollary 16. Proof. By Lemma 14 and Corollary 16 the integrand efngm − egmfn converges pointwise for almost all x ∈ M , so it suffices to dominate it by a constant. Fix η ∈ (0 , k − γ), (the interval is non-empty since k ≥ 5 and γ ∈ (0 , 1) )) and apply the bound 
+
+| log u| ≤ Cη (uη + u−η ) from Lemma 2: 
+
+| efn(x)| ≤ E[ζn(x)γ | log ζn(x)| | X1 = x] (130) 
+
+≤ Cη
+
+
+
+Eζn(x)γ+η | X1 = x + Eζn(x)γ−η | X1 = x
+
+. (131) Both exponents satisfy |γ ± η| < k , so Lemmas 9 and 10 bound each term uniformly in (n, x ); the same estimate with q in place of p bounds egm, and fn, g m are bounded directly by Lemmas 9–10. Hence 
+
+sup 
+
+> n,m>k
+
+sup 
+
+> x∈M
+
+efn(x) gm(x) − egm(x) fn(x) =: K < ∞. (132) Since p(x) dx is a probability measure, we have R 
+
+> M
+
+Kp (x)dx < ∞ and Dominated Convergence gives the claim. Simply plugging Corollary 16 and Lemma 14, we thus conclude: 
+
+efngm − egmfn −→ B−1
+
+> k,s
+
+ q(x)
+
+> p(x)
+
+γ 
+
+Gk,s + log q(x)
+
+> p(x)
+
+
+
+, (133) where 
+
+B−1 
+
+> k,s
+
+= Γ( k + γ)Γ( k − γ)Γ( k)2 , Gk,s = ψ(k + γ) − ψ(k − γ), (134) with the factor ¯c cancelling. Lemma 17 justifies passing the limit through the integral, so 
+
+lim  
+
+> n,m →∞
+
+E[Bn] = B−1
+
+> k,s
+
+Z
+
+> M
+
+ q(x)
+
+p(x)
+
+γ 
+
+Gk,s + log q(x)
+
+p(x)
+
+
+
+p(x) dμ (x). (135) The two integrals evaluate through 
+
+Gk,s 
+
+Z
+
+> M
+
+ q(x)
+
+p(x)
+
+γ
+
+p(x) dμ (x) = Gk,s Cs(P, Q ), (136) 
+
+Z
+
+> M
+
+ q(x)
+
+p(x)
+
+γ
+
+log q(x)
+
+p(x) p(x) dμ (x) = −∂sCs(P, Q ) = − Cs(P, Q ) Ds(P, Q ), (137) the second using ∂sCs(P, Q ) = R 
+
+> M
+
+psq1−s log( p/q ) dμ . Hence 
+
+lim  
+
+> n,m →∞
+
+E[Bn] = B−1 
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q ) = bs. (138) B. Convergence of the Ratio 
+
+As stated previously, Lemmas 11 and 12 show only the convergence of the individual terms. We now prove that the ratio of the two also converges. A sketch of these steps is given in Section IV-A. The first lemma taken from [11] establishes the variance decay of An.
+
+Lemma 18 (Theorem 8 in [11]) .
+
+lim  
+
+> n,m →∞
+
+Var( An) = 0 (139) 
+
+Remark 5. Again, we need to check that the assumptions from [11] are implied by our standing assumptions. (a) Satisfied by choice of γ = 1 − s ∈ (0 , (k − 1) /2) , the sharper range now binding through the covariance terms; met for 
+
+γ ∈ (0 , 1) by k ≥ 5.(b) Satisfied by Assumption 2: p ≥ cp > 0.(c) Uniform Lebesgue approximability, following from Assumption 2. (d) Follows from Assumptions 1 and 2: boundedness of M and p ≤ Cp give uniform control over the integral of H(x, p, δ, 1/2) ,now at ω = 1 /2.(e) Follows from Assumption 1: ∥x − y∥γ ≤ Dγ < ∞ uniformly, so R 
+
+> M
+
+∥x − y∥γ p(y) dy ≤ Dγ < ∞ for all x.(f) Same argument as (e) by Fubini’s Theorem [17]. (g) Satisfied by Assumption 2: q ≤ Cq < ∞.
+
+Following similar steps, we prove that Var( Bn) → 0.
+
+Lemma 19. For k ≥ 5, we have 
+
+lim  
+
+> n,m →∞
+
+Var( Bn) = lim  
+
+> n,m →∞
+
+E[( Bn − bs)2] = 0 (140) 
+
+Proof. The first observation is that one can treat the diagonal and off-diagonal expectations separately, write 
+
+Bn = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Wi, Wi := rγi log ri. (141) Using that Wi are identically distributed, for the quadratic term we have: 
+
+E[B2
+
+> n
+
+] = E
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Wi
+
+!2 = 1
+
+n2 E
+
+
+
+> n
+
+X
+
+> i=1
+
+W 2 
+
+> i
+
++ X
+
+> i̸=j
+
+WiWj
+
+ (142) 
+
+= 1
+
+n E[W 21 ] + n − 1
+
+n E[W1W2]. (143) By Lemma 2, E[W 21 ] is finite and therefore lim n→∞ 1/n E[W 21 ] vanishes. For the cross term E[W1W2], conditioning on 
+
+(X1, X 2) = ( x1, x 2) we distinguish two cases: 
+
+(a) Overlapping Balls: Let Rn(u) = ( un−1 )1/d and Rn(v) = ( vn−1 )1/d be the radii of the two balls. Then for fixed u, v and 
+
+x1̸ = x2:
+
+P B(x1, R n(u)) ∩ B (x2, R n(v)) ̸ = ∅ (144) 
+
+=P Rn(u) + Rn(v) ≥ ∥ x1 − x2∥ (145) since (Rn(u) + Rn(v)) → 0, the contribution from overlapping configurations also vanish. 
+
+(b) Disjoint Balls: In this case, each sample point Xi is either inside B(x1, R n(u)) , B(x2, R n(v)) or outside of both balls. Define the joint distribution function, analogously to Lemma 6, as 
+
+P(ζn,k (x1) < u ∧ ζn,k (x2) < v | X1 = x1, X 2 = x2) := Fn,k,x 1,x 2 (u, v ). (146) On the disjoint event, this is the probability that among X3, . . . , X n at least k points fall into B(x1, R n(u)) and at least k
+
+points into B(x2, R n(v)) . Since each point falls into exactly one of the three regions listed above, the count distribution is multinomial with distribution 
+
+Fn,k,x 1,x 2 (u, v ) = 
+
+> n−2
+
+X
+
+> j=kn−2−j
+
+X
+
+> l=k
+
+n − 2
+
+j
+
+ n − 2 − jl
+
+
+
+(Pn,u,x 1 )j (Pn,v,x 2 )l(1 − Pn,u,x 1 − Pn,v,x 2 )n−2−j−l (147) In the limit, this distribution factorizes as the individual counts converge to Erlang (k, ¯c p (xi)) variables. We gloss over the details here and refer the reader to [11], only stating the final lemma. 
+
+Lemma 20 (Lemma 47 in [11]) . For x1̸ = x2, we have 
+
+lim  
+
+> n→∞
+
+Fn,k,x 1,x 2 (u, v ) = Fk,x 1 (u)Fk,x 2 (v). (148) 
+
+with Fk,x the CDF of Erlang (k, ¯cp (x)) , defined as in Lemma 13. 
+
+The weak limit (ζ(x1), ζ (x2)) has thus independent components ζ(xi) ∼ Erlang( k, ¯c p (xi)) , and likewise the q-sample limit 
+
+(θ(x1), θ (x2)) has independent components. Moreover, for any n, m , the vector (ζn(x1), ζ n(x2)) is a measurable function of only Xn and (θm(x1), θ m(x2)) a measurable function of only Y m. Altogether, the four limit variables ζ(x1), ζ (x2), θ (x1), θ (x2)
+
+are mutually independent. Consequently, 
+
+lim  
+
+> n,m →∞
+
+E[W1W2 | X1 = x1, X 2 = x2] (149) 
+
+=
+
+
+
+lim  
+
+> n→∞
+
+E[W1 | X1 = x1]
+
+ 
+
+lim  
+
+> m→∞
+
+E[W2 | X2 = x2]
+
+
+
+. (150) Since W1 and W2 are identically distributed and convergent, we get (by Lemma 14 and 15) 
+
+lim  
+
+> n,m →∞
+
+E[W1W2] = 
+
+
+
+lim 
+
+> n,m →∞
+
+Z
+
+> M
+
+E[W1 | X1 = x] p(x) dx 
+
+2
+
+= b2
+
+> s
+
+, (151) giving us E[B2
+
+> n
+
+] → b2
+
+> s
+
+. Expanding the rest of the square, we get 
+
+lim 
+
+> n,m →∞
+
+(E[B2
+
+> n
+
+] − 2E[Bn]bs + b2
+
+> s
+
+) = b2 
+
+> s
+
+− 2bs.b s + b2 
+
+> s
+
+= 0 (152) resulting in Var( Bn) → 0.The next step is to establish convergence in probability of both An and Bn to as and bs, respectively. This is done by a simple application of Chebyshev’s inequality [5]. 
+
+Lemma 21. For k ≥ 5 we have 
+
+An
+
+> P
+
+−→ as, Bn
+
+> P
+
+−→ bs (153) 
+
+Proof. Fix ε > 0. We can decompose E[( An − as)2] with a bias-variance split. Adding and subtracting E[An] inside the square 
+
+E(An − as)2 = E
+
+h (An − E[An]) + ( E[An] − as)2i
+
+(154) 
+
+= E(An − E[An]) 2 + 2( E[An] − as) EAn − E[An] + ( E[An] − as)2 (155) Since E[An − E[An]] = 0 , the cross-term vanishes and we get E[( An − as)2] = Var( An) + ( E[An] − as)2.Applying Chebyshev’s inequality 
+
+P |An − as| > ε  ≤ E[( An − as)2]
+
+ε2 (156) 
+
+= Var( An) + ( E[An] − as)2
+
+ε2 . (157) By Lemmas 11 and 18, E[An] → as and Var( An) → 0, so the bound vanishes as n, m → ∞ and An
+
+> P
+
+−→ as. The argument for Bn is identical, using Lemma 12 and 19, the latter requiring the k ≥ 5.
+
+Lemma 22. If An
+
+> P
+
+−→ as and Bn
+
+> P
+
+−→ bs, for as̸ = 0 , we have 
+
+Bn
+
+An
+
+> P
+
+−→ bs
+
+as
+
+. (158) 
+
+Proof. Trivially follows from the Continous Mapping theorem [18]. Lemmas 21 and 22 give us the convergence in probability of the ratio. The only step remaining is to show convergence also in expectation. We show this with a uniform integrability argument and applying Vitali’s theorem [19]. Lemma 23 (Uniform integrability of the ratio family) . Assuming An
+
+> P
+
+−→ as, a s > 0, k ≥ 5 the family 
+
+ Bn
+
+An
+
+
+
+> n≥1
+
+(159) 
+
+is uniformly integrable, i.e. 
+
+lim   
+
+> M→∞
+
+sup 
+
+> n,m
+
+Z
+
+{| Bn An |>M }
+
+Bn
+
+An
+
+dP ⊗ndQ ⊗m = 0 . (160) 
+
+Proof. By the de la Vall´ ee-Poussin characterization [26], a family is uniformly integrable whenever a superlinear moment is bounded uniformly; it therefore suffices to show for some ε > 0,
+
+sup 
+
+> n,m
+
+E
+
+"
+
+Bn
+
+An
+
+> 1+ ε
+
+#
+
+< ∞. (161) Since An > 0 almost surely, |Bn/A n|1+ ε = |Bn|1+ εA−(1+ ε) 
+
+> n
+
+, and Cauchy–Schwarz [17] gives 
+
+E
+
+"
+
+Bn
+
+An
+
+> 1+ ε
+
+#
+
+= E
+
+h
+
+|Bn|1+ εA−(1+ ε)
+
+> n
+
+i
+
+(162) 
+
+≤ E
+
+h
+
+|Bn|2(1+ ε)i1/2
+
+E
+
+h
+
+A−2(1+ ε)
+
+> n
+
+i1/2
+
+. (163) We bound the two factors separately, uniformly in n. The map t 7 → t−2(1+ ε) is convex on (0 , ∞), so Jensen’s inequality [5] applied to the average An = 1
+
+> n
+
+P 
+
+> i
+
+rγi yields 
+
+A−2(1+ ε) 
+
+> n
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+rγi
+
+!−2(1+ ε)
+
+≤ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r−2γ(1+ ε) 
+
+> i
+
+. (164) Taking expectations and using that ri are identically distributed, 
+
+E
+
+h
+
+A−2(1+ ε)
+
+> n
+
+i
+
+≤ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+E
+
+h
+
+r−2γ(1+ ε)
+
+> i
+
+i
+
+= E
+
+h
+
+r−2γ(1+ ε)1
+
+i
+
+, (165) which is finite for any n by Lemma 1, provided ε is small enough s.t 2γ(1 + ε) < k . Similarly, the map t 7 → t2(1+ ε) is convex, so Jensen’s inequality [5] applied to Bn gives 
+
+|Bn|2(1+ ε) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+rγi log ri
+
+> 2(1+ ε)
+
+(166) 
+
+≤ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+|rγi log ri|2(1+ ε) (167) 
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+r2γ(1+ ε) 
+
+> i
+
+|log ri|2(1+ ε) . (168) Taking expectations and using that ri are identically distributed, 
+
+E
+
+h
+
+|Bn|2(1+ ε)i
+
+≤ E
+
+h
+
+r2γ(1+ ε)1 |log r1|2(1+ ε)i
+
+, (169) finite and independent of n by Lemma 2, again for 2γ(1 + ε) < k . For 0 < ε < k 
+
+> 2γ
+
+− 1 (non-empty since k ≥ 5 and γ < 1) 
+
+both factors are bounded and 
+
+sup 
+
+> n,m
+
+E
+
+"
+
+Bn
+
+An
+
+> 1+ ε
+
+#
+
+< ∞. (170) By the previous lemma and Vitali’s theorem [19] we conclude 
+
+lim  
+
+> n,m →∞
+
+E
+
+ Bn
+
+An
+
+− bs
+
+as
+
+
+
+= 0 . (171) The last remaining step is to plug bs/a s into the expectation. Substituting as = B−1
+
+> k,s
+
+Cs(P, Q ) and bs = B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s −
+
+Ds(P, Q ),
+
+bs
+
+as
+
+= B−1
+
+> k,s
+
+Cs(P, Q ) Gk,s − Ds(P, Q )
+
+B−1
+
+> k,s
+
+Cs(P, Q ) = Gk,s − Ds(P, Q ). (172) Substituting bs/a s
+
+ˆDs − Ds(P, Q ) = 
+
+
+
+Gk,s − Bn
+
+An
+
+
+
+−  Gk,s − bs
+
+> as
+
+ = −
+
+ Bn
+
+An
+
+− bs
+
+as
+
+
+
+, (173) giving us 
+
+lim  
+
+> n,m →∞
+
+E ˆDs(Xn, Y m) − Ds(P, Q )  = 0 . (174) Accordingly, ˆDs(Xn, Y m) is an L1-consistent estimator for Ds(P, Q ).
+
+C. Theorem 4: L2-Consistency 
+
+Recall the L2 consistency statement and simplify the terms inside the expectation: 
+
+lim  
+
+> n,m →∞
+
+E
+
+h
+
+( ˆDs − Ds)2i
+
+= lim  
+
+> n,m →∞
+
+E
+
+
+
+Gk,s − Bn 
+
+> An
+
+− Ds
+
+2
+
+(175) 
+
+= lim  
+
+> n,m →∞
+
+E
+
+ Bn 
+
+> An
+
+− (Gk,s − Ds)
+
+2
+
+(176) 
+
+= lim  
+
+> n,m →∞
+
+E
+
+ Bn 
+
+> An
+
+− bs
+
+> as
+
+2
+
+(177) As a result, if we can prove that the ratio Bn/A nL2
+
+−−→ bs/a s, we can conclude the L2-consistency. Lemmas 18 and 19 (along with 11 and 12) give us AnL2
+
+−−→ as and BnL2
+
+−−→ bs. To pass to the ratio, we invoke Vitali’s theorem again by showing uniform integrability of the squared family. 
+
+Lemma 24 (Uniform integrability of the squared ratio family) . Assuming An
+
+> P
+
+−→ as, a s > 0 and k ≥ 5, the family 
+
+( Bn
+
+An
+
+2)
+
+> n≥1
+
+(178) 
+
+is uniformly integrable. Proof. The argument is identical to Lemma 23, now applied to the squared family. By de la Vall´ ee-Poussin [26] it suffices to bound sup n,m E[|Bn/A n|2(1+ ε)] for some ε > 0, and Cauchy–Schwarz gives 
+
+E
+
+"
+
+Bn
+
+An
+
+> 2(1+ ε)
+
+#
+
+≤ E
+
+h
+
+|Bn|4(1+ ε)i1/2
+
+E
+
+h
+
+A−4(1+ ε)
+
+> n
+
+i1/2
+
+. (179) Following a similar application of Jensen’s inequality, we bound both factors by the ri moments, 
+
+E
+
+h
+
+|Bn|4(1+ ε)i
+
+≤ E[r4γ(1+ ε)1 | log r1|4(1+ ε)] and (180) 
+
+E
+
+h
+
+A−4(1+ ε)
+
+> n
+
+i
+
+≤ E[r−4γ(1+ ε)1 ] (181) Both are finite by Lemmas 1 and 2, provided 4γ(1 + ε) < k . The doubling from the squared family replaces the exponent 
+
+2γ(1 + ε) of Lemma 23 by 4γ(1 + ε), so the admissible range 0 < ε < k 
+
+> 4γ
+
+− 1 is nonempty only for k ≥ 5.Since we already have from 22 Bn/A n
+
+> P
+
+−→ bs/a s, applying Vitali’s theorem [19] shows ˆDs(Xn, Y m) is also an L2 consistent estimator for Ds(P, Q ).Fig. 6. Strongly shifted means on truncated Gaussians, P ∼ N [0 ,1] (0 .1, 0.1) vs. Q ∼ N [0 ,1] (0 .9, 0.1) (δ = 0 .4). The densities barely overlap, so ˆDs keeps one sign across [0 , 1] and the bisection degenerates to s∗ = 0 . Only around n = 10 5 does s∗ detach from zero suggesting the sample complexity is higher. 
+
+APPENDIX CADDITIONAL EXPERIMENTS 
+
+A. Gaussians 
+
+Figures 5 – 8 present further experiments with Gaussians: 5 increases the deviation parameter to cause densities to highly overlap and drive C(P, Q ) low, 6 separates them significantly by moving the means apart and 7 shows the case when M = R,breaking assumptions 1 and 2. Finally 8 studies the higher dimensional case, similar to Figure 3 from the main section. 
+
+B. Exponentials 
+
+Figures 9 - 11 present the effect of different parameter combinations: 9 increases the domain size while 10 and 11 change the rate parameters λ relative to each other. 
+
+Fig. 5. Higher deviation truncated Gaussians P ∼ N [0 ,1] (0 .4, 0.5) vs. Q ∼ N [0 ,1] (0 .6, 0.5) . As the overlap of the densities is very high, ground truth 
+
+C(P, Q ) is close to 0. Nevertheless, convergence rate is not effected. Fig. 7. Two regular Gaussians P ∼ N (1 , 1) vs Q ∼ N (−1, 1) on unbounded domain R. These distributions violate both Assumption 1 and 2. Interestingly, we observe the same convergence behavior with the truncated Gaussians, suggesting a relaxation of the assumptions is possible as discussed in Remark 1. 
+
+Fig. 8. Convergence rate vs dimensionality of truncated Gaussians. Each curve is for a pair of distributions on Md = [0 , 1] d with P ∼ N [0 ,1] ([0 .4] d, [0 .2] d)
+
+and Q ∼ N [0 ,1] ([0 .6] d, [0 .2] d) (symmetric means, δ = 0 .1, so s∗ = 1 /2). Here both the s∗ and bCs convergence degrade as dimension increases, in contrast to the exponential case where the s∗ converged at similar rates across dimensions. Fig. 9. A larger domain, P ∼ Exp [0 ,10] (1 .0) vs. Q ∼ Exp [0 ,10] (8 .0) . At fixed sample size, the wider spread lowers the local sample density, enlarging the k-NN volumes and amplifying the finite-sample bias, so estimation quality drops relative to [0 , 1] .
+
+Fig. 10. Smaller difference between rates, P ∼ Exp [0 ,1] (1 .0) vs. Q ∼ Exp [0 ,1] (2 .0) . The mixing parameter s∗ is very close to 1/2 and the true Chernoff information is close to 0. Convergence rate is not significantly effected. 
+
+Fig. 11. Extreme rate separation, P ∼ Exp [0 ,1] (1 .0) vs. Q ∼ Exp [0 ,1] (100 .0) . Here q concentrates nearly all its mass in [0 , 0.05] , so Q-samples cluster there while p stays spread over [0 , 1] . In the tail where p has mass but q does not, the nearest Q-neighbors are far, which degrades the estimation quality.
