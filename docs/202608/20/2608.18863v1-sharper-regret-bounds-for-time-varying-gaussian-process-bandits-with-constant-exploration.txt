@@ -1,0 +1,2009 @@
+Title: Sharper Regret Bounds for Time-Varying Gaussian Process Bandits with Constant Exploration
+
+URL Source: https://arxiv.org/pdf/2608.18863v1
+
+Published Time: Thu, 20 Aug 2026 00:56:28 GMT
+
+Number of Pages: 23
+
+Markdown Content:
+# Sharper Regret Bounds for Time-Varying Gaussian Process Bandits with Constant Exploration 
+
+Matthias Mandl 
+
+Delft Institute of Applied Mathematics Delft University of Technology Mekelweg 4, 2628 CD, Delft 
+
+M.J.Mandl-2@tudelft.nl 
+
+Hanne Kekkonen 
+
+Delft Institute of Applied Mathematics Delft University of Technology Mekelweg 4, 2628 CD, Delft 
+
+H.N.Kekkonen@tudelft.nl 
+
+## Abstract 
+
+We study Bayesian optimization in a time-varying environment where the unknown reward function evolves according to a Gaussian process drift model. Existing GP-UCB analyses in this setting typically require the exploration parameter to grow with the horizon to maintain uniform confidence bounds. Using per-round local confidence events, we show that GP-UCB can instead be run with a constant explo-ration parameter and obtain an expected-regret bound whose coefficient depends on the drift rate. We also derive a sharper time-varying maximum-information-gain bound. For the squared exponential kernel, it yields ˜γT /T = eO(ϵ1/2) and expected average regret eO(ϵ1/4) in the persistent-drift regime. The same constant-exploration analysis also yields realized-regret guarantees. Simulations support the predicted logarithmic dependence of the bound-suggested exploration parameter on 1/ϵ .
+
+## 1 Introduction 
+
+Many sequential decision problems require optimizing an unknown objective through a limited number of costly evaluations. Examples include tuning the hyperparameters of machine learning models [Snoek et al., 2012], adapting control policies in robotics [Calandra et al., 2016], and selecting treatment strategies in clinical trials [Villar et al., 2015]. In these settings, each evaluation reveals only imperfect information about the objective, forcing a fundamental trade-off between exploration and exploitation. Bayesian optimization (BO) provides a framework for sequentially optimizing an unknown objective by combining a probabilistic surrogate model with an acquisition rule. In the standard GP bandit formulation, the objective is a fixed function f : S → R. At each round t, the learner selects xt ∈ S 
+
+and observes yt = f (xt)+ zt, where zt is observation noise. Gaussian processes (GPs) are commonly used as surrogate models because they provide posterior mean and uncertainty estimates in closed form. When decisions affect performance throughout the learning process, performance is typically mea-sured by cumulative regret, RT = PTt=1 (max x∈S f (x) − f (xt)) . This criterion originates in the multi-armed bandit literature [Robbins, 1952, Lai and Robbins, 1985, Auer et al., 2002]. Algo-rithms such as Gaussian Process Upper Confidence Bound (GP-UCB) [Srinivas et al., 2012] and GP-Thompson sampling [Russo and Van Roy, 2014, Chowdhury and Gopalan, 2017] extend bandit methods to continuous domains and achieve sublinear regret under suitable kernel regularity assump-tions, with guarantees typically expressed through the maximum information gain [Srinivas et al., 2012, Vakili et al., 2021, Scarlett et al., 2017]. 
+
+> Preprint. arXiv:2608.18863v1 [stat.ML] 19 Aug 2026
+
+However, many applications are inherently dynamic. System performance may drift due to environ-mental changes or evolving user behavior, necessitating a time-dependent reward model ft : S → R.When the objective changes over time, sublinear cumulative regret is generally unachievable. The rel-evant theoretical goal shifts to bounding the average regret, RT /T , as a function of the environmental drift rate. A principled probabilistic model for this setting was introduced by Bogunovic et al. [2016]. In their time-varying Gaussian process (TV-GP) model, the latent function evolves according to a Markov recursion driven by GP innovations, which induces a separable spatio-temporal kernel. Under this model, the learner updates a temporally discounted GP posterior and selects actions using a modified GP-UCB rule. Their analysis shows that near-optimal regret rates are achievable up to logarithmic factors. Subsequent work has studied related models of nonstationarity, including change-point structure [Brunzema et al., 2022], irregular evaluation times [Imamura et al., 2020], and bounded variation in RKHS norms [Deng et al., 2022]. A separate frequentist line studies nonstationary kernelized bandits under sup-norm variation, including algorithms [Zhou and Shroff, 2021, Hong et al., 2023, Iwazaki and Takeno, 2025] and lower bounds [Cai and Scarlett, 2025]. Other extensions include kernel-agnostic adaptation [Ziomek et al., 2024] and stale-data removal in dynamic Bayesian optimization [Bardou et al., 2024, Bardou and Thiran, 2025]. A recurring theoretical and practical limitation in these analyses is the exploration schedule. Existing regret guarantees typically require the GP-UCB exploration parameter, βt, to grow with time t. This leads to deteriorating performance on long time horizons and introduces schedule tuning parameters. In practice, such schedules are difficult to calibrate and induce unnecessary over-exploration. This paper revisits the TV-GP setting of Bogunovic et al. [2016], where the temporal evolution is governed by a drift parameter ϵ > 0, and shows that GP-UCB can be run with a constant exploration parameter while retaining rigorous performance guarantees. Our analysis uses local confidence events at each round rather than a single event that holds uniformly over the horizon. For any fixed drift level, Theorem 1 gives an expected regret bound with linear dependence on T and a coefficient controlled by ˜γT /T . In the persistent-drift regime, this yields a coefficient that decreases as the drift rate decreases. This differs from standard deterministic uniform-confidence GP-UCB analyses in static environments, where the confidence parameter generally depends on the horizon or time. The analysis also gives a sharper dependence on the drift rate through the time-varying maximum information gain. If the static information gain satisfies γN = eO(N q ), then in the persistent-drift regime 
+
+˜γT
+
+T = eO
+
+
+
+ϵ 2(1 −q)4−q
+
+
+
+, E[RT ]
+
+T = eO
+
+
+
+ϵ 1−q
+
+> 4−q
+
+
+
+.
+
+For the squared exponential kernel, the latter becomes eO(ϵ1/4). Our analysis also isolates how the bound-suggested constant exploration parameter depends on the drift rate. In the regret bounds of Bogunovic et al. [2016], the prescribed exploration schedule is independent of ϵ. In contrast, balancing the upper-bound scaling suggests that the bound-suggested constant β increases as ϵ
+
+decreases. This does not by itself imply uniformly more exploration, since the UCB rule depends on the product of √β and the posterior standard deviation. Rather, when drift is slower, past observations remain informative for longer and the posterior variance is typically smaller. A larger β compensates for this reduced variance by assigning more value to reducing the remaining uncertainty, which is also more consequential because information acquired now remains useful over a longer effective horizon. The dependence of the bound-suggested exploration parameter on the temporal dynamics also gives a simple rule for changes in sampling frequency. If observations are collected every ∆ time units, larger ∆ corresponds to greater effective drift between successive evaluations. Temporal correlations then decay faster, past observations become obsolete more quickly, and the analysis predicts a smaller bound-suggested exploration parameter. The remainder of the paper is organized as follows. Section 2 introduces the time-varying GP model, the domain regularity assumptions, and the temporally discounted GP-UCB policy. Section 3 presents the expected-regret bound and the post-hoc and prescribed-confidence guarantees for realized regret. Section 4 derives the drift-dependent information-gain and regret rates and analyzes the bound-suggested exploration parameter. Section 5 provides a supporting empirical simulation study. Section 6 provides the conclusion. Additional proofs and technical results are deferred to the appendices. 22 Problem setting 
+
+We start by introducing the dynamic regret setting. Let S ⊆ Rd be compact. At each round 
+
+t = 1 , 2, . . . , the algorithm selects a query point xt ∈ S and observes 
+
+yt = ft(xt) + zt, zt ∼ N (0 , σ 2) i.i.d. , (1) where ft : S → R is an unknown reward function that changes with time. Let 
+
+x⋆t ∈ arg max  
+
+> x∈S
+
+ft(x)
+
+denote a maximizer at round t. The instantaneous regret is 
+
+rt := ft(x⋆t ) − ft(xt) ≥ 0, (2) and the cumulative regret over T rounds is 
+
+RT := 
+
+> T
+
+X
+
+> t=1
+
+rt. (3) In the non-stationary setting, sublinear cumulative regret is not expected in general, so the main objective is to control the linear growth rate and its dependence on the temporal properties of ft. We model the function sequence ft using the time-varying Gaussian process construction of Bogunovic et al. [2016]. Let (gt)t≥1 be i.i.d. draws from GP (0 , k S ), where kS is a spatial kernel on S. The latent process is defined by 
+
+f1(x) = g1(x), ft+1 (x) = √1 − ϵ f t(x) + √ϵ g t+1 (x), t ≥ 1, (4) with drift parameter ϵ ∈ (0 , 1] . For each fixed t, the marginal law remains GP (0 , k S ), while the temporal dependence decays geometrically. Equivalently, {ft(x)}(x,t ) is a Gaussian process on 
+
+S × N with separable kernel 
+
+k (x, t ), (x′, t ′) = kS (x, x ′) kT (t, t ′), kT (t, t ′) = ( √1 − ϵ)|t−t′|. (5) We refer to (5) as the time-decayed kernel, since its temporal factor discounts correlations geo-metrically with temporal separation. We assume throughout that the prior variance is uniformly bounded, 
+
+kS (x, x ) ≤ 1 for all x ∈ S .
+
+Given past data 
+
+Ht−1 = {(xi, y i)}t−1 
+
+> i=1
+
+, y1: t−1 = ( y1, . . . , y t−1)⊤,
+
+Gaussian process regression under the kernel (5) yields a Gaussian posterior for ft(x) with mean and variance 
+
+μt−1(x) = ˜kt−1(x)⊤  ˜Kt−1 + σ2I−1y1: t−1, (6) 
+
+σ2
+
+> t−1
+
+(x) = kS (x, x ) − ˜kt−1(x)⊤  ˜Kt−1 + σ2I−1 ˜kt−1(x), (7) where 
+
+˜kt−1(x) := kS (xi, x ) ( √1 − ϵ)|t−i|t−1 
+
+> i=1
+
+, ˜Kt−1 := kS (xi, x j ) ( √1 − ϵ)|i−j|t−1
+
+> i,j =1
+
+. (8) These expressions are obtained by evaluating the spatio-temporal kernel (5) at the observed pairs 
+
+(xi, i ) and the prediction point (x, t ). The factors (√1 − ϵ)|t−i| account for the fact that older observations are less informative about the current function ft.As in standard GP bandit analysis, we measure cumulative uncertainty by the time-varying maximum information gain [Bogunovic et al., 2016], which controls sums of posterior variances in regret bounds [Srinivas et al., 2012, Lemma 5.4]. For a design set 
+
+A = {(x1, 1) , . . . , (xT , T )},
+
+let fA = ( f1(x1), . . . , f T (xT )) ⊤ and yA = ( y1, . . . , y T )⊤. Since yA = fA + zA with independent Gaussian noise, 
+
+I(yA; fA) = 12 log det  I + σ−2 ˜KA
+
+, (9) 3where ˜KA is the covariance matrix of fA induced by (5). We define the time-varying maximum information gain as 
+
+˜γT := max  
+
+> x1: T∈S T
+
+I(yA; fA), (10) To control the discretization error incurred on a continuous domain, we impose the following standard GP-UCB regularity condition [Srinivas et al., 2012, Bogunovic et al., 2016]. 
+
+Assumption 1 (Derivative tail bound) . There exist constants a ≥ 1 and b > 0 such that, for each 
+
+t ≥ 1, each spatial dimension j ∈ { 1, . . . , d }, and all L > 0,
+
+P
+
+n
+
+sup 
+
+> x∈S
+
+∂f t(x)
+
+∂x (j) > L 
+
+o
+
+≤ a exp 
+
+
+
+−   Lb
+
+2
+
+. (11) This condition holds for many commonly used kernels, including the squared exponential kernel and Matérn kernels with smoothness parameter ν > 2, under appropriate differentiability conditions on 
+
+kS ; see Ghosal and Roy [2006, Theorem 5]. The TV-GP-UCB selection rule is given in Algorithm 1. At round t, the algorithm selects 
+
+xt ∈ arg max 
+
+> x∈S
+
+
+
+μt−1(x) + pβt σt−1(x)
+
+
+
+. (12) The main result of this paper shows that under the time-varying model (4), one can take βt ≡ β
+
+constant and obtain a regret guarantee with improved long-horizon scaling. This contrasts with earlier analyses that rely on time-increasing exploration schedules. 
+
+Algorithm 1 Constant-β Time-Varying GP-UCB (TV-GP-UCB) 
+
+Require: Domain S, GP prior ( 0, kS , σ2), drift parameter ϵ ∈ (0 , 1] , constant exploration parameter 
+
+β > 0 
+
+> 1:
+
+for t = 1 , 2, . . . do  
+
+> 2:
+
+Choose xt ∈ arg max x∈S 
+
+ μt−1(x) + √βσ t−1(x) 
+
+> 3:
+
+Observe yt = ft(xt) + zt 
+
+> 4:
+
+Update posterior mean μt and variance σ2 
+
+> t
+
+via (6) and (7)  
+
+> 5:
+
+end for 
+
+## 3 Improved Regret Bound 
+
+Static GP-UCB analyses usually prove a single confidence event that holds simultaneously over all rounds and all points in a discretization. To keep this event at fixed probability over a horizon T , the per-round failure probabilities must be summable, which forces the exploration parameter βt to grow with t. Existing analyses of the time-varying GP model (4), in particular Bogunovic et al. [2016], use the same time-increasing exploration schedule. This introduces horizon-dependent tuning, leads to average-regret bounds that grow with T , and obscures the dependence of exploration on the drift rate 
+
+ϵ.We avoid this global-in-time confidence event. When ϵ > 0, older observations are progressively discounted, so posterior uncertainty need not decrease monotonically. This built-in forgetting prevents the algorithm from becoming permanently overconfident at a fixed point and removes the need for a time-increasing exploration schedule in the analysis. We prove that Algorithm 1 with a constant exploration parameter attains an O(T ) expected cumulative regret bound for every fixed ϵ > 0. The proof combines a per-round UCB regret bound on a local confidence event with an algorithm-agnostic bound on the rare complement event. 
+
+3.1 Expected regret with a constant exploration parameter Theorem 1 (Expected regret for constant-β TV-GP-UCB) . Let S ⊆ [0 , r ]d be compact and convex. Assume the time-varying GP model (4) with drift ϵ ∈ (0 , 1] , spatial kernel kS satisfying kS (x, x ) ≤ 1
+
+for all x ∈ S , and the tail condition (11) . Assume observations are generated by 
+
+yt = ft(xt) + zt, zt ∼ N (0 , σ 2)
+
+4with independent noise. For t ≥ 1, define the spatial span 
+
+Wt := sup 
+
+> x∈S
+
+ft(x) − inf  
+
+> x∈S
+
+ft(x),
+
+let μw = E[Wt], and let σ2 
+
+> w
+
+be any finite sub-Gaussian variance proxy for Wt, so that 
+
+P{Wt − μw > u } ≤ exp 
+
+
+
+− u2
+
+2σ2
+
+> w
+
+
+
+for all u > 0.
+
+Fix δ ∈ (0 , 1) and τ ∈ N+. If the evaluation points {xt}Tt=1 are selected according to Algorithm 1 with any constant exploration parameter satisfying 
+
+β ≥ 2
+
+
+
+log   6
+
+> δ
+
+ + d log( τ )
+
+
+
+. (13) 
+
+then the expected cumulative regret satisfies 
+
+E[RT ] ≤ pC1T β ˜γT + T C 2 + T δC 3, (14) 
+
+where ˜γT = ˜ γT (S, k S , ϵ, σ ) is the size-T maximum information gain (10) under the time-decayed kernel, and 
+
+C1 = 8log(1 + σ−2) , C2 = rdb τ
+
+r
+
+log 
+
+ 3ad δ
+
+
+
+, C3 = μw + 2 σw
+
+p2 log( e/δ ).
+
+For comparison, since rt ≤ Wt for every policy, the policy-independent span bound is 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+Wt, E[RT ]
+
+T ≤ μw.
+
+Because each ft has marginal law GP (0 , k S ), the quantity μw is independent of ϵ. Thus Theorem 1 improves this policy-independent baseline whenever 
+
+r
+
+C1β ˜γT
+
+T + C2 + δC 3 < μ w.
+
+Under the drift-dependent optimization in Section 4.1, the algorithm-specific coefficient decreases as 
+
+ϵ decreases in the persistent-drift regime, whereas μw does not. The span constants μw and σw are finite by Borell–TIS, since Wt is the supremum of the centered Gaussian difference process ft(x) − ft(y) over S × S and the sample paths are almost surely bounded on the compact domain. The proof, given in Appendix A, constructs a local confidence event Et at each round rather than a single event over the full horizon. The event combines posterior concentration at the selected point, posterior concentration over a spatial grid of size at most τ d, and the derivative tail bound (11). On 
+
+Et, the instantaneous regret satisfies 
+
+rt ≤ 2pβ σ t−1(xt) + C2,
+
+where C2 is the discretization error. On the complement Ect , we use only the deterministic inequality 
+
+rt ≤ Wt. The sub-Gaussian tail of Wt gives 
+
+EWt1Ect
+
+ ≤ δC 3.
+
+Therefore, 
+
+E[rt] ≤ 2pβ E[σt−1(xt)] + C2 + δC 3.
+
+Summing over t and applying the standard information-gain bound on posterior variances yields (14). We use the notation δ and τ from Bogunovic et al. [2016]: δ controls the confidence level and τ d
+
+is the spatial grid size. The distinction is that in their analysis δ is tied to a single confidence event over the full horizon, and therefore determines the time-varying exploration schedule βt. Here δ
+
+only controls the local event Et used in the expected-regret decomposition. Thus δ and τ are analysis parameters: each choice gives a corresponding constant β and expected-regret bound. Since ˜γT depends on the drift rate ϵ, the bound-balancing choice of (δ, τ ) generally depends on ϵ as well. This is how the bound-suggested constant exploration parameter inherits a dependence on the temporal dynamics. Section 4.2 makes this explicit: under the scaling ˜γT = eO(T ϵ α), the resulting bound-suggested choice satisfies βopt = O(log(1 /ϵ )) .53.2 Realized cumulative regret and confidence guarantees 
+
+Theorem 1 bounds the expected cumulative regret. For realized regret, we distinguish two uses of a constant exploration parameter. In the post-hoc setting, β is fixed without reference to the reporting confidence level ω, whereas in the prescribed-confidence setting, ω is specified before the run and is used to select a constant β. In both cases, β is independent of t and T .Standard analyses of time-varying GP bandits construct probabilistic guarantees using a time-increasing exploration schedule, typically βt = O(log( t/ω )) . This enforces a global union bound over the horizon but introduces an O(√log T ) factor in the leading information-gain term. We instead retain a constant exploration parameter and control the accumulated contribution of the local confidence failures. 
+
+Post-hoc confidence. Let 
+
+UT := pC1T β ˜γT + T C 2
+
+denote the deterministic contribution from the UCB confidence widths and the discretization error. The proof bounds the realized pathwise regret by combining this term with the accumulated span over failed confidence events and applying Markov’s inequality to the latter. 
+
+Proposition 2 (Realized cumulative regret) . Assume the setting and parameter choices of Theorem 1. For any target failure probability ω ∈ (0 , 1) , the realized cumulative regret RT satisfies the following bound with probability at least 1 − ω:
+
+RT ≤ UT + T δC 3
+
+ω . (15) The proof is deferred to Appendix C.3. Here δ is the per-round analysis parameter that determines the constant β, whereas ω enters only in the reported bound. Thus the algorithm can be run with β
+
+fixed independently of ω, and the bound can subsequently be evaluated at any fixed reporting level ω
+
+chosen independently of the realized data. The cost of this post-hoc guarantee is the polynomial 1/ω 
+
+dependence. 
+
+Prescribed confidence. If the target failure probability is specified before the run, the same result gives logarithmic dependence on 1/ω while retaining a constant exploration parameter. 
+
+Corollary 3 (Prescribed-confidence realized regret) . Assume the setting of Theorem 1 and suppose that, in the regime under consideration, 
+
+˜γT
+
+T = eO(ϵα), α > 0.
+
+Fix ω ∈ (0 , 1) and choose 
+
+δ = ωϵ α/ 2, τ =
+
+l
+
+ϵ−α/ 2m
+
+,
+
+together with the constant exploration parameter 
+
+β = 2 
+
+
+
+log 6
+
+ωϵ α/ 2 + d log 
+
+l
+
+ϵ−α/ 2m
+
+= O(log(1 /ω ) + log(1 /ϵ )) .
+
+Then, with probability at least 1 − ω,
+
+RT
+
+T = eO
+
+
+
+ϵα/ 2p1 + log(1 /ω ) + log(1 /ϵ )
+
+
+
+. (16) 
+
+In particular, β remains independent of t and T .
+
+Proposition 2 gives 
+
+RT
+
+T ≤
+
+r
+
+C1β ˜γT
+
+T + C2 + δC 3
+
+ω .
+
+Under the choices above, the three terms are respectively 
+
+eO
+
+
+
+ϵα/ 2plog(1 /ω ) + log(1 /ϵ )
+
+
+
+, O
+
+
+
+ϵα/ 2p1 + log(1 /ω ) + log(1 /ϵ )
+
+
+
+,
+
+and 
+
+O
+
+
+
+ϵα/ 2p1 + log(1 /ω ) + log(1 /ϵ )
+
+
+
+,
+
+which yields (16). 6Policy-independent fallback. Independently of the sampling policy, 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+Wt.
+
+As established in Appendix C.2, with ρ = √1 − ϵ, this gives with probability at least 1 − ω,
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+Wt ≤ T μ w +
+
+r
+
+8T 1 + ρ
+
+1 − ρ log(1 /ω ). (17) This bound does not use the sampling decisions and is therefore not a replacement for the algorithm-specific guarantees above. 
+
+## 4 Drift-dependent regret rates and exploration 
+
+Theorem 1 gives a constant-exploration regret bound whose leading term is controlled by ˜γT /T .We first combine it with the time-varying information-gain bound in Appendix B to derive explicit drift-dependent rates, and then examine the corresponding bound-suggested choice of β.
+
+4.1 Information-gain and regret rates 
+
+The time-varying information-gain bound in Appendix B gives an explicit dependence on the drift rate. Suppose the static maximum information gain satisfies 
+
+γN = eO(N q ), q ∈ [0 , 1) .
+
+At the polynomial scale, the corresponding block length is 
+
+Nϵ = ϵ− 24−q .
+
+In the persistent-drift regime where T exceeds this effective block length, Corollary B.4 gives 
+
+˜γT
+
+T = eO
+
+
+
+ϵ 2(1 −q)4−q
+
+
+
+. (18) Balancing the remaining terms in Theorem 1 as in Section 4.2 then yields 
+
+E[RT ]
+
+T = eO
+
+
+
+ϵ 1−q
+
+> 4−q
+
+
+
+. (19) For the squared exponential kernel, γN is polylogarithmic in N [Srinivas et al., 2012, Vakili et al., 2021, Iwazaki, 2025], so q = 0 up to logarithmic factors and 
+
+˜γT
+
+T = eO(ϵ1/2), E[RT ]
+
+T = eO(ϵ1/4).
+
+For a Matérn kernel with smoothness ν > 2, the static rate q = d/ (2 ν + d) [Vakili et al., 2021, Iwazaki, 2025] gives 
+
+˜γT
+
+T = eO
+
+
+
+ϵ 4ν
+
+> 8ν+3 d
+
+
+
+, E[RT ]
+
+T = eO
+
+
+
+ϵ 2ν
+
+> 8ν+3 d
+
+
+
+.
+
+These rates are not fixed-T , ϵ → 0 statements. If Nϵ > T , taking ˜N = T in Theorem B.3 gives 
+
+˜γT ≤ γT + σ−2ϵ T √T 2 − 12√3
+
+√γT ,
+
+and hence ˜γT → γT for fixed T as ϵ → 0. The constant-exploration result is therefore a positive-drift result and is not claimed to recover the usual static sublinear-regret guarantee at ϵ = 0 ; the static case requires a separate analysis [Takeno et al., 2025]. 7Comparison with previous rates. The information-gain improvement is separate from the confidence-schedule improvement. If γN = eO(N q ), the original block perturbation in Bogunovic et al. [2016] gives the first rate below. The O(ϵN 5/2) block order from the unit-time specialization of Imamura et al. [2020] gives the second, and Theorem B.3 gives the third: 
+
+˜γT
+
+T = eO
+
+
+
+ϵ 1−q
+
+> 3−q
+
+
+
+, eO
+
+
+
+ϵ 2(1 −q)5−2q
+
+
+
+, eO
+
+
+
+ϵ 2(1 −q)4−q
+
+
+
+.
+
+The time-growing confidence schedule contributes a factor of order plog( T /ω ) to the leading regret term, whereas the prescribed-confidence constant-β choice uses 
+
+β = O(log(1 /ω ) + log(1 /ϵ )) ,
+
+so the corresponding confidence factor is independent of T .
+
+4.2 Bound-suggested β dependence on ϵ
+
+Here β denotes any constant exploration parameter satisfying (13), while βopt denotes the bound-suggested value obtained from the scaling choice of the analytical parameters (δ, τ ), rather than a policy-level optimal parameter. The drift parameter ϵ is already required to construct the TV-GP posterior, so using it to guide β introduces no additional model parameter. The scaling βopt =
+
+O(log(1 /ϵ )) below is a bound-balancing recommendation rather than a validity condition; Theorem 1 holds for any constant β satisfying (13). The analysis of Bogunovic et al. [2016] specifies the time-growing schedule 
+
+βt = 2 log π2t2
+
+2δ + 2 d log rdbt 2
+
+r
+
+log daπ 2t2
+
+2δ
+
+!
+
+, (20) where (a, b, r, d ) are spatial domain and smoothness constants, and δ is a failure probability. This schedule is determined by the spatial discretization argument and is not optimized as a function of the drift parameter ϵ.Our theorem does not prescribe β as an explicit function of ϵ directly. Instead, ϵ enters through the time-decayed maximum information gain ˜γT . Balancing the upper-bound terms through the analytical parameters (δ, τ ) therefore induces an ϵ-dependent bound-suggested constant βopt (ϵ). To make this dependence explicit, suppose that, for the chosen spatial kernel and in the long-horizon regime where T exceeds the effective block length, the time-decayed information gain satisfies 
+
+˜γT = eO(T ϵ α) , α > 0. (21) For fixed T , this scaling should not be interpreted as an ϵ → 0 limit, since ˜γT then approaches the static information gain. Appendix B verifies such a scaling for common kernels through the standard growth rate of the time-invariant information gain. Taking equality in (13), β = 2(log(6 /δ )+ d log τ ),while C2 = ( rdb/τ )plog(3 ad/δ ). Thus the three per-round contributions in the expected regret bound are controlled by pβ ˜γT /T , C2, and δC 3.Under (21), the information-gain contribution per round scales as √β ϵ α/ 2 up to logarithmic factors. For ϵ ∈ (0 , 1) , the choice below balances the polynomial dependence on ϵ across the information-gain, discretization, and failure-event terms and is sufficient to identify the logarithmic dependence of βopt 
+
+on 1/ϵ :
+
+δ = ϵα/ 2, τ =
+
+l
+
+ϵ−α/ 2m
+
+. (22) With this choice, the discretization and failure-event contributions match the same polynomial order, up to logarithmic factors: 
+
+C2 = O
+
+
+
+ϵα/ 2plog( ϵ−1)
+
+
+
+, (23) 
+
+δC 3 = O
+
+
+
+ϵα/ 2plog( ϵ−1)
+
+
+
+. (24) Substituting (22) into (13) at equality gives 
+
+βopt (ϵ) ≈ 2 log(6) + α(1 + d) log 
+
+ 1
+
+ϵ
+
+
+
+. (25) Across environments with the same spatial kernel but different drift rates, the bound suggests that 
+
+βopt grows logarithmically with 1/ϵ . This scaling should be interpreted together with the posterior variance: smaller ϵ also makes past data more informative and typically reduces σt−1(x).84.3 Sampling frequency and effective drift 
+
+The same calculation gives a simple rule for changing the sampling frequency. Suppose the underlying process evolves at drift rate ϵ, but observations are collected every ∆ ∈ N+ time units. Then the correlation between successive observations is (√1 − ϵ)∆, which corresponds to the effective discrete-time drift 
+
+ϵ∆ = 1 − (1 − ϵ)∆. (26) Larger ∆ increases ϵ∆, so past observations become less relevant. Substituting this effective drift into (25) yields the heuristic 
+
+βopt (ϵ∆) ∝ log 
+
+ 1
+
+ϵ∆
+
+
+
+= log 
+
+ 11 − (1 − ϵ)∆
+
+
+
+. (27) This adjustment reflects the fact that less frequent sampling increases the effective drift between observations and reduces the useful lifetime of past data. 
+
+4.4 Average-reward perspective 
+
+The dynamic setting also changes the interpretation of the benchmark. Let Mt := sup x∈S ft(x)
+
+denote the round-t optimal reward. In the static case, Mt is the same random variable for all t, so the benchmark remains tied to a single realization of the objective. Regret bounds must therefore account for the joint distribution of the realized function and the algorithm’s decisions. When ϵ > 0, this coupling is weaker in the long run. The sequence (Mt)t≥1 is stationary and has exponentially decaying temporal dependence. As shown in Appendix C.1, 
+
+1
+
+T
+
+> T
+
+X
+
+> t=1
+
+Mt
+
+> Pr
+
+−−−−→  
+
+> T→∞
+
+E[M1].
+
+Thus the oracle part of the regret concentrates around a deterministic quantity. Consequently, asymptotic average regret can be viewed as the gap between the deterministic benchmark E[M1]
+
+and the algorithm’s realized average reward. Cumulative regret remains the relevant finite-horizon criterion, but this perspective separates the intrinsic variability of the moving optimum from the performance loss due to the algorithm’s decisions. 
+
+## 5 Simulation study 
+
+We empirically evaluate constant-β GP-UCB under the TV-GP model on the spatial domain S =[0 , 1] 2. The domain is discretized using a 20 × 20 grid, giving a state dimension of N = 400 .The latent function uses a radial basis function (RBF, squared exponential) kernel with lengthscale 
+
+l = 0 .1 and prior variance 1.0, while the observation noise variance is fixed at σ2 = 0 .01 . We simulate T = 10 ,000 rounds for each parameter pair (ϵ, β ) and record the time-averaged regret 
+
+RT /T over 100 independent trials. This horizon is used as a long-run stress test rather than as an application-specific benchmark; it is made feasible by the Kalman implementation described below. The simulation setup and compute resources are reported in Appendix E, and the accompanying code archive contains the scripts used to reproduce Figure 1. 
+
+Exact inference via Kalman filtering. A direct GP implementation would require repeatedly conditioning on the full observation history, making long-horizon simulations computationally expensive. To avoid this bottleneck, we exploit the autoregressive structure of the TV-GP prior. On the finite grid, the latent function can be represented as a state vector ft ∈ R400 , and the TV-GP model becomes a linear Gaussian state-space model. We therefore compute the GP posterior exactly using a Kalman filter. This reduces the per-round posterior update from the O(t3) history-dependent cost of naive GP regression to a fixed-grid O(N 2) recursion. The full recursion is given in Appendix D. 
+
+Results. The left panel of Figure 1 displays the average regret RT /T as a function of the constant exploration parameter β for three drift rates, ϵ ∈ { 10 −1, 10 −2, 10 −3}. For each drift rate, let ˆβopt 
+
+denote the value of β on the tested grid that minimizes the empirical average regret. The main empirical test is whether ˆβopt increases with − log( ϵ) as predicted by Section 4.2. The empirical 91.3 1.4 1.5 ε = 10 −1              
+
+> 0.5 0.6 0.7
+> RT/T
+> ε= 10 −2
+> 0246810
+> β
+> 0.10 0.15 0.20
+> ε= 10 −3
+> constant β
+> heuristic βt
+> 1357
+> −log( ε)
+> 01234567̂
+> βopt ̂
+> βopt = 0.84[−log( ε)] + 0.29
+
+Figure 1: Simulation study for constant-β GP-UCB under the time-varying GP model. Left: time-averaged regret RT /T over T = 10 ,000 rounds as a function of the constant exploration parameter β
+
+for three drift rates ϵ ∈ { 10 −1, 10 −2, 10 −3}; shaded bands denote 95% confidence intervals over 100 independent trials, and dashed horizontal lines show the logarithmic time-varying-βt heuristic. Right: bootstrapped estimates of the empirical regret-minimizing constant ˆβopt versus − log( ϵ) across the full ϵ grid. Points denote mean bootstrap estimates, vertical bars denote 95% percentile intervals, and the dashed line shows a least-squares linear fit used to visualize the log-linear trend. minimizer shifts toward larger values as ϵ decreases: ˆβopt ≈ 2.12 for ϵ = 0 .1, ˆβopt ≈ 4.34 for 
+
+ϵ = 0 .01 , and ˆβopt ≈ 6.36 for ϵ = 0 .001 .Because the exact theoretical schedule in Equation (20) is overly conservative in practice [Srinivas et al., 2012, Bogunovic et al., 2016], empirical evaluations often use tuned logarithmic schedules. Following Bogunovic et al. [2016], we compare against βt = c1 log( c2t) with c1 = 0 .8 and c2 = 4 .Across all three drift rates, a broad interval of constant β values achieves lower average regret than this time-growing heuristic over the 10 ,000 -step horizon. The right panel of Figure 1 examines this dependence across the full grid of drift rates. The relationship between ˆβopt and − log( ϵ) is approximately linear, matching the qualitative prediction 
+
+βopt (ϵ) ∝ log(1 /ϵ ) from Equation (25). This agreement is nontrivial: the theory balances terms in an upper bound, and such bounds need not match the exploration scale that performs best in finite simulations. We do not interpret the fitted slope as an estimate of the information-gain exponent α. Such an interpretation would require the analytical discretization choice τ = τ (ϵ) and the global spatial union-bound factor in Equation (25) to be tight. Neither condition holds here: the simulation uses a fixed 20 × 20 action grid, and the adaptive policy concentrates its evaluations near high-reward regions rather than exploring the full domain uniformly. Thus the slope is best viewed as empirical support for the logarithmic dependence of the regret-minimizing constant on the drift rate, not as a quantitative estimate of the information-gain scaling. 
+
+## 6 Conclusion 
+
+Existing theoretical guarantees for Gaussian process bandits in time-varying environments typically require exploration schedules that grow with time. We showed that, under the TV-GP drift model, a constant exploration parameter can instead be analyzed using local confidence events at each round rather than a single horizon-wide confidence event. The resulting expected-regret bound has a drift-dependent leading term controlled by the time-varying information gain, and the same local-confidence analysis yields realized-regret guarantees with β constant in t and T .We also derived a sharper bound on the time-varying maximum information gain. If γN = eO(N q ),the resulting persistent-drift average-regret rate is eO(ϵ(1 −q)/(4 −q)); for the squared exponential 10 kernel this gives eO(ϵ1/4). These rates apply when the optimized block length fits within the horizon and are not fixed-T , ϵ → 0 statements. Separately, balancing the remaining terms in the regret bound suggests a bound-suggested constant exploration parameter with βopt (ϵ) ∝ log(1 /ϵ ). This provides a simple tuning principle when changing the sampling frequency changes the effective drift between observations. The same Markov structure also implies exponential covariance decay for the oracle-value process, so long-run average performance can be compared against a deterministic benchmark. Several extensions remain open. Most importantly, the present analysis relies on the geometric temporal kernel induced by the Markov drift model. Extending constant-exploration guarantees to more general temporal kernels would clarify which forms of nonstationarity are sufficient to prevent posterior overconfidence. Another important direction is to remove the assumption that the drift parameter is known and fixed, allowing β to be adapted online when the rate of temporal variation is unknown or changes over time. Finally, sharper concentration tools for the realized regret of TV-GP-UCB could improve the current high-probability bounds and better reflect the empirical stability observed in the simulations. 
+
+## Acknowledgments and Disclosure of Funding 
+
+The first author gratefully acknowledges support from the NWO Spinoza Prize awarded to Aad van der Vaart. 
+
+## References 
+
+Robert J Adler and Jonathan E Taylor. Random fields and geometry . Springer Science & Business Media, 2009. Peter Auer, Nicolo Cesa-Bianchi, and Paul Fischer. Finite-time analysis of the multiarmed bandit problem. Machine learning , 47:235–256, 2002. Anthony Bardou and Patrick Thiran. Time-varying Bayesian optimization without a metronome. 
+
+arXiv preprint arXiv:2501.18963 , 2025. Anthony Bardou, Patrick Thiran, and Giovanni Ranieri. This too shall pass: Removing stale observations in dynamic Bayesian optimization. Advances in Neural Information Processing Systems , 37:42696–42737, 2024. Ilija Bogunovic, Jonathan Scarlett, and Volkan Cevher. Time-varying Gaussian process bandit optimization. In Artificial Intelligence and Statistics , pages 314–323. PMLR, 2016. Paul Brunzema, Alexander von Rohr, Friedrich Solowjow, and Sebastian Trimpe. Event-triggered time-varying Bayesian optimization. arXiv preprint arXiv:2208.10790 , 2022. Xu Cai and Jonathan Scarlett. Lower bounds for time-varying kernelized bandits. In Proceedings of The 28th International Conference on Artificial Intelligence and Statistics , volume 258 of 
+
+Proceedings of Machine Learning Research , pages 73–81. PMLR, 2025. Roberto Calandra, André Seyfarth, Jan Peters, and Marc Peter Deisenroth. Bayesian optimization for learning gaits under uncertainty: An experimental comparison on a dynamic bipedal walker. 
+
+Annals of Mathematics and Artificial Intelligence , 76(1):5–23, 2016. Sayak Ray Chowdhury and Aditya Gopalan. On kernelized multi-armed bandits. In International Conference on Machine Learning , pages 844–853. PMLR, 2017. Yuntian Deng, Xingyu Zhou, Baekjin Kim, Ambuj Tewari, Abhishek Gupta, and Ness Shroff. Weighted Gaussian process bandits for non-stationary environments. In International Conference on Artificial Intelligence and Statistics , pages 6909–6932. PMLR, 2022. Subhashis Ghosal and Anindya Roy. Posterior consistency of Gaussian process prior for nonparamet-ric binary regression. The Annals of Statistics , 34(5):2413–2429, 2006. 11 Kihyuk Hong, Yuhang Li, and Ambuj Tewari. An optimization-based algorithm for non-stationary kernel bandits without prior knowledge. In International Conference on Artificial Intelligence and Statistics , pages 3048–3085. PMLR, 2023. Hideaki Imamura, Nontawat Charoenphakdee, Futoshi Futami, Issei Sato, Junya Honda, and Masashi Sugiyama. Time-varying Gaussian process bandit optimization with non-constant evaluation time. 
+
+arXiv preprint arXiv:2003.04691 , 2020. Shogo Iwazaki. Improved regret bounds for Gaussian process upper confidence bound in Bayesian optimization. Advances in Neural Information Processing Systems , 38:96922–96964, 2025. Shogo Iwazaki and Shion Takeno. Near-optimal algorithm for non-stationary kernelized bandits. In 
+
+Proceedings of The 28th International Conference on Artificial Intelligence and Statistics , volume 258 of Proceedings of Machine Learning Research , pages 406–414. PMLR, 2025. Tze Leung Lai and Herbert Robbins. Asymptotically efficient adaptive allocation rules. Advances in applied mathematics , 6(1):4–22, 1985. Herbert Robbins. Some aspects of the sequential design of experiments. Bulletin of the American Mathematical Society , 58(5):527–535, 1952. Daniel Russo and Benjamin Van Roy. Learning to optimize via posterior sampling. Mathematics of Operations Research , 39(4):1221–1243, 2014. Jonathan Scarlett, Ilija Bogunovic, and Volkan Cevher. Lower bounds on regret for noisy Gaussian process bandit optimization. In Conference on Learning Theory , pages 1723–1742. PMLR, 2017. Jasper Snoek, Hugo Larochelle, and Ryan P Adams. Practical Bayesian optimization of machine learning algorithms. Advances in neural information processing systems , 25, 2012. Niranjan Srinivas, Andreas Krause, Sham M Kakade, and Matthias W Seeger. Information-theoretic regret bounds for Gaussian process optimization in the bandit setting. IEEE transactions on information theory , 58(5):3250–3265, 2012. Shion Takeno, Yu Inatsu, and Masayuki Karasuyama. Regret analysis for randomized Gaussian process upper confidence bound. Journal of Artificial Intelligence Research , 84(18), 2025. doi: 10.1613/jair.1.19393. Sattar Vakili, Kia Khezeli, and Victor Picheny. On information gain and regret bounds in Gaussian process bandits. In International Conference on Artificial Intelligence and Statistics , pages 82–90. PMLR, 2021. Sofía S Villar, Jack Bowden, and James Wason. Multi-armed bandit models for the optimal design of clinical trials: benefits and challenges. Statistical science: a review journal of the Institute of Mathematical Statistics , 30(2):199, 2015. Xingyu Zhou and Ness Shroff. No-regret algorithms for time-varying Bayesian optimization. In 2021 55th Annual Conference on Information Sciences and Systems (CISS) , pages 1–6. IEEE, 2021. Juliusz Ziomek, Masaki Adachi, and Michael A Osborne. Time-varying Gaussian process bandits with unknown prior. arXiv preprint arXiv:2402.01632 , 2024. 12 A Improved Expected Regret Bound 
+
+This appendix proves Theorem 1. The argument proceeds in three steps: (i) bounding the instanta-neous regret rt for Algorithm 1 conditionally on a high-probability event; (ii) bounding the expected regret on the complement event via concentration inequalities for the extrema of Gaussian processes; and (iii) summing the expected regret over t and bounding the sum of predictive variances by the maximum information gain. 
+
+A.1 Algorithm-specific bound Lemma A.1 (Instantaneous regret under constant β). Consider the setting of Theorem 1. Fix 
+
+δ ∈ (0 , 1) and τ ∈ N+. Let S∗ ⊂ S be a discretization with |S ∗| ≤ τ d satisfying 
+
+∥x − [x]∥1 ≤ rd τ , for all x ∈ S , (28) 
+
+where [x] ∈ S ∗ is an ℓ1-closest grid point. Let β and C2 be defined as in Theorem 1. If xt is selected according to Algorithm 1, then for each fixed t, the instantaneous regret satisfies 
+
+rt = ft(x∗ 
+
+> t
+
+) − ft(xt) ≤ 2pβ σ t−1(xt) + C2 (29) 
+
+with probability at least 1 − δ.Proof. We bound the instantaneous regret by conditioning on the intersection of three high-probability events at a fixed time t. Let Et = E1,t ∩ E2,t ∩ E3,t , defined as follows: (i) Pointwise concentration: Given the history Ht−1, the query point xt is deterministic. Because 
+
+ft(xt) ∼ N (μt−1(xt), σ 2
+
+> t−1
+
+(xt)) , standard Gaussian tail bounds ensure the event 
+
+|ft(xt) − μt−1(xt)| ≤ pβ σ t−1(xt) (30) holds with probability at least 1 − δ/ 3 under the specified constant β.(ii) Uniform grid concentration: Applying a union bound over the |S ∗| ≤ τ d elements of the discretization, the event 
+
+|ft(x) − μt−1(x)| ≤ pβ σ t−1(x), for all x ∈ S ∗ (31) holds with probability at least 1 − δ/ 3.(iii) Lipschitz continuity: By the derivative tail assumption (11) and a union bound over the d
+
+spatial dimensions, setting L = bplog(3 ad/δ ) ensures the event 
+
+|ft(x) − ft(x′)| ≤ L∥x − x′∥1, for all x, x ′ ∈ S (32) holds with an unconditional probability of at least 1 − δ/ 3 under the prior measure. Because events (i) and (ii) hold conditionally with probability 1 − δ/ 3 for any history Ht−1, the law of total expectation guarantees they also hold with an unconditional probability of at least 
+
+1 − δ/ 3. Applying a union bound over the unconditional probabilities of these three events yields 
+
+P(Ect ) ≤ δ, guaranteeing the joint event holds unconditionally with P(Et) ≥ 1 − δ. Conditioned on the realization of Et, the continuity event (iii) and the spatial discretization bound (28) guarantee that the approximation error for any point in the domain is bounded by L(rd/τ ) = C2.Evaluating this spatial bound at the instantaneous optimum x∗ 
+
+> t
+
+yields ft(x∗ 
+
+> t
+
+) ≤ ft([ x∗ 
+
+> t
+
+]) + C2.Because the projection [x∗ 
+
+> t
+
+] ∈ S ∗, we apply the uniform concentration event (ii) to bound ft([ x∗ 
+
+> t
+
+]) ,followed by the selection rule of Algorithm 1, which maximizes the upper confidence bound at xt:
+
+ft(x∗ 
+
+> t
+
+) ≤ μt−1([ x∗ 
+
+> t
+
+]) + pβ σ t−1([ x∗ 
+
+> t
+
+]) + C2
+
+≤ μt−1(xt) + pβ σ t−1(xt) + C2. (33) Finally, applying the pointwise concentration event (i) at xt yields 
+
+μt−1(xt) ≤ ft(xt) + pβ σ t−1(xt).
+
+Substituting this inequality into (33) bounds the instantaneous regret: 
+
+rt = ft(x∗ 
+
+> t
+
+) − ft(xt) ≤ 2pβ σ t−1(xt) + C2, (34) which concludes the proof. 13 A.2 Algorithm-agnostic tail control 
+
+The span Wt can be written as 
+
+Wt = sup 
+
+> x,y ∈S
+
+ ft(x) − ft(y).
+
+Thus Wt is the supremum of a centered Gaussian process indexed by S × S . Since the sample paths are almost surely bounded on the compact domain and kS (x, x ) ≤ 1, Borell–TIS implies that 
+
+Wt − E[Wt] has a sub-Gaussian upper tail with a finite variance proxy. We denote this proxy by σ2
+
+> w
+
+.
+
+Lemma A.2 (Tail expectation bound) . Assume Wt − μw has the sub-Gaussian upper tail 
+
+P{Wt − μw > u } ≤ exp 
+
+
+
+− u2
+
+2σ2
+
+> w
+
+
+
+for all u > 0.
+
+Then, for every event A with P(A) ≤ δ,
+
+E[Wt1A] ≤ δ
+
+
+
+μw + 2 σw
+
+p2 log( e/δ )
+
+
+
+.
+
+Proof. Write X = ( Wt − μw)+. Then 
+
+E[Wt1A] ≤ μwP(A) + E[X1A].
+
+Let q = σw
+
+p2 log( e/δ ). We split 
+
+E[X1A] ≤ qP(A) + E[X1{X>q }].
+
+Using the sub-Gaussian tail and integrating, 
+
+E[X1{X>q }] = qP(X > q ) + 
+
+Z ∞
+
+> q
+
+P(X > u ) du. 
+
+Since q = σw
+
+p2 log( e/δ ), we have 
+
+P(X > q ) ≤ exp 
+
+
+
+− q2
+
+2σ2
+
+> w
+
+
+
+= δe .
+
+Moreover, the standard Gaussian tail integral bound gives 
+
+Z ∞
+
+> q
+
+exp 
+
+
+
+− u2
+
+2σ2
+
+> w
+
+
+
+du ≤ σ2
+
+> w
+
+q exp 
+
+
+
+− q2
+
+2σ2
+
+> w
+
+
+
+= σ2
+
+> w
+
+qδe ≤ q δe ,
+
+where the last inequality uses q ≥ σw. Therefore, 
+
+E[X1{X>q }] ≤ 2q δe ≤ qδ. 
+
+Combining this with qP(A) ≤ qδ yields 
+
+E[X1A] ≤ 2qδ. 
+
+A.3 Expected cumulative regret 
+
+Proof of Theorem 1. Fix δ ∈ (0 , 1) and τ ∈ N+, and define β and C2 as in Theorem 1. By Lemma A.1, for each time step t there exists a confidence event Et with P(Et) ≥ 1 − δ such that, conditioned on Et, the instantaneous regret satisfies rt ≤ 2√β σ t−1(xt) + C2.Because instantaneous regret is always non-negative, we can bound it pathwise over the entire probability space by introducing the spatial span Wt = max x ft(x) − min x ft(x) as the worst-case penalty when the confidence event fails: 
+
+rt ≤ 2pβ σ t−1(xt) + C2 + Wt1Ect , (35) 14 where 1Ect is the indicator for the complement event. Taking the unconditional expectation of both sides, and applying Lemma A.2 to bound the expected tail contribution E[Wt1Ect ] ≤ δC 3, yields the valid deterministic bound: 
+
+E[rt] ≤ 2pβ E[σt−1(xt)] + C2 + δC 3. (36) Summing (36) over t = 1 , . . . , T , we obtain: 
+
+E[RT ] ≤ 2pβ E
+
+" TX
+
+> t=1
+
+σt−1(xt)
+
+#
+
++ T C 2 + T δC 3. (37) To bound the sum of the posterior standard deviations, we apply the Cauchy-Schwarz inequality strictly inside the expectation: 
+
+E
+
+" TX
+
+> t=1
+
+σt−1(xt)
+
+#
+
+≤ E
+
+"vuutT
+
+> T
+
+X
+
+> t=1
+
+σ2
+
+> t−1
+
+(xt)
+
+#
+
+. (38) We then bound the sum of predictive variances by the maximum information gain. For every realized query sequence x1: T , the Schur-complement determinant identity gives 
+
+12
+
+> T
+
+X
+
+> t=1
+
+log  1 + σ−2σ2
+
+> t−1
+
+(xt) = 12 log det  IT + σ−2 ˜KT (x1: T ) ≤ ˜γT . (39) Combining this pathwise identity with the variance-to-logarithm inequality from Srinivas et al. [2012, Lemma 5.4] under the assumption that kS (x, x ) ≤ 1 yields almost surely 
+
+> T
+
+X
+
+> t=1
+
+σ2
+
+> t−1
+
+(xt) ≤ 2log(1 + σ−2) ˜γT . (40) Defining C1 = 8 / log(1 + σ−2), we have PTt=1 4β σ 2
+
+> t−1
+
+(xt) ≤ C1β ˜γT . Because ˜γT is defined as the maximum information gain over all possible sequences, it is a deterministic upper bound. The expectation of a deterministic bound is simply the bound itself. Substituting this into the cumulative sum yields the final result: 
+
+E[RT ] ≤ pC1T β ˜γT + T C 2 + T δC 3. (41) The explicit dependence of ˜γT on T and ϵ for the time-decayed kernel is detailed in Appendix B. 
+
+## B Maximum Information Gain 
+
+Theorem B.3 (Time-varying maximum information gain) . Let ˜γT := sup x1: T ∈S T 12 log det( IT +
+
+σ−2 ˜KT ) denote the maximum information gain under the separable spatio-temporal kernel 
+
+˜k(( x, t ), (x′, t ′)) = kS (x, x ′) ρ|t−t′| with ρ = √1 − ϵ ∈ [0 , 1) . Assume |kS (x, x ′)| ≤ 1 for all 
+
+x, x ′ ∈ S . Then for any block length ˜N ∈ N+,
+
+˜γT ≤
+
+l T
+
+> ˜N
+
+m 
+
+γ ˜N + σ−2ϵ ˜N
+
+p ˜N 2 − 12√3
+
+√γ ˜N
+
+!
+
+≤
+
+ T 
+
+> ˜N
+
++1 
+
+
+
+γ ˜N + σ−2ϵ ˜N
+
+p ˜N 2 − 12√3
+
+√γ ˜N
+
+!
+
+,
+
+(42) 
+
+where γ ˜N := sup x1: ˜N ∈S ˜N 
+
+> 12
+
+log det( I ˜N + σ−2K ˜N ) is the standard time-invariant maximum infor-mation gain for f ∼ GP (0 , k S ).Proof. Step 1 (block decomposition). Partition the sequence {1, . . . , T } into m = ⌈T / ˜N ⌉ consecu-tive blocks, each of length at most ˜N . This partition is used only in the analysis; the GP posterior is 15 neither reset nor truncated at block boundaries. Let (f (i), y(i)) denote the latent function values and noisy observations within block i. By the chain rule for mutual information, 
+
+I(fT ; yT ) = 
+
+> m
+
+X
+
+> i=1
+
+I(fT ; y(i) | y(<i )).
+
+Because y(i) = f (i) + z(i) with z(i) drawn independently of (fT , y(<i )), the variables satisfy the Markov property y(i) ⊥⊥ (fT \ f (i)) | f (i). Consequently, I(fT ; y(i) | y(<i )) = I(f (i); y(i) | y(<i )).Furthermore, because the additive Gaussian noise z(i) is independent of the sequence history, the conditional entropy simplifies to H(y(i) | f (i), y(<i )) = H(z(i)). While conditioning reduces entropy ( H(y(i) | y(<i )) ≤ H(y(i))), it does not universally reduce mutual information. However, due to this independent noise structure, the explicit algebraic cancellation holds: 
+
+I(f (i); y(i) | y(<i )) = H(y(i) | y(<i )) − H(z(i)) ≤ H(y(i)) − H(z(i)) = I(f (i); y(i)). (43) It follows that 
+
+I(fT ; yT ) ≤
+
+> m
+
+X
+
+> i=1
+
+I(f (i); y(i)).
+
+Taking the supremum over the choice of locations x1: T ∈ S T yields ˜γT ≤ Pmi=1 ˜γni ≤ m ˜γ ˜N ,where ni ≤ ˜N is the size of block i and the sequence ˜γn is monotonically non-decreasing. 
+
+Step 2 (one-block bound). Fix a block of length ˜N . Define its spatial kernel matrix as K := K ˜N and its temporal correlation matrix as D := D ˜N , where Dij = ρ|i−j|. The spatio-temporal covariance over this block is the Hadamard product ˜K := K ◦ D. By the Schur product theorem, ˜K is positive semi-definite because both K ⪰ 0 and D ⪰ 0. Let 1 denote the ˜N × ˜N all-ones matrix and define the difference matrix A := ˜K − K = K ◦ (D − 1). Let 
+
+M := I ˜N + σ−2K ≻ 0, E := σ−2A, 
+
+so that I ˜N + σ−2 ˜K = M + E ≻ 0. Applying the congruence factorization M + E = M 1/2 I ˜N +
+
+BM 1/2 with B := M −1/2EM −1/2 yields  
+
+> 12
+
+log det( M + E) = 12 log det( M ) + 12 log det( I ˜N + B).
+
+The matrix B is symmetric and satisfies I ˜N + B ≻ 0. Therefore, every eigenvalue of B is strictly greater than −1. Using the scalar inequality log(1 + u) ≤ u for all u > −1, we bound the log-determinant term by the trace: 
+
+log det( I ˜N + B) = 
+
+> ˜N
+
+X
+
+> j=1
+
+log  1 + λj (B) ≤
+
+> ˜N
+
+X
+
+> j=1
+
+λj (B) = tr( B).
+
+Substituting this trace inequality provides the upper bound  
+
+> 12
+
+log det( M + E) ≤ 12 log det( M ) + 12 tr( B).
+
+By the cyclicity of the trace operator, tr( B) = tr( M −1E). Since Dii = 1 , the diagonal entries of 
+
+A = K ◦ (D − 1) vanish, and hence tr( E) = 0 . Therefore, 
+
+tr( B) = tr  (M −1 − I ˜N )E.
+
+Using the Frobenius inner product, 
+
+tr( B) ≤ tr  (M −1 − I ˜N )E ≤ ∥ M −1 − I ˜N ∥F ∥E∥F .
+
+Write 
+
+Γ( K) := 12 log det( I ˜N + σ−2K).
+
+Let λ1, . . . , λ ˜N be the eigenvalues of K and set uj = σ−2λj ≥ 0. Then 
+
+∥M −1 − I ˜N ∥2 
+
+> F
+
+=
+
+> ˜N
+
+X
+
+> j=1
+
+ uj
+
+1 + uj
+
+2
+
+≤
+
+> ˜N
+
+X
+
+> j=1
+
+log(1 + uj ) = 2Γ( K).
+
+16 Here the inequality follows from 
+
+ u
+
+1 + u
+
+2
+
+≤ log(1 + u), u ≥ 0,
+
+since the difference has value zero at u = 0 and derivative (1 + u2)/(1 + u)3 > 0. Hence 
+
+∥M −1 − I ˜N ∥F ≤ p2Γ( K).
+
+It remains to bound ∥E∥F . As above, 
+
+|Dij − 1| = 1 − ρ|i−j| ≤ ϵ|i − j|.
+
+Since |Kij | ≤ 1,
+
+∥A∥2 
+
+> F
+
+≤ ϵ2˜NX
+
+> i,j =1
+
+(i − j)2 = ϵ2 ˜N 2( ˜N 2 − 1) 6 ,
+
+and therefore 
+
+∥E∥F = σ−2∥A∥F ≤ σ−2ϵ ˜N
+
+p ˜N 2 − 1
+
+√6 .
+
+Combining the two norm bounds gives 
+
+12 log det( I ˜N + σ−2 ˜K) ≤ Γ( K) + σ−2ϵ ˜N
+
+p ˜N 2 − 12√3
+
+pΓ( K).
+
+Since s 7 → s + c√s is increasing for s ≥ 0 and Γ( K) ≤ γ ˜N ,
+
+˜γ ˜N ≤ γ ˜N + σ−2ϵ ˜N
+
+p ˜N 2 − 12√3
+
+√γ ˜N .
+
+Summing this bound over the m blocks in Step 1 completes the proof. 
+
+Remark. The block decomposition follows the approach of Bogunovic et al. [2016]. For unit-spaced observations, an O(ϵ ˜N 5/2) block perturbation also follows from the more general analysis of Imamura et al. [2020]. Without the zero-trace step above, the congruence argument recovers this order directly by combining ∥M −1∥F ≤
+
+p ˜N with ∥A∥F ≤ ϵ ˜N 2, without requiring sign restrictions on the perturbation. The additional identity tr( E) = 0 allows M −1 to be replaced by M −1 − I ˜N ,yielding the sharper bound in Theorem B.3. 
+
+B.1 Asymptotic Scaling with Drift 
+
+Theorem B.3 gives a two-regime dependence on the drift rate once the block length is chosen according to the growth of the time-invariant maximum information gain. 
+
+Corollary B.4 (Information gain scaling) . Suppose the spatial kernel admits a time-invariant maxi-mum information gain satisfying 
+
+γ ˜N = eO( ˜N q )
+
+for some capacity exponent q ∈ [0 , 1) . Define the polynomial block scale 
+
+Nϵ := ϵ− 24−q ,
+
+and choose ˜N = min {T, ⌈Nϵ⌉} .
+
+Then 
+
+˜γT = eO
+
+
+
+T q + T ϵ 2(1 −q)4−q
+
+
+
+. (44) 
+
+In particular, in the persistent-drift regime T ≳ Nϵ,
+
+˜γT = eO
+
+
+
+T ϵ 2(1 −q)4−q
+
+
+
+, (45) 17 whereas for T ≲ Nϵ one has 
+
+˜γT = eO(T q ).
+
+For fixed T , choosing ˜N = T in Theorem B.3 gives 
+
+˜γT ≤ γT + σ−2ϵ T √T 2 − 12√3
+
+√γT , (46) 
+
+so the perturbation vanishes as ϵ → 0 and the static information gain is recovered. Proof. For ˜N ≤ T , Theorem B.3 and 
+
+p ˜N 2 − 1 ≤ ˜N give 
+
+˜γT = eO
+
+ T
+
+˜N
+
+ ˜N q + ϵ ˜N 2+ q/ 2
+
+= eO
+
+
+
+T ˜N q−1 + T ϵ ˜N 1+ q/ 2
+
+.
+
+Balancing the polynomial orders gives 
+
+˜N q−1 ≍ ϵ ˜N 1+ q/ 2, or equivalently ˜N ≍ ϵ− 24−q = Nϵ.
+
+Thus, when T ≳ Nϵ, choosing ˜N at this scale gives 
+
+˜γT = eO
+
+
+
+T ϵ 2(1 −q)4−q
+
+
+
+.
+
+When T ≲ Nϵ, choose ˜N = T . Equation (46) and γT = eO(T q ) give 
+
+˜γT = eO
+
+
+
+T q + ϵT 2+ q/ 2
+
+.
+
+The condition T ≲ Nϵ implies ϵT 2−q/ 2 ≲ 1, so the perturbation term is at most eO(T q ). Combining the two regimes yields (44). For fixed T , the temporal matrix satisfies Dij → 1 as ϵ → 0. For the continuous kernels considered here on the compact domain S, continuity of the log determinant under maximization therefore gives 
+
+˜γT → γT .
+
+## C Concentration of RT
+
+This appendix analyzes the concentration properties of the time-varying setting. Section C.1 estab-lishes the convergence of the oracle-value process via exponential covariance decay, which justifies the asymptotic average reward perspective discussed in Section 4.4. Section C.2 proves the span-only concentration fallback, and Section C.3 proves the algorithm-specific realized-regret bound in Proposition 2. 
+
+C.1 Concentration of the oracle-value process via covariance decay 
+
+Define Mt := sup x∈S ft(x) for t ≥ 1. Under the TV-GP dynamics, the sequence {ft} is strictly stationary with each ft ∼ GP (0 , k S ). Consequently, {Mt} is stationary with a constant expectation 
+
+E[Mt]. Assume the functions ft have almost surely bounded sample paths on S and are separable, im-plying Mt < ∞ almost surely. By the Borell–TIS inequality [Adler and Taylor, 2009, Theorem 2.1.1], 
+
+Mt is sub-Gaussian around its mean: 
+
+Pr  |Mt − E[Mt]| > u  ≤ 2 exp 
+
+
+
+− u2
+
+2σ2
+
+> M
+
+
+
+, σ2 
+
+> M
+
+:= sup 
+
+> x∈S
+
+Var  ft(x) ≤ 1.
+
+This concentration ensures E[M 2 
+
+> t
+
+] < ∞. The following generic lemma controls the variance of a sum of random variables that exhibit exponentially decaying covariance. 
+
+Lemma C.5 (Averaging under exponential covariance decay) . Let {Xt}t≥1 be random variables with E[X2 
+
+> t
+
+] < ∞ and suppose there exist m > 0 and c ∈ [0 , 1) such that Cov( Xi, X j ) ≤ m c |i−j|
+
+for all i, j . Let ST := PTt=1 Xt. Then: 
+
+18 (i) Var( ST ) ≤ m
+
+
+
+T + 2 PT −1 
+
+> h=1
+
+(T − h)ch
+
+
+
+≤ m T 1+ c 
+
+> 1−c
+
+.(ii) For any η > 0,
+
+Pr 
+
+ ST
+
+T − E[ST ]
+
+T > η 
+
+
+
+≤ mT η 2 · 1 + c
+
+1 − c −−−−→  
+
+> T→∞
+
+0,
+
+hence ST 
+
+> T
+
+− E[ST ] 
+
+> T
+
+→ 0 in probability. (iii) For any ω ∈ (0 , 1) ,
+
+ST ≤ E[ST ]+ pVar( ST )/ω ≤ E[ST ]+ 
+
+r mT ω · 1 + c
+
+1 − c with probability at least 1−ω. 
+
+Proof. By bilinearity of covariance, grouping terms by lag h = |i − j| yields 
+
+Var( ST ) = 
+
+> T
+
+X
+
+> i=1
+> T
+
+X
+
+> j=1
+
+Cov( Xi, X j ) ≤ m
+
+> T
+
+X
+
+> i=1
+> T
+
+X
+
+> j=1
+
+c|i−j| = m
+
+
+
+T + 2  
+
+> T−1
+
+X
+
+> h=1
+
+(T − h)ch
+
+.
+
+Since (T − h) ≤ T and P∞ 
+
+> h=1
+
+ch = c/ (1 − c), we obtain 
+
+T + 2  
+
+> T−1
+
+X
+
+> h=1
+
+(T − h)ch ≤ T + 2 T
+
+> ∞
+
+X
+
+> h=1
+
+ch = T 1 + c
+
+1 − c ,
+
+proving (i). Items (ii) and (iii) follow by Chebyshev’s inequality applied to ST /T and ST , respectively. The next lemma bounds the covariance of suprema under the canonical Gaussian autoregressive coupling that underlies the TV-GP recursion. 
+
+Lemma C.6 (Covariance contraction for Gaussian suprema) . Let f and g be centered, separable Gaussian processes indexed by a set T , with g(t) = ρf (t) + p1 − ρ2 h(t) for ρ ∈ [0 , 1] , where h
+
+is an independent copy of f . Assume sup t∈T Var( f (t)) ≤ σ2 
+
+> T
+
+< ∞ and sup t∈T |f (t)| < ∞ almost surely. Then Cov   sup t∈T f (t), sup t∈T g(t) ≤ ρ σ 2 
+
+> T
+
+.Proof. We first prove the claim for a finite set T = {1, . . . , k } and then pass to a general separable 
+
+T . Let A = ( f (1) , . . . , f (k)) and C = ( g(1) , . . . , g (k)) . By construction, the joint distribution of (A, C ) is a zero-mean Gaussian with cross-covariance Cov( Ai, C j ) = ρ Σij , where Σij =Cov( Ai, A j ).Let ϕn(u) := 1 
+
+> n
+
+log   P ki=1 enu i
+
+ be the smooth approximation of the maximum function. The gradient ∇ϕn(u) is the softmax function, ensuring that for any u, ∇ϕn(u) is a probability vector (∥∇ ϕn(u)∥1 = 1 with strictly non-negative components). To compute the covariance Cov( ϕn(A), ϕ n(C)) , we employ the Gaussian interpolation technique standard in the proofs of Gaussian comparison inequalities [see, e.g., Adler and Taylor, 2009, Section 2.2]. Consider the interpolation path parameterized by t ∈ [0 , 1] with the block covariance matrix 
+
+Γ( t) = 
+
+ Σ tρ Σ
+
+tρ Σ Σ
+
+
+
+.
+
+Let (A(t), C (t)) ∼ N (0 , Γ( t)) . For t = 0, A(0) and C(0) are independent, implying 
+
+Cov( ϕn(A(0)) , ϕ n(C(0))) = 0 . For t = 1 , we recover the joint distribution of (A, C ). Differ-entiating the expectation of ϕn(A(t)) ϕn(C(t)) with respect to t and applying multivariate Gaussian integration by parts [Adler and Taylor, 2009, Lemma 2.1.4] yields: 
+
+ddt E[ϕn(A(t)) ϕn(C(t))] = 
+
+> k
+
+X
+
+> i=1
+> k
+
+X
+
+> j=1
+
+dΓAC,ij (t)
+
+dt E
+
+ ∂ϕ n(A(t)) 
+
+∂A i
+
+∂ϕ n(C(t)) 
+
+∂C j
+
+
+
+.
+
+19 Since dΓAC,ij (t) 
+
+> dt
+
+= ρΣij , integrating from t = 0 to t = 1 establishes the exact identity: 
+
+Cov( ϕn(A), ϕ n(C)) = ρ
+
+Z 10
+
+E[⟨∇ ϕn(A(t)) , Σ∇ϕn(C(t)) ⟩] dt. 
+
+We bound the bilinear form inside the expectation via ℓ1/ℓ ∞ duality. Let p = ∇ϕn(A(t)) and 
+
+q = ∇ϕn(C(t)) . Because p and q are probability vectors, 
+
+X
+
+> i,j
+
+piΣij qj ≤
+
+
+
+max  
+
+> i,j
+
+|Σij |
+
+ X
+
+> i,j
+
+piqj = max  
+
+> i,j
+
+|Σij |.
+
+Because Σ is positive semi-definite, its maximum absolute entry lies on the diagonal: max i,j |Σij | ≤ 
+
+max i Σii . By assumption, max i Σii ≤ σ2 
+
+> T
+
+. Therefore, the bilinear form is bounded almost surely by 
+
+σ2 
+
+> T
+
+, independent of the dimension k.Substituting this bound into the integral yields: 
+
+Cov( ϕn(A), ϕ n(C)) ≤ ρ
+
+Z 10
+
+E[σ2 
+
+> T
+
+]dt = ρσ 2 
+
+> T
+
+.
+
+The approximations ϕn(A) and ϕn(C) converge almost surely to ϕ(A) and ϕ(C). The Borell–TIS inequality ensures that {ϕn(A)} and {ϕn(C)} are uniformly square-integrable. Vitali’s convergence theorem permits passing the limit through the covariance, which yields Cov(max i Ai, max i Ci) ≤
+
+ρσ 2 
+
+> T
+
+.To extend this to a general separable set T , let {Tm}m≥1 be an increasing sequence of finite subsets whose union is dense in a separability set for f and g. This guarantees that sup t∈Tm f (t) and 
+
+sup t∈Tm g(t) converge almost surely to their respective suprema over T . Applying the finite-set result yields Cov(sup t∈Tm f (t), sup t∈Tm g(t)) ≤ ρσ 2 
+
+> T
+
+for all m. The Borell–TIS inequality provides 
+
+sup m E[(sup t∈Tm f (t)) 2] < ∞. Uniform integrability allows taking the limit as m → ∞ , which establishes the bound for the general separable set T .In the TV-GP model, the transition rule is ft+h(·) = ρhft(·) + p1 − ρ2h ˜gt,h (·), where ρ := √1 − ϵ
+
+and ˜gt,h is a centered Gaussian process with the same spatial kernel as ft. The process ˜gt,h is independent of ft because it is a linear combination of the independent innovations {gt+1 , . . . , g t+h}.Setting T = S in Lemma C.6 gives σ2 
+
+> T
+
+≤ 1 and Cov( Mt, M t+h) ≤ ρh for h ≥ 0. We apply Lemma C.5 by substituting Xt := Mt, m = 1 , and c = ρ. For any η > 0,
+
+Pr 1
+
+T
+
+> T
+
+X
+
+> t=1
+
+Mt − E[M1] > η 
+
+!
+
+≤ Pr 1
+
+T
+
+> T
+
+X
+
+> t=1
+
+Mt − E[PTt=1 Mt]
+
+T > η 
+
+!
+
+→ 0,
+
+since E[PTt=1 Mt]/T = E[M1] by stationarity. Equivalently, the time average 1
+
+> T
+
+PTt=1 ft(x⋆t )
+
+converges in probability to E[sup x∈S f1(x)] . The deviation bound in Lemma C.5(iii) provides an explicit O(√T ) concentration inequality, with constants depending on ϵ entirely through the factor 
+
+(1 + ρ)/(1 − ρ).
+
+C.2 Span-only concentration fallback 
+
+This subsection justifies the span-only fallback bound used in Section 3.2. Recall that 
+
+Wt = sup 
+
+> x,y ∈S
+
+ ft(x) − ft(y).
+
+Since rt ≤ Wt for every policy and every round, 
+
+RT ≤
+
+> T
+
+X
+
+> t=1
+
+Wt.
+
+Define 
+
+SWT := 
+
+> T
+
+X
+
+> t=1
+
+Wt.
+
+20 Equivalently, 
+
+SWT = sup   
+
+> (x1,y 1),..., (xT,y T)∈S×S
+> T
+
+X
+
+> t=1
+
+ ft(xt) − ft(yt).
+
+Thus SWT is the supremum of a centered Gaussian process indexed by (S × S )T .Let ρ = √1 − ϵ. For any fixed index sequence (x1, y 1), . . . , (xT , y T ), the variance of the corre-sponding Gaussian variable satisfies 
+
+Var 
+
+> T
+
+X
+
+> t=1
+
+ ft(xt) − ft(yt)!
+
+=
+
+> T
+
+X
+
+> t,s =1
+
+ρ|t−s|h
+
+kS (xt, x s) − kS (xt, y s) − kS (yt, x s) + kS (yt, y s)
+
+i
+
+≤ 4
+
+> T
+
+X
+
+> t,s =1
+
+ρ|t−s|
+
+≤ 4T 1 + ρ
+
+1 − ρ .
+
+Here we used kS (x, x ) ≤ 1, which implies 
+
+Var  f (x) − f (y) ≤ 4
+
+and bounds the absolute covariance between two such increments by 4.By Borell–TIS, for all u > 0,
+
+PSWT − E[SWT ] > u ≤ exp 
+
+
+
+− u2
+
+8T (1 + ρ)/(1 − ρ)
+
+
+
+.
+
+Stationarity gives E[SWT ] = T μ w. Therefore, with probability at least 1 − ω,
+
+SWT ≤ T μ w +
+
+r
+
+8T 1 + ρ
+
+1 − ρ log(1 /ω ).
+
+Since RT ≤ SWT , we obtain 
+
+RT ≤ T μ w +
+
+r
+
+8T 1 + ρ
+
+1 − ρ log(1 /ω )
+
+with probability at least 1 − ω.
+
+C.3 Concentration of realized regret (Proof of Proposition 2) 
+
+Lemma A.1 establishes that the combined confidence and regularity event Et holds with an uncondi-tional probability of P(Et) ≥ 1 − δ. Because all instantaneous regret terms are non-negative, rt is bounded pathwise by the UCB width on the success event and the spatial span on the failure event: 
+
+rt ≤ 2pβσ t−1(xt) + C2 + WtIEct , (47) where Wt = sup x∈S ft(x) − inf x∈S ft(x). Summing over T and applying the Cauchy-Schwarz inequality to the standard deviations yields the realized cumulative regret: 
+
+RT ≤ pC1T β ˜γT + T C 2
+
+| {z }
+
+> := UT
+
++
+
+> T
+
+X
+
+> t=1
+
+WtIEct
+
+| {z }
+
+> := FT
+
+. (48) Since ˜γT deterministically bounds the information gain for any sequence of length T , UT is a valid upper bound almost surely. To bound the stochastic failure penalty FT , we rely on the unconditional properties of the spatial span. By Lemma A.2, the expected product of the sub-Gaussian span and the failure indicator satisfies 
+
+E[WtIEct ] ≤ δC 3.
+
+Because instantaneous regret is strictly non-negative, FT ≥ 0. Applying Markov’s inequality directly to the sum yields: 
+
+P
+
+
+
+FT > T δC 3
+
+ω
+
+
+
+≤ E[FT ](T δC 3)/ω = ω. (49) Substituting this limit into (48) yields the bound in (15). 21 D Kalman filtering implementation for the simulation study 
+
+This appendix describes the exact posterior updates used in Section 5. On the finite simulation grid 
+
+{x(1) , . . . , x (N )}, define ft = ( ft(x(1) ), . . . , f t(x(N ))) ⊤ ∈ RN , and let KS ∈ RN ×N be the spatial covariance matrix with entries (KS )ij = kS (x(i), x (j)). Restricting the TV-GP recursion (4) to this grid gives the linear Gaussian state-space model 
+
+ft = ρf t−1 + ξt, ξt ∼ N (0 , ϵK S ),yt = Htft + vt, vt ∼ N (0 , σ 2),
+
+where ρ = √1 − ϵ and Ht ∈ R1×N selects the coordinate corresponding to the sampled grid point 
+
+xt.Let μt|t and Pt|t denote the posterior mean and covariance of ft after observing yt, and let μt|t−1
+
+and Pt|t−1 denote the one-step predictive quantities. We initialize μ1|0 = 0 and P1|0 = KS . Exact inference is performed by the Kalman recursion 
+
+μt|t−1 = ρμ t−1|t−1, Pt|t−1 = ρ2Pt−1|t−1 + ϵK S ,St = HtPt|t−1H⊤ 
+
+> t
+
++ σ2, Lt = Pt|t−1H⊤ 
+
+> t
+
+S−1 
+
+> t
+
+,μt|t = μt|t−1 + Lt(yt − Htμt|t−1), Pt|t = Pt|t−1 − LtHtPt|t−1.
+
+The acquisition rule is evaluated on the grid using the predictive mean and marginal variances, 
+
+it ∈ arg max  
+
+> i∈{ 1,...,N }
+
+n
+
+(μt|t−1)i + pβ
+
+q
+
+(Pt|t−1)ii 
+
+o
+
+.
+
+This recursion is equivalent to GP posterior inference under the spatio-temporal kernel (5) restricted to the grid, but avoids recomputing the posterior from the full observation history. Since N is fixed, each posterior update costs O(N 2) rather than growing with t, enabling exact simulations over long horizons. 
+
+## E Simulation reproducibility details 
+
+This appendix provides the reproducibility details for the simulation study in Section 5. The exper-iments use synthetic data generated directly from the TV-GP model in Equation (4). No external datasets, pretrained models, or human-subject data are used. The action space is the fixed 20 × 20 grid on S = [0 , 1] 2, giving N = 400 candidate actions. The spatial kernel is the squared exponential kernel with lengthscale l = 0 .1 and prior variance 1.0. The observation noise variance is fixed at σ2 = 0 .01 . Each reported average regret value is computed over 100 independent TV-GP sample paths of length T = 10 ,000 .For each drift rate ϵ and exploration parameter β, the latent process is simulated according to the recursion in Equation (4). Posterior inference is performed exactly on the finite grid using the Kalman filtering recursion in Appendix D. The constant-β TV-GP-UCB policy selects actions according to 
+
+it ∈ arg max  
+
+> i∈{ 1,...,N }
+
+n
+
+(μt|t−1)i + pβ
+
+q
+
+(Pt|t−1)ii 
+
+o
+
+.
+
+The logarithmic baseline uses the schedule 
+
+βt = c1 log( c2t), c1 = 0 .8, c2 = 4 ,
+
+as described in Section 5. The accompanying code archive contains the scripts used to generate the synthetic sample paths, run constant-β TV-GP-UCB, run the logarithmic time-varying-βt baseline, compute the average regret curves, bootstrap the empirical minimizers ˆβopt , and regenerate Figure 1. For the left panel of Figure 1, shaded bands denote approximate 95% confidence intervals for the mean average regret, computed as ±1.96 standard errors over the 100 independent trials. For the right panel, the uncertainty intervals for ˆβopt are computed using bootstrap percentile intervals over the independent trials. 22 The computations for Figure 1 were run on a MacBook Pro with an Apple M1 Pro chip, 8 CPU cores, and 16 GB of unified memory. The simulations used CPU multiprocessing and no GPU acceleration. The complete run used to generate the final figure took approximately 48 hours of wall-clock time. Memory usage was modest because the Kalman filter operates on a fixed N = 400 state dimension, but the total runtime is dominated by the large number of independent trials and parameter settings. 23
