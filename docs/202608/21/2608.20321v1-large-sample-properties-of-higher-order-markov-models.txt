@@ -1,0 +1,1122 @@
+Title: Large Sample Properties of Higher Order Markov Models
+
+URL Source: https://arxiv.org/pdf/2608.20321v1
+
+Published Time: Fri, 21 Aug 2026 01:13:46 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Large Sample Properties of Higher Order Markov Models 
+
+Tuhin Majumder Department of Statistical Sciences, Wake Forest University and Donald E.K. Martin Department of Statistics, North Carolina State University and Soumendra N. Lahiri Department of Mathematics and Statistics, Washington University in St. Louis 
+
+Abstract 
+
+We study large-sample properties of higher-order Markov chains on a finite alpha-bet Σ when the order mn is allowed to grow with the sequence length n. By embedding the process into a first-order chain on Σ mn and exploiting return-time decompositions, we establish a central limit theorem for additive functionals P
+
+> t
+
+gn(Y (n) 
+
+> t
+
+) under natural ergodicity and sparsity conditions. The normalization involves the stationary return time to a suitably chosen state and accommodates triangular arrays with mn → ∞ and 
+
+mn/n → 0. We further illustrate the assumptions in a binary variable length Markov chain (VLMC), deriving explicit lower bounds on stationary masses that yield a con-crete growth regime (e.g., mn log mn/n → 0) ensuring the CLT. These results provide asymptotic foundations for inference in sparse/partitioned higher-order models; in-cluding VLMCs and sparse Markov models (SMMs) where the effective dimensionality grows with the sample size. 
+
+1arXiv:2608.20321v1 [math.ST] 20 Aug 2026 1 Introduction 
+
+Large-sample properties of first-order Markov chains are well understood and have wide applications. However, in many applications, the present state depends on the previous m
+
+states. Let Φ = {Xt : t = 0 , 1, 2, . . . } be a sequence of random variables taking values in a finite state space Σ of size |Σ| = d. For t ≥ m, if P (Xt = xt | Xt−1 = xt−1, . . . , X 0 = x0) = 
+
+P (Xt = xt | Xt−1 = xt−1, . . . , X t−m = xt−m), then Φ is called a Markov chain of order m.Studying a Markov chain of order m is not substantially different from the first-order case, as we can transform it into a first-order Markov chain by taking consecutive m-tuples as states. Denote this new chain by Φ ′ = {Y t : t = 0 , 1, 2, . . . }, where Y t = ( Xt+m−1, . . . , X t). The new state space is Σ ′ = Σ m, i.e., the set of all possible m-tuples from Σ. The corresponding transition matrix P ′ has dimension dm × dm. In each row of P ′, at most d entries can be non-zero, since P (Y t+1 = ( j1, . . . , j m) | Y t = ( i1, . . . , i m)) > 0 only if ik = jk+1 for 
+
+k = 1 , . . . , m − 1. In that case, P (Y t+1 = ( j1, . . . , j m) | Y t = ( i1, . . . , i m)) = P (Xt+m = j1 |
+
+Xt+m−1 = i1, . . . , X t = im). Hence, the total number of entries to be estimated is dm(d − 1), which grows exponentially with increasing m.To reduce this model complexity, several dimension-reduction techniques have been pro-posed for higher-order Markov chains. For instance, Raftery [1985] introduced a linear mixture model of the form 
+
+P (Xt = j0 | Xt−1 = j1, . . . , X t−m = jm) = 
+
+> m
+
+X
+
+> i=1
+
+λiqjij0 ,
+
+where Pmi=1 λi = 1 and Q = (( qij )) is a known transition matrix on Σ. The weights (λ1, . . . , λ m) are estimated via maximum likelihood. Another widely used strategy is the Variable Length Markov Chain (VLMC) model, originally proposed by Rissanen [1983], where the context length varies depending on the observed past. B¨ uhlmann and Wyner [1999] and B¨ uhlmann [2000] developed model selection methods and studied the asymptotic behavior of VLMCs. In these models, a context tree determines the relevant past suffixes 2for predicting future states, allowing for substantial reduction in the number of parame-ters when long dependencies are sparse. Recent work on Bayesian Context Trees (BCT) by Kontoyiannis et al. [2020] and Papageorgiou and Kontoyiannis [2022] has provided posterior inference and predictive distributions for discrete-time sequence models. A more general approach to sparse modeling of higher-order Markov data involves group-ing the m-tuples in Σ m into partitions such that tuples within the same group share identical transition probabilities. These models are referred to as sparse Markov models (SMMs), first proposed by Garcıa et al. [2011] and later extended in a Bayesian framework by J¨ a¨ askinen et al. [2014]. Xiong et al. [2016] introduced a recursive partitioning algorithm, while Bennett et al. [2023] used Gibbs sampling for posterior estimation. More recently, Majumder et al. [2026] developed a convex clustering approach for learning the underlying partition structure in the SMM set-up. As long as the state space Σ is finite, the central limit theorems (CLTs) and other large-sample results for SMMs mirror those for first-order Markov chains, provided certain ergodicity conditions hold. For example, B¨ uhlmann and Wyner [1999] derived large-sample properties of VLMC estimators, including bootstrap-based CLTs. However, the scenario becomes more intriguing when the Markov chain order grows with the sequence length, i.e., when the order is a function of n, denoted by mn. Proving CLTs in this setup is considerably more challenging. In this paper, we give a central limit theorem for this case. The rest of the chapter is organized as follows. Section (2) presents our main theoretical result. In Section (3), we illustrate the assumptions and conclusions for the special case of a binary VLMC. Section (4) concludes the chapter with final remarks. 
+
+# 2 Central Limit Theorem 
+
+Consider a triangular array of variable-order Markov chains as follows. The nth chain is presented as Φ n = {X(n)0 , . . . , X (n) 
+
+> n
+
+}, where X(n) 
+
+> j
+
+∈ Σ. Recall that Σ is a finite state space 3with |Σ| = d. However, the order of the Markov chain Φ n (denoted by mn) varies with n. 
+
+One can easily represent this Markov chain as a first-order Markov chain in the following manner. Let Yt(n) = ( X(n)
+
+> t+mn−1
+
+, . . . , X (n) 
+
+> t
+
+), t = 0 , 1, . . . , n − mn + 1. Then Φ ′ 
+
+> n
+
+= {Yt(n)} is a first-order Markov chain with state space Sn = Σ mn . We work with the Markov chain Φ ′ 
+
+> n
+
+in the sequel. Our goal is to establish a CLT-type result for a sequence of real-valued functions over Σ in this triangular-array set up. Before going into the main result, we define some useful notation. Assume that the chain Φ ′ 
+
+> n
+
+is aperiodic and irreducible for each n. Let πn be its corresponding stationary probability vector of length dmn . For a state α ∈ Sn, define 
+
+σ(n) 
+
+> α
+
+(0) ≡ inf {j ≥ 0 : Yj (n) = α}. Thus σ(n) 
+
+> α
+
+(0) is the first hitting time of state α for the chain Φ ′
+
+> n
+
+. In a similar fashion, successively define the kth hitting time of α as follows: 
+
+σ(n) 
+
+> α
+
+(k) = inf {j > σ (n) 
+
+> α
+
+(k − 1) : Yj (n) = α}.
+
+Also define 
+
+ℓn,α ≡ max {k : σ(n) 
+
+> α
+
+(k) ≤ n − mn + 1 } =
+
+> n−mn+1
+
+X
+
+> j=0
+
+I(Yj (n) = α) − 1. (1) Then ℓn,α is the number of returns of Φ ′ 
+
+> n
+
+to state α after the first hitting time. If the order of the Markov chains in each array is fixed, i.e mn = m for some m ∈ N,then any state α ∈ Σm is recurrent, so that ℓn,α → ∞ as n → ∞ . However, in our set-up, 
+
+mn → ∞ as n → ∞ . Note that for α ∈ Σmn , Eπn (ℓn,α ) = ( n − mn + 2) πn(α) − 1, where 
+
+Eπn [.] is the expectation under the stationarity assumption. If there exists a sequence of states {αn : αn ∈ Σmn } such that nπ n(αn) → ∞ as n → ∞ , then Eπn (ℓn,α n ) → ∞ , i.e. the expected number of returns to αn diverges. Next, we present our main result, which demonstrates the large sample properties of a triangular array of sparse Markov chains. 
+
+Theorem 2.1. Consider the following triangular array of higher order Markov chains over 
+
+4finite alphabet Σ of cardinality d. The nth array Φn = {X(n)0 , . . . , X (n) 
+
+> n
+
+} has order mn. Define 
+
+Yt(n) ≡ (X(n)
+
+> t+mn−1
+
+, . . . , X (n) 
+
+> t
+
+), t = 0 , 1, . . . , n − mn + 1 . Denote the stationary probability vector of the nth chain by πn. Suppose the following assumptions hold. (i) For each n ∈ N, Φ′ 
+
+> n
+
+= {Yt(n)} is an aperiodic and irreducible Markov chain over Σmn .(ii) mn → ∞ as n → ∞ with mn 
+
+> n
+
+→ 0.(iii) There exists a sequence of states {αn : αn ∈ Σmn } such that nπ n(αn) → ∞ as n → ∞ .(iv) V ar πn
+
+ ln,α n /nπ n(αn) → 0 as n → ∞ .Define Eαn [.] as the expectation under the assumption that the initial state of the Markov chain is αn. Consider a sequence of functions gn : Σ mn → R, such that (i) For each n, Eαn
+
+h Pταn  
+
+> j=1
+
+¯gn(Yj (n))
+
+i2
+
+< ∞;(ii) sup n
+
+
+
+Eαn
+
+h Pταn  
+
+> j=1
+
+|¯gn(Yj (n))|
+
+i2
+
+Eαn
+
+h Pταn  
+
+> j=1
+
+¯gn(Yj (n))
+
+i2
+
+ < ∞;where ¯gn(x) = gn(x) − Eπn (gn).Under the above conditions, 
+
+1
+
+√n
+
+> n−mn+1
+
+X
+
+> j=0
+
+¯gn(Yj (n))
+
+vuut Eαn (ταn )
+
+Eαn
+
+h Pταn  
+
+> j=1
+
+¯gn(Yj (n))
+
+i2
+
+> d
+
+−→ N (0 , 1) 
+
+Proof: From now on, we will denote ℓn,α n as ℓn for simplicity. First observe that 
+
+Eπn (ℓn) = ( n − mn + 2) πn(αn) − 1, i.e. Eπn
+
+ ℓn
+
+> nπ n(αn)
+
+
+
+→ 1 as n → ∞ . Also, by as-sumption (iv), V ar πn
+
+ ℓn
+
+> nπ n(αn)
+
+
+
+→ 0. Hence ℓn
+
+> nπ n(αn)
+> p
+
+−→ 1 as n → ∞ , eventually leading to 
+
+ℓnp
+
+−→ ∞ .For any function f : Σ mn → R, define 
+
+s(n) 
+
+> j
+
+(f ) =  
+
+> σαn (j+1)
+
+X 
+
+> t=σαn (j)+1
+
+f (Yt(n)), j = 0 , 1, ..., ℓ n − 1.
+
+5By the strong Markov property, s(n) 
+
+> j
+
+(gn) are iid random variables with mean Eαn
+
+h Pταn  
+
+> j=1
+
+gn(Yj (n))
+
+i
+
+=
+
+Eαn
+
+h
+
+s(n)0 (gn)
+
+i
+
+and variance V ar αn
+
+h
+
+s(n)0 (gn)
+
+i
+
+= Eαn
+
+h s(n)0 (gn)2i
+
+− E2
+
+> αn
+
+h
+
+s(n)0 (gn)
+
+i
+
+. Define ¯gn(x) = gn(x) − Eπn (gn(X)), where X ∼ πn. For simplicity, let’s define Eπn (gn(X)) = 
+
+Eπn
+
+gn
+
+ Note that Eπn
+
+gn
+
+ = πn(αn)Eαn
+
+ P ταn  
+
+> j=1
+
+gn(Yj (n)). Hence 
+
+Eαn
+
+s(n) 
+
+> j
+
+(¯ gn) = Eαn
+
+h ταn X
+
+> j=1
+
+ gn(Yj (n)) − Eπn (gn)i
+
+= Eαn
+
+h ταn X
+
+> j=1
+
+gn(Yj (n)) − ταn Eπn (gn)
+
+i
+
+= Eαn
+
+h ταn X
+
+> j=1
+
+gn(Yj (n))
+
+i
+
+− Eαn
+
+h
+
+ταn
+
+i
+
+Eπn (gn)= 0 , since πn(αn) = 1 /E αn
+
+h
+
+ταn
+
+i
+
+.
+
+The normalized and centralized random variables are defined as follows: 
+
+s′(n) 
+
+> j
+
+(¯ gn) = s(n) 
+
+> j
+
+(¯ gn)
+
+r
+
+V ar αn
+
+h
+
+s(n)0 (¯ gn)
+
+i = s(n) 
+
+> j
+
+(¯ gn)
+
+r
+
+Eαn
+
+h
+
+s(n)0 (¯ gn)
+
+i2 .
+
+Thus, s′(n) 
+
+> j
+
+(¯ gn), j = 0 , 1, ..., ℓ n − 1 are i.i.d random variables with mean 0 and variance 1. Denote v2 
+
+> n
+
+= Eαn
+
+h
+
+s(n)0 (¯ gn)
+
+i2
+
+. Fix 0 < ϵ < 1. Define n = [(1 − ϵ)( n − mn + 2) πn(αn)], ¯n = [(1 + ϵ)( n − mn + 2) πn(αn)], and n∗ = [( n − mn + 2) πn(αn)], where [ ·] is the greatest integer function. Note that 
+
+> n−mn+1
+
+X
+
+> j=0
+
+¯gn(Yj (n)) =  
+
+> σαn (0)
+
+X
+
+> t=0
+
+¯gn(Yt(n)) + 
+
+> ℓn−1
+
+X
+
+> j=0
+
+s(n) 
+
+> j
+
+(¯ gn) + 
+
+> n−mn+1
+
+X 
+
+> t=σαn (ℓn)+1
+
+¯gn(Yt(n))=⇒
+
+> n−mn+1
+
+X
+
+> j=0
+
+¯gn(Yj (n)) −
+
+> ℓn−1
+
+X
+
+> j=0
+
+s(n) 
+
+> j
+
+(¯ gn) ≤ 
+
+> σαn (0)
+
+X
+
+> t=0
+
+¯gn(Yt(n)) + s(n) 
+
+> ℓn
+
+(|¯gn|)=⇒ 1
+
+√n∗vnn−mn+1 X
+
+> j=0
+
+¯gn(Yj (n)) − 1
+
+√n∗
+
+> ℓn−1
+
+X
+
+> j=0
+
+s′(n) 
+
+> j
+
+(¯ gn) ≤ 1
+
+√n∗vnσαn (0) 
+
+X
+
+> t=0
+
+¯gn(Yt(n)) + s(n) 
+
+> ℓn
+
+(|¯gn|)
+
+√n∗vn
+
+.
+
+6Define 
+
+Zn,j = s(n) 
+
+> j
+
+(|¯gn|)
+
+vn
+
+.
+
+By assumption (ii), there exists a constant C < ∞ such that sup 
+
+> n
+
+Eαn
+
+Z2
+
+> n, 0
+
+ = sup 
+
+> n
+
+Eαn
+
+
+
+s(n)0 (|¯gn|)
+
+2
+
+v2
+
+> n
+
+≤ C. 
+
+Recall that ℓn/n ∗ p
+
+−→ 1. Fix η > 0 and 0 < δ < 1. Then 
+
+P
+
+Zn,ℓ n
+
+√n∗ > η 
+
+
+
+≤ P
+
+ ℓn
+
+n∗ − 1 > δ 
+
+
+
++ P
+
+
+
+max  
+
+> (1 −δ)n∗≤j≤(1+ δ)n∗
+
+Zn,j > η √n∗
+
+
+
+.
+
+By the union bound and Markov’s inequality, 
+
+P
+
+
+
+max  
+
+> (1 −δ)n∗≤j≤(1+ δ)n∗
+
+Zn,j > η √n∗
+
+
+
+≤
+
+> ⌈(1+ δ)n∗⌉
+
+X
+
+> j=⌊(1 −δ)n∗⌋
+
+P
+
+
+
+Zn,j > η √n∗
+
+
+
+≤
+
+> ⌈(1+ δ)n∗⌉
+
+X
+
+> j=⌊(1 −δ)n∗⌋
+
+Eαn [Z2 
+
+> n,j
+
+]
+
+η2n∗
+
+≤ (2 δn ∗ + 2) Cη2n∗ .
+
+Consequently, lim sup 
+
+> n→∞
+
+P
+
+Zn,ℓ n
+
+√n∗ > η 
+
+
+
+≤ 2Cδ η2 .
+
+Since δ > 0 is arbitrary, letting δ arbitrarily small 
+
+Zn,ℓ n
+
+√n∗
+
+> p
+
+−→ 0.
+
+Therefore, 
+
+s(n) 
+
+> ℓn
+
+(|¯gn|)
+
+√n∗vnp
+
+−→ 0.
+
+7By similar logic, 1
+
+√n∗vnσαn (0) 
+
+X
+
+> t=0
+
+¯gn(Yt(n)) p
+
+−→ 0.
+
+Combining these results, we obtain 
+
+1
+
+√n∗vnn−mn+1 X
+
+> j=0
+
+¯gn(Yj (n)) − 1
+
+√n∗
+
+> ℓn−1
+
+X
+
+> j=0
+
+s′(n) 
+
+> j
+
+(¯ gn) p
+
+−→ 0. (2) Since ℓn
+
+> nπ n(αn)
+> p
+
+−→ 1 as n → ∞ , ∃ n0 ∈ N s.t. for n ≥ n0
+
+P (n ≤ ℓn − 1 ≤ ¯n) ≥ 1 − ϵ. 
+
+Hence, by Kolmogorov’s inequality, for any arbitrary β > 0, 
+
+P
+
+ 1
+
+√n∗
+
+> ℓn−1
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) − 1
+
+√n∗
+
+> n∗
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) > β 
+
+
+
+≤ ϵ + P
+
+
+
+max 
+
+> n≤l≤n∗
+> n∗
+
+X
+
+> j=l
+
+s′ 
+
+> j
+
+(¯ gn) > β √n∗
+
+
+
++ P
+
+
+
+max 
+
+> n∗≤l≤¯nl
+
+X
+
+> j=n∗
+
+s′ 
+
+> j
+
+(¯ gn) > β √n∗
+
+
+
+≤ ϵ +2ϵπ n(αn)( n − mn + 2) Eαn
+
+h
+
+s(n)0 (¯ gn)
+
+i2
+
+β2n∗
+
+≤ ϵ + 4ϵβ2 .
+
+(3) From equation (3), we can conclude that 
+
+1
+
+√n∗
+
+> ℓn−1
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) − 1
+
+√n∗
+
+> n∗
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) p
+
+−→ 0. (4) Combining this with equation (2), we have 1
+
+√n∗vnn−mn+1 X
+
+> j=0
+
+¯gn(Yj (n)) − 1
+
+√n∗
+
+> n∗
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) p
+
+−→ 0. (5) 8Using the CLT for row-wise i.i.d random variables with mean 0 and variance 1, we obtain 1
+
+√n∗
+
+> n∗
+
+X
+
+> j=0
+
+s′ 
+
+> j
+
+(¯ gn) d
+
+−→ N (0 , 1) . (6) Hence, from equation (5), we conclude 1
+
+√n∗vnn−mn+1 X
+
+> j=0
+
+¯gn(Yj (n)) d
+
+−→ N (0 , 1) =⇒ 1
+
+pnπ n(αn)vnn−mn+1 X
+
+> j=0
+
+¯gn(Yj (n)) d
+
+−→ N (0 , 1) =⇒ 1
+
+√n
+
+> n−mn+1
+
+X
+
+> j=0
+
+¯gn(Yj (n))
+
+vuut Eαn (ταn )
+
+Eαn
+
+h
+
+s(n)0 (¯ gn)
+
+i2
+
+> d
+
+−→ N (0 , 1) .
+
+# 3 Example 
+
+In the previous section, we discussed requirements for a large sample CLT. One of the conditions to satisfy the CLT is nπ n(αn) → ∞ as n → ∞ . It is easy to see that there is always a state αn ∈ Σmn with πn(αn) ≥ 1/d mn , hence assuming n/d mn → ∞ will suffice. However, this bound is the most obvious one. If we can make the bound tighter, we can hope for mn → ∞ at a faster rate. One such example is given below. 
+
+Example 3.1. Suppose Σ = {0, 1}. Consider a VLMC of length n and order m with the contexts {0, 10 , 110 , . . . , 1m−10, 1m}. Hence there are m + 1 leaves in the context tree. Suppose that for a fixed m, P (0 |1j 0) = 1 − pj and P (1 |1j 0) = pj , j = 0 , 1, . . . , m − 1; and 
+
+P (0 |1m) = 1 − pm. In this set-up, we find that 
+
+1
+
+πn(1 m−10) =
+
+> m−2
+
+Y
+
+> j=0
+
+1
+
+pj
+
++ pm−1 + 1 − pm
+
+1 − pm
+
++
+
+> m−2
+
+X
+
+> j=1
+> m−2
+
+Y
+
+> k=j
+
+1
+
+pj
+
+.
+
+Proof: We use recursive relations for stationary probabilities to determine πn(1 m−10). 9For any history ( i1, . . . , i m) ∈ { 0, 1}m, denote the index by w(i1, . . . , i m) = 1 + Pm−1 
+
+> j=0
+
+2j im−j .Then the function w will provide a unique index, ranging from 1 to 2 m. For simplicity, we write πn(j) as the stationary probability of the m-tuple ( i1, . . . , i m) ∈ { 0, 1}m having 
+
+w(i1, . . . , i m) = j. Using the definition of stationary probability, we find that  
+
+> 2m−k−1
+
+X
+
+> j=0
+
+πn(2 kj + 2 k−1) =  
+
+> 2m−k−1
+
+X
+
+> j=0
+
+πn(2 kj + 2 k − 1); k = 2 , 3, . . . , m. (7) Also define the following quantities and obtain the relations 
+
+Ak−1,1 :=  
+
+> 2m−k−1
+
+X
+
+> j=0
+
+πn(2 kj + 2 k−1 − 1) = ck−12m−k −1X
+
+> j=0
+
+πn(2 kj + 2 k−1) =: ck−1Ak−1,2 (8) and ck−1 = (1 − pk−2)/p k−2 for k = 2 , 3, . . . , m and cm = (1 − pm−1)/p m. Define Am, 1 =
+
+πn(2 m − 1), Am, 2 = πn(2 m). Now, observe that 
+
+Am−2,1 = cm−2Am−2,2 = cm−2(Am−1,1 + Am, 1)= cm−2(1 + cm−1)Am, 1;
+
+Am−3,1 = cm−3(1 + cm−2)(1 + cm−1)Am, 1;
+
+. . . A1,1 = c1(1 + c2) . . . (1 + cm−1)Am, 1
+
+and 
+
+A1,2 = (1 + c2) . . . (1 + cm−1)Am, 1
+
+= cm−2(1 + cm−1)Am, 1;
+
+A2,2 = (1 + c3) . . . (1 + cm−1)Am, 1;
+
+. . . Am−2,2 = (1 + cm−1)Am, 1;
+
+Am−1,2 = Am, 1.
+
+10 Combining these relations, we have 
+
+Am, 1 = πn(2 m − 1) = 1
+
+Qm−1 
+
+> i=1
+
+ai + am + Pm−1 
+
+> i=2
+
+aiai+1 . . . a m−1
+
+,
+
+where ai = 1 + ci. Replacing the values of ci, we find that 1
+
+πn(1 m−10) =
+
+> m−2
+
+Y
+
+> j=0
+
+1
+
+pj
+
++ pm−1 + 1 − pm
+
+1 − pm
+
++
+
+> m−2
+
+X
+
+> j=1
+> m−2
+
+Y
+
+> k=j
+
+1
+
+pj
+
+:= q(p, m ).
+
+If the transition probabilities satisfy q(p, m n) = o(n), we can claim nπ n(1 m−10) → ∞ .. 
+
+Corollary 3.1.1. Suppose pj = ( j +1) /(j +2) . Then nπ n(1 mn−10) → ∞ if mn log( mn)/n →
+
+0.
+
+Proof: q(p, m n) ≤ 2mn + mn
+
+Pmn−2 
+
+> j=1 1
+> j+1
+
+= O(mn log( mn)). Hence, the required condi-tion simplifies to mn log( mn)/n → 0 as n → ∞ .
+
+# 4 Conclusion 
+
+The theoretical results given guarantee central limit theorems for certain functionals of a higher order Markov chain, whose order changes with the length of the chain. We also simplify the conditions of the theorem (2.1) for a particular type of binary variable length Markov chain and determined how the order mn varies with n. Similar reductions may be possible for Sparse Markov Models (SMMs) by exploiting their underlying partition struc-ture. Investigating such conditions for SMMs and other sparse higher-order Markov models is an interesting direction for future work. 
+
+# References 
+
+Iris Bennett, Donald EK Martin, and Soumendra Nath Lahiri. Fitting sparse Markov models through a collapsed gibbs sampler. Computational Statistics , 38(4):1977–1994, 2023. 11 Peter B¨ uhlmann. Model selection for variable length Markov chains and tuning the context algorithm. Annals of the Institute of Statistical Mathematics , 52(2):287–315, 2000. Peter B¨ uhlmann and Abraham J Wyner. Variable length Markov chains. The Annals of Statistics , 27(2):480–513, 1999. Jes´ us E Garcıa, Ver´ onica A Gonz´ alez-L´ opez, Rua Sergio Buarque de Holanda, and Cidade Universit´ aria-Barao Geraldo. Minimal Markov models. In Fourth Workshop on Informa-tion Theoretic Methods in Science and Engineering , page 25, 2011. V¨ ain¨ o J¨ a¨ askinen, Jie Xiong, Jukka Corander, and Timo Koski. Sparse Markov chains for sequence data. Scandinavian Journal of Statistics , 41(3):639–655, 2014. Ioannis Kontoyiannis, Lambros Mertzanis, Athina Panotopoulou, Ioannis Papageorgiou, and Maria Skoularidou. Bayesian context trees: Modelling and exact inference for discrete time series. arXiv preprint arXiv:2007.14900 , 2020. Tuhin Majumder, Soumendra N Lahiri, and Donald EK Martin. Fitting sparse Markov models to categorical time series using convex clustering. Journal of Computational and Graphical Statistics , pages 1–13, 2026. Ioannis Papageorgiou and Ioannis Kontoyiannis. Posterior representations for bayesian con-text trees: Sampling, estimation and convergence. arXiv preprint arXiv:2202.02239 , 2022. Adrian E Raftery. A model for high-order Markov chains. Journal of the Royal Statistical Society: Series B (Methodological) , 47(3):528–539, 1985. Jorma Rissanen. A universal prior for integers and estimation by minimum description length. The Annals of statistics , 11(2):416–431, 1983. Jie Xiong, V¨ ain¨ o J¨ a¨ askinen, Jukka Corander, et al. Recursive learning for sparse Markov models. Bayesian analysis , 11(1):247–263, 2016. 12

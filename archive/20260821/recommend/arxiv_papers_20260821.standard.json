@@ -1,0 +1,209 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-21T20:44:11.866209+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2608.16397v1",
+      "source": "arxiv",
+      "title": "Maximal correlation under cardinality constraints",
+      "abstract": "In this paper, we define and analyze the quantized maximal correlation, an extension of the notion of maximal correlation restricted to functions taking values in sets of bounded cardinality. We derive an upper bound on the quantized maximal correlation by showing that the correlation between any quantized functions of $X$ and $Y$ is related to the MMSE distortion in quantization of a particular linear combination of random variables. Following this, we leverage rate-distortion techniques and anti-concentration inequalities to further bound this MMSE, which results in explicit bounds on the quantized maximal correlation. Unlike the quantized maximal correlation itself, which does not generally tensorize, our bounds on the mean squared error do tensorize, resulting in a dimension-free upper bound on the quantized maximal correlation for product distributions. Our results also lead to improved bounds on the isoperimetric constants of reversible Markov chains and product chains, strengthening classical results such as those by Alon and Milman.",
+      "authors": [
+        "Dror Drach",
+        "Tomer Berg",
+        "Or Ordentlich",
+        "Ofer Shayevitz"
+      ],
+      "primary_category": "cs.IT",
+      "categories": [
+        "cs.IT"
+      ],
+      "published": "2026-08-17T10:51:24+00:00",
+      "link": "https://arxiv.org/pdf/2608.16397v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical dependence bounds can support predictability analysis",
+      "llm_evidence_cn": "理论依赖界可支撑可预测性分析",
+      "llm_evidence": "理论依赖界可支撑可预测性分析",
+      "canonical_evidence": "理论依赖界可支撑可预测性分析",
+      "llm_tldr_en": "This paper defines quantized maximal correlation and derives explicit tensorizable upper bounds via rate-distortion and anti-concentration inequalities, providing a theoretical tool for measuring dependence and predictability under cardinality constraints.",
+      "llm_tldr_cn": "针对基数约束下量化最大相关缺乏显式界且一般不张量化的问题，论文提出了新的上界推导。作者证明任意量化函数间的相关与某线性组合随机变量的MMSE量化失真有关，进而借助率失真和反集中不等式得到显式上界；该界具有张量化的优点。该结果可作为衡量变量间可预测性的一种通用理论工具。",
+      "llm_tldr": "针对基数约束下量化最大相关缺乏显式界且一般不张量化的问题，论文提出了新的上界推导。作者证明任意量化函数间的相关与某线性组合随机变量的MMSE量化失真有关，进而借助率失真和反集中不等式得到显式上界；该界具有张量化的优点。该结果可作为衡量变量间可预测性的一种通用理论工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.16797v1",
+      "source": "arxiv",
+      "title": "UniDot: A Unified Network for Sequence Modeling and Feature Interaction in Large-scale Recommendation",
+      "abstract": "Industrial recommenders rely on two model families that have evolved largely independently: feature-interaction models over multi-field user/item features, and sequential models over user-behavior histories. Production systems couple them only loosely. To unify the two, we present UniDot, a novel architecture for post-click conversion prediction built from the factorization-machine (FM) point of view: the embedding inner product---which powers collaborative filtering and lets a recommender generalize to unseen user--item pairs---is the same primitive as attention's query dot key scoring, so a single dot-product of tokens can underlie both feature interaction and sequence modeling. UniDot tokenizes non-sequential fields and multi-domain behavioral sequences into one shared token space and stacks a single macro-block in which a token-mixing bus and a sequence-retrieval bus (item tokens cross-attending the histories) run in parallel and exchange state each layer through an MLP-Mixer fusion, while an FM Highway carries explicit per-layer dot-product interactions around the residual stack directly to the classifier. The sequence side is embedded once per forward pass and shared by all consumers, bounding inference latency. Trained with a dual sparse/dense (Adagrad + Muon) optimizer, an auxiliary conversion-delay head, and multi-path mutual learning, UniDot finished as the runner-up on the Industrial track of the TAAC KDD Cup 2026.",
+      "authors": [
+        "Rongcheng Lin",
+        "Yan Sun",
+        "Jamey Zhang",
+        "Guanglei Xiong",
+        "Ivan Ji",
+        "Xianjie Chen",
+        "Shujian Bu"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "published": "2026-08-17T16:52:56+00:00",
+      "link": "https://arxiv.org/pdf/2608.16797v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unified sequence modeling and feature interaction for recommendation prediction",
+      "llm_evidence_cn": "统一序列建模与特征交互用于推荐预测",
+      "llm_evidence": "统一序列建模与特征交互用于推荐预测",
+      "canonical_evidence": "统一序列建模与特征交互用于推荐预测",
+      "llm_tldr_en": "Proposes UniDot, a unified dot-product architecture for sequence modeling and feature interaction in large-scale recommendation, showing that a single dot-product primitive can improve post-click conversion prediction.",
+      "llm_tldr_cn": "该论文提出UniDot，从因子分解机视角统一推荐系统中的特征交互与用户行为序列建模。通过将嵌入内积作为核心原语，同时支持协同过滤和注意力机制，减少了两类模型的分离。在大规模推荐场景中的实验表明其能有效提升后点击转化预测性能，但对可预测性极限没有进行理论分析。",
+      "llm_tldr": "该论文提出UniDot，从因子分解机视角统一推荐系统中的特征交互与用户行为序列建模。通过将嵌入内积作为核心原语，同时支持协同过滤和注意力机制，减少了两类模型的分离。在大规模推荐场景中的实验表明其能有效提升后点击转化预测性能，但对可预测性极限没有进行理论分析。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.19885v1",
+      "source": "arxiv",
+      "title": "Separating Covariate Shift from Mechanism Change with Two Discriminators: CJSD, a Conditional Discrepancy with an Exact Covariate-Concept Decomposition",
+      "abstract": "Streaming systems that maintain a pool of expert models must repeatedly decide whether to reuse an existing expert for arriving data, spawn a new one, or defer. We present a decision layer that makes all three outcomes statistically meaningful. Reuse and spawn are posed as one-sided sequential hypotheses on a conditional (mechanism-level) discrepancy, separated by an indifference zone; defer is exactly the state in which neither betting e-process has accumulated sufficient evidence. We prove finite-time anytime validity for the observable surrogate discrepancy of a predictable discriminator sequence, and an unconditional one-sided transfer to the population quantity in which each side's slack is the excess risk of a single discriminator; an empirically observed downward-bias regularity makes the spawn side exactly conservative. Recency without sacrificing the guarantee is obtained by a restarted e-detector: a bank of unwindowed betting supermartingales at geometrically spaced restart times (O(log t) memory), with the error budget spent over restart instances, which preserves lifetime anytime validity; spending over expert-creation order likewise controls multiplicity for unboundedly many experts. On synthetic multi-concept streams, Electricity, Covertype, and the recurrence-heavy INSECTS benchmark, the instance-accounted restarted bank achieves zero false spawns and zero false reuses after switches and matches or exceeds the retired windowed heuristic (INSECTS-reoccurring accuracy 0.675), making the deployed algorithm and the guaranteed algorithm one and the same.",
+      "authors": [
+        "Kentaro Oda"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-08-20T10:48:08+00:00",
+      "link": "https://arxiv.org/pdf/2608.19885v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "anytime-valid sequential tests for mechanism change, transferable to time series predictability analysis",
+      "llm_evidence_cn": "面向机制变化的任意时刻有效检验，可迁移至时间序列可预测性分析",
+      "llm_evidence": "面向机制变化的任意时刻有效检验，可迁移至时间序列可预测性分析",
+      "canonical_evidence": "面向机制变化的任意时刻有效检验，可迁移至时间序列可预测性分析",
+      "llm_tldr_en": "Presents a decision layer for streaming expert pools: reuse/spawn/defer become one-sided sequential tests on a conditional discrepancy (CJSD) with exact decomposition, proving finite-time anytime validity. A transferable statistical tool for predictability analysis of evolving time series.",
+      "llm_tldr_cn": "流式系统需要持续判断专家模型是否仍适用当前数据分布。本文提出一个统计决策层，把复用、新建与暂缓统一为关于条件机制差异的单边序贯假设，并利用赌e过程在无差异区间内做出决策。作者证明了替代差异量的有限时间任意时刻有效性，并可将结论无条件传递到总体机制变化。该框架为动态时间序列的可预测性分析提供了可迁移的在线统计工具。",
+      "llm_tldr": "流式系统需要持续判断专家模型是否仍适用当前数据分布。本文提出一个统计决策层，把复用、新建与暂缓统一为关于条件机制差异的单边序贯假设，并利用赌e过程在无差异区间内做出决策。作者证明了替代差异量的有限时间任意时刻有效性，并可将结论无条件传递到总体机制变化。该框架为动态时间序列的可预测性分析提供了可迁移的在线统计工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.20321v1",
+      "source": "arxiv",
+      "title": "Large Sample Properties of Higher Order Markov Models",
+      "abstract": "We study large-sample properties of higher-order Markov chains on a finite alphabet $Σ$ when the order $m_n$ is allowed to grow with the sequence length $n$. By embedding the process into a first-order chain on $Σ^{m_n}$ and exploiting return-time decompositions, we establish a central limit theorem for additive functionals $\\sum_{t}\\! g_n(Y_t^{(n)})$ under natural ergodicity and sparsity conditions. The normalization involves the stationary return time to a suitably chosen state and accommodates triangular arrays with $m_n\\!\\to\\!\\infty$ and $m_n/n\\!\\to\\!0$. We further illustrate the assumptions in a binary variable length Markov chain (VLMC), deriving explicit lower bounds on stationary masses that yield a concrete growth regime (e.g., $m_n\\log m_n/n \\to 0$) ensuring the CLT. These results provide asymptotic foundations for inference in sparse/partitioned higher-order models; including VLMCs and sparse Markov models (SMMs) where the effective dimensionality grows with the sample size.",
+      "authors": [
+        "Tuhin Majumder",
+        "Donald E. K. Martin",
+        "Soumendra N. Lahiri"
+      ],
+      "primary_category": "math.ST",
+      "categories": [
+        "math.ST",
+        "math.PR"
+      ],
+      "published": "2026-08-20T17:57:52+00:00",
+      "link": "https://arxiv.org/pdf/2608.20321v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Theoretical large-sample properties of higher-order Markov models",
+      "llm_evidence_cn": "高阶马尔可夫模型的大样本理论性质",
+      "llm_evidence": "高阶马尔可夫模型的大样本理论性质",
+      "canonical_evidence": "高阶马尔可夫模型的大样本理论性质",
+      "llm_tldr_en": "Studies large-sample properties of higher-order Markov chains with growing order, proves a central limit theorem via return-time decompositions, and gives growth conditions, providing theoretical groundwork for sequence prediction.",
+      "llm_tldr_cn": "该论文研究阶数随序列长度增长的高阶马尔可夫链的大样本性质，通过嵌入一阶链并利用返回时间分解，建立了加性泛函的中心极限定理。其给出的显式下界与生长条件为理解序列模型的理论预测能力提供了基础，但并未直接讨论预测精度极限。",
+      "llm_tldr": "该论文研究阶数随序列长度增长的高阶马尔可夫链的大样本性质，通过嵌入一阶链并利用返回时间分解，建立了加性泛函的中心极限定理。其给出的显式下界与生长条件为理解序列模型的理论预测能力提供了基础，但并未直接讨论预测精度极限。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2608.20337v1",
+      "source": "arxiv",
+      "title": "Information on trajectories: martingales and random times",
+      "abstract": "Accounting for information flow on the path space of trajectories of a nonnegative martingale yields exact variational identities for it, even at arbitrary random times. This recovers the widely used classical concentration inequalities, from Ville to PAC-Bayes, and measures what each one discards. The tail a bound controls is itself a relative entropy, resolved by the chain rule into per-step conditional divergences. The discarded slack has an exact form in each of three geometries: a Gibbs tilt for the Azuma-Hoeffding and PAC-Bayes bounds, the crossing itself for Ville's and for pooled tests, and a dominating certificate for the $L^p$ maximal bound. That certificate's optional-stopping deficit resolves per step into Bregman divergences of the running maximum. On a path-time space, the same identity gains one factor that prices anticipation: an arbitrary random time carries an e-process ``peeking penalty.'' The partition function can be read as a coalescent--a prefix-sharing probability of independent copies--and geometric mixtures of test martingales gain a pooling benefit for multi-model safe testing.",
+      "authors": [
+        "Akshay Balsubramani"
+      ],
+      "primary_category": "math.PR",
+      "categories": [
+        "math.PR",
+        "cs.IT",
+        "cs.LG",
+        "math.ST"
+      ],
+      "published": "2026-08-20T17:59:57+00:00",
+      "link": "https://arxiv.org/pdf/2608.20337v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Theoretical concentration inequalities for prediction error bounds",
+      "llm_evidence_cn": "用于预测误差界的理论集中不等式",
+      "llm_evidence": "用于预测误差界的理论集中不等式",
+      "canonical_evidence": "用于预测误差界的理论集中不等式",
+      "llm_tldr_en": "Analyzing information flow on martingale trajectories yields exact variational identities and recovers classical concentration inequalities. The discarded slack takes an exact form in each geometry, resolving per-step conditional divergences and Bregman divergences. This provides a unified theoretical foundation for tail bounds in prediction and online learning.",
+      "llm_tldr_cn": "理解轨迹上的信息流对刻画预测误差尾界至关重要。本文证明非负鞅在任意随机时间上的精确变分恒等式，并由此恢复Ville、PAC-Bayes等经典集中不等式，显示每个界所丢弃的松弛量具有精确形式。这些结果将尾概率控制分解为每步条件散度，并用Bregman散度逐项刻画可选停止亏损。该理论为时间序列预测和在线学习的误差上界提供了统一视角，可支撑理论可预测性分析。",
+      "llm_tldr": "理解轨迹上的信息流对刻画预测误差尾界至关重要。本文证明非负鞅在任意随机时间上的精确变分恒等式，并由此恢复Ville、PAC-Bayes等经典集中不等式，显示每个界所丢弃的松弛量具有精确形式。这些结果将尾概率控制分解为每步条件散度，并用Bregman散度逐项刻画可选停止亏损。该理论为时间序列预测和在线学习的误差上界提供了统一视角，可支撑理论可预测性分析。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

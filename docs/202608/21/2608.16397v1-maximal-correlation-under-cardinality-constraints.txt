@@ -1,0 +1,2001 @@
+Title: Maximal correlation under cardinality constraints
+
+URL Source: https://arxiv.org/pdf/2608.16397v1
+
+Published Time: Tue, 18 Aug 2026 01:55:42 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# Maximal correlation under cardinality constraints 
+
+Dror Drach, Tomer Berg, Or Ordentlich, Ofer Shayevitz 
+
+Abstract 
+
+In this paper, we define and analyze the quantized maximal correlation, an extension of the notion of maximal correlation restricted to functions taking values in sets of bounded cardinality. We derive an upper bound on the quantized maximal correlation by showing that the correlation between any quantized functions of X and Y is related to the MMSE distortion in quantization of a particular linear combination of random variables. Following this, we leverage rate-distortion techniques and anti-concentration inequalities to further bound this MMSE, which results in explicit bounds on the quantized maximal correlation. Unlike the quantized maximal correlation itself, which does not generally tensorize, our bounds on the mean squared error do tensorize, resulting in a dimension-free upper bound on the quantized maximal correlation for product distributions. Our results also lead to improved bounds on the isoperimetric constants of reversible Markov chains and product chains, strengthening classical results such as those by Alon and Milman. 
+
+I. I NTRODUCTION 
+
+Let (X, Y ) ∼ PXY be two correlated random variables, and let f (X) and g(Y ) denote the outputs of an M and N
+
+level quantizers operating on X and Y respectively. We are interested in characterizing the maximal correlation that can be attained between any quantizers outputs f (X) and g(Y ). To motivate our work, let us consider the case of M = N = 2 ,which is directly related to the fundamental problem of analyzing the probability of disagreement between Boolean functions of dependent random variables [1, 2, 3, 4]. Here one is often interested in lower-bounding Pr( f (X)̸ = g(Y )) in terms of the correlation between f (X) and g(Y ). It is easy to see that for any f : X → { 0, 1} and g : Y → { 0, 1} such that p = E[f (X)] 
+
+and q = E[g(Y )] , it holds that 
+
+Pr( f (X)̸ = g(Y )) ≥ 2pp(1 − p)q(1 − q)(1 − ρ(f, g )) , (1) where ρ(f, g ) is the Pearson correlation between f (X) and g(Y ). To obtain a uniform bound, it is natural to define the binary maximal correlation ρb(X; Y ) between X and Y , as the maximum Pearson correlation achievable by any pair of zero-mean, unit-variance binary valued functions of X and Y . That is, 
+
+ρb(X; Y ) ≜ sup 
+
+> f,g
+
+E[f (X)g(Y )] (2) where the maximization is over all f, g taking exactly two distinct values, subject to E[f (X)] = E[g(Y )] = 0 and E[f 2(X)] = 
+
+E[g2(Y )] = 1 . By construction, ρ(f (X), g (Y )) ≤ ρb(X; Y ) for any Boolean f, g , so substituting ρb into eq. (1) yields the universal lower bound 
+
+Pr( f (X)̸ = g(Y )) ≥ 2pp(1 − p)q(1 − q)(1 − ρb(f, g )) . (3) Despite its significance, binary maximal correlation ρb(X; Y ) is notoriously challenging to compute and analyze in general due to the finite cardinality constraint since, as the alphabet sizes of X or Y grow, searching over all Boolean functions becomes intractable. Moreover, a counterexample given by Bradley [5] shows that binary maximal correlation does not tensorize under product distributions. Hence computing its value for high-dimensional functions over i.i.d. pairs, a task that is often interesting, is generally infeasible. These difficulties motivate the introduction of the so called Hirschfeld–Gebelein–Rényi maximal correlation , denoted ρm(X; Y ). The maximal correlation removes the binary restriction, allowing f and g to be any zero-mean, unit-variance functions, potentially taking a continuum of values. First introduced by Hirschfeld and Gebelein [6] and later formalized by Rényi [7], ρm(X; Y ) captures the largest possible correlation between any functions of X and Y . A remarkable fact, proved via functional analysis techniques by Lancaster [8], is that ρm(X; Y ) is equal to the second singular value in a canonical spectral decomposition of the joint distribution PXY (see Section II-B). For the case of discrete X and 
+
+Y , the maximal correlation is given by the second singular value in the singular value decomposition of the so called DTM 
+
+matrix, 
+
+DTM = diag (P −1/2 
+
+> X
+
+) · PXY · diag (P −1/2 
+
+> Y
+
+),
+
+with the first singular value being 1, corresponding to the trivial constant functions. Consequently, ρm(X; Y ) is much easier to compute than ρb(X; Y ) in the scalar case. Even more important is the tensorization property proved in [1], which states that for i.i.d. pairs, ρm(Xn; Y n) = ρm(X; Y ). These properties make the maximal correlation a reasonable substitute for ρb
+
+for product distributions Qni=1 PXiYi , leading to a tensorized form of the bound in (1), 
+
+Pr( f (Xn)̸ = g(Y n)) ≥ 2pp(1 − p)q(1 − q)(1 − ρm(X, Y )) . (4) This is however a weakening of the disagreement inequality for Boolean functions. Indeed, while ρm(X, Y ) = 1 implies 
+
+ρb(X, Y ) = 1 and a zero disagreement probability for Boolean functions, for general ρm(X, Y ) < 1 the bound can be loose. arXiv:2608.16397v1 [cs.IT] 17 Aug 2026 1
+
+Beyond its direct definition, binary maximal correlation is closely connected to several classical problems. One notable connection is to isoperimetric inequalities on discrete spaces. Indeed, if one considers the special case f = g, then Pr( f (X)̸ =
+
+f (Y )) in Witsenhausen’s setting becomes the probability that f takes different values on two correlated copies of X. In the context of Markov chains, this quantity is precisely related to the edge expansion ( Cheeger constant ) of the chain [9, 10]. For example, if W is a reversible Markov transition kernel on state space X with stationary distribution μ, the isoperimetric (Cheeger) constant h(W ) can be written as 1
+
+h(W ) = inf  
+
+> f:X →{ 0,1}
+
+Pr( f (X)̸ = f (Y )) min {Pr( f (X) = 0) , Pr( f (X) = 1) } (5) with (X, Y ) ∼ μ × W . Witsenhausen’s inequality (3) then implies a lower bound on h(W ) in terms of the binary maximal correlation of (X, Y ). Specifically, noting that min {p, 1 − p} ≤ 2p(1 − p), we have 
+
+h(W ) ≥ 1 − ρb(X; Y ), (6) which in fact can be shown to be tight up to a multiplicative factor of 2 in some cases, e.g., when W is a lazy reversible kernel and μ is uniform [10]. A powerful application of eq. (4) is the celebrated isoperimetric inequality h(W n) ≥ n−1(1 −ρm(X; Y )) ,where W n is the n-fold Cartesian product of W , which is a form of the famous inequality of Alon and Milman for product spaces [3]. In this work, we derive new bounds on the binary maximal correlation which we extend to arbitrary quantization levels. To that end, we define the (M, N )-quantized maximal correlation ρM,N (X; Y ) as the maximum of E[f (X)g(Y )] over functions 
+
+f, g taking at most M and N distinct values respectively. We show that the inner product between any two functions f (X) and 
+
+g(Y ) can be upper bounded by their inner product on the maximal correlation subspace (see definition of Hnf2 in III-C) and the orthogonal subspace, which in turn implies a bound that depends on the second and third singular values in the canonical spectral decomposition of the joint distribution, and on the projection of any M -valued function of Xn (resp. N -valued function of Y n) onto the space spanned by the maximal correlation attaining functions. This projection is shown to be related to the minimum mean square error in M -level quantization of a unit norm linear combination of random variables. Intuitively, this implies that if ρm(X; Y ) is significantly larger than ρM,N (X; Y ), then any attempt to quantize the optimal correlating functions into M and N levels must incur a large MSE loss. This result allows us to derive upper bounds on quantized maximal correlation using bounds on MSE distortion of source coding / quantization problems. We formalize this through two approaches: the first one appeals to classical rate distortion techniques where the input is a linear combination of i.i.d. random variables, the rate is R = log M bits and the distortion is quadratic. The second approach leverages results due to Petrov [11] and Esséen [12] on the concentration functions of sums of random variables. In particular, building on the Kolmogorov–Rogozin inequality and its refinements [13, 14], we show that large anti-concentration of linear combination of random variables implies a large distortion in M -level quantization of said combination. Finally, we obtain improved isoperimetric inequalities for Markov Chains and product Markov chains. In particular, for a reversible Markov chain with transition kernel W , we improve the Cheeger constant h(W ) lower bounds obtained in the classic results of Alon and Milman [3] for graphs and the bounds of Houdré and Tetali [15] for Markov chains. The paper is organized as follows. In Section II, we provide background on maximal correlation, including formal definitions of the quantized maximal correlation and a review of the canonical spectral decomposition. Section III develops the core upper bound on quantized maximal correlation, and in Section IV we use this result to obtain an improved upper bound on the binary maximal correlation of jointly Gaussian random variables. In Section V and Section VI we derive lower bounds on MSE distortion in quantization of normalized linear combinations of random variables using information theoretic rate distortion tools and anti-concentration techniques respectively. In Section VII we evaluate the bounds obtained in previous sections for different distributions and show that different approaches (i.e., rate distortion, anti concentration) give tighter bounds in different scenarios. Finally, in Section VIII we discuss applications of our results, and particularly obtain an improved lower bound on the isoperimetric (Cheeger) constant of reversible Markov chains. II. P RELIMINARIES 
+
+A. Notations and definitions 
+
+Throughout the paper we consider (either discrete, continuous or mixed) jointly distributed i.i.d. random variables (Xn, Y n) ∼
+
+P ⊗nXY with marginals PX and PY , respectively. We let f, g represent (usually finite-valued) functions that operate on random variables. We let the inner product ⟨f (X), g (Y )⟩ denote the cross-correlation between f (X) and g(Y ), that is, ⟨f (X), g (Y )⟩ =
+
+E[f (X)g(Y )] . Define ρm(X; Y ) as the maximal correlation between X and Y , where ρb(X; Y ) is the maximal correlation between any binary function of X and Y . Let H(X) = − Pmi=1 pi log pi be the Shannon entropy of a discrete r.v. X with pmf p supported on [m], and h(Y ) = − R 
+
+> R
+
+f (y) log f (y)dy be the differential entropy of a continuous r.v. Y with pdf f (y)
+
+supported on R. The standard Gaussian probability density function and cumulative distribution function are denoted by 
+
+φ(x) = 1√2π e− x22 and Φ( x) = R x 
+
+> −∞
+
+φ(x) respectively. Finally, we let FnM (PX ) denote the family of all zero mean, unit norm,   
+
+> 1In the literature, the Cheeger constant is usually defined as h(W)/2.2
+
+M -level functions of Xn, that is, we say that f ∈ F nM (PX ) if f : X n → { c1, . . . , c M } for some real values {c1, . . . , c M },and also E(f (Xn)) = 0 , E(f 2(Xn)) = 1 . For brevity, we let F1 
+
+> M
+
+(PX ) = FM (PX ).
+
+Definition 1. The (M, N )-quantized maximal correlation is defined as 
+
+ρM,N (X; Y ) ≜ sup      
+
+> f∈F nM(PX),g ∈F nN(PY)
+
+E[f (X)g(Y )] .
+
+When M = N we simply write ρM (X; Y ). Note that ρ2(X; Y ) = ρb(X; Y ), and ρ∞(X; Y ) = ρm(X; Y ). We also write 
+
+ρ∞,N (X; Y ) for the one-sided quantized maximal correlation, i.e., where there is no restriction on the cardinality of X.B. Spectral decomposition of joint distributions 
+
+It was shown in [8] (see also [16]) that under some mild regularity conditions there are (possibly countably infinite) orthonormal sets of singular functions {fi : X → R}i≥1 and {gj : Y → R}j≥1 spanning L2(PX ) and L2(PY ) respectively, satisfying 2
+
+⟨fi(X), f j (X)⟩ = ⟨gi(Y ), g j (Y )⟩ = 1(i = j)
+
+⟨fi(X), g j (Y )⟩ = σi1(i = j)
+
+for nonnegative singular values 1 = σ1 ≥ σ2 ≥ · · · , where f1 = g1 = 1 and σ2 = ρm(X; Y ). For finite alphabets, σi = 0 for any i > min {|X | , |Y|} , and fi = gj = 0 for any i > |X | and j > |Y| . We refer to the set {fi, g i, σ i}i≥1 as the canonical system of PXY .III. A GENERAL UPPER BOUND ON QUANTIZED MAXIMAL CORRELATION 
+
+A. Duality 
+
+For a closed subspace H ⊆ L2(π) and function f ∈ L2(π), we write fH for the orthogonal projection of f onto H, i.e., the unique element of H satisfying ⟨f − fH , h ⟩ = 0 for all h ∈ H. This can be construed as the element of H closest to f .We write Hc for the orthogonal complement of H and fHc = f − fH .As convention, all inner products and norms are taken in L2(π), i.e., ⟨f, g ⟩ = Eπ [f (X)g(X)] , and FM = FM (π) denotes the family of zero mean, unit norm, M -level functions under π.
+
+Definition 2 (Optimal M -level MMSE of a subspace) . Let H ⊆ L2(π) be a nonzero closed subspace. The optimal MMSE in 
+
+M -level quantization of H is 
+
+DM (H) ≜ inf   
+
+> f:X →{ c1,...,c M}
+> h∈H:∥h∥2=1
+
+E (f (X) − h(X)) 2 . (7) 
+
+Definition 3 (Maximal projection onto a subspace) . The maximal projection of an M -valued function onto H is 3
+
+ϕM (H) ≜ sup  
+
+> f∈F M
+
+|| fH || 2. (8) 
+
+Theorem 1. [Projection-quantization duality] For any nonzero closed subspace H ⊆ L2(π) orthogonal to the constant functions, 
+
+(ϕM (H)) 2 + DM (H) = 1 .
+
+Remark 1. Both ϕM (H) and DM (H) are determined by the pair (π, H ) alone. In particular, when a joint law enters the picture in the next subsection, it will do so only through the choice of a subspace H for each of its marginals. Proof. Any (non-constant) M -valued function Q admits the canonical decomposition Q = μ+σ ˜f with μ ≜ E[Q], σ ≜ ∥Q−μ∥2,
+
+˜f ≜ (Q − μ)/σ ∈ F M . Then, for any unit-norm h ∈ H,
+
+E[( Q − h)2] = μ2 + σ2 − 2σ⟨ ˜f , h ⟩ + 1 = μ2 + ( σ − ⟨ ˜f , h ⟩)2 + 1 − ⟨ ˜f , h ⟩2,
+
+which over (μ, σ ) ∈ R × R≥0 attains 1 − ⟨ ˜f , h ⟩2 at μ = 0 , σ = ⟨ ˜f , h ⟩ (WLOG ≥ 0 by sign-flip closure of H). Hence 
+
+DM (H) = inf  
+
+> Q,h
+
+E (Q − h)2 = inf   
+
+> ˜f∈F M, h
+
+ 1 − ⟨ ˜f , h ⟩2 = 1 − sup   
+
+> ˜f∈F M, h
+
+⟨ ˜f , h ⟩2.             
+
+> 2These orthonormal sets exist for any joint distribution with finite χ2-information. In particular, this always holds for discrete alphabets, in which case the expansion corresponds to the standard singular value decomposition of the DTM matrix whose entries are PXY (x, y )/pPX(x)PY(y)[1].
+> 3Note that, since || fH|| 2= sup h∈H
+> || h|| 2=1
+> ⟨f, h ⟩, we have
+> ϕM(H) = sup
+> f∈F M
+> sup
+> h∈H
+> || h|| 2=1
+> ⟨f, h ⟩.3
+
+It remains to evaluate this joint maximum. Writing ˜f = ˜fH + ˜fHc and recalling that h ⊥ Hc, Cauchy–Schwarz gives 
+
+⟨ ˜f , h ⟩ = ⟨ ˜fH , h ⟩ ≤ ∥ ˜fH ∥,
+
+with equality at h = ˜fH /∥ ˜fH ∥ when well-defined (both sides vanish otherwise). For each ˜f the optimal h depends only on ˜f
+
+itself, so the joint maximum collapses to a single-variable one: 
+
+DM (H) = 1 − sup   
+
+> ˜f∈F M, h
+
+⟨ ˜f , h ⟩2 = 1 − sup  
+
+> ˜f∈F M
+
+∥ ˜fH ∥2 = 1 − (ϕM (H)) 2 .
+
+B. Spectral decomposition 
+
+Let PXY be a joint law with canonical system {fi, g i, σ i}i≥1 (Section II-B). Recall that {fi}i≥1 and {gi}i≥1 are orthonormal bases of L2(PX ) and L2(PY ) respectively, satisfying ⟨fi(X), g j (Y )⟩ = σi1(i = j) with f1 = g1 = 1 and 1 = σ1 ≥ σ2 ≥ · · · .For any I ⊆ { 2, 3, . . . }, we define the I-subsystem of PXY as the subset {fi, g i, σ i}i∈I characterized by the subspaces 
+
+HPX (I) = span {fi}i∈I (9) 
+
+HPY (I) = span {gi}i∈I (10) and σ(I) = sup i∈I σi, with sup ∅ = 0 . Note that, expanding f ′ ∈ HPX (I) and g′ ∈ HPY (I) in the subsystem and using the bi-orthogonality of the canonical system, 
+
+⟨f ′, g ′⟩ = X
+
+> i∈I
+
+⟨f ′, f i⟩⟨ g′, g i⟩ σi ≤ σ(I) || f ′|| 2 || g′|| 2, (11) and the bound is approached by the pairs (fi, g i), i ∈ I, with σi → σ(I). We accordingly refer to σ(I) as the maximal correlation of the subsystem . Similarly, the bi-orthogonality of the canonical system implies bi-orthogonality between matched subspaces of disjoint subsystems, i.e., for f ′ ∈ HPX (I) and g′ ∈ HPY (I′) with I ∩ I′ = ∅, we have ⟨f ′, g ′⟩ = 0 . Let I∗ denote the complement of I within N \ 1, and for brevity, let fI ≜ fHPX (I) and gI ≜ gHPY (I) be the orthogonal projection of f onto 
+
+HPX (I) and the orthogonal projection of g onto HPY (I) respectively. In the following, we apply Cauchy Schwarz inequality to derive an upper bound on ⟨f, g ⟩.
+
+Lemma 1 (Subsystem split) . Let I ⊆ { 2, 3, . . . }. For any zero-mean, unit-norm functions f ∈ L2(PX ), g ∈ L2(PY ),
+
+⟨f, g ⟩ ≤ σ(I)
+
+q
+
+|| fI || 22 · || gI || 22 + σ(I∗)
+
+q
+
+(1 − || fI || 22)(1 − || gI || 22). (12) 
+
+Proof. First note that, since I ∩ I∗ = ∅,
+
+⟨fI , g I∗ ⟩ = ⟨fI∗ , g I ⟩ = 0 , (13) which implies 
+
+⟨f, g ⟩ = ⟨fI , g I ⟩ + ⟨fI∗ , g I∗ ⟩. (14) Applying eq. (11) to each term, we have ⟨fI , g I ⟩ ≤ σ(I) || fI || 2 || gI || 2 and ⟨fI∗ , g I∗ ⟩ ≤ σ(I∗) || fI∗ || 2 || gI∗ || 2. Finally, since 
+
+{fi}i≥1 and {gi}i≥1 are orthonormal bases and f, g are zero-mean with unit norms, we have || fI∗ || 22 = 1 − || fI || 22 and 
+
+|| gI∗ || 22 = 1 − || gI || 22. Substituting into (14) yields (12), as desired. Motivated by the upper bound of Lemma 1, we define, for parameters s, t ≥ 0:
+
+r(x, y ) ≜ s · xy + t · p(1 − x2)(1 − y2), (15) and 
+
+d(a, b ) = sup 
+
+> 0≤x≤a
+> 0≤y≤b
+
+r(x, y ). (16) 
+
+Definition 4 (Dominant subsystem) . An I-subsystem is called dominant if I contains an index attaining σ2.
+
+Note that since I and I∗ partition the nontrivial indices, we have max {σ(I), σ (I∗)} = σ2, so an I-subsystem is dominant iff σ(I) ≥ σ(I∗).
+
+Theorem 2 (Upper bound on quantized correlation) . For dominant I, f ∈ F M (PX ) and g ∈ F N (PY ),
+
+⟨f, g ⟩ ≤ d (ϕM (HPX (I)) , ϕ N (HPY (I))) = d
+
+p 1 − DM (HPX (I)) , p1 − DN (HPY (I)) 
+
+
+
+, (17) 4
+
+where d is given by (16) with (s, t ) = ( σ(I), σ (I∗)) , and consequently 
+
+ρM,N (X; Y ) ≤ d
+
+p 1 − DM (HPX (I)) , p1 − DN (HPY (I)) 
+
+
+
+. (18) 
+
+Proof. By Lemma 1 and Definition 3, the pair (|| fI || 2, || gI || 2) satisfies || fI || 2 ≤ ϕM (HPX (I)) and || gI || 2 ≤ ϕN (HPY (I)) .Dominance gives σ(I) ≥ σ(I∗). Overall, Lemma 1 reads ⟨f, g ⟩ ≤ r (|| fI || 2, || gI || 2) with (s, t ) = ( σ(I), σ (I∗)) . The definition of the supremum with (a, b ) = ( ϕM (HPX (I)) , ϕ N (HPY (I))) gives the inequality in (17). The equality in (17) follows from Theorem 1, applied once with π = PX , H = HPX (I) and once with π = PY , H = HPY (I). Both applications are admissible since I is dominant and excludes the trivial index, hence the subspaces are nonzero and orthogonal to the constant functions. Finally, taking the supremum over FM (PX ) × F N (PY ) and recalling Definition 1 yields (18). To finalize the framework, the following technical lemma provides the explicit form of d(a, b ), and will prove helpful in the sequel, where we discuss concrete case studies. The derivation appears in the appendix. 
+
+Lemma 2. Let 0 ≤ t ≤ s. We have that 
+
+d(a, b ) = 
+
+pb2 · s2 + (1 − b2) · t2, {b > a ∩ x∗ ≤ a ∩ y∗ ≤ b} ∪ { x∗ ≤ a ∩ y∗ > b },
+
+pa2 · s2 + (1 − a2) · t2, {b ≤ a ∩ x∗ ≤ a ∩ y∗ ≤ b} ∪ { x∗ > a ∩ y∗ ≤ b},ab · s + p(1 − a2)(1 − b2) · t, o.w. ,
+
+(19) 
+
+where 
+
+x∗ = b · s
+
+pb2 · s2 + (1 − b2) · t2 , y∗ = a · s
+
+pa2 · s2 + (1 − a2) · t2 . (20) 
+
+C. Product space 
+
+One of the most attractive features of the spectral decomposition of the canonical system (Section II-B) is its tensorization property. Let (Xn, Y n) ∼ P ⊗nXY , and for any vector u = ( u1, ..., u n) ∈ Nn define the product functions 
+
+fu(Xn) = 
+
+> n
+
+Y
+
+> i=1
+
+fui (Xi), gu(Y n) = 
+
+> n
+
+Y
+
+> i=1
+
+gui (Yi).
+
+It is easy to verify (see, e.g., [17], exercise 5.61) that {fu}u∈Nn and {gu}u∈Nn are orthonormal sets that span L2(P ⊗nX ) and 
+
+L2(P ⊗nY ) respectively. Thus, any two functions f ∈ L2(P ⊗nX ) and g ∈ L2(P ⊗nY ) can be written as 
+
+f (Xn) = X
+
+> u∈Nn
+
+aufu(Xn), g(Y n) = X
+
+> u∈Nn
+
+bugu(Y n), (21) where au = ⟨f (Xn), f u(Xn)⟩ and bu = ⟨g(Y n), g u(Y n)⟩. Letting σu = Qni=1 σui , we have 
+
+⟨fu(Xn), g v (Y n)⟩ =
+
+* nY
+
+> i=1
+
+fui (Xi),
+
+> n
+
+Y
+
+> i=1
+
+gvi (Yi)
+
++
+
+=
+
+> n
+
+Y
+
+> i=1
+
+⟨fui (Xi), g vi (Yi)⟩
+
+=
+
+> n
+
+Y
+
+> i=1
+
+σui 1(ui = vi)= σu1(u = v).
+
+Therefore, in the canonical spectral decomposition of the product distribution, the largest singular value is always 1 and has multiplicity 1, corresponding to u = v = (1 , 1, . . . , 1) . The second largest singular value is σ2 and has multiplicity n, where the n occurrences of σ2 correspond to the n singular functions fu(i)(Xn) = f2(Xi) and gu(i)(Y n) = g2(Yi), for 1 ≤ i ≤ n,where u(i) has its i-th coordinate equal to 2 and all other entries equal to 1, i.e., u(i) = 1 + ei. Furthermore, the third largest singular value is max {σ3, σ 22 }, and is attained by the vectors u = (2 , 2, 1, . . . , 1) or u = (3 , 1, . . . , 1) , up to permutations. We can now write E[f (Xn)g(Y n)] as 
+
+⟨f (Xn), g (Y n)⟩ =
+
+* X
+
+> u∈Nn
+
+aufu(Xn), X
+
+> v∈Nn
+
+bv gv (Y n)
+
++
+
+= X
+
+> u∈Nn
+
+aubuσu. (22) Since P a2 
+
+> u
+
+= 1 for any f with E[f (X)] = 0 , Var (f (X)) = 1 , it is now easy to see that ρm(Xn; Y n) = ρm(X; Y ) = σ2, and also that the scalar functions f2(Xk), g 2(Yk) achieve the maximal correlation for any k ∈ [n].5
+
+To make this formal, we cast the product structure in the language of Section III-B. The results there apply verbatim to the canonical system of P ⊗nXY , with index universe Nn and trivial index (1 , . . . , 1) . Consider the collection of index sets 
+
+I2 ≜ {u2(1) , . . . , u 2(n)} = {1 + e1, . . . , 1 + en}, (23) whose subsystem consists of the n coordinate copies of the scalar pair (f2, g 2). We write Hnf2 ≜ span {fu2(1) , . . . , f u2(n)} and 
+
+Hng2 is defined analogously. By the multiplicity computation above, HP ⊗nX
+
+(I2) = Hnf2 and σ(I2) = σ2, while the complement carries σ∗ ≜ σ(I2)∗ = max {σ3, σ 22 }. Since σ2 ≥ σ3 and σ2 ≥ σ22 , the I2-subsystem is dominant, thus applying Theorem 2 to the canonical system of P ⊗nXY with dominant set I2 we have the following upper bound on the quantized maximal correlation as a function of the optimal M -level MMSE of Hnf2 and the optimal N -level MMSE of Hng2 .
+
+Corollary 1 (Upper bound on quantized correlation in product space) . For (s, t ) = ( σ(I2), σ (( I2)∗)) in (16) ,
+
+ρM,N (Xn; Y n) ≤ d
+
+q 
+
+1 − DM (Hnf2 ),
+
+q
+
+1 − DN (Hng2 )
+
+
+
+. (24) Assuming there is no cardinality constraint on Y , i.e., N = ∞, we have D∞(Hng2 ) = 0 as there is no quantization loss, thus Corollary 1 reduces to ρM, ∞(Xn; Y n) ≤ d(
+
+q
+
+1 − DM (Hnf2 ), 1) . This implies we should set b = 1 , x ∗ = 1 in the upper bound of Lemma 2, which results in the following corollary, which quantifies the minimal correlation loss w.r.t. maximal correlation that arises from restricting X to take only M values, in terms of the MMSE loss. 
+
+Corollary 2 (Upper bound on correlation under single-side quantization) . It holds that 
+
+(ρM, ∞(Xn; Y n)) 2 ≤ σ22 − ∆ · DM (Hnf2 ) = ρ2
+
+> m
+
+(X, Y ) − ∆ · DM (Hnf2 ), (25) 
+
+where ∆ = σ22 − σ2 
+
+> ∗
+
+. Similarly, (ρ∞,N (Xn; Y n)) 2 ≤ ρ2
+
+> m
+
+(X, Y ) − ∆ · DN (Hng2 ).
+
+We conclude the section by noting that DM (Hnf2 ) can be identified with a scalar quantization problem. Since 
+
+f2(X1), . . . , f 2(Xn) are i.i.d. copies of the scalar source f2(X), and are orthonormal in L2(P ⊗nX ), the unit sphere of Hnf2
+
+consists exactly of the normalized linear combinations Pni=1 aif2(Xi), ∥a∥2 = 1 . Hence DM (Hnf2 ) is the distortion in M -level quantization of a normalized linear combination of i.i.d. copies, which we study in Sections V and VI. Surprisingly, the maximal projection is exactly the variance of the optimal MMSE estimator. IV. A G AUSSIAN EXAMPLE 
+
+In most cases, finding the optimal M -level MMSE of subspace Hnf2 is hard. However, when the subspace is such that the optimal quantizer is known, as in the Gaussian case below, Corollary 1 can lead to an upper bound on the quantized correlation that is almost tight. 
+
+Example 1. Let (Xn, Y n) be i.i.d. pairs of ρ-correlated jointly Gaussian random variables with expectation zero and unit variance, and assume w.l.o.g. that ρ > 0. Then 
+
+ρb(Xn; Y n) ≤ 2
+
+π ρ +
+
+
+
+1 − 2
+
+π
+
+
+
+ρ2.
+
+The assumption ρ > 0 is without loss of generality since we can define ˜Y = −Y and consider ρb(Xn; ˜Y n). Note that, as 
+
+PX = PY and M = N = 2 , the two arguments of the function d in the upper bound of Corollary 1 coincide, so we evaluate its right-hand side via Lemma 2 with a = b and (s, t ) = ( σ2, σ ∗), where σ∗ = max {σ3, σ 22 } for tensor products, as established in Section III-C. It is easy to check from eq. (20) that whenever a = b, we have x∗ = y∗ ≥ a, implying the upper bound 
+
+ρb(Xn; Y n) ≤ (1 − D2(Hnf2 )) σ2 + D2(Hnf2 )σ∗. (26) For the jointly Gaussian case with ρ > 0, it was shown in [8] that f2(X) = X and g2(Y ) = Y , and the singular values are 
+
+σi = ρi−1. Moreover, the MMSE 1-bit quantizer of a standard Gaussian random variable is Q(X) = 
+
+q 2 
+
+> π
+
+· sign( X), implying that D2(Hf2 ) = 1 − 2 
+
+> π
+
+, establishing the claim for the n = 1 case. For general n, note that any unit norm linear combination of i.i.d. standard Gaussian r.v.s is itself a standard Gaussian, so it admits the same distortion D2(Hnf2 ) = 1 − 2 
+
+> π
+
+, which yields the stated bound. It is however known from the work of Borell [2] that in the Gaussian case, the binary maximal correlation tensorizes and is achieved by a one-dimensional threshold function, implying ρb(Xn; Y n) = 2 
+
+> π
+
+arcsin ρ = 2 
+
+> π
+
+ρ + O(ρ3) by Sheppard formula. This agrees with our bound to first order. In Figure 1 we compare our upper bound with the exact value, attained by the threshold functions sign( X), sign( Y ).6         
+
+> Fig. 1. Bounds on the binary maximal correlation in the Gaussian case: the trivial bound ρ, our upper bound 2
+> πρ+(1 −2
+> π)ρ2, and the exact value 2
+> πarcsin ρ.
+
+V. MSE L OWER BOUNDS ON QUANTIZATION OF LINEAR COMBINATIONS OF I .I.D. RANDOM VARIABLES -THE RATE DISTORTION APPROACH 
+
+In Corollary 1 we derived an upper bound on the (M, N )-quantized maximal correlation as a function of two quantities: the minimal MSE that can be achieved in reconstructing a unit-norm linear combination of f2(X1), . . . , f 2(Xn) from its M -value representation and, similarly, the minimal MSE in reconstructing a unit-norm linear combination of g2(Y1), . . . , g 2(Yn)
+
+from its N -value representation. The next sections are dedicated to deriving MSE lower bounds on representations of linear combinations of random variables using M -level quantizers. This section leverages classic rate distortion results (i.e., source coding) from information theory to obtain lower bounds on the MSE in quantization of linear combinations. In the following, 
+
+U1, . . . , U n is a sequence of n i.i.d random variables over alphabet U with zero mean and unit norm, and 
+
+ϕa(U n) ≜ aT U n =
+
+> n
+
+X
+
+> i=1
+
+aiUi (27) represents a linear combination of U n with vector weights a. Furthermore, let ϕM be an M -level quantized version of ϕa.
+
+Lemma 3. Let U n be an independent random vector with densities. Then for any a ∈ Rn, it holds that 
+
+h (ϕa(U n)) ≥ min  
+
+> i
+
+h(Ui) + log || a|| 2. (28) 
+
+Proof. By entropy power inequality (Theorem 17.7.3 in [18]), we have 
+
+22h(P aiUi) ≥ X 22h(aiUi)
+
+= X 22( h(Ui)+log |ai|)
+
+= X a2 
+
+> i
+
+22h(Ui)
+
+≥ 22 min i h(Ui) X a2 
+
+> i
+
+.
+
+Taking logarithm on both sides completes the proof. As in our case {Ui} is an i.i.d. sequence and || a|| 22 = 1 , the lemma implies h(ϕa(U n)) ≥ h(U ), where U is a random variable with the same distribution as Ui. For brevity, from now on we denote ϕ(U n) = ϕa(U n).
+
+Definition 5 (Optimal M -level MMSE of a linear combination) .
+
+DnM (U ) ≜ inf   
+
+> f:Un→{ c1,...,c M}
+> a∈Rn,∥a∥2=1
+
+E f (U n) −
+
+> n
+
+X
+
+> i=1
+
+aiUi
+
+!2
+
+. (29) 
+
+Remark 2. Note that the assignment U = f2(X) when f2 is w.r.t. some joint distribution PXY , gives rise to the identity 
+
+DnM (f2(X)) = DM (Hnf2 ). (30) 7
+
+Theorem 3. Let U n ∼ f ⊗nU and let N(U ) = 12πe 22h(U ) be the entropy power of U . It holds that 
+
+DnM (U ) ≥ N(U )
+
+M 2 . (31) 
+
+Proof. For any a ∈ Rn and any M -level quantizer ϕM = ϕM (ϕa), we have 
+
+log M ≥ I(ϕ(U n); ϕM )= h(ϕ(U n)) − h(ϕ(U n)|ϕM ) (32) 
+
+= h(ϕ(U n)) − h(ϕ(U n) − ϕM |ϕM ) (33) 
+
+≥ h(ϕ(U n)) − h(ϕ(U n) − ϕM ) (34) 
+
+≥ h(ϕ(U n)) − 12 log(2 πeD nM (U )) , (35) where (33) follows since h(X + c) = h(X), (34) follows since conditioning reduces differential entropy, and (35) follows since the maximal differential entropy under a second-moment constraint is attained by a Gaussian distribution (Theorem 8.6.5 in [18]), i.e., max E(Y 2)≤D h(Y ) = 12 log(2 πeD ). Combining (35) and Lemma 3, we get 
+
+DnM (U ) ≥ 12πe 22( h(ϕ(U n)) −log M ) ≥ 12πe 22( h(U )−log M ). (36) Theorem 3 provides a lower bound for any i.i.d. continuous r.v.s with densities fU . In order to extend its result to discrete random variables with p.m.f. PU as well, we convert a discrete distribution to a continuous one by adding a random noise 
+
+Z supported on a small enough interval such that U is still recoverable from U + Z. For any discrete U supported over the alphabet U, we define dmin as the smallest distance between any two letters in U, that is, 
+
+dmin = min   
+
+> ui,u j∈U
+> ui̸=uj
+
+|ui − uj |. (37) If we now add a continuous noise Z supported on (−dmin /2, d min /2) to the source U , it is guaranteed that U can be recovered without loss from U + Z. This gives rise to the following result. 
+
+Theorem 4. Let U n ∼ P ⊗nU and let Z be some continuous random variable supported on (−dmin /2, d min /2) with zero mean and variance σ2. It holds that 
+
+DnM (U ) ≥ σ2
+
+ 22H(U )
+
+M 2 · N(Z)
+
+σ2 − 1
+
+
+
+. (38) 
+
+Proof. For any a ∈ Rn and any M -level quantizer ϕM = ϕM (ϕa), we have the following chain of (in)equalities: 
+
+log M ≥ I (ϕ(U n); ϕM ) (39) 
+
+≥ I
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi); ϕM
+
+!
+
+(40) 
+
+= h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi)
+
+!
+
+− h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi) ϕM
+
+!
+
+(41) 
+
+= h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi)
+
+!
+
+− h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi) − ϕM ϕM
+
+!
+
+(42) 
+
+≥ h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi)
+
+!
+
+− h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi) − ϕM
+
+!
+
+(43) 
+
+≥ h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi)
+
+!
+
+− 12 log 
+
+2πe E
+
+> n
+
+X
+
+> i=1
+
+aiUi − ϕM +
+
+> n
+
+X
+
+> i=1
+
+aiZi
+
+!2 (44) 
+
+≥ h
+
+> n
+
+X
+
+> i=1
+
+ai(Ui + Zi)
+
+!
+
+− 12 log(2 πe (DnM (U ) + σ2|| a|| 22)) (45) 
+
+≥ h(U + Z) − 12 log(2 πe (DnM (U ) + σ2)) (46) 
+
+= H(U ) + h(Z) − 12 log  2πe  DnM (U ) + σ2 ,  (47) 8
+
+where (40) follows from the data processing inequality since ϕM − ϕ(U n) − (ϕ(U n) + P aiZi) forms a Markov chain, (44) follows since differential entropy is maximized by a Gaussian r.v. under a second moment constraint, (45) follows from 
+
+E(ϕ(U n) − ϕM )2 ≤ DnM (U ), (46) follows from Lemma 3, and (47) follows from h(U + Z) = I(U ; U + Z) + h(Z) = 
+
+H(U ) + h(Z). The result is achieved by rearranging terms. By choosing a specific distribution on Z, Theorem 4 above admits a more elegant form. 
+
+Corollary 3. For U n ∼ P ⊗nU , we have 
+
+DnM (U ) ≥ d2min 
+
+12 
+
+ 12 2πe · 22H(U )
+
+M 2 − 1
+
+
+
+(48) The corollary follows by setting the distribution of Z to be uniform over (−dmin /2, d min /2) , which implies that σ2 = d2min 
+
+> 12
+
+and h(Z) = log( dmin ).
+
+Corollary 4. For U n ∼ P ⊗nU , we have 
+
+DnM (U ) ≥ max    
+
+> σZ≤112 d2min
+
+σ2
+
+
+
+(2Φ( α) − 1) 22− 2αφ (α)2Φ( α)−1 · 22H(U )
+
+M 2 − 1
+
+
+
+(49) 
+
+where α = dmin  
+
+> 2σ
+
+, and σZ = σ
+
+
+
+1 − 2α·φ(α)2Φ( α)−1
+
+
+
+, where φ and Φ are the PDF and CDF of a standard Gaussian distribution, respectively. Proof. Let N be a normal random variable with zero mean and variance σN , and define Z as N conditioned on the event 
+
+N ∈ [−dmin /2, d min /2] , which is known as the truncated normal distribution over the support [−dmin /2, d min /2] , with zero mean and variance σ2, where (see, e.g., [19]), 
+
+fZ (z) = 1
+
+σφ( zσ )2Φ( α) − 1 · 1
+
+
+
+|z| ≤ dmin 
+
+2
+
+
+
+, σZ = σ
+
+
+
+1 − 2α · φ(α)2Φ( α) − 1
+
+
+
+. (50) The truncated normal distribution is chosen here since it maximizes h(Z) under the constraints of a fixed variance and fixed support (as long as σZ ≤ 112 d2min ). The proof follows by substituting [20] 
+
+h(Z) = 12 log  2πeσ 2(2Φ( α) − 1) 2 − αφ (α)2Φ( α) − 1 . (51) 
+
+Remark 3. The lower bound of Theorem 4 is tightest when Z is chosen to be the random variable that maximizes the differential entropy under the constraints Z ∈ [− dmin  
+
+> 2
+
+, dmin  
+
+> 2
+
+] w.p. 1 and Var (Z) = σ2. The pdf of the optimal Z has the form 
+
+fZ (z) = eλz 2
+
+R dmin 2 
+
+> −dmin 2
+
+eλz 2 dz 
+
+· 1
+
+
+
+|z| ≤ dmin 
+
+2
+
+
+
+. (52) 
+
+It was shown in [21] that for 0 ≤ σ2 ≤ 112 d2min , λ is negative and Z has the truncated Gaussian distribution, whereas for  
+
+> 112
+
+d2min < σ 2 ≤ 14 d2min , λ is positive and Z has the so called truncated U distribution (note that σ2 > 14 d2min is unattainable). Due to the cumbersome expressions corresponding to the truncated U distribution, the bound we present here only maximizes over the truncated Gaussian distribution. 
+
+The bound of Theorem 4 might be improved by increasing the minimum distance of the alphabet. This can be accomplished by artificially introducing a random variable A that depends on U , but such that (U, A ) is independent of Z and U can be recovered from (U + Z, A ). Let Ua ⊂ U denote the support of U conditioned on A = a, and let Z be a continuous random variable supported over an interval of size 
+
+dmin (PA|U ) = min  
+
+> a∈A
+
+dmin (Ua). (53) Note that Z does not dependent on any realization of (U, A ), only on the conditional law PA|U . The bound derived below provides an improvement whenever one can find a random variable A for which H(U |A) ≈ H(U ), and also dmin (PA|U ) is large. 
+
+Theorem 5 (Improved Rate Distortion) . Assume the random variables (U, A, Z ) satisfy 
+
+1) (U, A, Z ) ∼ PU PA|U PZ
+
+2) Z ∼ fZ is supported on (−dmin (PA|U )/2, d min (PA|U )/2) and has zero mean and variance σ2
+
+3) H(U |U + Z, A ) = 0 9
+
+Then it holds that 
+
+DnM (U ) ≥ σ2
+
+ 22( H(U )−I(U ;A)) 
+
+M 2 · N(Z)
+
+σ2 − 1
+
+
+
+. (54) 
+
+Proof. The proof follows immediately from eq. (46) by writing 
+
+h(U + Z) ≥ h(U + Z|A) (55) 
+
+= I(U ; U + Z|A) + h(Z|A) (56) 
+
+= H(U |A) − H(U |U + Z, A ) + h(Z|A) (57) 
+
+= H(U ) − I(U ; A) + h(Z), (58) where in (58) we used the fact that H(U |U + Z, A ) = 0 .
+
+Example 2. Consider the case of U ∼ Unif([ K] ∪ K + ε) for some 0 < ε < 1. The minimal distance of the symbol space is 
+
+ε and is dictated by the symbol K + ε. Thus, if we define A = 1(U = K + ε) we get that U0 = [ K], and U1 = {K + ε}, so that dA 
+
+> min
+
+= 1 . Taking Z to be uniform over (−dmin /2, d min /2) independently of (U, A ), and noting that U can be recovered from U + Z if A is also known, we have 
+
+DnM (U ) ≥ 112 
+
+ 12 2πe · 22H(U |A)
+
+M 2 − 1
+
+
+
+= 112 
+
+12 2πe · (K2) KK+1 
+
+M 2 − 1
+
+!
+
+(59) 
+
+as H(U |A) = KK+1 log K, while Corollary 3 gives us 
+
+DnM (U ) ≥ ε2
+
+12 
+
+ 12 2πe · (K + 1) 2
+
+M 2 − 1
+
+
+
+. (60) 
+
+Thus, for constant K, we improve over Corollary 3 by a factor of O(1 /ε 2).
+
+VI. MSE L OWER BOUNDS ON QUANTIZATION OF LINEAR COMBINATIONS OF I .I.D. RANDOM VARIABLES -AN ANTI -CONCENTRATION APPROACH 
+
+In this section we formalize the intuition that if the probability of any union of M small intervals is small, then any M -level quantizer must have large MSE, i.e., a large anti-concentration implies a large distortion in M -level quantization. We are thus interested in anti-concentration inequalities for random variables, that upper bound the largest probability of an interval of given length. Classical results from probability theory relate upper bounds on the anti-concentration function of sums of i.i.d. random variables to the anti-concentration function of a single random variable. As DnM (U ) measures how well a linear combination of n random i.i.d. copies of U can be quantized to M levels, we can leverage these results for obtaining lower bounds on DnM (U ).Define the concentration function of an r.v. U as 
+
+Q(U, t ) ≜ sup 
+
+> a∈R
+
+Pr ( a ≤ U ≤ a + t) , t ≥ 0.
+
+It is easy to see that t 7 → Q(U, t ) is non-decreasing and that Q(αU, t ) = Q(U, t/α ) for any α > 0. Furthermore, [11] proved that if U and Z are independent, then 
+
+Q(U + Z, t ) ≤ min {Q(U, t ), Q (Z, t )}. (61) As we are particularly interested in anti-concentration inequalities for sums of i.i.d. r.v.s, we define the n-fold concentration function of U to be 
+
+An(U, t ) ≜ sup 
+
+> a∈Rn:∥a∥2=1
+
+Q
+
+> n
+
+X
+
+> i=1
+
+aiUi, t 
+
+!
+
+, (62) where U1, . . . , U n are i.i.d copies of U . Next, we define the asymptotic concentration function of U to be 
+
+A(U, t ) ≜ lim  
+
+> n→∞
+
+An(U, t ), (63) where the limit exists since An(U, t ) is a bounded non-decreasing function of n. Upper-bounding An(U, t ) is closely related to the Littlewood-Offord problem [22, 23], which is concerned with the maximal possible value of Q(P αiUi, t ) for t = 0 , where 
+
+Ui are i.i.d Ber(1 /2) and |αi| ≥ 1. This problem and its variations have been extensively studied in additive combinatorics [24], however here we are mostly interested in the moderate t regime. Furthermore, several works considered bounding A(U, t ) as a function of Q(Ui, t ) and related quantities, e.g., by Kolmogorov-Rogozin [13, 14] and Esseen [12]. One such bound is due to [25, Corollary 1.4] and yields 
+
+An(U, t ) ≤ C1Q(U, t/ 2) , (64) 10 
+
+where C1 = 12 11 4√2. For the purpose of this paper, we will rely both on (64), as well as on a bound of a different flavor that we establish based on the work of [12]. Let U ∗ = U − U ′ be the symmetrized version of U , where U ′ is an independent copy of U . For any t > 0, define 
+
+E(U, t ) ≜ E(min U 2/t 2, 1}), (65) where E(U, 0) = Pr( U̸ = 0) . The following lemma was proved in [12]. 
+
+Lemma 4. Let S = U1 + . . . + Un for independent U1, . . . , U n. Then for any 0 < t 1, . . . , t n < t , it holds that 
+
+Q(S, t ) ≤ Ct 
+
+pP ni=1 t2 
+
+> i
+
+E(U ∗ 
+
+> i
+
+; ti) ,
+
+where C = (96 /95) 2p48 π/ 11 and U ∗ is the symmetrized r.v. corresponding to U .
+
+Lemma 5 gives upper and lower bounds on the concentration function based on A (U, t τ ), for tτ defined below. The lower bound follows since An (U, t τ ) is non-decreasing in n, while the upper bound is a result of Lemma 4 (see Appendix B). 
+
+Lemma 5. Let tτ ≜ Q(U, τ )pE(U ∗; τ )C−1τ . Then for any n,
+
+An (U, t τ ) ≤ A (U, t τ ) ≤ Q(U, τ ). (66) 
+
+Theorem 6. It holds that 
+
+DnM (U ) ≥ max {d1(U ), d 2(U )}, (67) 
+
+where 
+
+d1(U ) = max  
+
+> t
+
+t2 |1 − M C 1 · Q(U, t )|+ , (68) 
+
+d2(U ) = max 
+
+> t
+
+t2
+
+4C2 Q2(U, t )E(U ∗, t )|1 − M Q (U, t )|+. (69) 
+
+Proof. Recall that ϕ(U n) = Pni=1 aiUi with || a|| 22 = 1 and let ϕM be an M level quantizer of ϕ(U n) with output levels 
+
+m1, . . . , m M . Write 
+
+E(ϕ(U n) − ϕM )2 ≥ Pr ( |ϕ(U n) − ϕM | > t/ 2) · (t/ 2) 2 (70) 
+
+= (1 − Pr ( |ϕ(U n) − ϕM | ≤ t/ 2)) · t2/4 (71) 
+
+= 1 − Pr ϕ(U n) ∈
+
+> M
+
+[
+
+> i=1
+
+(mi − t/ 2, m i + t/ 2) 
+
+!! 
+
+t2/4 (72) 
+
+≥ 1 −
+
+> M
+
+X
+
+> i=1
+
+Pr ( ϕ(U n) ∈ (mi − t/ 2, m i + t/ 2)) 
+
+!
+
+· t2/4 (73) 
+
+≥
+
+
+
+1 − M max  
+
+> α
+
+Pr ( ϕ(U n) ∈ (α, α + t)) 
+
+
+
+· t2/4 (74) 
+
+= (1 − M Q (ϕ(U n), t )) · t2/4, (75) 
+
+≥ (1 − M · An(U, t )) t2/4 (76) where (70) follows from Chebyshev’s inequality, (73) follows from the union bound, (75) from the definition of Q(U, t )
+
+and (76) from the definition of An(U, t ). The lower bound of d1(U ) is attained by lower bounding (76) with (64), and the lower bound of d2(U ) is attained by lower bounding (76) using Lemma 5 (and then maximizing over t).VII. L OWER BOUNDS EXAMPLES 
+
+In this section, we quantitatively compare the lower bounds developed in Sections V and VI. We show that neither bound dominates the other: depending on the underlying distribution, either approach may yield the tighter lower bound. Roughly speaking, the anti-concentration bound is expected to perform better for distributions whose mass is sufficiently spread out, while the rate-distortion bound is expected to be stronger for more concentrated distributions. We make this intuition precise by exhibiting both continuous and discrete examples in which each of the approaches is respectively tighter. 11 
+
+A. Rate distortion beats anti-concentration 
+
+Example 3 (Continuous case) . Let U ∼ N (0 , 1) . Then for M = 2 , the rate distortion bound of Theorem 3 is Dn 
+
+> 2
+
+(U ) ≥ 0.25 ,while the anti concentration bound of Theorem 6 only gives Dn 
+
+> 2
+
+(U ) ≥ c, for some c smaller than 0.0136 . This should be juxtaposed with the ground truth of Dn 
+
+> 2
+
+(U ) = 1 − 2 
+
+> π
+
+, which is achieved by taking f (U ) = sign (U ) and reconstructing the conditional mean of U given f (U ).
+
+In this example, the rate distortion bound is tighter as the Gaussian distribution is too concentrated for the anti-concentration approach to perform well. The rate distortion lower bound is 
+
+DnM (U ) ≥ N(U )
+
+M 2 = 1
+
+M 2
+
+as the entropy power of a standard Gaussian r.v. is 1. For the anti-concentration bound, we first evaluate 
+
+d1(U ) = max  
+
+> t
+
+t2 |1 − M C 1 · Q(U, t )|+ .
+
+As the standard Gaussian distribution is symmetric with monotonically decreasing pdf for u ≥ 0, the maximum of the concentration function Q(U, t ) = sup a∈R Pr ( a ≤ U ≤ a + t) for any t > 0 is achieved for a = − t 
+
+> 2
+
+. This implies that 
+
+Q(U, t ) = Φ 
+
+ t
+
+2
+
+
+
+− Φ
+
+
+
+− t
+
+2
+
+
+
+= 2Φ 
+
+ t
+
+2
+
+
+
+− 1.
+
+which in turn implies that Q′(U, t ) = φ   t
+
+> 2
+
+. To evaluate d1(U ), we maximize over g(t) = t2(1 − M C 1Q(U, t )) :
+
+g′(t) = 2 t(1 − M C 1Q(U, t )) − M C 1t2Q′(U, t ) = 0 (77) 
+
+2 − 2M C 1
+
+
+
+2Φ 
+
+ t∗
+
+2
+
+
+
+− 1
+
+
+
+− M C 1t∗ · φ
+
+ t∗
+
+2
+
+
+
+= 0 (78) 
+
+t∗ · φ
+
+ t∗
+
+2
+
+
+
++ 4Φ 
+
+ t∗
+
+2
+
+
+
+− 2
+
+
+
+1 + 1
+
+M C 1
+
+
+
+= 0 . (79) For M = 2 , a numeric computation gives t∗ ≈ 0.14 and d1(U ) = g(t∗) ≈ 0.0061 . Note that 
+
+d2(U ) = max 
+
+> t
+
+t2
+
+4C2 Q2(U, t )E(U ∗, t )|1 − M Q (U, t )|+
+
+is also loose, as E(U ∗, t ) ≤ 1, Q 2(U, t ) ≤ 1, and also |1 − 2Q(U, t )|+ ≤ 1 and is strictly positive only when t ≤ 1.4, implying that t2 
+
+> 4C2
+
+≤ 1.42 
+
+> 4C2
+
+= 0 .0136 . Generally, the Lloyd-Max quantizer achieves the optimum for any M in the Gaussian case, as it does for any log-concave distribution [26]. 
+
+Example 4 (Discrete case) . Let 
+
+Pr( U = u) = 
+
+( 12 , u = 0 , 
+
+> 12L
+
+, u = ±d · k and 1 ≤ k ≤ L 
+
+> 2
+
+, (80) 
+
+where d > 0 is chosen such that Var (U ) = 1 , that is, d2 = 12 (L+1)( L/ 2+1) . Then for any M and L > πeM 2 
+
+> 24
+
+, the rate distortion bound of Corollary 3 is 
+
+DnM (U ) ≥ 1(L + 1)( L/ 2 + 1) 
+
+ 24 LπeM 2 − 1
+
+
+
+,
+
+while the anti concentration only gives DnM (U ) ≥ 0.
+
+This is a highly concentrated discrete distribution where one dominant element has probability 1/2, and L other uniformly distributed values have probability 1/2L. Note that Q(U, t ) ≥ 1/2 for any t ≥ 0, implying that both d1(U ) = 0 and d2(U ) = 0 
+
+for any M > 1, thus the anti-concentration lower bound is trivially zero. However, the rate distortion lower bound of Corollary 3 is strictly positive whenever L > πeM 2 
+
+> 24
+
+. To see this, note that H(U ) = 12 log(2 L) + 12 log 2 = 12 log L + 1 , implying that 
+
+12 2πe · 22H(U )
+
+M 2 − 1 = 24 LπeM 2 − 1.12 
+
+B. Anti-concentration beats rate distortion 
+
+Example 5 (Continuous case) . Let X be a discrete r.v. uniformly distributed over a L-PAM constellation with L = 20 and symbol distance 
+
+d =
+
+r 12 
+
+L2 − 1 · √1 − ε = 0 .173 √1 − ε. (81) 
+
+That is, 
+
+X ∈
+
+
+
+−(L − 1) d
+
+2 , −(L − 3) d
+
+2 , . . . , (L − 3) d
+
+2 , (L − 1) d
+
+2
+
+
+
+,
+
+and has expectation zero and variance 1 − ε. Further let Z ∼ N (0 , ε ) and define U = X + Z. Then for M = 2 and ε small enough, the rate distortion bound of Theorem 3 is Dn 
+
+> 2
+
+(U ) ≥ Ω( ε), while the anti concentration bound gives Dn 
+
+> 2
+
+(U ) ≥ 0.01 
+
+independent of ε.
+
+Here U is a continuous random variable with zero mean and unit norm, whose distribution has both low concentration, which makes the anti-concentration bound large, and low entropy power, which makes the rate distortion bound small. To evaluate the rate distortion lower bound, first note that h(U ) − h(U |X) = I(X; U ) ≤ H(X), thus 
+
+h(U ) ≤ H(X) + h(U |X) = log(20) + 12 log(2 πeε ) = 12 log(400 · 2πeε ).
+
+Theorem 3 then implies the lower bound N(U )22 = 22h(U ) 
+
+> 8πe
+
+≤ 100 ε, which can be made arbitrarily close to zero. To evaluate the anti concentration bound, note that the density function of U is a convolution between a uniform discrete distribution over 20 
+
+equispaced symbols and a narrow Gaussian envelope. This implies that Q(U, d ) = 1 /20 − δ(ε) for any t > 0, where δ(ε) → 0
+
+as ε → 0. Write 
+
+Dn 
+
+> 2
+
+(U ) ≥ max {d1(U ), d 2(U )} (82) 
+
+≥ max  
+
+> t
+
+t2(1 − 2C1 · Q(U, t )) (83) 
+
+≥ d2(1 − 12 .342 · Q(U, d )) (84) 
+
+= d2(1 − 12 .342 · (1 /20 − δ(ε)) (85) 
+
+≥ 0.01 , (86) where eq. (83) follows since d1(U ) ≤ max {d1(U ), d 2(U )}, eq. (84) follows by setting t = d, and eq. (86) from substituting eq. (81) for ε ≪ 1. This bound is better than the rate-distortion bound as it is independent of ε (for ε small enough). 
+
+C. Anti concentration beats rate-distortion but loses to improved rate distortion bound 
+
+Example 6 (Discrete case) . Let X be defined as in previous example where L is some constant, that is, X is an L-PAM constellation with symbol distance 
+
+d =
+
+r 12 
+
+L2 − 1 · √1 − ε. 
+
+Further let Y be a binary r.v. that equals √ε w.p. 1/2 or −√ε w.p. 1/2, and define U = X + Y . Then for any M < L/C 1
+
+and ε ≤ 12  
+
+> L2+11
+
+, the rate distortion bound of Corollary 3 is Dn 
+
+> 2
+
+(U ) ≥ Ω( ε), while the anti concentration bound gives 
+
+DnM (U ) ≥ 12(1 − ε)
+
+L2 − 1
+
+
+
+1 − M C 1
+
+L
+
+
+
+.
+
+However, the improved rate distortion bound of Theorem 5 gives 
+
+DnM ≥ 1 − εL2 − 1
+
+ 12 2πe · L2
+
+M 2 − 1
+
+
+
+.
+
+Here we construct a uniform distribution over 2L discrete symbols with small minimum distance, making the anti-concentration bound tighter than that of rate distortion. We then proceed to find a random variable A such that given A,the minimum distance is significantly increased, making the rate distortion bound tighter than anti-concentration. Note that U
+
+is a zero mean unit variance random variable with dmin = 2 √ε for ε ≤ 12  
+
+> L2+11
+
+. The bound of Corollary 3 is 
+
+DnM (U ) ≥ d2min 
+
+12 
+
+ 12 2πe · 22 log 2 L
+
+M 2 − 1
+
+
+
+= ε
+
+ 8
+
+πe · L2
+
+M 2 − 1
+
+
+
+, (87) 13 
+
+which is O(ε) for constant L and M . The anti-concentration bound however gives 
+
+d1(U ) = max  
+
+> t
+
+t2(1 − M C 1 · Q(U, t )) (88) 
+
+≥ d2(1 − M C 1 · Q(U, d )) (89) 
+
+≥ 12(1 − ε)
+
+L2 − 1 (1 − M C 1/L ). (90) by setting t = d and noting that Q(U, d ) = 1 /L . We can obtain an improvement to rate distortion bound by appealing to Theorem 5. Specifically, let A = Y . Then A is dependent on U and dmin (PA|U ) = d as U |A=a is simply a L-PAM constellation with minimum distance d shifted by a. Now let Z be a uniform random variable supported on 
+
+(−dmin (PA|U )/2, d min (PA|U )/2) = ( −d, d ).
+
+Note that U = X + Y is a deterministic function of (U + Z, A ) = ( X + Y + Z, Y ) as X is recoverable from X + Z. We thus have 
+
+Dn 
+
+> 2
+
+(U ) ≥ σ2
+
+ 22( H(U )−I(U ;A)) 
+
+M 2 · N(Z)
+
+σ2 − 1
+
+
+
+(91) 
+
+= d2
+
+12 
+
+ 12 2πe · 22(log 2 L−1) 
+
+M 2 − 1
+
+
+
+(92) 
+
+= 1 − εL2 − 1
+
+ 12 2πe · L2
+
+M 2 − 1
+
+
+
+, (93) which is greater than eq. (90) for M < L/C 1.VIII. A PPLICATIONS 
+
+A. Improved lower bound on the probability of disagreement 
+
+To lower bound the probability of disagreement between boolean functions of X and Y , we can use Corollary 1 to improve (4) (and therefore improve [1, Theorem 2]): 
+
+Pr( f (Xn)̸ = g(Y n)) ≥ 2pp(1 − p)q(1 − q) ·
+
+
+
+1 − d
+
+q 
+
+1 − Dn 
+
+> 2
+
+(f2(X)) ,
+
+q
+
+1 − Dn 
+
+> 2
+
+(g2(Y )) 
+
+ 
+
+.
+
+Appealing to any of the lower bounds on DnM (·) derived in the previous section results in a dimension free bound. 
+
+B. A quantization bound for quadratic forms 
+
+We now focus our attention on reversible Markov chains as a preparation for our improved bound on the isoperimetric constant in the next subsection. Let W be a reversible Markov kernel on [K] with invariant distribution μ and let (X, Y ) ∼ μ × W .Consider the quadratic form 
+
+E[f (X)f (Y )] = ⟨f, W f ⟩μ,
+
+which is governed by the eigenvalues of the reversible kernel rather than the singular values of its joint law. Since W is reversible, the Markov operator f 7 → E[f (Y ) | X=·] is self-adjoint on L2(μ), so by the spectral theorem it has real eigenvalues 
+
+1 = λ1(W ) ≥ · · · ≥ λK (W ) ≥ − 1 and a μ-orthonormal eigenbasis {φi} with φ1 = 1 . Expanding any zero-mean, unit-norm 
+
+f as f = P
+
+> i≥2
+
+⟨f, φ i⟩φi, with P
+
+> i≥2
+
+⟨f, φ i⟩2 = 1 , yields 
+
+E[f (X)f (Y )] = ⟨f, W f ⟩μ = X
+
+> i≥2
+
+λi(W ) ⟨f, φ i⟩2. (94) The entries of the DTM matrix of μ×W are P (x,y )
+
+√μ(x)μ(y) =
+
+q μ(x) 
+
+> μ(y)
+
+W (y|x), thus it is similar to W as we can write it as SW S −1
+
+with S = diag (μ)1/2, and therefore the two share the same eigenvalues, λi(DTM ) = λi(W ). Moreover, the reversibility of W
+
+implies the symmetry of the DTM matrix, as 
+
+μ(x)W (y|x) = μ(y)W (x|y) ⇐⇒ 
+
+s
+
+μ(x)
+
+μ(y) W (y|x) = 
+
+s
+
+μ(y)
+
+μ(x) W (x|y). (95) When the DTM matrix is positive semidefinite, its singular value decomposition coincides with its eigendecomposition: 
+
+σi = λi ≥ 0, the singular functions on both sides equal the eigenfunctions, fi = gi = φi, and the machinery of Section II-B applies to μ × W with eigenvalues in place of singular values and a single family of functions. Since the DTM matrix is symmetric with spectrum {λi(W )}, it is positive semidefinite precisely when all eigenvalues of W are nonnegative. 14 
+
+Now, to bound (94), recall the projection-quantization duality of Section III: for any closed subspace H ⊆ L2(μ⊗n) with 
+
+H ⊥ 1, the maximal projection and optimal MMSE of Definitions 3 and 2 satisfy ϕnM (H)2 + DnM (H) = 1 by Theorem 1. The subspace we apply this to is the one carrying the top nontrivial eigenvalue. 
+
+Definition 6 (Second eigenspace) . Let K be a reversible kernel with eigenvalues 1 = λ1(K) ≥ λ2(K) ≥ · · · and μ-orthonormal eigenbasis {φi}. The second eigenspace is the λ2(K)-eigenspace, 
+
+H2 ≜ span {φi : λi(K) = λ2(K)}. (96) The following theorem is the quadratic-form counterpart of Corollary 1: it bounds the agreement of an M -level function with itself in terms of the eigenspectrum and the quantization MMSE DnM (H2) onto the second eigenspace. Note that the theorem holds for a general reversible kernel, whose DTM matrix need not be positive semidefinite. The proof proceeds by passing to the lazy kernel I+K 
+
+> 2
+
+, which is positive semidefinite, applying the machinery of Section III to it, and converting the resulting bound back to the original kernel. 
+
+Theorem 7. Let K be a reversible kernel on [Kn] with invariant law μ⊗n, second eigenspace H2 as in Definition 6, and let 
+
+λ∗(K) ≜ max {λi(K) : λi(K) < λ 2(K)} be the largest eigenvalue below λ2(K), with the convention λ∗(K) = λ2(K) if no eigenvalue lies below it. Then for any f ∈ F nM (μ⊗n), with (Xn, Y n) ∼ μ⊗n × K,
+
+E[f (Xn)f (Y n)] ≤ λ2(K) −  λ2(K) − λ∗(K) DnM (H2). (97) 
+
+Proof. Let K′ ≜ I+K 
+
+> 2
+
+, and let ˜Y n denote the output of K′ on input Xn. For any unit-norm f ,
+
+E[f (Xn)f ( ˜Y n)] = ⟨f, K′f ⟩ = 12
+
+ 1 + E[f (Xn)f (Y n)] , (98) so it suffices to bound the left-hand side. K′ is reversible with invariant law μ⊗n and the same eigenfunctions as K, with eigenvalues λi(K′) = 1+ λi(K)2 ∈ [0 , 1] ; because x 7 → 1+ x 
+
+> 2
+
+is increasing, the order of eigenvalues is preserved, so H2(K′) = 
+
+H2(K) and λ∗(K′) = 1+ λ∗(K)2 . As the eigenvalues of K′ are nonnegative, its DTM matrix is positive semidefinite, so σi = λi(K′)
+
+in matching order and the matched subspaces of the subsystem I = {i : λi(K′) = λ2(K′)} coincide, HPX (I) = HPY (I) = H2.Since these are the largest nontrivial singular values, I is dominant. Theorem 2 applied with f = g, followed by Lemma 2 with 
+
+(s, t ) = ( λ2(K′), λ ∗(K′)) that is admissible as 0 ≤ λ∗(K′) ≤ λ2(K′), and falling in the third case of (19) since x∗ = y∗ > a 
+
+when s > t and a < 1, with the boundary cases agreeing across branches, yields 
+
+E[f (Xn)f ( ˜Y n)] ≤ λ2(K′) −  λ2(K′) − λ∗(K′)DnM (H2). (99) Substituting into (98) and solving, using 2λ2(K′) − 1 = λ2(K) and 2 λ2(K′) − λ∗(K′) = λ2(K) − λ∗(K), gives (97). 
+
+C. An improved bound on the isoperimetric constant for cartesian product graphs and channels 
+
+Let W (n) be the Cartesian product of W over [Kn] [3, 15] defined in the following manner: A Markov kernel is chosen uniformly from [n] and is incremented according to W , while keeping all other values fixed. Namely, for the input xn, we have that the output YJ ∼ W (·| xJ ) for J ∼ Unif {[n]}, and Yj = xj for all j̸ = J. It can be easily verified that the Cartesian product is also a reversible Markov kernel with a unique invariant distribution μn = μ ⊗ · · · ⊗ μ. Let {λk(L)}Kk=1 be the eigenvalues of L = I − W in increasing order, so λ1(L) = 0 ; equivalently, the eigenvalues of W are λi(W ) = 1 − λi(L), in decreasing order. For a reversible kernel K with invariant law π and (X, Y ) ∼ π × K, the isoperimetric (Cheeger) constant is 
+
+h(K) ≜ inf  
+
+> f:X →{ 0,1}
+
+Pr  f (X)̸ = f (Y )
+
+min {Pr( f (X) = 0) , Pr( f (X) = 1) } . (100) It is known, due to [3, 15, 27], that 
+
+h(W (n)) ≥ 1
+
+n · max 
+
+ h(W )2 , λ 2(L)
+
+
+
+. (101) We now establish Theorem 8, which strengthens the spectral bound in (101) in terms of the λ2-eigenspace of L and the second spectral gap λ3(L) − λ2(L).
+
+Theorem 8 (Isoperimetric inequality) . Assume λ3(L) > λ 2(L). Then 
+
+h(W (n)) ≥ 1
+
+n
+
+
+
+λ2(L) + min {λ2(L), λ 3(L) − λ2(L)} · Dn 
+
+> 2
+
+(φ2(X)) 
+
+
+
+, (102) 
+
+where φ2 is the μ-normalized eigenfunction of L associated with λ2(L), and Dn 
+
+> 2
+
+is as in Definition 5 with Xn ∼ μ⊗n.15 
+
+Proof. First, note that for a reversible kernel K with invariant law μ, (X, Y ) ∼ μ × K, and any f : X → { 0, 1} with 
+
+p ≜ Pr( f (X) = 1) ∈ (0 , 1) , we have: 
+
+Pr  f (X)̸ = f (Y )
+
+min {p, 1 − p} ≥ 1 − ρ(f, f ) ≥ 1 − max  
+
+> g∈F 2(μ)
+
+E[f (X)f (Y )] , (103) where the first inequality is by (1) with q = p together with min {p, 1 − p} ≤ 2p(1 − p), and the second holds since, by linear invariance of the Pearson correlation, ρ(f, f ) = E[ ¯f (X) ¯f (Y )] for the standardized ¯f ≜ (f − p)/pp(1 − p) ∈ F 2(μ).In particular, we have: 
+
+h(W (n)) ≥ 1 − max   
+
+> f∈F n
+> 2(μ⊗n)
+
+E[f (Xn)f (Y n)] , (Xn, Y n) ∼ μ⊗n × W (n), (104) by minimizing (103) with K = W (n).To bound this maximum we invoke Theorem 7 with K = W (n), whose eigenstructure is well known [10, Lemma 12.11]: its eigenfunctions are the products φu(Xn) = Qni=1 φui (Xi), indexed as in Section III-C, but with eigenvalues that are the coordinate averages λu(W (n)) = 1
+
+> n
+
+Pni=1 λui (W ) rather than products. The positive gap makes λ2(W ) simple, so the second eigenspace is spanned by its n coordinate copies and by no other modes, 
+
+H2 = span {φ1+ei }ni=1 , λ2(W (n)) = 1
+
+> n
+
+ λ2(W ) + ( n − 1) . (105) This structure makes the distortion computable: since H2 is spanned by the functions φ1+ei (Xn) = φ2(Xi), i.e., by i.i.d. coordinate copies of the scalar source φ2(X), the distortion onto H2 coincides with the scalar MMSE of quantizing a normalized combination of those copies, Dn 
+
+> 2
+
+(H2) = Dn 
+
+> 2
+
+(φ2(X)) , which is the quantity bounded in Sections V and VI. 4 The largest eigenvalue below λ2(W (n)) is attained at u = 1 + 2 ei or u = 1 + ei + ej , i ̸ = j, giving 
+
+λ∗(W (n)) = 1
+
+> n
+
+  max {λ3(W ), 2λ2(W ) − 1} + ( n − 1) . (106) Substituting these into (97) with M = 2 ,
+
+max  
+
+> f
+
+E[f (Xn)f (Y n)] ≤ 1
+
+> n
+
+ λ2(W ) + ( n − 1)  − 1
+
+> n
+
+ λ2(W ) − max {λ3(W ), 2λ2(W ) − 1}Dn 
+
+> 2
+
+(φ2(X)) . (107) Plugging this into (104) and rearranging, we get 
+
+h(W (n)) ≥ 1 
+
+> n
+
+(1 − λ2(W )) + 1
+
+> n
+
+ λ2(W ) − max {λ3(W ), 2λ2(W ) − 1}Dn 
+
+> 2
+
+(φ2(X)) . (108) It remains to convert (108) to the L-spectrum via λi(W ) = 1 − λi(L). The leading term is 1 − λ2(W ) = λ2(L). For the coefficient, max {λ3(W ), 2λ2(W ) − 1} = 1 − min {λ3(L), 2λ2(L)}, so 
+
+λ2(W ) − max {λ3(W ), 2λ2(W ) − 1} = min {λ3(L), 2λ2(L)} − λ2(L) = min {λ3(L) − λ2(L), λ 2(L)}, (109) which is exactly inequality (102). 
+
+Example 7. Let the kernel W be given by 
+
+W (y|x) = (x + y mod 3) + 1 6 , x, y ∈ { 0, 1, 2}. (110) 
+
+Since W (y | x) = W (x | y), the kernel is symmetric and hence doubly stochastic, so its invariant distribution μ is uniform and detailed balance holds, making W reversible. We first compute h(W ). Any binary f : {0, 1, 2} → { 0, 1} conflates exactly two states, so under the uniform μ we have 
+
+min {Pr( f (X) = 0) , Pr( f (X) = 1) } = 13 . As W (y | x) is largest when x + y = 2 , the disagreement probability is minimized by the assignment {0, 2} 7 → 1, 1 7 → 0, giving 
+
+h(W ) = 3 Pr( f (X)̸ = f (Y )) = W (1 |0) + W ({0, 2}| 1) + W (1 |2) = 1 . (111) 
+
+The eigendecomposition of L gives λ2(L) ≈ 0.7113 and λ3(L) ≈ 1.289 , so min {λ2(L), λ 3(L) − λ2(L)} = λ3(L) − λ2(L) ≈
+
+0.577 , with associated μ-normalized eigenfunction 
+
+f2(x) = 
+
+ 
+
+> −1+ √32
+
+, x = 0 , 
+
+> −1−√32
+
+, x = 1 ,
+
+1, x = 2 .
+
+(112)                               
+
+> 4A situation where Dn
+> 2(H2)̸=Dn
+> 2(φ2(X)) requires λ2(W)to have multiplicity greater than one, which happens iff λ2(W) = λ3(W). This is the zero-gap boundary λ2(L) = λ3(L)excluded from the Theorem’s premise: In such case, the eigenspace H2is spanned by coordinate copies of several distinct eigenfunctions rather than of φ2alone, so Dn
+> 2(H2)is no longer the scalar MMSE of a single source and the reduction fails. One way or the other, failing to either capture all of H2or to bound its distortion away from zero results in the coefficient min {λ2(L), λ 3(L)−λ2(L)} · Dn
+> 2in (102) vanishing, and the bound collapses to the prior art (101). 16
+
+The classical bound (101) gives h(W ) ≥ λ2(L) ≈ 0.7113 . Our scalar bound, Theorem 8 at n = 1 , reads 
+
+h(W ) ≥ λ2(L) + min {λ2(L), λ 3(L) − λ2(L)} · D2(f2(X)) . (113) 
+
+To compute D2(f2(X)) , recall that the MSE-optimal two-level quantizer of a scalar source is a threshold function. Since 
+
+f2(1) < f 2(0) < f 2(2) , the only two thresholds isolate either the smallest value, {1} | { 0, 2}, or the largest, {0, 1} | { 2}. The former is MSE-optimal, with conditional-mean representatives  − 1+ √32 , 1+ √34
+
+ and distortion 
+
+D2(f2(X)) = 23
+
+ 3−√34
+
+2
+
+≈ 0.067 , (114) 
+
+against a distortion of 0.5 for the latter. The scalar bound therefore gives h(W ) ≥ λ2(L) + 0 .577 · 0.067 = λ2(L) + 0 .0387 .Note that λ2(L) already exceeds the bound provided by [28], namely 13
+
+pλ2(L) · min x,y W (y|x), and so clearly does our bound. For n > 1 we appeal to Corollary 3 with U = f2(X). Since H(f2(X)) = log 3 and dmin ≈ 0.634 ,
+
+Dn 
+
+> 2
+
+(f2(X)) ≥ d2min 
+
+12 
+
+ 12 2πe · 22H(f2(X)) 
+
+22 − 1
+
+
+
+≈ 0.019 , (115) 
+
+which yields 
+
+h(W (n)) ≥ 1
+
+n
+
+
+
+λ2(L) + min {λ2(L), λ 3(L) − λ2(L)} · Dn 
+
+> 2
+
+(f2(X)) 
+
+
+
+= 1
+
+n
+
+ λ2(L) + 0 .011 , (116) 
+
+strictly improving, for every n, the classical bound (101) , which for this chain equals 1 
+
+> n
+
+λ2(L) (as λ2(L) > h (W )/2). 
+
+IX. A CKNOWLEDGMENTS 
+
+This work was supported by the ISF under Grants 1791/17, 1495/18, and 1766/22. The work of DD was further supported by the Yitzhak and Chaya Weinstein Research Institute for Signal Processing. REFERENCES [1] H. S. Witsenhausen, “On sequences of pairs of dependent random variables,” SIAM Journal on Applied Mathematics , vol. 28, no. 1, pp. 100–113, 1975. [2] C. Borell, “Geometric bounds on the Ornstein-Uhlenbeck velocity process,” Probability Theory and Related Fields , vol. 70, no. 1, pp. 1–13, 1985. [3] N. Alon and V. D. Milman, “ λ1, isoperimetric inequalities for graphs, and superconcentrators,” Journal of Combinatorial Theory, Series B , vol. 38, no. 1, pp. 73–88, 1985. [4] R. O’Donnell, Analysis of Boolean functions . Cambridge University Press, 2014. [5] R. C. Bradley, “A “cousin” of a theorem of Cs’aki and Fischer,” arXiv preprint arXiv:1603.08964 , 2016. [6] H. O. Hirschfeld, “A connection between correlation and contingency,” in Mathematical proceedings of the cambridge philosophical society , vol. 31, no. 4. Cambridge University Press, 1935, pp. 520–524. [7] A. Rényi, “On measures of dependence,” Acta mathematica hungarica , vol. 10, no. 3-4, pp. 441–451, 1959. [8] H. Lancaster, “The structure of bivariate distributions,” The Annals of Mathematical Statistics , vol. 29, no. 3, pp. 719–736, 1958. [9] J. Cheeger, “A lower bound for the smallest eigenvalue of the laplacian,” in Proceedings of the Princeton conference in honor of Professor S. Bochner ,1969, pp. 195–199. [10] D. A. Levin and Y. Peres, Markov chains and mixing times . American Mathematical Soc., 2017, vol. 107. [11] V. V. Petrov, Sums of independent random variables . Springer Science & Business Media, 2012, vol. 82. [12] C. Esseen, “On the concentration function of a sum of independent random variables,” Zeitschrift für Wahrscheinlichkeitstheorie und Verwandte Gebiete ,vol. 9, no. 4, pp. 290–308, 1968. [13] A. N. Kolmogorov, “Two uniform limit theorems for sums of independent random variables,” Theory of Probability & Its Applications , vol. 1, no. 4, pp. 384–394, 1956. [14] B. A. Rogozin, “On the increase of dispersion of sums of independent random variables,” Theory of Probability & Its Applications , vol. 6, no. 1, pp. 97–99, 1961. [15] C. Houdré and P. Tetali, “Isoperimetric invariants for product markov chains and graph products,” Combinatorica , vol. 24, no. 3, pp. 359–388, 2004. [16] A. Makur, “Information contraction and decomposition,” Ph.D. dissertation, Massachusetts Institute of Technology, 2019. [17] G. B. Folland et al. , “Modern techniques and their applications,” Real Analysis (Pure and Applied Mathematics) , 1999. [18] T. M. Cover and J. A. Thomas, Elements of information theory . John Wiley & Sons, 2012. [19] J. Del Castillo, “The singly truncated normal distribution: A non-steep exponential family,” Annals of the Institute of Statistical Mathematics , vol. 46, no. 1, pp. 57–66, 1994. [20] N. L. Johnson, S. Kotz, and N. Balakrishnan, Continuous univariate distributions, volume 1 . John wiley & sons, 1994, vol. 1. [21] D. Dowson and A. Wragg, “Maximum-entropy distributions having prescribed first and second moments (corresp.),” IEEE Transactions on Information Theory , vol. 19, no. 5, pp. 689–693, 1973. [22] J. Littlewood and A. Offord, “On the number of real roots of a random algebraic equation, iii, rec,” Math.[Mat. Sbornik] NS , vol. 12, no. 54, pp. 277–286, 1943. [23] P. Erdös, “On a lemma of Littlewood and Offord,” Bulletin of the American Mathematical Society , vol. 51, no. 12, pp. 898–902, 1945. [24] T. Tao and V. H. Vu, Additive combinatorics . Cambridge University Press, 2006, vol. 105. [25] M. Rudelson and R. Vershynin, “Small ball probabilities for linear images of high-dimensional distributions,” International Mathematics Research Notices , vol. 2015, no. 19, pp. 9594–9617, 2015. [26] P. Fleischer, “Sufficient conditions for achieving minimum distortion in a quantizer,” IEEE Int. Conv. Rec , vol. 12, pp. 104–111, 1964. [27] F. R. Chung and P. Tetali, “Isoperimetric inequalities for cartesian products of graphs,” Combinatorics Probability and Computing , vol. 7, no. 2, pp. 141–148, 1998. [28] M. Erbar and M. Fathi, “Poincaré, modified logarithmic sobolev and isoperimetric inequalities for markov chains with non-negative ricci curvature,” 
+
+Journal of Functional Analysis , vol. 274, no. 11, pp. 3056–3089, 2018. 17 
+
+APPENDIX APROOF OF LEMMA 2We first find the extremum of g(x, y ) = xys + p(1 − x2)(1 − y2)t. We have 
+
+∂g ∂x = ys +
+
+p1 − y2
+
+2√1 − x2 · (−2xt ), (117) 
+
+∂g ∂y = xs +
+
+√1 − x2
+
+2p1 − y2 · (−2yt ). (118) The only extremum point of g is (0 , 0) , which is clearly a minimum. Thus, the maximum is attained on the boundaries, either on x = 0 , x = a, y = 0 or y = b. We have max 0≤y≤b g(0 , y ) = max 0≤y≤b
+
+p1 − y2t = t and, similarly, max 0≤x≤a g(x, 0) = max 0≤x≤a
+
+√1 − x2t = t. These values never exceed the maximum over the remaining boundaries, since, letting c = min {a, b },we can set x = y = c to get 
+
+g(c, c ) = c2s + (1 − c2)t ≥ c2t + (1 − c2)t = t, (119) as s ≥ t. Thus, it is sufficient to look for the maximum of the simple functions g(y) = g(a, y ) and g(x) = g(x, b ):
+
+dg (x)
+
+dx = bs − tp1 − b2 x
+
+√1 − x2 . (120) Equating to zero, we have 
+
+x2
+
+1 − x2 = (bs )2
+
+t2(1 − b2) , (121) implying that 
+
+x∗ = bs 
+
+pb2s2 + (1 − b2)t2 . (122) Similarly, optimizing over g(y), we obtain 
+
+y∗ = as 
+
+pa2s2 + (1 − a2)t2 . (123) The maximum is thus either 
+
+g(a, y ∗) = ay ∗s + p(1 − a2)(1 − (y∗)2)t (124) 
+
+= 1
+
+pa2s2 + (1 − a2)t2 · (a2s2 + (1 − a2)t2 (125) 
+
+= pa2s2 + (1 − a2)t2, (126) or, similarly, g(x∗, b ) = pb2s2 + (1 − b2)t2. Finally, note that b > a implies g(x∗, b ) ≥ g(a, y ∗) and that b ≤ a implies 
+
+g(x∗, b ) ≤ g(a, y ∗). Thus if {b > a, x ∗ ≤ a, y ∗ ≤ b} or {x∗ ≤ a, y ∗ > b } we have d(a, b ) = pb2s2 + (1 − b2)t2. Otherwise, if {b ≤ a, x ∗ ≤ a, y ∗ ≤ b} or {x∗ > a, y ∗ ≤ b} we have d(a, b ) = pa2s2 + (1 − a2)t2. These conditions do not hold only if the maximum is attained at some point outside the rectangle {0 ≤ x ≤ a, 0 ≤ y ≤ b}. In this case, due to the monotonicity of 
+
+g(a, y ) (or g(x, b )), the maximum is attained at the edge point (x, y ) = ( a, b ), that is, d(a, b ) = abs + p(1 − a2)(1 − b2)t .APPENDIX BPROOF OF LEMMA 5Note that E(αU, t ) = E(U, t/α ), and that if Z = αU , then the symmetrized variable Z∗ corresponding to Z has the same distribution as αU ∗ (or −αU ∗). Now, let a ∈ Rn with ∥a∥2 = 1 . By Lemma 4 
+
+Q
+
+X aiUi, t 
+
+
+
+≤ Ct 
+
+qPni=1 t2 
+
+> i
+
+E(( aiUi)∗ ; ti)= Ct 
+
+qPni=1 t2 
+
+> i
+
+E(|ai| (Ui)∗ ; ti)= Ct 
+
+qPni=1 t2 
+
+> i
+
+E(U ∗ 
+
+> i
+
+; ti 
+
+> |ai|
+
+)
+
+,
+
+Without losing generality, assume that |a1| ≥ | ai|, 1 ≤ i ≤ n. Pick ti = t|ai|/c for some c > |a1|, then 
+
+Q
+
+X aiUi, t 
+
+
+
+≤ Ct 
+
+qPni=1 (t|ai|/c )2E(U ∗; tc )= C · c/ pE(U ∗; t/c ). (127) 18 
+
+Next, let tτ = c·τ for c = C−1Q(U, τ )pE(U ∗; τ ) and some τ > 0. Note that this choice does not necessarily satisfy c > |a1|,which is a necessary condition in Lemma 4. But if c > |a1| nevertheless, then Lemma 4 and (127) give 
+
+Q
+
+X aiUi, t τ
+
+
+
+≤ Q(U, τ ). (128) If however c ≤ | a1|, a different argument applies. Consider the concentration of the random variable |a1|U1. A consequence of inequality (61) is that Q (P aiUi, t ) ≤ Q(|a1|U, t ). Furthermore, by our assumption that c ≤ | a1| we have 
+
+Q
+
+X aiUi, t 
+
+
+
+≤ Q(|a1|U, t ) = Q
+
+
+
+U, t
+
+|a1|
+
+
+
+≤ Q
+
+
+
+U, tc
+
+
+
+,
+
+and thus, under the same choice of tτ = c · τ , we get (128) again. We therefore conclude that (128) holds whether or not 
+
+c ≥ | a1|, where tτ = Q(U, τ )pE(U ∗; τ )C−1τ. This holds for any a ∈ Rn with ∥a∥2 = 1 , hence An (U, t τ ) ≤ Q(U, τ ).
