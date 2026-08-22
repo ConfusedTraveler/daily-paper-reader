@@ -1,0 +1,2772 @@
+Title: Feature Priming in Online Linear Regression: Sparse-Regret Lower Bounds and a Tight Univariate Rate
+
+URL Source: https://arxiv.org/pdf/2608.17573v1
+
+Published Time: Wed, 19 Aug 2026 00:45:42 GMT
+
+Number of Pages: 47
+
+Markdown Content:
+> Preprint 2026
+
+# Feature Priming in Online Linear Regression: Sparse-Regret Lower Bounds and a Tight Univariate Rate 
+
+Huibo Xu * and Shi Fu * and Qixin Zhang and Dacheng Tao †
+
+Nanyang Technological University, Singapore 
+
+Abstract 
+
+In high-dimensional online prediction, sparse comparators motivate regret bounds that depend on sparsity rather than ambient dimension. Feature priming seeks such adaptation by reweighting features using past data and refitting a minimum-norm predictor. At COLT 2023, Warmuth and Amid (2023) posed the open problem of whether the univariate, Pearson, or multivariate priming rules admit competitive online regret guarantees. Under the natural past-only Moore–Penrose protocol, we establish sparse-regret lower bounds that refute the corresponding sparse-logarithmic guarantee. The key obstruction is cheap nuisance interpolation, which permits exact interpolation of the history while assigning insufficient weight to the truly predictive coordinate. An exact target-mass identity and a two-sign argument convert this obstruction into clipped prediction loss. Hadamard constructions yield Ω(min {T, √d}) clipped regret for each of the three unit-power rules against a zero-loss one-sparse comparator, thereby excluding any uniform O(k log( ed/k )) guarantee. For every fixed power α ≥ 1, one shared paired construction further yields linear regret simultaneously for all three powered rules and selectors among them in sufficiently high dimension. Conversely, a rank upper bound and a Euclidean-normalized triangular construction establish the tight worst-case rate 
+
+Θα(min {T, d }) for powered univariate priming. This lower bound persists under any nonnegative second-stage ridge schedule, while a paired ridge construction yields linear lower bounds for all three powered rules. Exploratory diagnostics on frozen language-model activations are consistent with the same qualitative mechanism. Tight worst-case rates for multivariate and Pearson priming remain open. 
+
+1. Introduction 
+
+In high-dimensional online regression, a central goal is to obtain regret bounds that adapt to com-parator sparsity rather than ambient dimension. Coordinate-sensitive methods such as multiplicative updates can achieve this behavior (Kivinen and Warmuth, 1997; Gerchinovitz, 2011), whereas minimum-norm least squares (LLS) has no intrinsic preference for the coordinates in which sparsity is defined. Feature priming was proposed to introduce such a preference without giving up the simplicity of LLS (Warmuth and Amid, 2023). It assigns each feature a univariate, Pearson, or multi-variate LLS score, rescales the corresponding design column, and performs a second minimum-norm fit. Warmuth and Amid (2023) observed that these rules can recover sparse targets faster than vanilla LLS and asked whether any of them admits a competitive online regret bound. Their comparison with multiplicative updates recalls O(k log( n/k )) regret when the target averages k bounded features. We therefore ask whether one of the priming rules can guarantee O(k log( ed/k )) regret uniformly over comparators supported on at most k coordinates. Under the natural nonanticipating implementation      
+
+> *Equal contribution.
+> †Corresponding author.
+> © 2026 H. Xu, S. Fu, Q. Zhang & D. Tao. arXiv:2608.17573v1 [stat.ML] 18 Aug 2026 XUFUZHANG TAO
+
+that applies the past-data map to each completed prefix, we give a clipping-robust negative answer to this sparse-logarithmic form of the open problem. This does not preclude dimension-dependent guarantees, as the rank bound below demonstrates. The negative result has a common geometric source. Priming changes which interpolant the second minimum-norm fit prefers. When nuisance features interpolate the history at low prime-weighted cost, the refit can match every past label while placing little weight on the coordinate that actually generates them. If π1 is the transformed target prime and κ is the minimum squared norm of a nuisance-only interpolant, we show that the learned target weight is exactly w1 = π21 κ/ (1 + π21 κ).A two-sign argument then converts the missing target mass into clipped prediction loss. Hadamard features keep π21 κ small for all three prime rules, yielding Ω(min {T, √d}) regret on bounded sequences realizable with zero loss by the one-sparse comparator e1. The regret is therefore linear when d = Θ( T 2). Pairing each Hadamard query with its negative gives a stronger conclusion: for every fixed α ≥ 1, the three powered rules produce the same coefficient vector on every query round. One fixed sequence therefore defeats all three rules, as well as current-input-dependent switchers and convex mixtures. The failure is nevertheless constrained by the geometry of the observed data. A clipped predictor that interpolates its completed history can err only when the current input adds a new row-space direction, and hence has regret at most 4 rank( X1: T ). A rational triangular construction matches this dependence for powered univariate priming, establishing the exact order Θα(min {T, d }) even when ∥xt∥2 ≤ 1. Nor is the lower bound an artifact of taking the exact Moore–Penrose limit. Under ridge regularization of the transformed second-stage coefficient, the same triangular sequence retains 
+
+Θα(min {T, d }) regret for every nonnegative ridge schedule: weak regularization leaves room for cheap nuisance interpolation, while strong regularization shrinks the prediction toward zero. A paired-Hadamard variant gives linear regret for all three powered rules under past-only ridge, with a common distributional lower bound for pre-input switchers and mixtures. Exploratory stress tests on frozen Qwen2.5 and Qwen3.8 activations exhibit the same observable pattern. As nuisance capacity grows, nuisance-only interpolation becomes cheaper, the learned target mass falls, and normalized regret increases. These diagnostics illustrate the geometry of the proof; they are not evidence that either model implements feature priming. Our results concern the three one-stage priming rules at fixed α and ridge regularization of their transformed second-stage coefficients. Regularized prime estimation, iterative or distribution-dependent variants, and general randomized algorithms beyond the stated switchers and mixtures remain open. The exact multivariate and Pearson frontiers are also unresolved. 
+
+2. Problem setup 
+
+We consider online square-loss regression with coordinatewise bounded inputs xt ∈ [−1, 1] d. Before round t, the learner has observed the completed history (X<t , y <t ), where the rows of X<t are the previous inputs. It computes a coefficient vector from this history, observes xt, makes a prediction, and then receives the label. This is the standard nonanticipating online interpretation of the past-data priming map of Warmuth and Amid (2023). Labels are generated by a fixed sparse comparator. For 
+
+S ⊆ [d] with |S| = k, let uS = k−1 P 
+
+> j∈S
+
+ej and yt = x⊤ 
+
+> t
+
+uS . The comparator therefore has zero cumulative loss. Our lower bounds use only k = 1 and S = {1}, so uS = e1 and yt = xt, 1. Given a base-prime vector pt ∈ Rd, the unit-power rule uses πt = pt. For a fixed α ≥ 1, the powered rule     
+
+> 2FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+instead uses 
+
+πt,i = sign( pt,i )|pt,i |α.
+
+Here sign(0) = 0 . Only the magnitudes of these multipliers affect the prediction. Indeed, write 
+
+diag( πt) = D+S with D+ = diag( |pt|α), where Sii = sign( pt,i ) for nonzero primes and Sii = 1 
+
+otherwise. The identity (XD +S)† = S(XD +)† shows that the two sign matrices cancel in the refit. In particular, signed squaring and literal squaring are prediction-equivalent. Write Dt = diag( πt).Priming rescales the columns of the historical design and performs a second minimum-norm fit: 
+
+wt = Dt(X<t Dt)†y<t , byt = x⊤ 
+
+> t
+
+wt. (1) The empty-history prediction is zero. We also study eyt = clip( byt) = max {− 1, min {1, byt}} . Since 
+
+yt ∈ [−1, 1] , clipping cannot increase square loss. We consider the three base primes proposed by Warmuth and Amid (2023, Sec. 2, p. 2): 1. Univariate LLS: pt,i = X<t (: , i )†y<t = X<t (: , i )⊤y<t /∥X<t (: , i )∥22, with value zero for a zero column. 2. Pearson: whenever both empirical variances are positive, pt,i is the empirical Pearson correlation between X<t (: , i ) and y<t .3. Multivariate LLS: pt = X†
+
+> <t
+
+y<t .Together with Equation (1), these agree with the original priming formulas whenever the statistics are defined. Pearson correlation is undefined for histories of length at most one and whenever either argument has zero empirical variance. A finite totalization agrees with Pearson correlation whenever it is defined and assigns an arbitrary finite, deterministic, past-only value otherwise. It is target preserving 
+
+if the filled target prime is nonzero whenever the past label vector is not identically zero. Our Pearson lower bounds hold for every finite totalization; the rank upper bound requires target preservation. Because e1 has zero loss on all our constructions, regret equals learner loss. We write Rclip  
+
+> T
+
+=
+
+PTt=1 (eyt − yt)2 for the clipped version. The constraint throughout is xt ∈ [−1, 1] d; it does not impose ∥xt∥2 ≤ 1 unless stated explicitly. Unless a result states that its witness is shared, the adversarial sequence may depend on the rule and horizon but is fixed before online play. The unit-power separation uses such rule-specific witnesses. The powered separation instead uses one witness for all three rules at a common fixed exponent and holds pathwise for their selectors. The triangular ridge result is pointwise in the ridge schedule; the corresponding policy-uniform Hadamard statement is distributional. The full quantifiers are collected in Appendix A. 
+
+3. A nuisance-interpolation obstruction 
+
+Although the three prime rules assign their weights differently, their failures have the same geometric source. The labels in the history can be interpolated either by the target coordinate or by the nuisance coordinates. If the latter representation is cheap after priming, the minimum-norm refit places little weight on the target even though it interpolates every past label. This section isolates that obstruction without committing to a particular prime rule. Fix a completed history X with y = Xe 1, and let 
+
+π denote the actual column multiplier used by the powered rule. Write Π = diag( π), A = XΠ,
+
+z = A†y, w = Π z, and J = ∥z∥22. Whenever y ∈ col( A), the vector z is the least-norm coefficient vector that interpolates y in the transformed design.    
+
+> 3XUFUZHANG TAO
+
+Lemma 1 (Target-mass identity) If y = Xe 1 and y ∈ col( XΠ) , then 
+
+w1 = π21 J. 
+
+Proof The minimum-norm solution lies in the row space of XΠ, so z = ( XΠ) ⊤λ = Π X⊤λ
+
+for some λ. Since XΠz = y, we have J = λ⊤XΠz = λ⊤y = ( X⊤λ)1. Thus z1 = π1J and 
+
+w1 = π1z1 = π21 J.The next lemma turns missing target weight into loss. Its point is that an arbitrary nuisance contribution cannot make the two possible target signs simultaneously accurate, even after clipping. 
+
+Lemma 2 (Two-sign clipping) For every b ∈ R and 0 ≤ w ≤ 1,
+
+12
+
+(clip( b + w) − 1) 2 + (clip( b − w) + 1) 2 ≥ (1 − w)2.
+
+Proof By symmetry, assume b ≥ 0. If b ≤ 1 − w, neither prediction is clipped and the left-hand side is b2 + (1 − w)2. If 1 − w ≤ b ≤ 1 + w, the first prediction clips to one and the average loss is at least 12 (2 − 2w)2. If b ≥ 1 + w, both predictions clip to one and the average loss is 2. Each case is at least (1 − w)2.We can now state the obstruction in terms of a single scalar. Decompose the transformed design as A = [ π1y, B ], where B = X(: , 2: d) diag( π2: d) contains the transformed nuisance columns. 
+
+Theorem 3 (Nuisance-interpolation obstruction) Suppose that y ∈ col( B), and let κ = ∥B†y∥22.The second-stage fit assigns the target coordinate weight 
+
+w1 = π21 κ
+
+1 + π21 κ . (2) 
+
+For any next nuisance row h ∈ [−1, 1] d−1, consider the two legal examples xσ = ( σ, h ) with labels 
+
+yσ = σ, where σ ∈ {− 1, 1}. Their average clipped loss is at least (1 + π21 κ)−2, and hence one of the two signs incurs at least this much loss. 
+
+Proof For a fixed transformed target coefficient z1, the nuisance coefficients must satisfy Bz 2: d =(1 − π1z1)y and therefore have minimum squared norm κ(1 − π1z1)2. The second-stage fit con-sequently minimizes z21 + κ(1 − π1z1)2, whose minimizer is z1 = π1κ/ (1 + π21 κ). This gives Equation (2). The nuisance part of the next prediction contributes the same scalar b = h⊤w2: d for both target signs. Since 1 − w1 = (1 + π21 κ)−1, Lemma 2 gives the claimed loss bound. Thus the relevant quantity is not the prime of any one coordinate in isolation, but the prime-weighted cost π21 κ of explaining the history through nuisance features. The constructions in the next section all keep this quantity bounded while adding new examples.     
+
+> 4FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+4. Hadamard instantiations of the obstruction 
+
+We now instantiate Theorem 3 for each of the three prime rules. Fix a power of two N , let H
+
+be an N × N Hadamard matrix, and take d = N + 1 . A history of r decisive examples has the form X = [ a, H r], where a ∈ {− 1, 1}r is both the target column and the label vector, and 
+
+Hr contains r rows of H. If b = H⊤ 
+
+> r
+
+a, then v = N −1b satisfies Hrv = a. Thus the nuisance coordinates interpolate the labels regardless of the chosen signs. What varies among the rules is only the prime-weighted cost of this interpolant. 
+
+Proposition 4 (Hadamard nuisance cost) Fix α ≥ 1 and let π be the powered column multiplier. For the history above, the powered univariate and multivariate rules satisfy π21 ∥B†a∥22 ≤ r2α 
+
+> N
+
+, where 
+
+B = Hr diag( π2: d). After s completed opposite pairs, the powered Pearson rule satisfies the same bound with r = s. The Pearson claim is independent of the finite totalization. 
+
+Proof For the univariate rule, p1 = 1 and pj+1 = bj /r . Whenever bj̸ = 0 , the coefficient that represents vj = bj /N in the transformed nuisance design has magnitude rα/(N |bj |α−1) ≤ rα/N ;when bj = 0 , both quantities vanish. This gives a feasible nuisance coefficient vector of squared norm at most r2α/N , and π1 = 1 .For the multivariate rule, the base prime is p = ( r, b )/(N + r). Representing the same vector 
+
+v in the transformed nuisance design costs at most (N + r)2α/N , because every nonzero bj is an integer. Multiplication by π21 = [ r/ (N + r)] 2α leaves the bound r2α/N . On a history consisting of s
+
+opposite pairs, all empirical means vanish. The Pearson base primes are then exactly the univariate primes computed from one representative of each pair. Opposite duplication does not change the minimum-norm coefficient, so the univariate calculation applies with r = s. All active variances are positive, and hence no filled Pearson value enters the calculation. At unit power, keeping r ≤ √N / 2 makes the scalar in Theorem 3 at most 1/4. At least one of the two legal target signs therefore produces constant clipped loss. Choosing such a sign recursively fixes the entire sequence before online play; for Pearson priming, the chosen query is followed by its negative so that the next charged round again begins from a paired history. Truncation, zero-padding, and the rounding from Hadamard dimensions to arbitrary (T, d ) yield the following separation. Appendix C gives the compiler and exact constants. 
+
+Theorem 5 (Sparse-regret separation at unit power) For every T ≥ 1 and d ≥ 5, each of the unit-power multivariate LLS-prime and univariate-prime predictors admits a deterministic realizable sequence such that 
+
+Rclip  
+
+> T
+
+≥ 115 min {T, √d}.
+
+For the Pearson-prime predictor and T ≥ 4, a single deterministic sequence gives the same lower bound simultaneously for every finite totalization. In all cases the comparator is e1 and has zero cumulative loss. 
+
+Corollary 6 (Failure of uniform sparse-logarithmic regret) Under the past-only protocol of Sec-tion 2, none of the three unit-power rules admits a universal constant C such that Rclip  
+
+> T
+
+≤
+
+Ck log( ed/k ) for every d, k, T , support S, and bounded sequence realizable by uS . This already fails for k = 1 ; for Pearson priming the conclusion is uniform over every finite totalization. The same is therefore true for the unmodified raw predictions.    
+
+> 5XUFUZHANG TAO
+
+Indeed, take d = Θ( T 2) in Theorem 5. Its lower bound is linear in T , whereas the proposed benchmark is only O(log T ). Clipping cannot increase square loss, so the raw predictor cannot have a smaller worst-case loss. The witnesses in Theorem 5 may depend on the rule; the next result gives one sequence that works for all three and for every fixed prime power. After s completed query–recovery pairs, let b = H⊤ 
+
+> s
+
+a. The three base-prime vectors obey 
+
+puni = pPearson = (1 , b/s ), pLLS = sN + s puni .
+
+Raising them to a common power preserves the positive global factor, which cancels from the second minimum-norm fit. The three powered rules therefore return exactly the same coefficient vector on every charged query. A three-rule selector may switch among these rules, possibly at random and after seeing the current input, or take a convex mixture of either their coefficient vectors or their individually clipped predictions. 
+
+Theorem 7 (One shared witness for powered rules) Fix α ≥ 1. For every integer M ≥ 1, there is a power of two N satisfying 8M 2α ≤ N < 16 M 2α. Set d = N + 1 and T = 2 M . There exists a deterministic realizable sign sequence, fixed before play and independent of the prime rule, selector, and finite Pearson totalization, such that each of the three clipped powered rules and every three-rule selector satisfies 
+
+Rclip  
+
+> T
+
+≥ 49 M
+
+64 = 49 T
+
+128 
+
+for every realization of its internal randomness. 
+
+The witness alternates a charged query with its exact negative. The paired state makes the three refits identical, while Proposition 4 keeps the target weight bounded away from one; the two-sign argument then selects a common adverse sign. The construction is pathwise, so allowing a selector to depend on the current input or on its random tape does not help. There is also an oblivious distributional version: independent Rademacher query signs give expected clipped regret at least 
+
+49 M/ 64 , even after conditioning on the selector’s random tape. Appendix D contains the exact equivalence and compilation arguments. Since d = Θ α(T 2α), Theorem 7 rules out the sparse-logarithmic benchmark for every fixed 
+
+α ≥ 1, including the squared-prime choice α = 2 . The exponent is common and fixed throughout the sequence; the theorem does not cover procedures that tune it online or add an external correction to the primed prediction. 
+
+5. Rank controls loss and the univariate frontier 
+
+The Hadamard constructions can keep nuisance interpolation cheap only while the design continues to acquire new directions. More generally, a predictor that interpolates the completed history is already forced to be correct on its row span. Rank therefore measures the geometric resource consumed by each loss-producing round. 
+
+Theorem 8 (Rank bound for history interpolation) Let xt ∈ [−1, 1] d, and suppose that a fixed comparator u ∈ Rd realizes the labels, yt = x⊤ 
+
+> t
+
+u ∈ [−1, 1] . Assume that the online predictor outputs wt satisfying X<t wt = y<t and predicts clip( x⊤ 
+
+> t
+
+wt). Then 
+
+> T
+
+X
+
+> t=1
+
+ clip( x⊤ 
+
+> t
+
+wt) − yt
+
+2 ≤ 4 rank( X1: T ) ≤ 4 min {T, d }.    
+
+> 6FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+For every fixed α ≥ 1, the bound applies to the powered univariate and multivariate priming rules on sequences realizable by e1. It also applies to powered Pearson priming under any target-preserving totalization. 
+
+Proof Suppose that x⊤ 
+
+> t
+
+belongs to the row span of X<t , and write x⊤ 
+
+> t
+
+= c⊤X<t . Interpolation and realizability give x⊤ 
+
+> t
+
+wt = c⊤X<t wt = c⊤y<t = c⊤X<t u = x⊤ 
+
+> t
+
+u = yt. Positive loss is therefore possible only when xt adds a new row-space direction. There are at most rank( X1: T ) such rounds, and clipping bounds the squared loss on each round by four. It remains to verify interpolation for the listed priming rules. Write X = X<t and y = y<t .If y = 0 , the second-stage least-norm fit is zero. Otherwise, the target prime of the powered univariate rule is one. For the multivariate rule, let p = X†y and set πi = sign( pi)|pi|α. Defining 
+
+zi = pi/π i on supp( p) and zi = 0 elsewhere gives X diag( π)z = Xp = y. For a target-preserving Pearson totalization, π1̸ = 0 , and the transformed target column π1y alone interpolates y. Thus each second-stage predictor interpolates its history. The bound adapts to the realized geometry: if all inputs lie in an r-dimensional subspace, regret is at most 4r, independently of the horizon. It is not a sparsity bound. Even when e1 generates every label, the observed design may have rank min {T, d }. For powered univariate priming, this rank dependence is unavoidable. A triangular design creates one new direction on each loss-producing round and matches the upper bound up to a constant depending only on α.
+
+Theorem 9 (Powered-univariate frontier) Fix α ≥ 1, and let cα be the smaller of 1/8 and 
+
+(9 /16)(5 /8) 4α−4. For every d, T ≥ 1, with m = min {d, T }, there is a fixed rational sequence in 
+
+[−1, 1] d, realizable with zero loss by e1, on which the clipped power-α univariate rule has regret at least cαm. At unit power, the same sequence satisfies the sharper lower bound 1 + ⌊m/ 2⌋. There is also a sequence satisfying ∥xt∥2 ≤ 1 with regret at least cαm/ 4.
+
+The active m × m block has yt = xt, 1 = 1 and, for 2 ≤ k ≤ m,
+
+xt,k =
+
+
+
+1/(k − 1) , t < k, 
+
+−1, t = k, 
+
+0, t > k. 
+
+Before round t, expired coordinates have zero prime, while future coordinates retain reciprocal scales. With β = 2 α − 2, the least-norm split yields 
+
+1 − byt = t(t − 1) β
+
+1 + Pm−1 
+
+> j=t−1
+
+jβ .
+
+This error is bounded away from zero on a constant fraction of the final rounds, giving the claimed 
+
+Ωα(m) loss. At α = 1 the same expression yields the sharper constant, and scaling the active rows by one half enforces ∥xt∥2 ≤ 1 at only constant-factor cost. Appendix F contains the pseudoinverse calculation and the endpoint estimates. Together with Theorem 8, the lower bound shows that the clipped worst-case regret of powered univariate priming is Θα(min {T, d }), both with coordinatewise bounded inputs and under the additional Euclidean normalization. The rank theorem also covers multivariate and target-preserving Pearson priming, but their matching worst-case dependence on (T, d ) remains open.    
+
+> 7XUFUZHANG TAO
+
+6. Ridge changes the failure mode, not the rate 
+
+A natural response to the lower bounds is to regularize the second refit. We consider the standard ridge estimator in the transformed coordinates. With At = X<t Dt and λt > 0, it returns 
+
+zλt 
+
+> t
+
+= A⊤ 
+
+> t
+
+(AtA⊤ 
+
+> t
+
++ λtI)−1y<t , wλt 
+
+> t
+
+= Dtzλt 
+
+> t
+
+;
+
+at λt = 0 we recover z0 
+
+> t
+
+= A† 
+
+> t
+
+y<t . Thus the penalty is on the transformed coefficient z, not on the transformed-back coefficient w. The nuisance-interpolation mechanism has an exact ridge analogue. For one history, split A = [ π1y, B ] and define 
+
+qλ = y⊤(BB ⊤ + λI )−1y, wλ 
+
+> 1
+
+= π21 qλ
+
+1 + π21 qλ
+
+. (3) If Bu = y, then qλ ≤ ∥ u∥22, and qλ decreases with λ. Ridge therefore cannot restore target mass that is already suppressed by a cheap nuisance interpolant. 
+
+Theorem 10 (Ridge-robust univariate frontier) Fix α ≥ 1 and let cα be as in Theorem 9. For every d, T ≥ 1, the same fixed rational triangular sequence satisfies, simultaneously for every nonnegative ridge schedule (λt) with λt < ∞,
+
+Rclip  
+
+> T
+
+≥ cα min {T, d }.
+
+At unit power the lower bound is 1 + ⌊min {T, d }/2⌋. Under ∥xt∥2 ≤ 1 and ∥e1∥2 = 1 , the bound remains (cα/4) min {T, d }. These statements hold pointwise in the schedule, even if λt is randomized or selected after observing xt.
+
+The phase scale is explicit. Before triangular round t ≥ 2, let s = t − 1 and St = 1 + Pm−1 
+
+> j=t−1
+
+j2α−2, where m = min {T, d }. The entire ridge prediction is 
+
+byλt = ρt(λ)by0 
+
+> t
+
+, ρt(λ) = sS t
+
+λ + sS t
+
+= 11 + λ/λ c(t) , λc(t) = sS t. (4) For λ ≪ λc(t), the nuisance-driven Moore–Penrose prediction persists; for λ ≫ λc(t), the predic-tion approaches zero and underfits the label one. The crossover is therefore between two failure mechanisms, not between failure and success. The proof uses the rank-one transformed triangular history to derive Equation (4), then observes that shrinking a raw prediction q ≤ 1 toward zero leaves clipped loss at least min {(1 − q)2, 1}. Appendix G gives the complete proof. The resolvent bound following Equation (3) also preserves the paired-Hadamard obstruction for all three rules, although the regularized coefficient vectors no longer coincide. 
+
+Theorem 11 (Ridge-robust separation for all three rules) Fix α ≥ 1 and M ≥ 1, choose a power of two N with 8M 2α ≤ N < 16 M 2α, and set T = 2 M and d = N + 1 . For each powered prime rule and each deterministic past-only ridge policy, there is a deterministic realizable paired-Hadamard sequence on which Rclip  
+
+> T
+
+≥ 32 T / 81 . The sequence may depend on the rule and policy. Under independent Rademacher query signs, the same bound holds in expectation for every possibly randomized past-only ridge policy and for every pre-input switcher or convex mixture of the three ridge-regularized rules. The Pearson statements are uniform over every finite totalization. 
+
+> 8
+
+FEATURE PRIMING IN ONLINE LINEAR REGRESSION 128 512 2048         
+
+> Selected activation dimension
+> 0.2 0.4 0.6 0.8 1.0 1.2
+> Normalized regret
+> APrediction loss
+> Univariate Multivariate Pearson
+> 128 512 2048
+> Selected activation dimension
+> 0.4 0.5 0.6 0.7 0.8 0.9 1.0
+> Second-half target weight
+> BTarget mass
+> 128 512 2048
+> Selected activation dimension
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Fraction with cheap nuisance certificate
+> CInterpolation capacity
+> Target only Real nuisance Permuted 0.0 0.2 0.4 0.6 0.8 1.0 1.2
+> Normalized regret at T=48
+> DNuisance controls
+
+Figure 1: Qwen3.8-27B reproduces the nuisance-capacity mechanism. Across six registered targets, increasing activation dimension raises normalized regret (A), lowers target weight (B), and makes cheap nuisance certificates common (C). Target-only, real-nuisance, and independently permuted-nuisance controls appear in D. Lines and bands in A, B, and D are target-level medians and interquartile ranges; C reports the target fraction satisfying the certificate. The deterministic compiler requires the ridge value to be fixed before the current target sign is revealed. By contrast, Theorem 10 is pointwise in the schedule and therefore allows the univariate ridge value to depend on the current input. The common three-rule statement in Theorem 11 is distributional. 
+
+7. The obstruction in frozen language-model representations 
+
+As an exploratory diagnostic, we test the geometric mechanism on post-gating MLP activations from frozen Qwen2.5-7B-Instruct layers 6, 13, and 20, using Alpaca instruction records (Yang et al., 2024; Taori et al., 2023). Calibration data select six nondegenerate target neurons per layer. For target j, the bounded label is yt = xt,j , so ej has zero loss and nested sets of other neurons serve as nuisance coordinates. We repeat the calibration-only selection, criterion, horizon, registered dimensions, and ordering protocol on frozen Qwen3.8-27B layers 14, 30, and 46 at corresponding relative depths (Qwen Team, 2026). The diagnostic is deliberately synthetic: labels are individual activation coordinates, and the input order is compiled offline to stress the priming maps. Figure 1 gives the registered Qwen3.8 dimension scan. Increasing nuisance dimension raises normalized regret, lowers target mass, and makes cheap nuisance-only certificates common. On six fixed targets, target-only median normalized regret is 0.029 for all three rules; with 2,047 real nuisance neurons ( 2,048 coordinates including the target) it is 1.238 , 0.303 , and 0.587 for univariate, multivariate, and Pearson priming. Independently permuting each nuisance coordinate leaves medians 
+
+0.799 , 0.306 , and 0.555 , so the effect does not require the model’s joint neuron correlations. The Qwen2.5 dimension sweep exhibits the same mechanism. Appendix H gives the cross-generation table, complete Qwen2.5 diagnostic, protocol details, and numerical checks. These are exploratory diagnostics of the proof’s geometry; they do not test whether either model internally implements feature priming. 
+
+9XU FU ZHANG TAO 
+
+8. Related work 
+
+Warmuth and Amid (2023, Sec. 2, p. 2) define the prime–refit map with univariate, Pearson, and multivariate LLS primes. Their Open Problem 1 asks whether any of these priming methods admits a competitive regret bound, without fixing dimension or horizon dependence. Because the note first compares with O(k log( n/k )) regret for averages of k bounded features, we study the corresponding uniform sparse-logarithmic interpretation and answer it negatively. Dimension-dependent guarantees remain possible. Theorem 7 covers their squared-prime variant, and Section 2 proves that signed and literal squaring give the same second-stage prediction. 
+
+Sparse regret and adaptive geometry. The sparse-logarithmic benchmark reflects the classical contrast between coordinatewise and Euclidean updates. Exponentiated-gradient methods can ex-ploit comparators supported on few coordinates (Kivinen and Warmuth, 1997), and exponential weighting with truncation gives deterministic sparsity regret bounds for online regression (Gerchi-novitz, 2011). By contrast, competitive ridge and least-squares methods naturally yield norm- and dimension-dependent guarantees (Cesa-Bianchi et al., 1996; Vovk, 1997; Forster, 1999; Azoury and Warmuth, 2001; Vovk, 2001). Second-order aggregation and adaptive regularization provide other data-dependent guarantees (McMahan and Streeter, 2010; Duchi et al., 2011; Gaillard et al., 2014). Restricted feature observation introduces additional constraints in budgeted statistical learning (Cesa-Bianchi et al., 2011; Hazan and Koren, 2012) and online sparse regression (Foster et al., 2016; Kale et al., 2017; Ito et al., 2018; Li et al., 2025). These alternatives change the update rule, regularizer, feedback model, or structural assumptions; they do not analyze the same closed-form prime–refit map. In batch sparse recovery, explicit ℓ1 regularization, constrained selectors, greedy recovery, and iteratively reweighted least squares provide well-developed alternatives (Tibshirani, 1996; Cand` es and Tao, 2007; Needell and Tropp, 2009; Chartrand and Yin, 2008; Daubechies et al., 2010). Sparse solutions can also arise from the implicit bias of a reparameterized least-squares problem under additional design and optimization conditions (Vaˇ skeviˇ cius et al., 2019). 
+
+Rotation-invariance and symmetry lower bounds. The distinction between coordinate-sensitive and rotation-invariant methods is classical in sparse learning (Ng, 2004; Warmuth and Vishwanathan, 2005); more generally, optimization geometry determines which interpolating solution an underdeter-mined problem selects (Gunasekar et al., 2018). The closest geometric predecessor is the Hadamard separation of Warmuth et al. (2021), which gives a sample-efficiency lower bound for gradient-trained networks with fully connected input layers and rotation-invariant initialization. Feature priming is not rotation invariant: it deliberately rescales the observed coordinates. We retain the sparse-target Hadamard geometry but analyze three concrete, non-invariant prime–refit maps under adversarial online ordering and clipped square loss. The target-mass identity and clipping lemma provide the bridge to all three rules, while the matching rank upper bound and rational triangular construction yield the exact powered-univariate frontier. Related symmetry lower bounds have also been proved for sparse logistic models with hard labels under i.i.d. Gaussian covariates (Ghosh et al., 2026); those results concern statistical excess risk for an invariant algorithm class rather than online square loss for these three non-invariant algorithms. 
+
+Reweighting beyond one-stage priming. Negative results for the three one-stage rules do not preclude successful reweighting with a different outer estimator. Mirror-descent updates can them-selves be represented through suitable gradient-descent reparameterizations (Amid and Warmuth,     
+
+> 10 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+2020). In their overconstrained noisy sparse-target model, Warmuth et al. (2025) establish statistical upper bounds for non-rotation-invariant procedures including an LLS-primed estimator followed by ridge regression at a specified regularization level. The linear recursive feature machine of Radhakrishnan et al. (2025) instead alternates reweighting and refitting, reduces to an iteratively reweighted least-squares variant in the linear setting, and has recovery guarantees for structured statistical problems; it builds on the average-gradient-outer-product feature-learning mechanism of Radhakrishnan et al. (2024). These methods use iteration or distributional assumptions absent from our adversarial online protocol. Theorem 10 rules out this repair on an adversarial triangular sequence, uniformly over the regularization level; it does not conflict with statistical guarantees under prescribed design and noise assumptions. 
+
+9. Scope and limitations 
+
+We study the three one-stage rules at fixed α ≥ 1, together with standard ridge regularization of their transformed second-stage coefficient. A penalty on the transformed-back coefficient w, a regularized first-stage prime, iterative or alternative-prime procedures, and selectors that add other predictors or corrections remain outside scope. The paired-Hadamard witness is shared across rules, not powers or horizons. Its selector guarantee concerns only the three rules at one common fixed power; it permits mixtures of either their coefficients or their clipped predictions. For ridge, the deterministic Hadamard compiler requires a pre-sign regularization level; its policy-uniform version is distributional. The triangular theorem is pointwise and permits current-input-dependent regularization. The shared witness uses d = Θ α(T 2α), which is not claimed sharp. The triangular family closes the powered-univariate frontier at Θα(min {T, d }), whereas at unit power the multivariate and Pearson frontiers retain a √d–d gap. The rank-adaptive guarantee is ensured for Pearson by target preservation; more generally, its exact condition is interpolation by the transformed historical design. The half-scaled triangular family satisfies ∥xt∥2, ∥e1∥2 ≤ 1, so its exact frontier survives both Euclidean constraints. The Hadamard rows have norm √d; normalized multivariate and Pearson separations remain open. The frozen-activation experiments test the three downstream priming maps on synthetic one-neuron labels inside two real representations. They do not test Qwen’s generation mechanism, natural semantic labels, or whether a Transformer implements these online updates internally. 
+
+10. Conclusion 
+
+Under the natural past-only Moore–Penrose protocol, none of the three one-stage feature-priming rules admits uniform sparse-logarithmic regret. The common obstruction is cheap nuisance inter-polation: if κ is the least transformed cost of interpolating the history without the target, then the learned target weight is exactly π21 κ/ (1 + π21 κ). Hadamard features keep this quantity small for all three prime definitions, producing Ω(min {T, √d}) clipped regret against a zero-loss one-sparse comparator. On paired histories the three powered refits coincide, so one sequence also defeats current-input-dependent switchers and convex mixtures for every fixed α ≥ 1.The same analysis also identifies the limit of the failure. Every clipped history-interpolating predictor has regret at most 4 rank( X1: T ), because an error requires a new row-space direction. A Euclidean-normalized triangular sequence matches this dependence for powered univariate priming,    
+
+> 11 XUFUZHANG TAO
+
+giving Θα(min {T, d }) worst-case regret. This frontier survives transformed-coordinate ridge: small regularization preserves nuisance prediction, while large regularization underfits toward zero. More generally, paired Hadamard histories give linear regret for all three powered rules under past-only ridge policies, with a common distributional obstruction for pre-input switchers and mixtures. Thus successful empirical feature recovery does not by itself imply sparse online adaptation: nuisance features determine which interpolant priming selects, while rank determines how long that choice can remain costly. Matching frontiers for multivariate and Pearson priming remain open. 
+
+References 
+
+Ehsan Amid and Manfred K. Warmuth. Reparameterizing mirror descent as gradient descent. In 
+
+Advances in Neural Information Processing Systems 33 , pages 8430–8439, 2020. Katy S. Azoury and Manfred K. Warmuth. Relative loss bounds for on-line density estimation with the exponential family of distributions. Machine Learning , 43(3):211–246, 2001. doi: 10.1023/A:1010896012157. Emmanuel Cand` es and Terence Tao. The dantzig selector: Statistical estimation when p is much larger than n. The Annals of Statistics , 35(6):2313–2351, 2007. doi: 10.1214/009053606000001523. Nicol` o Cesa-Bianchi, Philip M. Long, and Manfred K. Warmuth. Worst-case quadratic loss bounds for prediction using linear functions and gradient descent. IEEE Transactions on Neural Networks ,7(3):604–619, 1996. doi: 10.1109/72.501719. Nicol` o Cesa-Bianchi, Shai Shalev-Shwartz, and Ohad Shamir. Efficient learning with partially observed attributes. Journal of Machine Learning Research , 12(87):2857–2878, 2011. Rick Chartrand and Wotao Yin. Iteratively reweighted algorithms for compressive sensing. In 2008 IEEE International Conference on Acoustics, Speech and Signal Processing , pages 3869–3872. IEEE, 2008. doi: 10.1109/ICASSP.2008.4518498. Ingrid Daubechies, Ronald DeVore, Massimo Fornasier, and C. Sinan G¨ unt¨ urk. Iteratively reweighted least squares minimization for sparse recovery. Communications on Pure and Applied Mathematics ,63(1):1–38, 2010. doi: 10.1002/cpa.20303. John Duchi, Elad Hazan, and Yoram Singer. Adaptive subgradient methods for online learning and stochastic optimization. Journal of Machine Learning Research , 12(61):2121–2159, 2011. J¨ urgen Forster. On relative loss bounds in generalized linear regression. In Proceedings of the 12th International Symposium on Fundamentals of Computation Theory , volume 1684 of Lecture Notes in Computer Science , pages 269–280. Springer, 1999. doi: 10.1007/3-540-48321-7 22. Dean Foster, Satyen Kale, and Howard Karloff. Online sparse linear regression. In 29th Annual Conference on Learning Theory , volume 49 of Proceedings of Machine Learning Research , pages 960–970. PMLR, 2016. Pierre Gaillard, Gilles Stoltz, and Tim van Erven. A second-order bound with excess losses. In 
+
+Proceedings of the 27th Conference on Learning Theory , volume 35 of Proceedings of Machine Learning Research , pages 176–196. PMLR, 2014.     
+
+> 12 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+S´ ebastien Gerchinovitz. Sparsity regret bounds for individual sequences in online linear regression. In Proceedings of the 24th Annual Conference on Learning Theory , volume 19 of Proceedings of Machine Learning Research , pages 377–396. PMLR, 2011. Avrajit Ghosh, Bin Yu, Manfred K. Warmuth, and Peter L. Bartlett. Hard labels sampled from sparse targets mislead rotation invariant algorithms. arXiv preprint arXiv:2603.20967 , 2026. URL 
+
+https://arxiv.org/abs/2603.20967 . Accepted at ICML 2026. Suriya Gunasekar, Jason Lee, Daniel Soudry, and Nathan Srebro. Characterizing implicit bias in terms of optimization geometry. In Proceedings of the 35th International Conference on Machine Learning , volume 80 of Proceedings of Machine Learning Research , pages 1832–1841. PMLR, 2018. Elad Hazan and Tomer Koren. Linear regression with limited observation. In Proceedings of the 29th International Conference on Machine Learning , pages 807–814, 2012. Shinji Ito, Daisuke Hatano, Hanna Sumita, Akihiro Yabe, Takuro Fukunaga, Naonori Kakimura, and Ken-Ichi Kawarabayashi. Online regression with partial information: Generalization and linear projection. In Proceedings of the Twenty-First International Conference on Artificial Intelligence and Statistics , volume 84 of Proceedings of Machine Learning Research , pages 1599–1607. PMLR, 2018. Satyen Kale, Zohar Karnin, Tengyuan Liang, and D´ avid P´ al. Adaptive feature selection: Computa-tionally efficient online sparse linear regression under RIP. In Proceedings of the 34th International Conference on Machine Learning , volume 70 of Proceedings of Machine Learning Research ,pages 1780–1788. PMLR, 2017. Jyrki Kivinen and Manfred K. Warmuth. Exponentiated gradient versus gradient descent for linear predictors. Information and Computation , 132(1):1–63, 1997. doi: 10.1006/inco.1996.2612. Junfan Li, Shizhong Liao, Zenglin Xu, and Liqiang Nie. A polynomial-time algorithm for online sparse linear regression with improved regret bound under weaker conditions. In Proceedings of the 38th Conference on Learning Theory , volume 291 of Proceedings of Machine Learning Research , pages 3623–3670. PMLR, 2025. H. Brendan McMahan and Matthew J. Streeter. Adaptive bound optimization for online convex optimization. In Proceedings of the 23rd Annual Conference on Learning Theory , pages 244–256, 2010. Deanna Needell and Joel A. Tropp. CoSaMP: Iterative signal recovery from incomplete and inaccurate samples. Applied and Computational Harmonic Analysis , 26(3):301–321, 2009. doi: 10.1016/j.acha.2008.07.002. Andrew Y. Ng. Feature selection, l1 vs. l2 regularization, and rotational invariance. In Proceedings of the 21st International Conference on Machine Learning , page 78. ACM, 2004. doi: 10.1145/10 15330.1015435. Qwen Team. Qwen3.8-27B model card. Hugging Face model repository, 2026. URL https: //huggingface.co/Qwen/Qwen3.8-27B . Accessed 2026-08-17.    
+
+> 13 XUFUZHANG TAO
+
+Adityanarayanan Radhakrishnan, Daniel Beaglehole, Parthe Pandit, and Mikhail Belkin. Mechanism for feature learning in neural networks and backpropagation-free machine learning models. Science ,383(6690):1461–1467, 2024. doi: 10.1126/science.adi5639. Adityanarayanan Radhakrishnan, Mikhail Belkin, and Dmitriy Drusvyatskiy. Linear recursive feature machines provably recover low-rank matrices. Proceedings of the National Academy of Sciences ,122(13):e2411325122, 2025. doi: 10.1073/pnas.2411325122. Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann Dubois, Xuechen Li, Carlos Guestrin, Percy Liang, and Tatsunori B. Hashimoto. Alpaca: A strong, replicable instruction-following model. Stanford Center for Research on Foundation Models, 2023. URL https://crfm.stanford. edu/2023/03/13/alpaca.html .Robert Tibshirani. Regression shrinkage and selection via the lasso. Journal of the Royal Statistical Society: Series B (Methodological) , 58(1):267–288, 1996. doi: 10.1111/j.2517-6161.1996.tb020 80.x. Tomas Vaˇ skeviˇ cius, Varun Kanade, and Patrick Rebeschini. Implicit regularization for optimal sparse recovery. In Advances in Neural Information Processing Systems 32 , 2019. Volodya Vovk. Competitive on-line linear regression. In Advances in Neural Information Processing Systems 10 , pages 364–370, 1997. Volodya Vovk. Competitive on-line statistics. International Statistical Review , 69(2):213–248, 2001. doi: 10.1111/j.1751-5823.2001.tb00457.x. Manfred K. Warmuth and Ehsan Amid. Open problem: Learning sparse linear concepts by prim-ing the features. In Proceedings of the 36th Conference on Learning Theory , volume 195 of 
+
+Proceedings of Machine Learning Research , pages 5937–5942. PMLR, 2023. Manfred K. Warmuth and S. V. N. Vishwanathan. Leaving the span. In Learning Theory: 18th Annual Conference on Learning Theory , volume 3559 of Lecture Notes in Computer Science ,pages 366–381. Springer, 2005. doi: 10.1007/11503415 25. Manfred K. Warmuth, Wojciech Kotłowski, and Ehsan Amid. A case where a spindly two-layer linear network decisively outperforms any neural network with a fully connected input layer. In 
+
+Proceedings of the 32nd International Conference on Algorithmic Learning Theory , volume 132 of Proceedings of Machine Learning Research , pages 1214–1236. PMLR, 2021. Manfred K. Warmuth, Wojciech Kotłowski, Matt Jones, and Ehsan Amid. How rotation invariant algorithms are fooled by noise on sparse targets. In Proceedings of the 36th International Conference on Algorithmic Learning Theory , volume 272 of Proceedings of Machine Learning Research , pages 1316–1360. PMLR, 2025. An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, et al. Qwen2.5 technical report. arXiv preprint arXiv:2412.15115 , 2024. URL https://arxiv.org/abs/2412.15115 .    
+
+> 14 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+Appendix A. Formal protocol and conventions 
+
+The appendices follow the proof dependencies. Appendix B collects the common algebraic tools; Appendices C and D prove Theorems 5 and 7; Appendix E proves the rank upper bound; and Appendix F proves the matching powered-univariate frontier. 
+
+A.1. Quantifiers 
+
+Fix a deterministic priming rule. A regret upper bound of sparse logarithmic form would assert that there is a universal constant C such that for every d, k, T , every support S ⊆ [d] with |S| = k, and every possibly adaptive sequence xt ∈ [−1, 1] d, the past-only predictor satisfies 
+
+RT ≤ Ck log( ed/k )
+
+when yt = x⊤ 
+
+> t
+
+uS and uS = k−1 P 
+
+> j∈S
+
+ej . To refute this statement it is enough, for each of an unbounded set of horizons, to provide a possibly horizon-dependent dimension, support, and finite sequence whose regret grows faster than the right-hand side. The factor e keeps the logarithm positive at k = d and is immaterial to the asymptotic benchmark recalled in the source note. Our constructions use S = {1}. At every decisive round there are two legal target signs. Given the deterministic rule and a fixed tie-breaking convention, we simulate its prediction on the current prefix and record the sign with larger loss. For any fixed horizon this finite recursion specifies the entire sequence before the online game begins. Thus the witness is algorithm-dependent but oblivious after compilation: it is fixed before the actual interaction, although it may depend on the deterministic rule being tested. The shared witness in Theorem 7 uses a stronger offline compiler. At each node of a finite paired-Hadamard sign tree, it evaluates the two possible next query signs. The three powered coefficient vectors are identical at every such node, so it selects a sign under which their common prediction incurs constant clipped loss. Appendix D proves the resulting linear loss for all three and for their switchers and mixtures. The selected sequence is therefore independent of which of the three rules is subsequently run and remains fixed throughout online play. 
+
+A.2. Timing 
+
+At round t:1. the learner has access only to (X<t , y <t );2. the prime pt and wt are computed from that history; 3. xt is presented and the learner predicts x⊤ 
+
+> t
+
+wt (or its clipped value); 4. the label yt = xt, 1 is revealed and appended to the history. No displayed weight uses X≤t when predicting at time t.
+
+A.3. Three-rule selectors 
+
+The selector extension in Theorem 7 concerns only the three powered priming rules at one common fixed exponent; it does not permit an additional predictor or correction term. We formalize both mixture semantics covered by the theorem.    
+
+> 15 XUFUZHANG TAO
+
+Definition 12 (Three-rule selector) Fix α ≥ 1 and let R = {uni , LLS , Pearson }. At round t,rule R has coefficient wRt , computed from the completed history as in Equation (1) . A possibly randomized selector has a random tape ξ and, after observing the completed history and current input xt, chooses 
+
+λt = λt(X<t , y <t , x t, ξ ) ∈ ∆R := 
+
+(
+
+λ ∈ [0 , 1] 3 : X
+
+> R∈R
+
+λR = 1 
+
+)
+
+.
+
+The map from (X<t , y <t , x t, ξ ) to λt is measurable. The selector uses one of the following two predictions: 
+
+eycoef  
+
+> t
+
+= clip x⊤
+
+> t
+
+X
+
+> R∈R
+
+λt,R wRt
+
+!
+
+, (5) 
+
+eypred  
+
+> t
+
+= X
+
+> R∈R
+
+λt,R clip( x⊤ 
+
+> t
+
+wRt ). (6) 
+
+A switcher is the special case in which λt is a simplex vertex. 
+
+The second output already lies in [−1, 1] , so applying a final clipping does not change it. In general Equations (5) and (6) are different because clipping and mixing do not commute. Theorem 7 covers both only because the three raw predictions coincide on every charged query round. The definition excludes arbitrary current-input corrections; such a broader learner could simply use xt, 1
+
+on our realizable witnesses. 
+
+A.4. Moore–Penrose and zero-prime conventions 
+
+Every pseudoinverse is the unique Moore–Penrose pseudoinverse. Given a diagonal prime matrix D,the second stage is exactly 
+
+z = ( XD )†y, w = Dz. 
+
+If pi = 0 , then wi = 0 automatically. In the weighted-norm formulation, we restrict the optimization to supp( p) and fix the remaining coordinates to zero. None of the proofs divides by a zero prime. For the univariate rule, a historical zero column receives prime zero. On nonzero columns the one-dimensional pseudoinverse formula is used exactly. 
+
+A.5. Pearson convention 
+
+For a history of length n ≥ 2, write 
+
+eXi = X(: , i ) − ¯Xi1, ey = y − ¯y1.
+
+When both centered vectors are nonzero, the Pearson prime is 
+
+pi = eX⊤ 
+
+> i
+
+ey
+
+∥ eXi∥2∥ey∥2
+
+.
+
+The original statistic is undefined for histories of length zero or one and, at longer histories, whenever either empirical variance is zero. We call a rule a finite totalization of Pearson priming if it agrees     
+
+> 16 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+with the displayed correlation whenever that correlation is defined and assigns every undefined prime an arbitrary finite real value determined only by the past. In particular, the fill cannot depend on the current input, current label, or future data. The second-stage predictor is then computed exactly as in Equation (1). Both Pearson witnesses are independent of the chosen totalization. The rule-specific construction in Section C.4 starts with one opposite pair and charges only later query rounds, so its two convention-dependent seed losses are discarded. The shared powered construction in Appendix D charges the empty-history query, whose prediction is necessarily zero, and omits every recovery loss from its lower-bound sum; only the first recovery can depend on the Pearson fill. Every later charged history has positive variance in all active features and labels. Coordinate padding may add zero-variance columns, but their filled primes multiply identically zero features and cannot change a charged prediction. 
+
+A.6. Raw and clipped predictions 
+
+The literal predictor uses by = x⊤w. Since all labels in the lower bound are in [−1, 1] , the clipped value clip( by) never has larger square loss. Theorem 5 proves its lower bound directly after clipping; it does not infer clipped failure from an out-of-range raw prediction. 
+
+A.7. Comparator and boundedness 
+
+In every family, u = e1 is fixed before the sequence and yt = xt, 1. Hence its cumulative loss is identically zero. The Hadamard families are sign-valued in their base dimensions; the arbitrary-dimensional embedding pads zero coordinates and therefore lies in {− 1, 0, 1}d. The triangular family lies in [−1, 1] d and has rational entries. The constraint xt ∈ [−1, 1] d is coordinatewise, so the sign-valued Hadamard rows have Euclidean norm √d. Uniformly rescaling inputs and labels changes the scale at which clipping acts, so the clipped Hadamard lower bounds do not automatically transfer to Euclidean-normalized inputs. The present theorem makes no such normalized-input claim. 
+
+Appendix B. Common algebraic and geometric tools 
+
+B.1. Minimum-norm identities used throughout Lemma 13 (Weighted minimum-norm representation) Let p ∈ Rd, D = diag( p), and suppose 
+
+y ∈ col( XD ). Then z = ( XD )†y uniquely solves 
+
+min  
+
+> z∈Rd
+
+∥z∥22 subject to XDz = y. 
+
+Writing w = Dz gives the equivalent problem 
+
+min 
+
+> w
+
+X 
+
+> i:pi̸=0
+
+w2
+
+> i
+
+p2
+
+> i
+
+subject to Xw = y, wi = 0 if pi = 0 .
+
+This is the prime-weighted geometry used in Lemma 1; zero-prime coordinates are fixed at zero and never appear in a denominator.    
+
+> 17 XUFUZHANG TAO
+
+Proof Because y ∈ col( XD ), the Moore–Penrose vector (XD )†y is the unique minimum-Euclidean-norm solution of the consistent system XDz = y. If z is feasible, setting zi = 0 off supp( p) does not change XDz and can only decrease its norm. Hence every minimum-norm feasible vector is supported on supp( p). Restricted to this subspace, the map w = Dz satisfies Xw = y, wi = 0 
+
+whenever pi = 0 , and zi = wi/p i on supp( p). Conversely, if Xw = y and wi = 0 off supp( p), the vector defined by zi = wi/p i on supp( p) and zero elsewhere is feasible for XDz = y. On these restricted spaces the two maps are inverse to one another. Moreover, 
+
+∥z∥22 = X 
+
+> i:pi̸=0
+
+z2 
+
+> i
+
+= X 
+
+> i:pi̸=0
+
+w2
+
+> i
+
+p2
+
+> i
+
+.
+
+Thus the bijection preserves the objective and identifies the two optimization problems and their unique minimum-norm representative. The next elementary facts are used when a construction is paired, padded, or globally rescaled. We state them explicitly because all three operations involve rank-deficient matrices in some histories. 
+
+Lemma 14 (Pseudoinverse invariances) Let A be any real matrix. 1. For every nonzero scalar c, (cA )† = c−1A†.2. If Q and R are orthogonal matrices of compatible sizes, then 
+
+(QA )† = A†Q⊤, (AR )† = R⊤A†.
+
+In particular, a simultaneous row permutation of a design and its label vector does not change the minimum-norm coefficient. 3. If ¯A = [ A; −A] and ¯y = [ y; −y], then ¯A† ¯y = A†y.4. For every diagonal D and nonzero scalar c,
+
+cD  X(cD )†y = D(XD )†y. 
+
+Proof We verify the identities without a rank assumption. For a nonzero scalar c, put B = c−1A†.The four Moore–Penrose equations for the pair (cA, B ) are 
+
+(cA )B(cA ) = cAA †A = cA, B(cA )B = c−1A†AA † = B, 
+
+ (cA )B⊤ = ( AA †)⊤ = AA † = ( cA )B, 
+
+ B(cA )⊤ = ( A†A)⊤ = A†A = B(cA ).
+
+Uniqueness of the Moore–Penrose inverse gives (cA )† = c−1A†, including when c < 0.Next take a full singular-value decomposition A = U ΣV ⊤. Then A† = V Σ†U ⊤. Orthogonality of Q and R gives 
+
+QA = ( QU )Σ V ⊤, AR = U Σ( R⊤V )⊤,
+
+and hence 
+
+(QA )† = V Σ†U ⊤Q⊤ = A†Q⊤, (AR )† = R⊤V Σ†U ⊤ = R⊤A†.    
+
+> 18 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+Taking Q to be a permutation matrix therefore yields 
+
+(QA )†(Qy ) = A†Q⊤Qy = A†y. 
+
+For the duplication identity, the least-squares objective for ¯Az ≈ ¯y is 
+
+∥Az − y∥22 + ∥ − Az + y∥22 = 2 ∥Az − y∥22.
+
+Thus the two problems have the same least-squares minimizers, and their unique minimum-norm minimizers coincide. The final identity is the first one with A = XD :
+
+cD (cXD )†y = cD  c−1(XD )†y = D(XD )†y. 
+
+Lemma 15 (Zero-coordinate embedding) Append q ≥ 0 identically zero feature columns to every historical and current input. For the univariate and multivariate prime rules, at every fixed power 
+
+α > 0, the prediction on the original coordinates is unchanged and all appended second-stage coefficients are zero. The same is true for a finitely totalized Pearson rule whenever its primes on the original coordinates agree before and after padding; in particular, this holds when all those original-coordinate correlations are defined. 
+
+Proof For univariate priming, each appended historical column has prime zero by definition. For multivariate priming, 
+
+[X, 0] †y =
+
+X†y
+
+0q
+
+
+
+,
+
+as follows either from an SVD or from the minimum-norm characterization: the new coordinates do not affect the residual and are therefore zero in the minimum-norm solution. Thus the powered transformed design has the form [XD, 0] in both cases. For Pearson, assume the original primes are unchanged. Each new prime may be an arbitrary finite fill, but it multiplies an identically zero column, so the powered transformed design again has the form [XD, 0] . This assumption is automatic when the original correlations are defined, because appending feature coordinates does not change their empirical means, variances, or covariances. In every stated case, the Moore–Penrose solution for [XD, 0] is 
+
+[XD, 0] †y =
+
+(XD )†y
+
+0q
+
+
+
+.
+
+Thus transforming back leaves the original coefficient and prediction unchanged. Without the agreement condition, a dimension-dependent Pearson totalization may change its undefined fills on old coordinates, and no general padding invariance is claimed. 
+
+Lemma 16 (Zero-tail extension) After any fixed finite active sequence, appending rounds with 
+
+xt = 0 and yt = 0 leaves all earlier losses unchanged and contributes zero loss on every new round, for both raw and clipped predictions.    
+
+> 19 XUFUZHANG TAO
+
+Proof Earlier predictions depend only on their completed prefixes and hence cannot be changed by later data. On every appended round, linearity gives 
+
+x⊤ 
+
+> t
+
+wt − yt = 0 ⊤wt − 0 = 0 
+
+for any finite coefficient wt.
+
+B.2. Hadamard interpolation Lemma 17 (Hadamard interpolation and dyadic rounding) For every power of two N , the Sylvester construction provides H ∈ {± 1}N ×N with HH ⊤ = N I N . Let Hr contain its first r rows. Then HrH⊤ 
+
+> r
+
+= N I r, and for every a ∈ Rr,
+
+v = 1
+
+N H⊤ 
+
+> r
+
+a (7) 
+
+satisfies Hrv = a. This explicit nuisance-only interpolant drives the univariate and Pearson target-mass bounds. For every real q ≥ 1, some power of two N satisfies q ≤ N < 2q. Taking q = 4( T − 1) 2 or 
+
+q = 4 M 2 gives the dimensions below. 
+
+Proof Starting from H1 = [1] , use the Sylvester recursion 
+
+H2n =
+
+Hn Hn
+
+Hn −Hn
+
+
+
+.
+
+If HnH⊤ 
+
+> n
+
+= nI n, block multiplication gives 
+
+H2nH⊤ 
+
+> 2n
+
+=
+
+2HnH⊤ 
+
+> n
+
+00 2HnH⊤
+
+> n
+
+
+
+= 2 nI 2n.
+
+Restricting this identity to the first r rows yields HrH⊤ 
+
+> r
+
+= N I r. Consequently, the vector in Equation (7) satisfies 
+
+Hrv = 1
+
+N HrH⊤ 
+
+> r
+
+a = a. 
+
+For the rounding statement take N = 2 ⌈log 2 q⌉; then q ≤ N < 2q, including when q itself is a power of two. 
+
+Lemma 18 (Minimum norm for collinear transformed columns) Let the nonzero columns of a consistent design be ciu, where u̸ = 0 and the desired label vector is u. Among all coefficients z
+
+satisfying P 
+
+> i
+
+cizi = 1 , the unique minimum-norm vector is 
+
+zi = ci
+
+P 
+
+> j
+
+c2
+
+> j
+
+, ∥z∥22 = 1
+
+P 
+
+> j
+
+c2
+
+> j
+
+.
+
+> 20
+
+FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+Proof Cauchy–Schwarz gives 
+
+1 = X
+
+> i
+
+cizi
+
+!2
+
+≤ X
+
+> i
+
+c2
+
+> i
+
+! X
+
+> i
+
+z2
+
+> i
+
+!
+
+.
+
+Equality holds exactly when z = λc for some scalar λ. Substituting this form into the constraint gives 
+
+1 = λ X
+
+> i
+
+c2 
+
+> i
+
+, λ = 1
+
+P 
+
+> i
+
+c2
+
+> i
+
+.
+
+This proves both the displayed coefficient and its squared norm. 
+
+Lemma 19 (Exact interpolation criterion for a prime refit) Let D be any diagonal matrix, set 
+
+A = XD , and let w = DA †y. Then 
+
+Xw = AA †y = Pcol( A)y. 
+
+Consequently the second-stage coefficient interpolates the history if and only if y ∈ col( XD ).
+
+Proof Substituting w = DA †y and A = XD gives 
+
+Xw = XDA †y = AA †y. 
+
+Take a compact singular-value decomposition A = UrΣrV ⊤ 
+
+> r
+
+. Then A† = VrΣ−1 
+
+> r
+
+U ⊤ 
+
+> r
+
+, so 
+
+AA † = UrΣrV ⊤ 
+
+> r
+
+VrΣ−1 
+
+> r
+
+U ⊤ 
+
+> r
+
+= UrU ⊤ 
+
+> r
+
+,
+
+the orthogonal projector onto span( Ur) = col( A). It fixes y exactly if and only if y ∈ col( A).
+
+Appendix C. Proof of the unit-power sparse-regret separation 
+
+This appendix proves Theorem 5 in the order in which its construction is assembled. We first state finite-block bounds for the three rules, then prove them from one Hadamard geometry, and finally convert the finite blocks to arbitrary horizons and dimensions. 
+
+C.1. Rule-specific finite-block bounds Proposition 20 (Clipping-robust rule-specific bounds) Consider the past-only protocol in Sec-tion 2 with comparator u = e1.1. For every T ≥ 2, there exists a power of two N such that 
+
+4( T − 1) 2 ≤ N < 8( T − 1) 2, d = N + 1 .
+
+For each of the clipped multivariate LLS-prime and univariate-prime predictors, there is a rule-dependent offline-constructed sequence, fixed before play, x1, . . . , x T ∈ {± 1}d with yt = xt, 1
+
+such that 
+
+Rclip ,LLS  
+
+> T
+
+≥ T
+
+4 , Rclip ,uni  
+
+> T
+
+≥ 9T
+
+16 ,
+
+respectively. 
+
+21 XU FU ZHANG TAO 
+
+2. For every M ≥ 1, there exists a power of two N satisfying 4M 2 ≤ N < 8M 2 and set d = N + 1 ,
+
+T = 2 + 2 M . Under every finite Pearson totalization from Section 2, one offline-constructed sign-valued sequence, independent of the totalization and satisfying yt = xt, 1, obeys 
+
+Rclip ,Pearson  
+
+> T
+
+≥ 9M
+
+16 = 932 (T − 2) .
+
+Every charged round has positive empirical variance in every feature and in the labels. In all three cases the one-sparse comparator has zero cumulative loss. 
+
+C.2. Multivariate LLS prime 
+
+This section gives the complete multivariate part of Proposition 20. The proof first computes the prime on an arbitrary Hadamard prefix, then turns the resulting target-mass bound into a recursively fixed sign sequence. C.2.1. T HE PRIME AND ITS TARGET MASS 
+
+Let N be a power of two, d = N + 1 , and let h1, . . . , h N be distinct rows of an N × N Hadamard matrix. After r ≥ 1 rounds, write 
+
+X = [ a, H r], a = ( a1, . . . , a r)⊤ ∈ {± 1}r, b = H⊤ 
+
+> r
+
+a. 
+
+The target column is a, and the nuisance block is Hr.
+
+Lemma 21 (Multivariate prime on a Hadamard prefix) For the history above, the multivariate first-stage prime is 
+
+p = X†a =
+
+ rN + r , bN + r
+
+
+
+. (8) 
+
+If w = diag( p)( X diag( p)) †a is the second-stage coefficient, then 
+
+0 ≤ w1 ≤ (N + 1) r2
+
+(N + r)2 . (9) 
+
+In particular, w1 ≤ 1/2 whenever r ≤ √N / 2.
+
+Proof Hadamard orthogonality gives 
+
+XX ⊤ = aa ⊤ + HrH⊤ 
+
+> r
+
+= aa ⊤ + N I r.
+
+This matrix is positive definite, so X has full row rank and X† = X⊤(XX ⊤)−1. Since a⊤a = r,
+
+(N I r + aa ⊤)a = ( N + r)a, (N I r + aa ⊤)−1a = aN + r .
+
+Multiplying by X⊤ = [ a, H r]⊤ proves Equation (8); in particular, 
+
+p1 = rN + r .
+
+> 22
+
+FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+Because X has full row rank, 
+
+Xp = XX †a = a. 
+
+Let qi = 1 on supp( p) and qi = 0 otherwise. For D = diag( p),
+
+Dq = p, XDq = Xp = a. 
+
+The vector q is therefore feasible for the transformed interpolation problem. If J = ∥(XD )†a∥22,Lemma 13 gives 
+
+J ≤ ∥ q∥22 = | supp( p)| ≤ d = N + 1 .
+
+The target-mass identity now yields 
+
+0 ≤ w1 = p21J ≤ (N + 1) r2
+
+(N + r)2 ,
+
+which is Equation (9). If r ≤ √N / 2, then 
+
+w1 ≤ (N + 1) r2
+
+N 2 ≤ N + 1 4N ≤ 12 ,
+
+where the last inequality uses N ≥ 1.C.2.2. O FFLINE SIGN COMPILATION 
+
+Proof of Proposition 20, multivariate case For a completed prefix a1, . . . , a r, let w(r) denote the coefficient computed from that history. The online protocol fixes w(r) before the next input is shown. For each candidate sign σ ∈ {± 1}, consider 
+
+xσr+1 = ( σ, h r+1 ), yσr+1 = σ. 
+
+Writing cr = h⊤
+
+> r+1
+
+w(r)2: d, the two raw predictions are 
+
+byσr+1 = cr + σw (r)1 , σ ∈ {± 1}.
+
+If 1 ≤ r ≤ √N / 2, Lemma 21 gives 0 ≤ w(r)1 ≤ 1/2, and Lemma 2 gives 
+
+12
+
+X
+
+> σ∈{± 1}
+
+
+
+clip 
+
+
+
+cr + σw (r)1
+
+
+
+− σ
+
+2
+
+≥ (1 − w(r)1 )2 ≥ 14 .
+
+Since the maximum of two numbers is at least their average, 
+
+max 
+
+> σ∈{± 1}
+
+
+
+clip( cr + σw (r)1 ) − σ
+
+2
+
+≥ 14 .
+
+Append a maximizing sign, choosing +1 when the two losses tie. At r = 0 the coefficient is zero, so both signs incur loss one and the same tie rule applies. This recursion is finite and deterministic once the multivariate rule, N , the Hadamard rows, and a tie-breaking convention are fixed. It therefore defines the full sign sequence before the online 
+
+23 XU FU ZHANG TAO 
+
+interaction is replayed; the sequence does not react to runtime predictions. Every label is the first coordinate, so the fixed comparator e1 has zero loss. Let L = ⌊√N / 2⌋ + 1 . Before each of the first L rounds the number of historical rows satisfies 
+
+r ≤ L − 1 ≤ √N / 2. The preceding argument therefore gives 
+
+Rclip ,LLS  
+
+> L
+
+≥ L
+
+4 .
+
+The construction has enough distinct Hadamard rows: in the regime used by the proposition N ≥ 4,and then L ≤ N . If N ≥ 4( T − 1) 2, then T − 1 ≤ √N / 2, hence T ≤ L; truncating the compiled sequence after T rounds proves 
+
+Rclip ,LLS  
+
+> T
+
+≥ T
+
+4 .
+
+C.3. Univariate prime Lemma 22 (Univariate target mass on a Hadamard prefix) Let X = [ a, H r] with a ∈ {± 1}r
+
+and r ≥ 1. The univariate primes satisfy 
+
+p1 = 1 , pj+1 = bj
+
+r (j ∈ [N ]) , b = H⊤ 
+
+> r
+
+a. (10) 
+
+The corresponding second-stage target coefficient obeys 
+
+0 ≤ w1 ≤ r2
+
+N .
+
+Proof The target historical column is exactly a, hence its one-dimensional regression coefficient is one. Each nuisance column has squared norm r, which proves Equation (10). Let v = N −1H⊤ 
+
+> r
+
+a = b/N .By Equation (7), Hrv = a.We construct a feasible transformed coefficient with zero target coordinate. Set znui 1 = 0 . For each j ∈ [N ], when bj̸ = 0 , set 
+
+znui  
+
+> j+1
+
+= vj
+
+pj+1 
+
+= bj /N bj /r = rN ;
+
+when bj = 0 , both vj and pj+1 are zero, so set znui  
+
+> j+1
+
+= 0 . This support convention is essential: no division by a zero prime occurs. Feasibility follows coordinate by coordinate: 
+
+Dz nui =
+
+0
+
+v
+
+
+
+, XDz nui = Hrv = a. 
+
+Moreover, 
+
+∥znui ∥22 = |{ j : bj̸ = 0 }| r2
+
+N 2 ≤ r2
+
+N .
+
+By minimum-norm optimality the actual transformed objective J is no larger. Since p1 = 1 , Lemma 1 gives w1 = J, proving the claim. 
+
+> 24
+
+FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+Proof of Proposition 20, univariate case After a completed prefix of r labels, let w(r) be the univariate-primed coefficient computed from that prefix. It is fixed before the next input is revealed. Hold the next nuisance row hr+1 fixed and write cr = h⊤
+
+> r+1
+
+w(r)2: d. The two legal candidate examples are 
+
+xσr+1 = ( σ, h r+1 ), yσr+1 = σ, σ ∈ {± 1},
+
+Their raw predictions can be written uniformly as 
+
+byσr+1 = cr + σw (r)1 , σ ∈ {± 1}.
+
+When 1 ≤ r ≤ √N / 2, Lemma 22 gives 0 ≤ w(r)1 ≤ 1/4. Lemma 2 therefore gives 
+
+12
+
+X
+
+> σ∈{± 1}
+
+
+
+clip( cr + σw (r)1 ) − σ
+
+2
+
+≥ (1 − w(r)1 )2 ≥ 916 .
+
+The maximum of the two losses is at least their displayed average. Append a maximizing sign, choosing +1 in a tie. At r = 0 the empty-history coefficient is zero, so both signs lose one and the same tie rule applies. Induction therefore compiles a finite deterministic sign string before it is replayed online; no sign is selected from a runtime prediction. For L = ⌊√N / 2⌋ + 1 , all L rounds are therefore valid and 
+
+Rclip ,uni  
+
+> L
+
+≥ 1 + 916 (L − 1) ≥ 9L
+
+16 .
+
+For N ≥ 4, one has L ≤ N , so all required Hadamard rows are available. If N ≥ 4( T − 1) 2, then 
+
+T ≤ L; truncation after T rounds gives 
+
+Rclip ,uni  
+
+> T
+
+≥ 9T
+
+16 .
+
+C.4. Pearson prime 
+
+Pearson correlation is undefined on an empty or constant history. We isolate that issue in a two-round seed and thereafter maintain a paired state in which every active correlation is defined. This yields one sign sequence that is simultaneously valid for every finite past-only totalization. C.4.1. T HE PAIRED STATE 
+
+For s ≥ 1, a completed paired history consists, for each ℓ ∈ [s], of the two examples 
+
+(( aℓ, h ℓ), a ℓ) and (( −aℓ, −hℓ), −aℓ), aℓ ∈ {± 1}.
+
+Let a = ( a1, . . . , a s)⊤, let Hs contain the corresponding Hadamard rows, and write b = H⊤ 
+
+> s
+
+a.
+
+25 XU FU ZHANG TAO 
+
+Lemma 23 (Pearson primes and target mass in a paired state) On a completed paired history, every feature column and the label vector has positive empirical variance. The Pearson primes are uniquely determined by the usual correlation formula and satisfy 
+
+p1 = 1 , pj+1 = bj
+
+s (j ∈ [N ]) . (11) 
+
+The second-stage target coefficient obeys 
+
+0 ≤ w1 ≤ s2
+
+N .
+
+Both conclusions are independent of the finite totalization. 
+
+Proof Each paired scalar column has the form (q1, −q1, . . . , q s, −qs) with qℓ ∈ {± 1}. Its empirical mean is zero and its squared centered norm is 2s > 0; the label vector has the same properties. The target column equals the label vector, so its correlation is one. For nuisance coordinate j, the centered covariance numerator is 
+
+> s
+
+X
+
+> ℓ=1
+
+ hℓj aℓ + ( −hℓj )( −aℓ) = 2 Hs(: , j )⊤a = 2 bj ,
+
+while both centered norms equal √2s. This proves Equation (11). Because every variance is positive, a totalization has no freedom on these coordinates. For completeness, we repeat rather than merely cite the nuisance certificate. Let 
+
+v = 1
+
+N H⊤ 
+
+> s
+
+a = bN , Hsv = a. 
+
+Give the transformed target coordinate value zero. If bj̸ = 0 , set 
+
+znui  
+
+> j+1
+
+= vj
+
+pj+1 
+
+= bj /N bj /s = sN ;
+
+if bj = 0 , then both vj and pj+1 vanish and we set znui  
+
+> j+1
+
+= 0 . On one representative from each pair the transformed nuisance prediction is Hsv = a; by sign symmetry it also fits every opposite row because 
+
+(−Hs)v = −a. 
+
+Thus this vector is feasible for the full paired transformed system and 
+
+∥znui ∥22 = |{ j : bj̸ = 0 }| s2
+
+N 2 ≤ s2
+
+N .
+
+Minimum-norm optimality and Lemma 1, with p1 = 1 , give 0 ≤ w1 = J ≤ s2/N .
+
+Lemma 24 (Query–recovery invariant) Assume the history consists of s ≥ 1 completed pairs and s ≤ √N / 2. There is a query sign as+1 ∈ {± 1}, independent of the finite Pearson totalization, whose clipped loss is at least 9/16 . After its label is revealed, presenting the exact opposite example gives raw and clipped loss zero and restores a completed paired history with s + 1 pairs.     
+
+> 26 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+Proof Before the query, Lemma 23 gives 0 ≤ w1 ≤ s2/N ≤ 1/4. The coefficient is computed before the current input. Holding the nuisance row hs+1 fixed, the two legal inputs (+1 , h s+1 ) and 
+
+(−1, h s+1 ) therefore satisfy the hypotheses of Lemma 2. The larger of the two losses is at least their average, so choose a maximizing sign, taking +1 in a tie. Its loss is at least (1 − w1)2 ≥ 9/16 . Every prime used for this query is uniquely defined by the paired history, so the chosen sign is the same for all finite totalizations. Now append the query and reveal its label. In this enlarged history the target feature column still equals the complete label vector and is nonconstant, hence its Pearson prime is one. If D is the diagonal prime matrix, then 
+
+XDe 1 = Xe 1 = y. 
+
+Thus the transformed coefficient e1 is feasible for XDz = y, so y ∈ col( XD ), and Lemma 19 shows that the Moore–Penrose refit interpolates every stored row. In particular, its raw prediction on the just appended query x equals its label y. The next round uses this refitted coefficient and input 
+
+−x with label −y; linearity gives 
+
+(−x)⊤w = −x⊤w = −y. 
+
+Thus the recovery loss is zero. Appending the recovery row restores zero means and completes the new opposite pair. C.4.2. T HE TOTALIZATION -UNIFORM CONSTRUCTION 
+
+Proof of Proposition 20, Pearson case Start with the fixed seed pair 
+
+(x1, y 1) = ((1 , h 1), 1) , (x2, y 2) = ( −(1 , h 1), −1) .
+
+The empty-history coefficient is zero. The prediction on the second seed round may depend on the arbitrary length-one totalization, but it is finite; neither seed loss is used in the lower bound. After the pair is stored, the history is in the state of Lemma 23 with s = 1 .For s = 1 , . . . , M , apply Lemma 24, using a fixed tie-breaking convention, and append the selected query and its recovery. If N ≥ 4M 2, every charged stage satisfies s ≤ √N / 2. The construction also has enough distinct nuisance rows: M + 1 ≤ N follows from N ≥ 4M 2 for 
+
+M ≥ 1. Because the paired-state prediction and the selected sign are independent of the totalization at every stage, this single finite recursion produces one sign sequence that works simultaneously for all finite past-only Pearson totalizations. The entire sequence is fixed before online replay. There are M charged queries, each with loss at least 9/16 ; all recovery losses are zero and the two seed losses are nonnegative. Since every label is the first coordinate, comparator e1 has zero loss. With T = 2 + 2 M ,
+
+Rclip ,Pearson  
+
+> T
+
+≥ 9M
+
+16 = 932 (T − 2) .
+
+This proves the Pearson part of Proposition 20.    
+
+> 27 XUFUZHANG TAO
+
+C.5. From finite blocks to arbitrary horizons and dimensions 
+
+The rule-specific proofs in Sections C.2–C.4 establish a slightly more flexible statement than Propo-sition 20. For any power of two N ≥ 4, the multivariate and univariate compilers are valid for every length at most 
+
+LN =
+
+$ √N
+
+2
+
+%
+
++ 1 ,
+
+with per-round lower bounds 1/4 and 9/16 , respectively. For N ≥ 4, LN ≤ N , so all rows 
+
+h1, . . . , h LN required by either compiler are available. The Pearson compiler is valid for any number 
+
+q ≤ ⌊ √N / 2⌋ of charged query–recovery cycles after its seed pair. Indeed, these are precisely the prefix conditions checked in Lemmas 21, 22, and 24. We now choose the largest available Hadamard block and account explicitly for all rounding. 
+
+Proof of Theorem 5 using the admissible-prefix constructions For the multivariate and univariate rules, take x1 = (1 , . . . , 1) ∈ {± 1}d and y1 = 1 when T = 1 . The empty-history transformed design has zero rows, so its Moore–Penrose coefficient and the prediction are zero; the clipped loss is therefore (0 − 1) 2 = 1 . Hence assume T ≥ 2 for those rules; the Pearson statement already assumes 
+
+T ≥ 4.Let N be the largest power of two not exceeding d−1 and set d′ = N +1 . Then N ≤ d−1 < 2N .Since d ≥ 5, we have N ≥ 4, and 
+
+d′ = N + 1 > d
+
+2 , d′ = N + 1 ≤ 5N
+
+4 .
+
+Run the construction in the first d′ coordinates and pad the remaining d − d′ coordinates with zeros. Lemma 15 shows that this embedding preserves every active prediction for the multivariate and univariate rules. For Pearson, every charged query begins from a completed paired history. Lemma 23 shows that all original-coordinate correlations are then defined and unchanged by padding, while every padded prime multiplies an identically zero column. The same is true after a query when the recovery coefficient is fitted. Thus the charged queries and exact recoveries remain totalization-independent; only the two discarded seed losses may change with the dimension-dependent fill. For the first two rules, compile L = LN active rounds. Truncate if T < L , and if T > L use the zero-tail extension in Lemma 16. The smaller per-round constant is 1/4, so the regret is at least  
+
+> 14
+
+min {T, L }. Since L = ⌊√N / 2⌋ + 1 ≥ √N / 2 and d′ ≤ 5N/ 4,
+
+L ≥√d′
+
+√5 .
+
+For every 0 < c ≤ 1, min {A, cB } ≥ c min {A, B }. Applying this fact twice, first with c = 1 /√5
+
+and then using √d′ > √d/ √2, gives 
+
+Rclip  
+
+> T
+
+≥ 14 min {T, L } ≥ 14√5 min {T, √d′}≥ 14√10 min {T, √d}.
+
+For Pearson, use 
+
+q = min 
+
+( T − 22
+
+
+
+,
+
+$ √N
+
+2
+
+%)     
+
+> 28 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+query–opposite cycles after the seed pair. This choice satisfies 2 + 2 q ≤ T and the Pearson admissibility condition q ≤ ⌊ √N / 2⌋. It also leaves enough distinct Hadamard rows for the seed and all queries: since N ≥ 4, q + 1 ≤ ⌊ √N / 2⌋ + 1 ≤ N . For T ≥ 4,
+
+ T − 22
+
+
+
+≥ T
+
+5 :
+
+the case T = 4 holds directly because 1 ≥ 4/5. For T ≥ 5,
+
+ T − 22
+
+
+
+≥ T − 32 ≥ T
+
+5 .
+
+Since N ≥ 4, $ √N
+
+2
+
+%
+
+≥√N
+
+4 ≥√d′
+
+2√5 ≥√d′
+
+5 .
+
+It follows that q ≥ 15 min {T, √d′}. The q query losses sum to at least 
+
+9q
+
+16 ≥ 980 min {T, √d′} ≥ 980 √2 min {T, √d}.
+
+If 2 + 2 q < T , append the remaining zero-input, zero-label tail; by Lemma 16 it contributes exactly zero loss. Finally, 14√10 > 115 , 980 √2 > 115 ,
+
+which proves the displayed constant in Theorem 5. To prove its sparse-logarithmic consequence, fix any of the three rules and suppose that some finite constant C gave the uniform bound 
+
+RT ≤ Ck log 
+
+ ed k
+
+
+
+.
+
+Take k = 1 and dimensions of order d = T 2, rounding to the next admissible integer if needed. Along this sequence of horizons, 
+
+RT ≥ T
+
+15 but C log( ed ) = O(C log T ).
+
+This is impossible as T → ∞ . Because clipping cannot increase square loss, the same sequence also refutes the corresponding raw-prediction guarantee. 
+
+Appendix D. Proof of the powered shared-witness theorem 
+
+Fix α ≥ 1 and define 
+
+fα(q) = sign( q)|q|α, Dα(p) = diag  fα(p1), . . . , f α(pd).
+
+The powered rule replaces the base-prime matrix by Dα(p) in the second Moore–Penrose fit. We first record the individual target-mass bounds, then prove the stronger fact used by Theorem 7: on completed paired histories, all three powered refits are exactly the same vector. 
+
+> 29
+
+XU FU ZHANG TAO 
+
+D.1. Individual powered target-mass certificates Lemma 25 (Powered Hadamard certificates) Let Hr contain r ≥ 1 rows of an N ×N Hadamard matrix, let a ∈ {± 1}r, and put X = [ a, H r]. Before the next query, the target coefficient of the powered-univariate refit satisfies 
+
+0 ≤ wuni 1 ≤ r2α
+
+N ,
+
+whereas the powered-multivariate refit satisfies 
+
+0 ≤ wLLS 1 ≤ r2α
+
+N .
+
+After s ≥ 1 completed opposite pairs, powered Pearson priming satisfies the univariate bound with 
+
+r = s, independently of every finite Pearson totalization. 
+
+Proof Write b = H⊤ 
+
+> r
+
+a. For univariate priming, the target base prime is one and the nuisance base primes are 
+
+p1 = 1 , pj+1 = bj
+
+r , j ∈ [N ].
+
+The nuisance vector v = N −1H⊤ 
+
+> r
+
+a = b/N satisfies Hrv = a by Lemma 17. For bj̸ = 0 , set 
+
+zj+1 = vj
+
+fα(bj /r ) ,
+
+and set zj+1 = 0 when bj = 0 ; also set z1 = 0 . If bj = 0 , then vj = 0 , so no interpolation mass is lost. If bj̸ = 0 , its integer value has magnitude at least one and 
+
+|zj+1 | = |bj |/N 
+
+(|bj |/r )α = rα
+
+N |bj |α−1 ≤ rα
+
+N .
+
+Coordinatewise, Dα(p)z = (0 , v ), and hence 
+
+XD α(p)z = Hrv = a, ∥z∥22 ≤ N
+
+ rα
+
+N
+
+2
+
+= r2α
+
+N .
+
+The target-mass identity, Lemma 1, now gives 0 ≤ wuni 1 ≤ r2α/N .For multivariate priming, Lemma 21 gives the full base-prime vector 
+
+p1 = rN + r , pj+1 = bj
+
+N + r , j ∈ [N ], Xp = a. 
+
+Use the nuisance interpolant v = b/N from the univariate calculation. For bj̸ = 0 , represent vj in the transformed nuisance design by 
+
+zj+1 = vj
+
+fα(bj /(N + r)) ,
+
+and set zj+1 = 0 when bj = 0 , as well as z1 = 0 . Since every nonzero bj is an integer, 
+
+|zj+1 | = (N + r)α
+
+N |bj |α−1 ≤ (N + r)α
+
+N .
+
+30 FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+This nuisance-only vector interpolates a and has squared norm at most (N + r)2α/N . If J is the minimum squared transformed norm, Lemma 1 and feasibility give 
+
+wLLS 1 = fα(p1)2J ≤
+
+ rN + r
+
+2α (N + r)2α
+
+N = r2α
+
+N .
+
+Finally, after s completed opposite pairs, every active column and the label vector have zero mean and squared centered norm 2s. The Pearson base primes are therefore 
+
+p1 = 1 , pj+1 = Hs(: , j )⊤as , j ∈ [N ],
+
+exactly as in Lemma 23. On one representative from each pair, the powered transformed system is therefore the powered-univariate system with r = s. The full paired design and label vector stack this system with its negative. By the opposite-duplication identity in Lemma 14, stacking leaves the Moore–Penrose coefficient unchanged. The univariate certificate thus gives wPearson 1 ≤ s2α/N .Since all correlations used here are defined, the calculation is independent of the Pearson totalization. The individual bounds already allow rule-dependent adverse signs. The shared result is stronger because it identifies the entire coefficient vector, not only its first coordinate. 
+
+D.2. Exact equivalence on paired histories 
+
+For s ≥ 1, let Hs be the first s Hadamard rows and let a = ( σ1, . . . , σ s)⊤ ∈ {± 1}s. One representative from each completed pair forms 
+
+Xs = [ a, H s], ys = a. 
+
+Up to a row permutation, the full paired history is 
+
+¯Xs =
+
+ Xs
+
+−Xs
+
+
+
+, ¯ys =
+
+ a
+
+−a
+
+
+
+. (12) 
+
+Lemma 26 (Base primes on a paired history) Let b = H⊤ 
+
+> s
+
+a. On the history in Equation (12) ,
+
+puni = pPearson =
+
+
+
+1, bs
+
+
+
+, pLLS =
+
+ sN + s , bN + s
+
+
+
+= sN + s puni .
+
+Every Pearson correlation in this display is defined. 
+
+Proof All three first-stage statistics, and the second-stage Moore–Penrose refit, are invariant under a common permutation of the historical rows. For both least-squares fits this follows from the orthogonal row-factor identity in Lemma 14; for the univariate and Pearson primes it also follows directly because the relevant inner products, means, and norms are unchanged. We may therefore work with the stacked order in Equation (12) throughout this subsection. Duplicating every row with its negative doubles each univariate numerator and denominator, so it leaves the univariate prime unchanged. This gives puni 1 = 1 and puni  
+
+> j+1
+
+= bj /s .   
+
+> 31 XUFUZHANG TAO
+
+Every paired feature column and the paired label vector have mean zero and squared norm 
+
+2s > 0. Their Pearson correlation therefore has denominator 2s. The target numerator is 2s, whereas nuisance coordinate j has numerator 2bj . Hence pPearson = puni , including when bj = 0 .By Lemma 14, the first-stage multivariate minimum-norm coefficient on ( ¯Xs, ¯ys) equals that on 
+
+(Xs, a ). Since XsX⊤ 
+
+> s
+
+= N I s + aa ⊤, the computation in Lemma 21 gives pLLS = ( s, b )/(N + s),proving the final identity. 
+
+Lemma 27 (Exact powered-refit equivalence) Fix one common α ≥ 1. On every nonempty completed paired history, the three powered second-stage coefficient vectors are identical. At empty history, all three coefficient vectors are zero for every finite Pearson totalization. 
+
+Proof Let cs = s/ (N + s) > 0. Positive homogeneity of fα and Lemma 26 give 
+
+DPearson = Duni , DLLS = cαs Duni .
+
+This remains true at zero-prime coordinates. Global diagonal scaling cancels from the refit by Lemma 14, so 
+
+DLLS ( ¯XsDLLS )† ¯ys = Duni ( ¯XsDuni )† ¯ys = DPearson ( ¯XsDPearson )† ¯ys. (13) At empty history the transformed design has zero rows. Its pseudoinverse maps the empty label vector to zero, whatever finite primes a totalization assigns, so all three returned coefficients are zero. 
+
+Lemma 28 (Shared target-mass and two-sign loss) Let ws denote the common coefficient before the next query after s completed pairs. If 0 ≤ s < M and N ≥ 8M 2α, then 
+
+0 ≤ ws, 1 ≤ 18 .
+
+For the fixed next nuisance row hs+1 , let Ls(σ) be the clipped loss on current input (σ, h s+1 ) and label σ. Then Ls(+1) + Ls(−1) 2 ≥ (1 − ws, 1)2 ≥ 49 64 . (14) 
+
+Proof For s = 0 , ws = 0 . For s ≥ 1, apply the univariate part of Lemma 25 to one representative from each pair. Lemma 14 shows that duplicating the transformed equations with their negatives does not change the refit, and therefore 
+
+0 ≤ ws, 1 ≤ s2α
+
+N ≤ M 2α
+
+N ≤ 18 .
+
+The common coefficient is computed before the current input is revealed. Writing bs = h⊤
+
+> s+1
+
+ws, 2: d,the two raw predictions are 
+
+byσs = bs + σw s, 1, σ ∈ {± 1}.
+
+Lemma 2 gives the first inequality in Equation (14); the target-mass bound gives the second.     
+
+> 32 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+D.3. Oblivious compilation and selector robustness Proposition 29 (One compiled string for all three-rule selectors) Fix α ≥ 1 and M ≥ 1, choose a power of two N ∈ [8 M 2α, 16 M 2α), and fix an N × N Hadamard matrix. There exists a sign string σ∗ = ( σ∗ 
+
+> 1
+
+, . . . , σ ∗ 
+
+> M
+
+), depending only on these fixed objects, such that the length-2M sequence 
+
+x2s+1 = ( σ∗
+
+> s+1
+
+, h s+1 ), y2s+1 = σ∗
+
+> s+1
+
+,x2s+2 = ( −σ∗
+
+> s+1
+
+, −hs+1 ), y2s+2 = −σ∗
+
+> s+1
+
+,
+
+for s = 0 , . . . , M − 1, gives clipped regret at least 49 M/ 64 to every three-rule selector in Defini-tion 12. The bound holds for every realization of the selector’s random tape and every finite Pearson totalization, under both mixture semantics (5) and (6) .
+
+Proof We construct the string by a finite greedy recursion. Suppose the first s signs have been fixed and their query–opposite pairs have been appended. This completed prefix determines the common vector ws in Lemma 27. Evaluate the two legal extensions σ = +1 and σ = −1 on the fixed next nuisance row hs+1 . By Lemma 28, 
+
+max  
+
+> σ∈{± 1}
+
+Ls(σ) ≥ Ls(+1) + Ls(−1) 2 ≥ 49 64 .
+
+Select a maximizing sign, choosing +1 in a tie, and then append its exact opposite. Induction for 
+
+s = 0 , . . . , M − 1 produces a single finite string before online play. On every charged query, Equation (13) makes the three powered second-stage coefficient vectors identical. Hence any convex coefficient mixture equals ws, even if its weights depend on the current input and the random tape. The three raw scalar predictions, and therefore their individually clipped versions, are also identical, so a convex mixture under the second semantics gives the same charged prediction. Switchers are simplex vertices and are covered as well. Thus every selector and every random-tape realization incurs at least 49 /64 on each of the M queries. We discard the nonnegative recovery losses. At s = 0 , the query uses the totalization-independent zero vector; the first recovery may depend on the Pearson fill, but its loss is discarded. For every s ≥ 1, Lemma 26 shows that all active Pearson correlations are defined and independent of the fill. The greedy choice is therefore uniform over all finite Pearson totalizations. 
+
+Corollary 30 (Oblivious random-sign companion) Under the same fixed (α, M, N, H ), let the query signs be independent uniform Rademacher variables, independent also of the selector’s random tape ξ, and append the exact opposite after every query. For every three-rule selector and every fixed random-tape realization ξ,
+
+Eσ
+
+h
+
+Rclip 2M | ξ
+
+i
+
+≥ 49 M
+
+64 .
+
+Consequently the same inequality holds after also averaging over any law of ξ.
+
+Proof Condition on the completed paired history before query s + 1 and on ξ. Although the selector may see the current sign through the current input, Lemma 27 makes all three available outputs identical for either sign. Its conditional expected query loss is therefore the two-sign average in    
+
+> 33 XUFUZHANG TAO
+
+Equation (14), at least 49 /64 . Summing these conditional bounds over the M queries and discarding recovery losses proves the first statement. Averaging over ξ proves the second. 
+
+Proof of Theorem 7 Apply Lemma 17 with q = 8M 2α to obtain a power of two N ∈
+
+[8 M 2α, 16 M 2α). Proposition 29 supplies one deterministic sequence for all three rules and selectors. The required Hadamard rows exist because N ≥ 8M 2α ≥ M for M ≥ 1 and α ≥ 1.Every row is sign-valued, every label equals its first coordinate, and hence the fixed one-sparse com-parator e1 has zero loss. Learner loss is therefore regret, and the proposition yields Rclip 2M ≥ 49 M/ 64 
+
+pathwise. With T = 2 M and d = N + 1 ,
+
+d = Θ α(T 2α), log d = Oα(log T ).
+
+Thus linear regret contradicts a uniform O(k log( ed/k )) guarantee already at k = 1 . The unsigned and signed power conventions yield the same second-stage prediction by the sign-matrix identity in Section 2, so the statement also covers literal squaring at α = 2 .
+
+Appendix E. Proof of the rank upper bound 
+
+This appendix proves the structural upper bound in Theorem 8. The argument first characterizes exact second-stage interpolation and then charges each positive-loss round to a new row-space direction. 
+
+E.1. Rank spending and interpolation Lemma 31 (Realizable interpolation spends one rank per mistake) Suppose yt = x⊤ 
+
+> t
+
+u ∈
+
+[−1, 1] for one fixed u, and a coefficient wt satisfies X<t wt = y<t before round t. Then a positive clipped loss at round t implies xt /∈ rowspan( X<t ). Consequently, 
+
+> T
+
+X
+
+> t=1
+
+ clip( x⊤ 
+
+> t
+
+wt) − yt
+
+2 ≤ 4 rank( X1: T ).
+
+Proof If x⊤ 
+
+> t
+
+= c⊤X<t for some c, then interpolation and realizability give 
+
+x⊤ 
+
+> t
+
+wt = c⊤X<t wt = c⊤y<t = c⊤X<t u = x⊤ 
+
+> t
+
+u = yt.
+
+Thus the raw, and hence clipped, prediction is exact. Let rt = rank( X1: t) and set r0 = 0 . A positive-loss round has xt /∈ rowspan( X<t ), so adjoining that row gives rt − rt−1 = 1 . Therefore the number of positive-loss rounds is at most 
+
+> T
+
+X
+
+> t=1
+
+(rt − rt−1) = rT = rank( X1: T ).
+
+Both the clipped prediction and label lie in [−1, 1] , so each of those rounds contributes squared loss at most four.     
+
+> 34 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+Lemma 32 (History interpolation by the powered rules) On any history X, y with y = Xe 1,every powered-univariate and powered-multivariate second-stage coefficient interpolates y. The same is true for a powered Pearson rule whenever its target prime is nonzero if y̸ = 0 .
+
+Proof If y = 0 , then A†y = 0 for every transformed design A, so the second-stage coefficient and fitted vector are both zero. Suppose y̸ = 0 . For univariate priming, the target historical column is 
+
+y, so its base and powered primes are both one; the transformed design therefore contains y as a column. For multivariate priming, let p = X†y. Since y ∈ col( X),
+
+Xp = XX †y = y. 
+
+Let πi = sign( pi)|pi|α and define 
+
+zi =
+
+(
+
+pi/π i, pi̸ = 0 ,
+
+0, pi = 0 .
+
+Then 
+
+diag( π)z = p, X diag( π)z = Xp = y. 
+
+Finally, if the Pearson target prime π1 is nonzero, the first transformed column is π1y, so the coefficient z = (1 /π 1)e1 satisfies 
+
+X diag( π)z = y. 
+
+In every case y lies in the transformed column space, and Lemma 19 shows that the Moore–Penrose refit interpolates it exactly. 
+
+Detailed proof of Theorem 8 The generic inequality is Lemma 31. Lemma 32 verifies its inter-polation hypothesis for the powered univariate and multivariate rules. For Pearson priming, the target-preserving convention in Theorem 8 is the nonzero-target-prime sufficient condition in that lemma. More generally, Lemma 19 gives the exact condition y<t ∈ col( X<t Dt). Finally, 
+
+rank( X1: T ) ≤ min {T, d }.
+
+Appendix F. Proof of the powered-univariate exact frontier 
+
+F.1. A linear-dimensional triangular construction 
+
+Let m = min {d, T }. We first give an active construction with dimension and horizon m; padding with zero coordinates and then zero rows embeds it into arbitrary d and T . Set 
+
+xt, 1 = yt = 1 , t = 1 , . . . , m, 
+
+and, for k = 2 , . . . , m , define 
+
+xt,k =
+
+
+
+1/(k − 1) , t < k, 
+
+−1, t = k, 
+
+0, t > k. 
+
+(15) Every entry is rational and belongs to [−1, 1] , and the comparator e1 has zero loss. 
+
+> 35
+
+XU FU ZHANG TAO 
+
+Lemma 33 (Exact rank of the triangular design) The active m × m design in Equation (15) is nonsingular. More precisely, 
+
+det( X1: m) = ( −1) m−1m. 
+
+Consequently its first t rows are linearly independent for every t ≤ m, so each active round introduces one new row-space direction. 
+
+Proof For every k = 2 , . . . , m , perform the column operation 
+
+Ck ← Ck − 1
+
+k − 1 C1.
+
+This operation does not change the determinant. The first row is then (1 , 0, . . . , 0) . After deleting that row and the first column, the remaining matrix is lower triangular: column k is zero above its trap row and has diagonal entry −1 − (k − 1) −1 = −k/ (k − 1) . Hence 
+
+det( X1: m) = 
+
+> m
+
+Y
+
+> k=2
+
+
+
+− kk − 1
+
+
+
+= ( −1) m−1m̸ = 0 .
+
+The same elimination applied to the leading t × t submatrix gives determinant (−1) t−1t, proving independence of every active prefix. 
+
+Lemma 34 (Exact triangular prediction) Fix α ≥ 1, put β = 2 α − 2, and define 
+
+St = 1 + 
+
+> m−1
+
+X
+
+> j=t−1
+
+jβ .
+
+At every prediction round 2 ≤ t ≤ m, the powered-univariate primes and second-stage coefficients satisfy 
+
+pt, 1 = 1 , pt,k = 0 (k < t ), pt,k = k − 1 (k ≥ t), (16) 
+
+wt, 1 = 1
+
+St
+
+, wt,k = 0 (k < t ), wt,k = (k − 1) 2α−1
+
+St
+
+(k ≥ t). (17) 
+
+Consequently, 
+
+byt = 1 − (t − 1) 2α−1 + Pm−1 
+
+> j=t
+
+jβ
+
+St
+
+, (18) 
+
+1 − byt = t(t − 1) β
+
+St
+
+, (19) 
+
+and the clipped loss is 
+
+ℓclip  
+
+> t
+
+= min 
+
+( t(t − 1) β
+
+St
+
+2
+
+, 4
+
+)
+
+. (20) 
+
+36 FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+Proof The target historical column equals the all-one label vector, so pt, 1 = 1 . If k < t , nuisance coordinate k has already passed its trap round. Its historical numerator and denominator are 
+
+X<t (: , k )⊤y<t = ( k − 1) 1
+
+k − 1 − 1 = 0 ,
+
+∥X<t (: , k )∥22 = k − 1(k − 1) 2 + 1 = kk − 1 > 0.
+
+Hence its univariate prime is zero. If k ≥ t, all t − 1 historical entries in that column equal 1/(k − 1) ,so 
+
+pt,k = (t − 1) /(k − 1) (t − 1) /(k − 1) 2 = k − 1.
+
+This proves Equation (16). After powering, the nonzero transformed historical columns are multiples of the all-one vector. The target multiplier is one, while active nuisance column k has multiplier 
+
+(k − 1) α 1
+
+k − 1 = ( k − 1) α−1.
+
+Lemma 18 assigns transformed coefficient 1/S t to the target and (k − 1) α−1/S t to column k.Multiplication by its powered prime (k − 1) α gives Equation (17). On the current row, coordinate t equals −1, while every later nuisance coordinate k > t equals 
+
+1/(k − 1) . Substitution of Equation (17) gives Equation (18). Since 
+
+St −
+
+1 − (t − 1) 2α−1 +
+
+> m−1
+
+X
+
+> j=t
+
+jβ
+
+ = ( t − 1) β + ( t − 1) 2α−1 = t(t − 1) β ,
+
+Equation (19) follows. Its right-hand side is nonnegative, so byt ≤ 1. For a label equal to one, clipping a raw prediction q ≤ 1 yields loss min {(1 − q)2, 4}, which proves Equation (20). 
+
+Lemma 35 (Linear loss and the unit-power count) For the active m-round construction and ev-ery fixed α ≥ 1,
+
+Rclip ,uni ,α m ≥ cαm, cα = min 
+
+(
+
+18 , 916 
+
+ 58
+
+4α−4)
+
+.
+
+At unit power the sharper bound Rclip ,uni ,1 
+
+> m
+
+≥ 1 + ⌊m/ 2⌋ holds. 
+
+Proof First suppose m ≥ 8 and t ∈ {⌈ 3m/ 4⌉, . . . , m }. Because β ≥ 0, every term in St is at most 
+
+(m − 1) β , including the leading one. Hence 
+
+St ≤ (m − t + 2)( m − 1) β ≤
+
+ m
+
+4 + 2 
+
+
+
+(m − 1) β ≤ m
+
+2 (m − 1) β .
+
+Moreover, t ≥ 3m/ 4 and, since m ≥ 8, t − 1 ≥ 3m/ 4 − 1 ≥ 5m/ 8. Equation (19) therefore gives 
+
+1 − byt ≥ (3 m/ 4)(5 m/ 8) β
+
+(m/ 2)( m − 1) β ≥ 32
+
+ 58
+
+β
+
+.
+
+37 XU FU ZHANG TAO 
+
+The final lower bound is at most 3/2 < 2, so Equation (20) implies loss at least 94 (5 /8) 2β on every such round. Their number is m − ⌈ 3m/ 4⌉ + 1 ≥ m/ 4. Summing them gives 
+
+Rclip ,uni ,α m ≥ 9m
+
+16 
+
+ 58
+
+2β
+
+= 9m
+
+16 
+
+ 58
+
+4α−4
+
+.
+
+If m < 8, the empty-history prediction on the first round is zero and loses one, which is at least m/ 8.The two cases prove the definition of cα.When α = 1 , β = 0 and Equation (19) becomes 
+
+1 − byt = tm − t + 2 .
+
+This quantity is at least one exactly when 
+
+t ≥ m + 2 2 .
+
+There are ⌊m/ 2⌋ integer rounds t ∈ { 2, . . . , m } satisfying this condition, and each loses at least one. Adding the first-round loss proves 1 + ⌊m/ 2⌋; the same formula also covers m = 1 .
+
+Lower bound in Theorem 9 Take m = min {d, T } and run the active triangular construction in its first m coordinates and rounds. If d > m , append zero feature coordinates; Lemma 15 shows that every prediction in the active prefix is unchanged. If T > m , append T − m zero inputs with zero labels. By Lemma 16, these rounds preserve realizability and contribute exactly zero loss, so Lemma 35 gives 
+
+Rclip ,uni ,α T ≥ cαm = cα min {T, d }.
+
+The unit-power bound is embedded in the same way. The matching upper order follows from Theorem 8, since rank( X1: T ) ≤ min {T, d } = m.
+
+Lemma 36 (Uniform scaling and clipping) Every row of the triangular construction has squared Euclidean norm at most three. After multiplying every feature row and label by c = 1 /2, the powered-univariate coefficient is unchanged, every input has norm at most one, and its clipped loss is at least one quarter of the corresponding unscaled clipped loss. 
+
+Proof On the first row, 
+
+∥x1∥22 = 1 + 
+
+> m−1
+
+X
+
+> j=1
+
+1
+
+j2 ≤ 1 + 1 + 
+
+Z ∞
+
+> 1
+
+x−2 dx = 3 .
+
+For t ≥ 2, the target and trap coordinates contribute two, while the remaining nonzero nuisance coordinates give m−1X
+
+> j=t
+
+1
+
+j2 ≤
+
+Z ∞
+
+> t−1
+
+x−2 dx = 1
+
+t − 1 ≤ 1.
+
+Thus half-scaling makes every row norm at most √3/2 < 1 and leaves ∥e1∥2 = 1 .    
+
+> 38 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+Let X′ = cX and y′ = cy . For each nonzero historical feature column, 
+
+(cX i)⊤(cy )
+
+∥cX i∥22
+
+= X⊤ 
+
+> i
+
+y
+
+∥Xi∥22
+
+,
+
+A zero historical feature column remains zero after scaling and receives prime zero both before and after scaling. Thus every base, and hence powered, univariate prime is unchanged. If D is the powered diagonal matrix, Lemma 14 gives 
+
+(cXD )†(cy ) = c−1(XD )†(cy ) = ( XD )†y. 
+
+The second-stage coefficient is therefore unchanged, and each raw prediction is multiplied by c.It remains to compare clipping. Lemma 34 shows that every unscaled raw prediction q satisfies 
+
+q ≤ 1. For q ∈ [−1, 1] , neither q nor cq is clipped and 
+
+(clip( cq ) − c)2 = c2(q − 1) 2 = c2(clip( q) − 1) 2.
+
+If −2 ≤ q < −1, then cq ∈ [−1, −1/2) and the scaled loss is c2(1 − q)2 ≥ 4c2 = 1 , equal to the right side c2(−1−1) 2. If q < −2, the scaled prediction clips to −1 and its loss is (1+ c)2 > 1 = 4 c2.Hence in all cases 
+
+(clip( cq ) − c)2 ≥ c2(clip( q) − 1) 2.
+
+With c = 1 /2, this is the claimed factor 1/4.
+
+Euclidean-normalized part of Theorem 9 Let m = min {T, d } and half-scale every feature vector and label in the active m-round triangular construction. Lemma 36 gives input norm at most one, keeps the powered-univariate coefficient unchanged, and retains at least one quarter of each active clipped loss. If d > m , append d − m identically zero feature coordinates; Lemma 15 preserves every active prediction. If T > m , append T − m rounds with zero input and zero label; Lemma 16 gives zero additional loss. Throughout, the comparator remains e1 and the scaled labels satisfy yt = xt, 1.Lemma 35 therefore yields 
+
+Rclip ,uni ,α T ≥ cα
+
+4 min {T, d }.
+
+The rank upper bound in Theorem 8 is unchanged, so the normalized worst-case order is 
+
+Θα(min {T, d }).
+
+Appendix G. Ridge robustness and the regularization crossover 
+
+This appendix proves Theorem 10 and records the corresponding Hadamard consequence for all three prime rules. Throughout, ridge is applied to the transformed second-stage coefficient. Given a powered prime matrix D, historical design X, labels y, and A = XD , define for λ > 0
+
+zλ = arg min  
+
+> z
+
+{∥ Az − y∥22 + λ∥z∥22} = A⊤(AA ⊤ + λI )−1y, wλ = Dz λ. (21) At λ = 0 , set z0 = A†y. All ridge parameters below are finite and nonnegative. 
+
+> 39
+
+XU FU ZHANG TAO 
+
+G.1. A resolvent form of target mass 
+
+Suppose the first historical feature column equals y. Separate the transformed target column from the nuisance columns: 
+
+A = [ π1y, B ].
+
+Lemma 37 (Ridge target-mass identity) For λ > 0, let 
+
+Cλ = BB ⊤ + λI, qλ = y⊤C−1 
+
+> λ
+
+y. 
+
+Then 
+
+zλ, 1 = π1qλ
+
+1 + π21 qλ
+
+, wλ, 1 = π21 qλ
+
+1 + π21 qλ
+
+. (22) 
+
+In particular, 0 ≤ wλ, 1 < 1.
+
+Proof The matrix Cλ is positive definite, and 
+
+AA ⊤ = Cλ + π21 yy ⊤.
+
+Sherman–Morrison gives 
+
+(Cλ + π21 yy ⊤)−1y = C−1 
+
+> λ
+
+y
+
+1 + π21 y⊤C−1 
+
+> λ
+
+y .
+
+The first row of A⊤ is π1y⊤. Taking the first coordinate in Equation (21) and then multiplying by π1
+
+proves Equation (22). Positive definiteness of C−1 
+
+> λ
+
+gives qλ ≥ 0, so the displayed fraction belongs to 
+
+[0 , 1) .
+
+Lemma 38 (Nuisance certificate and monotonicity) If Bu = y, then, for every λ > 0,
+
+qλ ≤ ∥ u∥22. (23) 
+
+Moreover, ddλ qλ = −y⊤(BB ⊤ + λI )−2y ≤ 0. (24) 
+
+If y ∈ col( B), then 
+
+lim  
+
+> λ↓0
+
+qλ = y⊤(BB ⊤)†y = min {∥ u∥22 : Bu = y}. (25) 
+
+Thus Lemma 37 extends continuously to the Moore–Penrose endpoint. 
+
+Proof Set v = C−1 
+
+> λ
+
+y. Since y = Bu ,
+
+qλ = y⊤v = u⊤B⊤v. 
+
+The same quantity also satisfies 
+
+qλ = v⊤Cλv = ∥B⊤v∥22 + λ∥v∥22 ≥ ∥ B⊤v∥22. (26) 
+
+40 FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+If qλ = 0 , Equation (23) is immediate. Otherwise, Cauchy–Schwarz and Equation (26) give 
+
+qλ ≤ ∥ u∥2∥B⊤v∥2 ≤ ∥ u∥2
+
+√qλ,
+
+and division by √qλ proves the certificate bound. Differentiating the matrix inverse proves Equa-tion (24). For the endpoint, take a singular-value decomposition of B. Because y ∈ col( B), it has no component in ker( B⊤). Each nonzero singular component of qλ therefore converges from (σ2 
+
+> i
+
++λ)−1
+
+to σ−2 
+
+> i
+
+. This proves the first equality in Equation (25); the second is the minimum-norm formula for the consistent system Bu = y.In particular, if Bu = y and π21 ∥u∥22 ≤ θ, then for every λ ≥ 0,
+
+0 ≤ wλ, 1 ≤ θ
+
+1 + θ . (27) 
+
+G.2. The triangular sequence for every ridge schedule 
+
+Let m = min {T, d } and use the triangular sequence in Equation (15). Fix α ≥ 1, put β = 2 α − 2,and, before active round t ≥ 2, write 
+
+s = t − 1, St = 1 + 
+
+> m−1
+
+X
+
+> j=t−1
+
+jβ .
+
+Lemma 39 (Exact triangular ridge shrinkage) The powered transformed historical design has the rank-one form 
+
+At = 1sr⊤ 
+
+> t
+
+, ∥rt∥22 = St, (28) 
+
+where 
+
+rt = (1 , 0, . . . , 0, (t − 1) α−1, . . . , (m − 1) α−1)⊤.
+
+For every λ > 0,
+
+zλt = sλ + sS t
+
+rt. (29) 
+
+If w0 
+
+> t
+
+and by0 
+
+> t
+
+denote the Moore–Penrose coefficient and current raw prediction, then for every λ ≥ 0,
+
+wλt = ρt(λ)w0 
+
+> t
+
+, byλt = ρt(λ)by0 
+
+> t
+
+, ρt(λ) = sS t
+
+λ + sS t
+
+. (30) 
+
+The target resolvent and target weight are 
+
+qt(λ) = sλ + s(St − 1) , wλt, 1 = sλ + sS t
+
+. (31) 
+
+Proof Lemma 34 gives the historical primes: the target base prime is one, expired coordinates have prime zero, and future coordinate k, indexed by j = k − 1 ≥ t − 1, has base prime j. Its powered transformed historical column is therefore jα(1 /j )1s = jα−11s. This proves Equation (28), including its squared norm. Since 
+
+AtA⊤ 
+
+> t
+
+= St1s1⊤ 
+
+> s
+
+,
+
+41 XU FU ZHANG TAO 
+
+the vector 1s is an eigenvector with eigenvalue sS t. Hence 
+
+(AtA⊤ 
+
+> t
+
++ λI )−11s = 1s
+
+λ + sS t
+
+.
+
+Multiplication by A⊤ 
+
+> t
+
+= rt1⊤ 
+
+> s
+
+proves Equation (29). At λ = 0 , the minimum-norm coefficient is 
+
+z0 
+
+> t
+
+= rt/S t, so their ratio is ρt(λ). Multiplication by the same prime diagonal and evaluation on the same current row preserve this scalar, proving Equation (30). For Equation (31), remove the target entry of rt. The nuisance transformed design Bt then satisfies BtB⊤ 
+
+> t
+
+= ( St − 1) 1s1⊤ 
+
+> s
+
+. Applying its resolvent to y = 1s gives qt(λ) = s/ [λ + s(St − 1)] .Substitution into Lemma 37, with π1 = 1 , yields the target weight. The crossover in Equation (4) is now immediate: 
+
+ρt(λ) = 11 + λ/λ c(t) , λc(t) = sS t.
+
+Lemma 40 (Shrinking a bad prediction) For every q ≤ 1 and ρ ∈ [0 , 1] , with label one, 
+
+(clip( ρq ) − 1) 2 ≥ min {(1 − q)2, 1}.
+
+Proof If 0 ≤ q ≤ 1, then 0 ≤ ρq ≤ q ≤ 1, so no clipping occurs and 1 − ρq ≥ 1 − q. If q < 0, then 
+
+clip( ρq ) ≤ 0, whose distance from the label one is at least one. 
+
+Proof of Theorem 10 On active round t ≥ 2, Equation (19) gives 
+
+by0 
+
+> t
+
+= 1 − δt, δt = t(t − 1) β
+
+St
+
+≥ 0.
+
+Lemma 39 and Lemma 40 therefore imply, pointwise in every λt ≥ 0,
+
+ℓλt 
+
+> t
+
+≥ min {δ2 
+
+> t
+
+, 1}.
+
+If m < 8, the empty-history coefficient is zero for every ridge value, so the first loss is one and 1 ≥ m/ 8 ≥ cαm. Suppose m ≥ 8 and take t = ⌈3m/ 4⌉, . . . , m . The endpoint calculation in Lemma 35 gives 
+
+δt ≥ Lα, Lα = 32
+
+ 58
+
+2α−2
+
+.
+
+There are at least m/ 4 such rounds, so 
+
+Rclip  
+
+> m
+
+≥ m
+
+4 min {1, L 2
+
+> α
+
+}
+
+= m
+
+4 min 
+
+(
+
+1, 94
+
+ 58
+
+4α−4)
+
+≥ cαm. 
+
+If the second argument of the minimum is at most one, the coefficient in the last line is exactly 
+
+(9 /16)(5 /8) 4α−4; otherwise it is 1/4 ≥ 1/8.At α = 1 , Lemma 35 shows that precisely the final ⌊m/ 2⌋ active rounds have δt ≥ 1. Their Moore–Penrose raw predictions are nonpositive. Multiplication by ρt(λt) ∈ [0 , 1] keeps them     
+
+> 42 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+nonpositive, so each has clipped loss at least one. Adding the first-round loss proves the sharper bound. If d > m , append identically zero feature coordinates. The ridge objective assigns zero to each new transformed coordinate because it does not affect the residual and a nonzero value would increase the penalty. Thus active predictions are unchanged. If T > m , append zero-input, zero-label rounds; they have zero loss. This proves the coordinatewise-bounded statement for arbitrary (T, d ).For the normalized statement, half-scale every active input and label. Univariate primes remain unchanged by the calculation in Lemma 36. If c = 1 /2, direct substitution in Equation (21) gives 
+
+z′ 
+
+> λ
+
+= ( cA )⊤(c2AA ⊤ + λI )−1(cy ) = zλ/c 2 . (32) By Equation (32), the scaled raw prediction is c times the unscaled prediction at ridge value λ/c 2.The latter equals ρq 0 for some ρ ∈ [0 , 1] , and the Moore–Penrose prediction q0 is at most one. The clipping calculation in Lemma 36 therefore applies verbatim and retains at least a factor c2 = 1 /4 of the unscaled ridge loss. Since the theorem is uniform over all nonnegative ridge values, this yields 
+
+(cα/4) min {T, d }.Every inequality above is pointwise in λt. Hence the schedule may depend on the history, the current input, and an arbitrary fixed realization of internal randomness without changing the sequence or the bound. 
+
+G.3. Hadamard ridge certificates for all three rules 
+
+The triangular theorem gives the exact frontier for univariate priming. The general resolvent also shows that the common target-mass obstruction survives ridge for each of the three rules. Use the completed-pair history from Equation (12): 
+
+Xs = [ a, H s], ¯Xs =
+
+ Xs
+
+−Xs
+
+
+
+, ¯ys =
+
+ a
+
+−a
+
+
+
+, b = H⊤ 
+
+> s
+
+a. 
+
+Lemma 41 (Three ridge certificate costs) Fix α ≥ 1 and s ≥ 1. For each powered univariate, Pearson, and multivariate prime on the completed-pair history, there is a nuisance-only transformed coefficient u satisfying 
+
+Bu = ¯ ys, π21 ∥u∥22 ≤ s2α
+
+N .
+
+Consequently, for every λ ≥ 0,
+
+0 ≤ wλ, 1 ≤ s2α/N 
+
+1 + s2α/N . (33) 
+
+The Pearson statement is uniform over every finite totalization. 
+
+Proof Hadamard orthogonality gives the original-coordinate nuisance interpolant 
+
+v = 1
+
+N H⊤ 
+
+> s
+
+a = bN , Hsv = a. 
+
+By Lemma 26, the completed-pair univariate and Pearson base primes are (1 , b/s ). For bj̸ = 0 , set 
+
+uj = bj /N 
+
+sign( bj )|bj /s |α = sα
+
+N |bj |1−α,   
+
+> 43 XUFUZHANG TAO
+
+and set uj = 0 when bj = 0 . Coordinatewise multiplication by the powered nuisance prime produces 
+
+bj /N , so the representative transformed system maps u to a and the full paired system maps it to ¯ys.Every nonzero bj is an integer of magnitude at least one, whence 
+
+∥u∥22 ≤ N (sα/N )2 = s2α/N. 
+
+The powered target prime is one. All active Pearson correlations are defined on a nonempty paired history, so no totalized value enters. For multivariate priming, Lemma 26 gives 
+
+pLLS = (s, b )
+
+N + s , π1 =
+
+ sN + s
+
+α
+
+.
+
+For bj̸ = 0 , use 
+
+uj = (N + s)α
+
+N |bj |1−α,
+
+and set the zero-correlation coordinates to zero. The powered nuisance diagonal again maps u to 
+
+b/N , so Bu = ¯ ys, and 
+
+∥u∥22 ≤ (N + s)2α
+
+N .
+
+Multiplying by the squared target prime cancels (N + s)2α and gives s2α/N . Finally, Equation (33) follows from Equation (27). 
+
+Proposition 42 (Rule-specific paired-Hadamard ridge lower bound) Fix α ≥ 1, one of the three powered prime rules, a deterministic ridge schedule measurable with respect to the com-pleted data history, and M ≥ 1. Choose a power of two N with 8M 2α ≤ N < 16 M 2α and set 
+
+T = 2 M , d = N + 1 . There is a deterministic realizable paired-Hadamard sequence, fixed before replay, on which 
+
+Rclip  
+
+> T
+
+≥ 64 M
+
+81 = 32 T
+
+81 . (34) 
+
+The sequence may depend on the rule and ridge policy. For Pearson priming, the same charged losses hold for every finite totalization. 
+
+Proof After s completed pairs, the next nuisance row is the fixed Hadamard row hs+1 . For s = 0 ,the historical coefficient is zero and either query sign loses one. For 1 ≤ s < M , Lemma 41 and the choice of N give 
+
+0 ≤ wλ, 1 ≤ 1/81 + 1 /8 = 19 .
+
+Because the ridge schedule is data-history measurable, this coefficient is fixed before the current input and its target sign are revealed. Let c = h⊤
+
+> s+1
+
+wλ, 2: d. The two candidate raw predictions are 
+
+c + wλ, 1 and c − wλ, 1 with labels +1 and −1. Lemma 2 yields 
+
+Ls(+1) + Ls(−1) 2 ≥ (1 − wλ, 1)2 ≥ 64 81 . (35) Choose a maximizing sign, breaking ties toward +1 , and append that query followed by its exact negative. Finite recursion compiles the full sign string before replay. Summing the M query     
+
+> 44 FEATURE PRIMING IN ONLINE LINEAR REGRESSION
+
+losses and discarding all nonnegative recovery losses proves Equation (34). Every label is the first coordinate, so e1 has zero loss. The empty-history Pearson query uses the zero coefficient independently of the fill. Only the first uncharged recovery can see a one-sample undefined correlation. Every later charged state consists of completed opposite pairs, where all active variances are positive. Because the ridge schedule depends only on the data history, the compiled charged losses are uniform over finite Pearson totalizations. 
+
+Corollary 43 (Common random-sign ridge obstruction) Under the same (α, M, N, H ), take in-dependent uniform Rademacher query signs, independently of the learner’s random tape, and append the exact opposite after each query. Every one of the three powered rules and every possibly randomized past-only ridge schedule satisfies 
+
+ERclip  
+
+> T
+
+≥ 64 M
+
+81 .
+
+The same bound holds for a pre-input switcher, a pre-input convex mixture of the three coefficient vectors, or a pre-input convex mixture of their individually clipped predictions, all at the common power α.
+
+Proof Condition on the completed-pair history and the learner’s random tape. The current sign remains uniform, whereas every component coefficient, ridge value, and mixture weight is fixed. Each component target weight lies in [0 , 1/9] by Lemma 41; a convex coefficient mixture has the same property, so Equation (35) applies. For a mixture of individually clipped predictions, write 
+
+r+ 
+
+> R
+
+= clip( cR + wR), r− 
+
+> R
+
+= clip( cR − wR).
+
+Monotonicity and one-Lipschitzness of clipping give 0 ≤ r+ 
+
+> R
+
+− r− 
+
+> R
+
+≤ 2wR. Let r+ and r− be their convex mixtures, and put 
+
+m0 = r+ + r−
+
+2 , δ = r+ − r−
+
+2 .
+
+Then 0 ≤ δ ≤ 1/9 and the conditional two-sign loss is 
+
+(r+ − 1) 2 + ( r− + 1) 2
+
+2 = m20 + (1 − δ)2 ≥ 64 81 .
+
+Thus both mixture semantics incur conditional expected query loss at least 64 /81 . The tower property and nonnegativity of recovery losses complete the proof. The deterministic result requires the ridge policy to be fixed before the current target sign is visible; unlike Theorem 10, it does not cover a current-input-dependent ridge choice. The regularized coefficient vectors of the three rules also need not coincide, so the deterministic witness in Proposition 42 is rule–policy specific. The common statement in Corollary 43 is distributional.    
+
+> 45 XUFUZHANG TAO
+
+Appendix H. Frozen-activation experiment details 
+
+Representation and target selection. We use the input to the MLP down-projection (the post-gating activation) at the last nonpadding token of Qwen2.5-7B-Instruct layers 6, 13, and 20. Text inputs are Alpaca instructions and optional inputs; model responses are unused. All four data pools are disjoint. Coordinate i is divided by its calibration 95th absolute percentile (floored at 10 −4)and clipped to [−1, 1] . Eligibility requires standard deviation at least 0.08 , a 5–95 percentile range of at least 0.25 , and at least 32 distinct observed values. Before computing outcomes, a seeded permutation selects six eligible targets per layer; another orders each target’s remaining neurons into nested nuisance sets. 
+
+Online protocol and metrics. For target neuron j, each input is the selected activation vector and the label is yt = xt,j , so the fixed ej has zero loss. Strict-past predictions are clipped to [−1, 1] ,and normalized regret is cumulative loss divided by P 
+
+> t
+
+y2 
+
+> t
+
+. We test the three unit-power rules from Section 2, with finite unit fill for undefined Pearson primes. For each target, one order is compiled offline against univariate priming, saved, and replayed unchanged for all methods. The compiler uses only the fixed activation records and strict-past predictions; it does not alter the features or labels. 
+
+Recovery result. The mechanism criterion requires normalized regret at least 0.25 , a second-half target-weight statistic at most 0.5, historical residual at most 10 −5, and prime-weighted nuisance cost 
+
+π2 
+
+> j
+
+∥B†y∥22 ≤ 1. Success was defined as meeting all four conditions on at least 12 targets spanning at least two layers. The criterion passes for 16 targets across all three layers. Every compiled target exceeds the regret threshold for all three rules; their median regrets are 1.181 , 0.355 , and 0.641 . The comparator error is zero and the largest historical residual is 2.367 × 10 −13 .
+
+Fresh dimension–horizon diagnostic. The fresh test uses 1,024 nonoverlapping records, two fixed orders, nuisance widths 8, 16 , . . . , 2,048 , and horizons 16 , 32 , 48 . Order outcomes are averaged within targets. The prespecified T = 48 comparison of widths 16 and 2,048 requires regret to rise by 
+
+0.10 , target weight to fall by 0.20 , and nuisance residuals to be respectively above 10 −3 and below 
+
+10 −5. All 18 targets pass. Median regret rises by 0.619 (target-bootstrap 95% interval [0 .541 , 0.672] )and target weight falls by 0.809 ([0 .784 , 0.857] ). At width 2,048 , row-permuted and Rademacher controls have median regrets 0.857 and 0.810 , versus 0.773 for real activations on the corresponding subset. 
+
+Cross-generation replication. After completing the Qwen2.5 experiment, we apply the same protocol and prespecified outcome thresholds to the official Qwen3.8-27B checkpoint (Qwen Team, 2026). We use post-gating activations from layers 14, 30, and 46, matching the relative depths of Qwen2.5 layers 6, 13, and 20. The split contains 384 calibration, 384 tuning, and 1,024 evaluation records. The protocol seed, calibration-only eligibility rules, six targets per layer, nuisance dimensions 
+
+128 , 512 , 2,048 , horizon 48, five random-order seeds, and offline compiled order are unchanged. The complete mechanism criterion passes for 17 of 18 Qwen3.8 targets: 6 of 6 in layers 14 and 30, and 5 of 6 in layer 46. The sole failure, neuron 7052 in layer 46, has normalized regret 1.215 
+
+but second-half target weight 0.507 , just above the prespecified cutoff 0.5. Over the five registered random orders, median normalized regrets are 0.805 , 0.796 , and 0.774 for univariate, multivariate, and Pearson priming. The one-sparse comparator has exactly zero error, the largest historical relative residual is 2.401 × 10 −13 , and an independent SVD recomputation of nine registered trajectories agrees in per-round loss to at most 8.01 × 10 −8.
+
+> 46
+
+FEATURE PRIMING IN ONLINE LINEAR REGRESSION 
+
+These random-order medians are distinct from the compiled-order values in Table 1. For two fixed targets per layer, target-only median regret on compiled orders is 0.029 for each rule. Adding real nuisance coordinates gives medians 1.238 , 0.303 , and 0.587 ; independently row-permuting each nuisance coordinate gives 0.799 , 0.306 , and 0.555 . As a post-hoc sparse-recovery check, exact best-one-sparse ERM selects the target throughout the second half of every registered sequence and has median normalized regret 0.058 on compiled orders. This replication diagnoses the same activation-space mechanism without asserting that Qwen internally uses the priming update. Table 1: Cross-generation frozen-activation replication. Entries are median normalized regret on each model’s fixed compiled orders. The criterion column reports targets satisfying the complete prespecified mechanism signature. Targets and compiled orders are model specific, so the table is a replication check rather than a model ranking. 
+
+Frozen representation Criterion Univariate Multivariate Pearson Qwen2.5-7B 16 /18 1.181 0.355 0.641 
+
+Qwen3.8-27B 17 /18 1.223 0.303 0.593 8 32 128 512 2048                        
+
+> Nuisance coordinates
+> 0.2 0.4 0.6 0.8 1.0 1.2
+> Normalized regret
+> APrediction loss
+> T=16 T=32 T=48
+> 832 128 512 2048
+> Nuisance coordinates
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Second-half target weight
+> BTarget mass
+> 832 128 512 2048
+> Nuisance coordinates
+> 10 14
+> 10 12
+> 10 10
+> 10 8
+> 10 6
+> 10 4
+> 10 2
+> 10 0
+> Nuisance-only residual
+> CInterpolation capacity
+> 832 128 512 2048
+> Nuisance coordinates
+> 0.0 0.2 0.4 0.6 0.8
+> Normalized regret at T=48
+> DNuisance controls
+> Real Row-permuted Rademacher
+
+Figure 2: The Qwen2.5 mechanism diagnostic. Lines and bands are target-level medians and interquartile ranges: 18 targets in A–C and six fixed control targets in D. As nuisance width grows, regret rises (A), target weight falls (B), and nuisance-only interpolation becomes exact (C); permuted and Rademacher controls reproduce the regret trend (D). 
+
+47
