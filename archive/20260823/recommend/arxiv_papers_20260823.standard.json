@@ -1,0 +1,96 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-08-23T20:28:24.948834+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [
+    {
+      "id": "2608.16274v1",
+      "source": "arxiv",
+      "title": "Decoupled Temporal Encoding for Generative Recommendation",
+      "abstract": "Positional encoding is a fundamental component of Transformer-based generative recommendation models, where user histories are modeled as autoregressive item sequences. Most positional encoding methods are inherited from natural language processing and mainly represent discrete item order. However, recommendation sequences go beyond ordered lists, as timestamps and temporal effects also shape item relations. Our work is motivated by a real-world food delivery and instant retail recommendation system, where user behavior exhibits multi-level temporal regularities, including recency effects, meal-time peaks, weekday-weekend shifts, and promotion-driven traffic bursts. Existing methods partially address this issue through timestamp features, interval embeddings, decay functions, or attention biases, but they usually inject heterogeneous temporal signals through a unified representation or a single modeling pathway, making it difficult to distinguish broad temporal dynamics from local order cues. To address this limitation, we propose Decoupled Temporal Encoding, a lightweight framework for generative recommendation. DTE separates temporal dynamics from order information through two complementary modules: a personalized macro-temporal module that injects compact temporal primitives into item embeddings, and a time-gated micro-sequential module that introduces relative-order bias only when interactions are temporally dense. DTE is also parameter-efficient and deployment-friendly, allowing easy integration into existing systems.",
+      "authors": [
+        "Pengfei Jia",
+        "Jingjian Wang",
+        "Jingmao Li",
+        "Ge Zhang",
+        "Feng Shi"
+      ],
+      "primary_category": "cs.IR",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "published": "2026-08-17T08:47:21+00:00",
+      "link": "https://arxiv.org/pdf/2608.16274v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "sequential recommender model predicting next items, relevant to predictability in sequential recommendation",
+      "llm_evidence_cn": "序列推荐模型预测下一项，与序列推荐可预测性相关",
+      "llm_evidence": "序列推荐模型预测下一项，与序列推荐可预测性相关",
+      "canonical_evidence": "序列推荐模型预测下一项，与序列推荐可预测性相关",
+      "llm_tldr_en": "This paper proposes a decoupled temporal encoding method for Transformer-based generative recommendation, capturing multi-level temporal regularities such as recency, meal-time peaks, and weekday-weekend shifts in user behavior.",
+      "llm_tldr_cn": "现有生成式推荐的位置编码多继承自NLP，仅表示离散顺序，忽视时间戳与多层时间规律。本文面向食品配送与即时零售场景，提出解耦时间编码，分别建模近期效应、餐时高峰、工作日周末差异和促销流量突发。在真实推荐系统数据上验证了其能更好地刻画用户行为的时间结构，提升推荐效果。",
+      "llm_tldr": "现有生成式推荐的位置编码多继承自NLP，仅表示离散顺序，忽视时间戳与多层时间规律。本文面向食品配送与即时零售场景，提出解耦时间编码，分别建模近期效应、餐时高峰、工作日周末差异和促销流量突发。在真实推荐系统数据上验证了其能更好地刻画用户行为的时间结构，提升推荐效果。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2608.19735v1",
+      "source": "arxiv",
+      "title": "RecPFN: Prior-Fitted Networks for In-Context-Based Recommendations",
+      "abstract": "We introduce RecPFN, a prior-fitted network that brings in-context learning to sequential recommendation. RecPFN is pretrained entirely on synthetic clickstream environments sampled from a broad structural causal prior, enabling it to amortize Bayesian-style inference from a small support set. At inference, a lightweight decoder-only transformer conditions on a handful of domain sequences and produces next-item predictions for queries in a single forward pass, without any weight updates. Across eight public benchmarks, RecPFN achives state-of-the-art zero-shot performance while remaining strongly competitive with supervised methods in low-compute and low-data regimes. It is deployment-efficient and robust to domain shift, outperforming strong zero-shot baselines that rely on large real-interaction corpora. RecPFN provides a practical path toward generalizable, data-efficient recommenders and opens avenues for richer priors, longer-context ICL, and multimodal extensions. Code for training and evaluation is publicly available at https://github.com/SAP-samples/tabular-ai-recpfn/.",
+      "authors": [
+        "En Zhi Tan",
+        "Jia Xiang Lim",
+        "Bryan Lijie Chew",
+        "Tze Minh Ng",
+        "Benjamin Yan Han Yap"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-08-20T07:35:03+00:00",
+      "link": "https://arxiv.org/pdf/2608.19735v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "addresses next-item prediction in sequential recommendation",
+      "llm_evidence_cn": "解决序列推荐中的下一项预测问题",
+      "llm_evidence": "解决序列推荐中的下一项预测问题",
+      "canonical_evidence": "解决序列推荐中的下一项预测问题",
+      "llm_tldr_en": "RecPFN brings in-context learning to sequential recommendation, achieving SOTA zero-shot performance on eight benchmarks.",
+      "llm_tldr_cn": "RecPFN是一种事先拟合网络，将上下文学习引入序列推荐。它在合成点击流环境上预训练，这些环境来自广泛的结构因果先验，从而能够从小支持集进行贝叶斯式推理。推理时，一个轻量级解码器仅靠少量领域序列即可一次性预测下一项，无需权重更新。在八个公共基准上，RecPFN取得了最先进的零样本性能，并在低计算、低数据场景下与监督方法竞争，且对领域偏移具有鲁棒性。",
+      "llm_tldr": "RecPFN是一种事先拟合网络，将上下文学习引入序列推荐。它在合成点击流环境上预训练，这些环境来自广泛的结构因果先验，从而能够从小支持集进行贝叶斯式推理。推理时，一个轻量级解码器仅靠少量领域序列即可一次性预测下一项，无需权重更新。在八个公共基准上，RecPFN取得了最先进的零样本性能，并在低计算、低数据场景下与监督方法竞争，且对领域偏移具有鲁棒性。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability in sequential recommendation",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "label": "2026-08-23",
+  "date": "2026-08-23",
+  "generated_at": "2026-08-23T20:30:16",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202608/23/2608.16274v1-decoupled-temporal-encoding-for-generative-recommendation",
+      "section": "deep",
+      "title_en": "Decoupled Temporal Encoding for Generative Recommendation",
+      "authors": "Pengfei Jia, Jingjian Wang, Jingmao Li, Ge Zhang, Feng Shi",
+      "date": "2026-08-17",
+      "pdf": "https://arxiv.org/pdf/2608.16274v1",
+      "score": "8.0",
+      "evidence": "序列推荐模型预测下一项，与序列推荐可预测性相关",
+      "tldr": "生成式推荐中位置编码多继承自NLP，难以区分全局时间动态与局部顺序信息。本文提出解耦时间编码（DTE），通过个性化宏时间模块和时间门控微序列模块分离两类信号，参数高效且易部署，能有效建模多级时间规律。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Positional encoding is a fundamental component of Transformer-based generative recommendation models, where user histories are modeled as autoregressive item sequences. Most positional encoding methods are inherited from natural language processing and mainly represent discrete item order. However, recommendation sequences go beyond ordered lists, as timestamps and temporal effects also shape item relations. Our work is motivated by a real-world food delivery and instant retail recommendation system, where user behavior exhibits multi-level temporal regularities, including recency effects, meal-time peaks, weekday-weekend shifts, and promotion-driven traffic bursts. Existing methods partially address this issue through timestamp features, interval embeddings, decay functions, or attention biases, but they usually inject heterogeneous temporal signals through a unified representation or a single modeling pathway, making it difficult to distinguish broad temporal dynamics from local order cues. To address this limitation, we propose Decoupled Temporal Encoding, a lightweight framework for generative recommendation. DTE separates temporal dynamics from order information through two complementary modules: a personalized macro-temporal module that injects compact temporal primitives into item embeddings, and a time-gated micro-sequential module that introduces relative-order bias only when interactions are temporally dense. DTE is also parameter-efficient and deployment-friendly, allowing easy integration into existing systems.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202608/23/2608.19735v1-recpfn-prior-fitted-networks-for-in-context-based-recommendations",
+      "section": "quick",
+      "title_en": "RecPFN: Prior-Fitted Networks for In-Context-Based Recommendations",
+      "authors": "En Zhi Tan, Jia Xiang Lim, Bryan Lijie Chew, Tze Minh Ng, Benjamin Yan Han Yap",
+      "date": "2026-08-20",
+      "pdf": "https://arxiv.org/pdf/2608.19735v1",
+      "score": "7.0",
+      "evidence": "解决序列推荐中的下一项预测问题",
+      "tldr": "推荐系统常受限于稀疏交互与领域迁移。RecPFN是一种先验拟合网络，在合成点击流上预训练，将贝叶斯式推理转化为小型解码器Transformer的上下文学习，前向一次即可预测，无需权重更新。在八个公开基准上，该方法零样本性能达到最优，且低计算与低数据场景下逼近监督方法，为通用高效推荐提供了实用路径。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We introduce RecPFN, a prior-fitted network that brings in-context learning to sequential recommendation. RecPFN is pretrained entirely on synthetic clickstream environments sampled from a broad structural causal prior, enabling it to amortize Bayesian-style inference from a small support set. At inference, a lightweight decoder-only transformer conditions on a handful of domain sequences and produces next-item predictions for queries in a single forward pass, without any weight updates. Across eight public benchmarks, RecPFN achives state-of-the-art zero-shot performance while remaining strongly competitive with supervised methods in low-compute and low-data regimes. It is deployment-efficient and robust to domain shift, outperforming strong zero-shot baselines that rely on large real-interaction corpora. RecPFN provides a practical path toward generalizable, data-efficient recommenders and opens avenues for richer priors, longer-context ICL, and multimodal extensions. Code for training and evaluation is publicly available at https://github.com/SAP-samples/tabular-ai-recpfn/.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
