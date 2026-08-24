@@ -6,29 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-08-23
-- 运行时间：2026-08-23 20:30:08 UTC
+- 最新运行日期：2026-08-24
+- 运行时间：2026-08-24 19:48:47 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：1
-- 速读区：1
+- 本次总论文数：0
+- 精读区：0
+- 速读区：0
 
 ### 今日简报（AI）
-- 今日共生成 2 篇推荐（精读 1 篇，速读 1 篇）
-- 精读：《Decoupled Temporal Encoding for Generative Recommendation》（8.0/10）
-- 速读：《RecPFN: Prior-Fitted Networks for In-Context-Based Recommendations》（7.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202608/23/README](/202608/23/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202608/24/README](/202608/24/README)
 
 ### 精读区论文标签
-1. [Decoupled Temporal Encoding for Generative Recommendation](/202608/23/2608.16274v1-decoupled-temporal-encoding-for-generative-recommendation)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：序列推荐模型预测下一项，与序列推荐可预测性相关
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [RecPFN: Prior-Fitted Networks for In-Context-Based Recommendations](/202608/23/2608.19735v1-recpfn-prior-fitted-networks-for-in-context-based-recommendations)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：解决序列推荐中的下一项预测问题
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
