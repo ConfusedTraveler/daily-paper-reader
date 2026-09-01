@@ -1,0 +1,895 @@
+Title: Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention
+
+URL Source: https://arxiv.org/pdf/2608.25369v1
+
+Published Time: Thu, 27 Aug 2026 00:30:26 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# FORECASTING GLOBAL VOLATILITY ACROSS ASYNCHRONOUS 
+
+# MARKETS : I NCREMENTAL ACCURACY FROM CONSTRAINED 
+
+# CROSS -M ARKET ATTENTION 
+
+A P REPRINT 
+
+Xinlin Zhao 
+
+Independent Researcher China 
+
+cillinzhao@gmail.com 
+
+Haotian Qiao 
+
+Department of Electrical Engineering and Computer Science University of Michigan, Ann Arbor, USA 
+
+qhaotian@umich.edu 
+
+Ziyao Lin 
+
+School of Reliability and Systems Engineering Beihang University, Beijing, China 
+
+zb2614109@buaa.edu.cn 
+
+## ABSTRACT 
+
+Multivariate volatility forecasting across international equity markets presents a fundamental information-set problem: asynchronous exchange closures dictate which market observations strictly belong to the information filtration at any given forecast origin. Rather than asking whether an unconstrained neural network can achieve superior in-sample fit, this paper investigates whether carefully regularized, origin-admissible cross-market information delivers statistically significant incremental forecast accuracy beyond established volatility models. We develop PGA-Trans-HAR, a parsimonious forecasting system that combines a forecast-origin-admissible ridge-VAR/GFEVD predictive-connectedness prior with data-driven spatial self-attention. A learned, time-invariant market-specific gate governs their relative allocation, asymmetric attention masking prevents closed exchanges from transmitting spurious zero-volatility signals, and a frozen direct-horizon HAR baseline anchors a bounded neural residual correction in the inverse-softplus domain. Using high-frequency data from eight major global stock indices over the 2006–2022 period, we evaluate direct forecasts at horizons of 1, 5, and 22 union-calendar days across all-days and common-days panels, five-seed ensembles, structural ablations, HAC-adjusted Diebold–Mariano tests, and block-bootstrap Model Confidence Sets. Relative to the univariate HAR benchmark, the constrained framework reduces both MSE and MAE across all eight markets at the daily and weekly horizons, and across seven of the eight markets at the monthly horizon. Within the broader suite of linear and deep learning benchmarks, it achieves the lowest cross-market average MAE at the daily horizon (while linear HAR-KS minimizes daily MSE), and the lowest average MSE and MAE at the weekly and monthly horizons. Structural ablations demonstrate that architectural flexibility is not monotonically beneficial: the spatial allocation restriction is essential, with learned market-specific gates improving forecast accuracy over a uniform equal-weight mixture at weekly and monthly horizons, whereas daily forecasts benefit from stronger scalar shrinkage. The empirical evidence supports a qualified affirmative conclusion: disciplined, origin-aligned cross-market information yields genuine incremen-tal predictive value over the HAR anchor, with the most pronounced gains emerging at medium and long horizons where structural spillovers persist. 
+
+Keywords: Realized volatility; Asynchronous trading calendars; Forecast information sets; Predictive connectedness; HAR model; Constrained attention; Model Confidence Set. arXiv:2608.25369v1 [cs.CE] 26 Aug 2026 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+## 1 Introduction 
+
+Forecasting global realized volatility is central to financial risk management, portfolio allocation, and derivative pricing (Andersen et al., 2003). As international financial markets have grown increasingly interdependent, cross-market volatility spillovers have become highly informative for forecasting domestic risk (Diebold and Yilmaz, 2012). However, forecasting multivariate volatility across global markets introduces a fundamental information-set problem: the presence of asynchronous trading calendars. Because international exchanges operate on disparate holiday schedules, global volatility panels are inherently misaligned. Traditional econometric approaches typically handle these asynchronous closures by either truncating non-common trading days—which distorts the temporal continuity of the time series—or by artificially padding missing entries with zeros, which injects uninformative noise into the estimation process (Burns et al., 1998). This misalignment severely complicates multi-horizon out-of-sample forecasting, as models risk inadvertently incorporating future information if the predictive information set is not strictly bounded at the forecast origin. Figure 1 makes this measurement problem concrete. The Christmas interval contains dates on which some markets report valid volatility while others are closed. N225, for example, is active on 25 December 2019 when the remaining seven exchanges are closed; SPX, N225, and KS11 are active on 26 December while several European and Asian exchanges remain closed. Retaining these dates preserves information from the open markets, while the mask prevents absent observations from being interpreted as unusually low volatility. Dec 16 Dec 17 Dec 18 Dec 19 Dec 20 Dec 23 Dec 24 Dec 25 Dec 26 Dec 27 Dec 30 Dec 31 Jan 02 Jan 03 
+
+> Union-calendar date
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+> Market
+
+(a) Observed market-day Exchange closed Dec 16 Dec 18 Dec 20 Dec 22 Dec 24 Dec 26 Dec 28 Dec 30 Jan 01 Jan 03 
+
+> Union-calendar date
+> 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+> Square-root realized volatility
+
+(b)   
+
+> Gray bands: at least one selected exchange is closed
+> SPX FTSE HSI
+
+Figure 1: Realized volatility and asynchronous trading calendars. Panel (a) reports the market activity mask over the 2019 Christmas period: a filled cell denotes an observed market-day and an empty cell denotes an exchange closure. Panel (b) plots the observed square-root realized-volatility series for SPX, FTSE, and HSI; gray bands identify union-calendar dates on which at least one of these exchanges is closed. Closure-coded zeros are converted to missing values before the mask and model inputs are constructed and are not plotted as zero-volatility observations. To capture complex, non-linear volatility spillovers, recent literature has increasingly adopted highly parameterized machine learning architectures, such as Spatio-Temporal Graph Neural Networks (STGNNs) and Transformer-based models (Zhang et al., 2025). While these models offer immense representational flexibility, they introduce a distinct 2Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+tension between complexity and parsimony. Financial volatility time series are characterized by a notably low signal-to-noise ratio. In such environments, purely data-driven neural networks are highly susceptible to overfitting transient transactional noise rather than learning robust economic linkages. Furthermore, existing graphical forecasting frameworks often construct relational networks using static, full-sample covariance matrices. This practice violates strict out-of-sample information boundaries and obscures whether the reported forecasting gains stem from genuine predictive transmission or from implicit look-ahead bias. This paper proposes a fundamentally different approach. We design a parsimonious forecasting system that does not attempt to replace classical econometric models with an unconstrained "black box," but rather utilizes the widely estab-lished Heterogeneous Autoregressive (HAR) model (Corsi, 2009) as a strong, frozen benchmark anchor. Consequently, the central empirical question of this study is not whether a complex neural architecture unconditionally outperforms linear models, but rather: Does carefully constrained, origin-admissible cross-market information produce statistically significant incremental forecast accuracy beyond established volatility models? To systematically address this question, we introduce a hybrid forecasting framework that tightly constraints a spatio-temporal attention mechanism utilizing economic priors. The architecture minimizes parameter explosion and safeguards out-of-sample integrity through four specific methodological contributions: 1. Forecast-origin-admissible information alignment. We formulate the daily international panel on a union calendar while distinguishing observed market-days from exchange closures. Both the neural window and the rolling prior are indexed by the forecast origin. The prior is refreshed once every 20 origins, rather than on future target dates, so the same information rule applies at h = 1 , 5, and 22 .2. A constrained cross-market information channel. We combine a rolling ridge-VAR/GFEVD prior with data-driven spatial attention. A single learned gate gn for each destination market captures persistent heterogeneity in the preferred allocation, while remaining fixed across observations, dates, source markets, and spatio-temporal blocks. The restriction avoids the additional estimation variation of an observation-dependent mixture. 3. Benchmark-centered nonlinear forecasting. A direct, node-specific HAR model is estimated separately for each horizon and frozen. The neural system contributes only a bounded residual in the inverse-softplus domain. Positivity is preserved, and the empirical content of the nonlinear branch is explicitly incremental to HAR. A node-balanced objective further limits the extent to which aggregate improvements can be purchased with a large relative deterioration in one market. 4. Evidence on when restricted cross-market information helps. We compare the system with HAR, multivariate HAR specifications, static graph models, a pure spatio-temporal Transformer, and nested structural ablations. Evaluation uses all-days and common-days panels, three forecast horizons, five-seed ensembles, HAC-adjusted Diebold–Mariano tests, and block-bootstrap Model Confidence Sets. This design separates incremental predictive content from a generic comparison between a deep model and a linear benchmark. The evidence is horizon- and loss-dependent. Relative to HAR, PGA-Trans-HAR lowers both MSE and MAE for every market at h = 1 and h = 5 , and for seven of eight markets at h = 22 . In the broader comparison, it has the lowest cross-market average daily MAE but not MSE, and the lowest average MSE and MAE at the two longer horizons. The predictive-ability tests and Model Confidence Sets remain heterogeneous across markets. The ablations also reject a simple complexity interpretation: temporal attention and the rolling graph are not unconditional complements, and the learned market-specific gate helps relative to a common g = 0 .5 at h = 5 and h = 22 but not at h = 1 . The results therefore support a qualified conclusion that carefully constrained cross-market information can improve upon HAR, particularly at longer horizons; they do not establish uniform model dominance or structural volatility transmission. The remainder of the paper reviews the relevant forecasting literatures, formalizes the sequence of information and capacity restrictions, describes the evaluation design, and reports the predictive and diagnostic evidence. 
+
+## 2 Related Literature 
+
+2.1 Volatility Forecasting and the HAR Baseline 
+
+The Heterogeneous Autoregressive (HAR) model captures realized-volatility persistence through a parsimonious cascade of daily, weekly, and monthly components (Corsi, 2009). Rather than attempting to strictly estimate a fractional-integration process, the HAR framework is highly appealing because it provides a transparent, computationally stable approximation of long-memory volatility dynamics. Furthermore, empirical evidence demonstrating that the composition of realized variation significantly influences predictability over different time spans reinforces the standard practice of employing direct, horizon-specific forecasting (Patton and Sheppard, 2015). 3Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+Consequently, the HAR model serves as more than just a conventional benchmark in this study; it establishes the foundational baseline that any constrained cross-market information must demonstrably improve upon. While the standard univariate HAR deliberately omits foreign-market predictors, multivariate frameworks, such as the Vector HAR (VHAR) and unrestricted HAR-Kitchen Sink (HAR-KS) extensions, incorporate them via linear regressors. Evaluating these alternatives helps isolate two distinct empirical questions: first, whether other global markets contain genuine incremental predictive content; and second, whether a complex, non-linear representation is strictly necessary to extract it. Established evidence of international volatility transmission naturally motivates the first question, demonstrating that predictive relationships and spillover intensities vary significantly across different market pairs (Bubák et al., 2011). Therefore, the empirical comparison in this paper is fundamentally organized around quantifying the incremental accuracy relative to the HAR anchor, rather than endorsing model complexity for its own sake. 
+
+2.2 Predictive Connectedness in Multivariate Systems 
+
+The generalized forecast-error variance decomposition (GFEVD) developed by Pesaran and Shin (1998) yields order-invariant variance shares, which Diebold and Yilmaz (2012) leverage to quantify directional predictive connectedness. This methodology elegantly compresses high-dimensional multivariate histories into directed spillover allocations across source markets. In a forecasting context, this representation is highly valuable because it provides a parsimonious summary of where predictive variation originates within the estimated VAR system. Crucially, however, the GFEVD remains a reduced-form predictive tool rather than a structurally identified causal network. Recent graph-based forecasting architectures impose analogous restrictions to govern the flow of cross-market infor-mation across a panel. For instance, GNN-HAR and diffusion-recurrent specifications propagate volatility signals through a prespecified adjacency matrix (Zhang et al., 2025; Chi et al., 2026). The out-of-sample validity of these models, however, depends critically on how this matrix is estimated and temporally aligned. While a static graph derived from the full sample or a fixed pre-test period offers structural parsimony, it risks either injecting inadmissible future information (look-ahead bias) or enforcing stale relationships that fail to adapt to market regime shifts. Although a rolling graphical approach permits predictive connectedness to evolve, its estimation window and update calendar must strictly respect the predictive information set available at the forecast origin. Consequently, the forecasting system proposed in this paper explicitly utilizes a strictly origin-admissible rolling ridge-VAR/GFEVD graph as a regularizing prior, rather than treating it as a maintained description of structural spillovers. 
+
+2.3 Machine Learning and the Need for Economic Constraints 
+
+Self-attention mechanisms estimate temporal and cross-sectional dependencies directly from observed realizations without imposing predefined functional forms (Vaswani et al., 2017). This architectural flexibility is particularly valuable when cross-market linkages exhibit complex non-linearities or evolving transmission channels that cannot be adequately captured by static relational graphs. However, unconstrained flexibility is notoriously hazardous in financial forecasting: the underlying economic signal is weak relative to high-frequency transactional noise, and the number of observations is modest relative to the set of possible interactions (Bucci, 2020; Sezer et al., 2020). From a forecasting perspective, the appropriate methodological response is not to dismiss flexible machine learning architectures, but rather to restrict where and how their flexibility enters the predictive system ( ?). In our proposed framework, this economic regularization operates across multiple structural levels: ridge shrinkage in the rolling VAR stabilizes the econometric connectedness prior; a market-specific gate regulates the reliance on data-driven attention relative to that structural prior; and the final forecast remains anchored to HAR. The gate is constant over dates within a fitted model. It therefore captures persistent heterogeneity in predictive allocation, not a time-varying market state. By imposing these deliberate constraints, the empirical evaluation shifts away from whether an unconstrained end-to-end neural network can overfit historical volatility levels, focusing instead on whether constrained cross-market attention extracts genuine incremental predictive accuracy beyond established benchmarks. 
+
+2.4 The Asynchronous Calendar Challenge 
+
+International financial market observations are inherently asynchronous. Country-specific holidays generate calendar dates on which realized-volatility measures are available for some markets but missing for others, while differences in trading hours create a separate intraday timing problem (Burns et al., 1998). In a unified multi-market panel, listwise deletion of non-common dates discards economically valuable information from active exchanges and disrupts temporal persistence. Conversely, imputing market closures with artificial zeros confounds the physical absence of measurement with an erroneous state of near-zero volatility. Crucially, in direct multi-step forecasting, every feature constructed for a target dated t must be strictly observable at the forecast origin o = t − h. Asynchrony is therefore not merely a technical data-alignment issue, but a boundary condition on the forecast information set. 4Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+These information-set boundaries apply with equal force to estimated objects as they do to raw inputs. In particular, a trailing relational graph is econometrically admissible only if its historical estimation window terminates on or before the forecast origin, and its rolling update calendar must be indexed strictly by origin time rather than by the future forecast target. The asymmetric masking mechanism formulated below preserves valid open-market observations while preventing a closed market from supplying a nonexistent volatility signal. We acknowledge, however, that while this mask resolves calendar-level misalignments, it does not reconstruct intraday closing sequences or identify structural news propagation, both of which would require higher-frequency tick data. Finally, rigorous out-of-sample evaluation across asynchronous panels requires formal statistical accounting for sampling uncertainty and multiple-model comparison. We implement pairwise Diebold–Mariano tests (Diebold and Mariano, 2002) equipped with heteroskedasticity-and-autocorrelation-consistent (HAC) long-run variance estimators (Newey and West, 1987, 1994) to evaluate overlapping multi-step loss differentials. These are complemented by the Model Confidence Set (MCS) procedure of Hansen et al. (2011), which identifies a subset of superior models for which equal predictive ability cannot be rejected at a prescribed confidence level. Importantly, neither procedure conflates a marginally lower sample average loss with conclusive evidence of universal predictive dominance, thereby ensuring a disciplined and realistic interpretation of cross-model comparisons. 
+
+## 3 The Forecasting System 
+
+The forecasting system is organized as a sequence of restrictions on the use of information. The calendar mask determines which observations may act as sources; the rolling connectedness matrix restricts the cross-market search; the fixed market gate limits how far data-driven attention may depart from that prior; and the frozen HAR forecast anchors the final prediction. This structure is deliberately parsimonious. Its purpose is to test whether disciplined cross-market information adds to a strong volatility benchmark, rather than to maximize neural flexibility. Figure 2 summarizes the system’s information flow. The upper path transforms the masked 22-position panel through two spatio-temporal blocks and produces a bounded neural residual. The lower path constructs mask-aware HAR features and supplies a frozen, horizon-specific positive anchor. The two paths meet only at the inverse-softplus fusion stage. This separation makes the source of each restriction transparent: the rolling prior and asymmetric source mask discipline the spatial channel, whereas the HAR path limits the magnitude of the final nonlinear departure. 
+
+3.1 The Information Set and Asynchronous Masks 
+
+Let n ∈ { 1, . . . , N } index markets and let t ∈ { 0, . . . , T − 1} index dates on the union calendar. Denote the raw input by RV t,n and define the activity indicator 
+
+mt,n = 1{RV t,n > 0 and finite }. (1) Every nonpositive or nonfinite entry is first mapped to missing. The model-scale observation is 
+
+xt,n =
+
+100 pRV t,n , if input_format =rv ,RV t,n , if input_format =sqrt_rv . (2) The second branch applies no additional transformation or rescaling. Missing entries are replaced by zero only after 
+
+mt,n has been constructed, so the numerical placeholder is never treated as an observed volatility value. For a direct forecast with horizon h ∈ { 1, 5, 22 } and target index t, the forecast-origin function is 
+
+o(t, h ) = t − h. (3) The origin information set and the corresponding direct forecast can be written as 
+
+Fo = σ{xr,n , m r,n : r ≤ o, n = 1 , . . . , N } , bx(h) 
+
+> t,n
+
+= fh,n (Fo), o = o(t, h ) = t − h. (4) Equation (4) is the admissibility condition for every estimated component of the system, not only for the 22-position neural input. With sequence length S = 22 , the neural and HAR inputs are 
+
+X (h) 
+
+> t
+
+= {(xr,n , m r,n ) : r = o − S + 1 , . . . , o ; n = 1 , . . . , N } . (5) Equivalently, the Python slice has exclusive endpoint t − h + 1 . Hence the most recent input is dated o = t − h, and no observation in the unobserved interval (o, t ] is included. The target loss for node n is evaluated only when mt,n = 1 .Throughout the paper, h denotes the number of union-calendar indices between the forecast origin and the target. The target remains the one-day model-scale volatility observation xt,n ; it is not an h-day sum or average of future volatility. 5Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+Figure 2: PGA-Trans-HAR architecture. The neural path combines masked temporal attention with a spatial mixture of data-driven attention and a rolling ridge-VAR/GFEVD prior. The mixture weight is a learned, market-specific gate 
+
+gn that is constant across observations, dates, lookback positions, source markets, and spatio-temporal blocks within a fitted horizon–seed model. The asymmetric mask prevents an inactive market from acting as a temporal or spatial information source while retaining its query state. The frozen HAR path anchors a bounded neural correction in the inverse-softplus domain, and the resulting forecast is strictly positive. Gray, blue, red, and yellow elements denote inputs or auxiliary information, standard Transformer operations, model-specific components, and the linear HAR path, respectively. 
+
+3.2 Forecast-Origin-Admissible Predictive-Connectedness Prior 
+
+For each target t, let the exclusive forecast-origin endpoint be 
+
+uo = o + 1 = t − h + 1 . (6) The graph-refresh interval is Kg = 20 , the maximum graph window is Wg = 252 , and the code anchors the refresh calendar at S. The exclusive graph endpoint and the start of its estimation window are 
+
+e(o) = S + Kg
+
+ uo − SKg
+
+
+
+, (7) 
+
+a(o) = max {0, e (o) − Wg }. (8) The graph uses the half-open slice [a(o), e (o)) . Since e(o) ≤ uo, its last possible observation is e(o) − 1 ≤ o. The same graph is therefore reused for at most 20 consecutive forecast-origin endpoints, and this schedule is identical for 
+
+h = 1 , 5, and 22 . This is a no-lookahead or forecast-origin-admissibility statement; it is not a claim of structural causal identification. Figure 3 makes the distinction between target time and information time explicit. Panel (a) shows that both the neural input and the graph-estimation window end no later than the forecast origin for all three horizons. Panel (b) shows that the refresh clock advances in blocks of 20 exclusive origin endpoints. Consequently, shifting the target from h = 1 to 
+
+h = 5 or h = 22 does not induce more frequent graph estimation: the same information-set rule is applied at every horizon. Within each historical slice, missing entries are forward-filled by market. Any leading entries that remain missing are replaced by the median of that market computed from the same already-observed slice. If an entire market column is missing in that slice, the defensive implementation uses zero. The completed series is standardized within the graph 6Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT (a) 
+
+Information available at the forecast origin 
+
+h = 1               
+
+> rolling graph history [a(o), e(o)) (up to 252 dates)
+> neural input [o− 21, o]
+> origin o=t−h
+> target t
+> e(o) ≤ o+ 1
+
+h = 5               
+
+> rolling graph history [a(o), e(o)) (up to 252 dates)
+> neural input [o− 21, o]
+> origin o=t−h
+> target t
+> e(o) ≤ o+ 1
+
+h = 22               
+
+> rolling graph history [a(o), e(o)) (up to 252 dates)
+> neural input [o− 21, o]
+> origin o=t−h
+> target t
+> e(o) ≤ o+ 1
+> Schematic; horizontal distances are not to scale.
+
+(b) 
+
+Graph refresh calendar in exclusive forecast-origin time             
+
+> egeg+ 1 ⋯eg+ 18 eg+ 19 eg+ 20
+> one prior reused for 20 consecutive origin endpoints
+> refresh before next block The endpoint rule is identical for h= 1, 5, 22 because it is indexed by the information set, not the target date.
+
+Figure 3: Forecast-origin timing and rolling-prior refreshes. For target date t and horizon h, the forecast origin is 
+
+o = t − h, and the 22-position neural input ends at o. The graph uses the half-open historical window [a(o), e (o)) ,where e(o) ≤ o + 1 and a(o) = max {0, e (o) − 252 }. The same prior is reused for 20 consecutive exclusive origin endpoints and is refreshed before the next block. Indexing the refresh rule by the forecast origin, rather than the future target date, makes the information restriction identical for h = 1 , 5, and 22 . Horizontal distances in Panel (a) are schematic. window. Let zu ∈ RN denote the resulting vector. The code estimates a ridge VAR of order p = 2 ,
+
+zu = c +
+
+pX
+
+ℓ=1 
+
+Aℓzu−ℓ + εu, E(εuε′
+
+u) = Σ , (9) by minimizing 
+
+X
+
+u
+
+zu − c −
+
+pX
+
+ℓ=1 
+
+Aℓzu−ℓ
+
+22
+
++ λVAR 
+
+pX
+
+ℓ=1 
+
+∥Aℓ∥2
+
+F , λVAR = 5 , (10) with an unpenalized intercept. The residual covariance is symmetrized and regularized by 10 −6IN .Let Ψ0 = IN and 
+
+Ψq =
+
+min( p,q )
+
+X
+
+ℓ=1 
+
+AℓΨq−ℓ, q ≥ 1. (11) At the GFEVD horizon Hg = 22 , the generalized contribution of source market j to the forecast-error variance of destination market n is 
+
+θ(o)
+
+nj = σ−1
+
+jj 
+
+PHg −1
+
+q=0 (e′
+
+nΨq Σej )2
+
+PHg −1
+
+q=0 e′
+
+nΨq ΣΨ ′
+
+q en
+
+. (12) 7Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+The attention prior is the row-normalized matrix 
+
+P (o) 
+
+> nj
+
+= θ(o)
+
+> nj
+
+PNr=1 θ(o)
+
+> nr
+
+,
+
+> N
+
+X
+
+> j=1
+
+P (o) 
+
+> nj
+
+= 1 . (13) If a numerical row is empty, the implementation replaces that row by the corresponding row of the identity matrix before normalization. 
+
+3.3 Constrained Cross-Market Attention 
+
+For sample b, lookback position s, and market n, the initial hidden state is 
+
+h(0)  
+
+> b,s,n
+
+= Win [xb,s,n ; mb,s,n ] + ps + en, (14) where ps and en are learned position and node embeddings. The default model uses hidden dimension d = 32 , L = 2 
+
+spatio-temporal blocks, and four temporal attention heads. In each block, temporal self-attention is applied separately to each node. For head a, query position s, and source position r,
+
+AT, (ℓ,a ) 
+
+> b,n,sr
+
+=
+
+mb,r,n exp 
+
+
+
+q(ℓ,a )′ 
+
+> b,n,s
+
+k(ℓ,a ) 
+
+> b,n,r
+
+/√da
+
+PSu=1 mb,u,n exp 
+
+
+
+q(ℓ,a )′ 
+
+> b,n,s
+
+k(ℓ,a )
+
+> b,n,u
+
+/√da
+
+ . (15) Thus, a closure cannot be a temporal key/value source. The query is not removed, so an inactive calendar position can update its state from the active history. Consistent with the implementation’s masked-softmax operation, an attention row is defined as zero if no active temporal source exists, thereby avoiding an undefined 0/0 normalization. At each position, the data-driven spatial attention from source j to destination n is 
+
+AD, (ℓ) 
+
+> b,s,nj
+
+=
+
+mb,s,j exp 
+
+
+
+q(ℓ)′
+
+> b,s,n
+
+k(ℓ) 
+
+> b,s,j
+
+/√d
+
+PNr=1 mb,s,r exp 
+
+
+
+q(ℓ)′
+
+> b,s,n
+
+k(ℓ) 
+
+> b,s,r
+
+/√d
+
+ . (16) If no spatial source is active, the implemented masked softmax returns a zero data-attention row. This is a defensive case; a valid union-calendar date is expected to contain at least one active market. The same source mask is applied to the rolling prior, 
+
+eP (ob) 
+
+> b,s,nj
+
+= P (ob) 
+
+> nj
+
+mb,s,j 
+
+PNr=1 P (ob) 
+
+> nr
+
+mb,s,r 
+
+. (17) If the denominator in Eq. (17) is zero, the code uses the corresponding data-attention row as a defensive fallback. Equations (16) and (17) implement asymmetric masking: inactive markets do not transmit information, but they remain destination queries and may receive information from active markets. 
+
+3.4 Market-Specific Allocation and HAR-Anchored Bounded Fusion 
+
+The model estimates exactly one attention-mixture logit for each destination market, 
+
+gn = σ(γn), n = 1 , . . . , N, (18) with initialization γn = −0.5, so gn ≈ 0.378 before training. For a given fitted model, gn is shared across batch observations, target dates, lookback positions, source markets, and all L spatio-temporal blocks. In particular, 
+
+∂g n
+
+∂x b,s,j 
+
+= 0 , (19) because no contemporaneous hidden state enters Eq. (18). Separate horizon–seed fits can estimate different vectors, but none of those vectors varies over dates after training. The hybrid spatial row in block ℓ is 
+
+H(ℓ) 
+
+> b,s,nj
+
+= gnAD, (ℓ) 
+
+> b,s,nj
+
++ (1 − gn) eP (ob) 
+
+> b,s,nj
+
+. (20) Higher gn places more weight on data-driven spatial attention for destination n, whereas lower gn places more weight on the rolling econometric prior. Although gn is fixed, both terms on the right-hand side of Eq. (20) can vary: AD varies 8Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+with the input representation and eP (ob) changes on the 20-origin graph calendar. During training, attention dropout is applied to the hybrid row before value aggregation; it is inactive during evaluation. Let T , S, and F denote temporal attention, the hybrid spatial value aggregation, and the two-layer GELU feed-forward network. The post-normalized residual block is 
+
+u(ℓ) = LN 
+
+
+
+h(ℓ−1) + Dropout {T (h(ℓ−1) , m )}
+
+
+
+, (21) 
+
+v(ℓ) = LN 
+
+
+
+u(ℓ) + Dropout {S (u(ℓ), H (ℓ))}
+
+
+
+, (22) 
+
+h(ℓ) = LN 
+
+
+
+v(ℓ) + F(v(ℓ))
+
+
+
+. (23) 
+
+HAR anchor and bounded fusion. For each horizon, the code estimates a separate node-specific direct HAR regression. Within the 22-position input window, let Dt,n be the most recent active observation. Let Wt denote the final five union-calendar positions and Mt all 22 positions. The masked averages are 
+
+Wt,n =
+
+P 
+
+> r∈W t
+
+mr,n xr,n 
+
+max {1, P 
+
+> r∈W t
+
+mr,n } , (24) 
+
+Mt,n =
+
+P 
+
+> r∈M t
+
+mr,n xr,n 
+
+max {1, P 
+
+> r∈M t
+
+mr,n } . (25) The direct-horizon anchor is 
+
+bxHAR ,(h) 
+
+> t,n
+
+= bβ(h)0,n + bβ(h)
+
+> D,n
+
+Dt,n + bβ(h)
+
+> W,n
+
+Wt,n + bβ(h)
+
+> M,n
+
+Mt,n , (26) clipped below at ϵ = 10 −6. The coefficients are estimated by OLS before neural training and stored as a non-trainable buffer. Let h(L) 
+
+> b,S,n
+
+be the last-calendar-position state, ¯mb,n = S−1 PSs=1 mb,s,n the activity rate, and mb,S,n the last-position activity indicator. The input-dependent residual gate and bounded residual are 
+
+rb,n = σ
+
+
+
+fr ([ h(L)
+
+> b,S,n
+
+; ¯ mb,n ; mb,S,n ]) 
+
+
+
+, (27) 
+
+δb,n = tanh 
+
+
+
+fδ (h(L)
+
+> b,S,n
+
+)
+
+
+
+, (28) 
+
+αn = Amax tanh( ηn), Amax = 1 . (29) The final bias of fr is initialized at −1.5, and ηn is initialized at zero. The forecast is 
+
+bx(h) 
+
+> t,n
+
+= softplus 
+
+h
+
+softplus −1bxHAR ,(h)
+
+> t,n
+
+
+
++ αnrb,n δb,n 
+
+i
+
+. (30) Equation (30) makes the initial forecast equal to the HAR anchor, bounds the latent neural correction, and guarantees a positive output. The residual gate rb,n remains input-dependent; it should not be confused with the time-invariant attention-mixture gate gn. The fusion can be viewed as a controlled allocation of forecasting capacity. HAR supplies the level forecast, while the cross-market representation is allowed to modify that forecast only through the bounded amplitude αn and the observation-specific gate rb,n . This interpretation is about the architecture’s predictive restriction, not a probabilistic measure of model confidence. 
+
+3.5 Node-Balanced Optimization Objective 
+
+For a minibatch, let Bn be the observations with an active target for node n, and define 
+
+MSE n = 1
+
+|B n|
+
+X
+
+> b∈B n
+
+(bxb,n − xb,n )2. (31) 9Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+Let sn be the standard deviation of active training targets and let M HAR  
+
+> n
+
+be the in-sample MSE of the corresponding frozen HAR anchor. For the set V of nodes represented in the minibatch, the base loss and HAR-relative regret are 
+
+Lbase = 1
+
+|V| 
+
+X
+
+> n∈V
+
+MSE n
+
+s2
+
+> n
+
+, (32) 
+
+qn = MSE n
+
+M HAR 
+
+> n
+
+− 1, (33) 
+
+Lsw = τ log 
+
+"
+
+1
+
+|V| 
+
+X
+
+> n∈V
+
+exp 
+
+ qn
+
+τ
+
+#
+
+, (34) 
+
+L = Lbase + λLsw , (35) with λ = 0 .10 and τ = 0 .20 . The log-mean-exp term is a smooth approximation to the largest HAR-relative deterioration. It discourages severe degradation for one market while retaining a differentiable panel objective. 
+
+## 4 Experimental Design 
+
+The empirical design is built around three questions. First, does the proposed system add forecast accuracy beyond HAR and other established volatility models? Second, if it does, is the improvement associated with disciplined cross-market information rather than neural complexity alone? Third, are the rankings robust to evaluating only dates on which all markets trade? The split, benchmark, ablation, and inference procedures below are chosen to answer these questions without using test-period outcomes for model selection. 
+
+4.1 Data Description and the Union Calendar 
+
+The empirical dataset encompasses daily realized-volatility measures across eight major global equity indices: the S&P 500 (SPX), DAX (GDAXI), CAC 40 (FCHI), FTSE 100 (FTSE), OMX Stockholm (OMXSPI), Nikkei 225 (N225), KOSPI (KS11), and Hang Seng (HSI). Spanning October 24, 2006, through June 28, 2022, the union calendar comprises 
+
+T = 4 ,079 trading dates on which at least one international exchange was active. To preserve the temporal continuity of each market and avoid discarding economically relevant observations from active exchanges, dates on which a specific exchange is closed remain in the panel as node-specific missing observations rather than being truncated. To guarantee strict data consistency and eliminate potential recording artifacts, the data-loading pipeline maps all nonpositive entries—including exchange-specific zero closure codes—to missing values ( NaN ) prior to constructing the binary activity mask. Numerical zeros are subsequently introduced strictly as computational placeholders during tensor formatting, where they are invariably paired with an inactive mask indicator ( mt,n = 0 ). Equation (2) formalizes the transformation logic governing scale consistency: specifying input_format=rv applies the 100 √· scaling exactly once, whereas input_format=sqrt_rv retains the supplied values without alteration. All empirical experiments reported herein utilize the pre-transformed df_union_sqrt.csv panel under input_format=sqrt_rv . Consequently, the loader applies no secondary square-root transformation or additional rescaling, ensuring that all out-of-sample loss metrics are evaluated directly on the percentage square-root realized-volatility scale. Figure 1 provides a representative view of the resulting activity mask and shows that valid open-market observations coexist with node-specific closures on the same union-calendar date. 
+
+4.2 Strict Forecast-Origin Alignment Protocol 
+
+The protocol separates model selection from final estimation. Hyperparameter selection uses only the 60–10 development split; the selected training length is then treated as fixed, and every parameter is re-estimated from a fresh initialization on the first 70%. Neither the test outcomes nor a checkpoint trained on the smaller development sample enters the refit. Let Ttr = ⌊0.60 T ⌋ and Tval = ⌊0.70 T ⌋ denote the exclusive 60% and 70% boundaries under zero-based indexing. Because the first validation and test forecast origins, rather than their future targets, must lie on the preceding split boundary, the target sets are 
+
+J (h)train = {t : S + h − 1 ≤ t < T tr }, (36) 
+
+J (h)validation = {t : Ttr + h − 1 ≤ t < T val }, (37) 
+
+J (h)test = {t : Tval + h − 1 ≤ t < T }. (38) 10 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+Thus, the first validation origin is Ttr − 1 and the first test origin is Tval − 1 for every horizon. This detail is necessary at h = 5 and h = 22 : beginning the target sample directly at a split boundary would associate the earliest target with a forecast origin that lies inside the preceding partition. For each horizon and random seed, estimation proceeds in three stages. 1. The model is trained on the first 60% and evaluated on the following 10%. AdamW uses an initial learning rate of 5 × 10 −4, cosine annealing to 10 −6, weight decay 10 −4, batch size 64, gradient clipping at one, at most 150 epochs, and early-stopping patience of 20 epochs. The selected epoch minimizes Eq. (35) on the validation targets. 2. The selected development checkpoint and optimizer state are discarded. The model, including the vector 
+
+(γ1, . . . , γ N ), is initialized again and refitted from scratch on the first 70% for exactly the selected number of epochs. The horizon-specific HAR anchor, target scales, and HAR reference MSEs are re-estimated on this 70% sample. The rolling prior remains forecast-origin specific and is rebuilt from its trailing information window. 3. The refitted model is evaluated once on the final 30%. The default seeds are {1, 2, 3, 4, 5}. Python, NumPy, and PyTorch seeds are set jointly; deterministic PyTorch/CuDNN behavior is requested where available. For reported ensemble forecasts, predictions are averaged across seeds before MSE, MAE, DM, or MCS calculations. 
+
+4.3 Models for Assessing Incremental Accuracy 
+
+To systematically isolate the empirical sources of forecast improvements, our external benchmark suite is organized hierarchically by the specific econometric restriction it relaxes. The node-specific univariate HAR model serves as the foundational anchor, addressing the primary baseline question of whether foreign-market information contains any incremental predictive value. Multivariate linear extensions—namely the unrestricted Vector HAR (VHAR) and the HAR-Kitchen Sink (HAR-KS) model, which linearly incorporates the latest active daily realization from all foreign markets—evaluate whether a linear cross-market expansion is sufficient. The Graph Neural Network (GNN-HAR) and Diffusion Convolutional Recurrent Neural Network (DCRNN-HAR), both estimated using pre-test static adjacency matrices, assess the contribution of non-linear spatial graph convolutions and recurrent propagations. Finally, the Pure-ST-Transformer incorporates temporal and data-driven spatial self-attention while deliberately omitting both the econometric prior and the frozen HAR anchor, serving as an unconstrained benchmark to evaluate flexible machine learning in the absence of economic regularization. All models are estimated independently at each forecast horizon (h ∈ { 1, 5, 22 }) under identical sample partitions and random seeds. To complement the external benchmark comparisons, we construct a nested structural ablation hierarchy designed to decompose the internal mechanics of the forecasting system: 1. HAR : The deterministic, horizon-specific linear HAR anchor without neural corrections. 2. HAR+Temporal-MHSA : The HAR anchor augmented with masked temporal multi-head self-attention, omitting the spatial channel. 3. HAR+Dynamic-Prior-Graph : The HAR anchor augmented with spatial aggregation restricted exclusively to the rolling GFEVD econometric prior. 4. HAR+MHSA+Dynamic-Graph : Combines temporal self-attention with prior-only spatial propagation, corresponding to setting g = 0 in the hybrid spatial mixture. 5. PGA-Scalar-g: The complete two-channel spatio-temporal architecture with a fixed, non-trainable scalar mixture parameter g = 0 .5 shared across all markets, calendar positions, and blocks. 6. PGA-Trans-HAR : The complete proposed framework, which replaces the fixed scalar with a trainable, node-specific gating vector gn = σ(γn), thereby capturing persistent cross-market heterogeneity in prior reliance while retaining temporal stability. We adopt the explicit designation “PGA-Scalar-g” to prevent ambiguity between the non-trainable g = 0 .5 equal-weighting baseline and the proposed trainable market-specific parameter vector. While an unconstrained observation-dependent dynamic gate was explored during development, its heightened parameter estimation variance led to inferior validation stability and out-of-sample performance at shorter horizons. This empirical finding reinforces the principle of parsimony in financial forecasting, directly motivating the market-specific allocation vector gn evaluated uniformly across all three horizons. 11 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+For any pair of nested specifications, the incremental percentage forecast gain is computed as: 
+
+∆Loss % = 100 × Lbase − Lnew 
+
+Lbase 
+
+, (39) where Lbase and Lnew denote the out-of-sample loss (MSE or MAE) of the benchmark and destination models, respectively. Positive values indicate a percentage error reduction in favor of the augmented specification. We systematically evaluate six sequential transitions: (i) adding temporal MHSA to HAR; (ii) adding the dynamic prior graph to HAR; (iii) adding the dynamic prior given temporal attention; (iv) adding temporal attention given the dynamic prior; (v) transitioning from prior-only aggregation to scalar gated fusion; and (vi) replacing the scalar mixture g = 0 .5
+
+with the learned market-specific gating vector gn.
+
+4.4 Metrics and Statistical Inference 
+
+For a given market n, forecast horizon h ∈ { 1, 5, 22 }, and aligned set of active target dates Tn,h , point forecast accuracy is evaluated using Mean Squared Error (MSE) and Mean Absolute Error (MAE): 
+
+MSE n,h = 1
+
+|T n,h |
+
+X
+
+> t∈T n,h
+
+(bx(h) 
+
+> t,n
+
+− xt,n )2, (40) 
+
+MAE n,h = 1
+
+|T n,h |
+
+X
+
+> t∈T n,h
+
+|bx(h) 
+
+> t,n
+
+− xt,n |. (41) To accommodate calendar heterogeneity, we evaluate models across two complementary panels: (i) the primary all-days 
+
+panel, which evaluates each market on all of its available active target dates to preserve complete union-calendar coverage; and (ii) a common-days panel, which restricts evaluation strictly to dates where all eight international exchanges were simultaneously open. Prior to conducting comparative evaluations, the evaluation pipeline strictly intersects the model–market–date observations, ensuring that all competing architectures are assessed over strictly identical target instances. To evaluate pairwise predictive superiority, we implement the Diebold–Mariano test (Diebold and Mariano, 2002). For a target horizon h and loss metric L, let dt = LPGA  
+
+> t
+
+− Lct denote the aligned loss differential relative to competitor c.A negative mean differential ( ¯d < 0) indicates lower average forecast loss for PGA-Trans-HAR. The test statistic is evaluated against a two-sided standard normal reference distribution: 
+
+DM = ¯d
+
+bse NW ( ¯d) , (42) where bse NW ( ¯d) is the Heteroskedasticity and Autocorrelation Consistent (HAC) standard error estimated via the Newey–West Bartlett kernel (Newey and West, 1987, 1994). To account for serial correlation induced by multi-step overlapping forecast errors while adapting to the effective sample size Td, the bandwidth parameter is set to: 
+
+b = max 
+
+(
+
+h − 1,
+
+$
+
+4
+
+ Td
+
+100 
+
+2/9%) 
+
+. (43) The lower bound h − 1 ensures that the moving-average error structure inherent in direct h-step forecasts is fully accommodated. To address multiple-model comparison and sampling variation without relying solely on isolated pairwise rejections, we implement the Model Confidence Set (MCS) procedure of Hansen et al. (2011) at a significance level of αMCS = 0 .10 .We approximate the asymptotic distribution of the range statistic using 1,000 circular-block bootstrap replications. For an aligned loss sequence of length Tj , the block length ℓj is dynamically scaled to preserve temporal dependence across multi-step forecasts: 
+
+ℓj = max {2, h, round( T 1/3 
+
+> j
+
+)}. (44) The sequential elimination algorithm iteratively removes the specification exhibiting the largest average excess loss relative to the remaining pool until the null hypothesis of equal predictive ability cannot be rejected, isolating the Superior Set of Models (SSM). To guarantee algorithmic reproducibility, the evaluation framework dynamically identifies the maximal common model set available at every requested horizon rather than imposing an unverified model count. The core candidate universe contains 11 distinct specifications: six external baselines (HAR, VHAR, HAR-KS, GNN-HAR, DCRNN-HAR, and Pure-ST-Transformer), four internal structural ablations beyond HAR, and the proposed PGA-Trans-HAR framework. 12 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+If optional experimental extensions (such as unconstrained observation-dependent gates) are evaluated across all three horizons, the realized universe naturally expands to 12 specifications. In all cases, the exact composition of the evaluated set is explicitly recorded in comparison_config.json and cross-aligned across common market–date observations prior to inference. Finally, for all deep learning architectures, point forecasts from the five independent random seeds are averaged to construct an ensemble prediction before computing the loss series. Consequently, the DM and MCS procedures evaluate prespecified seed-ensemble forecasts rather than treating individual stochastic initializations as independent models. We emphasize that inclusion in the 90% MCS indicates a failure to reject that a model belongs to the superior set under the observed sample; it does not imply that all retained models produce identical point losses, nor does it establish universal dominance. Source code and evaluation scripts are publicly available on GitHub at 
+
+https://github.com/cillinzhao/PGA-Trans-HAR .
+
+## 5 Empirical Results 
+
+The empirical investigation is structured around two central econometric questions: first, whether incorporating strictly forecast-origin-admissible cross-market information provides measurable predictive gains over the univariate HAR baseline; and second, whether the structural regularization and gating restrictions imposed on that information are necessary to secure those gains. Throughout this section, all reported deep learning forecasts represent prespecified five-seed ensembles, with point predictions averaged across random seeds prior to the calculation of loss metrics and statistical tests. Our baseline evaluations are conducted on the full union-calendar panel containing all active target dates, while the common-trading-day subpanel provides an explicit calendar-robustness benchmark. The empirical evidence is organized sequentially: we first evaluate point forecast accuracy against HAR and the broader suite of external models, establish statistical significance through Diebold–Mariano and Model Confidence Set procedures, and finally evaluate internal component contributions via nested structural ablations. Prior to evaluating forecast errors, Figure 4 characterizes the empirical properties of the origin-admissible econometric information supplied to the hybrid spatial attention mechanism. The displayed matrix represents the arithmetic average across the unique row-normalized GFEVD prior matrices generated for the h = 1 out-of-sample forecast origins, assigning equal weight to each distinct 20-origin graph refresh rather than mechanically overweighting matrices that remain active across multiple consecutive trading days. The estimated diagonal shares range from 0.278 for France (FCHI) to 0.492 for Hong Kong (HSI), establishing that strong domestic persistence coexists with substantial foreign-market predictive content across the panel. Regionally, the estimated prior reveals dense intra-European integration, with mutual spillover shares reaching 0.216 from Germany (GDAXI) to FCHI and 0.202 from FCHI to GDAXI. Furthermore, the US market (SPX) exhibits pervasive outward predictive transmission, accounting for notable variance shares in the UK (FTSE, 0.173), Japan (N225, 0.175), and continental European markets. In contrast, Asia-Pacific indices generally retain higher own-market variance shares, though N225 continues to receive nontrivial predictive weight from the US. We emphasize that these variance shares characterize the reduced-form econometric prior fed into the spatial attention layer; they represent predictive information allocations within the estimated VAR system and are not intended as structurally identified measures of macroeconomic contagion. 
+
+5.1 Does Cross-Market Information Improve the HAR Baseline? 
+
+Figure 5 directly addresses the primary empirical question by quantifying the market-level percentage change in loss relative to the univariate HAR benchmark. The broader question of how this incremental accuracy compares with linear multivariate expansions, structured graph neural networks, and unconstrained Transformer architectures is summarized in Table 1, which reports the unweighted average of the eight market-level losses. The empirical evidence demonstrates that the proposed system does not uniformly dominate across every market and horizon; rather, its relative predictive performance varies systematically with the forecast horizon and the chosen loss function. Figure 5 complements the panel averages by using HAR as a common market-by-market reference. PGA-Trans-HAR attains lower MSE and MAE than the HAR anchor across all eight markets at h = 1 and h = 5 . The magnitude of these improvements, however, exhibits substantial cross-sectional heterogeneity: the largest daily MSE reduction reaches 7.3% for N225, whereas the five-day MAE reduction for OMXSPI is a modest 0.1%. At the monthly horizon ( h = 22 ), the relative forecast losses remain lower for seven markets, but HSI displays a slight deterioration of 0.9% under MSE and 0.3% under MAE. Consequently, Figure 5 underscores why cross-market average rankings should not be conflated with uniform market-by-market dominance. At the daily horizon ( h = 1 ), PGA-Trans-HAR secures the lowest cross-market average MAE (0.180997), but not the lowest average MSE. Its cross-market MSE of 0.090442 is closely competitive with DCRNN-HAR (0.090409) and 13 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI 
+
+(a)   
+
+> Arrows: source →destination; two largest incoming edges per destination
+
+Directed prior network 
+
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+
+Source market 
+
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+> Destination market
+
+(b)                                                         
+
+> 0.439 (own) 0.131 0.118 0.091 0.115 0.056 0.024 0.026 0.157 0.295 (own) 0.202 0.093 0.155 0.048 0.025 0.025 0.154 0.216 0.278 (own) 0.110 0.151 0.047 0.025 0.021 0.173 0.137 0.151 0.340 (own) 0.117 0.045 0.020 0.017 0.159 0.177 0.164 0.091 0.327 (own) 0.043 0.022 0.017 0.175 0.096 0.079 0.083 0.085 0.382 (own) 0.055 0.046 0.119 0.075 0.063 0.072 0.069 0.085 0.456 (own) 0.061 0.104 0.081 0.076 0.063 0.061 0.061 0.062 0.492 (own)
+
+Average row-normalized prior matrix      
+
+> 0.10 0.12 0.14 0.16 0.18 0.20
+> Average off-diagonal predictive variance share
+> 0.0 0.1 0.2 0.3 0.4
+> Predictive variance share
+
+Figure 4: Out-of-sample rolling predictive-connectedness prior. The figure reports the average across the unique ridge-VAR/GFEVD prior matrices used for the h = 1 test forecasts. Panel (a) displays a directed network in which arrows run from source to destination markets, edge width represents the average off-diagonal predictive variance share, and node size represents average outgoing off-diagonal weight. For readability, the network retains the two largest incoming edges for each destination. Panel (b) reports the complete matrix, with destination markets in rows and source markets in columns; every row sums to one before date-specific closure masking. The entries are reduced-form predictive variance shares and are not structurally identified causal effects. Table 1: Cross-market average out-of-sample loss: all active target days 
+
+## h = 1 h = 5 h = 22 
+
+## Model MSE MAE MSE MAE MSE MAE HAR 0.094215 0.185453 0.153749 0.233863 0.259885 0.295543 VHAR 0.089624 0.187235 0.156868 0.249623 0.254190 0.310702 HAR-KS 0.089199 0.183996 0.151230 0.237783 0.259992 0.306268 GNN-HAR 0.094827 0.192434 0.157555 0.239873 0.260864 0.300855 DCRNN-HAR 0.090409 0.181790 0.152520 0.232712 0.267328 0.297425 Pure-ST-Transformer 0.103808 0.187600 0.172106 0.239448 0.252716 0.289862 PGA-Trans-HAR 0.090442 0.180997 0.150782 0.230454 0.252361 0.289352 
+
+Notes: Entries are unweighted averages of the eight market-level losses computed from aligned seed-ensemble predictions. Boldface denotes the smallest cross-market average within a horizon–loss column. The aggregation gives each market equal weight and is descriptive. MSE and MAE are computed on the supplied square-root-realized-volatility scale; statistical comparisons are reported separately below. 
+
+VHAR (0.089624), while the linear HAR-KS attains the lowest panel average (0.089199). Disaggregating to the market level, PGA-Trans-HAR achieves the lowest daily MSE for SPX and HSI, and the lowest daily MAE for FCHI, KS11, and HSI. Thus, the daily empirical evidence is more favorable under absolute loss than squared loss, refraining from an assertion of uniform short-term dominance. The relative standing of the proposed system strengthens considerably at the weekly horizon ( h = 5 ). PGA-Trans-HAR records the lowest cross-market panel averages under both MSE (0.150782) and MAE (0.230454). At the individual 14 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT −2 0 2 4 6 8
+
+> Loss reduction relative to HAR (%)
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+> 1.8 3.3 2.5 3.9 5.7 7.3 5.1 3.6
+> 0.8 2.4 2.0 1.3 1.7 3.5 2.2 3.4
+> 4.6 3.4 3.2 2.5 0.8 4.1 1.8 -0.9
+
+(a) Mean squared error      
+
+> −2 02468
+> Loss reduction relative to HAR (%)
+> 0.7 2.3 1.5 2.2 4.3 3.6 2.4 3.2
+> 1.3 1.9 1.4 1.3 0.1 2.4 1.3 2.0
+> 2.5 3.4 2.1 1.8 2.1 3.1 1.2 -0.3
+
+(b) Mean absolute error      
+
+> Positive values favor PGA-Trans-HAR; the zero line denotes equal loss.
+> h= 1 h= 5 h= 22
+
+Figure 5: Market-level loss changes relative to HAR. The figure reports 100( LHAR − LPGA )/L HAR from aligned five-seed ensemble forecasts on all active target days. Positive values denote a lower loss for PGA-Trans-HAR, while negative values denote a deterioration relative to HAR. Panels (a) and (b) report MSE and MAE, respectively; marker shape and color distinguish the 1-, 5-, and 22-day forecast horizons. These comparisons are descriptive. Sampling uncertainty is evaluated by the HAC-adjusted Diebold–Mariano tests reported in Table 2. market level, it achieves the lowest MSE for four of the eight indices and the lowest MAE for six. The market-level exceptions remain informative: DCRNN-HAR minimizes the SPX MAE as well as the FCHI and N225 MSE, HAR-KS yields the lowest KS11 MSE, and the Pure-ST-Transformer produces the lowest HSI MSE and MAE. These findings confirm that the gains from the proposed architecture are broad across the panel, but not strictly universal. At the monthly horizon ( h = 22 ), PGA-Trans-HAR again yields the lowest cross-market average MSE (0.252361) and MAE (0.289352). The margins over the unconstrained Pure-ST-Transformer are modest—approximately 0.14% for average MSE and 0.18% for average MAE—and market-level performance remains heterogeneous. PGA-Trans-HAR minimizes the MSE for OMXSPI, N225, and KS11, and the MAE for GDAXI, OMXSPI, N225, and KS11. Conversely, VHAR remains preferable for SPX MSE and HSI MSE, while the Pure-ST-Transformer minimizes the MSE for GDAXI, FCHI, and FTSE, as well as the MAE for FCHI and FTSE. These results indicate that the long-horizon average advantage is distributed across several key markets rather than reflecting universal dominance across all indices. The unconstrained Pure-ST-Transformer serves as a vital complexity benchmark. At h = 1 and h = 5 , its panel average losses substantially exceed those of the simple HAR baseline under both loss criteria, despite possessing a much richer representational capacity. At h = 22 , however, it becomes highly competitive, closely trailing PGA-Trans-HAR in cross-market averages. This comparison demonstrates that unconstrained deep attention does not universally fail; rather, it proves that architectural flexibility alone is insufficient for generating incremental predictive accuracy, and that its practical efficacy depends critically on the forecast horizon and the structural regularizations imposed around it. This horizon-dependent pattern possesses a natural forecasting interpretation. At the one-step horizon, very recent domestic realizations provide a formidable predictive signal that is difficult to improve upon uniformly; introducing parameterized cross-market allocations can generate estimation variance under squared loss. At medium and long horizons ( h = 5 and h = 22 ), however, persistent differences in the informative value of prior-guided and data-driven cross-market channels become substantially more beneficial. In summary, the central empirical result is fundamentally incremental. Relative to the univariate HAR baseline, the constrained forecasting system reduces both loss metrics across all eight markets at the daily and weekly horizons, and across seven markets at the monthly horizon. Relative to the broader suite of multivariate and deep learning benchmarks, 15 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+the evidence is strongest at the five-day and 22-day horizons, whereas the daily MSE ranking favors the linear HAR-KS model. This pattern firmly supports the predictive usefulness of carefully restricted cross-market information, without overextending into claims that neural networks are unconditionally superior to established econometric models. 
+
+5.2 Statistical Significance of Incremental Accuracy 
+
+Point-loss rankings do not by themselves establish statistically meaningful differences in expected predictive accuracy. We therefore formally evaluate PGA-Trans-HAR against the six external benchmarks using pairwise HAC-adjusted Diebold–Mariano (DM) tests (Diebold and Mariano, 2002). The loss differential is defined as the forecast loss of PGA-Trans-HAR minus that of the competing model; consequently, a negative differential indicates superior performance for the proposed framework. To address joint multiple-model comparison and sampling uncertainty, Table 2 concurrently reports retention counts in the 90% Model Confidence Set (MCS) constructed across the comprehensive 11-model universe (Hansen et al., 2011). Table 2: HAC–DM comparisons and 90% MCS retention: all active target days                                                    
+
+> hLoss PGA lower PGA better, 5% PGA better, 10% Competitor better, 5% PGA in MCS Mean MCS size 1MSE 35/48 9/48 12/48 0/48 5/8 6.750 1MAE 42/48 23/48 29/48 0/48 1/8 2.625 5MSE 41/48 7/48 11/48 0/48 8/8 11.000 5MAE 46/48 27/48 32/48 1/48 7/8 5.625 22 MSE 39/48 5/48 8/48 0/48 8/8 8.000 22 MAE 40/48 16/48 17/48 0/48 8/8 6.500
+> Notes: Each row contains eight markets times six external benchmarks. “PGA lower” counts negative aligned loss differentials. “PGA better” and “Competitor better” count two-sided HAC–DM rejections in the direction indicated. The 10% column subsumes the 5% rejections. MCS entries report the number of markets for which PGA-Trans-HAR is retained in the 90% superior set from the 11-model universe. Pairwise p-values are not adjusted for multiple testing.
+
+The pairwise DM evidence is broadly favorable, though its statistical power varies systematically across horizons and loss functions. At the daily horizon ( h = 1 ), PGA-Trans-HAR yields lower aligned forecast losses in 35 of 48 MSE comparisons and 42 of 48 MAE comparisons. Notably, nine MSE and 23 MAE differentials favor the proposed model at the 5% significance level, while none of the six external benchmarks achieves a statistically superior loss at that threshold. The pronounced concentration of daily rejections under MAE aligns with the panel-average point rankings in Table 1. The weekly horizon ( h = 5 ) provides the strongest pairwise statistical evidence under absolute loss: PGA-Trans-HAR records a lower MAE in 46 of 48 comparisons, yielding 27 favorable rejections at the 5% level. The principal adverse outcome is observed in the SPX index, where DCRNN-HAR achieves a significantly lower MAE ( p = 0 .045 ). For five-day MSE, 41 of 48 loss differentials favor PGA-Trans-HAR, with seven reaching significance at the 5% level. At the monthly horizon ( h = 22 ), 39 of 48 MSE and 40 of 48 MAE differentials favor PGA-Trans-HAR, with five MSE and 16 MAE comparisons reaching 5% significance. In the US market, VHAR attains a lower SPX MSE at the monthly horizon, although this adverse differential is statistically discernible only at the 10% level ( p = 0 .065 ) rather than the 5% level. The results of the Model Confidence Set warrant a disciplined and nuanced interpretation. PGA-Trans-HAR is retained in the 90% superior set across all eight markets under weekly MSE and under both monthly loss metrics. However, at 
+
+h = 5 for MSE, the MCS algorithm retains all 11 candidate models for every market (mean size = 11.0). In this case, full retention reflects limited statistical discrimination between competing specifications under medium-term squared error rather than evidence of unique model dominance. The monthly superior sets are comparatively more selective, retaining an average of 8.0 models under MSE and 6.5 under MAE, though they also delineate a competitive set rather than an isolated optimum. At the one-step horizon, the MCS evidence is more selective. PGA-Trans-HAR is retained for five markets under MSE, but for only one market (HSI) under MAE. This result is fully consistent with the pairwise DM counts: the MCS procedure evaluates all 11 candidate specifications jointly—including the highly competitive internal PGA-Scalar-g
+
+ablation—whereas Table 2’s DM columns evaluate pairwise differentials strictly against the six external baselines. This divergence indicates that while the market-specific gate significantly improves upon external benchmarks, it operates in close statistical competition with equal-weighting scalar fusion at the daily horizon. Synthesizing these findings, pairwise statistical significance is most pronounced at the daily and weekly horizons, particularly under absolute loss. Favorable MAE rejections at the 5% level transition from 23 at h = 1 and 27 at h = 5 
+
+16 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+to 16 at h = 22 . While point forecast improvements remain pervasive at the monthly horizon and PGA-Trans-HAR is consistently retained in the 90% MCS for all eight markets, the broader dispersion of long-horizon errors expands the superior set. Thus, the incremental predictive accuracy of the constrained system persists across all horizons, though its statistical separation from competing alternatives becomes naturally less sharp as the forecast horizon extends. 
+
+5.3 Decomposing the Forecast Gains 
+
+Table 3 investigates whether the observed forecasting improvements can be attributed simply to incorporating temporal self-attention or an econometric graph in isolation. The table reports the cross-market mean percentage loss reductions across a sequence of code-defined nested structural comparisons. A positive entry indicates a percentage error reduction in favor of the newly augmented destination model, with the number of improving markets (out of eight) reported in parentheses. In the table, “scalar gate” corresponds to the baseline PGA-Fixed-g specification, which enforces a common, non-trainable mixture parameter g = 0 .5 across all markets and positions. “Market gate” denotes the proposed framework ( PGA-Trans-HAR ), which incorporates the learned, market-specific parameter vector gn = σ(γn)
+
+held constant across evaluation dates. Table 3: Incremental loss reductions from structural ablations: all active target days                                                    
+
+> h= 1 h= 5 h= 22
+> Increment MSE MAE MSE MAE MSE MAE Adding temporal MHSA to HAR 0.14 (5) 0.09 (3) -0.27 (4) -0.20 (3) -0.75 (1) -0.40 (0) Adding the dynamic prior graph to HAR 2.58 (8) 1.20 (7) 0.76 (7) 0.49 (7) -0.38 (4) -0.38 (4) Adding the dynamic prior given temporal attention 3.76 (8) 2.20 (8) -2.54 (2) 0.19 (4) -2.19 (0) -0.90 (1) Adding temporal attention given the dynamic prior 1.35 (8) 1.09 (7) -3.61 (1) -0.49 (1) -2.58 (0) -0.93 (1) Transitioning from prior-only aggregation to scalar gated fusion 0.91 (7) 0.65 (8) 3.09 (7) 0.16 (5) 3.37 (8) 0.20 (3) Replacing the scalar mixture g= 0 .5with the learned market-specific gating vector gn-0.65 (0) -0.43 (0) 1.75 (8) 1.29 (8) 1.92 (8) 3.04 (8)
+
+Notes: Entries report the cross-market arithmetic mean of 100( Lbase − Lnew )/L base . Positive values favor the newly augmented destination model. Parentheses report the number of markets (out of eight) exhibiting a positive loss reduction. Comparisons follow the hierarchical definitions in the evaluation suite and represent conditional increments rather than orthogonal Shapley decompositions; their interpretation is strictly relative to the designated base specification. 
+
+Three primary empirical findings emerge from this structural decomposition: First, the rolling econometric prior delivers its most pronounced stand-alone predictive increment at the daily horizon (h = 1 ). Relative to the univariate HAR anchor, incorporating prior-only spatial aggregation reduces daily MSE by an average of 2.58% across all eight markets and daily MAE by 1.20% in seven markets. Furthermore, introducing the dynamic prior conditional on temporal attention generates substantial additional daily gains, reducing MSE by 3.76% and MAE by 2.20% across the entire panel. In sharp contrast, incorporating temporal self-attention alone yields negligible daily improvements over HAR. Second, mechanically stacking temporal attention and prior-only spatial propagation without an adaptive allocation mechanism proves counterproductive at longer horizons. At h = 5 , adding the prior graph to the temporal model increases average MSE by 2.54%, while adding temporal attention to the prior-only model increases MSE by 3.61%. At 
+
+h = 22 , the corresponding MSE deteriorations are 2.19% and 2.58%. These results demonstrate that temporal attention and spatial connectedness channels are not unconditional complements in multi-step forecasting; rather, their practical utility depends critically on how the architecture regulates their relative weighting. Transitioning to gated convex fusion resolves this tension, lowering five-day and 22-day MSE by 3.09% and 3.37%, respectively. Third, the learned market-specific gating vector gn exhibits sharply horizon-dependent efficacy. Relative to the common equal-weighting baseline ( g = 0 .5), the learned parameter vector increases daily MSE by 0.65% and daily MAE by 0.43%, failing to improve accuracy in any of the eight markets. This empirical penalty explains why the simpler scalar-gate specification remains highly prominent in the daily MCS results. At the daily horizon, sampling variation in parameter estimation outweighs the benefits of cross-sectional differentiation, favoring the stronger regularization imposed by fixed scalar shrinkage. At medium and long horizons, however, the value of cross-market parameter heterogeneity becomes evident. Replacing the common scalar with the learned market-specific vector gn reduces MSE by 1.75% and MAE by 1.29% at h = 5 , and by 1.92% and 3.04% at h = 22 , achieving uniform improvements across all eight markets in both cases. This finding confirms that while daily forecasts benefit from uniform shrinkage, weekly and monthly horizons require differentiated allocations to account for persistent cross-sectional disparities in how individual markets absorb foreign volatility signals. Collectively, the ablation evidence places clear boundaries on the value of architectural complexity. The empirical findings do not support an unconstrained hypothesis that increasing neural flexibility uniformly enhances forecast 17 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+accuracy. Instead, they demonstrate that parameterizing cross-market allocations becomes advantageous only when the forecast horizon is sufficiently long for structural differences to emerge, whereas short-horizon volatility forecasting demands the disciplined shrinkage of a parsimonious baseline. 
+
+Common-day robustness. The common-trading-day evaluations broadly preserve the core horizon-dependent pat-terns, confirming that the observed performance gains are not artificial byproducts of the calendar masking mechanism. Relative to the univariate HAR baseline, PGA-Trans-HAR attains lower MSE and MAE across all eight markets at 
+
+h = 1 and h = 5 . The mean relative loss reductions are 4.93% for MSE and 2.58% for MAE at the daily horizon, and 2.05% for MSE and 1.46% for MAE at the weekly horizon. At h = 22 , the proposed model improves upon HAR in seven of the eight markets, delivering cross-market average reductions of 2.49% for MSE and 1.67% for MAE. Pairwise statistical inference remains highly consistent across evaluation panels. On common trading days, PGA-Trans-HAR records a lower forecast loss in 31 of 48 daily MSE comparisons and 40 of 48 daily MAE comparisons. The corresponding favorable counts are 34 and 45 at h = 5 , and 36 and 39 at h = 22 . In the common-day MCS evaluation, the proposed model is retained for five markets under daily MSE and one under daily MAE, while securing complete retention across all eight markets under both five-day and 22-day loss metrics. As with the full panel, the five-day MSE superior set contains all 11 candidate models, indicating broad statistical competitiveness across specifications rather than isolated model dominance. 
+
+5.4 Internal Allocation: Fixed Market Gates and Dynamic Residual Corrections 
+
+Because the market-specific attention gate gn is estimated as a node-specific parameter vector held constant over out-of-sample dates within each fitted model, empirical diagnosis properly centers on its cross-sectional and cross-seed distribution rather than on an artificially constructed time-series trajectory. Table 4 and Figure 6 report the mean learned data-attention weight gn and its sample standard deviation across the five independently estimated random seeds for each market and forecast horizon. The complementary rolling econometric prior weight is given by 1 − gn.Table 4: Learned market-specific attention gates across five seeds 
+
+h = 1 h = 5 h = 22 
+
+Market Mean gn (SD) Mean gn (SD) Mean gn (SD) SPX 0.392 (0.011) 0.375 (0.011) 0.430 (0.032) GDAXI 0.392 (0.019) 0.396 (0.011) 0.406 (0.013) FCHI 0.386 (0.010) 0.399 (0.013) 0.400 (0.022) FTSE 0.382 (0.002) 0.398 (0.010) 0.433 (0.009) OMXSPI 0.371 (0.004) 0.406 (0.021) 0.417 (0.025) N225 0.393 (0.003) 0.386 (0.013) 0.405 (0.021) KS11 0.399 (0.004) 0.407 (0.015) 0.398 (0.024) HSI 0.397 (0.010) 0.409 (0.015) 0.424 (0.009) All markets 0.389 0.397 0.414 Implied prior weight 1 − gn 0.611 0.603 0.586            
+
+> Notes: For each market–horizon pair, the table reports the mean and sample standard deviation of gnacross five independently trained models. A higher gnassigns greater weight to data-driven spatial self-attention, while 1−gnrepresents the convex weight on the rolling ridge-VAR/GFEVD prior. The all-market entries report the unweighted average across the 40 market– seed estimates at each horizon. Within any fitted model, gnis constant across evaluation dates, samples, lookback positions, and spatio-temporal blocks.
+
+Three primary descriptive features emerge from the gate diagnostics: First, every estimated gating parameter across the 120 market–horizon–seed combinations is strictly below 0.5, spanning an empirical range of 0.357 to 0.461. Consequently, the fitted spatial mixture consistently assigns majority weight to the rolling econometric prior rather than to unconstrained data-driven attention. Averaged across markets and seeds, the data-attention weight is 0.389 at h = 1 , 0.397 at h = 5 , and 0.414 at h = 22 , corresponding to implied prior weights of 0.611, 0.603, and 0.586, respectively. The forecasting architecture therefore remains heavily prior-oriented across all horizons, though the cross-market average allocation shifts modestly toward data-driven attention as the forecast horizon extends. Second, the learned spatial allocation exhibits clear cross-market heterogeneity, though its cross-sectional dispersion remains moderate. At h = 1 , market-level means range from 0.371 for OMXSPI to 0.399 for KS11. At h = 5 , they span from 0.375 for SPX to 0.409 for HSI. At h = 22 , they range from 0.398 for KS11 to 0.433 for FTSE. These variations 18 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI 0.34 0.36 0.38 0.40 0.42 0.44 0.46 0.48 0.50         
+
+> Learned data-attention weight  gn
+> h= 1
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+> h= 5
+> SPX GDAXI FCHI FTSE OMXSPI N225 KS11 HSI
+> h= 22
+> Whiskers are ±one sample standard deviation across five seeds; 1 − gnis the prior-graph weight.
+
+Figure 6: Market-specific, time-invariant attention–prior gates. Points display the mean learned data-attention weight 
+
+gn across five independently trained seeds, with whiskers depicting plus or minus one sample standard deviation. The horizontal dashed line marks equal allocation ( gn = 0 .5); values below this threshold assign greater convex weight to the rolling econometric prior. Separate panels correspond to independently estimated horizon-specific models. Within a fitted model, gn is invariant across target dates, observation samples, lookback positions, and spatio-temporal blocks. The gates describe internal predictive allocations and are not crisis indicators or structural spillover coefficients. describe how the fitted network distributes predictive capacity across its two spatial channels based on historical market characteristics. Third, estimation dispersion across random seeds is notably small relative to the magnitude of the gate, confirming optimization stability. The smallest cross-seed standard deviation is 0.002 for the daily FTSE gate, while the largest is 0.032 for the monthly SPX gate. Because models are estimated independently across horizons, the subtle increase in the panel mean from 0.389 to 0.414 represents a descriptive property across separate estimators rather than an in-sample dynamic trend. The internal gate diagnostics complement, rather than mechanically dictate, the ablation findings in Section 5.3. While the learned gates remain prior-oriented across all horizons, replacing the common scalar g = 0 .5 with the market-specific parameter vector gn marginally worsens daily forecast accuracy but delivers uniform improvements across all eight markets at weekly and monthly horizons. This pattern confirms that forecasting gains arise from the joint structural interaction among the market-specific allocation vector, the time-varying GFEVD prior, data-driven attention, and the bounded HAR residual, rather than from a simplistic monotonic relationship between the numerical level of gn
+
+and predictive loss. Finally, the spatial allocation gate gn must be conceptually distinguished from the residual activation gate rt,n and the residual scaling vector αn. While gn and αn are fixed parameters post-estimation, rt,n varies dynamically across observations based on sequence-level activity. Within the architecture, gn functions as a structural regularization weight governing information exchange between the two spatial channels; rt,n regulates the degree to which the bounded cross-market neural correction is applied to a specific historical input sequence; and αn establishes the maximum allowable amplitude of that correction around the frozen HAR anchor. In summary, these internal mechanisms describe how the forecasting system parsimoniously allocates predictive capacity under economic regularization. 
+
+## 6 Discussion 
+
+The empirical evidence is most naturally interpreted as a result about the value of constrained information rather than the superiority of model complexity. PGA-Trans-HAR delivers its most consistent predictive gains at the weekly and monthly horizons, whereas daily rankings remain more heterogeneous across loss functions and markets. Furthermore, the structural ablations demonstrate that neither temporal self-attention, a rolling connectedness prior, nor 19 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+an unconstrained parameter allocation is sufficient on its own to uniformly improve volatility forecasts. Consequently, the relevant economic insight is the disciplined, regularized utilization of foreign-market predictors relative to the HAR benchmark, rather than the isolated presence of a deep neural network. This section discusses that methodological interpretation and outlines its theoretical and empirical boundaries. 
+
+6.1 The Value of Parsimony with Bounded Corrections 
+
+The rolling econometric prior and data-driven spatial self-attention encode distinct and complementary forms of predictive information. Spatial self-attention is inherently flexible: conditional on the learned latent representations, it dynamically allocates weights across source markets and observation windows without imposing functional restrictions. This flexibility is valuable when cross-market predictive linkages exhibit complex non-linearities or regime shifts that are inadequately captured by a linear VAR. However, this unconstrained parameterization substantially expands the effective hypothesis search space, making the estimated attention weights sensitive to finite-sample transactional noise. This vulnerability is especially acute in the present empirical setting, where the cross-section contains only eight markets, volatility is persistent and strongly comoving, and the historical sample includes infrequent but extreme crisis episodes. The ridge-VAR/GFEVD channel addresses this limitation by supplying a structured, low-variance reference point. Ridge regularization stabilizes autoregressive coefficient estimates in the presence of highly collinear, persistent predictors by trading a modest amount of shrinkage bias for a substantial reduction in estimation variance (Hoerl and Kennard, 1970). The generalized forecast-error variance decomposition then converts the fitted VAR into directional predictive shares invariant to the Cholesky ordering (Pesaran and Shin, 1998; Diebold and Yilmaz, 2012). In our framework, this prior is dynamically re-estimated every 20 forecast origins strictly from a trailing historical window of up to 252 union trading days. It is therefore a strictly origin-admissible, reduced-form forecasting prior rather than a static graphical topology or a maintained structural truth. The market-specific gating vector formalizes the core bias–variance trade-off between flexible attention and econometric shrinkage. Equations (18) and (20) define the exact convex allocation implemented in the system. Within a given horizon–seed estimation, gn is held invariant across target dates, observation samples, lookback positions, and spatio-temporal blocks. The data-driven attention row AD, (ℓ) 
+
+> b,s,nj
+
+varies with the hidden state representation, whereas the masked and row-normalized econometric prior eP (ob) 
+
+> b,s,nj
+
+evolves according to the 20-origin historical update calendar. Across all five independent seeds, every estimated gating parameter lies strictly below 0.5, spanning an empirical range of 0.357 to 0.461 . The cross-market mean attention weights are 0.389 , 0.397 , and 0.414 for h = 1 , 5, and 22 ,respectively, which correspond to implied econometric prior weights of 0.611 , 0.603 , and 0.586 . These empirical estimates indicate that the fitted system retains a dominant reliance on the structured econometric prior across all horizons, while assigning a modestly larger allocation to data-driven attention as the forecast horizon extends. These gating estimates must be interpreted in conjunction with the structural ablation findings. The rolling econometric prior alone does not uniformly outperform HAR, and an ungated, mechanical combination of temporal attention and the prior graph deteriorates forecast accuracy at longer horizons. Conversely, the gated convex mixture becomes highly effective at h = 5 and h = 22 : replacing a fixed scalar gate ( g = 0 .5) with learned market-specific gates ( gn) delivers uniform MSE and MAE reductions across all eight markets at weekly and monthly horizons, but not at the daily horizon. These findings confirm that information channels act as true complements only after their relative contributions are structurally regularized. They reject the unconstrained proposition that greater neural flexibility is monotonically beneficial; at the daily horizon, the stronger shrinkage imposed by a uniform scalar gate provides an indispensable safeguard against estimation variance. 
+
+HAR anchoring and bounded corrections. The classical HAR model constitutes a formidable benchmark because its cascade of daily, weekly, and monthly averages provides a remarkably parsimonious approximation of long-memory volatility persistence (Corsi, 2009). Rather than forcing the neural network to reconstruct the full conditional volatility distribution from scratch, the proposed framework estimates a direct linear HAR model first and freezes its parameters. Equation (30) then injects the bounded neural correction αnrb,n δb,n into the HAR forecast within the inverse-softplus domain. Because αn is initialized at zero, optimization begins exactly at the linear HAR baseline. Volatility non-negativity is strictly enforced by the outer softplus transformation, while the tanh residual activation, the sigmoid gate 
+
+rb,n , and the parameter bound αn strictly limit the amplitude of the latent adjustment. This architectural anchoring has two critical econometric implications: 1. Search Space Reduction: It transforms the learning objective from estimating the unconstrained volatility level to estimating a tightly restricted local deviation around a strong econometric baseline. This structural 20 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+restriction shrinks the effective function space, accelerates convergence, and insulates early training from explosive or numerically unstable predictions. 2. Explicit Baseline Fallback: It preserves a deterministic econometric fallback. If the neural representation contains negligible incremental predictive content for a specific market or date, the residual gate and amplitude parameter shrink the adjustment, keeping the final forecast closely tethered to HAR. Concurrently, the node-standardized base MSE and the smooth-worst relative-regret penalty actively prevent the optimizer from purchasing aggregate panel improvements by accepting severe forecast degradation in smaller or peripheral markets. While the observed forecasting stability is fully consistent with this design, it should not be interpreted as an absolute mathematical proof that inverse-softplus anchoring unconditionally guarantees superior convergence in all settings. Establishing such a universal claim would require exhaustive comparisons of loss landscapes, optimization trajectories, and initialization sensitivities across otherwise identical architectures. Furthermore, this structural anchoring involves an explicit trade-off: when the underlying linear HAR baseline is persistently misspecified, the bounded nature of the neural residual may restrict the model from adapting rapidly to permanent structural shifts in the conditional mean. The HAR anchor is therefore best understood as a deliberate bias–variance choice that trades unconstrained end-to-end flexibility for guaranteed non-negativity, benchmark transparency, and bounded departures from established volatility dynamics. The empirical comparison with the Pure-ST-Transformer strongly supports this bias–variance interpretation. The unconstrained Transformer incurs higher average forecast losses than the simple HAR baseline at daily and weekly horizons, yet becomes highly competitive at the monthly horizon and minimizes losses for several individual markets. Consequently, the empirical evidence demonstrates that parsimony paired with bounded economic corrections is essential in the short- and medium-term settings where the proposed system performs best, while confirming that anchoring does not universally dominate unconstrained estimation across every asset or horizon. 
+
+6.2 Horizon-Dependent Value of Cross-Market Information 
+
+The incremental predictive value of cross-market information varies systematically with the forecast horizon. Relative to the univariate HAR baseline, PGA-Trans-HAR reduces both MSE and MAE across all eight markets at the daily and weekly horizons ( h = 1 and h = 5 ), and across seven of the eight markets at the monthly horizon ( h = 22 ). In pairwise Diebold–Mariano tests against external benchmarks, favorable rejections under absolute loss are most concentrated at h = 5 (27 out of 48 comparisons), followed closely by h = 1 (23 comparisons), before moderating to 16 at h = 22 . Nonetheless, the monthly specification retains the lowest cross-market panel averages under both loss criteria and achieves full retention in the 90% Model Confidence Set for all eight markets. Consequently, the long-horizon performance is more accurately described as exhibiting reduced statistical discriminability—driven naturally by the expanding sampling variance of multi-step forecast errors—rather than an absence of incremental cross-market information. A plausible economic mechanism underlying this horizon pattern centers on the degree of information overlap between global spillovers and domestic persistence. At short and medium horizons ( h = 1 and h = 5 ), foreign-market signals provide fresh, contemporaneous transmission of external shocks that local historical lags have not yet assimilated. At the monthly horizon ( h = 22 ), however, low-frequency cross-market comovement overlaps substantially with the long-memory persistence components already effectively captured by the domestic HAR cascade (particularly its 22-day trailing average). As a result, the marginal predictive content of external signals becomes partially redundant relative to the strong domestic anchor. 
+
+6.3 Limits of the Information Set 
+
+The learned gate gn functions as a structural regularization parameter that dictates how predictive capacity is allocated between two normalized spatial information channels; it does not constitute an endogenous crisis indicator. Within any fitted horizon–seed specification, gn is held invariant across out-of-sample evaluation dates, precluding it from identifying high-frequency shifts in market regimes around specific macroeconomic stress events. Furthermore, its numerical magnitude is conditioned on the relative scaling of the two attention sublayers, the row-normalization of the GFEVD prior, the loss function, the random initialization, and the downstream feed-forward network. Consequently, an estimated weight below 0.5 indicates only that the optimization pipeline places greater convex shrinkage on the econometric prior under this specific architectural parameterization. More broadly, empirical research demonstrates that learned attention weights do not necessarily provide faithful causal explanations of model predictions (Jain and Wallace, 2019). Cross-market variations in gn must therefore be interpreted as descriptive features governing predictive 21 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+capacity allocation across the global panel, rather than as evidence that a specific market is intrinsically more “causal” or crisis-sensitive than another. 
+
+The rolling prior. The GFEVD graph measures directional predictive connectedness within a reduced-form, ridge-regularized VAR system (Diebold and Yilmaz, 2012). Estimating this graph strictly from historical observations available at the forecast origin eliminates a critical source of look-ahead bias; it does not, however, satisfy the formal interventionist identification conditions required for structural causal inference (Pearl, 2009). Contemporaneously correlated structural innovations, unobserved global risk factors, market microstructure frictions, and asynchronous timezone closing orders can all influence the estimated forecast-error variance shares. Terminology such as “source,” “receiver,” and “transmission” in this paper consequently refers strictly to the directional decomposition of predictive variance within an estimated linear system, rather than to an identified structural economic transmission mechanism. 
+
+The asynchronous-calendar mask. The asymmetric masking mechanism is formulated to resolve a precise data-admissibility challenge. By mathematically zeroing out inactive markets as temporal and spatial key/value sources, the network prevents zero-coded holiday closures from being misinterpreted as observed states of near-zero volatility. Concurrently, allowing a closed market to remain active as a query enables it to receive contemporaneous state representations from exchanges that are open on that union-calendar date. While this asymmetric routing is appropriate for preserving the flow of predictive information across a misaligned panel, it does not construct a structural causal model of international financial integration. In particular, daily union-calendar alignment cannot capture intraday closing sequences, non-overlapping trading hours, overnight information accumulation, or the institutional mechanisms governing market closures. The mask must therefore be understood as an information-admissibility device that respects out-of-sample filtration boundaries, rather than as a causal identification strategy. 
+
+Further limitations and extensions. Several methodological limitations remain that provide fruitful avenues for future research: First, the predictive information set is intentionally parsimonious. The current framework does not incorporate scheduled macroeconomic announcements, global sentiment gauges, option-implied volatility surfaces, realized returns, market liquidity proxies, or foreign exchange fluctuations as conditioning variables. Macroeconomic news releases are known to play a dominant role in international price discovery (Andersen et al., 2007), while implied volatility measures contain valuable forward-looking information regarding future jump dynamics and continuous volatility (Busch et al., 2011). Incorporating these multimodal predictors could help disentangle common global macroeconomic shocks from genuine market-to-market predictive linkages. Any such extension must rigorously maintain release-time alignment: macroeconomic data revisions or foreign variables realized after a domestic market close cannot be treated as part of the information set available at the forecast origin. Second, the market-specific gate intentionally eliminates time-series flexibility within the test partition. While this parameterization is strongly supported by our ablation evidence—particularly at the daily horizon, where unconstrained flexibility inflates parameter estimation variance—it prevents the convex mixture from adapting to structural shifts that occur entirely within the out-of-sample period. A promising extension would involve a slowly evolving or hierarchical shrinkage gate that updates strictly in origin time. Our empirical finding that unconstrained time-varying gates deteriorate forecasting accuracy demonstrates that such flexibility must be accompanied by explicit economic shrinkage and validated out-of-sample, rather than assumed to be beneficial a priori .Third, the rolling econometric prior relies on specific design choices: a 252-day estimation window, a 20-origin update interval, a VAR lag order of p = 2 , a fixed ridge penalty, and a 22-step GFEVD horizon. This configuration is held constant across all forecast horizons to maintain a unified origin-time protocol; we do not claim that it is globally optimal. Systematic sensitivity analyses across alternative estimation windows and shrinkage intensities, conducted strictly within in-sample validation partitions, would clarify how prior configuration choices interact with forecast accuracy. A related structural limitation is that separate direct models are estimated for h = 1 , 5, and 22 ; their forecasts are not constrained to satisfy temporal aggregation or cross-horizon coherence properties. Fourth, the current empirical analysis focuses exclusively on conditional point forecasts. A point forecast is fundamen-tally tied to the mathematical functional elicited by its specific loss metric, and point accuracy alone cannot characterize tail risk or full distributional uncertainty (Gneiting, 2011). Extending the framework to generate predictive intervals or conditional density forecasts would facilitate formal density evaluation and calibration diagnostics. For Basel-compliant risk management, the joint modeling of Value-at-Risk (VaR) and Expected Shortfall (ES) is particularly relevant, as these risk measures admit joint elicitability under consistent scoring functions despite ES lacking elicitability in isolation (Fissler and Ziegel, 2016). Implementing such capabilities requires a quantile-based or distributional output layer and appropriate scoring rules; it cannot be directly extrapolated from point-loss MSE and MAE results. 22 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+Finally, the empirical panel is confined to eight developed and emerging equity indices observed over the 2006–2022 period. Although this sample spans multiple severe systemic crisis episodes and evaluations are conducted across both all-days and common-days panels, the cross-sectional breadth and post-2022 regime coverage remain limited. Replicating the methodology across broader geographic regions, alternative asset classes (such as commodities or fixed income), and more recent post-pandemic data would provide valuable external validation. Furthermore, complementing statistical loss comparisons with economic-value assessments—such as volatility-timing investment strategies or risk-parity portfolio allocations accounting for turnover and transaction costs—would quantify the practical financial utility of the framework. In summary, while the proposed architecture establishes clear incremental predictive gains within this empirical setting (particularly at weekly and monthly horizons), the magnitude and statistical precision of that increment remain inherently dependent on the market, forecast horizon, and loss function. 
+
+## 7 Conclusion 
+
+Forecasting volatility across international equity markets is fundamentally an information-set problem. In a multi-market union calendar, an econometrically valid forecasting system must preserve informative signals from active exchanges, prevent holiday closures from being conflated with states of near-zero volatility, and strictly ensure that every predictive input terminates on or before the relevant forecast origin. This paper investigates whether foreign-market information, once subjected to these rigorous filtration boundaries, delivers statistically significant incremental forecast accuracy beyond the univariate HAR baseline and established multivariate volatility models. The proposed PGA-Trans-HAR framework operationalizes this inquiry through four interconnected structural restric-tions: 1. A rolling ridge-VAR/GFEVD prior that compresses cross-market predictive connectedness strictly using origin-admissible observations, updated on a 20-origin calendar. 2. A learned, market-specific gating vector that provides a parsimonious, date-invariant convex allocation between the structural econometric prior and data-driven spatial attention. 3. An asymmetric calendar mask that excludes inactive markets as information sources while allowing closed nodes to receive contemporaneous representations from active foreign exchanges. 4. A frozen, horizon-specific HAR baseline that anchors a bounded neural residual correction parameterized within the inverse-softplus domain. Consequently, the resulting framework is not intended as an unconstrained, black-box alternative to traditional econo-metrics; rather, it provides a disciplined, controlled testing procedure designed to isolate and quantify the marginal predictive contribution of cross-market information. The empirical evidence answers the central research question in a qualified affirmative. Relative to the univariate HAR benchmark, the constrained system reduces both MSE and MAE across all eight global markets at the daily and weekly horizons ( h = 1 and h = 5 ), and across seven of the eight markets at the monthly horizon ( h = 22 ). Relative to the broader suite of linear and deep learning benchmarks, the framework achieves the lowest cross-market average MAE at the daily horizon, and the lowest average MSE and MAE at the weekly and monthly horizons. Pairwise HAC-adjusted Diebold–Mariano tests confirm that these improvements are statistically significant in numerous comparisons—most prominently under daily and weekly absolute loss—while Model Confidence Sets indicate broader statistical competition across specifications as the forecast horizon extends. Furthermore, the structural ablation findings reject a complexity-driven explanation: temporal self-attention and the rolling prior graph are not unconditional complements, and the learned market-specific gate improves upon uniform scalar shrinkage at weekly and monthly horizons, but not at the daily horizon. The overarching methodological implication for financial forecasting is that, in environments characterized by low signal-to-noise ratios, architectural flexibility is most effective when its information filtration and adjustment capacity are governed by economically interpretable restrictions. The rolling prior, asymmetric mask, market-level allocation, and HAR anchor render the source of the predictive increment fully transparent, preventing the flexible neural component from unconstrainedly overfitting historical volatility levels. This evidence does not establish uniform model dominance, structural macroeconomic causality, or the universal superiority of deep neural networks. Instead, it demonstrates that the disciplined, bounded integration of classical econometric structure with data-driven attention represents a robust and viable path toward achieving genuine incremental forecast accuracy. Extending this framework to accommodate intraday timing sequences, richer multimodal macro-financial information sets, coherent cross-horizon density forecasting, and transaction-cost-adjusted portfolio decisions remains a promising agenda for future research. 23 Forecasting Global Volatility Across Asynchronous Markets: Incremental Accuracy from Constrained Cross-Market Attention A P REPRINT 
+
+## References 
+
+Andersen, T. G., Bollerslev, T., Diebold, F. X., and Labys, P. (2003). Modeling and forecasting realized volatility. 
+
+Econometrica , 71(2):579–625. Andersen, T. G., Bollerslev, T., Diebold, F. X., and Vega, C. (2007). Real-time price discovery in global stock, bond and foreign exchange markets. Journal of International Economics , 73(2):251–277. Bubák, V., Koˇ cenda, E., and Žikeš, F. (2011). Volatility transmission in emerging european foreign exchange markets. 
+
+Journal of Banking & Finance , 35(11):2829–2841. Bucci, A. (2020). Realized volatility forecasting with neural networks. Journal of Financial Econometrics , 18(3):502– 531. Burns, P., Engle, R. F., and Mezrich, J. J. (1998). Correlations and volatilities of asynchronous data. The Journal of Derivatives , 5(4):7–18. Busch, T., Christensen, B. J., and Nielsen, M. O. (2011). The role of implied volatility in forecasting future realized volatility and jumps in foreign exchange, stock, and bond markets. Journal of Econometrics , 160(1):48–57. Chi, Z., Gao, J., and Wang, C. (2026). Global stock market volatility forecasting incorporating dynamic graphs and all trading days. Journal of Forecasting , 45(3):1311–1324. Corsi, F. (2009). A simple approximate long-memory model of realized volatility. Journal of Financial Econometrics ,7(2):174–196. Diebold, F. X. and Mariano, R. S. (2002). Comparing predictive accuracy. Journal of Business & Economic Statistics ,20(1):134–144. Diebold, F. X. and Yilmaz, K. (2012). Better to give than to receive: Predictive directional measurement of volatility spillovers. International Journal of Forecasting , 28(1):57–66. Fissler, T. and Ziegel, J. F. (2016). Higher order elicitability and Osband’s principle. The Annals of Statistics ,44(4):1680–1707. Gneiting, T. (2011). Making and evaluating point forecasts. Journal of the American Statistical Association ,106(494):746–762. Hansen, P. R., Lunde, A., and Nason, J. M. (2011). The model confidence set. Econometrica , 79(2):453–497. Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. Technomet-rics , 12(1):55–67. Jain, S. and Wallace, B. C. (2019). Attention is not explanation. In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 ,pages 3543–3556. Association for Computational Linguistics. Newey, W. K. and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. Econometrica , 55(3):703–708. Newey, W. K. and West, K. D. (1994). Automatic lag selection in covariance matrix estimation. The Review of Economic Studies , 61(4):631–653. Patton, A. J. and Sheppard, K. (2015). Good volatility, bad volatility: Signed jumps and the persistence of volatility. 
+
+The Review of Economics and Statistics , 97(3):683–697. Pearl, J. (2009). Causality: Models, Reasoning, and Inference . Cambridge University Press, Cambridge, UK, 2 edition. Pesaran, M. H. and Shin, Y. (1998). Generalized impulse response analysis in linear multivariate models. Economics Letters , 58(1):17–29. Sezer, Ö. B., Gudelek, M. U., and Ozbayoglu, A. M. (2020). Financial time series forecasting with deep learning: A systematic literature review: 2005–2019. Applied Soft Computing , 90:106181. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. (2017). Attention is all you need. In Advances in Neural Information Processing Systems 30 , pages 5998–6008. Zhang, C., Pu, X., Cucuringu, M., and Dong, X. (2025). Forecasting realized volatility with spillover effects: Perspectives from graph neural networks. International Journal of Forecasting , 41(1):377–397. 24

@@ -1,0 +1,1873 @@
+Title: Value of Information in Dynamic Decision Making
+
+URL Source: https://arxiv.org/pdf/2608.29273v1
+
+Published Time: Tue, 01 Sep 2026 00:45:07 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# Value of Information in Dynamic Decision Making ∗
+
+## Dimitry Shaiderman †and Eilon Solan ‡
+
+## September 1, 2026 
+
+Abstract 
+
+We study the value of information in predicting the evolving state of a finite Markov chain. At each stage, a decision maker chooses a state and observes only whether the current state of the chain matches her choice; the resulting information is used to make a prediction on the state at the final stage of the problem. We show that, when the chain starts from an invariant distribution, the optimal terminal value is non-decreasing with the number of observations and converges at a uni-form exponential rate. We introduce the predictive learning index, which measures whether all attainable informational value is extracted after finitely many observa-tions, and show that both finite and infinite indices may occur. In contrast, for nonstationary initial distributions, the value may strictly decrease with the horizon. 
+
+Subject Classification: Decision analysis: Theory: Value of Information in Dynamic Decision Making. Dynamic programming: Markov/Finite State: Value of Information in Dynamic De-cision Making. 
+
+# 1 Introduction 
+
+Classical utility theory asks how a decision maker should act when the state of nature is unknown. When information about the state arrives gradually, a simple principle holds: 
+
+> ∗
+
+The authors thank Ehud Lehrer and Abraham Neyman for their valuable comments, suggestions, and overall support with the current work. Shaiderman acknowledges the support of the Israel Science Foundation, Grant #992/23. Solan acknowledges the support of the Israel Science Foundation, Grant #211/22. 
+
+> †
+
+Department of Mathematics, Hebrew University of Jerusalem, Jerusalem 9190401, Israel. e-mail: dima.shaiderman@gmail.com. 
+
+> ‡
+
+School of Mathematical Sciences, Tel Aviv University, 6997800, Israel. e-mail: eilonsolan@gmail.com. 
+
+1arXiv:2608.29273v1 [math.OC] 29 Aug 2026 additional information can only benefit the decision maker; that is, her optimal expected payoff can only rise as more information is revealed. This is the spirit of Blackwell’s classical work comparing sources of information (Blackwell, [3],[4]): a more informative signal is always at least as valuable as a less informative one, regardless of the decision problem at hand. Does the same logic apply when the underlying state of nature changes dynamically over time? In this paper we study this problem when the decision maker has to make a decision at a given future time, and receives information on the state of nature as times goes by. Such a situation arises naturally in search, surveillance, and screening problems. For example, a naval unit may search for a submarine, which changes its location daily, with the goal of identifying its location at a given future date. Similarly, hospitals may screen patients for a specific pathogen, to ensure that they can undertake a certain treatment at a certain date. 1
+
+In both examples above, the information that the decision maker gains in every period is a yes/no signal; that is, whether the submarine is present in a given sector when the search is done, or whether the patient carries a certain pathogen when the test is done. Should the principle of positive value of information hold in the dynamic setup as well? That is, is the marginal informational value of each new observation positive? Or does the information saturate from a certain period on? These are the questions that we study in the present paper. As we will see, the principle of positive value of information sometimes fails. The reason is that with each period that goes by, two things change simultaneously: the decision maker has an additional observation opportunity, but the payoff-relevant state is also one transition farther into the future. 
+
+The model. We consider a discrete-time Markov chain {Xj }j≥1 over a finite state space 
+
+K = {1, . . . , k }, which may be described by a prior distribution q over K and a k × k
+
+dimensional stochastic matrix M , determining the transition rule of the chain. A decision maker is engaged in the following problem with horizon n: at each stage j =1, . . . , n the decision maker selects an action ξj ∈ K, and then observes the binary signal 
+
+I(ξj ) := 1{Xj = ξj }; i.e., the decision maker is told whether her j’th stage action matches the realized state at that stage. This action is allowed to depend on all information available to the decision maker at the start of the j’th stage, which consists of both her own past actions ξ1, . . . , ξ j−1, as well as on I(ξ1), . . . , I (ξj−1). Let Ξ be the space of all 
+
+> 1In a hospital setting, which pathogen a patient carries can change over time through contact with other patients or the environment, quite apart from any testing, and is modeled as a Markov chain (Cooper and Lipsitch, 2004). Routine surveillance swabs monitor this process without influencing it.
+
+2policies or strategies available to the decision maker. The decision maker’s goal is to maximize the utility u(Xn, ξ n), which depends both on the actual state Xn at stage n as well as on the decision maker’s action at that stage 
+
+ξn, where u is some utility function. Thus, while ξ1, . . . , ξ n−1 provide information , ξn can be thought of as a prediction of the state that maximizes the expected utility at stage n.The value of the problem, that is, the maximal expected amount attainable by the decision maker, is 
+
+vn(q) := max  
+
+> ξ∈Ξ
+
+Eq,ξ [u(Xn, ξ n)] ,
+
+where Eq,ξ is the expectation operator induced by the prior q, transition rule M , and the strategy ξ, on the sequence ( X1, ξ 1, . . . , X n, ξ n). In search problems where u(Xn, ξ n) = 1 {Xn = ξn}, the decision maker’s goal is to correctly identify the target’s location at stage n. In the setup of search described above, 
+
+vn(q) is the best attainable probability of correctly locating the submarine on day n given 
+
+n − 1 days of prior tracking. Similarly, in the hospital screening problem, vn(q) is the best attainable probability of correctly determining whether a patient carries a given pathogen on the day of a scheduled procedure, given n − 1 preceding days of screening. 
+
+The object we are interested in. Our work centers around the study of properties of the sequence {vn(q) : n ≥ 1}, for a fixed prior q. When this sequence is increasing, the value of information grows at any step; when it is non-decreasing, the decision maker does not lose from obtaining more information; and when it is eventually constant learning is finite, in the sense that the decision maker does not gain from additional observations past a certain time period. When the sequence {vn(q) : n ≥ 1} is non-decreasing, its rate of convergence quantifies the speed by which the informational value of future observations diminishes. 
+
+Main Results. Our first findings concern stationary Markov chains, i.e., chains in which the prior is an invariant distribution π of the stochastic matrix M . Theorem 1 in Subsection 2.1 reveals that the sequence {vn(π) : n ≥ 1} is non-decreasing, and thus converges to a limit denoted v∞(π). In informational terms, when the chain is stationary, the decision maker never loses from additional observations. In addition, Theorem 1 establishes that the convergence occurs at a geometric rate, with an explicit geometric bound depending only on the cardinality of the state space. To study the timeline of learning we introduce in Subsection 2.1.1 the notion of the 
+
+predictive learning index , denoted i(π, M ). Such index counts the number of steps required 3for vn(π) to attain v∞(π). That is, the decision maker can extract all payoff relevant information using her first i(π, M ) − 1 observations. Theorem 2 shows that the predictive learning index i(π, M ) equals to the minimal 
+
+n ∈ N ∪ { +∞} such that vn(π) = vn+1 (π). In particular, if i(π, M ) = + ∞, then the value of information must grow at every step. Example 2 in Subsection 2.1.1 illustrates that such a phenomenon, which corresponds to infinite learning, is possible. The complementary phenomenon of finite learning, i.e., i(π, M ) < +∞, occurs in several common classes of Markov chains, e.g., i.i.d. chains and deterministic chains. Example 1 utilizes Theorem 2 to show that finite learning can occur in less common scenarios as well. In the non-stationary case, the value of information need no longer grow with time. In fact, Example 3 in Subsection 2.2 shows that {vn(q) : n ≥ 1} can be strictly decreasing for a specified prior q, stochastic matrix M , and utility u. In particular, the value of information can be negative at every step. Proposition 1 shows that this failure of mono-tonicity is not confined to the preceding example: for any n1 < n 2 ∈ N, there exists a prior distribution q such that vn2 (q) ≤ vn1 (q). Thus, away from the stationary distribution, the benefit of having an additional opportunity to learn can be outweighed by the loss of predictability caused by the Markov chains stochastic dynamics. Lastly, Theorem 3 in Subsection 2.2 shows that when the Markov chain is ergodic, irrespective of the prior q, the sequence {vn(q) : n ≥ 1} converges to v∞(π) at a geometric rate, uniformly over all priors. 2
+
+Managerial Insights. From an operational perspective, our results address the ques-tion of how far in advance of a terminal decision information acquisition should begin. In stationary environments, starting earlier cannot reduce the optimal terminal payoff, while the additional benefit available from extending the information-acquisition window decays geometrically. The predictive learning index identifies environments in which there is a finite look-back horizon beyond which earlier observations have no additional value. In contrast, in non-stationary environments, a longer information-acquisition horizon need not improve terminal performance, highlighting the importance of distinguishing steady-state operations from transient regimes. 
+
+Related Literature. Our model is closely related to the literature on surveillance search for moving targets. Tierney and Kadane [21] study a target evolving according to a Markov process and a searcher who allocates search effort over time and space. Similarly 
+
+> 2For ergodic Markov chains, i.e., irreducible and aperiodic, there exists a unique invariant distribution
+> π.
+
+4to our setup, intermediate detections need not terminate the search and may instead pro-vide information useful for subsequent surveillance. The main difference between the two papers is the focus. Following earlier works on the search for moving targets by Brown [5] and Stone and Kadane [20], Tierney and Kadane [21] focus on finding optimal search plans for a given surveillance problem. Our object of interest is how the optimal terminal value changes with the horizon. The task of predicting the next step of a Markov chain using previously acquired information is central in several game theoretic models. Renault [17] and Gensbittel and Renault [9], see also H¨ orner et al. [10], study repeated zero-sum games in which payoff-relevant private states evolve according to Markov chains. Information about the evolving state is strategically revealed through players’ actions, and the object is the long-run value of the game. In contrast, our model has a single decision maker, information is generated mechanically by the outcomes of her own actions, and our object is the value of this information for a terminal decision. Our model is also related to active information acquisition and controlled sensing (Chernoff [6]; Naghshvar and Javidi [14]; Nitinawarat, Atia, and Veeravalli [15]), where actions determine the information observed, but the unknown hypothesis is typically fixed rather than evolving over time as in our setting. The findings and analysis of the current work are partially motivated by results and techniques in Lehrer and Shaiderman [12] and Shaiderman [23], which study the analytic behavior of the value functions in a dynamic Bayesian persuasion model and Markov chain games. 
+
+Organization of the Paper. The main results are provided in Section 2. Section 3 is devoted to the introduction of a specialized Markov decision problem, which will serve as the framework for the analysis in the work. The proofs of the main results appear in Section 4. The paper is concluded with a discussion and survey of additional open problems (see Section 5). 
+
+Notations. For every finite set A, ∆( A) denotes the set of probability measures over 
+
+A. For every p ∈ ∆( A) and a ∈ A, p(a) denotes the probability mass assigned by p to 
+
+a. For every a ∈ A, δa ∈ ∆( A) denotes the Dirac measure supported on a. For a matrix 
+
+M of dimensions |A| × | A| and p ∈ ∆( A), pM denotes the M -shift of p; i.e., the matrix multiplication of p with M , where p is viewed as an |A|-dimensional row vector. Lastly, log denotes the natural logarithm. 52 Main Results 
+
+## 2.1 Stationary Markov Chains 
+
+We first focus on stationary Markov chains; namely, chains whose prior is an invariant distribution π of the transition matrix M . Our first main result, stated in Theorem 1, establishes that starting from any invariant distribution π, the value of information grows with time. The Theorem 1 also provides an upper bound for the speed at which the value of new information perishes with time. 
+
+Theorem 1. For any stationary Markov chain {Xn}n≥1, the sequence {vn(π) : n ≥ 1} is non-decreasing, and converges to a scalar v∞(π) ∈ [0 , 1] , such that for every n ≥ 1,
+
+0 ≤ v∞(π) − vn(π) ≤
+
+
+
+1 − 1
+
+k
+
+n−1
+
+. (1) Theorem 1 holds irrespective of the underlying structure of the Markov chain (irre-ducible, periodic, reversible, etc.). Theorem 1 implies that for any error term ε > 0, the decision maker can approximate v∞(π) up to ε using the information obtained from the first ⌈log (1 −1/k ) ε⌉ observations. 3 From an asymptotic perspective, i.e., when k is large, the information obtained from the first k · ⌊ log( k)⌋ observations suffices to approximate 
+
+v∞(π) up to an error term of 1 /k ; indeed, by Theorem 1, 0 ≤ v∞(π) − v⌊log( k)⌋· k+1 (π) ≤
+
+
+
+1 − 1
+
+k
+
+⌊log( k)⌋· k
+
+∼ exp( − log( k)) = 1
+
+k .
+
+In view of Theorem 1, several questions arise. First, is the bound given in Equation (1) sharp? Another question concerns the timeline of the convergence of {vn(π) : n ≥ 1}; can the convergence occur in finite time, or alternatively, can the sequence {vn(π) : n ≥ 1}
+
+be strictly increasing. While the sharpness of the bound in (1) remains an open problem, the study of the timeline of convergence towards v∞(π) admits several results and raises additional ques-tions. For that reason we devote the proceeding subsection to the introduction and study of a new notion, titled the predictive learning index .   
+
+> 3Note that the maximal expected utility available to the decision maker after the first nobservations is vn+1 .
+
+62.1.1 The Predictive Learning Index Definition 1. For any invariant distribution π of the Markov chain {Xj }j≥1 with transi-tion rule given by the stochastic matrix M , the predictive learning index , denoted i(π, M ),is defined by 
+
+i(π, M ) = min {n ∈ N ∪ { +∞} : vn(π) = v∞(π)}.
+
+From an informational stand point, since by Theorem 1 {vn(π) : n ≥ 1} is non-decreasing, whenever i(π, M ) = + ∞, the value of information can be viewed as growing at every step. On the opposite, when i(π, M ) is finite, the gathering of new information has no value from some time on. In such a case, the predictive learning index describes the minimal amount of time required to extract the information with which the decision maker can guarantee v∞(π). Several basic examples where the predictive learning index is finite include: 
+
+• If {Xj }j≥1 forms an i.i.d. sequence of random variable (i.e., all rows of M equal to 
+
+π), then i(π, M ) = 1. Indeed, in such a case, the distribution of the next step of the chain is independent of any past information, implying that 
+
+vn(π) = max 
+
+> ℓ∈Kk
+
+X
+
+> i=1
+
+π(i) · u(i, ℓ ), ∀n ≥ 1.
+
+• If {Xj }j≥1 is a binary Markov chain (i.e., K = {1, 2}), then the sequence of outcomes 
+
+{I(ξj ) : j = 1 , ..., n } provides full information regarding X1, ..., X n, regardless of the strategy ξ ∈ Ξ the decision maker chooses to follow. Therefore, in such case, starting from the prior π, for every n ≥ 2, 
+
+vn(π) = π(1) · max 
+
+> ℓ∈K
+
+X
+
+> i∈K
+
+(δ{1}M )( i) · u(i, ℓ )+ π(2) · max 
+
+> ℓ∈K
+
+X
+
+> i∈K
+
+(δ{2}M )( i) · u(i, ℓ ),
+
+implying that i(π, M ) ≤ 2. 
+
+• If {Xj }j≥1 forms a deterministic sequence conditional on X1 (i.e., the matrix M
+
+is a permutation matrix), then i(π, M ) ≤ #support( π). There exists a determin-istic sequence of actions that assures that the decision maker would know the re-alized state of the (#support( π) − 1)’st step of the chain after observing the sig-nals of her first (#support( π) − 1)’st actions. By the deterministic nature of the 7chain, such knowledge suffices to know the realized state at any step proceeding the (#support( π) − 1)’st step. For that reason, 
+
+vn(π) = 
+
+> k
+
+X
+
+> i=1
+
+P (Xn = i) · max  
+
+> ℓ∈K
+
+u(i, ℓ )=
+
+> k
+
+X
+
+> i=1
+
+π(i) · max  
+
+> ℓ∈K
+
+u(i, ℓ ), ∀n ≥ #support( π).
+
+The next result provides a sufficient condition for the predictive learning index to be finite. 
+
+Theorem 2. If vn+1 (π) = vn(π) for some n ≥ 1, then vn+1+ j (π) = vn(π) for all j ∈ N.In particular, 
+
+i(π, M ) = min {n ∈ N ∪ { +∞} : vn+1 (π) = vn(π)}.
+
+Theorem 2 implies that at the first stage n ≥ 1 at which vn(π) = vn+1 (π), there is no more value for the information obtained along proceeding stages. From a practical stand point, Theorem 2 allows to provide additional instances where the predictive learning index is finite. To showcase such an instance, introduce the matching utility u∗ : K ×K →{0, 1} defined by 
+
+u∗(i, ℓ ) := 1{i = ℓ}, ∀(i, ℓ ) ∈ K × K. 
+
+Under such a utility, vn(q) = max ξ∈Ξ Pq,ξ (Xn = ξn). Thus, the n’th stage optimization problem faced by the decision maker, is the one where she seeks to choose her first n − 1actions, so that the obtained information will allow her to maximize the probability of correctly matching the state of the chain in stage n.The following example provides a Markov chain, which is not i.i.d. nor conditionally deterministic given X1, and has a finite index for the matching utility. 
+
+Example 1. Consider the stochastic matrix: 
+
+M ∗ =
+
+
+
+0.424 0.128 0.192 0.256 0.064 0.488 0.192 0.256 0.064 0.128 0.552 0.256 0.064 0.128 0.192 0.616 
+
+ ,
+
+for which the unique stationary distribution is π = (0 .1, 0.2, 0.3, 0.4) . For such an ex-ample, under the matching utility, computer simulations show that v2(π) = 0 .4888 <
+
+0.5000768 = v3(π) = v4(π). Hence, Theorem 2 implies that for this specific example 
+
+i(π, M ∗) = 3. 8In Section 5 we revisit the Markov chain in Example 1, and discuss another possible class of Markov chains conjectured to have a finite index for the matching utility. The next proposition establishes that the case where i(π, M ) = + ∞ is also possible. As a preparation for its statement, we note that whenever a matrix is doubly stochastic, its unique invariant distribution is the uniform distribution over K, i.e., π(ℓ) = 1 /k for every ℓ ∈ K.
+
+Proposition 1. For the matching utility u∗, there exists a doubly stochastic matrix M
+
+such that i(π, M ) = + ∞.
+
+Let us describe the example which is the cornerstone for the above proposition, and provide the key heuristics leading to the phenomenon of infinite index in the example. 
+
+Example 2. Consider a simple random walk on a circle having four states, as depicted in the form of a Markov chain in Figure 1. In this Markov chain, the states alternates between {1, 3} and {2, 4}. If say, at stage n the state is 2, then at stage n + 1 it is 1 or 3 with equal probabilities. For such a chain the unique invariant distribution is 
+
+π = (1 /4, 1/4, 1/4, 1/4). From a learning angle, such Markov chain contains two key properties: (a) Full learning upon first positive signal. After the first positive signal, the decision maker gleans all possible information: she knows whether the states {1, 3} occur in even stages or in odd stages. (b) Learning does not end before the first positive signal. Starting from π, as long as no positive signal occurred, for each i ∈ { 1, 2, 3, 4}, the likelihood of the next step of the Markov chain being equal to i is strictly lower then 1 /2. Therefore, any prediction of the decision maker regarding the next step will match the realized state with probability strictly less then 1 /2. Based on the above two properties, the center of attention shifts to the likelihood of having a streak of n negative signals. Here two phenomena arise as well. Starting from π, for any n ≥ 1 and for any strategy ξ ∈ Ξ: (i) there is positive probability for a streak of n negative signals, and (ii) such probability vanishes as n → ∞ .4 Properties (a) and (b) described above together with (i) suffice to show that vn(π) < 1/2 for every 
+
+n ≥ 1. Property (a) together with (ii) imply that vn(π) → 1/2 as n → ∞ , so that indeed i(π, M ) = + ∞. The exact details, with slightly modified arguments and suitable notations, can be found in Subsection 4.5. 912340.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 Figure 1: The Markov chain in Example 2, representing simple random walk on a 4-state circle. By the Birkhoff–von Neumann Theorem [2], every doubly stochastic matrix can be decomposed into a convex combination of permutation matrices. Since the predictive learning index of permutation matrices is finite, this, together with Proposition 1, implies that for the matching utility u∗ the set 
+
+Mi∈N 
+
+> π
+
+:= {M ∈ M π : i(π, M ) < +∞} ,
+
+is not convex, where Mπ denotes the set of all k × k dimensional stochastic matrices with invariant distribution π.
+
+## 2.2 General Prior 
+
+Let us now shift our attention to the case where the prior of the Markov chain {Xj }j≥1
+
+is not necessarily an invariant distribution. Our first finding exhibits a Markov chain in which the value of information strictly decreases at every step, when the initial distribution is not invariant. 
+
+Example 3. Consider the binary Markov chain over K = {1, 2} whose transition rule is described in Figure 2, starting from the prior q∗ = (2 /3, 1/3). Let u = u∗ be the matching utility. For n = 1, state 1 has a higher likelihood under q∗, and thus v1(q∗) = 2 /3. As discussed in Subsection 2.1.1, since the chain is binary, the past learning is complete: for 
+
+> 4While (i) is an intrinsic property of the described Markov chain, (ii) may be obtained for any ergodic Markov chain, as can be seen in the discussion culminating with relation (4) in Subsection 2.2.
+
+10 1 22/31/31/21/2Figure 2: The Binary Markov chain in Example 3, with decreasing value of information starting from the prior (2 /3, 1/3). every n ≥ 2, X1, ..., X n−1 are known upon observing the first n − 1 signals, irrespective of the strategy ξ ∈ Ξ. Therefore, for each n ≥ 2, 
+
+vn(q∗) = Pq∗ (Xn−1 = 1) · 2/3 + (1 − Pq∗ (Xn−1 = 1)) · 1/2. (2) Define I1 := q∗(1) = 2 /3, In := Pq∗ (Xn−1 = 1) for every n ≥ 2. As In = 2 /3 · In−1 +1/2 · (1 − In−1) for every n ≥ 2, relation (2) implies that vn(q∗) = In for every n ≥ 2. By a recursive computation, In = 6 /10 + 1 /15 · (1 /6) n−1 for every n ≥ 2, and thus 
+
+vn(q∗) = 6 /10 + 1 /15 · (1 /6) n−1 for n ≥ 2 as well. Therefore, the sequence {vn(q∗) : n ≥ 1}
+
+is strictly decreasing. If the chain is stationary, i.e., starts from the unique invariant distribution is π = (6 /10 , 4/10), then it can be verified that vn(π) = 6 /10 for every n ≥ 1. In view of Example 3 a question arises as to whether for any Markov chain there always exists a prior at which the value of additional information is negative. While this remains an open question, our next result establishes a weaker result, concerning the averages of values at certain priors. To state such a result, denote by m1, ..., m k ∈ ∆( K) the rows of the stochastic matrix 
+
+M , and consider for each n ≥ 1 the number Φn(π) := π(1) · vn(m1) + · · · + π(k) · vn(mk).
+
+where π is a invariant distribution of M . For each i ∈ K, mi describes the distribution of the next step of the Markov chain, given that it is currently located at state i. Thus, the values {vn(mi) : i ∈ K} may be viewed as those capturing the scenario in which the decision maker observes the realized state of a preceding step X0, and then engages in the 
+
+n’th stage problem with X1, ..., X n.
+
+Proposition 2. The sequence {Φn(π) : n ≥ 1} is non-increasing. 
+
+Proposition 2 reveals that the value of information does not always increase with time across all prior distributions. The proposition implies that for any two time periods 11 n1 < n 2, there exists a row mi such that vn2 (mi) ≤ vn1 (mi). In view of Theorem 1, Example 3, and Proposition 2, the value of information can have opposite nature based on the prior distribution. For some priors (invariant distributions), the decision maker can only gain from additional information, whereas for other priors, the value of information does not grow at any step. We conclude this section, by studying whether the value of new information perishes with time for the general case, as previously showcased for stationary chains (e.g., The-orem 1). Our study revolves around the class of ergodic Markov chains, namely, ones whose transition matrix M is both irreducible and aperiodic. We first list several useful preliminary facts regarding such chains: 
+
+• If M is irreducible and aperiodic, then min( M k2
+
+) > 0, where min( A) denotes the smallest cell of a matrix A. This follows from Wielandt’s bound [22], who proved that ( k − 1) 2 + 1 is the smallest number satisfying min( M (k−1) 2+1 ) > 0 for all irreducible and aperiodic matrices M .5
+
+• The Ergodic Convergence Theorem (e.g., Theorem 4.9 in Levin and Peres [13]): If 
+
+M is irreducible and aperiodic, then there exist constants α ∈ (0 , 1) and C > 0 such that 
+
+dn(M ) := sup 
+
+> q∈∆( K)
+
+∥qM n − π∥1 ≤ Cα n, (3) where π is the unique invariant distribution of M , and ∥ · ∥ 1 denotes the ℓ1-norm on ∆( K). Define for every n ≥ 1 and q ∈ ∆( K): 
+
+Wn(q, M ) := max  
+
+> ξ∈Ξ
+
+Pq,ξ (X1̸ = ξ1, ..., X n̸ = ξn),
+
+and let Wn(M ) := sup q∈∆( K) Wn(q, M ). In words, Wn(M ) describes the highest possible probability of n consecutive negative signals, across all possible prior distributions of 
+
+{Xj }j≥1, under the transition rule M . Since min( M k2
+
+) ∈ (0 , 1) , we have 
+
+Wn(M ) ≤ sup 
+
+> q∈∆( K)
+
+max  
+
+> ξ∈Ξ
+
+Pq,ξ 
+
+
+
+Xk2+1 ̸ = ξk2+1 , X 2k2+1 ̸ = ξ2k2+1 , ..., X ⌊ nk2 ⌋k2+1 ̸ = ξ⌊ nk2 ⌋k2+1 
+
+
+
+≤
+
+
+
+1 − min 
+
+
+
+M k2  ⌊ n−1 
+
+> k2⌋
+
+→ 0 as n → ∞ . (4)       
+
+> 5In Wielandt [22] it is proven that this upper bound is sharp, i.e., there exists irreducible and aperiodic
+> Msuch that min( M(k−1) 2
+> ) = 0. Weilandt’s original proof that min( M(k−1) 2+1 )>0 is published in Schneider [19].
+
+12 Theorem 3. For any ergodic Markov chain {Xj }j≥1, starting from any prior q, for any 
+
+n ≥ 2,
+
+vn(q) − v∞(π) ≥ − d⌈ n 
+
+> 2⌉
+
+(M )min i∈K π(i) −
+
+
+
+1 − 1
+
+k
+
+⌊ n 
+
+> 2⌋− 1
+
+, (5) 
+
+and 
+
+vn(q) − v∞(π) ≤ Wn−1(M )min( M k2 ) +
+
+
+
+1 − 1
+
+k
+
+n−2
+
+. (6) Combining Theorem 3 with relations (3) and (4), we deduce the following. 
+
+Corollary 1. The sequence of functions vn(·) : ∆( K) → [0 , 1] , n ≥ 1, converges uniformly to v∞(π) at a geometric rate. 
+
+Corollary 1 can be viewed as a generalization of Theorem 1 for ergodic Markov chains. It implies that for such chains, for any prior distribution, the value of additional informa-tion perishes at a geometric speed. Moreover, the converges of the values to v∞(π) implies that as n increases, the dependence of vn on the prior decreases exponentially fast. 
+
+# 3 A Markov Decision Problem Approach 
+
+## 3.1 Formal Definition and Motivation 
+
+The fact that our model admits can be described by a Markov decision problem over the belief space ∆( K) follows from known arguments. However, for the sake of the proceeding analysis, we shall introduce and study the following specialized Markov decision problem Γ: 
+
+• The set of states is S = ∆( K) ∪ C , where C = {m∗
+
+> 1
+
+, ..., m ∗
+
+> k
+
+} consists of a disjoint copy of the rows m1, ..., m k of the stochastic matrix M .
+
+• The set of actions is the same as in the original model, i.e., A = K.
+
+• The transition rule ρ : S × A → ∆( S) is defined by: 
+
+ρ(q, i ) = 
+
+(
+
+m∗ 
+
+> i
+
+, with prob. q(i), i ∈ K, w(q, i )M, with prob. 1 − q(i), i ∈ K, 
+
+for any q ∈ ∆( K) and i ∈ A, where w(q, i ) := ( q − q(i)δ{i})/(1 − q(i)) describes the Bayesian update of q given that the action i ∈ K produced a negative signal, i.e., did not match the realized state. For any m∗ 
+
+> i
+
+∈ C we set ρ(m∗ 
+
+> i
+
+, ·) := ρ(mi, ·). 13 A play in Γ is an infinite sequence ( q1, ξ 1, ..., q j , ξ j , ... ) ∈ (S × A)N of states and actions, where q1 = q is the initial prior. We assume that q ∈ ∆( K). For each j ≥ 1, the j’th state of the MDP qj serves to describe the decision maker’s conditional belief on Xj given the past actions ξ1, ..., ξ j−1 and the signals I(ξ1), ..., I (ξj−1) they produced. At any period j ≥ 1, if the j’th action ξj produced a negative signal (an event occurring with probability 1 −qj (ξj )), the decision maker’s posterior belief regarding the distribution of Xj will move from qj to w(qj , ξ j ), and thus w(qj , ξ j )M will describe the conditional distribution of Xj+1 . Therefore, in such a case, the transition rule of Γ defines the next state, qj+1 , to equal to w(qj , ξ j )M .On the contrary, if the action ξj produced a positive signal, i.e., matched the realized state (an event having probability qj (ξj )), the conditional distribution of Xj+1 equals 
+
+δξj M = mξj . However, in Γ we set qj+1 to equal m∗ 
+
+> ξj
+
+, rather then mξj . The reason for this lies in the fact that we wish to make the pure strategy space in Γ equivalent to that in the original model. To do so, the decision maker has to observe the signals produced by her actions. If for instance, there exists q ∈ ∆( K) and action i ∈ K such that 
+
+w(q, i )M = mi,
+
+then regardless of the signal action i produced, starting from the prior q, the conditional distribution of the next step of the Markov chain will equal mi. Therefore, the set of states C was introduced to serve as a device, which within the MDP framework, allows the decision maker to learn the signals her actions produce. A central property of the MDP Γ is that starting from the second period on, a visit in state m∗ 
+
+> i
+
+∈ C can occur if and only if the action i ∈ K at the previous period produced a positive signal. 
+
+## 3.2 Strategies and Payoffs 
+
+Let H = ( S × A)N denote the space of all plays in the MDP Γ. For every j ≥ 1 let 
+
+Hj := ( S × A)j denote the set of all histories of length n in Γ. A behavioral strategy in Γ is a sequence of stage strategies σ = ( σj )j≥1 such that σj : ( S × A)j−1 × S → ∆( A) for every 
+
+j ≥ 1. By following σ = ( σj )j≥1, the decision maker’s j’th stage action ξj ∈ A is chosen at random according to the lottery σj (q1, ξ 1, ..., q j−1, ξ j−1, q j ) ∈ ∆( A). Let Σ denote the set of all behavioral strategies in Γ. The set of pure strategies ΣP ⊂ Σ consists of all σ = ( σj )j≥1 ∈ Σ such that σj :(S × A)j−1 × S → A for every j ≥ 1. That is, ξj is chosen deterministically by σj given 
+
+q1, ξ 1, ..., q j−1, ξ j−1, q j . The set Σ P is equivalent to the set of strategies Ξ introduced in Section 1. The indicators sequence I(ξ1), I (ξ2), ... , corresponds to the sequence of random variables 1{q2 ∈ C }, 1{q3 ∈ C }, ... .14 By Kolmogorov’s Extension Theorem each behavioral strategy σ ∈ Σ together with the initial state q ∈ ∆( K), induce a unique probability measure Pq,σ on the measurable space ( H, H), where H is the σ-algebra generated by cylinder subsets of H, i.e., the set of finite histories ∪j≥1Hj . Denote the expectation operator w.r.t. Pq,σ by Eq,σ .For each n ≥ 1, consider the payoff 
+
+un(q, σ ) := Eq,σ u(qn, ξ n), ∀q ∈ ∆( K), σ ∈ Σ,
+
+where u(·, ·) : S × A → [0 , 1] is the linear extension of the utility u, i.e., 
+
+u(p, i ) := X
+
+> i∈K
+
+p(i) · u(i, ℓ ), ∀(p, ℓ ) ∈ ∆( K) × A, 
+
+and 
+
+u(m∗ 
+
+> i
+
+, ℓ ) := u(mi, ℓ ), ∀(m∗ 
+
+> i
+
+, ℓ ) ∈ C × A. 
+
+Define for every q ∈ ∆( K) and n ≥ 1, the n’th value of the MDP Γ starting from q by 
+
+Vn(q) := sup σ∈Σ un(q, σ ). By the dynamic programming principle, 
+
+Vn(q) = max  
+
+> i∈K
+
+{q(i) · V n−1(m∗ 
+
+> i
+
+) + (1 − q(i)) · V n−1(w(q, i )M )}. (7) By standard MDP theory (e.g., Chapter 1 in [24]), such relation implies the existence of an optimal pure strategy, i.e., Vn(q) := sup σ∈ΣP un(q, σ ). Thus, by the equivalence between Σ P and Ξ, Vn(q) = vn(q) for every n ≥ 1, and q ∈ ∆( K). Subsequently, we identify the values {vn}n≥1 with the values of the MDP Γ. Lastly, the proceeding analysis will take into account a general form of the dynamic programming principle presented in relation (7). Such form argues that for every σ ∈ Σsatisfying vn(q) = un(q, σ ), 
+
+vn(q) = Eq,σ (vn−t(qt+1 )) , ∀n ≥ 1, ∀t = 1 , ..., n − 1.
+
+# 4 Proofs 
+
+## 4.1 Preliminary Properties 
+
+We devote the current discussion to several useful preliminary facts, which are commonly used throughout the proofs of the main results. 
+
+Lemma 1. For every n ≥ 1, the function vn(·) : ∆( K) → [0 , 1] is convex. 
+
+15 Lemma 2. Let t ≥ 1 be a positive integer, and let D ∈ H be an event measurable with respect to the sub σ-field generated by (q1, ξ 1, ..., q t, ξ t) on (H, H). Then, for every 
+
+q ∈ ∆( K) and σ ∈ Σ such that Pq,σ (D) > 0,
+
+Eq,σ (qj | D) = Eq,σ (qt | D)M j−t, ∀j ≥ t. 
+
+The proofs of lemmas 1 and 2, which use standard arguments in the field of dynamic repeated games with incomplete information (e.g., Renault [16]), can be found in the Appendix. By setting E = H and t = 1 in Lemma 2 we obtain the following useful corollary. 
+
+Corollary 2. For every q ∈ ∆( K) and j ≥ 1,
+
+Eq,σ qj = qM j−1, ∀σ ∈ Σ.
+
+In particular, if q = π, where π is an invariant distribution of M we have 
+
+Eπ,σ qj = π, ∀σ ∈ Σ, ∀j ≥ 1.
+
+We conclude our preliminary properties with the following useful lemma. Intuitively, if the decision maker ignores the signals in the first j stages, then her optimal payoff is 
+
+vn−j (qM j ). Hence, 
+
+Lemma 3. For every q ∈ ∆( K) and n ≥ 1,
+
+vn(q) ≥ vn−j (qM j ), ∀j = 1 , ..., n − 1.
+
+Proof of Lemma 3. Fix n ≥ 1 and q ∈ ∆( K). Let σ ∈ Σ be such that vn(q) = un(q, σ ). By the dynamic programming principle and the optimality of σ, for any j = 1 , ..., n − 1: 
+
+un(q, σ ) = Eq,σ vn−j (qj+1 ) ≥ vn−j (Eq,σ qj+1 ) = vn−j
+
+ qM j  ,
+
+where the inequality follows from Lemma 1 and Jensen’s inequality, and the second equal-ity follows from Lemma 2. Following the introduction and survey of the relevant preliminaries, we are in position to prove the results stated in Section 2. The initial step is to establish Proposition 2 which has a central role in the proofs of Theorems 1 and 3. 16 4.2 Proof of Proposition 2 
+
+Fix n ≥ 1. Let ℓ ∈ K be the optimal action at the n-stage game starting from q = mi.By the dynamic programming principle, 
+
+vn(mi) = mi(ℓ) vn−1(m∗ 
+
+> ℓ
+
+) + (1 − mi(ℓ)) vn−1(w(mi, ℓ )M ), (8) where we recall that w(mi, ℓ ) was defined in Subsection 3.1 and equals to the Bayesian update of mi given that the signal produced by action ℓ was negative. Since 
+
+w(mi, ℓ )M = X 
+
+> j̸=ℓ
+
+mi(j)1 − mi(ℓ) · mj ,
+
+we may employ the convexity of vn−1, relation (8), and the fact that vn−1(m∗ 
+
+> ℓ
+
+) = vn−1(mℓ)to obtain 
+
+vn(mi) ≤ mi(ℓ) vn−1(m∗ 
+
+> ℓ
+
+) + X 
+
+> j̸=ℓ
+
+mi(j)1 − mi(ℓ) · vn−1(mj )= X
+
+> j∈K
+
+mi(j)vn−1(mj ). (9) As i and n were arbitrary, relation (9) holds for every i ∈ K and n ≥ 1. By taking the weighted average with respect to π we obtain: Φn(π) = X
+
+> i∈K
+
+π(i) vn(mi) ≤ X
+
+> i∈K
+
+π(i) X
+
+> j∈K
+
+mi(j)vn−1(mj )= X
+
+> j∈K
+
+X
+
+> i∈K
+
+π(i) mi(j)
+
+!
+
+vn−1(mj )= X
+
+> j∈K
+
+π(j) vn−1(mj ) = Φ n−1(π),
+
+where the second inequality holds since πM = π. Therefore, the sequence Φ n(π) := 
+
+P 
+
+> i∈K
+
+π(i) vn(mi) is non-increasing in n, as required. 
+
+## 4.3 Proof of Theorem 1 
+
+Corollary 2 and Lemma 3 imply that {vn(π) : n ≥ 1} is non-decreasing. By the convexity of vn and the definition of Φ n(π) we have vn(π) ≤ Φn(π) for every n ≥ 1. Therefore, as 
+
+{vn(π) : n ≥ 1} is non-decreasing, and by Proposition 2 {Φn(π) : n ≥ 1} is non-increasing, 0 ≤ v∞(π) − vn(π) ≤ Φn(π) − vn(π), ∀n ≥ 1, (10) 17 where v∞(π) is the limit of the non-decreasing sequence {vn(π) : n ≥ 1}. By relation (10), to establish inequality (1) it is sufficient to show that Φn(π) − vn(π) ≤
+
+
+
+1 − 1
+
+k
+
+n−1
+
+, ∀n ≥ 1. (11) To show the above inequality let us fix n ≥ 1 and consider the strategy σ∗ ∈ Σ which plays in the n’th stage game as follows: 
+
+• Starting from stage t = 1, select at each stage an action from {1, ..., k } uniformly at random, until the first time a positive signal occurs. 
+
+• Once a positive signal occurs, say at stage j, play optimally from stage j + 1 to stage n.Define 
+
+A2 := {q2 ∈ C }
+
+Aj := Bj−1 ∩ { qj ∈ C }, ∀j = 3 , ...., n, 
+
+where Bj := {q2 /∈ C , ..., q j /∈ C } for all j = 2 , ..., n .For each j = 2 , ..., n , the event Bj describes the case in which the decision maker actions in stages 1 , ..., j − 1 did not produce a positive signal. The event Aj describes the case where the first positive signal was produced by the j − 1’st action of the decision maker. Under a uniformly random action, for any prior q ∈ ∆( K), the probability to match the state, and thus produce a positive signal, is given by P 
+
+> ℓ∈K
+
+q(ℓ)·(1 /k ) = (1 /k ) P 
+
+> ℓ∈K
+
+q(ℓ) = 1/k . Together with the definition of σ∗, this implies that 
+
+Pπ,σ ∗ (A2) = 1
+
+k and Pπ,σ ∗ (qj ∈ C | Bj−1) = 1
+
+k , ∀ j = 3 , ..., n. (12) Moreover, since for every 2 ≤ j ≤ n, H = A2 ˙∪A3 ˙∪... ˙∪Aj ˙∪Bj , where H is the space of all plays in the MDP Γ, by induction on j, relation (12) implies that 
+
+Pπ,σ ∗ (Aj ) = 
+
+
+
+1 − 1
+
+k
+
+j−2 1
+
+k , ∀2 ≤ j ≤ n, (13) and 
+
+Pπ,σ ∗ (Bj ) = 
+
+
+
+1 − 1
+
+k
+
+j−1
+
+, ∀2 ≤ j ≤ n. (14) The next result states that under σ∗, for each j = 2 , ..., n , the probability that the first positive signal was produced by action i at stage j − 1 equals π(i). 18 Lemma 4. For every 2 ≤ j ≤ n and every i ∈ K,
+
+Pπ,σ ∗ (qj = m∗ 
+
+> i
+
+| Aj ) = π(i).
+
+Proof of Lemma 4. Fix i ∈ K. The proof proceeds by induction on j. The basis of the induction, i.e., j = 2, follows from the fact that by the definition of σ∗ we have: 
+
+Pπ,σ ∗ (q2 = m∗ 
+
+> i
+
+| A2) = Pπ,σ ∗ (q2 = m∗ 
+
+> i
+
+)
+
+Pπ,σ ∗ (A2)= (1 /k ) · π(i)1/k = π(i),
+
+where the first equality follows from the fact that {q2 = m∗ 
+
+> i
+
+} ⊂ A2, and the second equality follows from relation (12). To show the induction step j − 1 ⇒ j, observe that since H = A2 ˙∪A3 ˙∪... ˙∪Aj−1 ˙∪Bj−1,
+
+Eπ,σ ∗ (qj−1 | Bj−1) = Eπ,σ ∗ (qj−1) − Pj−1 
+
+> t=2
+
+Pπ,σ ∗ (At) Eπ,σ ∗ (qj−1 | At)
+
+P (Bj−1) (15) By the induction step, for every t = 2 , ..., j − 1, we have Pπ,σ ∗ (qt = m∗ 
+
+> i
+
+| At) = π(i), so that 
+
+Eπ,σ ∗ (qt | At) = π, ∀2 ≤ t < j. (16) Since by identity (13) Pπ,σ ∗ (At) > 0 for every t = 2 , ..., n , and since At is measurable with respect to the sub σ-field generated by ( q1, ..., q t) on ( H, H), relation (16) together with Lemma 2 imply that Eπ,σ ∗ (qj−1 | At) = π for every 2 ≤ t < j . Substituting the latter relation back into Eq. (15), and using the fact that Eπ,σ ∗ qj−1 = π by Corollary 2, we obtain that 
+
+Eπ,σ ∗ (qj−1 | Bj−1) = 
+
+π
+
+
+
+1 − Pj−1 
+
+> t=2
+
+Pπ,σ ∗ (At)
+
+
+
+P (Bj−1) = π. (17) Put differently, under σ∗, as long as a positive signal was yet to occur, starting from the prior π, the expectation of the current state of Γ remains π.The definitions of σ∗ and Aj imply that for every j ≥ 3, 
+
+Pπ,σ ∗ (qj = m∗ 
+
+> i
+
+| Aj ) = Pπ,σ ∗ ({qj = m∗ 
+
+> i
+
+} ∩ Aj )
+
+Pπ,σ ∗ (Aj )= Pπ,σ ∗ ({qj = m∗ 
+
+> i
+
+} ∩ Bj−1)
+
+Pπ,σ ∗ (Aj ) (18) = Pπ,σ ∗ (qj = m∗ 
+
+> i
+
+| Bj−1) · Pπ,σ ∗ (Bj−1)
+
+Pπ,σ ∗ (Aj ) ,
+
+19 where the second equality follows from the fact that the event {qj = m∗ 
+
+> i
+
+} ∩ Bj−1 describes the case where the first positive signal was produced by action i ∈ K at stage j − 1, and thus {qj = m∗ 
+
+> i
+
+} ∩ Bj−1 = {qj = m∗ 
+
+> i
+
+} ∩ Aj .As by the definition of σ∗, given Bj−1 the action at stage j − 1 is uniform and inde-pendent of all past events, 
+
+Pπ,σ ∗ (qj = m∗ 
+
+> i
+
+| Bj−1) = Eπ,σ ∗
+
+ 1
+
+k · qj−1(i) | Bj−1
+
+
+
+= 1
+
+k · [( Eπ,σ ∗ (qj−1 | Bj−1)) ( i)] = 1
+
+k · π(i),
+
+where in the second inequality we used the affinity of the function q 7 → q(i), together with linearity of the expectation operator, and in the third equality relation (17). Plugging this relation back into Eq. (18) we obtain by identities (13) and (14) that 
+
+Pπ,σ ∗ (qj = m∗ 
+
+> i
+
+| Aj ) = (1 /k ) · π(i) · Pπ,σ ∗ (Bj−1)
+
+Pπ,σ ∗ (Aj )= (1 /k ) · π(i) ·  1 − 1
+
+> k
+
+j−2
+
+ 1 − 1
+
+> k
+
+j−2 1
+
+> k
+
+= π(i).
+
+This completes the induction step, and thus the proof of the lemma. We proceed with the deduction of inequality (11). We have 
+
+un(π, σ ∗) = Eπ,σ ∗ u(qn, ξ n)
+
+≥
+
+> n
+
+X
+
+> j=2
+
+Pπ,σ ∗ (Aj ) Eπ,σ ∗ (u(qn, ξ n) | Aj )=
+
+> n
+
+X
+
+> j=2
+
+Pπ,σ ∗ (Aj ) X
+
+> i∈K
+
+π(i) · vn+1 −j (m∗ 
+
+> i
+
+)=
+
+> n
+
+X
+
+> j=2
+
+Pπ,σ ∗ (Aj ) · Φn+1 −j (π) ≥
+
+> n
+
+X
+
+> j=2
+
+Pπ,σ ∗ (Aj ) · Φn(π)= Pπ,σ ∗
+
+> n
+
+[
+
+> j=2
+
+Aj
+
+!
+
+· Φn(π) = (1 − Pπ,σ ∗ (Bn)) · Φn(π)= Φ n(π) −
+
+
+
+1 − 1
+
+k
+
+n−1
+
+Φn(π) ≥ Φn(π) −
+
+
+
+1 − 1
+
+k
+
+n−1
+
+where the first inequality follows from the non-negativity of u; the second equality from the definition of σ∗ and Lemma (4); the third equality from the definition of {Φj (π) : j ≥ 1};20 the second inequality from Proposition 2, the fourth and fifth equalities from the fact that 
+
+H = A2 ˙∪A3 ˙∪... ˙∪An ˙∪Bn, the sixth equality from identity (14), and the last inequality from Φn(π) ≤ 1. The above derivation implies that Φn(π) − un(π, σ ∗) ≤
+
+
+
+1 − 1
+
+k
+
+n−1
+
+.
+
+Since un(π, σ ∗) ≤ vn(π), we conclude Φn(π) − vn(π) ≤ Φn(π) − un(π, σ ∗) ≤
+
+
+
+1 − 1
+
+k
+
+n−1
+
+.
+
+As n ≥ 1 was arbitrary, this establishes the sufficient condition in inequality (11), thus completing the proof of Theorem 1. 
+
+## 4.4 Proof of Theorem 2 
+
+Let ( Yj )j≥1 be the {0, 1}-valued process that indicates positive signals. It is defined by 
+
+Y1 := 0 and Yj := 1{qj ∈ C } for every j ≥ 2. Let F = ( Fj )j≥1 be the natural filtration with respect to the process ( Yj )j≥1.Let Σ ∗ ⊂ ΣP denote the space of strategies σ = ( σj )j≥1 such that σj (q1, ξ 1, ..., q j−1, ξ j−1, q j )is Fj -measurable. That is, a strategy σ ∈ Σ∗ can use the information of which stages had positive signals, but not the identity of the states of the Markov chain at those stages. Roughly speaking, Σ ∗ describes all possible binary decision trees, parsed according to the signals produced by past actions. Let us note that any strategy ξ ∈ Ξ in the original model induces a strategy σ ∈ Σ∗. Indeed, for any j ≥ 1 and binary sequence x ∈ { 0, 1}j
+
+with x1 = 0 (corresponding to Y1 := 0) define 
+
+σ1(x1) := ξ1,σj (x1, ..., x j ) := ξj (ξ1, x 2, ξ 2, x 3, ..., ξ j−1, x j ),
+
+where we recall that ξ1 is deterministic, ξ2 is deterministic given ξ1, x 2, ξ3 is deterministic given ξ1, x 2, ξ 2, x 3, etc. Therefore, by the equivalence of the MDP Γ to the original model it follows that for every prior q ∈ ∆( K) and n ≥ 1 there must exist σ∗ 
+
+> q,n
+
+∈ Σ∗ such that 
+
+un(q, σ ∗
+
+> q,n
+
+) = vn(q). The main advantage in considering such binary decision trees is that the payoff function of any strategy in Σ ∗ is linear in prior. The proof is deferred to the Appendix. 
+
+Lemma 5. For every α ∈ (0 , 1) , p, q ∈ ∆( K), and n ≥ 1,
+
+un(αq + (1 − α)p, σ ) = αu n(q, σ ) + (1 − α)un(p, σ ), ∀σ ∈ Σ∗.
+
+21 To proceed with the proof of the theorem, let us first observe that a Markov chain starting from an invariant distribution π can only visit states that are in the support of π.Therefore, we may assume without loss of generality that π has full support, i.e., π(i) > 0for every i ∈ K. Also, let us recall that for every n ≥ 1, σ∗ 
+
+> π,n
+
+∈ Σ∗ is the binary decision tree satisfying vn(π) = un(π, σ ∗
+
+> π,n
+
+). 
+
+Claim 1. Assume that vn+1 (π) = vn(π). Then, vn(mi) = un(mi, σ ∗
+
+> π,n
+
+) for every i ∈ K.Proof of Claim 1. Consider the following strategy σ ∈ Σ: at the first stage of Γ, pick an action at uniform from K; in the next n stages follow the strategy σ∗
+
+> π,n
+
+. On the one hand, we have by the dynamic programming principle, Lemma 5, and Corollary 2, 
+
+un+1 (π, σ ) = Eπ,σ un(q2, σ ∗
+
+> π,n
+
+) = un(Eπ,σ q2, σ ∗
+
+> π,n
+
+)= un(π, σ ∗
+
+> π,n
+
+) = vn(π) = vn+1 (π),
+
+implying that σ is optimal in the ( n + 1)-stage problem starting from π. On the other hand, by the definition of σ we have 
+
+un+1 (π, σ ) = 1
+
+k
+
+X
+
+> i∈K
+
+π(i) · un(m∗ 
+
+> i
+
+, σ ∗
+
+> π,n
+
+)+
+
+
+
+1 − 1
+
+k
+
+ X
+
+> i∈K
+
+(1 − π(i)) · un(w(π, i )M, σ ∗
+
+> π,n
+
+).
+
+Therefore, by the optimality of σ, and the fact that π(i) > 0 for every i ∈ K,
+
+un(mi, σ ∗
+
+> π,n
+
+) = un(m∗ 
+
+> i
+
+, σ ∗
+
+> π,n
+
+) = vn(m∗ 
+
+> i
+
+) = vn(mi), ∀i ∈ K, 
+
+as desired. Let M (∆( K)) := {qM : q ∈ ∆( K)}. We obtain that σ∗ 
+
+> π,n
+
+is optimal for all q ∈
+
+M (∆( K)): 
+
+Corollary 3. Assume that vn+1 (π) = vn(π). Then, for every q ∈ M (∆( K)) it holds that 
+
+vn(q) = un(q, σ ∗
+
+> π,n
+
+).Proof of Corollary 3. Since m1, ..., m k are the extreme points of M (∆( K)), there exist convex weights ( βi) such that q = Pki=1 βimi. Therefore, using Lemma 5 and Claim 1 we obtain 
+
+un(q, σ ∗
+
+> π,n
+
+) = X
+
+> i∈K
+
+βi · un(mi, σ ∗
+
+> π,n
+
+) = X
+
+> i∈K
+
+βi · vn(mi) ≥ vn(q),
+
+where the inequality follows from the convexity of vn. As vn(q) ≥ un(q, σ ∗
+
+> π,n
+
+) by definition, it follows that vn(q) = un(q, σ ∗
+
+> π,n
+
+) as desired. 22 We are now in position to establish Theorem 2. Namely, we need to show that if 
+
+vn+1 (π) = vn(π) then vN (π) = vn(π) for every N ≥ n + 1. Let us fix such N , and consider the following strategy σ for the N -stage problem: 
+
+• At the first N − n stages follow the strategy σ∗
+
+> N,π
+
+.
+
+• Starting from stage N − n + 1, forget all past information, and start following σ∗
+
+> n,π
+
+until stage N .Put differently, the strategy σ follows the optimal decision tree for the N -stage problem in the first N −n stages, and then for the last n stages, σ switches to the decision tree σ∗
+
+> π,n
+
+.As by the rules of Γ, qN −n+1 ∈ M (∆( K)), the dynamic programming principle together with Corollary 3 imply that σ must be optimal in the N -stage problem. In particular, applying the dynamic programming principle with the optimality of σ yields 
+
+vN (π) = Eπ,σ vn(qN −n+1 ) = Eπ,σ un(qN −n+1 , σ ∗
+
+> n,π
+
+)= un(Eπ,σ qN −n+1 , σ ∗
+
+> n,π
+
+) = un(π, σ ∗
+
+> n,π
+
+) = vn(π),
+
+where the second equality follows from the definition of σ, the third from Lemma 5, the fourth from Corollary 2, and the fifth from the optimality of σ∗ 
+
+> N,π
+
+in the n’th stage problem. Therefore, we obtain that vN (π) = vn(π) for every N ≥ n + 1 as required, thus completing the proof of the theorem. 
+
+## 4.5 Proof of Proposition 1 
+
+For the matching utility u∗, for every q ∈ ∆( K), σ ∈ Σ, and n ≥ 1, 
+
+un(q, σ ) = Eq,σ (Eq,σ (u∗(qn, ξ n) | q1, ξ 1, ..., q n−1, ξ n−1, q n, ξ n)) = Eq,σ 
+
+X
+
+> i∈K
+
+qn(i) · ξn(i)
+
+!
+
+.
+
+Therefore, for every n ≥ 1, to maximize her expected payoff in the n-stage problem, the decision maker’s action at stage n must be a state i ∈ K which has maximal likelihood under qn. Therefore, in the case of a matching utility, 
+
+vn(q) = max  
+
+> σ∈Σ
+
+Eq,σ (max qn)for all n ≥ 1. 23 Let us now present the details of the example. Let K = {1, 2, 3, 4} and define the matrix M by 
+
+M =
+
+
+
+0 0.5 0 0.50.5 0 0.5 00 0.5 0 0.50.5 0 0.5 0
+
+ .
+
+The unique invariant distribution of M is π = (1 /4, 1/4, 1/4, 1/4). The matrix M has two useful properties: (i) If #support( p) ≥ 3 ⇒ #supp (pM ) = 4. (ii) If #support( p) = 3 then max pM < 1/2. While property (i) follows directly, to showcase the validity of property (ii) we consider the example where p = ( α, β, 1 − α − β, 0) ∈ ∆( K) such that 0 < α, β and α + β < 1. In such a case, pM = ( β/ 2, (1 − β)/2, β/ 2, (1 − β)/2), and thus max pM < 1/2, as required. The other cases can be verified in a similar fashion. 
+
+Lemma 6. For every n ≥ 1 we have vn(π) < 1/2.Proof of Lemma 6. Let us reconsider the events Bj := {q2 /∈ C , ..., q j /∈ C }, j ≥ 2, which were previously studied in the proof of Theorem 1. For each j ≥ 2, Bj describes the case in which the decision maker was yet to produce a positive signal within her first 
+
+j − 1 actions. For each j ≥ 1 consider the random variable pj := w(qj , ξ j ). In words, 
+
+pj describes the Bayesian update of qn after learning that the j’th action ξj produced a negative signal. By property (i) of M and the fact that π has full support we have that starting from 
+
+π, for every strategy σ ∈ ΣP , conditional on the event Bj , p1, ..., p j are all supported on exactly 3 elements. Therefore, since conditional on Bj , qj = pj−1M , property (ii) of M
+
+implies that for every σ ∈ ΣP and j ≥ 2, conditional on Bj , max qj < 1/2. In particular, 
+
+Eπ,σ (max qj | Bj ) < 12, ∀j ≥ 2, ∀σ ∈ ΣP . (19) Let us fix n ≥ 2. The definition of M assures that Pπ,σ (Bn) > 0 for every strategy 
+
+σ ∈ ΣP and every n ≥ 2. Using the latter, together with inequality (19), and the fact that max qn ≤ 1/2 by the definition of M and, we obtain: 
+
+Eπ,σ (max qn) ≤ 12Pπ,σ (Bcn) + Pπ,σ (Bn)Eπ,σ (max qn | Bn) < 12.
+
+24 Since the strategy space Σ P for the n-stage problem contains only finitely many strate-gies, we deduce that vn(π) < 1/2 for every n ≥ 2. Therefore, by Theorem 1 we also have that vn(π) < 1/2 for every n ≥ 1, as desired. Next, we claim the following. 
+
+Claim 2. For every row mi of M and every n ≥ 1, we have vn(mi) = 1 /2.Proof of Claim 2. The claim holds trivially for n = 1 as v1(mi) = max mi = 1 /2. Let us fix n ≥ 2 and a row mi. As discussed in Subsection 2.1.1, starting from mi, by selecting at each step one of the possible two states, the decision maker obtain full information upon observing the signal produced by her action. Therefore, qn ∈ { m1, ..., m 4} ∪ C , which in turn implies that vn(mi) = 1 /2. We are now in position to deduce Proposition 1. First, by Claim 2 have that Φ n(π) := 
+
+P 
+
+> i∈K
+
+π(i) · vn(mi) = 1 /2 for every n ≥ 1, and thus by relation (11), which was shown to hold in the proof of Theorem 1, vn(π) ↑ 1/2 as n → ∞ . As by Lemma 6 vn(π) < 1/2 for every n ≥ 1, we deduce that i(π, M ) = + ∞, as required. 
+
+## 4.6 Proof of Theorem 3 
+
+4.6.1 Proof of the Upper Bound (6) We begin with the proof of the upper bound in Theorem 3. The key step required to show such bound is stated in the following proposition. 
+
+Proposition 3. For every n ≥ 2 we have 
+
+max  
+
+> i∈K
+
+vn(mi) − Φn(π) ≤ Wn(M )min( M k2 ).
+
+Before turning to the proof of Proposition 3, let us first show its sufficiency for the deduction of (6). To do so, note that by the convexity of vn, for every q ∈ ∆( K) and 
+
+n ≥ 2: 
+
+vn(q) − v∞(π) ≤ X
+
+> i∈K
+
+q(i) · vn(δ{i}) − v∞(π)
+
+≤
+
+
+
+max  
+
+> i∈K
+
+vn(δ{i}) − Φn−1(π)
+
+
+
++ (Φ n−1(π) − v∞(π)) 
+
+≤
+
+
+
+max  
+
+> i∈K
+
+vn−1(mi) − Φn−1(π)
+
+
+
++ (Φ n−1(π) − vn−1(π)) 
+
+≤ Wn−1(M )min( M k2 ) +
+
+
+
+1 − 1
+
+k
+
+n−2
+
+,
+
+25 as desired, where in the third inequality we used the relations vn(δ{i}) = vn−1(mi) and 
+
+v∞(π) ≥ vn−1(π), and the last inequality follows from Proposition 3 and Theorem 1. We now turn to the proof of Proposition 3. 
+
+Proof of Proposition 3. Consider the ( k2 + 1 + n)-stage problem, where n ≥ 2 is fixed. We introduce the strategy σ∗∗ ∈ Σ defined as follows: 
+
+• Play arbitrary in the first k2 stages. 
+
+• In stage k2 + 1 select the state ℓ(1) ∈ K, where ℓ(1) is chosen to satisfy 
+
+vn(mℓ(1) ) = max  
+
+> i∈K
+
+vn(mi).
+
+If the signal produced by ℓ(1) was positive play optimally in the remaining n stages. 
+
+• Starting from stage k2 + 2 up to stage k2 + n follow the next scheme: If no positive signal occurred at stages k2 + 1 , ..., k 2 + j − 1, where j = 2 , ..., n , select at stage 
+
+k2 + 1 + j the state ℓ(j) ∈ K, where ℓ(j) is chosen to satisfy 
+
+vn+1 −j (mℓ(j)) = max  
+
+> i∈K
+
+vn+1 −j (mi).
+
+If the action ℓ(j) produced a positive signal, play optimally in the remaining n+1 −j
+
+stages ( j = 2 , ..., n ). 
+
+• At stage k2 + 1 + n, if no positive signal was produced along stages k2 + 1 , ..., k 2 + n,select the state 1. Figure 3 provides an illustration of the strategy σ∗∗ .Define 
+
+A′ 
+
+> 1
+
+= {qk2+2 = m∗
+
+> ℓ(1)
+
+},A′ 
+
+> j
+
+= {qk2+1+ j = m∗
+
+> ℓ(j)
+
+} \ 
+
+> j−1
+
+[
+
+> t=1
+
+A′
+
+> t
+
+, ∀j = 2 , ..., n. 
+
+and let B′ = Tnt=1 A′
+
+> t
+
+, where for each t, A′ 
+
+> t
+
+denotes the complement event of A′
+
+> t
+
+. For any j = 1 , ..., n , the event A′ 
+
+> j
+
+describes the case where first positive signal along stages 
+
+k2 + 1 , ..., k 2 + n, under the strategy σ∗∗ , occurred at stage k2 + j. The event B′ describes the case where the n actions along stages k2 + 1 , ..., k 2 + n, suggested by σ∗∗ produced negative signals. 26 Stages 1, . . . , k 2
+
+arbitrary play 
+
+ℓ(1) · · · ℓ(n) select 1         
+
+> stage k2+1 stage k2+nstage k2+1+ n
+
+Guarantee max i∈K vn(mi)in the remaining 
+
+n stages Guarantee max i∈K v1(mi)in the re-maining stage    
+
+> negative negative negative positive positive
+
+Figure 3: An illustration of the strategy σ∗∗ in the ( k2 + 1 + n)-stage problem. The role of the first k2 stages is to ensure that for every prior q ∈ ∆( K) the expectation of qk2+1 under σ∗∗ , which by Corollary 2 equals qM k2
+
+, puts a mass of at least min( M k2
+
+) > 0on every state i ∈ K. In that case, the action ℓ(1) at stage k2 + 1, which is independent of all past actions and their signals, has a probability of at least min( M k2
+
+) of producing a positive signal, hence 
+
+Pq,σ ∗∗ (A′
+
+> 1
+
+) ≥ min( M k2
+
+), ∀q ∈ ∆( K). (20) As the sequence ℓ(1) , ..., ℓ (n) is a deterministic sequence, the definition of σ∗∗ and the Markov property of {Xt : t ≥ 1} imply that 
+
+Pq,σ ∗∗ (B′) = Pq,σ ∗∗ 
+
+ {qk2+2 ̸ = m∗
+
+> ℓ(1)
+
+, q k2+3 ̸ = m∗
+
+> ℓ(2)
+
+, ..., q k2+n+1 ̸ = m∗
+
+> ℓ(n)
+
+}
+
+= PqM k2 ,ξ ({X1̸ = ℓ(1) , X 2̸ = ℓ(2) , ..., X n̸ = ℓ(n)}) (21) 
+
+≤ W n(M ), ∀q ∈ ∆( K),
+
+where ξ ∈ Ξ is the strategy that selects deterministically ℓ(1) , ..., ℓ (n) along stages 1 , ..., n .By the definition of σ∗∗ we have for every q ∈ ∆( K): 
+
+uk2+1+ n(q, σ ∗∗ ) = 
+
+> n
+
+X
+
+> j=1
+
+Pq,σ ∗∗ (A′ 
+
+> j
+
+) max  
+
+> i∈K
+
+vn+1 −j (mi)+ Pq,σ ∗∗ (B′)Eq,σ ∗∗ (u(qk2+1+ n, 1) | B′)= Φ n(π) + 
+
+> n
+
+X
+
+> j=1
+
+Pq,σ ∗∗ (A′ 
+
+> j
+
+)
+
+
+
+max  
+
+> i∈K
+
+vn+1 −j (mi) − Φn(π)
+
+
+
+(22) + Pq,σ ∗∗ (B′) ( Eq,σ ∗∗ (u(qk2+1+ n, 1) | B′) − Φn(π)) .
+
+27 Define for every i ∈ K:∆i := 
+
+> n
+
+X
+
+> j=1
+
+Pmi,σ ∗∗ (A′ 
+
+> j
+
+)
+
+
+
+max  
+
+> ℓ∈K
+
+vn+1 −j (mℓ) − Φn(π)
+
+
+
++ Pmi,σ ∗∗ (B′) ( Emi,σ ∗∗ (u(qk2+1+ n, 1) | B′) − Φn(π)) (23) = u(mi, σ ∗∗ ) − Φn(π).
+
+Claim 3. There exists i ∈ K such that ∆i ≤ 0.Proof of Claim 3. Assume in contradiction that the corollary of the claim does not hold, i.e., ∆ i > 0 for every i ∈ K. Then, using relations (22) and (23) we obtain Φk2+1+ n(π) = X
+
+> i∈K
+
+π(i) · vk2+1+ n(mi) ≥ X
+
+> i∈K
+
+π(i) · uk2+1+ n(mi, σ ∗∗ )= X
+
+> i∈K
+
+π(i) (Φ n(π) + ∆ i)
+
+> X
+
+> i∈K
+
+π(i) · Φn(π) = Φ n(π),
+
+a contradiction to the fact that {Φn(π) : n ≥ 1} is non-increasing. Building on Claim 3, let ℓ ∈ K be such that ∆ ℓ ≤ 0, i.e., 
+
+> n
+
+X
+
+> j=1
+
+Pmℓ,σ ∗∗ (A′ 
+
+> j
+
+)
+
+
+
+max  
+
+> i∈K
+
+vn+1 −j (mi) − Φn(π)
+
+
+
++ Pmℓ,σ ∗∗ (B′) ( Emℓ,σ ∗∗ (u(qk2+1+ n, 1) | B′) − Φn(π)) ≤ 0,
+
+and hence 
+
+Pmℓ,σ ∗∗ (A′
+
+> 1
+
+)
+
+
+
+max  
+
+> i∈K
+
+vn(mi) − Φn(π)
+
+
+
++
+
+> n
+
+X
+
+> j=2
+
+Pmℓ,σ ∗∗ (A′ 
+
+> j
+
+)
+
+
+
+max  
+
+> i∈K
+
+vn+1 −j (mi) − Φn(π)
+
+
+
++ Pmℓ,σ ∗∗ (B′)Emℓ,σ ∗∗ (u(qk2+1+ n, 1) | B′) ≤ Pmℓ,σ ∗∗ (B′) · Φn(π). (24) Since max i∈K vn+1 −j (mi) ≥ Φn+1 −j (π) ≥ Φn(π) for every j = 2 , ..., n , and since u is non-negative, relation (24) implies: 
+
+Pmℓ,σ ∗∗ (A′
+
+> 1
+
+)
+
+
+
+max  
+
+> i∈K
+
+vn(mi) − Φn(π)
+
+
+
+≤ Pmℓ,σ ∗∗ (B′) · Φn(π). (25) Combining the inequalities (20) and (21) for the prior q = mℓ with relation (25) and the fact that Φ n(π) ≤ 1, we obtain max  
+
+> i∈K
+
+vn(mi) − Φn(π) ≤ Pmℓ,σ ∗∗ (B′)
+
+Pmℓ,σ ∗∗ (A′
+
+> 1
+
+) ≤ Wn(M )min( M k2 ),
+
+thus establishing the proposition. 28 4.6.2 Proof of the Lower Bound (5) To prove the lower bound we first show the following convexity lemma. 
+
+Lemma 7. Assume f : ∆( K) → [0 , 1] is a convex function. For every p ∈ int(∆( K)) 
+
+and q ∈ ∆( K),
+
+f (q) − f (p) ≥ − 
+
+ 1min i∈K p(i)
+
+
+
+∥q − p∥1.
+
+Proof of Lemma 7. Fix p ∈ int (∆( K)) and q ∈ ∆( K), and let zq be the point on the intersection of the ray {θp + (1 − θ)q : θ ≥ 0} with ∂∆( K). By the convexity of f we have 
+
+f (p) ≤ ∥q − p∥1
+
+∥q − zq∥1
+
+f (zq) + ∥p − zq∥1
+
+∥q − zq∥1
+
+f (q). (26) Using relation (26) together with the inequalities ∥q − zq∥1 ≥ ∥ p − zq∥1 ≥ min i∈K p(i), we obtain: 
+
+f (q) − f (p) ≥ − ∥q − p∥1
+
+∥q − zq∥1
+
+(f (zq) − f (q)) 
+
+≥ − ∥q − p∥1
+
+∥q − zq∥1
+
+f (zq)
+
+≥ − ∥q − p∥1
+
+∥p − zq∥1
+
+≥ − 
+
+ 1min i∈K p(i)
+
+
+
+∥q − p∥1,
+
+where the second inequality holds since f (q) ≥ 0, and the third since f (zq) ≤ 1. The claim follows. We are now in position to prove the lower bound in Theorem 3. Fix n ≥ 2. By Lemma 3, 
+
+vn(q) − v∞(π) ≥ v⌊ n 
+
+> 2⌋
+
+(qM ⌈ n 
+
+> 2⌉
+
+) − v∞(π) (27) =
+
+
+
+v⌊ n 
+
+> 2⌋
+
+(qM ⌈ n 
+
+> 2⌉
+
+) − v⌊ n 
+
+> 2⌋
+
+(π)
+
+
+
++
+
+
+
+v⌊ n 
+
+> 2⌋
+
+(π) − v∞(π)
+
+
+
+.
+
+Applying Lemma 7 for f = v⌊ n  
+
+> 2⌋
+
+and p = π we obtain: 6
+
+v⌊ n 
+
+> 2⌋
+
+(qM ⌈ n 
+
+> 2⌉
+
+) − v⌊ n 
+
+> 2⌋
+
+(π) ≥ − 
+
+ 1min i∈K π(i)
+
+
+
+∥qM ⌈ n  
+
+> 2⌉
+
+− π∥1
+
+≥ − d⌈ n 
+
+> 2⌉
+
+(M )min i∈K π(i). (28)    
+
+> 6Note that π∈int(∆( K)) since the Markov chain is assumed to be irreducible.
+
+29 By Theorem 1, v⌊ n 
+
+> 2⌋
+
+(π) − v∞(π) ≥ − (1 − 1/k )⌊ n 
+
+> 2⌋− 1
+
+. Combining the latter with relations (27) and (28) we obtain 
+
+vn(q) − v∞(π) ≥ − d⌈ n 
+
+> 2⌉
+
+(M )min i∈K π(i) −
+
+
+
+1 − 1
+
+k
+
+⌊ n 
+
+> 2⌋− 1
+
+,
+
+as desired. 
+
+# 5 Discussion and Open Problems 
+
+The results of the current work may give rise to several possible future extensions. Such extensions may concentrate either on the specific model studied in this work, or on gen-eralized models. With regard to the current model, two particular directions seem to be natural. 
+
+• The predictive learning index of homothetic Markov chains. A homothetic Markov chain is a chain whose transition matrix M depends only on a distribution π ∈
+
+∆( K), termed the center , and a scalar β ∈ [0 , 1], termed the ratio . Formally, 
+
+M = β · Id k + (1 − β)Π, where Id k denotes the k × k identity matrix and Π is the matrix whose rows equal to π. In particular, π is an invariant distribution of such 
+
+M , and thus, starting from the prior π, any homothetic Markov chain with center 
+
+π is stationary. For β = 0, a homothetic Markov chain is an i.i.d. sequence with distribution π,whereas for β = 1, the homothetic chain is a deterministic sequence conditional on 
+
+X1. Therefore, homothetic Markov chains can be interpreted as the following mix-ture of i.i.d. and conditionally deterministic chains: at each step, with probability 
+
+β the chain stays put, and with probability 1 − β moves according to π, irrespective of the preceding state. The Markov chain in Example 1 is homothetic with center π = (0 .1, 0.2, 0.3, 0.4), and ratio β = 0 .36. Example 1 showcased an instance of what seems to be a more general phenomenon: for the matching utility u∗, whenever the Markov chain is homothetic, i(π, M ) ≤ k. As such phenomenon was recurring in all computational simulations, we conjecture the following. 
+
+Conjecture 1. Let {Xj }j≥1 be a homothetic Markov chain. Then, for the matching utility u∗, we have i(π, M ) ≤ k .
+
+30 • The search for structure in the predictive learning index. In the concluding remarks of Subsection 2.1.1, we defined the set of matrices 
+
+Mi∈N 
+
+> π
+
+:= {M ∈ M : i(π, M ) < +∞} .
+
+Any structural properties of Mi∈N 
+
+> π
+
+, may contribute to the understanding of sufficient conditions for a Markov chain to have a finite predictive learning index. Based on Proposition 1, it was established in Subsection 2.1.1 that for the matching utility u∗, the set Mi∈N 
+
+> π
+
+is not convex. Put differently, one cannot always generate a chain with finite index, by taking convex averages of such chains. A question arises as to whether Mi∈N 
+
+> π
+
+is closed under other algebraic operations, for instance: 
+
+Question 1. Assume that i(π, M ) < +∞. Is i(π, M 2) < +∞ as well? 
+
+Such a question may be interpreted in informational terms as well. Must the learning from information obtained from actions along only the odd steps of {Xj }j≥1 be finite, when the learning from all steps is finite. In contrast, assume that the learning along the odd steps is of finite nature; should the learning from all steps be finite as well, or can it be that the information obtained from the even steps is such that the overall learning is infinite? Formally, 
+
+Question 2. Assume that i(π, M 2) < +∞. Is i(π, M ) < +∞ as well? 
+
+Both Conjecture 1 and Questions 1 and 2 can be viewed as steps toward the following general question: 
+
+Question 3. Fix a utility u. Does there exist natural sufficient conditions on π and 
+
+M that guarantee that i(π, M ) < +∞.
+
+Another extension may focus on a more general framework, where the information of the decision maker is generated through other filters. Let S be a finite signal set, and let 
+
+κ : K × K → ∆( S) be the ‘filter’ which assigns to any state i ∈ K and action ξ ∈ K alottery κ(i, ξ ) over S. At each stage n ≥ 1, based on the past information, consisting of the actions and signals ( ξ1, s 1, ..., ξ n−1, s n−1), the decision maker chooses an action ξn ∈ K,and obtains the signal sn chosen according to κ(Xn, ξ n). For any prior q, let vn(q) be the value of the corresponding n-stage problem for the utility u. Using a suitable Markov decision problem formulation, and applying Lemmas 1, 3 together with Corollary 2, which remain valid in the generalized framework, one obtains in the same manner that {vn(π) : n ≥ 1} is non-decreasing in the general case as well. The rate of convergence of vn(π), the corresponding learning index, and the global behavior of vn(·), may shed light on the nature of learning under different types of filters. 31 References 
+
+[1] Aumann, R.J., and Maschler, M. (1995), Repeated Games with Incomplete Informa-tion . With the collaboration of R. Stearns, Cambridge, MA: MIT Press. [2] Birkhoff, G. (1946), Tres observaciones sobre el algebra lineal, Universidad Nacional de Tucum´ an. Serie A: Matem´ aticas y F´ ısica Te´ orica , 5: 147–151. [3] Blackwell, D. (1951), Comparison of Experiments, Proc. 2nd Berkeley Symposium on Math. Statistics and Probability , 93–102. [4] Blackwell, D. (1953), Equivalent Comparisons of Experiments, Annals of Mathematical Statistics , 24(2), 265–272. [5] Brown, S. S. (1980), Optimal search for a moving target in discrete time and space. 
+
+Operations Research , 28 (6), 1275–1289. [6] Chernoff, H. (1959), Sequential Design of Experiments. The Annals of Mathematical Statistics , 30(3), 755–770. [7] Cooper, B., and Lipsitch, M. (2004), The analysis of hospital infection data using hidden Markov models. Biostatistics , 5(2), 223–237. [8] Ely, J. C. (2017), Beeps. American Economic Review , 107(1), 31–53. [9] Gensbittel, F., and Renault, J. (2015), The value of Markov chain games with incom-plete information on both sides. Mathematics of Operations Research , 40, 4: 820–841. [10] H¨ orner, J., Rosenberg, D., Solan, E., and Vieille, N. (2010). On a Markov game with one-sided information. Operations Research , 58(4), 1107–1115. [11] Kamenica, E. and Gentzkow, M. (2011), Bayesian persuasion. American Economic Review , 101 (6), 2590–2615. [12] Lehrer, E., and Shaiderman, D. (2025), Markovian persuasion with stochastic reve-lations. Games and Economics Behavior , 154, 411–439. [13] Levin, D. A., and Peres, Y. (2017), Markov Chains and Mixing Times , second edition. With contributions by Elizabeth L. Wilmer. With a chapter on “Coupling from the past” by James G. Propp and David B. Wilson. American Mathematical Society, Providence, RI. 32 [14] Naghshvar, M., and Javidi, T. (2013), Active sequential hypothesis testing. The Annals of Statistics , 41(6), 2703–2738. [15] Nitinawarat, S., Atia, G. K., and Veeravalli, V. V. (2013), Controlled Sensing for Multihypothesis Testing. IEEE Transactions on Automatic Control , 58(10), 2451– 2464. [16] Renault, Jerome (2018), Repeated games with incomplete information . In: Meyers R. (eds) Encyclopedia of Complexity and Systems Science. Springer, Berlin, Heidelberg. [17] Renault, J. (2006), The value of Markov chain games with lack of information on one side. Mathematics of Operations Research , 31, 3: 433–648. [18] Renault, J., Solan, E., and Vieille, N. (2017), Optimal dynamic information provision. 
+
+Games and Economics Behavior , 104, 329–349. [19] Schneider, H. (2002), Wielandt’s proof of the exponent inequality for primitive non-negative matrices. Linear Algebra and its Applications , 353, 5–10. [20] Stone, L. D., & Kadane, J. B. (1981), Optimal whereabouts search for a moving target. Operations Research , 29 (6), 1154–1166. [21] Tierney, L., & Kadane, J. B. (1983), Surveillance search for a moving target. Opera-tions Research , 31 (4), 720–738. [22] Wielandt, H. (1950), Unzerlegbare, nicht negative Matrizen. Mathematische Zeitschrift , 52, 642–648. [23] Shaiderman, D. (2026), On the monotonicity and rate of convergence of the Marko-vian persuasion value. Mathematics of Operations Research , forthcoming. [24] Solan, E. (2022), A Course in Stochastic Game Theory . Cambridge University Press. 
+
+# A Additional Proofs 
+
+## A.1 Proof of Lemma 1 
+
+Let q = αp + (1 − α)z, where q, p, z ∈ ∆( K) and α ∈ (0 , 1). We first consider a modified version of Γ, denoted by Γ ′. At the outset of Γ ′, the decision maker observes the outcome of an ‘opening lottery’ which determines the initial state in Γ. Such lottery chooses p as 33 the initial state with probability α and z as the initial state with probability 1 − α. Upon such a choice of initial state, the the decision maker proceeds to play in Γ. The n’th value of Γ ′ (i.e, under the reward function un) thus equals αv n(p) + (1 −
+
+α)vn(z). Nevertheless, as decision maker can play independently of the outcome of the opening lottery in Γ ′, since the initial state in Γ ′ has expectation q, by the definition of Γ′ she can guarantee vn(q). We thus conclude that vn(q) ≤ αv n(p) + (1 − α)vn(z), as required. 
+
+## A.2 Proof of Lemma 2 
+
+Our proof follows an inductive argument on j ≥ t. For j = t the result holds trivially. For the induction step assume that the claim holds for t, ..., n (where j ≥ t), and let us show that it holds for j + 1 as well. We have 
+
+Eq,σ (qj+1 | D) = 1
+
+Pq,σ (D) · Eq,σ (qj+1 · 1{D})= 1
+
+Pq,σ (D) · Eq,σ (Eq,σ (qj+1 · 1{D} | q1, ξ 1, ..., q j , ξ j )) = 1
+
+Pq,σ (D) · Eq,σ (1{D} · Eq,σ (qj+1 | q1, ξ 1, ..., q j , ξ j )) = Eq,σ 
+
+> k
+
+X
+
+> i=1
+
+ξj (i) [ qj (i) · m∗ 
+
+> i
+
++ (1 − qj (i)) · w(qj , i )M ] D
+
+!
+
+= Eq,σ 
+
+> k
+
+X
+
+> i=1
+
+ξj (i) qj (i) · mi + qj M − qj (i) · δ{i}M  D
+
+!
+
+= Eq,σ 
+
+> k
+
+X
+
+> i=1
+
+ξj (i)
+
+!
+
+qj M D
+
+!
+
+= Eq,σ (qj M | D)= Eq,σ (qj | D) M = Eq,σ (qt | D)M j−tM = Eq,σ (qt | D)M j+1 −t,
+
+where the fourth equality follows from the definition of the transition rule in Γ, the fifth equality follows from the fact that by definition w(qj , i ) := ( qj − qj (i)δ{i})/(1 − qj (i)), the sixth from the fact that δ{i}M = mi, the seventh from the linearity of the expectation operator, and the second to last equality is due to the induction hypothesis. 34 A.3 Proof of Lemma 5 
+
+Fix σ ∈ Σ∗. The proof proceeds by induction of j. For j = 1 we have 
+
+u1(αq + (1 − α)p, σ ) = X
+
+> i∈K
+
+(αq + (1 − α)p)( i)u(i, σ (0)) = α X
+
+> i∈K
+
+q(i)u(i, σ (0)) + (1 − α) X
+
+> i∈K
+
+p(i)u(i, σ (0)) = αu 1(q, σ ) + (1 − α)u1(p, σ ),
+
+proving the basis of the induction. For the induction step, define the strategies σ00 , σ 01 ∈
+
+Σ∗ by σ0a(x) := σ(0 , a, x ) for every finite binary string x, where a ∈ { 0, 1}. Let i = σ(0) be the first action σ takes. Also, let θ := αq + (1 − α)p. We have: 
+
+un(θ, σ ) = θ(i)un−1(m∗ 
+
+> i
+
+, σ 01 ) + (1 − θ(i)) un−1(w(θ, i )M, σ 00 ). (29) As it can be verified that 
+
+w(θ, i ) = α(1 − q(i)) 1 − θ(i) · w(q, i ) + (1 − α)(1 − p(i)) 1 − θ(i) · w(p, i ),
+
+we may apply the induction hypothesis for n − 1 to obtain (1 − θ(i)) un−1(w(θ, i )M, σ 00 ) = α(1 − q(i)) un−1(w(q, i )M, σ 00 )+ (1 − α)(1 − p(i)) un−1(w(p, i )M, σ 00 ).
+
+Plugging the latter back to relation (29) and rearranging the terms we obtain: 
+
+un(θ, σ ) = α [q(i)un−1(m∗ 
+
+> i
+
+, σ 01 ) + (1 − q(i)) un−1(w(q, i )M, σ 00 )] + (1 − α) [ p(i)un−1(m∗ 
+
+> i
+
+, σ 01 ) + (1 − p(i)) un−1(w(p, i )M, σ 00 )] = αu n(q, σ ) + (1 − α)un(p, σ ),
+
+completing the induction step, and thus the proof of the lemma. 35

@@ -1,0 +1,3223 @@
+Title: Sharp Minimax Regret for Infinite-Memory Logistic Prediction
+
+URL Source: https://arxiv.org/pdf/2608.26515v1
+
+Published Time: Fri, 28 Aug 2026 00:23:29 GMT
+
+Number of Pages: 35
+
+Markdown Content:
+# Sharp Minimax Regret for Infinite-Memory Logistic Prediction 
+
+Vaneet Aggarwal Purdue University 
+
+Abstract 
+
+We study online prediction for a specific finite-alphabet, exogenously driven source with infinite input memory. Independent Rademacher inputs (𝑈 𝑡 ) are observed sequentially, and the next binary mark has logit Í𝑡 𝑗 =1 𝜃 𝑗 𝑈 𝑡 +1− 𝑗 , where |𝜃 𝑗 | ≤ 𝑟 𝑗 and Í 𝑗 𝑟 𝑗 ≤ 𝐵 . Regret is expected cumulative excess log loss. Lag 𝑗 can affect prediction by scale 𝑟 𝑗 and enters only 𝑛 𝑇 , 𝑗 = 𝑇 − 𝑗 + 1 prediction rounds, leading to the lag-resolved spectrum Γ𝑇 (𝑟 ) = Í𝑇 𝑗 =1 log 
+
+
+
+1 + 𝑛 𝑇 , 𝑗 𝑟 2
+
+> 𝑗
+
+
+
+. For every summable envelope, a localized Bayesian mixture proves R𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ). For exponential and polynomial envelopes, under the stated finite-sample dimension condition, a Toeplitz-design converse proves R𝑇 (𝑟 ) ≥ 𝑐 Γ𝑇 (𝑟 ), with constants allowed to depend on the fixed decay parameters and the logit bound. Thus Γ𝑇 (𝑟 ) is the minimax cumulative-regret scale for this source class in these canonical regimes, giving Θ(𝛼 −1 log 2 𝑇 ) for 
+
+𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 and Θ(𝑇 1/( 2𝑠 ) ) for 𝑟 𝑗 = 𝐴 𝑗 −𝑠 , 𝑠 > 1. The converse is specific to the exogenous lagged model and is not a profile-only theorem for arbitrary stationary infinite-memory sources. Retaining only the most recent ℎ inputs costs order Í 𝑗>ℎ 𝑛 𝑇 , 𝑗 𝜃 2 
+
+> 𝑗
+
+, yet the same worst-case truncation profile can correspond to polynomially different regret. A scaled online Newton predictor attains the spectrum upper bound. 
+
+# 1 Introduction 
+
+Many sequence predictors use a finite context even when the data-generating mechanism has no finite Markov order. This occurs in event streams, categorical time series with covariates, and recurrent filters: recent observations are retained explicitly, while older observations are discarded or compressed. The statistical question is not only how accurately a finite context approximates the full conditional law, but also how difficult it is to learn the unknown law acting on that context. These two costs need not have the same scale. We study this question under logarithmic loss. At round 𝑡 , a causal predictor observes 𝑋 1: 𝑡 and assigns a conditional distribution 𝑞 𝑡 (· | 𝑋 1: 𝑡 ) to 𝑋 𝑡 +1. If the true source law is 𝑃 , with conditional distribution 
+
+𝑝 𝑃 𝑡 (· | 𝑋 1: 𝑡 ), its expected cumulative regret is Reg 𝑇 (𝑄 ; 𝑃 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E𝑃 KL 
+
+
+
+𝑝 𝑃 𝑡 (· | 𝑋 1: 𝑡 ) 𝑞 𝑡 (· | 𝑋 1: 𝑡 )
+
+
+
+. (1) Thus regret is the excess log loss relative to a predictor that knows the source parameter, not relative to the best constant or finite-window rule fitted in hindsight. By the chain rule for relative entropy, (1) equals KL (𝑃 ∥𝑄 )
+
+for the joint law induced by the sequential predictor. Minimizing its worst-case value over a source class is therefore the average minimax redundancy of that class; see Clarke and Barron (1990), Merhav and Feder (1998), and Rissanen (1996). We state this identity formally in Proposition 3.1. Markov order alone cannot determine this regret. An unrestricted binary order-ℎ Markov model has a separate transition parameter for every context, whereas a logistic model may use only ℎ coefficients shared across all contexts. Both condition on a length-ℎ binary history and therefore encounter 2 ℎ possible contexts, but their effective dimensions differ exponentially. This distinction is already visible in classical Markov redundancy and context-tree prediction (Willems, Shtarkov, and Tjalkens 1995; Atteson 1999), and becomes more consequential for unbounded-memory classes (Wu, Hosseini, and Santhanam 2018). Predictive-state and predictive rate–distortion theories likewise emphasize that useful memory is determined by conditional 1arXiv:2608.26515v1 [cs.IT] 27 Aug 2026 future laws rather than by literal lag length (Crutchfield and Young 1989; Shalizi and Crutchfield 2001; Marzen and Crutchfield 2016). Our aim is to quantify the additional cost of learning those laws online. 
+
+1.1 Model and minimax question 
+
+We use a finite-alphabet source in which the approximation and learning costs can both be calculated sharply. Let 𝑈 1, 𝑈 2, . . . be independent Rademacher inputs and let the observed symbol be 𝑋 𝑡 = (𝑈 𝑡 , 𝑌 𝑡 ) ∈ {− 1, +1} × { 0, 1}. For an unknown coefficient sequence 𝜃 = (𝜃 𝑗 ) 𝑗 ≥1, the next mark satisfies 
+
+P𝜃 (𝑌 𝑡 +1 = 1 | 𝑋 1: 𝑡 ) = 𝜎 ©«
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝜃 𝑗 𝑈 𝑡 +1− 𝑗 ª®¬
+
+, 𝜎 (𝑧 ) = 11 + 𝑒 −𝑧 . (2) The fresh input 𝑈 𝑡 +1 is uniform and known in distribution, so predicting 𝑋 𝑡 +1 reduces to predicting 𝑌 𝑡 +1. If infinitely many 𝜃 𝑗 are nonzero, the source has no finite input-memory order. Related infinite-order categorical models are studied from stationarity and ergodicity perspectives by Fokianos and Truquet (2019); here the exogenous inputs make the finite-horizon information geometry explicit. Let 𝑟 = (𝑟 𝑗 ) 𝑗 ≥1 be nonnegative and nonincreasing, with Í 𝑗 𝑟 𝑗 ≤ 𝐵 , and define 
+
+Θ(𝑟 ) = {𝜃 : |𝜃 𝑗 | ≤ 𝑟 𝑗 for all 𝑗 }.
+
+The summability assumption keeps every logit in [− 𝐵, 𝐵 ]. Write 𝑃 𝜃 ,𝑇 for the law of 𝑋 1: 𝑇 +1 under (2). The quantity studied in this paper is 
+
+R𝑇 (𝑟 ) = inf  
+
+> 𝑄
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+Reg 𝑇 (𝑄 ; 𝑃 𝜃 ,𝑇 ),
+
+the minimax cumulative regret over 𝑇 predictions. For 1 ≤ 𝑗 ≤ 𝑇 , lag 𝑗 appears on 𝑛 𝑇, 𝑗 = 𝑇 − 𝑗 + 1 rounds. The central complexity is the redundancy spectrum 
+
+Γ𝑇 (𝑟 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+log 
+
+
+
+1 + 𝑛 𝑇, 𝑗 𝑟 2
+
+> 𝑗
+
+
+
+. (3) Every lag has two sources of statistical difficulty: how much it can affect prediction, measured by 𝑟 𝑗 , and how many rounds remain in which it can be learned, measured by 𝑛 𝑇, 𝑗 . Both decrease with 𝑗 , and their product 
+
+𝑛 𝑇 , 𝑗 𝑟 2 
+
+> 𝑗
+
+is the coordinate’s dimensionless information scale. A weak coordinate contributes approximately this scale, while a strong coordinate contributes the logarithm of its attainable resolution. 
+
+1.2 Main results and technical novelty 
+
+The main theorems give the following direct answer. For every horizon and every summable envelope, Theorem 4.1 proves 
+
+R𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ). (4) For the exponential and polynomial envelopes, the converse in Theorem 4.5 and Corollaries 4.8 and 4.9 gives, under the stated finite-sample dimension condition, 
+
+R𝑇 (𝑟 ) ≥ 𝑐 Γ𝑇 (𝑟 ). (5) Here and below, constants in the matching lower bound may depend on the fixed decay parameters and on 𝐵 .Hence, in these regimes, Γ𝑇 (𝑟 ) is the minimax cumulative-regret scale. The lower bound uses the exogenous 2Rademacher inputs and their overlapping Toeplitz design. We do not claim that the same converse follows from a memory-decay profile alone, or that it holds for every stationary source with infinite memory. The upper bound differs from selecting a window of length ℎ and paying ℎ log 𝑇 : coordinates with 
+
+𝑛 𝑇 , 𝑗 𝑟 2 
+
+> 𝑗
+
+≤ 1 are left unresolved and charged only at their total signal energy. The construction is the infinite-dimensional analogue of anisotropic parametric coding, and it complements finite-dimensional online logistic-regression bounds (Hazan, Agarwal, and Kale 2007; Foster et al. 2018; Shamir 2020; Jacquet, Shamir, and Szpankowski 2021). The mixture is an information-theoretic coding construction, not an efficiency claim. On the computational side, Theorem 5.1 gives an explicit online Newton predictor satisfying sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+Reg 𝑇 (ONS 𝑟 ; 𝑃 𝜃 ,𝑇 ) ≤ 𝐶 𝐵 Γ𝑇 (𝑟 ).
+
+The converse is the main technical step. Theorem 4.3 converts the mean-square error of a constrained logistic maximum-likelihood estimator into a finite-sample information lower bound whenever the empirical Gram matrix is well conditioned. The lagged design here is an overlapping Toeplitz matrix, so independent-row concentration does not apply. Lemma 4.4 instead represents every off-diagonal Gram sum by edge products on a forest; those products are independent Rademacher variables. Hoeffding’s inequality and Gershgorin’s theorem then yield conditioning in dimension 𝐽 when 𝑇 is at least a constant multiple of 𝐽 2 log 𝑇 . Combining these ingredients, Theorem 4.5 gives, for every positive initial block with 𝐽 ≤ 𝑇 /2 satisfying this dimension condition, 
+
+R𝑇 (𝑟 ) ≥ max 
+
+
+
+0, 12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log  (𝑇 − 𝐽 + 1)𝑟 2
+
+> 𝑗
+
+ − 𝐶 𝐵 𝐽 
+
+
+
+, (6) where 𝐶 𝐵 depends only on 𝐵 . This route is nonasymptotic and does not assume local asymptotic normality or a black-box spectral theorem for random Toeplitz matrices. Evaluating the spectrum gives the sharp rates in Corollaries 4.7 to 4.9: 
+
+𝑟 𝑗 = 0 ( 𝑗 > 𝑘 ) =⇒ R𝑇 (𝑟 ) = Θ (𝑘 log 𝑇 ),𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 =⇒ R𝑇 (𝑟 ) = Θ (𝛼 −1 log 2 𝑇 ),𝑟 𝑗 = 𝐴 𝑗 −𝑠 , 𝑠 > 1 =⇒ R𝑇 (𝑟 ) = Θ (𝑇 1/( 2𝑠 ) ).
+
+The polynomial result has no extra logarithmic factor. A hard-truncation analysis pays ℎ log 𝑇 for all retained coordinates and yields the larger rate 𝑇 1/( 2𝑠 ) (log 𝑇 )1−1/( 2𝑠 ) .
+
+1.3 Why memory decay does not determine regret 
+
+The approximation side is characterized in Theorem 3.3. Deleting inputs older than ℎ, or using the Bayes-optimal rule restricted to the most recent ℎ inputs, incurs cumulative loss of order Í 𝑗>ℎ 𝑛 𝑇 , 𝑗 𝜃 2 
+
+> 𝑗
+
+.Nevertheless, the same memory profile need not imply the same minimax regret . (7) Indeed, the coordinate envelope Θ(𝑟 ) and the rank-one subclass in which 𝜃 = 𝑎𝑟 for one unknown amplitude 
+
+|𝑎 | ≤ 1 have the same worst-case truncation profile. For 𝑟 𝑗 = 𝐴 𝑗 −𝑠 , however, Theorem 4.10 gives regret 
+
+Θ(𝑇 1/( 2𝑠 ) ) for the envelope and only Θ(log 𝑇 ) for the rank-one subclass. Memory decay measures the cost of forgetting the past; regret also measures how many predictive laws remain to be learned. 
+
+1.4 Contributions 
+
+The contributions are summarized as follows. 31. We identify the lag-resolved spectrum Γ𝑇 (𝑟 ) as an upper bound for every summable envelope and as the matching minimax scale for the canonical exponential and polynomial envelopes under the stated finite-sample condition. This yields the sharp rates Θ(𝛼 −1 log 2 𝑇 ) and Θ(𝑇 1/( 2𝑠 ) ).2. We prove the converse through a finite-sample information bound for random-design logistic experiments and a new conditioning argument for the overlapping Toeplitz lag matrix. We also show that the same truncation profile can correspond to polynomially different regret. 3. We give a profile-scaled online Newton predictor attaining 𝑂 𝐵 (Γ𝑇 (𝑟 )) , together with profile adaptation and compressed filter extensions. 
+
+# 2 Related Work 
+
+The closest bodies of work share one or two ingredients with this paper, such as sequential logarithmic loss, logistic prediction, or unbounded memory, but not the joint statistical problem. The distinction is easiest to state through the objective. We study the minimax expected cumulative excess log loss 
+
+R𝑇 (𝑟 ) = inf  
+
+> 𝑄
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+Reg 𝑇 (𝑄 ; 𝑃 𝜃 ,𝑇 ) = inf  
+
+> 𝑄
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+KL (𝑃 𝜃 ,𝑇 ∥𝑄 ). (8) Thus the metric is average minimax redundancy of the entire sequential law. It is neither worst-label comparator regret nor the KL risk of a single prediction after a training trajectory. Table 1 reports the nearest quantitative benchmarks. Its first two rows give the conventional cumulative log-loss scales in fixed-dimensional, regular regimes; their feature and source assumptions differ from ours as explained below. Table 1: Quantitative comparison under cumulative logarithmic loss. The first two rows are standard fixed-dimensional benchmarks. The rates for this paper hold under the conditions in Corollaries 4.7 to 4.9 and Theorem 4.10. 
+
+Source class Parameter structure Cumulative minimax log-loss regret Regular finite-dimensional logistic (Shamir 2020; Jacquet, Shamir, and Szpankowski 2021) Fixed 𝑑 free weights; nondegenerate design 
+
+Θ(𝑑 log 𝑇 )
+
+Binary order-𝑘 Markov (Atteson 1999) Fixed 𝑘 ; 2 𝑘 interior transition parameters 
+
+Θ(2𝑘 log 𝑇 )
+
+This paper: exogenous logistic, finite lag 
+
+𝑟 𝑗 = 0 for 𝑗 > 𝑘 ; 𝑘 shared lag coefficients 
+
+Θ(𝑘 log 𝑇 )
+
+This paper: exogenous logistic, exponential envelope 
+
+𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 Θ(𝛼 −1 log 2 𝑇 )
+
+This paper: exogenous logistic, polynomial envelope 
+
+𝑟 𝑗 = 𝐴 𝑗 −𝑠 , 𝑠 > 1; coordinate-wise envelope 
+
+Θ(𝑇 1/( 2𝑠 ) )
+
+This paper: same polynomial profile, rank-one 
+
+𝜃 = 𝑎𝑟 , |𝑎 | ≤ 1; one shared amplitude Θ(log 𝑇 )
+
+4The centerpiece of the comparison is the replacement 
+
+𝑑 log 𝑇 
+
+| {z }
+
+> finite-dimensional logistic
+
+−→ Γ𝑇 (𝑟 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+log 
+
+
+
+1 + 𝑛 𝑇, 𝑗 𝑟 2
+
+> 𝑗
+
+| {z }
+
+> exogenous infinite-lag logistic class
+
+. (9) one common statistical scale versus one statistical scale per lag .
+
+The new issue is not the logistic link. Finite-dimensional logistic regret is already understood at the 𝑑 log 𝑇 
+
+scale (Shamir 2020; Jacquet, Shamir, and Szpankowski 2021). At horizon 𝑇 , lag 𝑗 ≤ 𝑇 in the present class has its own admissible effect 𝑟 𝑗 and only 𝑛 𝑇, 𝑗 = 𝑇 − 𝑗 + 1 opportunities to be learned. Our upper bound localizes at each resulting scale 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+, and the converse shows that their sum in (9) is unavoidable for the dependent Toeplitz design in the canonical fading regimes. To our knowledge, prior work has not established this lag-resolved minimax characterization, nor the polynomial regret separation between coefficient classes with the same truncation profile. 
+
+Finite-dimensional logistic prediction. Online logistic regression supplies strong finite-dimensional upper and lower bounds. Online Newton methods give logarithmic comparator regret on bounded domains (Hazan, Agarwal, and Kale 2007); norm-sensitive and minimax lower bounds are developed by Foster et al. (2018) and Shamir (2020); and precise asymptotics are known for categorical or fixed feature designs (Jacquet, Shamir, and Szpankowski 2021; Drmota et al. 2026). These results explain the first row of the table, but they do not yield the remaining rows by substituting an “effective dimension” for 𝑑 . The number of relevant coordinates grows with 𝑇 , the overlapping Toeplitz features are generated by the source, and the criterion in (8) is source-averaged redundancy rather than pathwise or worst-label regret. We use online Newton steps for the constructive bound in Theorem 5.1; the statistical work is the coordinate-localized spectrum and its matching source-specific converse. 
+
+Markov and context-tree models. This literature is closest in prediction metric but different in parameter structure. An unrestricted binary order-𝑘 Markov source assigns a separate Bernoulli parameter to each of 2 𝑘 histories. Our finite-lag logistic source also uses a length-𝑘 binary history, but ties all context probabilities through only 𝑘 coefficients. Hence the respective fixed-order redundancy scales are Θ(2𝑘 log 𝑇 )
+
+and Θ(𝑘 log 𝑇 ) under standard interiority conditions (Willems, Shtarkov, and Tjalkens 1995; Atteson 1999). The exponential difference is not caused by memory length; it is caused by how predictive laws are shared across histories. For unbounded memory, continuity-rate models control how much the next-symbol distribution can change when two histories share a long suffix (Wu, Hosseini, and Santhanam 2018). Such a rate measures sensitivity to the remote past, but it does not specify how many unknown directions generate that sensitivity. Context-parameterized models may retain many separately unknown transition laws, whereas our class has one globally shared coefficient per lag. This is why neither Markov order nor a continuity rate alone determines the spectrum in (9). 
+
+Prediction from compressed memory. Causal states and predictive rate–distortion characterize exact or lossy representations of the past through their conditional future laws (Crutchfield and Young 1989; Shalizi and Crutchfield 2001; Marzen and Crutchfield 2016). Recent compression-to-prediction results for Markov, hidden Markov, and renewal sources study the KL risk of a final next-symbol prediction and combine normalized redundancy with a conditional-mutual-information memory term (Han, Jana, and Wu 2023; Han, Jiang, and Wu 2024). Those results quantify what information about the past should be retained. Our 5cumulative objective charges the full redundancy in (8) and also asks how difficult the retained predictive law is to learn. Theorem 4.10 shows that a truncation curve alone cannot answer that second question. 
+
+Infinite-order time series and compressed filters. Infinite-order logistic and multinomial models have been studied for existence, stationarity, and ergodicity (Fokianos and Truquet 2019), and nonparametric AR (∞) 
+
+models for estimation risk (Goldenshluger and Zeevi 2001). These objectives differ from cumulative minimax redundancy. Our exogenous finite-horizon construction is designed to expose the lag-wise information geometry and permit a matching nonasymptotic converse. Exponential-sum approximation and state-space preconditioning provide useful ways to implement filters with slowly decaying kernels (Beylkin and Monz´ on 2010; Marsden and Hazan 2026). We use the same computational principle in Theorem 5.5, but do not identify filter approximation with statistical complexity: a compact realization controls the cost of representing the past, while the redundancy spectrum controls the cost of learning its unknown predictive effects. 
+
+# 3 Prediction Problem and Long Memory 
+
+This section fixes the prediction objective, introduces the canonical exogenously driven logistic source, and defines the loss caused by restricting prediction to recent inputs. All logarithms are natural, and 
+
+[𝑎 ]+ = max {𝑎, 0}. For nonnegative quantities, 𝑓 ≲𝜁 𝑔 means 𝑓 ≤ 𝐶 𝜁 𝑔 , 𝑓 ≳𝜁 𝑔 means 𝑔 ≲𝜁 𝑓 , and 𝑓 ≍𝜁 𝑔 
+
+means both. Subscripts on comparison notation indicate the parameters on which the constants may depend. 
+
+3.1 Prediction objective and redundancy 
+
+Let 𝑃 be a law on 𝑋 1, . . . , 𝑋 𝑇 +1 over a finite alphabet, and write 𝜈 0 for its known initial distribution. Its one-step conditional law is 
+
+𝑝 𝑃 𝑡 (· | 𝑋 1: 𝑡 ) = 𝑃 (𝑋 𝑡 +1 ∈ · | 𝑋 1: 𝑡 ).
+
+A causal predictor 𝑄 consists of conditionals 𝑞 𝑡 (· | 𝑋 1: 𝑡 ). We take its initial distribution to equal 𝜈 0; all source classes considered below share this initial law. This convention only removes an irrelevant constant. The joint law induced by 𝑄 is 
+
+𝑄 (𝑥 1: 𝑇 +1) = 𝜈 0 (𝑥 1)
+
+> 𝑇
+
+Ö
+
+> 𝑡 =1
+
+𝑞 𝑡 (𝑥 𝑡 +1 | 𝑥 1: 𝑡 ).
+
+The expected cumulative excess log loss of 𝑄 under 𝑃 is Reg 𝑇 (𝑄 ; 𝑃 ) = E𝑃 𝑇 ∑︁ 
+
+> 𝑡 =1
+
+− log 𝑞 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 ) + log 𝑝 𝑃 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 ) . (10) 
+
+Proposition 3.1 (Bayes decomposition and redundancy identity) . For every 𝑃 and every causal predictor 𝑄 ,with both sides interpreted in the extended sense, 
+
+Reg 𝑇 (𝑄 ; 𝑃 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E𝑃 KL 
+
+
+
+𝑝 𝑃 𝑡 (· | 𝑋 1: 𝑡 ) 𝑞 𝑡 (· | 𝑋 1: 𝑡 )
+
+
+
+= KL (𝑃 ∥𝑄 ). (11) 
+
+Consequently, for a source class P𝑇 with a common known initial distribution, 
+
+inf  
+
+> 𝑄
+
+sup 
+
+> 𝑃 ∈ P 𝑇
+
+Reg 𝑇 (𝑄 ; 𝑃 ) = inf  
+
+> 𝑄
+
+sup 
+
+> 𝑃 ∈ P 𝑇
+
+KL (𝑃 ∥𝑄 ), (12) 
+
+which is the average minimax redundancy of P𝑇 .
+
+6The proof is the chain rule for relative entropy and is included in Appendix A for completeness. In contrast, the one-step risk studied by Han, Jiang, and Wu (2024) predicts only 𝑋 𝑇 +1 after seeing a length-𝑇 trajectory; for that objective, redundancy is divided by the sample size and accompanied by a memory term. For the cumulative objective (10), redundancy is exactly the value of the game. 
+
+3.2 Canonical source and lag-wise information geometry 
+
+Let (𝑈 𝑡 )𝑡 ≥1 be independent with P(𝑈 𝑡 = 1) = P(𝑈 𝑡 = −1) = 1/2. Set 𝑌 1 ∼ Ber (1/2) independently and define the observed symbol 
+
+𝑋 𝑡 = (𝑈 𝑡 , 𝑌 𝑡 ) ∈ X := {− 1, +1} × { 0, 1}.
+
+For a coefficient sequence 𝜃 = (𝜃 𝑗 ) 𝑗 ≥1, the conditional law of the next mark is 
+
+𝑌 𝑡 +1 | 𝑋 1: 𝑡 ∼ Ber (𝜎 (𝜂 𝑡 +1 (𝜃 ))) , 𝜂 𝑡 +1 (𝜃 ) =
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝜃 𝑗 𝑈 𝑡 +1− 𝑗 . (13) Write 𝑃 𝜃 ,𝑇 for the resulting joint law of 𝑋 1: 𝑇 +1. Conditional on the past, 𝑈 𝑡 +1 is independent uniform and 
+
+𝑌 𝑡 +1 is independent of 𝑈 𝑡 +1. Hence the next-symbol law on X is 
+
+𝑃 𝜃 ,𝑇 (𝑋 𝑡 +1 = (𝑢, 𝑦 ) | 𝑋 1: 𝑡 ) = 12 𝜎 (𝜂 𝑡 +1 (𝜃 )) 𝑦  1 − 𝜎 (𝜂 𝑡 +1 (𝜃 )) 1−𝑦 . (14) The output history 𝑌 1: 𝑡 does not enter the conditional law; it is nonetheless part of the observed sequence and is available to the learner. Let 𝑟 = (𝑟 𝑗 ) 𝑗 ≥1 be a nonnegative, nonincreasing sequence satisfying ∑︁  
+
+> 𝑗 ≥1
+
+𝑟 𝑗 ≤ 𝐵 < ∞. (15) The coordinate-wise envelope class is 
+
+Θ(𝑟 ) = {𝜃 : |𝜃 𝑗 | ≤ 𝑟 𝑗 for all 𝑗 }. (16) Condition (15) implies |𝜂 𝑡 +1 (𝜃 )| ≤ 𝐵 for every 𝑡 and every 𝜃 ∈ Θ(𝑟 ). Combining the regret definition with Proposition 3.1, the minimax cumulative regret of the envelope is 
+
+R𝑇 (𝑟 ) = inf  
+
+> 𝑄
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+Reg 𝑇 (𝑄 ; 𝑃 𝜃 ,𝑇 ) = inf  
+
+> 𝑄
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+KL (𝑃 𝜃 ,𝑇 ∥𝑄 ). (17) Thus Reg 𝑇 (𝑄 ; 𝑃 𝜃 ,𝑇 ) denotes the regret of one predictor against one source, whereas R𝑇 (𝑟 ) denotes the minimax value over the full coefficient envelope. Constants denoted by 𝐶 𝐵 , 𝑐 𝐵 may depend on this fixed logit bound 𝐵 but not on 𝑇 , the active dimension, or the coefficient profile. The same symbol may denote different such constants in different statements. Lag 𝑗 appears in the logits for rounds 𝑡 = 𝑗, 𝑗 + 1, . . . , 𝑇 , so its sample size is 
+
+𝑛 𝑇, 𝑗 = (𝑇 − 𝑗 + 1)+. (18) Every lag has two statistical limitations. Its coefficient can affect the logit by at most 𝑟 𝑗 , and it can be learned from only 𝑛 𝑇, 𝑗 rounds. Thus older lags generally have both smaller admissible effects and shorter statistical lifetimes. Their combined dimensionless scale is 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+. Define the coordinate information scale, redundancy spectrum, and effective dimension 
+
+𝑠 𝑇, 𝑗 = 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+, Γ𝑇 (𝑟 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑠 𝑇, 𝑗 ), 𝑑 𝑇 (𝑟 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+min {1, 𝑠 𝑇, 𝑗 }. (19) 7For a universal constant 𝑐 > 0, the elementary inequalities 
+
+𝑐 𝑑 𝑇 (𝑟 ) ≤ Γ𝑇 (𝑟 ) ≤ 𝑑 𝑇 (𝑟 ) + ∑︁  
+
+> 𝑗 :𝑠 𝑇, 𝑗 >1
+
+log 𝑠 𝑇, 𝑗 (20) show that 𝑑 𝑇 (𝑟 ) counts statistically active directions while Γ𝑇 (𝑟 ) also records their resolutions. 
+
+Quadratic information geometry. Let 𝜓 (𝑧 ) = log (1 + 𝑒 𝑧 ). The Bernoulli logistic family is a canonical exponential family with 𝜓 ′ (𝑧 ) = 𝜎 (𝑧 ) and 𝜓 ′′ (𝑧 ) = 𝜎 (𝑧 )( 1 − 𝜎 (𝑧 )) . Set 
+
+𝜅 𝐵 = min     
+
+> |𝑧 | ≤ 𝐵
+
+𝜓 ′′ (𝑧 ) = 𝜎 (𝐵 )( 1 − 𝜎 (𝐵 )) > 0. (21) 
+
+Lemma 3.2 (Pairwise KL geometry) . For any 𝜃, 𝜃 ′ ∈ Θ(𝑟 ),
+
+𝜅 𝐵 
+
+2
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 (𝜃 𝑗 − 𝜃 ′ 
+
+> 𝑗
+
+)2 ≤ KL (𝑃 𝜃 ,𝑇 ∥𝑃 𝜃 ′ ,𝑇 ) ≤ 18
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 (𝜃 𝑗 − 𝜃 ′ 
+
+> 𝑗
+
+)2. (22) 
+
+The upper bound remains valid without the bounded-logit assumption. 
+
+The proof, given in Appendix A, combines the quadratic curvature of the Bernoulli log-partition function with 
+
+E ©«
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑎 𝑗 𝑈 𝑡 +1− 𝑗 ª®¬
+
+> 2
+
+=
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑎 2 
+
+> 𝑗
+
+.
+
+This exact orthogonality is the reason the profile is anisotropic and additive across lags. It will power both the memory theorem and the localized-mixture upper bound. 
+
+3.3 Predictive memory: what truncation does and does not measure 
+
+This subsection isolates the approximation side of the problem. We study two related notions. The first compares the true source with the source obtained by deleting all coefficients after lag ℎ. The second is operational: it asks for the Bayes-optimal predictor among all rules that retain only the most recent ℎ inputs. Both are equivalent to the same weighted tail energy. For a nonnegative integer ℎ, let 
+
+𝜃 (ℎ) = (𝜃 1, . . . , 𝜃 ℎ, 0, 0, . . . )
+
+and define the cumulative truncation bias 
+
+B𝑇 (𝜃, ℎ ) = KL (𝑃 𝜃 ,𝑇 ∥𝑃 𝜃 (ℎ) ,𝑇 ). (23) The associated weighted tail energy is 
+
+𝑉 𝑇 (𝜃, ℎ ) =∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝜃 2 
+
+> 𝑗
+
+. (24) To define recent-input prediction, let 
+
+G𝑡 ,ℎ =
+
+(
+
+𝜎  𝑈 (𝑡 −ℎ+1)∨ 1, . . . , 𝑈 𝑡 
+
+, ℎ ≥ 1,
+
+{∅ , Ω}, ℎ = 0,
+
+8be the information in the most recent ℎ inputs before predicting 𝑌 𝑡 +1. The Bayes-optimal ℎ-input predictor is 
+
+𝑝 ★,ℎ 𝜃 ,𝑡 = P𝜃 (𝑌 𝑡 +1 = 1 | G 𝑡 ,ℎ ) = E𝜎 (𝜂 𝑡 +1 (𝜃 )) | G 𝑡 ,ℎ 
+
+ . (25) Its cumulative information loss is 
+
+D𝑇 (𝜃, ℎ ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E𝜃 KL 
+
+
+
+Ber (𝜎 (𝜂 𝑡 +1 (𝜃 ))) Ber ( 𝑝 ★,ℎ 𝜃 ,𝑡 )
+
+
+
+. (26) By conditional Bayes optimality, (26) is the smallest expected log-loss excess among all predictors measurable with respect to G𝑡 ,ℎ at round 𝑡 .
+
+Theorem 3.3 (Two-sided predictive-memory theorem) . For every 𝜃 ∈ Θ(𝑟 ), every horizon 𝑇 , and every nonnegative integer ℎ,
+
+𝜅 𝐵 
+
+2 𝑉 𝑇 (𝜃, ℎ ) ≤ B 𝑇 (𝜃, ℎ ) ≤ 18𝑉 𝑇 (𝜃, ℎ ), (27) 2𝜅 2
+
+> 𝐵
+
+𝑉 𝑇 (𝜃, ℎ ) ≤ D 𝑇 (𝜃, ℎ ) ≤ 18𝑉 𝑇 (𝜃, ℎ ). (28) 
+
+In particular, truncating the parameter and optimally retaining only the last ℎ inputs have the same cumulative order of predictive distortion. 
+
+The proof is given in Appendix A. The truncation bound follows directly from Lemma 3.2. For recent-input prediction, the logit is split into retained and omitted terms. Logistic curvature gives the upper bound, while Pinsker’s inequality and the lower bound on the logistic slope over [− 𝐵, 𝐵 ] give the converse. 
+
+Remark 3.4 (Scope of the operational memory statement) . The sigma-field G𝑡 ,ℎ contains the last ℎ exogenous inputs , not the last ℎ complete marked observations 𝑋 𝑠 = (𝑈 𝑠 , 𝑌 𝑠 ). Recent marks can carry indirect information about older inputs, so Theorem 3.3 does not claim optimality among all compressed states of the full marked history. It gives an exact theorem for input-window truncation, which is the memory notion naturally paired with the convolutional predictor in (13). For comparison with the coordinate envelope, define the rank-one, or ray , class 
+
+Θray (𝑟 ) = {𝜃 = 𝑎𝑟 : |𝑎 | ≤ 1}. (29) 
+
+Corollary 3.5 (Worst-case envelope profile) . For the coordinate-wise envelope Θ(𝑟 ),
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+B𝑇 (𝜃, ℎ ) ≍ 𝐵 sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+D𝑇 (𝜃, ℎ ) ≍ 𝐵 ∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+. (30) 
+
+The same statement holds for the rank-one class in (29) .Proof. The upper bounds follow from Theorem 3.3 and 𝜃 2 
+
+> 𝑗
+
+≤ 𝑟 2 
+
+> 𝑗
+
+. The lower bounds are attained, up to the constants in the theorem, by 𝜃 = 𝑟 , which belongs to both classes. □
+
+Remark 3.6 (Exact versus approximate memory) . If infinitely many 𝜃 𝑗 are nonzero, the exact conditional law in (13) depends on arbitrarily old inputs. Nevertheless, Theorem 3.3 shows that finite-window prediction can be accurate whenever the weighted coefficient tail is small. For fixed 𝐴 , the envelope 𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 gives a window of order 𝛼 −1 log (𝑇 /𝜀 ) for cumulative distortion at most 𝜀 , whereas 𝑟 𝑗 = 𝐴 𝑗 −𝑠 , 𝑠 > 1, gives a window of order (𝑇 /𝜀 )1/( 2𝑠 −1) . These are approximation statements; Theorem 4.10 will show that they do not determine the minimax regret of the source class. 94 Information-Theoretic Minimax Regret and the Redundancy Spectrum 
+
+We now turn from the approximation loss in Theorem 3.3 to the cost of learning the unknown coefficients. By Proposition 3.1, this cost can be analyzed as either minimax cumulative regret or average minimax redundancy. The conclusions have distinct scopes: 
+
+R𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ) for every summable envelope ,
+
+whereas the matching lower bound holds when the statistically active coordinates fit inside the nonasymptotic Toeplitz-design regime. In particular, the exponential and polynomial envelopes satisfy 
+
+𝑐 Γ𝑇 (𝑟 ) ≤ R 𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 )
+
+under the conditions stated below, with constants that may depend on the fixed decay parameters and on 𝐵 .Thus Γ𝑇 (𝑟 ) is the minimax scale for the canonical envelopes in this exogenously driven lagged source. The converse is not asserted for arbitrary stationary processes that share only a memory-decay profile. The proof has three parts. A localized Bayesian code gives information-theoretic achievability. Afinite-sample logistic information bound and a Toeplitz concentration lemma together give one source-level converse, rather than two separate lower bounds. We then evaluate the spectrum and prove the memory-profile separation. Computationally explicit predictors are deferred to Section 5. 
+
+4.1 Information-theoretic achievability via Bayesian coding 
+
+Let 𝜋 = Ë  
+
+> 𝑗 ≥1
+
+Unif [− 𝑟 𝑗 , 𝑟 𝑗 ], with coordinates satisfying 𝑟 𝑗 = 0 fixed at zero, and let 𝜋 𝑇 denote its first-𝑇 
+
+marginal. Since a horizon-𝑇 source law depends only on the first 𝑇 coefficients, the corresponding Bayesian probability assignment is 
+
+𝑄 𝜋 𝑇 =
+
+∫
+
+𝑃 𝑣,𝑇 𝜋 𝑇 (𝑑𝑣 ). (31) It is causal because every mixture of joint laws can be factorized into posterior predictive conditionals. The infinite product prior makes these finite-horizon assignments projectively consistent, so the same Bayesian predictor is anytime. 
+
+Theorem 4.1 (Anisotropic Bayesian coding bound) . There is a universal constant 𝐶 such that, for every 𝑇 
+
+and every envelope 𝑟 ,
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+KL (𝑃 𝜃 ,𝑇 ∥𝑄 𝜋 𝑇 ) ≤ 12 Γ𝑇 (𝑟 ) + 𝐶𝑑 𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ). (32) 
+
+Consequently, 
+
+R𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ). (33) 
+
+The constant does not depend on the logit bound 𝐵 .
+
+The proof uses the variational inequality KL 
+
+
+
+𝑃 
+
+∫
+
+𝑄 𝑣 𝜋 (𝑑𝑣 )
+
+
+
+≤ inf  
+
+> 𝜌 ≪𝜋
+
+∫ 
+
+KL (𝑃 ∥𝑄 𝑣 )𝜌 (𝑑𝑣 ) + KL (𝜌 ∥𝜋 )
+
+
+
+. (34) For a coordinate with 𝑠 𝑇, 𝑗 ≤ 1, we set the variational distribution equal to the prior and pay 𝑂 (𝑠 𝑇 , 𝑗 )
+
+approximation with zero localization cost. For 𝑠 𝑇, 𝑗 > 1, we restrict the coordinate to an interval of length 
+
+𝑛 −1/2 
+
+> 𝑇 , 𝑗
+
+adjacent to the true parameter. This costs 12 log 𝑠 𝑇, 𝑗 + 𝑂 (1) nats and leaves 𝑂 (1) pairwise KL. Summing the coordinate costs and applying Lemma 3.2 gives (32). The complete calculation appears in Appendix B. 10 Remark 4.2 (Why hard truncation is suboptimal) . A truncation analysis with an ℎ-dimensional isotropic regret term gives 
+
+ℎ log 𝑇 +∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+.
+
+The mixture theorem instead charges coordinate 𝑗 by log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+). Coordinates below noise level are not localized; their total cost is their signal energy. This distinction removes the extra logarithm for polynomial envelopes. 
+
+4.2 Converse: conditioning the lagged design 
+
+The source-level lower bound is obtained in three steps. We first give a reusable information bound for a logistic experiment with an exogenous random design. We then verify its Gram-conditioning hypothesis for the overlapping lag matrix. Applying the first result with the second yields Theorem 4.5. 
+
+Ingredient 1: information from a conditioned logistic design. Let 𝑍 ∈ R𝑁 ×𝐽 have rows 𝑧 ⊤ 
+
+> 𝑖
+
+, let 𝑏 ∈ R𝑁 ,and suppose the joint law of (𝑍, 𝑏 ) does not depend on the parameter. Conditional on (𝑍, 𝑏 ), observe independent labels 
+
+𝑌 𝑖 | 𝑍, 𝑏, 𝜗 ∼ Ber  𝜎 (𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+𝜗 ) , 𝑖 = 1, . . . , 𝑁. (35) For positive radii 𝑟 1, . . . , 𝑟 𝐽 , define the rectangle 
+
+𝐾 𝐽 =
+
+> 𝐽
+
+Ö
+
+> 𝑗 =1
+
+[− 𝑟 𝑗 /2, 𝑟 𝑗 /2], Δ2 
+
+> 𝐽
+
+=
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑟 2 
+
+> 𝑗
+
+, (36) write 𝑃 ( 𝑁 ) 
+
+> 𝜗
+
+for the joint law of (𝑍, 𝑏, 𝑌 1: 𝑁 ) and 
+
+ℜ𝑁 (𝐾 𝐽 ) = inf  
+
+> 𝑄
+
+sup  
+
+> 𝜗 ∈𝐾 𝐽
+
+KL (𝑃 ( 𝑁 ) 
+
+> 𝜗
+
+∥𝑄 ). (37) 
+
+Theorem 4.3 (Conditioned-design information bound) . Fix 𝐵 0 < ∞, 𝜏 ≥ 1, 𝜇 ∈ ( 0, 1], and 𝛿 ∈ [ 0, 1].Suppose that 
+
+max   
+
+> 1≤𝑖 ≤𝑁
+
+sup 
+
+> 𝑣 ∈𝐾 𝐽
+
+|𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+𝑣 | ≤ 𝐵 0 almost surely , (38) 
+
+E tr (𝑍 ⊤ 𝑍 ) ≤ 𝜏𝑁 𝐽, (39) 
+
+P 𝜆 min (𝑍 ⊤ 𝑍 ) ≥ 𝜇𝑁  ≥ 1 − 𝛿, (40) 
+
+and assume the bad-design contribution obeys 
+
+Δ2 
+
+> 𝐽
+
+𝛿 ≤ 𝜏𝐽 𝑁 . (41) 
+
+If Θ is uniform on 𝐾 𝐽 and 𝐷 = (𝑍, 𝑏, 𝑌 1: 𝑁 ), then, writing 𝐼 (Θ; 𝐷 ) for mutual information, 
+
+𝐼 (Θ; 𝐷 ) ≥ 
+
+
+
+12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log (𝑁𝑟 2 
+
+> 𝑗
+
+) − 𝐶 𝐵 0 ,𝜇, 𝜏 𝐽 
+
++
+
+. (42) 
+
+Consequently, the same lower bound holds for ℜ𝑁 (𝐾 𝐽 ).
+
+The redundancy–capacity and estimation route in this theorem is classical; a closely related finite-dimensional argument is used for online logistic regression by Shamir (2020). The useful point is modularity. Once the logits are bounded, the converse reduces to a trace bound and a high-probability lower bound on the empirical Gram matrix. The proof uses a constrained maximum-likelihood estimator and an entropy–estimation inequality, with no local asymptotic normality assumption; see Appendix D. 11 Ingredient 2: conditioning the overlapping lag matrix. The lower bound uses the last 𝑁 = 𝑇 − 𝐽 + 1rounds on which the first 𝐽 lags are all present. Define the 𝑁 × 𝐽 lag matrix 
+
+𝑍 ( 𝐽 ) 
+
+> 𝑡 , 𝑗
+
+= 𝑈 𝐽 +𝑡 − 𝑗 , 1 ≤ 𝑡 ≤ 𝑁, 1 ≤ 𝑗 ≤ 𝐽. (43) Each row is a consecutive block of the input stream. The rows are dependent, but the off-diagonal Gram sums have a special structure. 
+
+Lemma 4.4 (Toeplitz Gram concentration) . For every 𝐽 ≤ 𝑇 and 𝑁 = 𝑇 − 𝐽 + 1,
+
+P
+
+ 𝑁 
+
+2 𝐼 𝐽 ⪯ ( 𝑍 ( 𝐽 ) )⊤ 𝑍 ( 𝐽 ) ⪯ 3𝑁 
+
+2 𝐼 𝐽 
+
+
+
+≥ 1 − 2𝐽 2 exp 
+
+
+
+− 𝑁 
+
+8𝐽 2
+
+
+
+. (44) 
+
+Here 𝐼 𝐽 is the 𝐽 × 𝐽 identity matrix. 
+
+For fixed 𝑗 ≠ 𝑘 , the corresponding Gram entry is a sum of variables of the form 𝑈 𝑠 𝑈 𝑠 +𝑑 , where 𝑑 = | 𝑗 − 𝑘 |.The graph with vertices indexed by input times and edges (𝑠, 𝑠 + 𝑑 ) is a forest. Choosing one root sign in each component and all edge products is a bijective reparameterization of the vertex signs; hence the edge products are jointly independent Rademachers. Hoeffding controls each off-diagonal entry, and a union bound followed by Gershgorin’s theorem yields (44). A full proof is given in Appendix C. 
+
+Source-level conclusion. Theorem 4.5 (Spectrum lower bound for the lagged source) . For every fixed 𝐵 < ∞, there is a constant 
+
+𝐶 𝐵 ≥ 1 with the following property. Let 1 ≤ 𝐽 ≤ 𝑇 /2 satisfy 𝑟 𝐽 > 0, set 𝑁 = 𝑇 − 𝐽 + 1, and suppose 
+
+𝑁 ≥ 𝐶 𝐵 𝐽 2 log (2𝑁 ). (45) 
+
+Then 
+
+R𝑇 (𝑟 ) ≥ 
+
+
+
+12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log (𝑁𝑟 2 
+
+> 𝑗
+
+) − 𝐶 𝐵 𝐽 
+
++
+
+. (46) Theorem 4.5 follows by applying Theorem 4.3 to the last 𝑁 labels and the first 𝐽 lag coordinates. For the Toeplitz matrix in (43), tr (( 𝑍 ( 𝐽 ) )⊤ 𝑍 ( 𝐽 ) ) = 𝑁 𝐽 deterministically, while Lemma 4.4 gives 𝜇 = 1/2 and failure probability 𝛿 ≤ 2𝐽 2 exp (− 𝑁 /( 8𝐽 2)) . On the half-envelope rectangle, every logit is bounded by 𝐵 /2and Δ2 
+
+> 𝐽
+
+≤ 𝐵 2. Enlarging 𝐶 𝐵 in (45) ensures 𝐵 2𝛿 ≤ 𝐽 /𝑁 , so all hypotheses of the general converse hold. The selected logistic experiment is a measurable function of the full observed sequence, and the product-uniform prior is supported inside Θ(𝑟 ); redundancy–capacity and data processing therefore give (46). The conditioning and information steps are written out in Appendix D. 
+
+Corollary 4.6 (Strongly active coordinates) . There are constants 𝑎 𝐵 > 1, 𝑐 𝐵 > 0, and 𝐶 𝐵 ≥ 1 such that the following holds. Define 
+
+𝐽 𝑇 (𝑎 𝐵 ) = max { 𝑗 ≤ 𝑇 /2 : 𝑇𝑟 2 
+
+> 𝑗
+
+≥ 𝑎 𝐵 }, (47) 
+
+with the maximum equal to zero if the set is empty. If 
+
+𝑇 ≥ 𝐶 𝐵 𝐽 𝑇 (𝑎 𝐵 )2 log (2𝑇 ), (48) 
+
+then 
+
+R𝑇 (𝑟 ) ≥ 𝑐 𝐵 𝐽 𝑇 (𝑎 𝐵 )∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑇𝑟 2 
+
+> 𝑗
+
+). (49) 12 Proof. If 𝐽 𝑇 (𝑎 𝐵 ) = 0, the claim follows from nonnegativity of regret. Otherwise, apply Theorem 4.5 with 𝐽 =
+
+𝐽 𝑇 (𝑎 𝐵 ) and use 𝑁 ≥ 𝑇 /2. Choose 𝑎 𝐵 large enough that, for all 𝑥 ≥ 𝑎 𝐵 , 12 log (𝑥 /2) − 𝐶 𝐵 ≥ 𝑐 𝐵 log (1 + 𝑥 ). □
+
+The upper and lower bounds are deliberately stated in a form that exposes their domain of validity. For an arbitrary envelope, a large collection of barely active coordinates may not be covered by the finite-sample lower bound. For exponential and polynomial profiles with summable coefficients, however, the coordinates satisfying 𝑇𝑟 2 
+
+> 𝑗
+
+≳ 1 have cardinality 𝑜 (√︁ 𝑇 /log 𝑇 ), and the strongly active part carries a constant fraction of 
+
+Γ𝑇 (𝑟 ). The following subsection verifies this and obtains matching rates. 
+
+4.3 Consequences: sharp rates and memory-profile separation 
+
+The upper and lower bounds now reduce the minimax analysis to evaluating Γ𝑇 (𝑟 ). We first do so for finite-, exponential-, and polynomial-memory envelopes. We then compare these learning costs with their truncation profiles and show that memory decay alone cannot determine regret. 
+
+Sharp rates for canonical envelopes. The conditions in the following corollary are finite-sample versions of the requirement that the statistically active coordinates fit inside the Toeplitz-design regime of Theorem 4.5. They are automatic for fixed model parameters as 𝑇 → ∞ .
+
+Corollary 4.7 (Finite memory) . There are constants 𝑎 𝐵 > 1, 𝑐 𝐵 > 0, and 𝐶 𝐵 ≥ 1 such that the following holds. Suppose 𝑟 𝑗 = 0 for 𝑗 > 𝑘 . If 𝑘 ≤ 𝑇 /2,
+
+𝑇 ≥ 𝐶 𝐵 𝑘 2 log (2𝑇 ) and 𝑇𝑟 2 
+
+> 𝑘
+
+≥ 𝑎 𝐵 , (50) 
+
+then 
+
+𝑐 𝐵 𝑘 ∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑇𝑟 2 
+
+> 𝑗
+
+) ≤ R 𝑇 (𝑟 ) ≤ 𝐶 
+
+> 𝑘
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑇𝑟 2 
+
+> 𝑗
+
+). (51) 
+
+In particular, for fixed 𝑘 and fixed positive radii 𝑟 1, . . . , 𝑟 𝑘 , R𝑇 (𝑟 ) = Θ (𝑘 log 𝑇 ).
+
+The fixed-𝑘 conclusion recovers the familiar parametric redundancy scale, but the model is not a context table: it shares 𝑘 coefficients across all 2 𝑘 input contexts. For fixed 𝑘 , an unrestricted binary order-𝑘 Markov family instead has 2 𝑘 free transition probabilities and, under interiority, redundancy of order 2 𝑘 log 𝑇 (Atteson 1999). Thus Markov order can overstate the prediction complexity exponentially even before one considers infinite memory. 
+
+Corollary 4.8 (Exponential envelope) . Let 
+
+𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 , 𝐴 > 0, 𝛼 > 0,∑︁  
+
+> 𝑗 ≥1
+
+𝑟 𝑗 ≤ 𝐵. (52) 
+
+Write Λ𝑇 = log ( 𝐴 2𝑇 ). There are constants 𝑐 𝐵 , 𝐶 𝐵 > 0 such that, whenever 
+
+Λ𝑇 ≥ 𝐶 𝐵 (1 + 𝛼 ),
+
+ Λ𝑇 
+
+𝛼 
+
+2
+
+log (2𝑇 ) ≤ 𝑐 𝐵 𝑇, (53) 
+
+we have 
+
+𝑐 𝐵 
+
+Λ2
+
+> 𝑇
+
+𝛼 ≤ R 𝑇 (𝑟 ) ≤ 𝐶 𝐵 
+
+Λ2
+
+> 𝑇
+
+𝛼 . (54) 
+
+Consequently, for fixed 𝐴, 𝛼 satisfying (52) ,
+
+R𝑇 (𝑟 ) = Θ 𝐴, 𝛼,𝐵 (log 2 𝑇 ). (55) 
+
+The finite-sample bounds in (54) display the leading scale 𝛼 −1 log 2 𝑇 when 𝐴 and 𝐵 are held fixed. 
+
+13 The number of active lags is only Θ(𝛼 −1 log 𝑇 ), but each active lag must be learned to a resolution depending on its amplitude. Summing these resolutions produces the squared logarithm. The result is a cumulative-regret statement; it should not be confused with one-step prediction risk after observing a trajectory. 
+
+Corollary 4.9 (Polynomial envelope) . Let 
+
+𝑟 𝑗 = 𝐴 𝑗 −𝑠 , 𝐴 > 0, 𝑠 > 1,∑︁  
+
+> 𝑗 ≥1
+
+𝑟 𝑗 ≤ 𝐵, (56) 
+
+and set 𝑀 𝑇 = ( 𝐴 2𝑇 )1/( 2𝑠 ) . There are constants 𝑐 𝐵,𝑠 , 𝐶 𝐵,𝑠 > 0 such that, whenever 
+
+𝑀 𝑇 ≥ 𝐶 𝐵,𝑠 , 𝑀 2 
+
+> 𝑇
+
+log (2𝑇 ) ≤ 𝑐 𝐵,𝑠 𝑇, (57) 
+
+we have 
+
+𝑐 𝐵,𝑠 𝑀 𝑇 ≤ R 𝑇 (𝑟 ) ≤ 𝐶 𝐵,𝑠 𝑀 𝑇 . (58) 
+
+For fixed 𝐴 and 𝑠 > 1, the conditions hold for all sufficiently large 𝑇 , and therefore 
+
+R𝑇 (𝑟 ) = Θ 𝐴,𝑠,𝐵 
+
+
+
+𝑇 1/( 2𝑠 ) 
+
+. (59) The proof of all three corollaries is in Appendix E. For the polynomial case, the key calculation is ∑︁  
+
+> 𝑗 ≥1
+
+log 
+
+
+
+1 + 𝐴 2𝑇 𝑗 −2𝑠 
+
+≍𝑠 ( 𝐴 2𝑇 )1/( 2𝑠 ) . (60) A hard truncation bound of the form ℎ log 𝑇 + 𝑇 𝐴 2 ℎ1−2𝑠 instead optimizes to 
+
+𝑇 1/( 2𝑠 ) (log 𝑇 )1−1/( 2𝑠 ) , (61) which is strictly larger. The localized spectrum is therefore not merely a refined proof of the same oracle inequality; it changes the rate. 
+
+Why memory profiles do not determine regret. The regret rates above quantify the cost of learning the unknown lag coefficients. To compare that cost with the approximation error caused by finite memory, Corollary 3.5 gives the following cumulative truncation profiles. If 1 ≤ ℎ ≤ 𝑇 /4, then ∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝐴 2𝑒 −2𝛼 𝑗 ≍𝛼 𝑇 𝐴 2𝑒 −2𝛼ℎ , (62) ∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝐴 2 𝑗 −2𝑠 ≍𝑠 𝑇 𝐴 2 ℎ1−2𝑠 . (63) The exact statements, including the finite-horizon edge terms, are given in Lemma E.1. These profiles quantify how much predictive information is lost by removing old lags, but not how many unknown directions generate the retained predictive law. To isolate this missing parameter geometry, consider the rank-one class Θray (𝑟 )
+
+defined in (29). Every lag remains present with the same decay profile, but all coefficients share one scalar parameter. Thus the coordinate envelope Θ(𝑟 ) and the ray have the same extremal coefficient sequence 𝑟 ,while their numbers of independently unknown directions are entirely different. Let 
+
+𝐼 𝑇 (𝑟 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+. (64) 14 Theorem 4.10 (Memory-profile impossibility) . For every summable nonincreasing 𝑟 with 𝑟 1 > 0, the coordinate envelope Θ(𝑟 ) and the ray Θray (𝑟 ) have equivalent worst-case truncation bias and worst-case recent-input distortion, up to constants depending only on 𝐵 , as quantified by Theorem 3.3. In contrast, the minimax redundancy of the ray satisfies 
+
+ 12 log (𝑇𝑟 21 ) − 𝐶 𝐵 
+
+
+
+> +
+
+≤ R ray  
+
+> 𝑇
+
+(𝑟 ) ≤ 12 log (1 + 𝐼 𝑇 (𝑟 )) + 𝐶, (65) 
+
+where Rray  
+
+> 𝑇
+
+(𝑟 ) denotes (17) with the supremum restricted to (29) . Hence, for every fixed profile with 𝑟 1 > 0,
+
+Rray  
+
+> 𝑇
+
+(𝑟 ) = Θ 𝐵,𝑟 1 (log 𝑇 ). (66) 
+
+In particular, for 𝑟 𝑗 = 𝐴 𝑗 −𝑠 with 𝑠 > 1 and 1 ≤ ℎ ≤ 𝑇 /4,
+
+sup   
+
+> 𝜃 ∈Θ(𝑟 )
+
+D𝑇 (𝜃, ℎ ) ≍ 𝐵 sup    
+
+> 𝜃 ∈Θray (𝑟 )
+
+D𝑇 (𝜃, ℎ ) ≍ 𝐵,𝑠 𝑇 𝐴 2 ℎ1−2𝑠 , (67) 
+
+while 
+
+R𝑇 (𝑟 ) = Θ 
+
+
+
+𝑇 1/( 2𝑠 ) 
+
+, Rray  
+
+> 𝑇
+
+(𝑟 ) = Θ (log 𝑇 ). (68) 
+
+Proof. The equality of the worst-case memory profiles is Corollary 3.5. The redundancy bounds are proved in Appendix G. The upper bound is a one-dimensional localized mixture with predictable feature 
+
+𝑧 𝑡 = Í 𝑗 ≤𝑡 𝑟 𝑗 𝑈 𝑡 +1− 𝑗 . For the lower bound, conditional on the earlier inputs, 𝑧 𝑡 = 𝑤 𝑡 + 𝑟 1𝑈 𝑡 and at least one of 
+
+|𝑤 𝑡 + 𝑟 1 | and |𝑤 𝑡 − 𝑟 1 | is at least 𝑟 1. A martingale argument therefore gives linear empirical Fisher information with high probability. A one-dimensional constrained-MLE entropy argument then yields the left side of (65). Finally, combine Corollary 4.9 with (66). □
+
+Remark 4.11 (What a valid memory-complexity measure must retain) . Theorem 4.10 rules out any minimax characterization that depends only on the scalar map ℎ ↦ → sup 𝜃 D𝑇 (𝜃, ℎ ). A valid characterization must also retain the metric or coding complexity of the predictive laws realizing each distortion level. In the present family, this information is captured by the anisotropic redundancy spectrum Γ𝑇 (𝑟 ), which is sharp for the canonical envelopes studied here; in a different family it may be a Shtarkov complexity (Shtar’kov 1987), a local metric entropy, an information radius, or another sequential coding quantity. 
+
+# 5 Computational Predictors Attaining the Redundancy Spectrum 
+
+Section 4 determines the minimax regret using unrestricted causal probability assignments. Its Bayesian code proves statistical achievability but is not presented as an efficient implementation. This section has two computational goals. First, it gives an explicit online Newton predictor attaining 𝑂 (Γ𝑇 (𝑟 )) . Second, it treats adaptation over candidate envelopes and compressed filter implementations. For the lagged source, we identify a mark prediction b𝑝 𝑡 with the joint next-symbol assignment 
+
+𝑞 𝑡 (( 𝑢, 𝑦 ) | 𝑋 1: 𝑡 ) = 12 b𝑝 𝑦 𝑡 (1 − b𝑝 𝑡 )1−𝑦 .
+
+Thus the regret notation below is the joint-source regret in (10); the known factor 1 /2 for the fresh input cancels from the excess loss. 15 5.1 Spectrum-attaining online Newton predictor 
+
+Fix an envelope 𝑟 and a horizon 𝑇 . Since both 𝑛 𝑇, 𝑗 and 𝑟 𝑗 are nonincreasing in 𝑗 , so is 𝑠 𝑇, 𝑗 = 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+. Define the unit-signal cutoff 
+
+ℎ𝑇 (𝑟 ) = max { 𝑗 ≤ 𝑇 : 𝑠 𝑇, 𝑗 ≥ 1}, (69) with ℎ𝑇 (𝑟 ) = 0 if the set is empty. For ℎ = ℎ𝑇 (𝑟 ), introduce normalized parameters 𝑢 𝑗 = 𝜃 𝑗 /𝑟 𝑗 ∈ [− 1, 1]
+
+and, before predicting 𝑌 𝑡 +1, the predictable feature vector 
+
+𝑥 (ℎ) 
+
+> 𝑡
+
+=  𝑟 1𝑈 𝑡 , 𝑟 2𝑈 𝑡 −1, . . . , 𝑟 ℎ∧𝑡 𝑈 𝑡 +1−ℎ∧𝑡 , 0, . . . , 0 ∈ Rℎ . (70) Every 𝑢 ∈ [− 1, 1]ℎ produces a logit in [− 𝐵, 𝐵 ]. Run Online Newton Step (ONS) on the logistic loss 
+
+ℓ𝑡 (𝑢 ) = 𝜓 (⟨ 𝑢, 𝑥 (ℎ) 
+
+> 𝑡
+
+⟩) − 𝑌 𝑡 +1 ⟨𝑢, 𝑥 (ℎ) 
+
+> 𝑡
+
+⟩. (71) Set 𝛽 𝐵 = 𝜅 𝐵 . The algorithm predicts 𝜎 (⟨ 𝑢 𝑡 , 𝑥 (ℎ) 
+
+> 𝑡
+
+⟩) and projects each Newton update back to the box [− 1, 1]ℎ
+
+in the current quadratic metric. A concrete version is displayed in Algorithm 1; any equivalent bounded-logit ONS tuning gives the same order. If ℎ = 0, the algorithm simply predicts 1 /2 for every mark and performs no Newton updates. For a positive-definite matrix 𝐻 and a closed convex set S, write Π𝐻  
+
+> S
+
+(𝑣 ) for the minimizer of (𝑢 − 𝑣 )⊤𝐻 (𝑢 − 𝑣 ) over 𝑢 ∈ S .
+
+Algorithm 1 Profile-scaled ONS for a known envelope 
+
+Require: Envelope 𝑟 , horizon 𝑇 , logit bound 𝐵  
+
+> 1:
+
+Set 𝛽 𝐵 = 𝜅 𝐵 = 𝜎 (𝐵 )( 1 − 𝜎 (𝐵 ))  
+
+> 2:
+
+Set ℎ = ℎ𝑇 (𝑟 ), 𝑢 1 = 0 ∈ Rℎ, and 𝐻 0 = 𝐼 ℎ 
+
+> 3:
+
+Observe the initial symbol 𝑋 1 = (𝑈 1, 𝑌 1) 
+
+> 4:
+
+for 𝑡 = 1, . . . , 𝑇 do  
+
+> 5:
+
+Form 𝑥 (ℎ) 
+
+> 𝑡
+
+from the observed inputs 𝑈 1: 𝑡 using (70)  
+
+> 6:
+
+Predict b𝑝 𝑡 = 𝜎 (⟨ 𝑢 𝑡 , 𝑥 (ℎ) 
+
+> 𝑡
+
+⟩) for 𝑌 𝑡 +1 and probability 1 /2 for 𝑈 𝑡 +1 
+
+> 7:
+
+Observe 𝑋 𝑡 +1 = (𝑈 𝑡 +1, 𝑌 𝑡 +1) and set 𝑔 𝑡 = ( b𝑝 𝑡 − 𝑌 𝑡 +1)𝑥 (ℎ) 
+
+> 𝑡
+> 8:
+
+𝐻 𝑡 = 𝐻 𝑡 −1 + 𝛽 𝐵 𝑔 𝑡 𝑔 ⊤ 
+
+> 𝑡
+> 9:
+
+𝑢 𝑡 +1 = Π 𝐻 𝑡 
+
+> [− 1,1]ℎ
+
+ 𝑢 𝑡 − 𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 
+
+
+
+Theorem 5.1 (A spectrum-attaining online Newton predictor) . There is a constant 𝐶 𝐵 > 0, depending only on 𝐵 , such that Algorithm 1 with 𝛽 𝐵 = 𝜅 𝐵 satisfies, for every 𝜃 ∈ Θ(𝑟 ),
+
+Reg 𝑇 (ONS 𝑟 ; 𝑃 𝜃 ,𝑇 ) ≤ 𝐶 𝐵 
+
+
+
+ℎ +
+
+> ℎ
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+)
+
+
+
++ 18∑︁ 𝑗>ℎ 
+
+𝑛 𝑇, 𝑗 𝜃 2 
+
+> 𝑗
+
+(72) 
+
+≤ 𝐶 𝐵 Γ𝑇 (𝑟 ), ℎ = ℎ𝑇 (𝑟 ). (73) 
+
+The Newton matrix 𝐻 𝑡 and its inverse can be maintained in 𝑂 (ℎ2) arithmetic operations per round and 
+
+𝑂 (ℎ2) memory by a rank-one update. Each round additionally requires the convex quadratic projection onto 
+
+[− 1, 1]ℎ in the 𝐻 𝑡 metric; this is polynomial-time, and its exact cost depends on the projection solver. Proof. The oracle inequality (72) is proved in Appendix F. ONS gives the pathwise comparison bound 
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 ) ≤ 𝐶 𝐵 
+
+"
+
+ℎ + log det 𝐼 ℎ +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑥 (ℎ) 
+
+> 𝑡
+
+(𝑥 (ℎ) 
+
+> 𝑡
+
+)⊤
+
+!# 
+
+. (74) 16 Hadamard’s inequality bounds the log determinant by Í 𝑗 ≤ℎ log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+). Compare with the normalized truncation 𝑢 𝑗 = 𝜃 𝑗 /𝑟 𝑗 and invoke Theorem 3.3 for the omitted tail. To derive (73) from (72), note that every 𝑗 ≤ ℎ has 𝑠 𝑇, 𝑗 ≥ 1, hence ℎ ≤ Γ𝑇 (𝑟 )/ log 2. Every 𝑗 > ℎ has 
+
+𝑠 𝑇 , 𝑗 < 1, and 𝑠 𝑇, 𝑗 ≤ 2 log (1 + 𝑠 𝑇, 𝑗 ). Therefore both the dimension term and the worst-case tail term are bounded by a constant multiple of Γ𝑇 (𝑟 ). □
+
+Remark 5.2 (Horizon dependence) . The cutoff in (69) uses the horizon. The Bayesian mixture in Theorem 4.1, implemented with the infinite product prior described there, is anytime, but the displayed finite-dimensional ONS implementation is stated for known 𝑇 . Naive geometric restarting can repeatedly repay the logarithmic resolution cost of an active coordinate and therefore need not preserve Γ𝑇 (𝑟 ) within a constant factor. A horizon-free computational implementation can instead aggregate fixed-cutoff learners, at the price of the corresponding prior penalty, or use a time-varying regularizer; obtaining the cleanest anytime complexity bound is separate from the statistical results here. 
+
+5.2 Adaptation and compressed implementations 
+
+Adaptation to an unknown profile. Suppose the learner is given a countable collection of candidate envelopes {𝑟 (𝑘 ) : 𝑘 ∈ K} , all satisfying a common ℓ1 bound 𝐵 , and prior masses 𝜋 𝑘 > 0 with Í𝑘 𝜋 𝑘 = 1. Run the profile-scaled predictor for each candidate and combine their Bernoulli probabilities by the log-loss mixture. For any sequence of mark predictions 𝑝 = ( 𝑝 𝑡 ), write 
+
+𝐿 𝑡 ( 𝑝 ) =
+
+> 𝑡
+
+∑︁ 
+
+> 𝑠 =1
+
+[− 𝑌 𝑠 +1 log 𝑝 𝑠 − ( 1 − 𝑌 𝑠 +1) log (1 − 𝑝 𝑠 )] .
+
+Set 𝐿 0 ( 𝑝 ) = 0. For a finite collection this is a direct computational procedure; for a genuinely countable collection the statement is information-theoretic unless the prior and candidate family admit a lazy or truncated implementation. Let 𝐿 𝑡 −1,𝑘 = 𝐿 𝑡 −1 ( b𝑝 𝑘 ) and set 
+
+𝑤 𝑡 ,𝑘 = 𝜋 𝑘 𝑒 −𝐿 𝑡 −1,𝑘 
+
+Íℓ ∈ K 𝜋 ℓ 𝑒 −𝐿 𝑡 −1,ℓ , b𝑝 𝑡 =∑︁  
+
+> 𝑘 ∈ K
+
+𝑤 𝑡 ,𝑘 b𝑝 𝑡 ,𝑘 . (75) 
+
+Corollary 5.3 (Profile adaptation) . The mixture (75) satisfies, simultaneously for every 𝑘 and every 
+
+𝜃 ∈ Θ(𝑟 (𝑘 ) ),
+
+Reg 𝑇 ( b𝑝 ; 𝑃 𝜃 ,𝑇 ) ≤ 𝐶 𝐵 Γ𝑇 (𝑟 (𝑘 ) ) + log 1
+
+𝜋 𝑘 
+
+. (76) 
+
+Consequently, a finite or implementable countable grid over memory cutoffs or decay parameters adapts whenever one candidate contains the true coefficient sequence (or a dominating envelope), with the explicit additional cost log (1/𝜋 𝑘 ). For example, a polynomially decaying prior on an integer grid index gives an 
+
+𝑂 (log 𝑘 ) selection penalty. Proof. For log loss, a probability mixture satisfies 𝐿 𝑇 ( b𝑝 ) ≤ 𝐿 𝑇 ( b𝑝 𝑘 )+ log (1/𝜋 𝑘 ) pathwise. Apply Theorem 5.1 to candidate 𝑘 . □
+
+Predictable-design extension. The lagged Rademacher model is essential for the matching minimax lower bound, but the algorithmic upper bound requires neither independent inputs nor Toeplitz structure. The following statement separates the deterministic online-learning part from the source-specific approximation calculation. Let 𝑃 be a law under which 𝜙 𝑡 ∈ R𝑑 is measurable before 𝑌 𝑡 +1 is revealed and the true conditional probability is 𝜎 (𝜂 ★𝑡 +1) with |𝜂 ★𝑡 +1 | ≤ 𝐵 . For a closed convex parameter set U ⊂ R𝑑 , let the comparison logits 17 be 𝜂 𝑡 +1 (𝑢 ) = ⟨𝑢, 𝜙 𝑡 ⟩, also bounded by 𝐵 for 𝑢 ∈ U . Run ONS on the logistic loss with 𝑢 1 ∈ U , 𝐻 0 = 𝐼 𝑑 , and 
+
+𝛽 𝐵 = 𝜅 𝐵 . For this general statement, Reg 𝑇 (ONS; 𝑃 ) denotes expected cumulative excess Bernoulli log loss for the marks. 
+
+Theorem 5.4 (Predictable-design oracle inequality) . The ONS predictor satisfies 
+
+Reg 𝑇 (ONS; 𝑃 ) ≤ 12𝜅 𝐵 
+
+E log det 𝐼 𝑑 +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝜙 𝑡 𝜙 ⊤
+
+> 𝑡
+
+!
+
++ inf 
+
+> 𝑢 ∈ U
+
+(
+
+12 ∥𝑢 − 𝑢 1 ∥22 + 18
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E 𝜂 ★𝑡 +1 − ⟨ 𝑢, 𝜙 𝑡 ⟩2
+
+)
+
+. (77) 
+
+The feature sequence may be stochastic, adaptive, and history-dependent. Proof. The ONS guarantee is deterministic conditional on the realized features and labels. Compare it with any fixed 𝑢 ∈ U . The excess Bayes loss of that comparator is the Bernoulli logistic Bregman divergence between logits 𝜂 ★𝑡 +1 and ⟨𝑢, 𝜙 𝑡 ⟩, which is at most one eighth of their squared difference. Taking expectations also places an expectation around the random log determinant. Finally optimize over 𝑢 . □
+
+Compressed filter dictionaries. The coordinate basis is natural for the full envelope because the coefficients can vary independently. When the coefficient sequence has additional structure, a filter dictionary can be much smaller. Let 𝑔 1, . . . , 𝑔 𝐾 be deterministic kernels, with 𝑔 𝑘, 𝑗 the coefficient of lag 𝑗 , and define the causal filter state 
+
+𝑧 𝑡 ,𝑘 =
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑔 𝑘, 𝑗 𝑈 𝑡 +1− 𝑗 , 𝑧 𝑡 = (𝑧 𝑡 , 1, . . . , 𝑧 𝑡 ,𝐾 ). (78) For 𝑎 ∈ R𝐾 , the readout 𝑎 ⊤𝑧 𝑡 corresponds to the coefficient sequence (𝐺𝑎 ) 𝑗 = Í𝐾 𝑘 =1 𝑎 𝑘 𝑔 𝑘, 𝑗 .
+
+Theorem 5.5 (Low-rank filter approximation) . Let A ⊂ R𝐾 be closed and convex, initialize at 𝑎 1 ∈ A , and suppose |𝑎 ⊤𝑧 𝑡 | ≤ 𝐵 for every 𝑎 ∈ A , every history, and every 𝑡 . Then an ONS readout over (78) satisfies, for every 𝜃 ∈ Θ(𝑟 ),
+
+Reg 𝑇 (FilterONS; 𝑃 𝜃 ,𝑇 ) ≤ 12𝜅 𝐵 
+
+E log det 𝐼 𝐾 +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑧 𝑡 𝑧 ⊤
+
+> 𝑡
+
+!
+
++ inf 
+
+> 𝑎 ∈ A
+
+
+
+12 ∥𝑎 − 𝑎 1 ∥22 + 18
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 
+
+ 𝜃 𝑗 − ( 𝐺𝑎 ) 𝑗 
+
+2
+
+
+
+. (79) 
+
+If ∥𝑧 𝑡 ∥2 ≤ 𝐺 𝑧 deterministically, the log-determinant term is at most 
+
+𝐶 𝐵 𝐾 log 1 + 𝑇𝐺 2
+
+> 𝑧
+
+𝐾 
+
+!
+
+. (80) 
+
+Proof. Apply Theorem 5.4 with 𝜙 𝑡 = 𝑧 𝑡 . Independence and centering of the Rademacher inputs give, for every fixed 𝑎 ,
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E 𝜂 𝑡 +1 (𝜃 ) − 𝑎 ⊤𝑧 𝑡 
+
+2 =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+ 𝜃 𝑗 − ( 𝐺𝑎 ) 𝑗 
+
+2
+
+=
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 
+
+ 𝜃 𝑗 − ( 𝐺𝑎 ) 𝑗 
+
+2.
+
+For (80), use log det (𝐼 + 𝑀 ) ≤ 𝐾 log (1 + tr (𝑀 )/ 𝐾 ) and tr (Í𝑡 𝑧 𝑡 𝑧 ⊤ 
+
+> 𝑡
+
+) ≤ 𝑇𝐺 2 
+
+> 𝑧
+
+. □
+
+18 A useful special case is the exponential dictionary 𝑔 𝑘, 𝑗 = 𝜆 𝑗 −1 
+
+> 𝑘
+
+, 0 ≤ 𝜆 𝑘 < 1. Its features obey the scalar state-space recurrence 
+
+𝑧 𝑡 +1,𝑘 = 𝜆 𝑘 𝑧 𝑡 ,𝑘 + 𝑈 𝑡 +1, 𝑧 0,𝑘 = 0, (81) so the filter bank is updated in 𝑂 (𝐾 ) time and 𝑂 (𝐾 ) state memory before the readout update. Bounds on approximation by exponential sums, such as those developed by Beylkin and Monz´ on (2010), can therefore be inserted directly into (79). This is the precise role of a state-space realization in the present paper: it is a computational implementation of a low-rank predictive dictionary, not the definition of predictive memory and not an assumption that the source itself is a linear dynamical system. 
+
+# 6 Conclusion 
+
+For the exogenously driven lagged logistic class, R𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ) for every summable envelope and 
+
+R𝑇 (𝑟 ) ≍ Γ𝑇 (𝑟 ) for the canonical exponential and polynomial envelopes under the stated conditions, with constants depending on the fixed model parameters. Thus the respective regret rates are Θ(𝛼 −1 log 2 𝑇 ) and 
+
+Θ(𝑇 1/( 2𝑠 ) ), while a memory profile alone cannot determine regret. A scaled online Newton predictor attains the spectrum upper bound. 
+
+# Appendix A Proofs of Proposition 3.1, Lemma 3.2, and Theorem 3.3 
+
+This appendix proves the regret identity, the pairwise KL geometry, and the predictive-memory theorem from Section 3. 
+
+A.1 Proof of Proposition 3.1: Bayes decomposition and redundancy identity 
+
+For every history 𝑋 1: 𝑡 , conditioning gives 
+
+E𝑃 
+
+− log 𝑞 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 ) + log 𝑝 𝑃 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 ) 𝑋 1: 𝑡 
+
+
+
+=∑︁ 
+
+> 𝑥
+
+𝑝 𝑃 𝑡 (𝑥 | 𝑋 1: 𝑡 ) log 𝑝 𝑃 𝑡 (𝑥 | 𝑋 1: 𝑡 )
+
+𝑞 𝑡 (𝑥 | 𝑋 1: 𝑡 )
+
+= KL 
+
+
+
+𝑝 𝑃 𝑡 (· | 𝑋 1: 𝑡 ) 𝑞 𝑡 (· | 𝑋 1: 𝑡 )
+
+
+
+.
+
+Taking expectations and summing proves the first equality in (11). The chain rule for relative entropy gives KL (𝑃 ∥𝑄 ) = E𝑃 log 𝑃 (𝑋 1: 𝑇 +1)
+
+𝑄 (𝑋 1: 𝑇 +1)
+
+= E𝑃 𝑇 ∑︁ 
+
+> 𝑡 =1
+
+log 𝑝 𝑃 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 )
+
+𝑞 𝑡 (𝑋 𝑡 +1 | 𝑋 1: 𝑡 ) ,
+
+where the common initial distributions cancel by convention. This is exactly (10). Taking the infimum over 𝑄 
+
+and the supremum over a source class with this common initial law proves (12). 
+
+A.2 Logistic Bregman bounds used in Lemma 3.2 
+
+Let 𝜓 (𝑧 ) = log (1 + 𝑒 𝑧 ). For 𝑝 = 𝜎 (𝑎 ) and 𝑞 = 𝜎 (𝑏 ), direct calculation gives KL (Ber ( 𝑝 )∥ Ber (𝑞 )) = 𝜓 (𝑏 ) − 𝜓 (𝑎 ) − 𝜓 ′ (𝑎 )( 𝑏 − 𝑎 ). (82) 19 By Taylor’s theorem with integral remainder, 
+
+𝜓 (𝑏 ) − 𝜓 (𝑎 ) − 𝜓 ′ (𝑎 )( 𝑏 − 𝑎 ) = (𝑏 − 𝑎 )2
+
+∫ 10
+
+(1 − 𝑠 )𝜓 ′′ (𝑎 + 𝑠 (𝑏 − 𝑎 )) 𝑑𝑠. (83) Since 
+
+𝜓 ′′ (𝑧 ) = 𝜎 (𝑧 )( 1 − 𝜎 (𝑧 )) ≤ 14 (84) for every 𝑧 , and 𝜓 ′′ (𝑧 ) ≥ 𝜅 𝐵 for 𝑧 ∈ [− 𝐵, 𝐵 ], we obtain 
+
+𝜅 𝐵 
+
+2 (𝑎 − 𝑏 )2 ≤ KL (Ber (𝜎 (𝑎 ))∥ Ber (𝜎 (𝑏 ))) ≤ 18 (𝑎 − 𝑏 )2 (85) whenever 𝑎, 𝑏 ∈ [− 𝐵, 𝐵 ]. The upper bound is global. 
+
+A.3 Proof of Lemma 3.2: Pairwise KL geometry 
+
+The input stream has the same law under 𝑃 𝜃 ,𝑇 and 𝑃 𝜃 ′ ,𝑇 . Conditional on the inputs, the labels are independent, and the chain rule gives KL (𝑃 𝜃 ,𝑇 ∥𝑃 𝜃 ′ ,𝑇 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+EKL (Ber (𝜎 (𝜂 𝑡 +1 (𝜃 ))) ∥ Ber (𝜎 (𝜂 𝑡 +1 (𝜃 ′)))) . (86) Set Δ 𝑗 = 𝜃 𝑗 − 𝜃 ′ 
+
+> 𝑗
+
+. By (85), each summand is between 𝜅 𝐵 /2 and 1 /8 times 
+
+E ©«
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+Δ 𝑗 𝑈 𝑡 +1− 𝑗 ª®¬
+
+> 2
+
+. (87) The inputs are independent, centered, and have unit variance, so the cross terms vanish and (87) equals 
+
+Í𝑡 𝑗 =1 Δ2 
+
+> 𝑗
+
+. Therefore 
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+Δ2 
+
+> 𝑗
+
+=
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+(𝑇 − 𝑗 + 1)Δ2
+
+> 𝑗
+
+=
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 (𝜃 𝑗 − 𝜃 ′ 
+
+> 𝑗
+
+)2.
+
+Substitution into (86) proves (22). 
+
+A.4 Proof of Theorem 3.3: Predictive-memory bounds 
+
+Proof of Theorem 3.3. Equation (27) follows from Lemma 3.2 with 𝜃 ′ = 𝜃 (ℎ) .For (28), fix a round 𝑡 and write 
+
+𝑅 𝑡 ,ℎ =∑︁  
+
+> 𝑗 ≤ℎ∧𝑡
+
+𝜃 𝑗 𝑈 𝑡 +1− 𝑗 , 𝑊 𝑡 ,ℎ =∑︁  
+
+> ℎ< 𝑗 ≤𝑡
+
+𝜃 𝑗 𝑈 𝑡 +1− 𝑗 .
+
+The term 𝑅 𝑡 ,ℎ is the retained contribution of the most recent inputs, while 𝑊 𝑡 ,ℎ is the omitted contribution. Conditional on G𝑡 ,ℎ , 𝑅 𝑡 ,ℎ is fixed and 𝑊 𝑡 ,ℎ is independent, centered, and has variance 
+
+E[𝑊 2 
+
+> 𝑡 ,ℎ
+
+| G 𝑡 ,ℎ ] =∑︁  
+
+> ℎ< 𝑗 ≤𝑡
+
+𝜃 2 
+
+> 𝑗
+
+.
+
+20 The optimal probability in (25) is 𝑝 ★,ℎ 𝜃 ,𝑡 = E[𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ ) | G 𝑡 ,ℎ ].For the upper bound, compare with the feasible predictor 𝜎 (𝑅 𝑡 ,ℎ ). The global curvature bound 𝜓 ′′ ≤ 1/4gives KL  Ber (𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ )) Ber (𝜎 (𝑅 𝑡 ,ℎ ))  ≤ 18𝑊 2 
+
+> 𝑡 ,ℎ
+
+.
+
+Conditional Bayes optimality can only reduce the loss. Taking expectations therefore gives the per-round upper bound 
+
+E𝜃 KL 
+
+
+
+Ber (𝜎 (𝜂 𝑡 +1 (𝜃 ))) Ber ( 𝑝 ★,ℎ 𝜃 ,𝑡 )
+
+
+
+≤ 18∑︁ ℎ< 𝑗 ≤𝑡 
+
+𝜃 2 
+
+> 𝑗
+
+.
+
+For the lower bound, Pinsker’s inequality for Bernoulli distributions yields 
+
+E
+
+h
+
+KL 
+
+
+
+Ber (𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ )) Ber ( 𝑝 ★,ℎ 𝜃 ,𝑡 )
+
+
+
+G𝑡 ,ℎ 
+
+i
+
+≥ 2 Var  𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ ) | G 𝑡 ,ℎ 
+
+ .
+
+Let 𝑊 ′ 
+
+> 𝑡 ,ℎ
+
+be an independent conditional copy of 𝑊 𝑡 ,ℎ . Since every possible value of 𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ lies in 
+
+[− 𝐵, 𝐵 ] and 𝜎 ′ (𝑧 ) ≥ 𝜅 𝐵 on this interval, the mean-value theorem gives Var (𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ ) | G 𝑡 ,ℎ ) = 12 E(𝜎 (𝑅 𝑡 ,ℎ + 𝑊 𝑡 ,ℎ ) − 𝜎 (𝑅 𝑡 ,ℎ + 𝑊 ′
+
+> 𝑡 ,ℎ
+
+)) 2 G𝑡 ,ℎ 
+
+
+
+≥ 𝜅 2
+
+> 𝐵
+
+2 E[( 𝑊 𝑡 ,ℎ − 𝑊 ′
+
+> 𝑡 ,ℎ
+
+)2 | G 𝑡 ,ℎ ]
+
+= 𝜅 2 
+
+> 𝐵
+
+Var (𝑊 𝑡 ,ℎ | G 𝑡 ,ℎ ).
+
+Thus the per-round distortion is at least 2 𝜅 2
+
+> 𝐵
+
+Íℎ< 𝑗 ≤𝑡 𝜃 2 
+
+> 𝑗
+
+. Summing the upper and lower bounds over 𝑡 = 1, . . . , 𝑇 
+
+and reversing the order of summation gives (28). □
+
+# Appendix B Proof of Theorem 4.1 
+
+The proof has two ingredients. Lemma B.1 first compares the Bayesian mixture with any localized distribution over parameters. We then choose that distribution separately in each coordinate, at a scale determined by 
+
+𝑛 𝑇 , 𝑗 𝑟 2 
+
+> 𝑗
+
+.
+
+B.1 Auxiliary variational bound for Theorem 4.1 
+
+Lemma B.1 (Variational mixture bound) . Let 𝑃 and (𝑄 𝑣 )𝑣 ∈ V be probability measures dominated by a common measure, let 𝜋 be a probability measure on V, and set 𝑀 = ∫ 𝑄 𝑣 𝜋 (𝑑𝑣 ). Then, for every 𝜌 ≪ 𝜋 ,
+
+KL (𝑃 ∥𝑀 ) ≤ 
+
+∫
+
+KL (𝑃 ∥𝑄 𝑣 ) 𝜌 (𝑑𝑣 ) + KL (𝜌 ∥𝜋 ). (88) 
+
+Proof. Write 𝑝, 𝑞 𝑣 , 𝑚 for the corresponding densities and let 𝑓 = 𝑑𝜌 /𝑑𝜋 . For 𝑃 -almost every 𝑥 ,log 𝑝 (𝑥 )
+
+𝑚 (𝑥 ) ≤ − log 
+
+∫ 
+
+> {𝑓 > 0}
+
+𝑞 𝑣 (𝑥 )
+
+𝑝 (𝑥 ) 𝑓 (𝑣 ) 𝜌 (𝑑𝑣 )≤
+
+∫
+
+log 
+
+ 𝑝 (𝑥 )
+
+𝑞 𝑣 (𝑥 ) 𝑓 (𝑣 )
+
+
+
+𝜌 (𝑑𝑣 ),
+
+where the first inequality discards the contribution of { 𝑓 = 0} from the nonnegative 𝜋 -integral, and the second applies Jensen’s inequality to the convex function − log. Integrating with respect to 𝑃 and using Fubini proves the claim. The usual extended-value convention covers points at which a density vanishes. □
+
+21 B.2 Proof of Theorem 4.1: Coordinate localization 
+
+Proof of Theorem 4.1. We proceed in four steps: define the statistical scale of each coordinate, construct a localized product distribution, bound its approximation and localization costs, and compare the resulting sum with Γ𝑇 (𝑟 ).
+
+Step 1: coordinate scales. Fix 𝜃 ∈ Θ(𝑟 ). A horizon-𝑇 source law depends only on 𝜃 1, . . . , 𝜃 𝑇 , and coordinates with 𝑟 𝑗 = 0 are deterministic. For every remaining 1 ≤ 𝑗 ≤ 𝑇 , define 
+
+𝑛 𝑗 = 𝑛 𝑇, 𝑗 , 𝑠 𝑗 = 𝑛 𝑗 𝑟 2 
+
+> 𝑗
+
+. (89) Here 𝑛 𝑗 is exactly the number of prediction rounds on which lag 𝑗 appears, while 𝑠 𝑗 is its squared parameter radius measured at the 𝑛 −1/2 
+
+> 𝑗
+
+statistical resolution. Let 𝜋 𝑗 be uniform on [− 𝑟 𝑗 , 𝑟 𝑗 ], so 𝜋 𝑇 = Ë𝑇 𝑗 =1 𝜋 𝑗 is the prior defining 𝑄 𝜋 𝑇 in (31). 
+
+Step 2: localized variational distribution. We construct a product variational distribution 𝜌 = Ë𝑇 𝑗 =1 𝜌 𝑗 .If 𝑠 𝑗 ≤ 1, set 𝜌 𝑗 = 𝜋 𝑗 . If 𝑠 𝑗 > 1, then 𝛿 𝑗 = 𝑛 −1/2 
+
+> 𝑗
+
+< 𝑟 𝑗 . Choose any interval 𝐼 𝑗 ⊂ [− 𝑟 𝑗 , 𝑟 𝑗 ] of length 𝛿 𝑗 that contains 𝜃 𝑗 and let 𝜌 𝑗 be uniform on 𝐼 𝑗 . Such an interval always exists: use [𝜃 𝑗 , 𝜃 𝑗 + 𝛿 𝑗 ] when 𝜃 𝑗 ≤ 𝑟 𝑗 − 𝛿 𝑗 ,and [𝜃 𝑗 − 𝛿 𝑗 , 𝜃 𝑗 ] otherwise. For an active coordinate 𝑠 𝑗 > 1, every 𝑣 𝑗 in the localized interval lies within 𝑛 −1/2 
+
+> 𝑗
+
+of 𝜃 𝑗 , and the prior-to-posterior volume ratio is 2 𝑟 𝑗 √𝑛 𝑗 . Therefore 
+
+E𝜌 (𝑣 𝑗 − 𝜃 𝑗 )2 ≤ 𝛿 2 
+
+> 𝑗
+
+= 1
+
+𝑛 𝑗 
+
+, KL (𝜌 𝑗 ∥𝜋 𝑗 ) = log 2𝑟 𝑗 
+
+𝛿 𝑗 
+
+= 12 log 𝑠 𝑗 + log 2 . (90) For an inactive coordinate 𝑠 𝑗 ≤ 1, no localization is needed. Since 𝑣 𝑗 is uniform on [− 𝑟 𝑗 , 𝑟 𝑗 ],
+
+E𝜌 (𝑣 𝑗 − 𝜃 𝑗 )2 = 𝑟 2
+
+> 𝑗
+
+3 + 𝜃 2 
+
+> 𝑗
+
+≤ 43𝑟 2 
+
+> 𝑗
+
+≤ 4𝑟 2 
+
+> 𝑗
+
+, KL (𝜌 𝑗 ∥𝜋 𝑗 ) = 0. (91) 
+
+Step 3: approximation and localization costs. The global upper half of Lemma 3.2 turns squared coordinate error into sequence-level KL divergence. Independence under 𝜌 then gives 
+
+∫
+
+KL (𝑃 𝜃 ,𝑇 ∥𝑃 𝑣,𝑇 ) 𝜌 (𝑑𝑣 ) ≤ 18
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑗 E𝜌 (𝑣 𝑗 − 𝜃 𝑗 )2
+
+≤ 18 |{ 𝑗 : 𝑠 𝑗 > 1}| + 12∑︁ 𝑗 :𝑠 𝑗 ≤1
+
+𝑠 𝑗 . (92) Moreover, KL (𝜌 ∥𝜋 𝑇 ) =∑︁  
+
+> 𝑗 :𝑠 𝑗 >1
+
+ 12 log 𝑠 𝑗 + log 2 
+
+
+
+. (93) Apply Lemma B.1 with 𝑃 = 𝑃 𝜃 ,𝑇 and 𝑄 𝑣 = 𝑃 𝑣,𝑇 . Combining (92) and (93) gives KL (𝑃 𝜃 ,𝑇 ∥𝑄 𝜋 𝑇 ) ≤ 12∑︁ 𝑗 :𝑠 𝑗 >1
+
+log 𝑠 𝑗 + 𝐶 ©«
+
+|{ 𝑗 : 𝑠 𝑗 > 1}| + ∑︁  
+
+> 𝑗 :𝑠 𝑗 ≤1
+
+𝑠 𝑗 ª®¬
+
+≤ 12
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑠 𝑗 ) + 𝐶𝑑 𝑇 (𝑟 ). (94) 22 Step 4: comparison with the spectrum. For 𝑠 𝑗 > 1, the leading localization cost is 12 log 𝑠 𝑗 ; for 𝑠 𝑗 ≤ 1, the approximation cost is 𝑂 (𝑠 𝑗 ). These two cases are simultaneously represented by log (1 + 𝑠 𝑗 ). More explicitly, min {1, 𝑠 } ≤ 
+
+(
+
+2 log (1 + 𝑠 ), 0 ≤ 𝑠 ≤ 1,
+
+(log 2 )−1 log (1 + 𝑠 ), 𝑠 > 1, (95) so 𝑑 𝑇 (𝑟 ) ≤ 𝐶 Γ𝑇 (𝑟 ). Equation (94) proves the first inequality in (32); the displayed comparison proves its second inequality. The bound is uniform over 𝜃 ∈ Θ(𝑟 ), so taking the supremum and then the infimum over all predictors proves (33). □
+
+# Appendix C Proof of Lemma 4.4 
+
+We prove Lemma 4.4. The only probabilistic ingredient is the following elementary observation. 
+
+C.1 Auxiliary forest-product lemma for Lemma 4.4 
+
+Lemma C.1 (Edge products on a forest) . Let 𝐺 = (𝑉, 𝐸 ) be a finite forest and let (𝑈 𝑣 )𝑣 ∈𝑉 be independent Rademacher random variables. Then the edge products 
+
+𝑊 {𝑣,𝑤 } = 𝑈 𝑣 𝑈 𝑤 , {𝑣, 𝑤 } ∈ 𝐸, (96) 
+
+are independent Rademacher random variables. Proof. Choose one root in each connected component. The map 
+
+(𝑈 𝑣 )𝑣 ∈𝑉 ↦ −→  (𝑈 root (𝐶 ) )𝐶 , (𝑈 𝑣 𝑈 𝑤 ){𝑣,𝑤 } ∈ 𝐸 
+
+ (97) from vertex signs to root signs and edge products is bijective. Indeed, starting from a root sign, the sign at every other vertex is recovered uniquely by multiplying the edge products along the unique root-to-vertex path. Since the input vector is uniform on {− 1, +1}|𝑉 | , the output of the bijection is also uniform on a hypercube. In particular, all edge-product coordinates are independent Rademachers. □
+
+C.2 Proof of Lemma 4.4: Toeplitz Gram concentration 
+
+The diagonal entries of the Gram matrix are deterministic: 
+
+ (𝑍 ( 𝐽 ) )⊤ 𝑍 ( 𝐽 )  
+
+> 𝑗, 𝑗
+
+=
+
+> 𝑁
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑈 2   
+
+> 𝐽 +𝑡 −𝑗
+
+= 𝑁. (98) Fix 𝑗 ≠ 𝑘 and put 𝑑 = | 𝑗 − 𝑘 | ≥ 1. After relabeling the starting index, the off-diagonal entry has the form 
+
+𝑆 𝑗,𝑘 = 
+
+> 𝑎 +𝑁 −1
+
+∑︁ 
+
+> 𝑠 =𝑎
+
+𝑈 𝑠 𝑈 𝑠 +𝑑 (99) for an integer 𝑎 . Consider the graph whose vertices are the input indices appearing in (99) and whose edges are {𝑠, 𝑠 + 𝑑 }, 𝑠 = 𝑎, . . . , 𝑎 + 𝑁 − 1. Edges preserve residue classes modulo 𝑑 , and within each residue class they connect points in increasing order along the integer line. The graph is therefore a disjoint union of paths and in particular a forest. By Lemma C.1, the 𝑁 summands in (99) are independent Rademacher variables. 23 Hoeffding’s inequality consequently gives 
+
+P
+
+
+
+|𝑆 𝑗,𝑘 | > 𝑁 
+
+2𝐽 
+
+
+
+≤ 2 exp 
+
+
+
+− 𝑁 
+
+8𝐽 2
+
+
+
+. (100) There are fewer than 𝐽 2 ordered off-diagonal pairs. A union bound shows that, with probability at least the right side of (44), every off-diagonal entry has magnitude at most 𝑁 /( 2𝐽 ). On this event, the sum of the absolute off-diagonal entries in any row is at most 
+
+(𝐽 − 1) 𝑁 
+
+2𝐽 < 𝑁 
+
+2 . (101) Gershgorin’s circle theorem and (98) imply that every eigenvalue lies in [𝑁 /2, 3𝑁 /2]. This is exactly (44). For 𝐽 = 1, the conclusion is deterministic. 
+
+# Appendix D Proofs of Theorems 4.3 and 4.5 
+
+This appendix proves the general exogenous-design converse and then specializes it to the lagged source. 
+
+D.1 Auxiliary information inequalities for Theorems 4.3 and 4.5 
+
+Lemma D.1 (Bayesian information lower bound) . Let (𝑃 𝜗 )𝜗 ∈ V be any dominated family and let Π be a prior on V. If Θ ∼ Π and 𝐷 | Θ = 𝜗 ∼ 𝑃 𝜗 , then 
+
+inf  
+
+> 𝑄
+
+sup  
+
+> 𝜗 ∈ V
+
+KL (𝑃 𝜗 ∥𝑄 ) ≥ 𝐼 (Θ; 𝐷 ). (102) 
+
+Proof. Let 𝑃 Π = ∫ 𝑃 𝜗 Π(𝑑𝜗 ) be the mixture law. For every 𝑄 ,
+
+∫
+
+KL (𝑃 𝜗 ∥𝑄 ) Π(𝑑𝜗 ) =
+
+∫
+
+KL (𝑃 𝜗 ∥𝑃 Π ) Π(𝑑𝜗 ) + KL (𝑃 Π ∥𝑄 )
+
+= 𝐼 (Θ; 𝐷 ) + KL (𝑃 Π ∥𝑄 )≥ 𝐼 (Θ; 𝐷 ).
+
+The supremum is at least the prior average. Taking the infimum over 𝑄 proves the claim. □
+
+Lemma D.2 (Entropy–MSE bound) . Let Θ be uniform on the rectangle Î𝐽 𝑗 =1 [− 𝑟 𝑗 /2, 𝑟 𝑗 /2], with every 𝑟 𝑗 > 0,and let bΘ be any estimator constructed from data 𝐷 . Then 
+
+𝐼 (Θ; 𝐷 ) ≥ 
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log 𝑟 𝑗 − 𝐽 
+
+2 log 2𝜋𝑒 E∥Θ − bΘ∥22
+
+𝐽 
+
+!
+
+. (103) 
+
+The inequality is understood in the extended sense when an error distribution is singular. Proof. Data processing gives 𝐼 (Θ; 𝐷 ) ≥ 𝐼 (Θ; bΘ). Since the prior has differential entropy ℎ(Θ) = Í 𝑗 log 𝑟 𝑗 ,
+
+𝐼 (Θ; bΘ) = ℎ(Θ) − ℎ(Θ | bΘ)
+
+= ℎ(Θ) − ℎ(Θ − bΘ | bΘ)≥ ℎ(Θ) − ℎ(Θ − bΘ).
+
+24 For any 𝐽 -dimensional random vector 𝑊 , Gaussian maximal entropy, the bound tr Cov (𝑊 ) ≤ E∥𝑊 ∥22, and the arithmetic–geometric mean inequality for covariance eigenvalues give 
+
+ℎ(𝑊 ) ≤ 𝐽 
+
+2 log 2𝜋𝑒 E∥𝑊 ∥22
+
+𝐽 
+
+!
+
+. (104) Apply this with 𝑊 = Θ − bΘ. □
+
+D.2 Proof of Theorem 4.3: Conditioned-design information bound 
+
+Proof of Theorem 4.3. For 𝑣 ∈ 𝐾 𝐽 , let 
+
+ℓ𝑁 (𝑣 ) =
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+𝜓 (𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+𝑣 ) − 𝑌 𝑖 (𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+𝑣 ) (105) be the conditional negative log likelihood. Choose a measurable minimizer 
+
+bΘ ∈ arg min 
+
+> 𝑣 ∈𝐾 𝐽
+
+ℓ𝑁 (𝑣 ),
+
+breaking ties lexicographically. Let 
+
+E = {𝜆 min (𝑍 ⊤ 𝑍 ) ≥ 𝜇𝑁 }. (106) By the bounded-logit assumption and the definition 𝜅 𝐵 0 = min | 𝑥 | ≤ 𝐵 0 𝜓 ′′ (𝑥 ) > 0, 
+
+∇2ℓ𝑁 (𝑣 ) =
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+𝜓 ′′ (𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+𝑣 )𝑧 𝑖 𝑧 ⊤ 
+
+> 𝑖
+
+⪰ 𝜅 𝐵 0 𝑍 ⊤ 𝑍. (107) Hence on E, ℓ𝑁 is 𝑚 -strongly convex over 𝐾 𝐽 with 𝑚 = 𝜅 𝐵 0 𝜇𝑁 .Write 𝑔 = ∇ℓ𝑁 (Θ). Since both Θ and bΘ lie in 𝐾 𝐽 and ℓ𝑁 (bΘ) ≤ ℓ𝑁 (Θ), strong convexity gives 0 ≥ 𝑔 ⊤ (bΘ − Θ) + 𝑚 
+
+2 ∥bΘ − Θ∥22. (108) Therefore, on E,
+
+∥bΘ − Θ∥2 ≤ 2∥𝑔 ∥2
+
+𝜅 𝐵 0 𝜇𝑁 . (109) Conditional on (𝑍, 𝑏, Θ),
+
+𝑔 =
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+ 𝜎 (𝑏 𝑖 + 𝑧 ⊤ 
+
+> 𝑖
+
+Θ) − 𝑌 𝑖 
+
+ 𝑧 𝑖 (110) with independent centered summands. Thus 
+
+E[∥ 𝑔 ∥22 | 𝑍, 𝑏, Θ] =
+
+> 𝑁
+
+∑︁ 
+
+> 𝑖 =1
+
+Var (𝑌 𝑖 | 𝑍, 𝑏, Θ)∥ 𝑧 𝑖 ∥22 ≤ 14 tr (𝑍 ⊤ 𝑍 ). (111) Combining (109), (111), and (39) yields 
+
+E
+
+h
+
+∥bΘ − Θ∥221E
+
+i
+
+≤ 𝜏 𝜅 2 
+
+> 𝐵 0
+
+𝜇 2
+
+𝐽 𝑁 . (112) 25 On E𝑐 , the squared diameter of 𝐾 𝐽 is Δ2 
+
+> 𝐽
+
+, so 
+
+E
+
+h
+
+∥bΘ − Θ∥221E𝑐 
+
+i
+
+≤ Δ2 
+
+> 𝐽
+
+𝛿 ≤ 𝜏𝐽 𝑁 . (113) Consequently, 
+
+E∥bΘ − Θ∥22 ≤ 𝐶 𝐵 0 ,𝜇, 𝜏 
+
+𝐽 𝑁 . (114) Apply Lemma D.2. Equation (114) gives 
+
+𝐼 (Θ; 𝐷 ) ≥ 
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log 𝑟 𝑗 + 𝐽 
+
+2 log 𝑁 − 𝐶 𝐵 0 ,𝜇, 𝜏 𝐽 
+
+= 12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log (𝑁𝑟 2 
+
+> 𝑗
+
+) − 𝐶 𝐵 0 ,𝜇, 𝜏 𝐽. (115) Mutual information is nonnegative, which permits the positive part in (42). Finally, Lemma D.1 transfers the same bound to ℜ𝑁 (𝐾 𝐽 ). □
+
+D.3 Proof of Theorem 4.5: Spectrum lower bound for the lagged source 
+
+Proof of Theorem 4.5. Because 𝑟 is nonincreasing and 𝑟 𝐽 > 0, we have 𝑟 𝑗 > 0 for every 1 ≤ 𝑗 ≤ 𝐽 . Restrict the source parameter to 
+
+𝐾 𝐽 =
+
+> 𝐽
+
+Ö
+
+> 𝑗 =1
+
+[− 𝑟 𝑗 /2, 𝑟 𝑗 /2] (116) and set every later coefficient to zero. Let Θ be uniform on 𝐾 𝐽 . Retain the input sequence and the labels from rounds 𝑡 = 𝐽, . . . , 𝑇 . With 
+
+𝑧 𝑖 = (𝑈 𝐽 +𝑖 −1, 𝑈 𝐽 +𝑖 −2, . . . , 𝑈 𝑖 )⊤, 𝑖 = 1, . . . , 𝑁, (117) the selected labels satisfy, independently conditional on the inputs, 
+
+𝑌 𝐽 +𝑖 | 𝑈 1: 𝑇 , Θ ∼ Ber (𝜎 (𝑧 ⊤ 
+
+> 𝑖
+
+Θ)) , 𝑖 = 1, . . . , 𝑁. (118) The matrix with rows 𝑧 ⊤ 
+
+> 𝑖
+
+is 𝑍 ( 𝐽 ) in (43). It obeys tr (( 𝑍 ( 𝐽 ) )⊤ 𝑍 ( 𝐽 ) ) = 𝑁 𝐽 (119) deterministically, and every 𝑣 ∈ 𝐾 𝐽 satisfies 
+
+|𝑧 ⊤ 
+
+> 𝑖
+
+𝑣 | ≤ 12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑟 𝑗 ≤ 𝐵 
+
+2 . (120) By Lemma 4.4, the conditioning assumption in Theorem 4.3 holds with 𝜇 = 1/2 and 
+
+𝛿 = 2𝐽 2 exp 
+
+
+
+− 𝑁 
+
+8𝐽 2
+
+
+
+. (121) Also, Δ2 
+
+> 𝐽
+
+= Í 𝑗 ≤ 𝐽 𝑟 2 
+
+> 𝑗
+
+≤ 𝐵 2. Choosing the constant in (45) sufficiently large as a function of 𝐵 gives 
+
+𝐵 2𝛿 ≤ 𝐽 𝑁 . (122) 26 Thus Theorem 4.3 implies 
+
+𝐼 (Θ; 𝐷 𝐽 ) ≥ 
+
+
+
+12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+log (𝑁𝑟 2 
+
+> 𝑗
+
+) − 𝐶 𝐵 𝐽 
+
++
+
+, (123) where 𝐷 𝐽 denotes the selected inputs and labels. The selected data 𝐷 𝐽 are a measurable function of the full observation 𝐷 = 𝑋 1: 𝑇 +1. Therefore 
+
+𝐼 (Θ; 𝐷 ) ≥ 𝐼 (Θ; 𝐷 𝐽 ). The prior is supported on a subclass of Θ(𝑟 ), so Lemma D.1 applied to the full source family gives 
+
+R𝑇 (𝑟 ) ≥ 𝐼 (Θ; 𝐷 ) ≥ 𝐼 (Θ; 𝐷 𝐽 ), (124) which proves (46). □
+
+# Appendix E Proofs of Corollaries 4.7–4.9 and Memory-Profile Sum Bounds 
+
+We prove the rate corollaries and record the corresponding memory-profile sums. 
+
+E.1 Proof of Corollary 4.7: Finite memory 
+
+If 𝑟 𝑗 = 0 for 𝑗 > 𝑘 , Theorem 4.1 and 𝑛 𝑇, 𝑗 ≤ 𝑇 give 
+
+R𝑇 (𝑟 ) ≤ 𝐶 
+
+> 𝑘
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+) ≤ 𝐶 
+
+> 𝑘
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑇𝑟 2 
+
+> 𝑗
+
+). (125) Under (50), all 𝑘 coordinates belong to the strongly active set in Corollary 4.6; the condition there follows after changing 𝐶 𝐵 . This gives the lower half of (51). For fixed positive radii, every summand is log 𝑇 + 𝑂 (1),proving the final assertion of Corollary 4.7. 
+
+E.2 Proof of Corollary 4.8: Exponential envelope 
+
+Put Λ = log ( 𝐴 2𝑇 ). For the upper bound, use 𝑛 𝑇, 𝑗 ≤ 𝑇 and monotonicity to obtain 
+
+Γ𝑇 (𝑟 ) ≤ 
+
+> ∞
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝐴 2𝑇 𝑒 −2𝛼 𝑗 )≤
+
+∫ ∞
+
+> 0
+
+log (1 + 𝐴 2𝑇 𝑒 −2𝛼𝑥 ) 𝑑𝑥 
+
+= 12𝛼 
+
+∫ ∞
+
+> 0
+
+log (1 + 𝑒 Λ−𝑦 ) 𝑑𝑦. (126) For 0 ≤ 𝑦 ≤ Λ, log (1 + 𝑒 Λ−𝑦 ) ≤ Λ − 𝑦 + log 2; for 𝑦 > Λ, it is at most 𝑒 Λ−𝑦 . Hence 
+
+Γ𝑇 (𝑟 ) ≤ 12𝛼 
+
+ Λ2
+
+2 + Λ log 2 + 1
+
+
+
+≤ 𝐶 Λ2
+
+𝛼 (127) whenever Λ ≥ 1. The upper half of (54) follows from Theorem 4.1. For the lower bound, let 
+
+𝐽 =
+
+ Λ
+
+8𝛼 
+
+
+
+. (128) 27 The first condition in (53), with a sufficiently large constant 𝐶 𝐵 , ensures 𝐽 ≥ 1 and Λ ≥ 4(𝐶 𝐵 + log 2 + 1).After decreasing 𝑐 𝐵 if necessary, the second condition ensures 𝐽 ≤ 𝑇 /2 and implies the dimension condition in Theorem 4.5. Since 𝑁 = 𝑇 − 𝐽 + 1 ≥ 𝑇 /2, 
+
+R𝑇 (𝑟 ) ≥ 
+
+
+
+12
+
+> 𝐽
+
+∑︁ 
+
+> 𝑗 =1
+
+ Λ − log 2 − 2𝛼 𝑗  − 𝐶 𝐵 𝐽 
+
++
+
+=
+
+ 𝐽 
+
+2 (Λ − log 2 ) − 𝛼𝐽 (𝐽 + 1)
+
+2 − 𝐶 𝐵 𝐽 
+
+
+
+> +
+
+. (129) By (128), the first term is of order Λ2/𝛼 , the quadratic term is at most a sufficiently small constant times 
+
+Λ2/𝛼 , and the final two linear terms are absorbed because Λ is larger than a constant depending on 𝐵 . Thus 
+
+R𝑇 (𝑟 ) ≥ 𝑐 𝐵 
+
+Λ2
+
+𝛼 . (130) This proves Corollary 4.8. For fixed 𝐴 and 𝛼 , Λ = log 𝑇 + 𝑂 (1) and the dimension condition holds because 
+
+(log 𝑇 )3 = 𝑜 (𝑇 ).
+
+E.3 Proof of Corollary 4.9: Polynomial envelope 
+
+Let 𝑀 = ( 𝐴 2𝑇 )1/( 2𝑠 ) . As before, 
+
+Γ𝑇 (𝑟 ) ≤ 
+
+> ∞
+
+∑︁ 
+
+> 𝑗 =1
+
+log 
+
+
+
+1 + ( 𝑀 / 𝑗 )2𝑠 
+
+. (131) The first condition in (57) may be taken to ensure 𝑀 ≥ 2. Put 𝑚 = ⌈𝑀 ⌉. For 𝑗 ≤ 𝑚 ,log 
+
+
+
+1 + ( 𝑀 / 𝑗 )2𝑠 
+
+≤ log 2 + 2𝑠 log (𝑚 / 𝑗 ). (132) Using log (𝑚 !) ≥ 𝑚 log 𝑚 − 𝑚 ,
+
+> 𝑚
+
+∑︁ 
+
+> 𝑗 =1
+
+log 
+
+
+
+1 + ( 𝑀 / 𝑗 )2𝑠 
+
+≤ 𝑚 log 2 + 2𝑠  𝑚 log 𝑚 − log (𝑚 !)
+
+≤ 𝐶 𝑠 𝑚 ≤ 𝐶 𝑠 𝑀. (133) For the tail, log (1 + 𝑥 ) ≤ 𝑥 and the integral test give ∑︁ 
+
+> 𝑗>𝑚
+
+log 
+
+
+
+1 + ( 𝑀 / 𝑗 )2𝑠 
+
+≤ 𝑀 2𝑠 ∑︁ 
+
+> 𝑗>𝑚
+
+𝑗 −2𝑠 
+
+≤ 𝐶 𝑠 𝑀 2𝑠 𝑚 1−2𝑠 ≤ 𝐶 𝑠 𝑀. (134) Thus Γ𝑇 (𝑟 ) ≤ 𝐶 𝑠 𝑀 , and Theorem 4.1 proves the upper half of (58). For the converse, choose a constant 
+
+𝑐 ★𝐵,𝑠 ≤ 14 𝑎 −1/( 2𝑠 ) 
+
+> 𝐵
+
+(135) and put 𝐽 = ⌊𝑐 ★𝐵,𝑠 𝑀 ⌋. For 𝑀 larger than a constant, 𝐽 ≥ 1. For every 𝑗 ≤ 𝐽 ,
+
+𝑇𝑟 2 
+
+> 𝑗
+
+= (𝑀 / 𝑗 )2𝑠 ≥ ( 𝑐 ★𝐵,𝑠 )−2𝑠 ≥ 𝑎 𝐵 . (136) 28 The second condition in (57), with a sufficiently small 𝑐 𝐵,𝑠 , implies both 𝐽 ≤ 𝑇 /2 and the dimension condition in Corollary 4.6. Therefore 
+
+R𝑇 (𝑟 ) ≥ 𝑐 𝐵 𝐽 ∑︁ 
+
+> 𝑗 =1
+
+log 
+
+
+
+1 + ( 𝑀 / 𝑗 )2𝑠 
+
+. (137) For ⌈𝐽 /2⌉ ≤ 𝑗 ≤ 𝐽 , the ratio 𝑀 / 𝑗 is at least 1 /𝑐 ★𝐵,𝑠 , so every term in this sub-block is bounded below by a positive constant depending only on 𝐵, 𝑠 . There are Θ𝐵,𝑠 (𝑀 ) such indices, which proves the lower half of (58). For fixed 𝐴 and 𝑠 > 1, 
+
+𝑀 2 log (2𝑇 ) = 𝐴 2/𝑠 𝑇 1/𝑠 log (2𝑇 ) = 𝑜 (𝑇 ), (138) so (59) follows. 
+
+E.4 Memory-profile sum bounds in Lemma E.1 
+
+Lemma E.1 (Exponential and polynomial tail sums) . Let 1 ≤ ℎ ≤ 𝑇 /4.1. If 𝑟 𝑗 = 𝐴𝑒 − 𝛼 𝑗 with 𝛼 > 0, then 
+
+𝑐 𝛼 𝑇 𝐴 2𝑒 −2𝛼ℎ ≤∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+≤ 𝐶 𝛼 𝑇 𝐴 2𝑒 −2𝛼ℎ . (139) 
+
+2. If 𝑟 𝑗 = 𝐴 𝑗 −𝑠 with 𝑠 > 1/2, then 
+
+𝑐 𝑠 𝑇 𝐴 2 ℎ1−2𝑠 ≤∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+≤ 𝐶 𝑠 𝑇 𝐴 2 ℎ1−2𝑠 . (140) 
+
+Proof. For the exponential upper bound, ∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝐴 2𝑒 −2𝛼 𝑗 ≤ 𝑇 𝐴 2 𝑒 −2𝛼 (ℎ+1)
+
+1 − 𝑒 −2𝛼 . (141) The first omitted term has 𝑛 𝑇,ℎ +1 = 𝑇 − ℎ ≥ 3𝑇 /4, which gives the lower bound with a constant depending on 
+
+𝛼 .For the polynomial upper bound, the integral test gives ∑︁ 
+
+> 𝑗>ℎ
+
+𝑛 𝑇, 𝑗 𝐴 2 𝑗 −2𝑠 ≤ 𝑇 𝐴 2∑︁ 
+
+> 𝑗>ℎ
+
+𝑗 −2𝑠 ≤ 𝐶 𝑠 𝑇 𝐴 2 ℎ1−2𝑠 . (142) For the lower bound, sum only over 𝑗 = ℎ + 1, . . . , 2ℎ. Since 2 ℎ ≤ 𝑇 /2, every such lag has 𝑛 𝑇, 𝑗 ≥ 𝑇 /2, and every coefficient satisfies 𝑗 −2𝑠 ≥ ( 2ℎ)−2𝑠 . The ℎ terms give (140). □
+
+Finally, optimizing the hard-truncation expression in the polynomial case is elementary. Balancing ℎ log 𝑇 
+
+and 𝑇 𝐴 2 ℎ1−2𝑠 gives ℎ ≍ ( 𝑇 /log 𝑇 )1/( 2𝑠 ) (with constants depending on 𝐴, 𝑠 ). For fixed 𝐴, 𝑠 and sufficiently large 𝑇 , this choice lies below 𝑇 /4, and rounding it to an integer changes only constants. Substitution yields (61). 
+
+# Appendix F Proof of Theorem 5.1 
+
+We prove a design-sensitive ONS inequality and then apply it to obtain the oracle bound in Theorem 5.1. The specialized argument keeps the dependence on the anisotropic design explicit. 29 F.1 Auxiliary bounded-logit ONS lemma for Theorem 5.1 
+
+Let 𝐾 ⊂ R𝑑 be closed and convex, let 𝑥 𝑡 ∈ R𝑑 , and let 
+
+ℓ𝑡 (𝑢 ) = 𝜓 (𝑥 ⊤ 
+
+> 𝑡
+
+𝑢 ) − 𝑦 𝑡 𝑥 ⊤ 
+
+> 𝑡
+
+𝑢, 𝑦 𝑡 ∈ { 0, 1}. (143) Assume 
+
+|𝑥 ⊤ 
+
+> 𝑡
+
+𝑢 | ≤ 𝐵 for every 𝑢 ∈ 𝐾 and every 𝑡. (144) Let 𝑔 𝑡 = ∇ℓ𝑡 (𝑢 𝑡 ) and set 𝛽 𝐵 = 𝜅 𝐵 . Starting from 𝐻 0 = 𝐼 𝑑 , define 
+
+𝐻 𝑡 = 𝐻 𝑡 −1 + 𝛽 𝐵 𝑔 𝑡 𝑔 ⊤ 
+
+> 𝑡
+
+, 𝑢 𝑡 +1 = Π 𝐻 𝑡  
+
+> 𝐾
+
+(𝑢 𝑡 − 𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 ), (145) where Π𝐻 𝐾 (𝑣 ) minimizes ∥𝑢 − 𝑣 ∥2 
+
+> 𝐻
+
+= (𝑢 − 𝑣 )⊤𝐻 (𝑢 − 𝑣 ) over 𝑢 ∈ 𝐾 .
+
+Lemma F.1 (Design-sensitive ONS) . For every 𝑢 ∈ 𝐾 ,
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+ ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 ) ≤ 12 ∥𝑢 1 − 𝑢 ∥22 + 12𝛽 𝐵 
+
+log det 𝐼 𝑑 + 𝛽 𝐵 𝑇 ∑︁ 
+
+> 𝑡 =1
+
+𝑔 𝑡 𝑔 ⊤
+
+> 𝑡
+
+!
+
+. (146) 
+
+Since 𝑔 𝑡 = (𝜎 (𝑥 ⊤ 
+
+> 𝑡
+
+𝑢 𝑡 ) − 𝑦 𝑡 )𝑥 𝑡 and 𝛽 𝐵 ≤ 1,
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+ ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 ) ≤ 12 ∥𝑢 1 − 𝑢 ∥22 + 12𝛽 𝐵 
+
+log det 𝐼 𝑑 +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑥 𝑡 𝑥 ⊤
+
+> 𝑡
+
+!
+
+. (147) 
+
+Proof. Fix 𝑢, 𝑣 ∈ 𝐾 . Taylor’s theorem and (144) give 
+
+ℓ𝑡 (𝑣 ) ≥ ℓ𝑡 (𝑢 ) + ∇ ℓ𝑡 (𝑢 )⊤ (𝑣 − 𝑢 ) + 𝜅 𝐵 
+
+2
+
+ 𝑥 ⊤ 
+
+> 𝑡
+
+(𝑣 − 𝑢 )2. (148) Because ∇ℓ𝑡 (𝑢 ) = (𝜎 (𝑥 ⊤ 
+
+> 𝑡
+
+𝑢 ) − 𝑦 𝑡 )𝑥 𝑡 and the scalar multiplier has magnitude at most one, 
+
+ 𝑥 ⊤ 
+
+> 𝑡
+
+(𝑣 − 𝑢 )2 ≥  ∇ℓ𝑡 (𝑢 )⊤ (𝑣 − 𝑢 )2. (149) Apply (148) with 𝑢 = 𝑢 𝑡 and 𝑣 = 𝑢 to obtain 
+
+ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 ) ≤ 𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 ) − 𝛽 𝐵 
+
+2
+
+ 𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 )2. (150) Metric projection is nonexpansive relative to every point in 𝐾 , so (145) implies 
+
+∥𝑢 𝑡 +1 − 𝑢 ∥2 
+
+> 𝐻 𝑡
+
+≤ ∥ 𝑢 𝑡 − 𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 − 𝑢 ∥2
+
+> 𝐻 𝑡
+
+= ∥𝑢 𝑡 − 𝑢 ∥2 
+
+> 𝐻 𝑡
+
+− 2𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 ) + 𝑔 ⊤ 
+
+> 𝑡
+
+𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 . (151) Rearranging, and using 
+
+∥𝑢 𝑡 − 𝑢 ∥2 
+
+> 𝐻 𝑡
+
+= ∥𝑢 𝑡 − 𝑢 ∥2  
+
+> 𝐻 𝑡 −1
+
++ 𝛽 𝐵 
+
+ 𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 )2, (152) we get 
+
+𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 ) − 𝛽 𝐵 
+
+2
+
+ 𝑔 ⊤ 
+
+> 𝑡
+
+(𝑢 𝑡 − 𝑢 )2
+
+≤ 12
+
+
+
+∥𝑢 𝑡 − 𝑢 ∥2  
+
+> 𝐻 𝑡 −1
+
+− ∥ 𝑢 𝑡 +1 − 𝑢 ∥2
+
+> 𝐻 𝑡
+
+
+
++ 12 𝑔 ⊤ 
+
+> 𝑡
+
+𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 . (153) 30 Summing (150) and (153) telescopes the potential and yields 
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+(ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 )) ≤ 12 ∥𝑢 1 − 𝑢 ∥2 
+
+> 𝐻 0
+
++ 12
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑔 ⊤ 
+
+> 𝑡
+
+𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 . (154) Let 𝜉 𝑡 = 𝛽 𝐵 𝑔 ⊤ 
+
+> 𝑡
+
+𝐻 −1 
+
+> 𝑡 −1
+
+𝑔 𝑡 . The Sherman–Morrison and matrix-determinant lemmas give 
+
+𝛽 𝐵 𝑔 ⊤ 
+
+> 𝑡
+
+𝐻 −1 
+
+> 𝑡
+
+𝑔 𝑡 = 𝜉 𝑡 
+
+1 + 𝜉 𝑡 
+
+≤ log (1 + 𝜉 𝑡 ) = log det 𝐻 𝑡 
+
+det 𝐻 𝑡 −1
+
+. (155) Summing (155) in (154) proves (146). Finally, 𝑔 𝑡 𝑔 ⊤ 
+
+> 𝑡
+
+⪯ 𝑥 𝑡 𝑥 ⊤ 
+
+> 𝑡
+
+, and 0 < 𝛽 𝐵 ≤ 1/4 < 1. Monotonicity of 𝑀 ↦ → log det (𝐼 + 𝑀 ) on the positive-semidefinite cone gives (147). □
+
+F.2 Proof of Theorem 5.1: Application to the profile-scaled predictor 
+
+Take 𝐾 = [− 1, 1]ℎ, 𝑢 1 = 0, and the features (70). The envelope condition gives 
+
+|( 𝑥 (ℎ) 
+
+> 𝑡
+
+)⊤𝑢 | ≤ 
+
+> ℎ
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑟 𝑗 ≤ 𝐵 (156) for every 𝑢 ∈ 𝐾 . For the normalized truncated comparator 
+
+𝑢 ★𝑗 = 𝜃 𝑗 /𝑟 𝑗 , 𝑗 ≤ ℎ, (157) with the convention 𝑢 ★𝑗 = 0 when 𝑟 𝑗 = 0, we have ∥𝑢 ★∥22 ≤ ℎ. Thus Lemma F.1 gives 
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+ ℓ𝑡 (𝑢 𝑡 ) − ℓ𝑡 (𝑢 ★) ≤ 𝐶 𝐵 
+
+"
+
+ℎ + log det 𝐼 ℎ +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑥 (ℎ) 
+
+> 𝑡
+
+(𝑥 (ℎ) 
+
+> 𝑡
+
+)⊤
+
+!# 
+
+. (158) Hadamard’s inequality bounds the determinant by the product of the diagonal entries. Coordinate 𝑗 is nonzero on exactly 𝑛 𝑇, 𝑗 rounds and has squared value 𝑟 2 
+
+> 𝑗
+
+, so log det 𝐼 ℎ +
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑥 (ℎ) 
+
+> 𝑡
+
+(𝑥 (ℎ) 
+
+> 𝑡
+
+)⊤
+
+!
+
+≤
+
+> ℎ
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+). (159) The comparator 𝑢 ★ predicts according to the truncated source 𝑃 𝜃 (ℎ) ,𝑇 . Taking expectations in (158), subtracting the Bayes loss under 𝑃 𝜃 ,𝑇 , and using the upper half of (27) yields Reg 𝑇 (ONS 𝑟 ; 𝑃 𝜃 ,𝑇 ) ≤ 𝐶 𝐵 
+
+
+
+ℎ +
+
+> ℎ
+
+∑︁ 
+
+> 𝑗 =1
+
+log (1 + 𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+)
+
+
+
++ 18∑︁ 𝑗>ℎ 
+
+𝑛 𝑇, 𝑗 𝜃 2 
+
+> 𝑗
+
+. (160) This is (72). The reduction to 𝐶 𝐵 Γ𝑇 (𝑟 ) is given in the proof in the main text. 
+
+# Appendix G Proof of Theorem 4.10 
+
+We prove the redundancy bounds in Theorem 4.10. 31 G.1 Upper bound in Theorem 4.10 
+
+For 𝜃 = 𝑎𝑟 , define the predictable scalar feature 
+
+𝑧 𝑡 =
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑟 𝑗 𝑈 𝑡 +1− 𝑗 . (161) Then the mark logit is 𝑎𝑧 𝑡 , |𝑧 𝑡 | ≤ 𝐵 , and 
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+E𝑧 2 
+
+> 𝑡
+
+=
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑟 2 
+
+> 𝑗
+
+=
+
+> 𝑇
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑛 𝑇, 𝑗 𝑟 2 
+
+> 𝑗
+
+= 𝐼 𝑇 (𝑟 ). (162) By the global logistic KL upper bound, for 𝑎, 𝑏 ∈ [− 1, 1],KL (𝑃 𝑎𝑟 ,𝑇 ∥𝑃 𝑏𝑟 ,𝑇 ) ≤ 18 (𝑎 − 𝑏 )2 𝐼 𝑇 (𝑟 ). (163) Apply the variational-mixture construction from Appendix B in one dimension, with the uniform prior on 
+
+[− 1, 1]. If 𝐼 𝑇 (𝑟 ) ≤ 1, use the whole prior and pay at most 𝐼 𝑇 (𝑟 )/ 2. If 𝐼 𝑇 (𝑟 ) > 1, localize to an interval of length 𝐼 𝑇 (𝑟 )−1/2 adjacent to the true 𝑎 ; the pairwise cost is at most 1 /8 and the localization cost is  
+
+> 12
+
+log 𝐼 𝑇 (𝑟 ) + log 2. In both cases, 
+
+Rray  
+
+> 𝑇
+
+(𝑟 ) ≤ 12 log (1 + 𝐼 𝑇 (𝑟 )) + 𝐶. (164) 
+
+G.2 Empirical feature-energy bound for Theorem 4.10 
+
+Let F𝑡 −1 = 𝜎 (𝑈 1, . . . , 𝑈 𝑡 −1). Decompose 
+
+𝑧 𝑡 = 𝑤 𝑡 + 𝑟 1𝑈 𝑡 , 𝑤 𝑡 =
+
+> 𝑡
+
+∑︁ 
+
+> 𝑗 =2
+
+𝑟 𝑗 𝑈 𝑡 +1− 𝑗 , (165) where 𝑤 𝑡 is F𝑡 −1-measurable. For every real 𝑤 ,max {| 𝑤 + 𝑟 1 |, |𝑤 − 𝑟 1 |} ≥ 𝑟 1. (166) Therefore, with 𝐼 𝑡 = 1{| 𝑧 𝑡 | ≥ 𝑟 1},
+
+E[𝐼 𝑡 | F 𝑡 −1] ≥ 12 . (167) The differences 𝐼 𝑡 − E[𝐼 𝑡 | F 𝑡 −1] form a martingale-difference sequence bounded by one in absolute value. Azuma–Hoeffding gives 
+
+P
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝐼 𝑡 < 𝑇 
+
+4
+
+!
+
+≤ 𝑒 −𝑇 /32 . (168) Consequently, on an event H𝑇 of probability at least 1 − 𝑒 −𝑇 /32 ,
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑧 2 
+
+> 𝑡
+
+≥ 𝑇𝑟 21
+
+4 . (169) 32 G.3 Lower bound in Theorem 4.10: One-dimensional entropy argument 
+
+Place the uniform prior on 𝑎 ∈ [− 1/2, 1/2]. Conditional on the inputs, let 
+
+ℓ𝑇 (𝑎 ) =
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+[𝜓 (𝑎𝑧 𝑡 ) − 𝑌 𝑡 +1𝑎𝑧 𝑡 ] (170) be the negative log likelihood, and let b𝑎 minimize it over [− 1/2, 1/2]. Since |𝑎𝑧 𝑡 | ≤ 𝐵 /2 throughout the interval, 
+
+ℓ′′  
+
+> 𝑇
+
+(𝑎 ) ≥ 𝜅 𝐵 /2
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑧 2 
+
+> 𝑡
+
+. (171) Write 𝑆 𝑇 = Í𝑇 𝑡 =1 𝑧 2 
+
+> 𝑡
+
+. Since both 𝑎 and b𝑎 lie in the constraint interval and ℓ𝑇 (b𝑎 ) ≤ ℓ𝑇 (𝑎 ), strong convexity gives 0 ≥ ℓ′ 
+
+> 𝑇
+
+(𝑎 )( b𝑎 − 𝑎 ) + 𝜅 𝐵 /2𝑆 𝑇 
+
+2 (b𝑎 − 𝑎 )2.
+
+Therefore, on H𝑇 ,
+
+|b𝑎 − 𝑎 | ≤ 2|ℓ′ 
+
+> 𝑇
+
+(𝑎 )| 
+
+𝜅 𝐵 /2𝑆 𝑇 
+
+. (172) Conditional on the inputs and 𝑎 , the score is centered and 
+
+E[ℓ′ 
+
+> 𝑇
+
+(𝑎 )2 | 𝑈 1: 𝑇 , 𝑎 ] ≤ 14
+
+> 𝑇
+
+∑︁ 
+
+> 𝑡 =1
+
+𝑧 2 
+
+> 𝑡
+
+. (173) Because H𝑇 is determined by the inputs, (172) and (173) imply 
+
+E(b𝑎 − 𝑎 )21H𝑇 | 𝑈 1: 𝑇 , 𝑎  ≤ 4
+
+𝜅 2
+
+> 𝐵 /2
+
+𝑆 2
+
+> 𝑇
+
+E[ℓ′ 
+
+> 𝑇
+
+(𝑎 )2 | 𝑈 1: 𝑇 , 𝑎 ]1H𝑇 
+
+≤ 1
+
+𝜅 2
+
+> 𝐵 /2
+
+𝑆 𝑇 
+
+1H𝑇 ≤ 4
+
+𝜅 2
+
+> 𝐵 /2
+
+𝑇𝑟 21
+
+.
+
+Together with the diameter bound |b𝑎 − 𝑎 | ≤ 1 on H 𝑐 𝑇 , this yields 
+
+E(b𝑎 − 𝑎 )2 ≤ 𝐶 𝐵 
+
+𝑇𝑟 21
+
++ 𝑒 −𝑇 /32 ≤ 𝐶 𝐵 
+
+𝑇𝑟 21
+
+. (174) The last inequality uses 𝑟 1 ≤ 𝐵 and the boundedness of 𝑇 𝑒 −𝑇 /32 .The prior interval has length one, so ℎ(𝑎 ) = 0. By data processing and the scalar Gaussian maximum-entropy inequality, 
+
+𝐼 (𝑎 ; 𝑋 1: 𝑇 +1) ≥ 𝐼 (𝑎 ; b𝑎 )
+
+= ℎ(𝑎 ) − ℎ(𝑎 | b𝑎 )≥ − ℎ(𝑎 − b𝑎 )≥ − 12 log 
+
+
+
+2𝜋𝑒 E(𝑎 − b𝑎 )2
+
+≥ 12 log (𝑇𝑟 21 ) − 𝐶 𝐵 . (175) The redundancy–capacity inequality Lemma D.1, together with nonnegativity, proves the lower half of (65). 33 Finally, for a fixed summable profile with 𝑟 1 > 0, 
+
+𝑇𝑟 21 ≤ 𝐼 𝑇 (𝑟 ) ≤ 𝑇 ∑︁  
+
+> 𝑗 ≥1
+
+𝑟 2 
+
+> 𝑗
+
+≤ 𝑇 𝐵 2. (176) The two sides of (65) are therefore both of order log 𝑇 , proving (66). 
+
+# References 
+
+Atteson, K. (1999). “The Asymptotic Redundancy of Bayes Rules for Markov Chains”. In: IEEE Transactions on Information Theory 45.6, pp. 2104–2109. doi: 10.1109/18.782131 .Beylkin, G. and L. Monz´ on (2010). “Approximation by Exponential Sums Revisited”. In: Applied and Computational Harmonic Analysis 28.2, pp. 131–149. doi: 10.1016/j.acha.2009.08.011 .Clarke, B. S. and A. R. Barron (1990). “Information-Theoretic Asymptotics of Bayes Methods”. In: IEEE Transactions on Information Theory 36.3, pp. 453–471. doi: 10.1109/18.54897 .Crutchfield, J. P. and K. Young (1989). “Inferring Statistical Complexity”. In: Physical Review Letters 63.2, pp. 105–108. doi: 10.1103/PhysRevLett.63.105 .Drmota, M., P. Jacquet, C. Wu, and W. Szpankowski (2026). “Phase Transition of Regret for Logistic Regression with Large Weights”. In: Proceedings of the 37th International Conference on Algorithmic Learning Theory . Vol. 313. Proceedings of Machine Learning Research, pp. 1–28. Fokianos, K. and L. Truquet (2019). “On Categorical Time Series Models with Covariates”. In: Stochastic Processes and their Applications 129.9, pp. 3446–3462. doi: 10.1016/j.spa.2018.09.012 .Foster, D. J., S. Kale, H. Luo, M. Mohri, and K. Sridharan (2018). “Logistic Regression: The Importance of Being Improper”. In: Proceedings of the 31st Conference on Learning Theory . Vol. 75. Proceedings of Machine Learning Research, pp. 167–208. Goldenshluger, A. and A. Zeevi (2001). “Nonasymptotic Bounds for Autoregressive Time Series Modeling”. In: The Annals of Statistics 29.2, pp. 417–444. doi: 10.1214/aos/1009210547 .Han, Y., S. Jana, and Y. Wu (2023). “Optimal Prediction of Markov Chains With and Without Spectral Gap”. In: IEEE Transactions on Information Theory 69.6, pp. 3920–3959. doi: 10.1109/TIT.2023.3239508 .Han, Y., T. Jiang, and Y. Wu (2024). “Prediction from Compression for Models with Infinite Memory, with Applications to Hidden Markov and Renewal Processes”. In: Proceedings of the 37th Conference on Learning Theory . Vol. 247. Proceedings of Machine Learning Research, pp. 2270–2307. Hazan, E., A. Agarwal, and S. Kale (2007). “Logarithmic Regret Algorithms for Online Convex Optimization”. In: Machine Learning 69.2–3, pp. 169–192. doi: 10.1007/s10994-007-5016-8 .Jacquet, P., G. I. Shamir, and W. Szpankowski (2021). “Precise Minimax Regret for Logistic Regression with Categorical Feature Values”. In: Proceedings of the 32nd International Conference on Algorithmic Learning Theory . Vol. 132. Proceedings of Machine Learning Research, pp. 755–771. Marsden, A. and E. Hazan (2026). The Power of Second Order Methods for Sequence Preconditioning . arXiv: 
+
+2605.08390 [cs.LG] .Marzen, S. E. and J. P. Crutchfield (2016). “Predictive Rate–Distortion for Infinite-Order Markov Processes”. In: Journal of Statistical Physics 163, pp. 1312–1338. doi: 10.1007/s10955-016-1520-1 .Merhav, N. and M. Feder (1998). “Universal Prediction”. In: IEEE Transactions on Information Theory 44.6, pp. 2124–2147. doi: 10.1109/18.720534 .Rissanen, J. (1996). “Fisher Information and Stochastic Complexity”. In: IEEE Transactions on Information Theory 42.1, pp. 40–47. doi: 10.1109/18.481776 .Shalizi, C. R. and J. P. Crutchfield (2001). “Computational Mechanics: Pattern and Prediction, Structure and Simplicity”. In: Journal of Statistical Physics 104, pp. 817–879. doi: 10.1023/A:1010388907793 .Shamir, G. I. (2020). “Logistic Regression Regret: What’s the Catch?” In: Proceedings of the 33rd Conference on Learning Theory . Vol. 125. Proceedings of Machine Learning Research, pp. 3296–3319. 34 Shtar’kov, Y. M. (1987). “Universal sequential coding of single messages”. In: Problemy Peredachi Informatsii 
+
+23.3, pp. 3–17. Willems, F. M. J., Y. M. Shtarkov, and T. J. Tjalkens (1995). “The Context-Tree Weighting Method: Basic Properties”. In: IEEE Transactions on Information Theory 41.3, pp. 653–664. doi: 10.1109/18.382012 .Wu, C., M. Hosseini, and N. Santhanam (2018). “Redundancy of Unbounded Memory Markov Classes with Continuity Conditions”. In: 2018 IEEE International Symposium on Information Theory , pp. 211–215. doi: 10.1109/ISIT.2018.8437650 .35
