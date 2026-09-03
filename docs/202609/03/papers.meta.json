@@ -1,0 +1,39 @@
+{
+  "label": "2026-09-03",
+  "date": "2026-09-03",
+  "generated_at": "2026-09-03T23:02:08",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202609/03/2609.00345v1-do-llms-know-your-neighborhood-auditing-llm-priors-for-neighborhood-level-mobility-prediction-and-structural-alignment",
+      "section": "deep",
+      "title_en": "Do LLMs Know Your Neighborhood? Auditing LLM Priors for Neighborhood-Level Mobility Prediction and Structural Alignment",
+      "authors": "Saad Mohammad Abrar, Eesha Kurella, Arnav Dadarya, Naman Awasthi, Kazi Tasnim Zinat, Vanessa Frias-Martinez",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2609.00345v1",
+      "score": "9.0",
+      "evidence": "审计LLM对街区级人类移动的预测能力，直接涉及人类移动模式预测与结构对齐",
+      "tldr": "人类细粒度移动轨迹常受隐私限制难以获取，LLM能否利用城市上下文推断街区级移动模式尚待检验。本文基于美国四个都会区的匿名Cuebiq数据，系统评估零样本LLM在多种移动性结果上的预测能力，并引入方向一致性分析以审计其隐含的先验效应是否与经验回归趋势相符。结果表明，监督模型平均准确率0.580，最优LLM仅0.435，LLM预测对空间范围类结果相对有效，但其先验多为粗糙稳定的城市或人口特征推断，且对不同城市与结果缺乏结构稳健性。工作提示LLM可部分恢复聚合移动模式，但须经经验校准与偏差审计才能使用。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Human mobility is central to urban planning, transportation, public health, and emergency response, yet fine-grained trajectory data are often proprietary, restricted, and privacy-sensitive. Large language models (LLMs) offer a potential alternative by generating plausible mobility traces and predicting individual movement, but their ability to infer aggregate neighborhood-level mobility remains unclear. We evaluate zero-shot LLMs on Census Block Group-level mobility prediction across four U.S. metropolitan areas using anonymized Cuebiq data to construct point-level, trajectory-level, and temporal mobility outcomes, paired with sociodemographic and built-environment predictors. We compare LLM predictions with supervised baselines and introduce a directional alignment analysis to test whether LLM-implied predictor effects agree with empirical OLS and Jonckheere-Terpstra trends. Supervised models achieve 0.580 average accuracy, compared with 0.435 for the best LLM, with spatial extent outcomes showing the strongest predictability but also the largest LLM-baseline gaps. Directional analysis shows that LLMs often rely on coarse, stable predictor-level priors that remain similar across outcomes and cities, including asymmetric treatment of protected-group predictors. Overall, LLMs can partially recover aggregate mobility patterns from urban context, but their predictions should not be treated as structurally grounded without auditing empirical alignment and potential bias.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/03/2609.01131v1-from-source-reconstruction-to-predictive-state-preservation-an-information-theoretic-framework-for-ai-native-communication",
+      "section": "quick",
+      "title_en": "From Source Reconstruction to Predictive State Preservation: An Information-Theoretic Framework for AI-Native Communication",
+      "authors": "Yi Wang, Linglong Dai",
+      "date": "2026-09-01",
+      "pdf": "https://arxiv.org/pdf/2609.01131v1",
+      "score": "6.0",
+      "evidence": "定义了充分且最小的预测状态，并以预测性能损失作为度量，对理论可预测性分析有直接贡献。",
+      "tldr": "AI原生通信需要预测而不只是重建源，但传统源编码未明确该保留什么。本文以源诱导的预测状态（源观测与共享上下文下目标未来的条件分布）为保真对象，证明其充分且最小。以预测损失为通信失真，对数损失下等于损失的互信息；该状态可用于接收机误差分解，实现匹配压缩，且无记忆源上直接编码状态与利用原始源无速率失真差距。面向全部未来时状态可递归更新并具马尔可夫性，推动AI通信转向预测状态保持。",
+      "tags": "query:pred-limit",
+      "abstract_en": "AI-native communication increasingly aims to support prediction rather than reproduce every detail of the source. This shift raises a basic question left implicit by conventional source coding: what should be preserved when the terminal goal is prediction? We take the source-induced predictive state as the fidelity object. It is the distribution of the specified future conditioned on the source observation and shared context. We show that this state is sufficient and minimal for exact predictive preservation. The terminal prediction loss then defines communication distortion as lost predictive performance rather than source reconstruction error. Under logarithmic loss, this distortion equals the conditional mutual information lost through communication. Using the receiver-side predictive state as a Bayes reference, we separate AI-receiver error into predictive value lost in communication, receiver-available value unusable by the model family, and family capability not realized by the deployed model. The same predictive state also suffices for matched compression. For finite-alphabet memoryless sources, access to the raw source gives no rate-distortion advantage over coding the state directly. Applying the same target-conditioned construction to sequential prediction reveals a dynamic boundary. A state induced by a fixed horizon is minimal for that horizon but may not support recursive updating as the target window shifts. Taking the entire future as the target yields a minimal full-future state that updates recursively and admits a Markov representation. Together, these results shift AI communication from source reconstruction to predictive-state preservation.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

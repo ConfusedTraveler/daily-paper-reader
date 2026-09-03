@@ -1,0 +1,1318 @@
+Title: From Source Reconstruction to Predictive State Preservation: An Information-Theoretic Framework for AI-Native Communication
+
+URL Source: https://arxiv.org/pdf/2609.01131v1
+
+Published Time: Wed, 02 Sep 2026 01:15:50 GMT
+
+Number of Pages: 13
+
+Markdown Content:
+> 1
+
+# From Source Reconstruction to Predictive State Preservation: An Information-Theoretic Framework for AI-Native Communication 
+
+Yi Wang and Linglong Dai, Fellow, IEEE 
+
+Abstract —AI-native communication increasingly aims to sup-port prediction rather than reproduce every detail of the source. This shift raises a basic question left implicit by conventional source coding: what should be preserved when the terminal goal is prediction? We take the source-induced predictive state as the fidelity object. It is the distribution of the specified future conditioned on the source observation and shared context. We show that this state is sufficient and minimal for exact predictive preservation. The terminal prediction loss then defines communication distortion as lost predictive performance rather than source reconstruction error. Under logarithmic loss, this distortion equals the conditional mutual information lost through communication. Using the receiver-side predictive state as a Bayes reference, we separate AI-receiver error into predictive value lost in communication, receiver-available value unusable by the model family, and family capability not realized by the deployed model. The same predictive state also suffices for matched compression. For finite-alphabet memoryless sources, access to the raw source gives no rate-distortion advantage over coding the state directly. Applying the same target-conditioned construction to sequential prediction reveals a dynamic boundary. A state induced by a fixed horizon is minimal for that horizon but may not support recursive updating as the target window shifts. Taking the entire future as the target yields a minimal full-future state that updates recursively and admits a Markov representation. Together, these results shift AI communication from source reconstruction to predictive-state preservation. 
+
+Index Terms —Predictive state, AI-native communication, pre-dictive fidelity, rate-distortion. 
+
+I. I NTRODUCTION 
+
+AI-native communication increasingly serves terminals that use received information to predict future outcomes. Classical source-coding theory characterizes how efficiently a prescribed fidelity object can be preserved, but it does not determine what that object should be. Conventional source reconstruction takes the source realization itself as the fidelity object. For a predictive terminal, however, distinct source realizations should be treated as equivalent whenever they induce the same predictive distribution for the specified future. The fidelity object for predictive communication must therefore be identified before distortion and coding are defined. 
+
+This work was supported in part by the National Science Fund for Distinguished Young Scholars under Grant 62325106, in part by the National Science and Technology Major Projects of China under Grant 2025ZD1301800, and in part by the National Key Research and Development Program of China under Grant 2023YFB3811503. The authors are with the Department of Electronic Engineering, Ts-inghua University, and the State Key Laboratory of Space Network and Communications, Tsinghua University, Beijing 100084, China (e-mails: yiwang24@mails.tsinghua.edu.cn, daill@tsinghua.edu.cn). 
+
+We identify this object as the source-induced predictive state. Let X denote the source observation, C the shared context, and F the specified prediction target. Define 
+
+SX ≜ PF |X,C .
+
+The state SX records the full predictive distribution of F
+
+available from the source observation and shared context. If two source realizations x1 and x2 satisfy 
+
+PF |X,C ( · | x1, c ) = PF |X,C ( · | x2, c ),
+
+then they are indistinguishable for predicting F , even if a reconstruction metric distinguishes them. Thus SX realizes the target-conditioned quotient induced by the prediction objective. It is not a learned embedding selected by the system designer, nor must it be transmitted literally as a probability vector. Rather, it specifies the invariant that every representation preserving the full predictive distribution must retain. This recasts prediction-oriented communication from source reconstruction to predictive-state preservation. The remainder of the paper develops the fidelity, receiver, coding, and sequential consequences of this change in fidelity object. 
+
+A. Relation to Prior Work 
+
+Classical source coding and indirect source coding assume that the source object or remote target has been specified before the coding problem is posed [1], [2], [3], [4]. Recent semantic-communication theories move this choice earlier by constructing task-dependent alphabets or equivalence classes and by defining fidelity between semantic distributions [5], [6], [7], [8]. These works move semantic communication from coding a prescribed source alphabet toward constructing a task-dependent fidelity object. The use of predictive distributions as sufficient represen-tations is well established in the information-bottleneck and statistical-relevance literature [9], [10]. Recent work further shows that reducing a source to a sufficient statistic can preserve both information-bottleneck tradeoffs and finite-block log-loss coding performance [11]. Decision-theoretic work also shows that a coarser representation may suffice when the terminal needs only a particular decision rather than the full predictive distribution [12]. These results distinguish full predictive-distribution preservation from the weaker preservation of a task-specific Bayes action. arXiv:2609.01131v1 [cs.IT] 1 Sep 2026 2
+
+Proper scoring rules evaluate probabilistic predictions and quantify the excess risk incurred by using one predictive distri-bution in place of another [13], [14]. Under logarithmic loss, this excess risk becomes relative entropy, and the predictive value of side information is characterized by mutual information [15], [16]. These results connect probabilistic prediction error to divergence and information loss, providing the loss-based ingredients needed for predictive fidelity. Predictive V-information and the Decodable Information Bottleneck show that information present in a representation may still be unusable by a restricted predictor family [17], [18]. Related work has also separated information loss from predictor error, shown that a fixed AI decoder may fail to exploit information already available at the receiver, and studied rate-distortion limits under model constraints [19], [20], [21]. These results motivate distinguishing receiver-available information from model-usable predictive performance; we retain this distinction through a restricted Bayes-risk gap. For sequential prediction, causal-state theory identifies the full-future predictive distribution as a minimal sufficient state with recursive and Markov structure [22], [23]. Predictive inference and predictive rate-distortion study the representation and compression of future information [24], [25], while recent work considers operational predictive-state communication and the failure of finite predictive summaries to remain closed under updating [26], [27]. These results expose a distinction between sufficiency for a fixed prediction target and sufficiency for recursive sequential prediction. Taken together, these lines of work provide the main ingre-dients for predictive sufficiency, loss-based fidelity, constrained receiver utilization, matched compression, and recursive predic-tive state. They are developed, however, around different source objects and operational questions, leaving their relationship implicit within prediction-oriented communication. The present work makes this relationship explicit by using a common target-conditioned predictive state to organize static fidelity, AI reception, compression, and sequential refinement. The resulting technical contributions are summarized next. 
+
+B. Contributions and Paper Organization 
+
+The central contribution is to make fidelity-object selection an explicit information-theoretic step and, for exact predictive preservation, to resolve that step through the target-conditioned predictive state. Once this object-selection principle is fixed, its consequences for fidelity, AI reception, compression, and sequential prediction follow. This yields three contributions. 1) Predictive-fidelity object and geometry. We take the source-induced predictive state SX = PF |X,C as the fidelity object, thereby grouping source realizations by the future predictions they support rather than by source similarity. We prove that SX is sufficient and minimal for exact predictive preservation. We then use the terminal prediction loss to define distortion directly on this predictive quotient, so that communication fidelity reflects predictive performance rather than source reconstruction error. Under logarithmic loss, this distortion is exactly the predictive information discarded by communication. 2) AI-receiver loss decomposition. Using the source-and receiver-side predictive states as common Bayes references, we derive an additive decomposition of end-to-end AI-receiver loss into three distinct mechanisms: predictive value lost in communication, value available at the receiver but unattainable by the predictor family, and family capability not realized by the deployed model. This decomposition reveals that identical end-to-end errors can arise from fundamentally different bottlenecks, each with its own zero-loss condition and system-level remedy. 3) Compression sufficiency and sequential refinement. 
+
+We examine how far the predictive-state reduction continues to hold beyond fidelity definition. Under finite-alphabet memoryless assumptions and matched predictive-state distortion, access to raw-source distinc-tions within a predictive class provides no rate-distortion advantage over coding the state directly. For sequential prediction, a state minimal for a fixed horizon may fail to update recursively, while taking the entire future as the target yields a minimal recursively closed state with a Markov representation. Together, these contributions establish predictive-state preser-vation as a common abstraction for communication fidelity, AI-receiver loss attribution, matched compression, and sequential prediction. Figure 1 summarizes the resulting fixed-target framework and its sequential extension.                            
+
+> (a) Fixed-target communication and AI reception
+> source predictive state
+> SX
+> HL(F|X, C )
+> receiver predictive state
+> SY
+> HL(F|Y, C )
+> matched compression
+> Rind
+> X→S(D) = Rdir
+> S(D)
+> predictor family
+> V
+> HL, V(F|Y, C )
+> deployed
+> Qθ
+> RL(Qθ)∆comm
+> ∆V
+> family ∆θ
+> deploy
+> (b) Sequential refinement
+> X=Ht,F=Wt+1: t+k,SX=S(k)
+> t
+> Σt
+> full-future state
+> Σt+1
+> full-future state
+> S(k)
+> t
+> finite horizon
+> S(k)
+> t+1
+> finite horizon
+> Φ( ·, W t+1 )(πk)#(πk)#
+> ×
+> not recursively closed in general Fig. 1. Target-conditioned predictive-fidelity framework. (a) For a fixed prediction target, the source and receiver predictive states provide common references for communication, model-family, and deployment losses, while matched compression acts directly on the predictive quotient. (b) For sequential prediction, the finite-horizon state is a marginal of the full-future state. The latter updates recursively, whereas the former need not be recursively closed. 3
+
+Section II defines the predictive state for exact preservation and establishes its minimality. Section III develops proper-loss fidelity and its log-loss information interpretation. Section IV develops the AI-receiver loss decomposition. Section V establishes the matched rate-distortion reduction. Section VI develops the sequential refinement and recursive-closure results. Section VII concludes the paper. II. P REDICTIVE STATE AS THE FIDELITY OBJECT FOR 
+
+EXACT PREDICTIVE PRESERVATION 
+
+A. Problem Formulation and Assumptions 
+
+Let (C, X, F ) ∼ PC,X,F , where C ∈ C is shared context, 
+
+X ∈ X is the source observation, and F ∈ F is the specified prediction target, typically a future random element. We study exact predictive preservation. Given the shared context C, the goal is to identify what information in X must be retained to preserve the entire predictive distribution of F ,before introducing a particular distortion measure or coding scheme. To ensure that the conditional distributions used below admit measurable versions, we assume that the random elements take values in standard Borel spaces. For every standard Borel space E, we equip P(E) with its evaluation σ-field. We fix one measurable version of each required conditional distribution, and all identities between such kernels are understood almost surely. For sequential prediction, F may represent a future block. The corresponding time-indexed specialization is introduced in Section VI. 
+
+B. Predictive State 
+
+The first step is to represent what the source observation tells us about the prediction target once the shared context is known. This motivates using the conditional predictive distribution as the state. 
+
+Definition 1 (Predictive state) . For a fixed context value c,define the predictive-state map 
+
+τc : X → P (F), τc(x) ≜ PF |X,C ( · | x, c ),
+
+where P(F) is the space of probability measures over the target space F. The source-induced predictive state is 
+
+SX ≜ τC (X) = PF |X,C ( · | X, C ).
+
+More generally, for any information variable U jointly distributed with (F, C ), write 
+
+SU ≜ PF |U,C ( · | U, C ).
+
+The subscript identifies the information variable inducing the state; dependence on the shared context is suppressed. The predictive state is relative to the prediction target, the available context, and the underlying joint distribution. Changing any of these generally changes SX .The construction deliberately preserves the entire predictive distribution. If the terminal requires only a particular predictive property or Bayes action, a coarser task-specific representation may suffice [12]. 
+
+C. Predictive Equivalence and the Quotient Source 
+
+To understand what information the predictive state retains from the raw source, we characterize source realizations that induce the same state through predictive equivalence. 
+
+Definition 2 (Predictive equivalence) . For a fixed context c,two source realizations are predictively equivalent when they induce the same predictive state: 
+
+x1 ∼c x2 ⇐⇒ τc(x1) = τc(x2).
+
+The equality is understood as equality of probability measures on F. To avoid distinctions caused only by off-support versions of the conditional distribution, interpret this relation on a full-
+
+PX|C=c-measure set Xc for PC -almost every c. Define 
+
+Sc ≜ τc(Xc) ⊆ P (F)
+
+as the attainable predictive-state space. The map τc factors setwise through the predictive quotient: 
+
+Xcπc
+
+−−−→ X c/∼c
+
+> ¯τc
+
+−−→ S c, ¯τc([ x]) = τc(x).
+
+By construction, ¯τc is a bijection, so Sc provides a distribution-valued realization of the predictive quotient. This statement is set-theoretic; no measurable or topological quotient structure is required for the results below. Thus Sc is a concrete representation of the source distinctions that remain relevant to the specified prediction target. 
+
+D. Sufficiency and Minimality 
+
+Predictive equivalence so far gives only a partition of the source. To justify the predictive state as the fidelity object, we must establish that it preserves all information needed for the specified prediction and that every admissible representation with the same predictive capability must retain this state. 
+
+Definition 3 (Admissible and predictively sufficient represen-tation) . A possibly randomized representation T is admissible if 
+
+F − (X, C ) − T. 
+
+It is predictively sufficient if 
+
+F ⊥⊥ X | (T, C ).
+
+Thus, once (T, C ) is known, the raw observation X provides no further information about the specified prediction target. The predictive state satisfies both requirements. 
+
+Theorem 1 (Predictive sufficiency and minimality) . Let 
+
+SX = PF |X,C ( · | X, C ).
+
+Then: 
+
+1) Predictive sufficiency. The state SX is an admissible function of (X, C ) and satisfies 
+
+F ⊥⊥ X | (SX , C ).4
+
+2) Minimality. For every admissible and predictively suffi-cient representation T , there exists a measurable map 
+
+g : T × C → P (F)
+
+such that 
+
+SX = g(T, C ) almost surely .
+
+A valid version is 
+
+g(t, c ) = PF |T,C ( · | t, c ).
+
+Equivalently, 
+
+σ(SX , C ) ⊆ σ(T, C ) (mod P ).
+
+Proof. Because F is standard Borel, let A0 be a countable determining class. For each A ∈ A 0,
+
+P (F ∈ A | X, C ) = SX (A).
+
+The tower property gives 
+
+P (F ∈ A | SX , C ) = E[SX (A) | SX , C ] = SX (A).
+
+Since SX is determined by (X, C ),
+
+P (F ∈ A | X, S X , C ) = SX (A).
+
+The determining property of A0 therefore yields 
+
+F ⊥⊥ X | (SX , C ).
+
+Now let T be admissible and predictively sufficient. Admis-sibility and sufficiency imply, almost surely, 
+
+PF |X,C = PF |X,T,C = PF |T,C .
+
+Hence, with 
+
+g(t, c ) = PF |T,C ( · | t, c ),
+
+we obtain 
+
+SX = g(T, C ),
+
+which proves the factorization and the corresponding inclusion of generated σ-fields. 
+
+Remark 1 (Meaning of minimality) . Minimality here refers to information content rather than representation size: every admissible predictively sufficient representation must contain enough information to recover SX , although it may retain ad-ditional source information. Any other admissible predictively sufficient representation that is minimal in the same factor order is therefore equivalent to SX up to almost-sure measurable relabeling. 
+
+E. Reconstruction Boundary and Receiver State 
+
+The predictive formulation should recover classical source identity when the prediction target itself is the source. Choosing 
+
+F = X gives 
+
+SX = PX|X,C = δX , x1 ∼c x2 ⇐⇒ x1 = x2.
+
+Thus the predictive quotient reduces to the original source space. For a genuine future target, the map 
+
+x 7 −→ PF |X,C ( · | x, c )
+
+may instead be noninjective, allowing source realizations with identical predictive consequences to be merged. Thus the framework recovers exact source reconstruction when prediction requires source identity, while permitting a coarser fidelity object when it does not. This correspondence is with exact source reconstruction. Arbitrary lossy reconstruction metrics remain separately specified fidelity criteria. Having established the source-side object and its reconstruc-tion boundary, we now introduce the corresponding receiver-side state. Let Y denote receiver-side information generated from (X, C ), so that 
+
+F − (X, C ) − Y. 
+
+For every measurable A ⊆ F ,
+
+SY (A) = P (F ∈ A | Y, C )= E[P (F ∈ A | X, C ) | Y, C ]= E[SX (A) | Y, C ].
+
+Thus communication replaces the source-side predictive state by the conditional barycenter of the states still compatible with the received information. The mapping 
+
+SX −→ SY
+
+therefore provides the static predictive-fidelity interface be-tween source and receiver. III. P REDICTIVE FIDELITY AND INFORMATION 
+
+ACCOUNTING 
+
+Section II identifies the source and receiver predictive states and the static interface SX → SY . We now ask how predictive loss along this interface should be measured. We derive distortion from the terminal prediction loss and then show that, under logarithmic loss, the resulting fidelity admits an exact information-theoretic interpretation. 
+
+A. Loss-Induced Fidelity on the Predictive Quotient 
+
+We use the excess prediction risk induced by a proper probabilistic prediction loss as a fidelity measure between predictive states. Here proper means that reporting the true predictive distribution minimizes expected loss. Let Q ⊆ P (F) be a class of admissible predictive reports containing the predictive states considered below. Equip Q
+
+with the trace σ-field inherited from P(F), and let 
+
+L : Q × F → R5
+
+be a measurable terminal loss, where L(Q, f ) is the proba-bilistic prediction loss incurred by reporting Q ∈ Q when the realized target is f . For truth P ∈ Q and report Q ∈ Q , define 
+
+RL(P, Q ) ≜ EF ∼P [L(Q, F )] .
+
+We call L proper on Q if truthful reporting satisfies 
+
+RL(P, P ) ≤ RL(P, Q )
+
+for all P, Q ∈ Q . It is strictly proper if equality can hold only when Q = P . Its Bayes risk is 
+
+HL(P ) ≜ RL(P, P ),
+
+Whenever the difference is well defined, define its loss-induced divergence, formally the regret divergence, by 
+
+DL(P ∥Q) ≜ RL(P, Q ) − RL(P, P ).
+
+Thus DL(P ∥Q) is exactly the excess terminal prediction risk incurred by reporting Q when the true predictive distribution is P . Under properness it is nonnegative, and under strict properness it vanishes only when P = Q. It is directed and need not be a metric. For any information variable U such that 
+
+SU = PF |U,C ( · | U, C ) ∈ Q 
+
+almost surely, define the conditional Bayes risk 
+
+HL(F | U, C ) ≜ E[HL(SU )] .
+
+This is the Bayes-optimal expected terminal risk when (U, C )
+
+is available. When SY is admissible, it is Bayes-optimal among predictive reports based on (Y, C ). The distortion induced by commu-nication should therefore equal the Bayes-risk increase from source-side to receiver-side information. The following identity makes this exact. 
+
+Theorem 2 (Proper-loss communication identity) . Let Y satisfy 
+
+F −(X, C )−Y . Let L be proper on Q, assume that SX , S Y ∈Q almost surely, and suppose that all displayed expectations and risk differences are well defined. Then 
+
+E[DL(SX ∥SY )] = HL(F | Y, C ) − HL(F | X, C ) ≥ 0.
+
+If L is strictly proper, the common value is zero if and only if 
+
+SX = SY almost surely ,
+
+or equivalently, 
+
+F ⊥⊥ X | (Y, C ).
+
+Proof. Conditioned on (X, Y, C ), the target distribution is SX .Therefore 
+
+E[DL(SX ∥SY )] = E[L(SY , F )] − E[L(SX , F )] .
+
+Because SX and SY are the Bayes reports associated with 
+
+(X, C ) and (Y, C ), respectively, 
+
+E[L(SX , F )] = HL(F | X, C ),
+
+E[L(SY , F )] = HL(F | Y, C ),
+
+which proves the identity and its nonnegativity. Under strict properness, DL(SX ∥SY ) = 0 exactly when 
+
+SX = SY . Since the divergence is nonnegative, its expectation vanishes exactly when this equality holds almost surely. Under the Markov relation, this is equivalent to 
+
+F ⊥⊥ X | (Y, C ).
+
+Theorem 2 completes the transition from fidelity-object selec-tion to fidelity measurement. The prediction target determines which source distinctions remain relevant, while the terminal loss determines the cost of confusing the resulting predictive states. Different proper losses may therefore induce different fidelities on the same predictive quotient, with relative entropy arising specifically under logarithmic loss. 
+
+B. Log-Loss Information Accounting 
+
+For a general proper loss, predictive distortion is mea-sured as excess terminal prediction risk. Logarithmic loss is distinguished by the fact that its induced divergence is relative entropy. We now show that this same predictive-fidelity quantity admits an exact Shannon-theoretic representation at the communication level. Assume that the report class Q is dominated by a fixed reference measure μ on F, and write q = dQ/dμ for Q ∈ Q .For P, Q ∈ Q , with p = dP/dμ , logarithmic loss 
+
+Llog (Q, f ) = − log q(f )
+
+induces 
+
+DLlog (P ∥Q) = EF ∼P
+
+
+
+log p(F )
+
+q(F )
+
+
+
+= DKL (P ∥Q).
+
+The divergence takes the extended value +∞ when P is not absolutely continuous with respect to Q.Thus, under logarithmic loss, predictive-state fidelity is measured by relative entropy. The next result shows that, after averaging over the communication system, this same quantity is exactly the conditional mutual information about the prediction target that is unavailable from the receiver-side information. For receiver information Y , define the expected log-loss predictive distortion 
+
+Dp(X → Y | C) ≜ EDKL 
+
+ PF |X,C PF |Y,C 
+
+ .
+
+Theorem 3 (Log-loss predictive-information identity) . Let Y
+
+satisfy 
+
+F − (X, C ) − Y. 
+
+Whenever the conditional relative entropies are well-defined, 
+
+Dp(X → Y | C) = I(F ; X | Y, C ).
+
+If the mutual-information terms are finite, then 
+
+I(F ; X | C) = I(F ; Y | C) + Dp(X → Y | C).
+
+Proof. The conditional-relative-entropy representation gives 6
+
+I(F ; X | Y, C ) = EDKL 
+
+ PF |X,Y,C PF |Y,C 
+
+ .
+
+The Markov relation replaces PF |X,Y,C by PF |X,C , proving the first identity. For the second identity, the chain rule and 
+
+F − (X, C ) − Y give 
+
+I(F ; X | C) = I(F ; X, Y | C)= I(F ; Y | C) + I(F ; X | Y, C )= I(F ; Y | C) + Dp(X → Y | C).
+
+This completes the proof. When the relevant conditional entropies are well-defined and finite, the same quantity can also be written as 
+
+Dp(X → Y | C) = H(F | Y, C ) − H(F | X, C ).
+
+More importantly, predictive sufficiency of SX gives 
+
+I(F ; SX | C) = I(F ; X | C).
+
+Thus quotienting the raw source to its predictive state removes no information about the selected target. Under logarithmic loss, the communication-induced distortion Dp(X → Y | C)
+
+measures precisely the target information unavailable after the transition 
+
+SX −→ SY .
+
+Accordingly, 
+
+Dp(X → Y | C) = 0 
+
+if and only if the receiver is predictively sufficient, equivalently 
+
+SX = SY almost surely, or F ⊥⊥ X | (Y, C ).IV. AI-R ECEIVER PREDICTIVE FIDELITY 
+
+Sections II–III characterize the predictive content delivered to the receiver through the transition from SX to SY . This Bayes-level description is not yet the performance of a deployed AI receiver: the receiver may be unable to realize the Bayes-optimal prediction within its model family, and the deployed model may further fall short of the family optimum. We now separate these additional sources of predictive loss. 
+
+A. Constrained Predictor Family and Deployed Model 
+
+For a proper prediction loss, the receiver-side state 
+
+SY = PF |Y,C (· | Y, C )
+
+is the Bayes-optimal report based on the complete receiver information (Y, C ), provided that it belongs to the admissible report class Q. We use this ideal receiver as the reference point for separating model-family limitation from deployment suboptimality. Let V be a nonempty class of measurable predictive kernels 
+
+Q : ( y, c ) 7 −→ Q(· | y, c ) ∈ Q ,
+
+where V may encode architectural, computational, interface, or decoding restrictions. Let Qθ ∈ V denote the deployed predictor. For Q ∈ V , define its terminal risk by 
+
+RL(Q) ≜ E[L(Q(· | Y, C ), F )] ,
+
+and define the optimal risk attainable within the family by 
+
+HL, V (F | Y, C ) ≜ inf  
+
+> Q∈V
+
+RL(Q).
+
+When the infimum is attained, let 
+
+Q⋆ 
+
+> V
+
+∈ arg min 
+
+> Q∈V
+
+RL(Q)
+
+denote a family-optimal predictor. 
+
+B. Communication, Family, and Deployment Gaps 
+
+Relative to the source-informed Bayes predictor, end-to-end AI-receiver loss can arise at three successive stages: predictive value may be lost before reception, the received information may not be fully exploitable by the predictor family, and the deployed model may fail to realize the best performance available within that family. The following proposition shows that these three effects admit an exact additive decomposition. 
+
+Proposition 1 (AI-receiver predictive-fidelity decomposition) .
+
+Let 
+
+F − (X, C ) − Y, 
+
+let L be proper on Q, and suppose that 
+
+SX , S Y ∈ Q 
+
+almost surely and that 
+
+Q(· | Y, C ) ∈ Q 
+
+almost surely for every Q ∈ V . Assume that all displayed risks are finite. Then 
+
+HL(F | X, C ) ≤ HL(F | Y, C )
+
+≤ HL, V (F | Y, C )
+
+≤ R L(Qθ ).
+
+Define 
+
+∆comm ≜ HL(F | Y, C ) − HL(F | X, C ) = EDL(SX ∥SY ),
+
+∆V 
+
+> family
+
+≜ HL, V (F | Y, C ) − HL(F | Y, C )= inf  
+
+> Q∈V
+
+EDL(SY ∥Q(· | Y, C )) ,
+
+∆θ 
+
+> deploy
+
+≜ RL(Qθ ) − HL, V (F | Y, C ).
+
+All three gaps are nonnegative, and 
+
+EDL(SX ∥Qθ (· | Y, C )) = ∆ comm + ∆ V 
+
+> family
+
++ ∆ θ
+
+> deploy
+
+.
+
+Proof. For any Q ∈ V , conditioning on (Y, C ) gives 
+
+RL(Q) = HL(F | Y, C ) + E[DL(SY ∥Q(· | Y, C ))] .
+
+Taking the infimum over V yields the family gap, while Qθ ∈ V 
+
+gives the deployment gap. By Theorem 2, 
+
+HL(F | Y, C ) − HL(F | X, C ) = EDL(SX ∥SY ),
+
+which gives the communication gap. Moreover, 
+
+EDL(SX ∥Qθ (· | Y, C )) = RL(Qθ ) − HL(F | X, C ).7
+
+Inserting the receiver Bayes risk and the family-optimal risk between these endpoint risks gives the stated decomposition. The three gaps therefore have distinct operational meanings: 
+
+∆comm measures predictive value lost before reception, ∆V
+
+> family
+
+measures receiver-available value that the predictor family cannot exploit, and ∆θ 
+
+> deploy
+
+measures family capability not realized by the deployed model. Only the first term has a universal Shannon-theoretic representation under logarithmic loss. 
+
+C. Losslessness and Log-Loss Specialization 
+
+The decomposition separates not only where predictive loss occurs, but also what would be required to eliminate it. It also clarifies which part of end-to-end AI-receiver loss has a Shannon-information interpretation. We consider these two consequences in turn. 
+
+Corollary 1 (End-to-end AI-receiver losslessness) . Under Proposition 1, the deployed AI receiver attains the source-informed Bayes risk, 
+
+RL(Qθ ) = HL(F | X, C ),
+
+or, equivalently, 
+
+EDL(SX ∥Qθ (· | Y, C )) = 0 ,
+
+if and only if 
+
+∆comm = ∆ V 
+
+> family
+
+= ∆ θ 
+
+> deploy
+
+= 0 .
+
+If L is strictly proper, the communication condition is equivalent to 
+
+SX = SY almost surely ,
+
+or, under F − (X, C ) − Y ,
+
+F ⊥⊥ X | (Y, C ).
+
+If, in addition, the family infimum is attained, then 
+
+∆V 
+
+> family
+
+= 0 ⇐⇒ Q⋆ 
+
+> V
+
+(· | Y, C ) = SY almost surely ,
+
+and 
+
+∆θ 
+
+> deploy
+
+= 0 ⇐⇒ Qθ ∈ arg min 
+
+> Q∈V
+
+RL(Q).
+
+Thus, under strict properness and attainment, AI-receiver losslessness requires all three of the following: (i) the received information is predictively sufficient; (ii) the receiver-side Bayes state is realizable by V;
+
+(iii) the deployed predictor attains the family optimum. Proof. By Proposition 1, 
+
+RL(Qθ ) − HL(F | X, C ) = ∆ comm + ∆ V 
+
+> family
+
++ ∆ θ
+
+> deploy
+
+,
+
+where all three terms are nonnegative. Hence the endpoint risks are equal if and only if every gap vanishes. Under strict properness, zero expected loss-induced diver-gence implies equality of the corresponding predictive reports almost surely. This gives the communication statement and, when a family minimizer exists, the realizability statement. The deployment condition follows directly from the definition of the family infimum. 
+
+Remark 2 (Bayes versus AI-receiver losslessness) . Zero com-munication gap guarantees losslessness only relative to the unconstrained Bayes receiver. End-to-end AI-receiver lossless-ness also requires zero family and deployment gaps. Here losslessness means zero excess risk relative to the source-informed Bayes predictor, not zero intrinsic prediction risk. If the family infimum is not attained, ∆V 
+
+> family
+
+= 0 means arbitrarily accurate approximation in expected excess risk rather than exact realizability by a single member of V.
+
+Corollary 2 (Log-loss decomposition) . Let L = Llog , with a common logarithm base for loss, entropy, relative entropy, and mutual information, and write 
+
+Rlog (Q) ≜ RLlog (Q).
+
+Whenever the displayed quantities are finite, Theorem 3identifies the communication gap exactly as conditional mutual information: 
+
+∆comm = I(F ; X | Y, C ),
+
+and consequently 
+
+Rlog (Qθ ) = H(F | X, C ) + I(F ; X | Y, C )+ ∆ V 
+
+> family
+
++ ∆ θ
+
+> deploy
+
+.
+
+Equivalently, 
+
+E[DKL (SX ∥Qθ (· | Y, C ))] = I(F ; X | Y, C )+ ∆ V 
+
+> family
+
++ ∆ θ
+
+> deploy
+
+.
+
+The receiver-side gaps are 
+
+∆V 
+
+> family
+
+= inf  
+
+> Q∈V
+
+E[DKL (SY ∥Q(· | Y, C ))] = inf  
+
+> Q∈V
+
+Rlog (Q) − H(F | Y, C ),
+
+and 
+
+∆θ 
+
+> deploy
+
+= Rlog (Qθ ) − inf  
+
+> Q∈V
+
+Rlog (Q).
+
+Proof. Under log loss, HLlog = H and DLlog = DKL . By Theorem 3, 
+
+∆comm = H(F | Y, C ) − H(F | X, C ) = I(F ; X | Y, C ).
+
+Substituting this identity into the decomposition of Proposi-tion 1 yields both boxed formulas. The expressions for the receiver-side gaps follow directly from their definitions under 
+
+DLlog = DKL .Thus logarithmic loss identifies the communication term with Shannon information while leaving two receiver-side excess-risk terms. Communication removes predictive information before it reaches the receiver, whereas the family and deploy-ment terms quantify failures to exploit information already available there. 8                           
+
+> TABLE I THREE RECEIVERS WITH THE SAME ONE -BIT DEPLOYED LOG -LOSS EXCESS RISK ,EACH LIMITED BY A DIFFERENT LAYER .Limiting layer YPredictor family Deployed predictor ∆comm ∆V
+> family ∆θ
+> deploy
+> Communication AVYQ1/2=SY100
+> Model family (A, B )VAQ1/2, family-optimal 010
+> Deployment (A, B )VYQ1/2, suboptimal 001
+
+D. Restricted Receiver Interfaces and Layerwise Diagnosis 
+
+The family gap in Proposition 1 is defined abstractly for an arbitrary predictor family. Its meaning becomes particularly transparent when the receiver family can access the received information only through a restricted interface statistic. This case shows how predictive value can reach the receiver yet become unavailable to the deployed prediction pipeline. 
+
+Remark 3 (Restricted receiver interface) . Let 
+
+U = ϕ(Y, C )
+
+be the receiver-interface statistic, and suppose that the predictor retains separate access to the shared context C. Let VU be the class of all admissible kernels of the form 
+
+Q(· | y, c ) = eQ(· | ϕ(y, c ), c ),
+
+as eQ ranges over measurable predictive reports based on (U, C ).Whenever SU ∈ Q almost surely, 
+
+HL, VU (F | Y, C ) = HL(F | U, C ),
+
+and hence 
+
+∆VU 
+
+> family
+
+= HL(F | U, C ) − HL(F | Y, C ) = EDL(SY ∥SU ).
+
+Under log loss, whenever finite, 
+
+∆VU 
+
+> family
+
+= I(F ; Y | U, C ).
+
+Thus the family gap reduces to the predictive value in Y that is discarded by the receiver interface U . If the predictor cannot separately access C, the relevant Bayes state and risk are instead PF |U and HL(F | U ).This specialization shows that communication loss and receiver-interface loss can remove the same amount of predic-tive value while occurring at different stages of the system. The next example makes this distinction explicit. 
+
+Example 1 (Equal end-to-end loss from three distinct layers) .
+
+Let C be deterministic, 
+
+A, B i.i.d.
+
+∼ Bernoulli(1 /2) , X = ( A, B ), F = B, 
+
+and use base-two logarithmic loss. For any information variable 
+
+Z, let VZ denote the class of all predictive kernels measurable with respect to Z, and let Q1/2 always report Bernoulli(1 /2) .Table I compares three receivers with the same deployed log-loss excess risk of one bit. In all three cases, H(F | X) = 0 ,but exactly one of the three gaps is nonzero. Although the three systems have identical end-to-end perfor-mance, their remedies are different. The communication-limited system requires a more informative representation or link; the family-limited system requires a richer interface or predictor family; and the deployment-limited system requires improved training, optimization, or calibration. The restricted-interface case also makes explicit why repre-sentations carrying the same Bayes content need not be equally usable by a constrained predictor family: usability depends on how that information is exposed to V.V. M ATCHED COMPRESSION ON THE PREDICTIVE 
+
+QUOTIENT 
+
+The preceding sections identify the predictive state as the fidelity object and derive its matched distortion without committing to a coding architecture. We now ask an operational question: once fidelity depends only on the predictive state, can access to additional distinctions in the raw source improve compression? We answer this question under a finite-alphabet memoryless model by comparing indirect coding from the raw source with direct coding of the predictive state. 
+
+A. Matched Direct and Indirect Coding Problems 
+
+To isolate the value of raw-source information beyond the predictive state, we compare two coding problems under exactly the same predictive-state distortion. The indirect encoder observes the raw source, whereas the direct encoder observes only its predictive state. For this section only, let 
+
+(Fi, X i, C i), i = 1 , . . . , n, 
+
+be i.i.d. copies of a finite-alphabet triple (F, X, C ), with Cn
+
+available noncausally at both terminals. Define the single-letter predictive state 
+
+S = η(X, C ) ≜ PF |X,C (· | X, C ),
+
+and let 
+
+Si = η(Xi, C i)
+
+denote its i.i.d. copies. Let S denote the finite support of S.Fix a finite reproduction alphabet bS satisfying 
+
+S ∪ bS ⊆ Q ,
+
+and use the matched single-letter distortion 
+
+dp(s, bs) ≜ DL(s∥bs), (s, bs) ∈ S × bS,
+
+assumed finite on this domain. This is the predictive-state fidelity developed in Section III. 9
+
+For the indirect coding problem, pull it back to the raw source alphabet through η:
+
+ed(x, c, bs) ≜ dp(η(x, c ), bs) = DL(η(x, c )∥bs) .
+
+Thus the indirect and direct coding problems below are evaluated under the same matched predictive-state criterion and differ only in the encoder observation. In particular, ed
+
+is constant on predictive-equivalence classes in its source argument. An (n, M n) indirect code is a pair 
+
+f Xn : X n × C n → [1 : Mn],gXn : [1 : Mn] × C n → bS n,
+
+producing 
+
+bSnX = gXn
+
+ f Xn (Xn, C n), C n .
+
+An (n, M n) direct state code is a pair 
+
+f Sn : Sn × C n → [1 : Mn],gSn : [1 : Mn] × C n → bS n,
+
+producing 
+
+bSnS = gSn
+
+ f Sn (Sn, C n), C n .
+
+For either problem, define the average distortion 
+
+Dn ≜ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+E[dp(Si, bSi)] ,
+
+where bSn denotes the corresponding reconstruction. A rate 
+
+R is achievable at distortion D if there exists a sequence of the corresponding codes such that 
+
+lim sup 
+
+> n→∞
+
+1
+
+n log Mn ≤ R, 
+
+lim sup 
+
+> n→∞
+
+Dn ≤ D. 
+
+Let 
+
+Rind  
+
+> X→S
+
+(D) and Rdir  
+
+> S
+
+(D)
+
+denote the infima of achievable rates in the indirect and direct problems, respectively. The two problems differ only in the encoder observation: the indirect encoder sees (Xn, C n),whereas the direct encoder sees the induced quotient sequence 
+
+(Sn, C n).
+
+B. Predictive Quotient Reduction 
+
+The indirect encoder appears to have an advantage because its test channel may depend on raw-source distinctions that the predictive state has discarded. The key question is whether such within-class dependence can improve matched fidelity. The next lemma shows that it cannot. 
+
+Lemma 1 (Fiber-averaging reduction to the predictive quotient) .
+
+For every test channel W bS|X,C with reproduction alphabet bS,there exists a state test channel Q bS|S,C such that the two channels induce the same joint law of (S, C, bS). Consequently, they achieve the same expected matched distortion, and 
+
+IQ(S; bS | C) ≤ IW (X; bS | C).
+
+More precisely, 
+
+IW (X; bS | C) − IQ(S; bS | C)= IW (X; bS | S, C ) ≥ 0.
+
+Proof. For every pair (s, c ) with 
+
+PS,C (s, c ) > 0,
+
+define 
+
+Q(bs | s, c ) ≜ X 
+
+> x:η(x,c )= s
+
+PX|S,C (x | s, c )W (bs | x, c ),
+
+and define Q arbitrarily on PS,C -null pairs. Then 
+
+PS,C (s, c )Q(bs | s, c )= X 
+
+> x:η(x,c )= s
+
+PX,C (x, c )W (bs | x, c ),
+
+which is exactly the joint probability of (S, C, bS) = ( s, c, bs)
+
+under the original channel W . Hence the construction preserves 
+
+PS,C, bS and therefore the matched distortion. Since S = η(X, C ) is a deterministic function of (X, C ),the chain rule under the original channel W gives 
+
+IW (X; bS | C) = IW (S; bS | C)+ IW (X; bS | S, C ).
+
+Preservation of (S, C, bS) gives 
+
+IQ(S; bS | C) = IW (S; bS | C).
+
+Combining these identities proves the result. Thus any dependence of the reconstruction on distinctions within a predictive-equivalence class consumes rate but cannot improve the matched distortion. 
+
+C. Rate-Distortion Preservation 
+
+Lemma 1 establishes the reduction at the single-letter test-channel level. We now combine it with classical conditional rate-distortion theory to show that the same reduction holds operationally. 
+
+Theorem 4 (Rate-distortion preservation on the predictive quotient) . Under the finite-alphabet memoryless model of Section V-A, for every distortion level D ≥ 0,
+
+Rind  
+
+> X→S
+
+(D) = inf     
+
+> WbS|X,C :
+> EW[dp(S, bS)] ≤D
+
+IW (X; bS | C)= inf    
+
+> QbS|S,C :
+> EQ[dp(S, bS)] ≤D
+
+IQ(S; bS | C)= Rdir  
+
+> S
+
+(D).10 
+
+Thus access to raw-source distinctions within a predictive-equivalence class does not improve the rate-distortion tradeoff under matched predictive-state fidelity. Proof. Classical conditional rate-distortion theory with Cn
+
+available noncausally at both terminals [2] gives 
+
+Rind  
+
+> X→S
+
+(D) = inf     
+
+> WbS|X,C :
+> EW[dp(S, bS)] ≤D
+
+IW (X; bS | C),
+
+with the source-space pullback ed defined in Section V-A, and 
+
+Rdir  
+
+> S
+
+(D) = inf    
+
+> QbS|S,C :
+> EQ[dp(S, bS)] ≤D
+
+IQ(S; bS | C).
+
+For the first direction, every feasible raw-source channel 
+
+W bS|X,C is reduced by Lemma 1 to a state channel Q bS|S,C 
+
+with the same joint law of (S, C, bS), and hence the same distortion, such that 
+
+IQ(S; bS | C) ≤ IW (X; bS | C).
+
+Taking infima gives 
+
+Rdir  
+
+> S
+
+(D) ≤ Rind  
+
+> X→S
+
+(D).
+
+For the reverse direction, given any feasible state channel 
+
+Q bS|S,C , define a raw-source channel by 
+
+W (bs | x, c ) ≜ Q(bs | η(x, c ), c ) .
+
+This construction preserves the joint law of (S, C, bS) and therefore the expected distortion. Moreover, 
+
+X − (S, C ) − bS
+
+under W , and S is a deterministic function of (X, C ). Hence 
+
+IW (X; bS | C) = IW (S; bS | C) + IW (X; bS | S, C )= IW (S; bS | C)= IQ(S; bS | C).
+
+Thus every feasible state channel induces a feasible raw-source channel at the same rate and distortion, yielding 
+
+Rind  
+
+> X→S
+
+(D) ≤ Rdir  
+
+> S
+
+(D).
+
+Combining the two inequalities proves the result. 
+
+Remark 4 (Matched-fidelity boundary) . The rate-distortion equivalence holds because the source-space distortion factors through the predictive state: 
+
+ed(x, c, bs) = dp(η(x, c ), bs) .
+
+Thus all source realizations within a predictive class are indistinguishable to the fidelity criterion. If a different distortion distinguishes such realizations, its rate-distortion function need not be preserved by the predictive quotient. 
+
+D. Log-Loss Closure and Information-Bottleneck Form 
+
+Theorem 4 establishes the matched quotient reduction for a finite reproduction alphabet. Under logarithmic loss, allowing the full predictive simplex closes this compression result with the information-accounting identity of Section III. Because the resulting setting falls outside the finite-reproduction assumptions of Theorem 4, we state it as a separate finite-source extension. Assume that (F, X, C ) is finite, let the reproduction alphabet be the full probability simplex P(F), and use the extended-valued distortion 
+
+dlog (s, bs) ≜ DKL (s∥bs).
+
+Restrict attention to codes with finite expected distortion, and denote the resulting indirect and direct operational rate-distortion functions by 
+
+Rind ,log  
+
+> X→S
+
+(D) and Rdir ,log  
+
+> S
+
+(D).
+
+For any finite auxiliary M satisfying F − (X, C ) − M ,consider reconstruction maps bs : M × C → P (F). The Bayes-optimal choice under log loss is the posterior predictive law [15]: 
+
+bS⋆(M, C ) = PF |M,C .
+
+By Theorem 3, applied with receiver information Y = M ,
+
+inf  
+
+> bs
+
+EDKL 
+
+ PF |X,C bs(M, C ) 
+
+= EDKL 
+
+ PF |X,C PF |M,C 
+
+ 
+
+= I(F ; X | M, C ).
+
+Thus the distortion bound becomes a constraint on predictive information. The fiber-averaging construction of Lemma 1 applies to M as well: any raw-source channel PM |X,C can be averaged within the fibers of S = η(X, C ) to preserve the joint law of (S, C, M ) while not increasing the coding rate. Together with the encoder Markov relation, predictive sufficiency gives 
+
+F ⊥ M | (S, C ); preserving (S, C, M ) therefore preserves the posterior PF |M,C and the Bayes log-loss distortion. Conversely, every state channel can be pulled back through η at the same rate and distortion. Combining classical conditional log-loss source coding [15] with this quotient reduction yields 
+
+Rind ,log  
+
+> X→S
+
+(D) = Rdir ,log  
+
+> S
+
+(D)= inf    
+
+> PM|S,C :
+> |M| <∞,I(F;X|M,C )≤D
+
+I(S; M | C).
+
+The relevance constraint can itself be expressed entirely on the predictive quotient. Indeed, S is a deterministic function of 
+
+(X, C ), predictive sufficiency gives F ⊥ X | (S, C ), and the state channel gives M −(S, C )−X. Hence F ⊥ X | (S, M, C )
+
+and 
+
+I(F ; X | M, C ) = I(F ; X, S | M, C )= I(F ; S | M, C ) + I(F ; X | S, M, C )= I(F ; S | M, C ).11 
+
+Equivalently, the common rate-distortion function can be written as 
+
+inf    
+
+> PM|S,C :
+> |M| <∞,I(F;S|M,C )≤D
+
+I(S; M | C),
+
+which is the familiar conditional information-bottleneck/log-loss form [9], [15] entirely on the predictive quotient. The result remains a static finite-alphabet memoryless characterization; Section VI turns to sequential predictive states at the state-representation level rather than through a dynamic coding theorem. VI. S EQUENTIAL REFINEMENT AND RECURSIVE CLOSURE 
+
+Sections II–V treat prediction relative to a fixed target. In sequential prediction, however, the target shifts as new observations arrive, so a state sufficient for the current target need not support recursive updating. We first show this limitation for finite-horizon states and then identify the full-future state as the minimal recursively closed refinement. The discussion concerns state representation rather than dynamic coding. 
+
+A. Finite-Horizon Predictive State 
+
+Let {Wt}t≥1 be a stochastic process on a standard Borel alphabet W. Define 
+
+Ht = W1: t, Ht = σ(W1: t),
+
+with H0 the empty history and H0 the trivial σ-field. For a fixed horizon k ≥ 1, let 
+
+F (k) 
+
+> t
+
+≜ Wt+1: t+k.
+
+At each time t, the static construction of Section II applies with 
+
+X = Ht, F = F (k) 
+
+> t
+
+.
+
+Definition 4 (Finite-horizon predictive-state process) . The k-step predictive state at time t is 
+
+S(k) 
+
+> t
+
+≜ P (Wt+1: t+k ∈ ·|H t)= PWt+1: t+k |Ht (· | Ht).
+
+By Theorem 1, S(k) 
+
+> t
+
+is sufficient and minimal, in the measurable-factor order, for exact preservation of the current k-step predictive law. Sequential use requires a stronger property: whether there exists a measurable update map such that 
+
+S(k) 
+
+> t+1
+
+= Γ k,t 
+
+
+
+S(k) 
+
+> t
+
+, W t+1 
+
+
+
+almost surely .
+
+The next subsection shows that fixed-target minimality alone does not guarantee such recursive closure. 
+
+B. Finite-Horizon Sufficiency Does Not Imply Recursive Clo-sure 
+
+The obstruction comes from the moving target window: information outside the current horizon may be irrelevant now but become relevant after one shift. The following construction shows that this prevents a generally valid finite-horizon update. 
+
+Proposition 2 (A counterexample to recursive closure) . For every k ≥ 1, there exists a binary stochastic process and a time t such that 
+
+S(k)
+
+> t+1
+
+is not measurable with respect to 
+
+σ
+
+
+
+S(k) 
+
+> t
+
+, W t+1 
+
+
+
+.
+
+Consequently, there is no measurable map 
+
+Γk,t : P(Wk) × W −→ P (Wk)
+
+satisfying 
+
+S(k) 
+
+> t+1
+
+= Γ k,t 
+
+
+
+S(k) 
+
+> t
+
+, W t+1 
+
+
+
+almost surely .
+
+Proof. Let 
+
+A, B 1, . . . , B k
+
+> ind
+
+∼ Bernoulli(1 /2) ,
+
+and define 
+
+W1 = A, Wj+1 = Bj , j = 1 , . . . , k, Wk+2 = A, 
+
+extending the process arbitrarily thereafter. At t = 1 , the current target (B1, . . . , B k) is independent of the revealed history H1 = A. Hence 
+
+S(k)1 = Unif( {0, 1}k) almost surely .
+
+After observing W2 = B1, the shifted target becomes 
+
+(B2, . . . , B k, A ), so 
+
+S(k)2 = Bernoulli(1 /2) ⊗(k−1) ⊗ δA,
+
+with the first factor absent for k = 1 .For either b ∈ { 0, 1}, the events {A = 0 , B 1 = b} and 
+
+{A = 1 , B 1 = b} have positive probability and produce the same pair 
+
+ S(k)1 , W 2
+
+ =  Unif( {0, 1}k), b ,
+
+but different values of S(k)2 . Thus S(k)2 is not measurable with respect to σ(S(k)1 , W 2).The failure is caused by horizon shift: Wt+k+1 lies outside the target defining S(k) 
+
+> t
+
+but enters the next target. Information that is irrelevant to the current finite horizon can therefore become relevant one step later. Particular processes may admit closed finite-horizon updates, but such closure does not follow from predictive sufficiency alone. 12 
+
+C. Full-Future Refinement 
+
+The counterexample identifies what the finite-horizon state can discard: predictive distinctions that lie beyond the current target but may matter after later shifts. To retain all distinctions that can become relevant at any finite horizon, we now take the entire future as the prediction target. Let 
+
+Wt+1: ∞ ≜ (Wt+1 , W t+2 , . . . )
+
+denote the entire future tail. 
+
+Definition 5 (Full-future predictive state) . The full-future predictive state at time t is 
+
+Σt ≜ PWt+1: ∞|Ht (· | Ht) ∈ P (WN).
+
+For k ≥ 1, let πk project onto the first k future coordinates. Then 
+
+S(k) 
+
+> t
+
+= ( πk)#Σt almost surely ,
+
+and hence 
+
+σ(S(k) 
+
+> t
+
+) ⊆ σ(Σ t) (mod P ).
+
+Thus Σt determines every finite-horizon predictive state, whereas S(k) 
+
+> t
+
+retains only the marginal required by the current target. 
+
+D. Full-Future Sufficiency and Recursive Closure 
+
+We now ask whether the full-future refinement has the two properties needed for sequential prediction: predictive sufficiency for the entire future and recursive closure under new observations. 
+
+Definition 6 (Recursive predictive representation) . A state process Tt = ρt(Ht) taking values in a standard Borel state space Tt is a recursive predictive representation if, for every 
+
+t, it satisfies both: 1) full-future sufficiency: 
+
+Wt+1: ∞ ⊥⊥ Ht | Tt;
+
+2) recursive closure: there exists a measurable update map 
+
+Ψt : Tt × W −→ T t+1 
+
+such that 
+
+Tt+1 = Ψ t(Tt, W t+1 ) almost surely .
+
+By measurable disintegration on standard Borel spaces [28, Thm. 1.25], we may fix a jointly measurable kernel 
+
+Φ : P(WN) × W −→ P (WN),
+
+where Φ( σ, w ) gives the conditional law of tail coordinates 
+
+2, 3, . . . under σ given first coordinate w, with arbitrary values on σ1-null observations; here σ1 is the first-coordinate marginal of σ.
+
+Theorem 5 (Full-future predictive state: minimality and recur-sive closure) . Under the preceding standard Borel assumptions, the full-future state Σt satisfies the following properties. 
+
+1) Full-future sufficiency and minimality. 
+
+Wt+1: ∞ ⊥⊥ Ht | Σt.
+
+Moreover, if Tt = ρt(Ht) is any history statistic satisfying 
+
+Wt+1: ∞ ⊥⊥ Ht | Tt,
+
+then there exists a measurable map gt such that 
+
+Σt = gt(Tt) almost surely .
+
+Equivalently, 
+
+σ(Σ t) ⊆ σ(Tt) (mod P ).
+
+2) Recursive update. 
+
+Σt+1 = Φ(Σ t, W t+1 ) almost surely .
+
+3) Markov representation. The process {Σt} admits the transition kernel 
+
+K(σ, B ) ≜
+
+Z
+
+> W
+
+1Φ( σ, w ) ∈ B σ1(dw ),
+
+for B ∈ B (P(WN)) .Consequently, {Σt} is itself a recursive predictive repre-sentation and is a measurable factor of every other full-future sufficient representation, in particular of every recursive predictive representation. Proof. Full-future sufficiency and minimality follow directly from Theorem 1 by taking 
+
+X = Ht, F = Wt+1: ∞,
+
+with trivial shared context. For recursive updating, conditioned on Ht, Σt is the law of 
+
+(Wt+1 , W t+2 , . . . ). After observing Wt+1 , the disintegration kernel Φ gives the conditional law of the remaining tail. Hence, by uniqueness of regular conditional laws, 
+
+Σt+1 = Φ(Σ t, W t+1 ) almost surely .
+
+Finally, conditioned on Ht, the next observation has law 
+
+(Σ t)1, and the next state is Φ(Σ t, W t+1 ). Joint measurability of Φ makes K a Markov kernel, and for every measurable state set B,
+
+P (Σ t+1 ∈ B | H t) = 
+
+Z
+
+> W
+
+1Φ(Σ t, w ) ∈ B (Σ t)1(dw )= K(Σ t, B ).
+
+The right-hand side depends on the past only through Σt.Conditioning again on σ(Σ 0, . . . , Σt) ⊆ H t establishes the Markov representation. The two states therefore solve different problems. The finite-horizon state is minimal for exact preservation of the current 
+
+k-step predictive law, whereas the full-future state is minimal for preserving the entire future law and is recursively closed under new observations. Fixed-target predictive sufficiency and recursive sequential sufficiency are therefore distinct requirements. 13 
+
+VII. C ONCLUSION 
+
+This paper starts from a question that precedes distortion design and coding: when communication serves prediction, what should be preserved? For a specified prediction target and shared context, we identify the source-induced predictive state SX = PF |X,C as the fidelity object for exact predictive preservation. It identifies source realizations by the predictive distribution they induce and is minimal among admissible representations preserving that law. This makes fidelity-object selection an explicit first step of prediction-oriented communi-cation, rather than treating the raw source as the default object of preservation. Once this principle for selecting the fidelity object is fixed, the rest of the framework follows. Terminal prediction loss induces predictive fidelity, with logarithmic loss yielding an exact accounting of predictive information lost through com-munication. Source- and receiver-side predictive states separate communication, model-family, and deployment losses. Under matched memoryless compression, raw-source distinctions beyond the predictive quotient provide no rate-distortion gain. In sequential prediction, fixed-horizon sufficiency need not imply recursive closure, motivating the full-future predictive state for recursive evolution. The central message is therefore a change in where com-munication design begins. For prediction-oriented and AI-native systems, the first question is not how accurately to reconstruct the source, nor even which distortion to optimize, but which source distinctions matter to the terminal objective in the first place. Distortion, compression, transmission, and receiver design come after that choice. The shift from source reconstruction to predictive-state preservation therefore begins with a change in the first question: before asking how to preserve information, first ask what information needs to be preserved. REFERENCES [1] C. E. Shannon, “Coding theorems for a discrete source with a fidelity criterion,” in IRE National Convention Record , vol. 7, 1959, pp. 142–163. [2] R. M. Gray, “Conditional rate-distortion theory,” Stanford Electronics Laboratories, Stanford University, Stanford, CA, USA, Tech. Rep. 6502-2, Oct. 1972. [3] J. K. Wolf and J. Ziv, “Transmission of noisy information to a noisy receiver with minimum distortion,” IEEE Transactions on Information Theory , vol. 16, no. 4, pp. 406–411, Jul. 1970. [4] H. S. Witsenhausen, “Indirect rate distortion problems,” IEEE Transac-tions on Information Theory , vol. 26, no. 5, pp. 518–521, Sep. 1980. [5] J. Liu, S. Shao, W. Zhang, and H. V. Poor, “An indirect rate-distortion characterization for semantic sources: General model and the case of Gaussian observation,” IEEE Transactions on Communications , vol. 70, no. 9, pp. 5946–5959, Sep. 2022. [6] K. Niu and P. Zhang, “A mathematical theory of semantic communication,” 2024, arXiv:2401.13387 [cs.IT]. [7] Y.-Q. Zhao, Z.-M. Ma, G. Y. Li, S. Yuan, T. Ye, and C. Zhou, “Semantic rate-distortion theory with applications,” 2025, arXiv:2509.10061 [cs.IT]. [8] A. T. Nixon, “Semantic rate-distortion for bounded multi-agent commu-nication: Capacity-derived semantic spaces and the communication cost of alignment,” 2026, arXiv:2604.09521 [cs.IT]. [9] N. Tishby, F. C. Pereira, and W. Bialek, “The information bottleneck method,” in Proceedings of the 37th Annual Allerton Conference on Communication, Control, and Computing , 1999, pp. 368–377. [10] C. R. Shalizi and J. P. Crutchfield, “Information bottlenecks, causal states, and statistical relevance bases: How to represent relevant information in memoryless transduction,” Advances in Complex Systems , vol. 5, no. 1, pp. 91–95, 2002. [11] J. Armstrong, “Source-side sufficiency for the information bottleneck: Exact reduction and finite-block equivalence,” 2026, arXiv:2604.26744v2 [cs.IT]. [12] V. Sevetlidis, “Bayes-sufficient representations in supervised learning,” 2026, arXiv:2606.04045v1 [cs.LG]. [13] L. J. Savage, “Elicitation of personal probabilities and expectations,” 
+
+Journal of the American Statistical Association , vol. 66, no. 336, pp. 783–801, 1971. [14] T. Gneiting and A. E. Raftery, “Strictly proper scoring rules, prediction, and estimation,” Journal of the American Statistical Association , vol. 102, no. 477, pp. 359–378, 2007. [15] T. A. Courtade and T. Weissman, “Multiterminal source coding under logarithmic loss,” IEEE Transactions on Information Theory , vol. 60, no. 1, pp. 740–761, Jan. 2014. [16] J. Jiao, T. A. Courtade, K. Venkat, and T. Weissman, “Justification of logarithmic loss via the benefit of side information,” IEEE Transactions on Information Theory , vol. 61, no. 10, pp. 5357–5365, Oct. 2015. [17] Y. Xu, S. Zhao, J. Song, R. Stewart, and S. Ermon, “A theory of usable information under computational constraints,” in International Conference on Learning Representations , 2020. [Online]. Available: https://openreview.net/forum?id=r1eBeyHFDH [18] Y. Dubois, D. Kiela, D. J. Schwab, and R. Vedantam, “Learning optimal representations with the decodable information bottleneck,” in Advances in Neural Information Processing Systems , vol. 33. Curran Associates, Inc., 2020, pp. 18 674– 18 690. [Online]. Available: https://proceedings.neurips.cc/paper/2020/ hash/d8ea5f53c1b1eb087ac2e356253395d8-Abstract.html [19] A. Charpentier and A. F. Machado, “Decomposing probabilistic scores: Reliability, information loss and uncertainty,” 2026, arXiv:2603.15232 [cs.LG]. [20] J. Billa, “Modality collapse as mismatched decoding: Information-theoretic limits of multimodal LLMs,” 2026, arXiv:2602.23136 [cs.CL]. [21] A. Enttsel and V. Corlay, “Model-aware rate-distortion limits for task-oriented source coding,” 2026, arXiv:2602.12866 [cs.IT]. [22] J. P. Crutchfield and K. Young, “Inferring statistical complexity,” Physical Review Letters , vol. 63, no. 2, pp. 105–108, 1989. [23] C. R. Shalizi and J. P. Crutchfield, “Computational mechanics: Pattern and prediction, structure and simplicity,” Journal of Statistical Physics ,vol. 104, no. 3–4, pp. 817–879, 2001. [24] S. Still, “Information bottleneck approach to predictive inference,” 
+
+Entropy , vol. 16, no. 2, pp. 968–989, 2014. [25] S. E. Marzen and J. P. Crutchfield, “Predictive rate-distortion for infinite-order Markov processes,” Journal of Statistical Physics , vol. 163, no. 6, pp. 1312–1338, 2016. [26] Ö. Erçetin and M. Chraiti, “Predictive-state communication: Innovation coding and reconciliation under delay,” 2026, arXiv:2602.10542 [cs.IT]. [27] Q. Wang, “Fiber fingerprints of hidden learning-state dynamics,” 2026, arXiv:2608.15976v1 [cs.LG]. [28] O. Kallenberg, Random Measures, Theory and Applications , ser. Proba-bility Theory and Stochastic Modelling. Cham: Springer, 2017, vol. 77.
