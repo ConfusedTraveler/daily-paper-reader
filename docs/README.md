@@ -6,28 +6,32 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-03
-- 运行时间：2026-09-03 23:02:01 UTC
+- 最新运行日期：2026-09-05
+- 运行时间：2026-09-05 22:12:11 UTC
 - 运行状态：成功
-- 本次总论文数：2
+- 本次总论文数：4
 - 精读区：1
-- 速读区：1
+- 速读区：3
 
 ### 今日简报（AI）
-今日精读1篇、速读1篇，聚焦AI模型行为与通信理论，其中精读论文获9.0高分。  
-最值得关注的是：LLM对社区级人口移动存在先验偏差，其内部表征与现实结构未必对齐，需通过审计校准。  
-若时间有限，建议优先精读这篇区域移动性论文；速读的信息论通信框架可作背景拓展。
-- 详情：[/202609/03/README](/202609/03/README)
+今日精读1篇、速读3篇，聚焦交通预测、能源价格与时间序列建模。最值得关注的是城市交通统一预测的跨模式迁移方法（8.0分），以及能源价格事件动态的卷积框架（7.0分）。建议可先精读高分交通预测论文，其余两篇作为时序方法的延伸参考。
+- 详情：[/202609/05/README](/202609/05/README)
 
 ### 精读区论文标签
-1. [Do LLMs Know Your Neighborhood? Auditing LLM Priors for Neighborhood-Level Mobility Prediction and Structural Alignment](/202609/03/2609.00345v1-do-llms-know-your-neighborhood-auditing-llm-priors-for-neighborhood-level-mobility-prediction-and-structural-alignment)  
-   标签：评分：9.0/10、query:pred-limit
-   evidence：审计LLM对街区级人类移动的预测能力，直接涉及人类移动模式预测与结构对齐
+1. [Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting](/202609/05/2608.28273v2-learning-to-transfer-across-modes-towards-unified-urban-mobility-forecasting)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：多模式城市移动性需求预测与跨模式迁移
 
 ### 速读区论文标签
-1. [From Source Reconstruction to Predictive State Preservation: An Information-Theoretic Framework for AI-Native Communication](/202609/03/2609.01131v1-from-source-reconstruction-to-predictive-state-preservation-an-information-theoretic-framework-for-ai-native-communication)  
+1. [A convolutional framework for detecting event-driven dynamics in energy price series](/202609/05/2609.00402v1-a-convolutional-framework-for-detecting-event-driven-dynamics-in-energy-price-series)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：时间序列事件分类器的有限样本误差界与oracle不等式
+2. [Learning to Difference: Adaptive Reversible Differencing (AdaRDiff) for Time Series Forecasting](/202609/05/2608.28134v1-learning-to-difference-adaptive-reversible-differencing-adardiff-for-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：定义了充分且最小的预测状态，并以预测性能损失作为度量，对理论可预测性分析有直接贡献。
+   evidence：通过可学习差分改善时间序列预测的稳定性
+3. [Uncertainty-Aware Trajectory Forecasting from Imperfect Tracking](/202609/05/2608.30899v1-uncertainty-aware-trajectory-forecasting-from-imperfect-tracking)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：不完美跟踪条件下的轨迹预测与不确定性传播
 
 
 <div class="dpr-home-promo-card">

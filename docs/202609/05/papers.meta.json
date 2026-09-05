@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-05",
+  "date": "2026-09-05",
+  "generated_at": "2026-09-05T22:12:15",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/05/2608.28273v2-learning-to-transfer-across-modes-towards-unified-urban-mobility-forecasting",
+      "section": "deep",
+      "title_en": "Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting",
+      "authors": "Yixuan Zhao, Man Luo",
+      "date": "2026-08-28",
+      "pdf": "https://arxiv.org/pdf/2608.28273v2",
+      "score": "8.0",
+      "evidence": "多模式城市移动性需求预测与跨模式迁移",
+      "tldr": "统一预测城市多模式出行需求时，存在模式间空间异质和数据稀缺问题。TransMod通过共享区域级空间表示对齐不同粒度系统，并学习源模式的可迁移时空规律以适配目标模式。真实数据实验显示其精度优于现有方法，且目标数据有限时表现稳健。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Urban transportation systems consist of multiple mobility modes that coexist within the same city and exhibit complex interdependencies, leading to correlated demand dynamics across modes. However, forecasting demand jointly across different modes remains challenging due to substantial heterogeneity in space and the limited availability of historical data for emerging modes. Existing forecasting methods are largely developed for individual mobility modes and implicitly assume compatible spatial structures between source and target systems, which severely restricts their applicability in multi-modal settings. To address these challenges, we propose TransMod, a unified framework for urban mobility demand forecasting that enables effective knowledge transfer across heterogeneous mobility modes. TransMod constructs a shared zone-level spatial representation that aligns mobility systems with different spatial granularities into a common space, thereby reducing structural mismatch and distributional shift. Built on this unified representation, TransMod further learns transferable spatio-temporal patterns from data-rich source modes and adapts them to data-scarce target modes, alleviating the dependence on extensive target-domain histories. Extensive experiments on real-world datasets demonstrate that TransMod consistently outperforms existing approaches and provides robust forecasting performance under limited target data.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/05/2609.00402v1-a-convolutional-framework-for-detecting-event-driven-dynamics-in-energy-price-series",
+      "section": "quick",
+      "title_en": "A convolutional framework for detecting event-driven dynamics in energy price series",
+      "authors": "Caixia Xu, Piotr Fryzlewicz",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2609.00402v1",
+      "score": "7.0",
+      "evidence": "时间序列事件分类器的有限样本误差界与oracle不等式",
+      "tldr": "针对能源价格序列中异质事件驱动的检测问题，本文提出通用卷积神经网络框架。该CNN类精确表示基于范围、最大回撤等统计量的分类器，并一致逼近已实现波动率与自回归爆发性。模拟表明其随样本增长匹配或超越个体统计分类器。应用于六种日度能源价格时，分层CNN区分事件窗口与类别，并识别出2026年伊朗战争引发的地缘政治动态。",
+      "tags": "query:pred-limit",
+      "abstract_en": "This paper develops a general convolutional neural network (CNN) framework for detecting heterogeneous event-driven dynamics in univariate time series windows. We show that the induced CNN class exactly represents classifiers based on range, maximum drawup, maximum drawdown and slope change, and uniformly approximates realised volatility and autoregressive explosiveness on compact domains. We further establish error bounds for representative rules in finite samples and an oracle inequality for learning across them. Simulations show that the proposed model can match or outperform classifiers based on individual statistics as the training sample grows. In an application to six daily energy price series, a hierarchical CNN distinguishes event windows and event families. Applied without retraining to observations withheld after 20 February 2026, the fitted model identifies predominantly geopolitical dynamics in several oil and refined product series around the outbreak of the 2026 Iran war, while distinguishing a contemporaneous natural gas spike associated with weather.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/05/2608.28134v1-learning-to-difference-adaptive-reversible-differencing-adardiff-for-time-series-forecasting",
+      "section": "quick",
+      "title_en": "Learning to Difference: Adaptive Reversible Differencing (AdaRDiff) for Time Series Forecasting",
+      "authors": "Morad Laglil, Younes Hlal, Marouane El Hadari, Emilie Devijver, Eric Gaussier",
+      "date": "2026-08-28",
+      "pdf": "https://arxiv.org/pdf/2608.28134v1",
+      "score": "6.0",
+      "evidence": "通过可学习差分改善时间序列预测的稳定性",
+      "tldr": "长期时间序列预测常受趋势和季节性干扰，传统差分依赖手工指定阶数与周期，难以融入深度模型。本文提出AdaRDiff，用可学习权重对过去时刻加权差分以简化序列，预测残差后自回归重建，统一捕获趋势与季节结构。重建可化为卷积形式，GPU并行加速最高33.7倍，并设计两阶段训练以分离结构发现与重建学习。在8个基准上达到最优精度，参数开销极低，作为即插即用模块可提升8种不同骨干网络性能。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Reliable long-horizon time series forecasting is an important yet difficult problem. Trends and seasonality introduce complex temporal structure that challenges learning-based forecasting models. Differencing, which subtracts nearby past values to remove such structure, is the classical remedy, but its reliance on hand-picked orders and periods has kept it largely absent from recent deep architectures. We propose \\textbf{\\underline{Ada}}ptive \\textbf{\\underline{R}}eversible \\textbf{\\underline{Diff}}erencing \\textbf{(AdaRDiff)}, a generalized differencing approach that uses learnable weights to simplify the series through weighted differencing with previous time instants. This yields stabilized residuals on which forecasting is performed, after which the removed components are restored autoregressively to reconstruct the forecast, capturing trend and seasonality jointly through a single operator. This reconstruction admits a closed-form convolutional expression, which parallelizes on GPU and yields up to $33.7\\times$ speedup over the naive recurrence. We furthermore rely on a two-phase training schedule that separates temporal structure discovery from reconstruction learning, as suggested by a theoretical analysis of the gradient when using a linear forecasting model. AdaRDiff attains state-of-the-art forecast accuracy across eight benchmarks spanning electricity, weather, traffic, and energy, at negligible parameter cost. Furthermore, it is designed as a plug-and-play module: integrating AdaRDiff improves eight diverse backbones, from linear models to Transformers, in the large majority of cases, by up to $25.9\\%$ with a linear backbone and $18.3\\%$ with iTransformer.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/05/2608.30899v1-uncertainty-aware-trajectory-forecasting-from-imperfect-tracking",
+      "section": "quick",
+      "title_en": "Uncertainty-Aware Trajectory Forecasting from Imperfect Tracking",
+      "authors": "Stephane Da Silva Martins, Victor Petrovic, Emanuel Aldea, Sylvie Le Hégarat-Mascle",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.30899v1",
+      "score": "6.0",
+      "evidence": "不完美跟踪条件下的轨迹预测与不确定性传播",
+      "tldr": "实际部署中轨迹预测依赖不完美跟踪器输出，含定位抖动、漏检与关联模糊，且观测噪声常被忽略。本文提出即插即用的不确定性感知公式：观测状态以高斯分布编码，经全方差定律融合检测与关联不确定性，预测也输出为高斯分布。训练引入时间相关OU扰动与知识蒸馏以保持鲁棒。在Oxford Town Centre、VIRAT和ETH/UCY上，该方法改善位移精度及概率预报的可靠性-锐度权衡，易于适配现有网络。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Most trajectory forecasting models are trained on clean annotated histories, and are often evaluated under the same idealized assumption, although practical deployments rely on trajectories produced by imperfect multi-object trackers. The real-world observations exhibit localization jitter, missed or unstable detections, and data-association ambiguity, which are usually either ignored or removed through denoising. This paper instead treats tracking-derived reliability cues as an informative signal to be propagated to the predictor. We propose a plug-in uncertainty-aware formulation in which each observed state is encoded as an uncertain state representation, modeled by a Gaussian distribution whose covariance combines detection-level localization uncertainty and association-level ambiguity through the law of total variance. Existing backbones are adapted with minimal architectural changes: input trajectories are represented as Gaussian observations, and predicted trajectories are produced as Gaussian forecasts rather than deterministic coordinates. To train predictors that remain robust under structured observation noise, we combine temporally correlated Ornstein-Uhlenbeck perturbations with response-based knowledge distillation from a teacher trained on clean trajectories. Experiments on Oxford Town Centre and VIRAT using real tracker outputs, together with a complementary ETH/UCY pseudo-detection protocol, show that the proposed formulation improves displacement accuracy and the reliability-sharpness trade-off of probabilistic forecasts.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

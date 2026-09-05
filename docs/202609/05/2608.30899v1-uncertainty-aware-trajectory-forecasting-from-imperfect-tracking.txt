@@ -1,0 +1,456 @@
+Title: Uncertainty-Aware Trajectory Forecasting from Imperfect Tracking
+
+URL Source: https://arxiv.org/pdf/2608.30899v1
+
+Published Time: Tue, 01 Sep 2026 03:02:09 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# Uncertainty-Aware Trajectory Forecasting from Imperfect Tracking 
+
+Stephane Da Silva Martins 1, Victor Petrovic 2, Emanuel Aldea 1, and Sylvie Le Hégarat-Mascle 1 
+
+> 1
+
+SATIE – CNRS UMR 8029, Université Paris-Saclay, France 
+
+{stephane.da-silva-martins, emanuel.aldea, sylvie.le-hegarat}@universite-paris-saclay.fr  
+
+> 2
+
+ENS Paris-Saclay, Université Paris-Saclay, France 
+
+victor.petrovic@ens-paris-saclay.fr 
+
+Abstract. Most trajectory forecasting models are trained on clean an-notated histories, and are often evaluated under the same idealized as-sumption, although practical deployments rely on trajectories produced by imperfect multi-object trackers. The real-world observations exhibit localization jitter, missed or unstable detections, and data-association ambiguity, which are usually either ignored or removed through denois-ing. This paper instead treats tracking-derived reliability cues as an in-formative signal to be propagated to the predictor. We propose a plug-in uncertainty-aware formulation in which each observed state is encoded as an uncertain state representation, modeled by a Gaussian distribution whose covariance combines detection-level localization uncertainty and association-level ambiguity through the law of total variance. Existing backbones are adapted with minimal architectural changes: input tra-jectories are represented as Gaussian observations, and predicted trajec-tories are produced as Gaussian forecasts rather than deterministic coor-dinates. To train predictors that remain robust under structured observa-tion noise, we combine temporally correlated Ornstein-Uhlenbeck pertur-bations with response-based knowledge distillation from a teacher trained on clean trajectories. Experiments on Oxford Town Centre and VIRAT using real tracker outputs, together with a complementary ETH/UCY pseudo-detection protocol, show that the proposed formulation improves displacement accuracy and the reliability–sharpness trade-off of proba-bilistic forecasts. 
+
+Keywords: Trajectory Forecasting · Tracking Uncertainty · Uncertainty Quantification · Probabilistic Reliability · Knowledge Distillation 
+
+## 1 Introduction 
+
+Multi-agent trajectory forecasting is a key component of robotic navigation, video understanding, and safety-critical decision-making systems. Modern pre-dictors have made substantial progress on standard pedestrian benchmarks by modeling social interactions, scene context, and the multimodality of future mo-tion using graph neural networks, Transformers, recurrent architectures, and arXiv:2608.30899v1 [cs.CV] 31 Aug 2026 2 S. Da Silva Martins et al. 
+
+generative models [22, 40, 42]. Yet most of these methods implicitly assume that the observed past trajectory is clean, temporally consistent, and directly avail-able at inference time. This assumption is rarely satisfied in operational settings. Observed histo-ries are usually obtained from an upstream multi-object tracker, whose outputs may contain localization noise, confidence fluctuations, missed detections, and identity switches. Importantly, these imperfections are not only sources of error; they also carry information about the reliability of the observations: unstable detections, low-confidence boxes or ambiguous associations often reflect chal-lenging scene conditions such as occlusion or crowding. Removing or ignoring these signals may therefore discard useful information for the forecasting model. Recent work on prediction from raw videos and robust trajectory forecasting has shown that tracking errors can strongly affect downstream performance [25, 41], motivating predictors that propagate observation uncertainty to the predictor instead of treating the past trajectory as clean and deterministic. In this work, we specifically focus on localization uncertainty and association ambiguity at ob-served time steps. Explicit handling of missing observations and recovery from completed identity switches are outside the scope of the present formulation. We address this problem by propagating tracking uncertainty through the forecasting pipeline. Instead of representing the past as deterministic points, each observation is modeled as a Gaussian state whose mean is the estimated pedes-trian position and whose covariance matrix quantifies the uncertainty about the pedestrian’s true position. We decompose this covariance into two interpretable components: localization uncertainty , induced by uncertain detections, and as-sociation uncertainty , induced by multiple plausible matching candidates. These two terms are combined through the law of total variance, yielding a compact uncertainty signal that can be consumed by existing trajectory forecasting back-bones. The resulting formulation is intentionally simple. A standard coordinate em-bedding is replaced by an uncertainty-aware embedding of the Gaussian state parameters (μx, μ y , σ x, σ y , ρ xy ), where ρxy encodes the correlation term of the covariance matrix, and the output head predicts Gaussian moments for the pre-dicted positions, optimized with a negative log-likelihood objective. This keeps the core predictor unchanged while allowing the model to account for observa-tions with large estimated uncertainty and produce probabilistic forecasts. Dur-ing training, we simulate temporally correlated tracking errors with an Ornstein– Uhlenbeck process parameterized from empirical tracker residuals. We further use response-based knowledge distillation: a teacher trained on clean trajectories provides privileged predictions, while the student learns from corrupted prob-abilistic observations. This encourages the student to learn motion dynamics closer to those inferred from clean trajectories, without forcing it to copy the teacher’s covariance. Our main contributions are summarized as follows: Uncertainty-Aware Trajectory Forecasting 3
+
+1. We formulate trajectory forecasting using imperfect tracker outputs as an uncertainty propagation problem, representing observed and predicted states as Gaussian states rather than deterministic points. 2. We derive a tracker-output uncertainty estimate that separates localization uncertainty from association ambiguity and combines these two components through the law of total variance. 3. We introduce an uncertainty-aware training strategy that couples temporally correlated noise injection with response-based distillation from a teacher trained on clean trajectories. 4. We evaluate robustness and probabilistic reliability on real tracking outputs from Oxford Town Centre and VIRAT, and on a complementary ETH/UCY pseudo-detection protocol. 
+
+## 2 Related Work 
+
+2.1 Trajectory Prediction under Clean Observations 
+
+Trajectory prediction has been extensively studied under the assumption that past trajectories are accurately observed. Prior work has explored several com-plementary aspects of this setting, including the modeling of social interac-tions between agents, the incorporation of scene context, and the extension of prediction horizons from short-term extrapolation to longer-range reason-ing [2, 4, 8, 10, 15, 19, 28, 29, 39, 42, 44]. To address these challenges, the literature has progressively moved from recurrent and pooling-based models to graph-based, attention-based, and transformer-based architectures, and more recently to state-space models and semantic priors that improve long-range reasoning and scene awareness [9, 34]. Since human motion is inherently stochastic and multimodal, a large body of work has further modeled future uncertainty through generative mechanisms such as GANs [15], VAEs [21, 40], diffusion models [14, 26], and flow-matching methods [7]. These approaches are effective at representing multiple plausible futures conditioned on past motion, social interactions, or scene context. How-ever, they generally assume that the observed past is clean and complete. Our work targets this complementary source of uncertainty: the reliability of the in-put trajectory itself, which may be noisy, partial, or corrupted in unconstrained perception settings. 
+
+2.2 Robust Forecasting from Noisy Observations 
+
+Robust trajectory forecasting addresses the gap between benchmark annotations and real perception outputs. One line of work bypasses or reduces the depen-dence on explicit tracking by predicting from raw videos, detections, or multi-hypothesis tracking structures [36, 37, 41, 45]. Another line explicitly attempts 4 S. Da Silva Martins et al. 
+
+to denoise or disentangle corrupted histories before forecasting. OosTraj [43] introduces a vision–positioning denoising module for out-of-sight trajectories, CaDeT [33] uses causal disentanglement, and NATRA [25] learns noise-agnostic representations through mutual-information constraints. These methods share our motivation of improving robustness to imperfect observations, but they typ-ically treat tracking errors as a nuisance to remove. We instead expose the pre-dictor to an uncertainty representation derived from the tracking process, so that the model can modulate its reliance on each observation according to its estimated uncertainty. 
+
+2.3 Tracking Uncertainty and Privileged Distillation 
+
+Uncertainty estimation is essential when trajectory forecasting relies on imper-fect perception outputs. In multi-object tracking, localization covariance, detec-tor confidence, and association ambiguity provide cues about the uncertainty of the estimated state [1, 5, 38]. We use these cues to build a Gaussian obser-vation representation by combining detection-level and association-level uncer-tainty through moment matching. Knowledge distillation has also been used to transfer privileged or teacher information to a student model [16, 27, 35]. Our setting follows this learning-using-privileged-information view. During training, the teacher has access to clean histories, while the student receives corrupted probabilistic histories. The distillation objective encourages the student to align its predictions with clean history predictions, without forcing it to mimic the teacher’s uncertainty estimate. 
+
+## 3 Methodology 
+
+Given a pedestrian i, a trajectory predictor observes a past sequence Xi =
+
+{(xit, y it)}Tobs  
+
+> t=1
+
+and forecasts future positions Yi = {(xit, y it)}Tobs +Tpred  
+
+> t=Tobs +1
+
+. In this paper, we assume that Xi is produced by an upstream tracker and therefore comes with observation reliability that should be propagated to the forecasting model. Our framework has three components. First, tracker outputs are converted into Gaussian observation representations by combining detection-level and asso-ciation-level uncertainty. Second, we adapt existing backbones in order to process these representations and to predict Gaussian parameters for future positions. Third, training combines structured corruption and teacher–student distillation so that the student aligns its predictions made from noisy observations with clean-history predictions, while retaining its own uncertainty estimates. Figure 1 summarizes this training pipeline. 
+
+3.1 Probabilistic Modeling of Tracking Uncertainty 
+
+Most predictors assume deterministic inputs Xi. In real-world scenarios, Xi
+
+is produced by an upstream MOT and is corrupted by localization noise and Uncertainty-Aware Trajectory Forecasting 5Past Ground Truth Trajectory                  
+
+> XGT
+> +
+> OU Noise Injection Probabilistic Input
+> {μnoisy ,Σnoisy }t
+> Student Model
+> S
+> Probabilistic Forecast
+> N(μS,ΣS)Probabilistic Input
+> {XGT ,ΣGT }t
+> Teacher Model
+> T
+> Probabilistic Forecast
+> N(μT,ΣT)Consistency Loss
+> Lconsist (μT|S )Supervised Loss
+> LN LL (YGT |S )Future Ground Truth Trajectory
+> YGT
+> Ltotal
+> Extract μT
+> (Pseudo-GT) Target
+
+Fig. 1: Overview of the proposed uncertainty-aware training pipeline. Ateacher model is trained on clean trajectories, whereas a student model receives probabilistic observations corrupted by temporally correlated tracking-like noise. The student is optimized with a supervised negative log-likelihood and a response-based consistency loss on the teacher mean. 
+
+association ambiguity. We therefore model the input as a sequence of random variables. For clarity in the following, we omit the pedestrian index i. Let xt ∈ R2
+
+denote the random vector representing the true position of a pedestrian at time t.Instead of representing the tracker output as a deterministic point, we model each observation as a probability distribution p(xt) over positions (e.g., a bivariate Gaussian), parameterized from the tracker outputs. 
+
+Law of Total Variance for Tracker Uncertainty. At time t, the tracker pro-vides a set of N candidate detections Dt = {dk}Nk=1 . Each candidate detection 
+
+dk is characterized by a 2D position μk ∈ R2, a bounding-box size (Wk, H k),and a confidence score sk.
+
+Soft association over candidates. Let ck denote an association cost between the current track state and candidate dk. From these costs, we define normalized association weights (wk)Nk=1 via a softmax with the temperature τ > 0:
+
+wk ≜ exp( −ck/τ )
+
+PNj=1 exp( −cj /τ ) , so that wk ≥ 0,
+
+NX
+
+k=1 
+
+wk = 1 . (1) In this study, we use τ = 1 in all experiments. Before applying the soft-max, association costs are normalized per frame and per cost type, so that the fixed temperature is applied on comparable scales. We then introduce a dis-crete random variable Z ∈ J1, N K representing the association hypothesis, with 
+
+P(Z = k) = wk. Note that (wk) is a soft assignment induced by the costs (with 
+
+τ ), not necessarily a calibrated posterior from the tracker. 
+
+Observation model (detection noise). We model the observed 2D position at time t as a random vector ˜xt ∈ R2. Conditioned on the association hypothesis 
+
+{Z = k}, we assume 
+
+˜xt | { Z = k} ∼ N (μk, Σk), (2) 6 S. Da Silva Martins et al. 
+
+where μk is the detected position and Σk encodes the spatial uncertainty as-sociated with detection candidate dk. Inspired by box-geometry cues used in standard trackers [38] and recent attempts to modulate measurement noise with detection confidence [11], we use a confidence-aware localization proxy rather than a calibrated detector posterior. This deliberately simple mapping should not be interpreted as a calibrated estimate of detector uncertainty; it only pro-vides a monotonic reliability cue, with larger boxes and lower-confidence de-tections producing broader spatial uncertainty. Detector-specific or calibrated covariance estimates could replace this proxy without changing the remainder of the framework. We set the covariance of each candidate as: 
+
+Σk =   
+
+> W2
+> k
+> sk+ϵs
+
+00 H2 
+
+> k
+> sk+ϵs
+
+!
+
+, (3) so that low-confidence detections, for which sk is close to 0, yield large uncer-tainty, whereas high-confidence detections, for which sk is close to 1, keep the variance close to the object’s squared spatial extent. Here, Wk and Hk denote the bounding-box dimensions and sk ∈ (0 , 1] denotes the detection confidence. 
+
+Moment matching. The marginal distribution induced by Eqs. (1) and (2) is a Gaussian mixture, which we reduce to a single Gaussian by matching its first two moments. By total expectation, 
+
+μtotal = E[˜ xt] = 
+
+> N
+
+X
+
+> k=1
+
+wk μk, (4) and by total covariance, 
+
+Σtotal =
+
+> N
+
+X
+
+> k=1
+
+wkΣk
+
+| {z }
+
+> Σpos
+
++
+
+> N
+
+X
+
+> k=1
+
+wk(μk − μtotal )( μk − μtotal )⊤
+
+| {z }
+
+> Σassoc
+
+. (5) Here, Σpos is the weighted localization uncertainty of the candidate detections, whereas Σassoc measures their spatial dispersion and therefore association ambi-guity. In the single-candidate case, Σassoc = 0; it also remains small for spatially concentrated candidates and increases when several separated candidates receive comparable weights. The two components are used to construct Σtotal and are not passed separately to the forecasting network. Finally, we parameterize the input to the prediction model as 
+
+˜xt ≈ N (μtotal , Σtotal ). (6) 
+
+Unified uncertainty interface. Training-time perturbations and inference-time tracking ambiguity are expressed through the same covariance interface 
+
+Σtotal . The predictor therefore receives both the estimated position and an ex-plicit descriptor of its reliability, without requiring the forecasting architecture to distinguish the underlying source of uncertainty. Uncertainty-Aware Trajectory Forecasting 7
+
+Black-box deployment: proxy association costs. In deployment, the Multi-Object Tracking (MOT) may be a black box and may not expose its internal association cost matrix. To retain a multi-hypothesis formulation, we reconstruct proxy costs c′ 
+
+> k
+
+a posteriori by comparing the current track state to each detection candidate dk ∈ D t. This formulation implicitly propagates uncertainty from 
+
+t − 1: as the track’s variance or bounding box size increases, the resulting costs 
+
+c′ 
+
+> k
+
+(e.g., Mahalanobis or IoU) reflect a higher association ambiguity. When the deployed tracker relies on specific metrics (e.g., Mahalanobis gating and ReID cosine distance as in DeepSORT [38] or BoT-SORT [1]), we approximate these components to compute c′ 
+
+> k
+
+and obtain weights wk via Eq. (1). When appearance features are unavailable, we approximate association costs via two IoU-based proxies. Raw IoU computes the overlap directly between the last observed track box and each detection candidate dk. Projected IoU first compensates for the track’s motion by projecting its position forward using the estimated velocity at the last time step. 
+
+3.2 Gaussian Observation Representation and Input Embedding 
+
+To incorporate the probabilistic input derived above into modern trajectory prediction backbones such as SingularTrajectory [3], VISTA [10] or MART [22], we modify the input embedding layer. Standard models typically employ a linear projection layer ϕ : R2 → Rd to map deterministic 2D coordinates xt = ( xt, y t)
+
+into a d-dimensional latent feature space. In our framework, the observation at time t is parameterized by the Gaus-sian statistics (μtotal , Σtotal ). To obtain a compact uncertainty descriptor while preserving the geometry of Σtotal , we encode the covariance by its marginal standard deviations and correlation coefficient. Let 
+
+σx = p[Σtotal ]xx , σy =
+
+q
+
+[Σtotal ]yy , ρxy = [Σtotal ]xy 
+
+σxσy + ϵ , (7) where ϵ is a small numerical constant and ρxy is clipped to [−1 + ϵ, 1 − ϵ] when needed. We then adapt the embedding layer to project this five-dimensional Gaussian observation representation into the same latent dimension d:
+
+Et = ϕprob (μx, μ y , σ x, σ y , ρ xy ) ∈ Rd. (8) By keeping the embedding dimension d identical to that of the original back-bone, our embedding Et remains a plug-and-play modification. As a result, the proposed uncertainty-aware input can complement certain existing determin-istic SOTA predictors with minimal architectural changes, without modifying their core forecasting modules. The predictor receives the combined statistics 
+
+(μtotal , Σtotal ); Σpos and Σassoc are not separate input channels. 
+
+3.3 Probabilistic Output and Training Loss 
+
+We preserve each backbone’s native stochastic trajectory-generation mechanism and replace only its final two-dimensional position head by a five-dimensional 8 S. Da Silva Martins et al. 
+
+Gaussian head. Consequently, every native future sample k is represented at each prediction step t by N (μ(k)pred ,t , Σ(k)pred ,t ), where the mean μ(k)pred ,t = ( μx, μ y )
+
+replaces the original predicted position and (σx, σ y , ρ xy ) parameterize its co-variance. For SingularTrajectory, the diffusion sampling process is therefore unchanged; only the final mapping from each generated sample to a 2D po-sition is replaced by this Gaussian head. The same principle is used for MART and VISTA. We optimize the Gaussian outputs with the negative log-likelihood (NLL): 
+
+LNLL = 12
+
+> Tpred
+
+X
+
+> t=1
+
+ log |Σpred ,t | + ( yt − μpred ,t )⊤(Σpred ,t )−1(yt − μpred ,t ) , (9) where yt denotes the ground-truth position. By minimizing LNLL , the model is trained not only to minimize displacement error but also to learn a covariance that captures predictive dispersion. Its empirical reliability is evaluated using coverage and area metrics. 
+
+3.4 Robust Training via Empirical Noise Injection 
+
+Training a model directly on outputs from a specific tracker can imprint tracker-specific error patterns and limit generalization. Conversely, training only on clean data does not expose the model to the noise distribution it will face at inference time. To bridge this gap, we propose a tracking-noise-aware training strategy. Rather than relying on standard i.i.d. Gaussian noise, which ignores the tempo-ral structure of tracking errors, we simulate realistic dynamics by coupling an empirical distribution with an Ornstein-Uhlenbeck process. 
+
+Empirical Error Distribution. To capture the stochastic properties of real-world tracking failures, we first analyze the error residuals of a baseline tracker evaluated on the training set. We apply kernel density estimation (KDE) to estimate the probability density function (PDF) of the error magnitudes. During training, a base error scale σi is sampled from this empirical distribution for each pedestrian i, so that the injected noise reflects different levels of tracking difficulty. 
+
+Ornstein-Uhlenbeck Drift Process. Unlike i.i.d. Gaussian noise, real-world tracking errors often exhibit temporal correlation due to the inertia of filtering algorithms (e.g., Kalman filters). This “colored noise” effect [5] implies that an error at time t is likely to persist at t + 1 .To replicate these dynamics, we model the error residuals nt as an Ornstein-Uhlenbeck process , defined by the following Stochastic Differential Equation (SDE): 
+
+dnt = −θ(nt − μ12)dt + σi dWt, (10) where: Uncertainty-Aware Trajectory Forecasting 9
+
+– θ is the mean-reversion rate (stiffness), pulling both spatial components of the error back towards the scalar mean μ (typically μ = 0 for an unbiased tracker ). 
+
+– σi is the volatility (diffusion coefficient) specific to pedestrian i.
+
+– Wt denotes a standard Wiener process (Brownian motion). For numerical implementation during training, we apply the Euler-Maruyama discretization to Eq. (10) with a time step ∆t . The update rule for the noise injected into pedestrian i’s trajectory becomes: 
+
+ni,t +1 = ni,t − θ(ni,t − μ12)∆t 
+
+| {z }
+
+> Drift
+
++ σi
+
+√∆t · ξi,t 
+
+| {z }
+
+> Diffusion
+
+, (11) where ξi,t ∼ N (0, I2) is a standard Gaussian vector sampled at each step. This formulation generates smooth, temporally correlated error trajectories that mimic the drift behavior of imperfect trackers, consistent with recent trajectory simulation studies [20]. 
+
+3.5 Privileged Knowledge Transfer via Response-Based Distillation 
+
+To mitigate performance degradation due to input corruption, we adopt a Knowl-edge Distillation (KD) [16] strategy within the Learning Using Privileged Infor-mation (LUPI) paradigm [35]. The link between KD and LUPI [27] has been used to bridge modality gaps and improve model robustness to noisy or missing inputs in vision tasks [12, 17]. Here, ground-truth trajectories are available dur-ing training as privileged information, to guide the learning of a model operating on imperfect data at test time. We use response-based rather than feature-based distillation [13]. Matching only model outputs avoids architecture-specific mappings between intermediate representations and keeps the distillation mechanism portable across backbones. 
+
+Teacher-Student Formulation. As illustrated in Figure 1, we instantiate a dual-network architecture comprising a Teacher model T and a Student model 
+
+S. While both share the same backbone architecture , they operate on different inputs: 
+
+– Teacher T : Receives ground truth coordinates XGT . To keep the input interface consistent with the Student, we cast these inputs into a probabilistic form : a Gaussian distribution centered on the ground truth with a small, fixed isotropic standard deviation (e.g., σ = 0 .1 m) to reflect annotation noise. This constitutes the privileged information and is available only during training. 
+
+– Student S: Receives the probabilistic input (μnoisy , Σnoisy ) generated by the noise-injection module, simulating the uncertainty of real-world tracking outputs. The Teacher is used only during training and is discarded at inference time. It is therefore a privileged-information training component rather than a compet-ing deployable predictor, since its clean observation history is unavailable in the 10 S. Da Silva Martins et al. 
+
+target setting. Since the Teacher T is trained on clean trajectories, it provides a predictive signal conditioned on clean observations. Distillation transfers this sig-nal to the Student S: by minimizing a consistency loss that treats the Teacher’s mean prediction as a pseudo-target, we encourage the Student to produce plau-sible futures that align with ground-truth dynamics, even if the observations are corrupted. 
+
+Objective Function and Predictive Uncertainty. Let S(· | Xnoisy ) denote the Student model, which outputs a probabilistic forecast parameterized as a sequence of bivariate Gaussians N (μS 
+
+> t
+
+, ΣS 
+
+> t
+
+) for each future time step t. Simi-larly, the Teacher T (· | XGT ) predicts Gaussians N (μT 
+
+> t
+
+, ΣT 
+
+> t
+
+). In our distillation training, we deliberately use only the Teacher’s mean prediction μT 
+
+> t
+
+as a pseudo-target. To transfer the Teacher’s clean predictive signal to the Student, the training objective combines supervised learning with a distillation constraint. The total loss Ltotal is a weighted sum: 
+
+Ltotal = λtraj LNLL (YGT | S ) + λdist Lconsist (μT | S ), (12) where λtraj and λdist balance the two objectives. 
+
+Supervised Loss ( LNLL ). The first term is the negative log-likelihood of the future ground truth YGT under the Student’s predictive distribution, encourag-ing accurate forecasting and reliable aleatoric uncertainty. 
+
+Consistency Distillation ( Lconsist ). The second term enforces consistency between the Student’s probabilistic output and the Teacher’s mean prediction. We formulate it as the (Gaussian) NLL of the Teacher’s mean under the Student’s predictive distribution: 
+
+Lconsist = 12
+
+> Tpred
+
+X
+
+> t=1
+
+
+
+log ΣS 
+
+> t
+
++ ( μT 
+
+> t
+
+− μS 
+
+> t
+
+)⊤(ΣS 
+
+> t
+
+)−1(μT 
+
+> t
+
+− μS 
+
+> t
+
+)
+
+
+
+. (13) We use this NLL-based consistency rather than a full Kullback-Leibler (KL) di-vergence between the Teacher’s and Student’s predictive distributions. A KL di-vergence would encourage the Student to match the Teacher’s covariance ( ΣS ≈
+
+ΣT ). However, the Teacher’s uncertainty ΣT reflects future stochasticity based on clean past observations, whereas the Student must account for both future stochasticity and uncertainty induced by noisy tracking inputs. By applying the NLL only to the Teacher’s mean μT (and discarding its covariance), we distill clean motion dynamics while allowing the Student to adapt its own covariance 
+
+ΣS to reflect observation reliability. 
+
+## 4 Experiments 
+
+4.1 Experimental Setup Datasets. We use a tracking-derived uncertainty protocol on Oxford Town Cen-tre (OTC) [6] and VIRAT [31]. For ETH/UCY [23, 32], where bounding-box Uncertainty-Aware Trajectory Forecasting 11 
+
+annotations are not directly available, we use the detector-adaptation proto-col described in the supplementary material before converting detections into Gaussian observation representations. This protocol is complementary and is not intended as a standard ETH/UCY benchmark comparison. 
+
+Data Splits and Real-World Evaluation. For Oxford Town Centre and VIRAT, each video is split chronologically: the first 80% of its duration is used for training and the final 20% for testing. Training and test examples therefore come from temporally disjoint frames. Clean-training configurations use ground-truth trajectories from the first 80%, while evaluation uses uncorrected MOT trajectories from the final 20%; tracker-specific adaptation uses tracker outputs only from the training portion. The split is temporal rather than identity-based, so identities are not explicitly constrained to be disjoint across the two portions. 
+
+Coordinate transformation via homography. Pedestrian detections are first obtained in the image plane. We use the bottom-center point of each bounding box as the pedestrian footprint and project it onto the ground plane using dataset homographies. Covariances defined in image coordinates are pro-jected to the ground plane using the first-order Jacobian of the homography, 
+
+Σground = JhΣimage J⊤ 
+
+> h
+
+, which accounts for perspective distortion while keeping the uncertainty representation compact [30]. 
+
+Evaluation Protocols, Training Configurations, and Scope of Compar-isons. We evaluate the proposed formulation with three recent trajectory pre-diction backbones: SingularTrajectory [3], MART [22] and VISTA [10]. These models are benchmarked under five training configurations, across which the probabilistic input embedding and the NLL loss are kept identical, so that com-parisons primarily reflect the training data distribution, input preprocessing, and the presence or absence of the distillation objective. 1. Baseline: The backbone is optimized on ground-truth trajectories. When evaluated on noisy tracking inputs, this configuration quantifies the perfor-mance degradation induced by the distribution shift between training and inference. 2. Kalman Filtering: The backbone trained on clean ground-truth data is then evaluated on tracker outputs pre-processed by a causal Kalman filter, assessing the contribution of input denoising as a strong signal-processing baseline. 3. Tracker-Specific Adaptation: The model is trained on uncorrected out-puts produced by the test-time tracker on the training split, aligning the training and inference distributions while avoiding access to test trajecto-ries. This configuration may nevertheless overfit to that tracker’s artifacts and failure modes. 4. Stochastic Noise Injection: The model is trained on ground-truth data perturbed by the Ornstein-Uhlenbeck noise. This setup isolates the contribu-tion of temporally correlated noise modeling compared to empirical tracker-specific adaptation. 5. Tracking-Noise-Aware Distillation: In the complete proposed frame-work, the Student network operates on probabilistic inputs synthesized via 12 S. Da Silva Martins et al. 
+
+the OU noise process, guided by the Teacher network through the NLL con-sistency objective. The most directly related method, NATRA [25], targets a similar setting but does not provide public code. We therefore report a NATRA-inspired reimple-mentation from the published description and distinguish it from an official im-plementation. OosTraj [43] and CaDeT [33] rely on substantially different sensing assumptions, making direct transfer to our surveillance setting non-trivial. Unless otherwise stated, the main quantitative comparison uses BoT-SORT with its internal association costs. Results obtained with ByteTrack and with the Raw-IoU and Projected-IoU proxy costs are reported in the supplementary material. 
+
+Evaluation metrics. Each backbone retains its native inference procedure and generates K = 20 future samples, each represented by a sequence of sample-specific Gaussians {N (μ(k) 
+
+> t
+
+, Σ(k) 
+
+> t
+
+)}Tpred  
+
+> t=1
+
+. For displacement metrics, the Gaus-sian means form the sampled trajectories used for minADE 20 and minFDE 20 .NLL, empirical coverage, and ellipse area are computed from the corresponding sample-specific Gaussian forecasts and aggregated across samples. Additional 
+
+MeanADE 20 , MeanFDE 20 , AUC [24], and 80%/90% coverage results are re-ported in the supplementary material. 
+
+Implementation details. Networks are trained with Adam [18]. The teacher is trained on clean ground-truth trajectories and then frozen. The student receives corrupted probabilistic observations and is optimized with the supervised NLL and response-based consistency terms. For Ornstein–Uhlenbeck noise injection, we use a mean-reversion rate θ = 0 .15 and long-term mean μ = 0 unless other-wise specified; sensitivity to these parameters is reported in the supplementary material. 
+
+4.2 Quantitative Results Displacement accuracy. Table 1 reports the results obtained on tracker tra-jectories. Models trained on ground-truth data lose accuracy under this shift. Kalman filtering helps, but the gap remains. Training on tracker outputs reduces this gap, at the cost of being tied to one tracker. The distillation setting gives lower ADE/FDE in most cases and stays stable across datasets and backbones. 
+
+Probabilistic reliability. Table 1 also shows the effect on probabilistic reli-ability. When the past trajectory is treated as exact, the model often assigns too little uncertainty to noisy observations. With probabilistic inputs and NLL consistency, the student produces forecasts whose covariance better reflects the reliability of noisy inputs while maintaining competitive prediction area, im-proving the observed trade-off among NLL, coverage, area, and displacement accuracy. 
+
+Input–output uncertainty ablation. Table 2 separates the roles of obser-vation and output uncertainty in the noisy-GT setting. Probabilistic inputs im-prove all three backbones, and the fully probabilistic variant gives the best overall results. This establishes the benefit of providing the covariance descriptor, but Uncertainty-Aware Trajectory Forecasting 13 
+
+Table 1: Quantitative evaluation on Oxford Town Centre, VIRAT, and ETH/UCY datasets. Filt. means Filtering . Distill. means Distillation . Coverage and area are re-ported only at the 95% and 99% confidence levels. Bold and underlined values indicate the lowest and second-lowest NLL, minADE 20 , and minFDE 20 , respectively, within each dataset/backbone block. 
+
+Coverage (%) Area ( m2)Dataset Model Training NLL minADE 20 minFDE 20 95% 99% 95% 99% 
+
+> OTC
+
+VISTA GT 41.47 1.57 1.77 25.6 31.6 0.84 1.29 Kalman Filt. 14.54 0.69 0.82 45.6 53.9 0.61 0.94 Tracking 4.93 0.91 0.73 73.2 81.6 4.04 6.21 Noisy GT 9.15 0.64 0.65 59.3 68.1 1.48 2.28 Distill. 2.30 0.56 0.54 86.2 91.5 8.03 12.4 MART GT 16.55 0.81 1.32 83.3 89.6 10.8 16.6 Kalman Filt. 14.82 0.76 1.20 75.1 86.7 4.69 7.21 Tracking -11.57 0.68 1.13 95.0 98.5 8.83 13.6 Noisy GT -14.69 0.58 0.89 97.1 99.7 11.7 18.0 Distill. -15.56 0.51 0.77 97.5 99.2 8.79 13.6 SingularTrajectory GT 12.02 0.91 1.46 75.02 87.99 5.62 8.59 Kalman Filt. 7.99 0.76 1.25 70.01 84.02 3.42 5.22 Tracking -5.01 0.72 1.15 85.99 94.98 6.39 9.81 Noisy GT -9.02 0.60 1.02 94.01 97.98 8.31 12.81 Distill. -10.99 0.54 0.89 95.02 97.99 6.99 10.79 VIRAT VISTA GT 12.62 0.76 1.13 38.3 47.5 0.54 0.83 Kalman Filt. 7.75 0.58 0.57 45.6 56.0 0.56 0.86 Tracking 2.97 0.85 0.70 77.2 85.9 4.42 6.80 Noisy GT 1.46 0.58 0.42 92.6 95.9 6.50 9.99 Distill. 1.39 0.52 0.38 92.5 96.1 5.83 8.97 MART GT -3.14 1.09 1.98 75.5 88.2 11.2 17.2 Kalman Filt. -6.83 0.79 1.48 72.3 86.1 3.69 5.67 Tracking -12.66 0.69 1.16 83.9 94.3 2.92 4.49 Noisy GT -23.30 0.55 0.87 98.1 99.5 7.03 10.8 Distill. -30.17 0.43 0.70 98.5 99.6 4.94 7.59 SingularTrajectory GT 3.02 0.90 1.62 72.01 85.98 5.22 7.99 Kalman Filt. 0.02 0.72 1.29 70.01 85.01 2.98 4.62 Tracking -6.01 0.61 1.09 84.02 94.02 4.02 6.21 Noisy GT -14.01 0.51 0.83 95.98 98.99 6.51 10.02 Distill. -18.01 0.43 0.71 97.02 99.01 5.18 7.99 ETH/UCY VISTA GT 21.49 0.66 1.09 47.48 62.48 0.76 1.12 Kalman Filt. 11.49 0.58 0.99 52.48 67.48 0.77 1.19 Tracking 5.51 0.64 0.98 67.51 79.99 2.98 4.61 Noisy GT 2.99 0.52 0.83 82.49 92.52 4.71 7.22 Distill. 2.39 0.47 0.80 86.48 94.02 4.12 6.31 MART GT 5.51 0.72 1.18 62.49 76.52 8.62 13.22 Kalman Filt. 1.99 0.61 1.02 66.49 80.01 3.91 6.02 Tracking -6.98 0.56 0.96 75.02 87.02 5.18 7.99 Noisy GT -14.99 0.48 0.83 90.48 96.51 7.78 12.01 Distill. -18.01 0.42 0.71 92.48 96.98 6.12 9.39 SingularTrajectory GT 8.02 0.64 0.98 57.49 72.51 2.82 4.32 Kalman Filt. 4.98 0.55 0.88 62.48 76.52 2.49 3.78 Tracking 0.51 0.53 0.87 71.02 86.01 3.78 5.78 Noisy GT -5.02 0.44 0.74 88.01 94.99 5.98 9.22 Distill. -8.48 0.41 0.66 90.98 96.48 5.09 7.78 
+
+does not by itself isolate how the backbone internally exploits its fine-grained temporal variations. 
+
+4.3 Ablation Study Noise model and distillation objective. Table 3 shows that Gaussian aug-mentation improves over no augmentation and OU noise further reduces errors. NLL-based distillation also outperforms KL for all backbones without forcing the Student covariance to match the clean Teacher’s covariance. 
+
+Comparison with robust forecasting. On OTC, our NATRA-inspired reim-plementation is weaker for VISTA (0.66/0.68/1.21 vs. 0.56/0.54/0.99), MART 14 S. Da Silva Martins et al. 
+
+Table 2: Input/output uncertainty ablation on OTC (noisy-GT). Each cell is mi-nADE/minFDE/AUC; D./P. denote deterministic/probabilistic input/output. Lower is better.                 
+
+> Model D./D. D./P. P./D. P./P. MART 0.61/1.02/1.54 0.62/0.95/1.43 0.60/0.89/1.43 0.58/0.89/1.22
+> VISTA 0.72/0.79/2.06 0.69/0.70/1.89 0.67/0.66/1.77 0.64/0.65/1.62
+> SingularTraj. 0.70/1.18/1.81 0.67/1.10/1.68 0.63/1.05/1.59 0.60/1.02/1.47
+
+Table 3: Noise-model ablation on OTC (top) and distillation-loss ablation on VIRAT (bottom). Entries are minADE 20 / minFDE 20 ; lower is better.                   
+
+> Variant MART VISTA SingularTraj. No augmentation 0.79/1.33 1.56/1.76 0.91/1.46 Gaussian noise 0.60/0.94 0.92/1.13 0.70/1.15 OU noise 0.58/0.89 0.64/0.65 0.60/1.02
+> Distill. with KL 0.56/0.96 0.58/0.54 0.52/0.84 Distill. with NLL 0.43/0.70 0.52/0.38 0.43/0.71
+
+(0.63/0.86/1.38 vs. 0.51/0.77/1.11), and SingularTrajectory (0.65/0.99/1.04 vs. 0.54/0.89/0.87), reported as minADE/minFDE/AUC. These results concern our reimplementation, since official NATRA code is unavailable. 
+
+Tracker and association-proxy robustness. On OTC, Raw/Projected IoU gives lower NLL than BoT-SORT internal costs for VISTA (2.30 vs. 1.34 and 1.24), MART ( −15 .56 vs. −23 .49 and −22 .20 ), and SingularTrajectory ( −10 .99 
+
+vs. −14 .62 and −15 .04 ). Tracker costs can mix uncalibrated cues, whereas IoU is geometric; this does not establish IoU as universally superior, but shows that proprietary internal costs are unnecessary. 
+
+## 5 Conclusion 
+
+This paper addressed trajectory forecasting from imperfect tracker outputs. In-stead of first denoising the past trajectory, we estimate uncertainty from the tracker outputs and pass it to the predictor. Each observation is written as a Gaussian state, with a covariance that combines localization and association uncertainty. The backbone therefore receives both the estimated position and an explicit descriptor of its reliability. We also train the student with OU noise and a clean teacher, so that it learns from corrupted inputs while keeping a clean motion target. Experiments on Oxford Town Centre and VIRAT with real tracker outputs, together with the ETH/UCY pseudo-detection protocol, show improvements in displacement error metrics and probabilistic reliability. Uncertainty-Aware Trajectory Forecasting 15 
+
+## References 
+
+1. Aharon, N., Orfaig, R., Bobrovsky, B.Z.: BoT-SORT: Robust associations multi-pedestrian tracking. arXiv preprint arXiv:2206.14651 (2022). https://doi.org/ 10.48550/arXiv.2206.14651 
+
+2. Alahi, A., Goel, K., Ramanathan, V., Robicquet, A., Fei-Fei, L., Savarese, S.: Social LSTM: Human trajectory prediction in crowded spaces. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2016) 3. Bae, I., Park, Y.J., Jeon, H.G.: SingularTrajectory: Universal trajectory predictor using diffusion model. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 17890–17901 (2024) 4. Bai, J., Shim, I.: SceneAware: Scene-constrained pedestrian trajectory prediction with LLM-guided walkability. arXiv preprint arXiv:2506.14144 (2025) 5. Bar-Shalom, Y., Li, X.R., Kirubarajan, T.: Estimation with Applications to Track-ing and Navigation. John Wiley & Sons (2001) 6. Benfold, B., Reid, I.: Stable multi-target tracking in real-time surveillance video. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2011) 7. Brinke, K.B.t., Minartz, K., Menkovski, V.: STFlow: Data-coupled flow matching for geometric trajectory simulation. arXiv preprint arXiv:2505.18647 (2025) 8. Cheng, H., Liu, M., Chen, L., Broszio, H., Sester, M., Yang, M.Y.: GatTraj: A graph- and attention-based multi-agent trajectory prediction model. ISPRS Jour-nal of Photogrammetry and Remote Sensing 205 , 163–175 (2023) 9. Chib, P.S., Singh, P.: LG-Traj: LLM-guided pedestrian trajectory prediction. In: Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) (2025) 10. Da Silva Martins, S., Aldea, E., Le Hégarat-Mascle, S.: VISTA: A vision and intent-aware social attention framework for multi-agent trajectory prediction. In: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV). pp. 287–296 (2026) 11. Du, Y., Zhao, Z., Song, Y., Zhao, Y., Su, F., Gong, T., Meng, H.: StrongSORT: Make DeepSORT great again. IEEE Transactions on Multimedia 25 , 8725–8737 (2023) 12. Garcia, N.C., Morerio, P., Murino, V.: Modality distillation with multiple stream networks for action recognition. In: European Conference on Computer Vision (ECCV) (2018) 13. Gou, J., Yu, B., Maybank, S.J., Tao, D.: Knowledge distillation: A survey. Inter-national Journal of Computer Vision 129 (6), 1789–1819 (2021) 14. Gu, T., Chen, G., Li, J., Lin, C., Rao, Y., Zhou, J., Lu, J.: Stochastic trajectory prediction via motion indeterminacy diffusion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2022) 15. Gupta, A., Johnson, J., Fei-Fei, L., Savarese, S., Alahi, A.: Social GAN: Socially acceptable trajectories with generative adversarial networks. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2018) 16. Hinton, G., Vinyals, O., Dean, J.: Distilling the knowledge in a neural network. In: NIPS Deep Learning and Representation Learning Workshop (2015) 17. Hoffman, J., Gupta, S., Darrell, T.: Learning with side information through modal-ity hallucination. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2016) 16 S. Da Silva Martins et al. 18. Kingma, D.P., Ba, J.: Adam: A method for stochastic optimization. In: Interna-tional Conference on Learning Representations (ICLR) (2015) 19. Kothari, P., Kreiss, S., Alahi, A.: Human trajectory forecasting in crowds: A deep learning perspective. IEEE Transactions on Intelligent Transportation Systems 
+
+23 (7), 7386–7400 (2022). https://doi.org/10.1109/TITS.2021.3069362 
+
+20. Langås, E.F., Zafar, M.H., Nyberg, S.O., Sanfilippo, F.: Human trajectory simula-tion in industrial settings using the ornstein–uhlenbeck process and deep learning based classification. In: Proceedings of the 10th IEEE International Conference on Automation, Robotics and Applications (ICARA). pp. 427–432 (2024) 21. Lee, M., Sohn, S.S., Moon, S., Yoon, S., Kapadia, M., Pavlovic, V.: MUSE-VAE: Multi-scale VAE for environment-aware long-term trajectory prediction. In: Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion (CVPR) (2022) 22. Lee, S., Lee, J., Yu, Y., Kim, T., Lee, K.: MART: Multiscale relational trans-former networks for multi-agent trajectory prediction. In: European Conference on Computer Vision (ECCV). pp. 89–107. Springer (2024) 23. Lerner, A., Chrysanthou, Y., Lischinski, D.: Crowds by example. Computer Graph-ics Forum 26 (3), 655–664 (2007). https://doi.org/10.1111/j.1467-8659.2007. 01089.x 
+
+24. Li, L., Lin, X., Huang, Y., Zhang, Z., Hu, J.F.: Beyond minimum-of-n: Rethinking the evaluation and methods of pedestrian trajectory prediction. IEEE Transactions on Circuits and Systems for Video Technology 34 (12), 12880–12893 (2024). https: //doi.org/10.1109/TCSVT.2024.3439128 
+
+25. Li, R., Li, C., Lv, R., Li, Y., Gao, Y., Zhang, X., Zhou, J.: NATRA: Noise-agnostic framework for trajectory prediction with noisy observations. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV). pp. 27872– 27884 (2025) 26. Li, R., Li, C., Ren, D., Chen, G., Yuan, Y., Wang, G.: BCDiff: Bidirectional con-sistent diffusion for instantaneous trajectory prediction. In: Advances in Neural Information Processing Systems (2023) 27. Lopez-Paz, D., Bottou, L., Schölkopf, B., Vapnik, V.: Unifying distillation and privileged information. In: International Conference on Learning Representations (ICLR) (2016) 28. Mohamed, A., Qian, K., Elhoseiny, M., Claudel, C.: Social-STGCNN: A social spatio-temporal graph convolutional neural network for human trajectory predic-tion. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition (CVPR) (2020) 29. Na, K.I., Kim, U.H., Kim, J.H.: SPU-BERT: Faster human multi-trajectory predic-tion from socio-physical understanding of BERT. Knowledge-Based Systems 274 ,110637 (2023) 30. Ochoa, B., Belongie, S.: Covariance propagation for guided matching. In: Work-shop on Statistical Methods in Multi-Image and Video Processing (SMVP). Graz, Austria (2006) 31. Oh, S., Hoogs, A., Perera, A., Cuntoor, N., Chen, C.C., Lee, J.T., Mukherjee, S., Aggarwal, J., Lee, H., Davis, L., et al.: A large-scale benchmark dataset for event recognition in surveillance video. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) (2011) 32. Pellegrini, S., Ess, A., Schindler, K., Van Gool, L.: You’ll never walk alone: Mod-eling social behavior for multi-target tracking. In: Proceedings of the IEEE Inter-national Conference on Computer Vision (ICCV) (2009) Uncertainty-Aware Trajectory Forecasting 17 33. Pourkeshavarz, M., Zhang, J., Rasouli, A.: CaDeT: A causal disentanglement ap-proach for robust trajectory prediction in autonomous driving. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2024) 34. Ren, Z., Wei, P., Tang, H., Li, H., Yang, J., Qin, J.: Stochastic-aware Mamba diffu-sion for pedestrian trajectory prediction. In: Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) (2025) 35. Vapnik, V., Vashist, A.: A new learning paradigm: Learning using privileged infor-mation. Neural Networks 22 (5-6), 544–557 (2009). https://doi.org/10.1016/j. neunet.2009.06.042 
+
+36. Weng, X., Ivanovic, B., Kitani, K., Pavone, M.: Whose track is it anyway? im-proving robustness to tracking errors with affinity-based trajectory prediction. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition (CVPR) (2022) 37. Weng, X., Ivanovic, B., Pavone, M.: MTP: Multi-hypothesis tracking and predic-tion for reduced error propagation. In: Proceedings of the IEEE Intelligent Vehicles Symposium (IV) (2022) 38. Wojke, N., Bewley, A., Paulus, D.: Simple online and realtime tracking with a deep association metric. In: Proceedings of the IEEE International Conference on Image Processing (ICIP) (2017) 39. Xu, C., Tan, R.T., Tan, Y., Chen, S., Wang, Y., Wang, X., Wang, Y.: EqMotion: Equivariant multi-agent motion prediction with invariant interaction reasoning. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2023) 40. Xu, P., Hayet, J.B., Karamouzas, I.: SocialVAE: Human trajectory prediction using timewise latents. In: European Conference on Computer Vision (ECCV) (2022) 41. Yu, R., Zhou, Z.: Towards robust human trajectory prediction in raw videos. In: Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) (2021) 42. Yuan, Y., Weng, X., Ou, Y., Kitani, K.M.: AgentFormer: Agent-aware transform-ers for socio-temporal multi-agent forecasting. In: Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) (2021) 43. Zhang, H., Xu, Y., Lu, H., Shimizu, T., Fu, Y.: OosTraj: Out-of-sight trajectory prediction with vision-positioning denoising. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2024) 44. Zhang, P., Xue, J., Zhang, P., Zheng, N., Ouyang, W.: Social-aware pedestrian trajectory prediction via states refinement LSTM. IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (05), 2742–2759 (2022) 45. Zhang, P., Bai, L., Wang, Y., Fang, J., Xue, J., Zheng, N., Ouyang, W.: Towards trajectory forecasting from detection. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 (10), 12550–12561 (2023)

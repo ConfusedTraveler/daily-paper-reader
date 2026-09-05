@@ -1,0 +1,482 @@
+Title: Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting
+
+URL Source: https://arxiv.org/pdf/2608.28273v2
+
+Published Time: Fri, 04 Sep 2026 01:27:56 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting 
+
+# Yixuan Zhao 
+
+University of Exeter Department of Computer Science Exeter, United Kingdom yz776@exeter.ac.uk 
+
+# Man Luo ∗
+
+University of Exeter Department of Computer Science Exeter, United Kingdom m.luo@exeter.ac.uk 
+
+## Abstract 
+
+Urban transportation systems consist of multiple mobility modes that coexist within the same city and exhibit complex interdepen-dencies, leading to correlated demand dynamics across modes. How-ever, forecasting demand jointly across different modes remains challenging due to substantial heterogeneity in space and the lim-ited availability of historical data for emerging modes. Existing forecasting methods are largely developed for individual mobility modes and implicitly assume compatible spatial structures between source and target systems, which severely restricts their applicabil-ity in multi-modal settings. To address these challenges, we propose 
+
+TransMod , a unified framework for urban mobility demand fore-casting that enables effective knowledge transfer across heteroge-neous mobility modes. TransMod constructs a shared zone-level spa-tial representation that aligns mobility systems with different spa-tial granularities into a common space, thereby reducing structural mismatch and distributional shift. Built on this unified representa-tion, TransMod further learns transferable spatio-temporal patterns from data-rich source modes and adapts them to data-scarce target modes, alleviating the dependence on extensive target-domain his-tories. Extensive experiments on real-world datasets demonstrate that TransMod consistently outperforms existing approaches and provides robust forecasting performance under limited target data. 
+
+## CCS Concepts 
+
+• Information systems → Spatial-temporal systems ; • Com-puting methodologies → Machine learning .
+
+## Keywords 
+
+Multidisciplinary Topics and Applications, Spatio-Temporal Data Mining, Urban Mobility Demand Forecasting, Machine Learning 
+
+ACM Reference Format: 
+
+Yixuan Zhao and Man Luo. 2026. Learning to Transfer Across Modes: To-wards Unified Urban Mobility Forecasting. In Proceedings of Make sure to enter the correct conference title from your rights confirmation email 
+
+> ∗Corresponding author. Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> Conference acronym ’XX, Woodstock, NY
+> © 2026 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 978-1-4503-XXXX-X/2018/06 https://doi.org/XXXXXXX.XXXXXXX
+
+(a) (b) (c) 
+
+Figure 1: Spatial and temporal heterogeneity across urban mobility modes in NYC. (a) Station-level distribution of bike-sharing and metro systems. (b) Examples of OD flow patterns of ride-hailing demand. (c) Temporal demand patterns of different systems. 
+
+(Conference acronym ’XX). ACM, New York, NY, USA, 10 pages. https: //doi.org/XXXXXXX.XXXXXXX 
+
+## 1 Introduction 
+
+Urban mobility increasingly operates as an ecosystem of multiple transportation modes that coexist and interact within the same city, such as bike-sharing, metro, and ride-hailing systems [2]. Despite differences in service mechanisms, infrastructure, and operational characteristics, these modes are driven by shared underlying human mobility demand, giving rise to strongly correlated and temporally synchronized demand dynamics across modes [22, 23]. For example, commuting peaks, weather changes, and major urban events may simultaneously affect multiple mobility services, although their responses can vary across spatial scales, service types, and usage contexts. Accurately forecasting such multi-modal demand is there-fore critical for urban planning, resource allocation, and operational management [25]. However, most existing forecasting models are developed for individual mobility modes and treat different systems in isolation, which overlooks the transferable demand patterns em-bedded across modes. This limitation reduces their ability to jointly model heterogeneous mobility modes and exploit cross-modal de-pendencies in realistic large-scale urban environments [18]. Coexisting mobility modes within the same city exhibit pro-nounced structural heterogeneity in both spatial representation and temporal observability. Station-based shared mobility systems typically provide fine-grained spatial observations together with rich historical temporal signals [34, 37]. In contrast, station-less or emerging mobility services record demand as individual trip events arXiv:2608.28273v2 [cs.LG] 3 Sep 2026 Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+that are continuously distributed across urban space rather than an-chored to fixed locations, requiring aggregation into coarser spatial units for modeling and often resulting in limited and noisy historical observations. As illustrated in Figure 1(a) and (b), station-based sys-tems such as bike-sharing and metro rely on discrete station-level representations that support demand forecasting at fixed spatial anchors, whereas ride-hailing operates as a station-less system char-acterized by spatially dispersed origin–destination flows. Figure 1(c) further highlights pronounced temporal heterogeneity across mo-bility modes, with metro, ride-hailing, and bike-sharing exhibiting distinct demand dynamics and highly uneven observation densi-ties. The coexistence of mismatched spatial granularity and uneven temporal observability violates the assumptions underlying most existing forecasting and transfer learning methods, thereby limiting effective cross-system knowledge transfer [17, 33]. Consequently, conventional time-series and spatio-temporal graph models strug-gle with temporally sparse target systems due to their reliance on dense historical observations [9, 28]. Most existing urban demand forecasting approaches are de-signed for individual mobility systems or assume comparable data structures and observation patterns across domains. Recent trans-fer learning studies have attempted to bridge regions or systems by exploiting spatial correspondences and shared mobility pat-terns [5, 38]. While effective in conventional cross-region or cross-system settings, these methods remain insufficient for shared urban mobility environments where multiple heterogeneous modes coex-ist, interact, and generate demand at different spatial and temporal scales. In such multi-modal settings, effective transfer is hindered by two interrelated challenges: i) heterogeneous mobility modes operate at incompatible spatial granularities, such that fine-grained station-level signals cannot be directly mapped to coarser region-based representations without distorting spatial interactions; and 
+
+ii) most transfer-based models require sufficient historical observa-tions from the target system to adapt transferred dynamics, which is rarely available for emerging or data-scarce mobility services. These limitations make it difficult to establish a unified representation space for transferring knowledge from data-rich source modes to data-scarce target modes. Consequently, existing methods struggle to fully exploit heterogeneous mobility data for demand forecasting across mobility modes. To address these challenges, we propose TransMod , a unified ur-ban mobility forecasting framework that enables knowledge trans-fer across mobility modes. The framework is motivated by the observation that shared mobility systems coexist within the same urban space while exhibiting fundamental differences in spatial representation and temporal data availability. TransMod resolves structural heterogeneity by constructing a spatially grounded soft assignment that aggregates fine-grained station-level information into zone-level representations, establishing a unified spatial foun-dation for modeling across mobility modes. This assignment mecha-nism preserves local spatial proximity and integrates heterogeneous mobility signals in a flexible manner. Within this unified zone-level representation, the framework aligns zones across mobility modes to mitigate distributional discrepancies and further incorporates a memory-based component that leverages learned spatio-temporal dynamics from source systems with longer observation histories to inform forecasting for target systems with limited historical data. This design enables temporal knowledge transfer without requiring historical observations from the target system. Extensive experiments on real-world shared mobility systems demonstrate the effectiveness of the proposed framework. The contributions of our work are summarized as follows: 
+
+• To reconcile differences in spatial granularities across mo-bility modes, we formulate heterogeneous mobility demand forecasting as a unified zone-level prediction problem within a shared spatial framework. 
+
+• We introduce a spatial aggregation scheme that consoli-dates fine-grained station representations into a unified zone-based structure while preserving spatial continuity in dy-namic urban environments. 
+
+• We introduce a transfer paradigm that enables demand fore-casting across mobility modes without relying on historical temporal observations from the target system. 
+
+• Extensive experiments on real-world shared mobility datasets demonstrate that TransMod consistently outperforms strong baselines and achieves state-of-the-art performance in zone-level demand forecasting. 
+
+## 2 Preliminaries 
+
+We consider an urban area served by multiple heterogeneous shared mobility systems, including station-based systems such as bike-sharing and metro, where demand is recorded at fixed geographic anchors, and a zone-based system such as ride-hailing, where trip demand is aggregated over spatial zones. These systems differ fun-damentally in spatial granularity and temporal data availability, forming the core challenge addressed in this work. 
+
+Station Graph. For each station-based modality 𝑚 ∈ { bike , metro },we define a set of 𝑁 𝑚 𝑠 stations 𝑉 𝑚 = {𝑣 𝑚  
+
+> 1
+
+, . . . , 𝑣 𝑚 𝑁 𝑚 𝑠 }. At time step 
+
+𝑡 , each station 𝑣 𝑚 𝑖 is associated with a demand observation 𝑑 𝑚,𝑡 𝑖 
+
+and a contextual feature vector that encodes location, points of interest (POIs), road-network characteristics, and weather condi-tions. Spatial and behavioral dependencies among stations are rep-resented by a dynamic station graph G𝑚,𝑡 𝑠 = (𝑉 𝑚 , 𝐸 𝑚,𝑡 𝑠 ), where edges capture both static geographic proximity and time-varying origin–destination (OD) interaction patterns. The corresponding weighted adjacency matrix is denoted by 𝐴 𝑚,𝑡 𝑠 .
+
+Zone Graph. To establish a unified spatial representation across mobility modes, the city is partitioned into 𝑁 𝑧 non-overlapping grid zones Z = {𝑧 1, 𝑧 2, . . . , 𝑧 𝑁 𝑧 }, where each zone 𝑧 𝑗 corresponds to a 1 km ×1 km spatial cell. Ride-hailing demand is naturally observed at the zone level and is denoted by 𝑑 𝑡 𝑧 𝑗 at time 𝑡 . Spatial dependencies among zones are modeled by a zone graph G𝑧 = (Z , 𝐸 𝑧 ), where edges encode geographic adjacency and road-network connectivity between neighboring zones. 
+
+Problem Formulation. Given 𝑇 time steps of historical demand and graph observations from bike-sharing and metro systems, de-noted by {d𝑚,𝑡 , 𝐴 𝑚,𝑡 𝑠 }𝑇 𝑚 ∈ M 𝑠 , 𝑡 =1, together with auxiliary features, and given only static ride-hailing spatial features XRH spatial but no historical ride-hailing temporal observations, our objective is to forecast zone-level ride-hailing demand: ˆd𝑇 +1 
+
+> 𝑧
+
+= 𝑓 
+
+d𝑚,𝑡 , 𝐴 𝑚,𝑡 𝑠 𝑚 ∈ M 𝑠 
+
+> 𝑡 =1,...,𝑇
+
+, XRH spatial 
+
+
+
+, (1) Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+where ˆd𝑇 +1 
+
+> 𝑧
+
+∈ R𝑁 𝑧 denotes the forecasted ride-hailing demand vector across all zones, and M𝑠 = {bike , metro } denotes the set of source modalities. This asymmetric availability of temporal observa-tions between source and target systems defines the key challenge of cross-modal mobility transfer. 
+
+## 3 Methodology 
+
+To enable demand forecasting transfer across heterogeneous mo-bility modes, we propose TransMod, a unified framework that integrates station-level spatio-temporal representation learning, zone-level spatial unification, and cross-modal knowledge transfer across mobility systems under sparse target observations. The over-all architecture is illustrated in Figure 2. The following subsections describe each component of TransMod in detail. 
+
+## 3.1 Station-Level Spatio-Temporal Representation 
+
+This module learns station-level representations by jointly model-ing temporal demand dynamics and spatial interactions for bike-sharing and metro systems. 
+
+Temporal features. For each source shared mobility mode, tempo-ral representations are extracted from historical demand sequences 
+
+X𝑚 ∈ R𝑁 𝑚 𝑠 ×𝑇 ×𝐹 using dilated temporal convolutional networks to capture multi-scale patterns, yielding station embeddings 𝑒 𝑚 𝑖 ∈ R𝑑 𝑡 ,where 𝑚 denotes bike-sharing or metro. To model demand uncer-tainty, each embedding is parameterized as a Gaussian distribution: 
+
+𝜇 𝑚 𝑖 = U𝑚 ⊤𝑒 𝑚 𝑖 , 𝜎 𝑚 𝑖 =√︃ ELU (P𝑚 ⊤𝑒 𝑚 𝑖 ) + 1, (2) from which uncertainty-aware temporal embeddings are obtained via reparameterized sampling. 
+
+Graph construction. For each mobility mode 𝑚 , a dynamic station graph is constructed to capture spatial interactions. Each station node is initialized by concatenating its uncertainty-aware temporal embedding with spatial contextual features, including Point-of-Interest (POI) distributions p𝑚 𝑖 , resulting in h𝑚, 0 
+
+> 𝑖
+
+= [𝜇 𝑚 𝑖 ∥p𝑚 𝑖 ]. Edges incorporate both static spatial proximity and time-varying mobility patterns. Static edges 𝐴 𝑚  
+
+> geo
+
+connect geographically proximate sta-tions, while dynamic edges capture temporally decayed OD flows: 
+
+𝐴 𝑚,𝑡 𝑠 = 𝐴 𝑚  
+
+> geo
+
++
+
+> 𝑡
+
+∑︁   
+
+> 𝜏 =max (1,𝑡 −Δ𝑡 )
+
+exp   − 𝜆 (𝑡 − 𝜏 ) · 𝐹 𝑚,𝜏 , (3) where 𝐹 𝑚,𝜏 denotes the OD flow matrix at time 𝜏 . Graph attention is applied to aggregate information from neighboring stations at each time step: ˆℎ𝑚,𝑡 𝑖 = 𝜎 
+
+∑︁  
+
+> 𝑗 ∈ N 𝑚,𝑡 𝑖
+
+𝛼 𝑚,𝑡 𝑖 𝑗 W𝑚 ℎ𝑚,𝑡 𝑗 
+
+
+
+, (4) and the final station representation is ˆℎ𝑚 𝑖 = ˆℎ𝑚,𝑇 𝑖 .
+
+## 3.2 Unified Zone-Level Representation 
+
+To facilitate learning and transfer across heterogeneous mobility modes, we construct a unified zone-level representation that recon-ciles disparities in spatial granularity between station-based and zone-based systems. This unified spatial representation provides a foundation for alignment across mobility modes and subsequent urban mobility forecasting. 
+
+3.2.1 Station-Zone Representation Aggregation. To bridge the spa-tial granularity gap between station-based mobility systems (e.g., bike-sharing and metro) and zone-level modeling, we learn a soft as-signment matrix for station-to-zone mapping, allowing each station to contribute to multiple zones with different weights and enabling smooth, spatially continuous aggregation. For each station-based mobility mode 𝑚 ∈ { bike , metro }, we learn a soft assignment matrix 𝑆 𝑚 ∈ R𝑁 𝑚 𝑠 ×𝑁 𝑧 , where 𝑆 𝑚 [𝑖, 𝑗 ] ∈ [0, 1] denotes the contribution of station 𝑖 to zone 𝑗 and satisfies the normalization constraint Í𝑗 𝑆 𝑚 [𝑖, 𝑗 ] = 1. This constraint en-sures that station-level information is redistributed across zones in a normalized, stable, and interpretable manner while preserving spa-tial relevance. The assignment is initialized using a distance-based Gaussian kernel to encode geographical proximity: 
+
+𝑆 𝑚  
+
+> geo
+
+[𝑖, 𝑗 ] = exp (− 𝑑 2 
+
+> 𝑖 𝑗
+
+/2𝜎 2 
+
+> 𝑚
+
+) · 𝑀 𝑚 [𝑖, 𝑗 ]
+
+Í𝑘 exp (− 𝑑 2 
+
+> 𝑖𝑘
+
+/2𝜎 2 
+
+> 𝑚
+
+) · 𝑀 𝑚 [𝑖, 𝑘 ] , (5) where 𝑑 𝑖 𝑗 denotes the Euclidean distance between station 𝑖 and the centroid of zone 𝑗 . The binary mask 𝑀 𝑚 restricts each station to its top-𝐾 nearest zones, enforcing spatial locality and avoiding un-realistic long-range associations. The mobility-specific bandwidth, 
+
+𝜎 𝑚 , reflects differences in service coverage across mobility modes. Starting from this geographically grounded prior, the soft assign-ment is refined in a data-driven manner: 
+
+𝑆 𝑚 = Softmax   log (𝑆 𝑚 
+
+> geo
+
+) + Δ𝑚 ⊙ 𝑀 𝑚 , (6) where Δ𝑚 contains learnable parameters constrained by the spatial mask. This formulation allows the assignment to adapt to observed data while remaining anchored to physically meaningful spatial relationships. To regularize the learning process and prevent exces-sive deviation from the geographical prior, we introduce 
+
+Lgeo = ∥𝑆 𝑚 − 𝑆 𝑚  
+
+> geo
+
+∥2 
+
+> 𝐹
+
+, (7) which encourages consistency between the learned assignment and the spatial prior. 
+
+Zone-Level Aggregation. Using the learned soft assignment, station-level features and interactions are aggregated to the zone level as: 
+
+𝐻 𝑚 𝑧 = (𝑆 𝑚 )⊤ ˆ𝐻 𝑚 , 𝐴 𝑚  
+
+> od
+
+= (𝑆 𝑚 )⊤𝐴 𝑚 𝑠 𝑆 𝑚 . (8) For ride-hailing, which is inherently observed at the zone level, we directly construct a zone-level graph 𝐴 RH  
+
+> 𝑧
+
+by connecting geograph-ically proximate zones within a 1 km radius. After aggregation, all mobility modes are represented at the zone-level granularity for alignment and modeling. 
+
+3.2.2 Unified Zone Graph Alignment. To align heterogeneous zone-level representations from bike-sharing and metro systems within the shared latent space, we employ complementary objectives for global distribution alignment and instance-level alignment. Global distribution alignment is achieved via Maximum Mean Discrepancy (MMD) [10]: 
+
+LMMD = 1
+
+𝑁 𝑧 ∑︁ 𝑖 
+
+𝜙 (ℎbike  
+
+> 𝑧,𝑖
+
+) − 1
+
+𝑁 𝑧 ∑︁ 𝑗 
+
+𝜙 (ℎmetro  
+
+> 𝑧,𝑗
+
+) 2
+
+, (9) Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Figure 2: Overview of the proposed TransMod framework. Station-level observations from source mobility systems are encoded to learn spatio-temporal representations, which are aggregated into a shared zone-level space through soft assignment to reconcile heterogeneous spatial granularity. Alignment across mobility modes is performed within this unified representation to reduce distributional discrepancies. Knowledge transfer across modes enables accurate demand forecasting for the target system under limited historical observations. 
+
+where 𝜙 (·) denotes a kernel-induced feature mapping. To further enforce fine-grained alignment, an InfoNCE-based contrastive ob-jective encourages representations from the same zone but different mobility modes to be close: 
+
+LInfoNCE = −∑︁ 
+
+> 𝑖
+
+log exp (sim (ℎbike  
+
+> 𝑧,𝑖
+
+, ℎ metro  
+
+> 𝑧,𝑖
+
+)/ 𝜏 )
+
+Í𝑗 exp (sim (ℎbike  
+
+> 𝑧,𝑖
+
+, ℎ metro  
+
+> 𝑧,𝑗
+
+)/ 𝜏 ) . (10) After alignment, zone-level representations from different mo-bility modes are projected into a shared latent space and fused to obtain unified zone embeddings 𝑍 ∈ R𝑁 𝑧 ×𝑑 .We construct a unified zone-level graph based on the unified embeddings, which captures complementary interaction patterns across modes. The adjacency matrix integrates aggregated OD flows from bike-sharing and metro systems, geographical proximity be-tween zones, and feature similarity: 
+
+𝐴 𝑧 = 𝛼 (𝐴 bike od + 𝐴 metro od ) + 𝛽𝐴 geo + 𝛾𝐴 feat , (11) where the coefficients 𝛼 , 𝛽 , and 𝛾 control the contributions of mo-bility interactions, spatial adjacency, and semantic similarity, re-spectively. The resulting graph is sparsified to retain the most in-formative zone connections, yielding a compact zone graph for subsequent representation learning. 
+
+## 3.3 Knowledge Transfer Across Modes 
+
+Building on the station-to-zone spatial alignment, we introduce a memory-based mechanism to transfer temporal knowledge from data-rich bike-sharing and metro systems to ride-hailing (RH), where historical temporal observations are limited or unavailable. We maintain a learnable memory pool M = {( k𝑖 , v𝑖 )} 𝑀 𝑖 =1 with 
+
+𝑀 key–value pairs, where k𝑖 , v𝑖 ∈ R𝑑 encode transferable temporal prototypes. Given a query vector q𝑗 for zone 𝑧 𝑗 , relevant temporal priors are retrieved through an attention-based memory lookup: 
+
+m𝑗 =
+
+> 𝑀
+
+∑︁ 
+
+> 𝑖 =1
+
+𝛼 𝑗,𝑖 v𝑖 , 𝛼 𝑗,𝑖 = softmax 𝑖 
+
+ k⊤ 
+
+> 𝑖
+
+q𝑗 
+
+√𝑑 
+
+
+
+. (12) 
+
+Pre-training on source systems. For each zone, the query is constructed by fusing aligned zone-level representations from bike-sharing and metro systems with temporal context features, such as hour of the day, day of the week, and holidays: 
+
+q𝑗 = MLP 
+
+
+
+[𝐻 bike  
+
+> 𝑧,𝑗
+
+∥ 𝐻 metro  
+
+> 𝑧,𝑗
+
+∥ t]
+
+
+
+. (13) Since each query jointly encodes the zone-specific spatial context and the current temporal state, the memory keys k𝑖 are optimized to index patterns at the intersection of where the demand occurs and 
+
+when it emerges. Therefore, the memory does not simply function as a time-of-day lookup table; instead, it learns reusable spatio-temporal prototypes that capture mode-shared demand regularities. The diversity regularizer Ldiv further encourages the 𝑀 prototypes to specialize in distinct spatio-temporal configurations, preventing them from collapsing into a shared average representation. The retrieved memory vector m𝑗 is then fused with zone representations and propagated over the zone graph for demand prediction. 
+
+Transfer to target system. During transfer, the memory pool and spatial mapping modules are frozen to preserve the transferable patterns learned from source systems. Since RH lacks historical temporal observations, query prompts are generated solely from RH spatial cues through a lightweight prompt network, where the prompt for zone 𝑧 𝑗 is defined as pRH  
+
+> 𝑗
+
+= MLP (s𝑗 ). Here, s𝑗 aggre-gates zone-level POI distributions, road-network characteristics, and graph structural indicators for zone 𝑧 𝑗 . Temporal priors are then retrieved through the same attention-based memory lookup defined in Eq. (12), with pRH  
+
+> 𝑗
+
+used in place of q𝑗 . Since the memory keys are trained during source pre-training to associate spatial contexts with temporal regimes, the RH spatial prompt can retrieve zone-appropriate temporal priors from the frozen memory. This realizes a spatial-to-temporal mapping without requiring target-domain temporal history. During adaptation, only the prompt network and prediction head are fine-tuned, enabling knowledge transfer while retaining the temporal knowledge encoded in the memory pool. Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+## 3.4 Training Objective 
+
+During pre-training , we jointly optimize demand prediction and representation learning across multiple source mobility modes us-ing a composite objective: 
+
+Lpre = Lpred + 𝜆 ali Lali + 𝜆 geo Lgeo + 𝜆 div Ldiv , (14) where Lpred denotes the forecasting loss on bike-sharing and metro systems. Lali enforces zone-level alignment across modes via MMD and InfoNCE. Lgeo regularizes soft assignments toward geographi-cally constrained initialization. Ldiv encourages diversity among memory prototypes to prevent representation collapse. The hy-perparameters 𝜆 align , 𝜆 geo , and 𝜆 div balance the contributions of individual components. During ride-hailing adaptation , the memory pool M and spatial mapping modules are frozen to preserve the transferable spatio-temporal knowledge learned from source systems. Only the prompt network and prediction head are fine-tuned using the ride-hailing demand prediction loss: 
+
+Lt = MSE ( ˆ𝑑 RH  
+
+> 𝑧
+
+, 𝑑 RH  
+
+> 𝑧
+
+). (15) This training strategy limits trainable parameters and preserves the temporal priors encoded in the memory. 
+
+## 4 Experiments 
+
+In this section, we present the implementation details and dataset descriptions, followed by the evaluation metrics and baseline meth-ods used for comparison. We then conduct extensive experiments to assess TransMod’s performance, including comparisons with baseline models, computing efficiency analysis, ablation studies, and robustness analysis across different scenarios. 
+
+## 4.1 Implementation Details 
+
+We set the hidden dimension to 𝑑 = 64 and employ 2-layer GATs with 4 attention heads for both station and zone-level graphs. Soft assignment is initialized using Gaussian kernels with 𝜎 bike = 500m and 𝜎 metro = 800m, retaining the top-𝐾 nearest zones per station. The memory pool contains 𝑀 = 128 prototypes. Models are trained using Adam with learning rate 10 −3 and batch size 32. The loss weights are set to 𝜆 MMD = 0.1, 𝜆 InfoNCE = 0.5, 𝜆 geo = 0.1, and 
+
+𝜆 div = 0.05, with InfoNCE temperature 𝜏 = 0.07 and diversity threshold 𝛿 = 0.3. Ride-hailing adaptation is conducted for 50 epochs with learning rate 5 × 10 −4. Demand is aggregated hourly with temporal window 𝑇 = 12, and data are split into 70%/15%/15% for training, validation, and testing. All experiments are conducted on an NVIDIA RTX 4090 GPU. The model implementation is avail-able at: https://anonymous.4open.science/r/TransMod-DDA5. 
+
+## 4.2 Data Description 
+
+To evaluate our framework, we collect multiple urban shared mo-bility datasets from New York City 1 and Chicago 2, integrating bike-sharing, metro, and ride-hailing records with rich auxiliary features, including points of interest (POI), meteorological conditions, and road network information. 
+
+> 1https://opendata.cityofnewyork.us/
+> 2https://data.cityofchicago.org/
+
+Table 1: Stage-wise data access protocol. ✓ = used; × = un-available; frz = frozen, not re-accessed.                             
+
+> Input Type Pre. Trans. Eval.
+> Bike/metro demand Hourly sequences ✓frz frz Bike/metro OD Temporal flow matrices ✓frz frz Auxiliary feat. POI, weather, road ✓frz frz RH hist. demand Hourly sequences ×××
+> RH spatial feat. POI, road, geometry ×✓✓
+> RH test demand Held-out labels ××✓
+
+Bike-Sharing Data. We use operational records from NYC Citi Bike and Chicago Divvy for January 2018. The data contain station-level pick-up and drop-off events with timestamps and precise geographic coordinates. 
+
+Metro Data. Metro ridership data are obtained from the NYC MTA and the Chicago CTA, covering 472 stations in NYC and 145 stations in Chicago. These datasets provide hourly entry and exit counts along with station metadata. 
+
+Ride-Hailing Data. Ride-hailing trip records are collected from the NYC TLC and City of Chicago TNP Trips dataset. Trips are aggregated into predefined spatial zones, with pick-up and drop-off timestamps and locations. 
+
+Auxiliary Data. To enrich spatial and contextual representations, we incorporate POI data from the Google Places API, meteorological data from MesoWest, and road network data from OpenStreetMap. 
+
+Data Protocol. To prevent target-domain leakage, TransMod en-forces a strict stage-wise data separation. Ride-hailing temporal demand is not used during source pre-training or as historical tem-poral input during transfer. During target adaptation, only limited ride-hailing labels are used for supervised fine-tuning, while held-out ride-hailing records are reserved exclusively for evaluation. Table 1 summarizes the input availability at each stage. 
+
+## 4.3 Evaluation Metrics and Compared Methods 
+
+Evaluation metrics . There are three performance metrics em-ployed for evaluating our model, namely Root Mean Square Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percent-age Error (MAPE). These metrics collectively provide a robust and complementary framework for assessing our model’s ability to capture subtle variations and forecasting errors in the data. 
+
+Compared methods. We compare TransMod with baseline meth-ods from three categories: single-system forecasting, spatio-temporal demand modeling, and transfer/cross-modal learning. 
+
+• Single-system models : ARIMA [4], a classical statistical time-series forecasting method, and LSTM [11], a recurrent neural network widely used for sequence prediction. 
+
+• Spatio-temporal models : RegionTrans [28], STAN [7], TSJT [38], and HimNet [6], which capture spatial dependencies, temporal dynamics, and urban heterogeneity for demand forecasting, with-out explicitly modeling cross-modal transfer. 
+
+• Transfer and cross-modal models : TransGTR [17], MetaST [33], LSTM-FT [13], MMDNet [15], and FusionTransNet (FusionTN) [26], which leverage transferable knowledge or shared representations across regions, systems, or mobility modes. Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Table 2: Overall Performance Comparison on Transfer Tasks across Mobility Modes. The best results are marked in bold. 
+
+## Model 
+
+## New York City Chicago City 
+
+## MAE ↓ RMSE ↓ MAPE(%) ↓ MAE ↓ RMSE ↓ MAPE(%) ↓
+
+## ARIMA 18.92 ±1.25 23.35 ±1.56 16.61 ±1.08 15.48 ±1.02 19.90 ±1.44 17.82 ±1.28 LSTM 17.63 ±1.84 22.97 ±2.07 15.95 ±1.25 14.36 ±0.31 18.27 ±0.49 16.54 ±1.15 RegionTrans 13.78 ±1.24 18.92 ±1.70 11.82 ±1.38 12.53 ±1.02 16.21 ±1.44 10.34 ±1.19 STAN 13.94 ±2.75 17.63 ±1.52 11.23 ±1.25 11.82 ±0.89 15.28 ±1.31 9.74 ±1.08 TSJT 13.52 ±1.14 17.15 ±1.48 10.94 ±3.31 11.45 ±0.92 14.82 ±2.76 9.42 ±1.12 HimNet 13.08 ±3.02 16.54 ±1.41 10.61 ±1.18 11.02 ±0.85 14.35 ±1.19 9.15 ±1.02 TransGTR 12.42 ±0.96 15.68 ±1.35 10.12 ±1.09 10.51 ±0.78 13.64 ±5.22 8.73 ±0.95 MetaST 12.85 ±1.05 16.21 ±3.38 10.45 ±1.15 10.83 ±0.83 14.01 ±3.15 9.02 ±1.04 LSTM-FT 13.68 ±1.12 17.34 ±1.46 10.98 ±1.22 11.58 ±0.91 15.01 ±1.24 9.51 ±1.10 MMDNet 12.94 ±1.08 16.38 ±1.42 10.52 ±1.18 10.92 ±0.86 14.18 ±1.18 9.08 ±1.05 FusionTN 12.61 ±0.98 15.93 ±1.36 10.24 ±1.11 10.64 ±0.81 13.82 ±1.14 8.84 ±0.98 
+
+## TransMod (Ours) 10.78 ±0.25 13.16 ±0.73 8.76 ±0.85 8.30 ±0.16 11.37 ±0.64 7.52 ±0.78 
+
+## 4.4 Comparison with Baselines 
+
+A comprehensive comparison of demand forecasting models for transfer from station-based systems to zone-level ride-hailing de-mand in New York City and Chicago is reported in Table 2. Tradi-tional single-system baselines, including ARIMA and LSTM, yield substantially higher MAE and RMSE values, reflecting their limited ability to capture complex urban mobility dynamics when transfer-able information across systems is unavailable. Region-level and spatio-temporal models without explicit transfer across mobility modes, such as RegionTrans, STAN, TSJT, and HimNet, achieve improved performance by exploiting spatial correlations and re-gional structures. Nevertheless, their predictive accuracy remains constrained by the fundamental mismatch between station-level observations and zone-level prediction targets. Transfer learning approaches, including TransGTR, MetaST, and LSTM-FT, together with recent cross-modal mobility models such as MMDNet and Fu-sionTransNet, further improve performance by leveraging shared representations across systems. However, these methods still strug-gle to fully resolve spatial granularity discrepancies and temporal sparsity in the target system. The proposed TransMod framework consistently outperforms all competing methods across all evaluation metrics and cities. As shown in Table 2, TransMod achieves the lowest MAE, RMSE, and MAPE, demonstrating its superior generalization ability across heterogeneous mobility systems under diverse real-world settings. This performance advantage stems from its unified treatment of heterogeneity across mobility modes, which jointly addresses sta-tion–zone aggregation through geography-constrained soft assign-ment and temporal knowledge transfer through memory prompting. By aligning heterogeneous representations and compensating for 
+
+Table 3: Computational efficiency comparison on NYC. Times are reported in s/ep for pre-training/transfer and ms/sample for inference latency.                        
+
+> Method Pre-train Trans. Infer. (s/ep) (s/ep) (ms)
+> LSTM-FT 16.4 13.7 3.2 TransGTR 26.5 24.3 12.8 MetaST 31.2 29.8 14.3 MMDNet 37.8 32.5 15.6 FusionTN 43.8 41.2 18.4
+> TransMod 38.4 5.2 9.8
+
+missing temporal signals in ride-hailing demand, TransMod pro-vides a robust and accurate solution for urban demand forecasting across mobility systems. 
+
+## 4.5 Computing Efficiency Analysis 
+
+We evaluate the computational efficiency of TransMod against all baselines on the NYC dataset using an NVIDIA RTX 4090 GPU. Table 3 reports three efficiency indicators: per-epoch pre-training time, per-epoch adaptation time, and per-sample inference latency. TransMod requires a pre-training cost comparable to other graph-based transfer methods, mainly due to cross-modal representation alignment and memory learning. However, its adaptation stage is substantially more efficient than competing transfer methods, requiring only 5.2 s/ep compared with 24.3–41.2 s/ep for Trans-GTR, MetaST, MMDNet, and FusionTN. This efficiency advantage arises because only the lightweight prompt network and prediction head are fine-tuned during adaptation, while the memory pool and spatial mapping modules remain frozen. TransMod also achieves competitive inference latency. Instead of re-computing the full Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting Conference acronym ’XX, June 03–05, 2018, Woodstock, NY          
+
+> (a) (b) (c) (d)
+> (e) (f) (g) (h)
+> (i) (j) (k) (l)
+
+Figure 3: Ablation studies on the (a) NYC and (b) Chicago, showing MAE and MAPE for different variants. Prediction performance for cross-city transfer from NYC to Chicago in terms of (c) RMSE and (d) MAPE. Cross-modal transfer robustness on the (e) ride-hailing and (f) bike-sharing demand forecasting tasks, shown as MAPE across different source modality configurations. Performance under different spatial resolutions, evaluated using (g) RMSE and (h) MAPE. Results under different levels of data scarcity measured by (i) RMSE and (j) MAPE. Temporal prediction performance under different prediction lengths, reported by (k) RMSE and (l) MAPE. 
+
+station-level graph attention at test time, it performs a memory lookup followed by zone-level propagation, resulting in sub-10 ms inference latency. In terms of scalability, memory retrieval has com-plexity O( 𝑁 𝑧 · 𝑀 · 𝑑 ), where the number of prototypes is fixed at 
+
+𝑀 =128 regardless of city scale. Therefore, the inference cost grows linearly with the number of zones and remains tractable for dense metropolitan grids with thousands of zones. 
+
+## 4.6 Ablation Studies 
+
+To systematically examine the internal effectiveness and stability of TransMod, we conduct ablation studies by selectively removing key components from the full framework. As shown in Figure 3(a) and (b), we construct four ablated variants: w/o GE , which removes Gaussian uncertainty embeddings and uses deterministic station representations; w/o SA , which replaces the learnable soft assign-ment mechanism with hard nearest-zone assignment; w/o CT ,which removes the cross-modal alignment losses, including MMD and InfoNCE, and trains source modalities without representation alignment; and w/o MT , which replaces the memory-based transfer module with a standard GRU decoder. All ablated variants show consistent performance degradation across NYC and Chicago on all evaluation metrics, confirming that each component contributes to the overall effectiveness of TransMod. A closer examination further reveals the distinct role of each component. Among all variants, removing the soft assignment mechanism leads to the most pronounced degradation, with MAE increasing by 13.0% in NYC and 16.0% in Chicago. This result indicates that hard nearest-zone assignment can distort the aggregation of station-level signals into zone-level representations, whereas the learnable and geography-regularized soft assignment is essential for bridging the spatial granularity mismatch between station-based and zone-based systems. Removing Gaussian uncertainty embeddings ( w/o GE )and cross-modal alignment ( w/o CT ) also causes moderate perfor-mance drops. Without uncertainty modeling, TransMod becomes less capable of suppressing unreliable auxiliary signals; without cross-modal alignment, bike-sharing and metro representations remain distributionally inconsistent, which weakens the quality of temporal patterns stored in the memory pool. Finally, replacing the memory-based transfer module with a GRU decoder ( w/o MT )increases MAE by 8.8% in NYC and 11.8% in Chicago. Although the GRU decoder can still capture periodic temporal patterns from source data, its weaker performance suggests that the memory pool encodes richer zone-structure-conditioned temporal dynamics be-yond simple recurrent statistics. This structured prior is particularly important when target-domain temporal observations are limited. Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Figure 4: Performance under auxiliary feature removal on NYC and Chicago. 
+
+## 4.7 Robustness Analysis 
+
+We conduct a comprehensive robustness analysis of TransMod from four perspectives: cross-city transfer, cross-modal transfer, practi-cal perturbations, and auxiliary feature degradation. The goal is to examine whether TransMod maintains reliable forecasting perfor-mance under diverse data-limited and heterogeneous settings. 
+
+Cross-city and cross-modal transfer. To assess cross-city trans-ferability, we examine whether TransMod can reuse mobility knowl-edge learned from one city when adapted to another under limited target supervision. Specifically, TransMod is pre-trained on New York City and fine-tuned on Chicago with varying proportions of ride-hailing (RH) data. We compare three settings: No Transfer ,which trains from scratch using only Chicago RH data; With Trans-fer , which initializes TransMod with the NYC-pre-trained memory pool; and Upper Bound , which uses the full Chicago RH dataset. As shown in Figure 3(c) and (d), TransMod consistently outperforms No Transfer and approaches the Upper Bound when target-city data are limited. With only 10% of Chicago data, TransMod achieves an RMSE of 12.38, compared with 16.21 without transfer, indicating that the source-learned memory provides effective temporal priors for target-city adaptation. We further evaluate cross-modal transferability using two target tasks: ride-hailing demand prediction and bike-sharing demand prediction. For the RH target, auxiliary sources include bike-sharing, metro, or both; for the bike-sharing target, sources include metro, ride-hailing, or both. This setting tests whether TransMod can generalize beyond a single predefined source–target direction. As shown in Figure 3(e) and (f), TransMod achieves the lowest MAPE across all six source–target configurations and maintains more stable performance than competing baselines. These results confirm that TransMod supports robust knowledge transfer across both cities and mobility modes under data-limited conditions. 
+
+Robustness to practical perturbations. We also evaluate Trans-Mod under spatial coarsening, data scarcity, and long-horizon fore-casting. Under spatial coarsening, TransMod remains stable as the grid size increases from 0.5 km to 2 km, with RMSE rising by only 9.5%, compared with 17%–24% for competing baselines. Un-der data scarcity, TransMod consistently outperforms all baselines and achieves performance comparable to methods trained with 70%–100% of the data using only 30% of RH records, demonstrating its ability to exploit auxiliary mobility signals when target observa-tions are sparse. For long-horizon forecasting, TransMod remains the most stable from 𝑡 to 𝑡 + 12, with RMSE increasing by 28.3%, compared with 40%–50% for most baselines. These results show 
+
+Figure 5: Hyperparameter sensitivity of TransMod on NYC and Chicago. 
+
+that TransMod effectively exploits transferable spatio-temporal structure across heterogeneous mobility modes, enabling reliable forecasting under spatial mismatch, limited target data, and ex-tended prediction horizons. 
+
+Robustness to auxiliary feature degradation. Finally, we eval-uate the impact of removing each auxiliary feature category by replacing its inputs with zero vectors during both pre-training and adaptation. As shown in Figure 4, removing POI distributions causes the largest degradation, increasing MAE by 5.8% in NYC and 6.1% in Chicago. This indicates that POI features play a critical role in both the soft assignment prior and the prompt network. Removing road-network features results in moderate performance drops of 4.3% and 4.7%, while meteorological features have the smallest in-dividual impact, with MAE increases of 2.6% and 2.9%. When all auxiliary features are removed simultaneously, MAE increases by 10.8% in NYC and 11.8% in Chicago. This degradation remains non-catastrophic, suggesting that the Gaussian uncertainty mechanism improves robustness against missing or corrupted auxiliary inputs. 
+
+## 4.8 Hyperparameter Sensitivity Analysis 
+
+We analyze the sensitivity of TransMod to three key hyperparame-ters: memory pool size 𝑀 , InfoNCE temperature 𝜏 , and the mobility-specific bandwidth 𝜎 bike for bike-sharing, which controls the ge-ographic decay in the soft assignment prior defined in Eq. 5. In each experiment, one hyperparameter is varied within a predefined range while the others are fixed at their default values, i.e., 𝑀 =128, 
+
+𝜏 =0.07, and 𝜎 bike =500 𝑚 . The default setting is marked by the dotted vertical line in Figure 5. We report MAE on both NYC and Chicago to assess cross-city consistency. 
+
+Memory pool size 𝑀 . Increasing 𝑀 from 32 to 128 reduces MAE from 11.84 to 10.78 on NYC and from 9.12 to 8.30 on Chicago, con-firming that a larger memory pool provides more diverse temporal prototypes. However, further increasing 𝑀 brings negligible im-provement and slightly increases MAE to 10.82 and 8.34 on NYC and Chicago, respectively. We therefore set 𝑀 =128 as the default to balance prototype coverage and memory cost. 
+
+InfoNCE temperature 𝜏 . TransMod is most sensitive to 𝜏 among the three hyperparameters. A small temperature, e.g., 𝜏 =0.05, makes memory retrieval overly concentrated on dominant prototypes, sup-pressing useful secondary temporal patterns and increasing NYC MAE to 11.12. In contrast, a large temperature, e.g., 𝜏 =0.20, produces overly uniform attention weights, weakening the discriminative structure of the retrieved memory and increasing NYC MAE to 11.56. The default value 𝜏 =0.07 achieves the best balance between prototype specificity and coverage across both cities. Learning to Transfer Across Modes: Towards Unified Urban Mobility Forecasting Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+Bandwidth 𝜎 bike . Compared with 𝑀 and 𝜏 , TransMod is less sensi-tive to 𝜎 bike . Reducing 𝜎 bike to 300 m makes the assignment overly localized and closer to hard nearest-zone mapping, raising NYC MAE from 10.78 to 11.34. Increasing it to 800 m introduces a milder degradation, with NYC MAE increasing to 11.05, suggesting that overly broad kernels may introduce noise from distant zones. The stable performance between 500 m and 800 m indicates that the soft assignment mechanism is robust to moderate variations in the geographic prior. For metro, we use a larger default bandwidth 
+
+𝜎 metro =800 𝑚 , reflecting the wider catchment area of rail stations. 
+
+## 5 Related Work 5.1 Urban Mobility Demand Forecasting 
+
+Demand prediction is a core problem in urban mobility systems, such as bike-sharing, ride-hailing, and public transit. Existing stud-ies have extensively explored deep learning models to capture tem-poral dynamics and spatial correlations in mobility demand, in-corporating external factors such as weather, POIs, and land-use information [30, 34, 37, 40]. These methods have significantly im-proved forecasting accuracy by modeling complex spatio-temporal dependencies in urban travel behavior. However, most approaches achieve this within a single mobility system, where the spatial units, temporal observations, and demand generation processes are as-sumed to be internally consistent [3, 20, 21]. Such an assumption becomes restrictive in multi-modal urban environments, where dif-ferent systems may observe the same underlying mobility demand through different spatial abstractions, such as stations, stops, or zones. Consequently, models trained for one system often cannot be directly transferred to another without resolving the mismatch in representation and data availability. This design limits their abil-ity to exploit transferable demand patterns between data-rich and data-scarce mobility systems. Even recent multi-modal studies of-ten rely on independent models or simple feature fusion, treating auxiliary modes mainly as additional inputs rather than transfer-able knowledge sources [16]. As a result, they remain insufficient for forecasting across heterogeneous mobility systems with mis-matched spatial representations and uneven temporal availability. 
+
+## 5.2 Spatio-Temporal Representation Learning 
+
+Learning effective representations has become central to trans-portation forecasting, as it enables models to capture spatial de-pendencies, temporal dynamics, and their interactions in traffic and mobility networks. Early approaches integrate graph-based spatial modeling with recurrent or convolutional temporal mod-ules to learn structured spatio-temporal representations, such as DCRNN, STGCN, and Graph WaveNet [19, 31, 35]. These models represent transportation systems as graphs, where nodes denote sensors, stations, or regions, and edges encode spatial proximity or mobility interactions. This graph-based formulation provides a powerful way to model localized dependencies, but it also ties the learned representation to a specific node definition and spa-tial partition. Subsequent studies enhance modeling flexibility by learning adaptive graph structures and node embeddings directly from data, capturing non-stationary spatial correlations beyond predefined adjacency matrices [1, 36]. Such adaptive representa-tions improve intra-system forecasting, especially when spatial correlations evolve over time, but they still assume that the source and target observations share compatible spatial semantics. More recent works further explore attention-based and decoupled spatial– temporal architectures to capture long-range dependencies [39]. Despite these advances, most methods are designed for single sys-tems with fixed spatial units, where the node set and observation structure remain consistent during training and inference. This assumption limits their applicability to heterogeneous mobility sys-tems with mismatched spatial granularity and uneven temporal availability, motivating a unified representation space for cross-modal knowledge transfer. 
+
+## 5.3 Knowledge Transfer Across Modes 
+
+Transfer learning and domain adaptation have been widely studied in urban mobility forecasting to alleviate data scarcity by trans-ferring knowledge across cities, regions, or transportation sys-tems [5, 7, 14, 28, 29]. Existing approaches typically reuse spatio-temporal patterns learned from data-rich source domains to im-prove forecasting in data-scarce target domains, and are often grounded in domain adaptation principles such as distribution matching, adversarial learning, and feature-level invariance. These methods are effective when the source and target domains share comparable spatial units and observation structures, since the trans-ferred representations can be aligned within a relatively consis-tent feature space. Recent studies further extend these ideas to graph-based mobility forecasting by aligning node embeddings, edge structures, or spatio-temporal graph representations between source and target domains [8, 12, 17, 24, 27, 32]. However, graph-based alignment still commonly relies on structural compatibility across domains, including similar node definitions, graph topolo-gies, and observation patterns. This reliance becomes restrictive in cross-modal mobility transfer, where station-based and zone-based systems differ not only in spatial representation, but also in temporal availability and data generation processes. As a result, existing transfer methods remain limited when transferring knowl-edge across heterogeneous mobility modes, such as bike-sharing, metro, and ride-hailing systems [13, 15, 26]. 
+
+## 6 Conclusion and Future Work 
+
+In this paper, we propose TransMod, a unified framework for urban mobility forecasting across heterogeneous modes with mismatched spatial granularity and uneven temporal observability. TransMod builds a shared spatial representation to bridge station-based and zone-based systems, aligns cross-modal representations, and re-trieves transferable temporal patterns from data-rich source modes through memory-based transfer. Experiments on New York City and Chicago datasets show that TransMod outperforms state-of-the-art baselines and remains robust under spatial coarsening, data scarcity, cross-city transfer, and long-horizon forecasting. These results highlight the effectiveness of cross-modal spatio-temporal knowledge transfer in data-heterogeneous urban settings, offering a scalable step toward generalizable urban mobility forecasting. Future work may extend TransMod in several directions. In-corporating additional mobility systems, such as shared scooters, on-demand buses, and autonomous fleets, would further test its generality under broader urban heterogeneity. Online or continual Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+memory updates could improve adaptability to evolving mobility patterns and sudden demand shifts. Multi-city pre-training may learn more general temporal priors and reduce adaptation costs for newly instrumented cities. Making memory prototypes easier to understand could further improve the practical value of memory-augmented transfer for urban planning applications. 
+
+## References 
+
+[1] Lei Bai, Lina Yao, Can Li, Xianzhi Wang, and Can Wang. 2020. Adaptive graph convolutional recurrent network for traffic forecasting. Advances in neural information processing systems 33 (2020), 17804–17815. [2] Michael Batty. 2013. The New Science of Cities . The MIT Press. doi:10.7551/ mitpress/9399.001.0001 [3] Ali Behroozi and Ali Edrisi. 2025. Predicting travel demand of a bike sharing system using graph convolutional neural networks. Public Transport 17, 1 (2025), 281–317. [4] George Edward Pelham Box and Gwilym M. Jenkins. 1994. Time Series Analysis: Forecasting and Control (3rd ed.). Prentice Hall PTR, USA. [5] Jinliang Deng, Xiusi Chen, Renhe Jiang, Xuan Song, and Ivor W. Tsang. 2021. ST-Norm: Spatial and Temporal Normalization for Multi-variate Time Series Forecast-ing. In Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining (Virtual Event, Singapore) (KDD ’21) . Association for Computing Machinery, New York, NY, USA, 269–278. doi:10.1145/3447548.3467330 [6] Zheng Dong, Renhe Jiang, Haotian Gao, Hangchen Liu, Jinliang Deng, Qingsong Wen, and Xuan Song. 2024. Heterogeneity-Informed Meta-Parameter Learning for Spatiotemporal Time Series Forecasting. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining (Barcelona, Spain) 
+
+(KDD ’24) . Association for Computing Machinery, New York, NY, USA, 631–641. doi:10.1145/3637528.3671961 [7] Ziquan Fang, Dongen Wu, Lu Pan, Lu Chen, and Yunjun Gao. 2022. When Transfer Learning Meets Cross-City Urban Flow Prediction: Spatio-Temporal Adaptation Matters. In Proceedings of the Thirty-First International Joint Conference on Artifi-cial Intelligence, IJCAI-22 , Lud De Raedt (Ed.). International Joint Conferences on Artificial Intelligence Organization, 2030–2036. doi:10.24963/ijcai.2022/282 Main Track. [8] Yaroslav Ganin, Evgeniya Ustinova, Hana Ajakan, Pascal Germain, Hugo Larochelle, François Laviolette, Mario March, and Victor Lempitsky. 2016. Domain-adversarial training of neural networks. Journal of machine learning research 17, 59 (2016), 1–35. [9] Xu Geng, Yaguang Li, Leye Wang, Lingyu Zhang, Qiang Yang, Jieping Ye, and Yan Liu. 2019. Spatiotemporal Multi-Graph Convolution Network for Ride-Hailing Demand Forecasting. Proceedings of the AAAI Conference on Artificial Intelligence 
+
+33, 01 (Jul. 2019), 3656–3663. doi:10.1609/aaai.v33i01.33013656 [10] Muhammad Ghifary, W Bastiaan Kleijn, and Mengjie Zhang. 2014. Domain adaptive neural networks for object recognition. In Pacific Rim international conference on artificial intelligence . Springer, 898–904. [11] Sepp Hochreiter and Jürgen Schmidhuber. 1997. Long short-term memory. Neural computation 9, 8 (1997), 1735–1780. [12] Junfeng Hu, Xu Liu, Zhencheng Fan, Yifang Yin, Shili Xiang, Savitha Ramasamy, and Roger Zimmermann. 2024. Prompt-based spatio-temporal graph transfer learning. In Proceedings of the 33rd ACM International Conference on Information and Knowledge Management . 890–899. [13] Mingzhuang Hua, Francisco Camara Pereira, Yu Jiang, Xuewu Chen, and Junyi Chen. 2025. Transfer learning for cross-modal demand prediction of bike-share and public transit. Journal of Intelligent Transportation Systems 29, 6 (2025), 640–653. [14] Yunjie Huang, Xiaozhuang Song, Yuanshao Zhu, Shiyao Zhang, and James JQ Yu. 2023. Traffic prediction with transfer learning: A mutual information-based approach. IEEE Transactions on Intelligent Transportation Systems 24, 8 (2023), 8236–8252. [15] Zhihuan Jiang, Ailing Huang, Renhe Jiang, Junxi Chen, Yoshihide Sekimoto, and Wei Guan. 2025. Leveraging Spatial–Temporal Heterogeneity and Cross-Mode Interactions: A Meta-Learning Approach for Multimodal Transportation Demand Prediction. IEEE Transactions on Intelligent Transportation Systems (2025). [16] Yilun Jin, Kai Chen, and Qiang Yang. 2022. Selective cross-city transfer learning for traffic prediction via source city region re-weighting. In Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining . 731–741. [17] Yilun Jin, Kai Chen, and Qiang Yang. 2023. Transferable graph structure learning for graph-based traffic forecasting across cities. In Proceedings of the 29th ACM SIGKDD conference on knowledge discovery and data mining . 1032–1043. [18] Jintao Ke, Hongyu Zheng, Hai Yang, and Xiqun Michael Chen. 2017. Short-term forecasting of passenger demand under on-demand ride services: A spatio-temporal deep learning approach. Transportation research part C: Emerging technologies 85 (2017), 591–608. [19] Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. 2017. Diffusion convolu-tional recurrent neural network: Data-driven traffic forecasting. arXiv preprint arXiv:1707.01926 (2017). [20] Yuebing Liang, Fangyi Ding, Guan Huang, and Zhan Zhao. 2023. Deep trip generation with graph neural networks for bike sharing system expansion. Trans-portation Research Part C: Emerging Technologies 154 (2023), 104241. [21] Yuebing Liang, Zhan Zhao, Fangyi Ding, Yihong Tang, and Zhengbing He. 2024. Time-dependent trip generation for bike sharing planning: A multi-task memory-augmented graph neural network. Information Fusion 106 (2024), 102294. [22] Chaoming Song, Zehui Qu, Nicholas Blumm, and Albert-László Barabási. 2010. Limits of predictability in human mobility. Science 327, 5968 (2010), 1018–1021. [23] Jinjun Tang, Fang Liu, Yinhai Wang, and Hua Wang. 2015. Uncovering urban human mobility from large scale taxi GPS data. Physica A: Statistical Mechanics and its Applications 438 (2015), 140–153. [24] Eric Tzeng, Judy Hoffman, Kate Saenko, and Trevor Darrell. 2017. Adversar-ial discriminative domain adaptation. In Proceedings of the IEEE conference on computer vision and pattern recognition . 7167–7176. [25] Eleni I Vlahogianni, Matthew G Karlaftis, and John C Golias. 2014. Short-term traffic forecasting: Where we are and where we’re going. Transportation Research Part C: Emerging Technologies 43 (2014), 3–19. [26] Binwu Wang, Yan Leng, Guang Wang, and Yang Wang. 2024. Fusiontransnet for smart urban mobility: Spatiotemporal traffic forecasting through multimodal network integration. arXiv preprint arXiv:2405.05786 (2024). [27] Binwu Wang, Jiaming Ma, Pengkun Wang, Xu Wang, Yudong Zhang, Zhengyang Zhou, and Yang Wang. 2024. Stone: A spatio-temporal ood learning framework kills both spatial and temporal shifts. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 2948–2959. [28] Leye Wang, Xu Geng, Xiaojuan Ma, Feng Liu, and Qiang Yang. 2019. Cross-city transfer learning for deep spatio-temporal prediction. In Proceedings of the 28th International Joint Conference on Artificial Intelligence (Macao, China) (IJCAI’19) .AAAI Press, 1893–1899. [29] Ning Wang, Liang Zheng, Huitao Shen, and Shukai Li. 2024. Ride-hailing origin-destination demand prediction with spatiotemporal information fusion. Trans-portation Safety and Environment 6, 2 (2024), tdad026. [30] Senzhang Wang, Jiannong Cao, and S Yu Philip. 2020. Deep learning for spatio-temporal data mining: A survey. IEEE transactions on knowledge and data engi-neering 34, 8 (2020), 3681–3700. [31] Zonghan Wu, Shirui Pan, Guodong Long, Jing Jiang, and Chengqi Zhang. 2019. Graph wavenet for deep spatial-temporal graph modeling. In Proceedings of the 28th International Joint Conference on Artificial Intelligence (Macao, China) 
+
+(IJCAI’19) . AAAI Press, 1907–1913. [32] Banglie Yang, Runze Li, Yijing Wang, Sha Xiang, Shuo Zhu, Cheng Dai, Shengxin Dai, and Bing Guo. 2025. Cross-city transfer learning for traffic forecasting via incremental distribution rectification. Knowledge-Based Systems 315 (2025), 113336. [33] Huaxiu Yao, Yiding Liu, Ying Wei, Xianfeng Tang, and Zhenhui Li. 2019. Learning from multiple cities: A meta-learning approach for spatial-temporal prediction. In The world wide web conference . 2181–2191. [34] Huaxiu Yao, Fei Wu, Jintao Ke, Xianfeng Tang, Yitian Jia, Siyu Lu, Pinghua Gong, Jieping Ye, Didi Chuxing, and Zhenhui Li. 2018. Deep multi-view spatial-temporal network for taxi demand prediction. In Proceedings of the Thirty-Second AAAI Con-ference on Artificial Intelligence and Thirtieth Innovative Applications of Artificial Intelligence Conference and Eighth AAAI Symposium on Educational Advances in Artificial Intelligence (New Orleans, Louisiana, USA) (AAAI’18/IAAI’18/EAAI’18) .AAAI Press, Article 316, 8 pages. [35] Bing Yu, Haoteng Yin, and Zhanxing Zhu. 2017. Spatio-temporal graph con-volutional networks: A deep learning framework for traffic forecasting. arXiv preprint arXiv:1709.04875 (2017). [36] Chenhan Zhang, JQ James, and Yi Liu. 2019. Spatial-temporal graph attention networks: A deep learning approach for traffic forecasting. Ieee Access 7 (2019), 166246–166256. [37] Junbo Zhang, Yu Zheng, and Dekang Qi. 2017. Deep spatio-temporal residual net-works for citywide crowd flows prediction. In Proceedings of the Thirty-First AAAI Conference on Artificial Intelligence (San Francisco, California, USA) (AAAI’17) .AAAI Press, 1655–1661. [38] Yudong Zhang, Xu Wang, Xuan Yu, Zhaoyang Sun, Kai Wang, and Yang Wang. 2025. Drawing Informative Gradients from Sources: A One-stage Transfer Learning Framework for Cross-city Spatiotemporal Forecasting. Proceedings of the AAAI Conference on Artificial Intelligence 39, 1 (Apr. 2025), 1147–1155. doi:10.1609/aaai.v39i1.32102 [39] Chuanpan Zheng, Xiaoliang Fan, Cheng Wang, and Jianzhong Qi. 2020. GMAN: A Graph Multi-Attention Network for Traffic Prediction. Proceedings of the AAAI Conference on Artificial Intelligence 34, 01 (Apr. 2020), 1234–1241. doi:10.1609/ aaai.v34i01.5477 [40] Chaoran Zhou, Jiahao Hu, Xin Zhang, Zerui Li, and Kaicheng Yang. 2024. A bike-sharing demand prediction model based on Spatio-Temporal Graph Convolutional Networks. PeerJ Computer Science 10 (2024), e2391.
