@@ -1,0 +1,777 @@
+Title: BER-PEF: Unified Human Mobility Predictability Evaluation via Bayes Error Rate Estimation
+
+URL Source: https://arxiv.org/pdf/2609.04292v1
+
+Published Time: Mon, 07 Sep 2026 00:07:00 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+> 1
+
+# BER-PEF: Unified Human Mobility Predictability Evaluation via Bayes Error Rate Estimation 
+
+En Xu, Jingtao Ding, Zhiwen Yu, and Yong Li 
+
+✦
+
+Abstract —Human mobility predictability concerns the best prediction performance attainable from a given target and input information, but its ground truth is not directly observable on real mobility data. We present BER-PEF, a Bayes-error-rate-based framework that converts BER estimation into mobility predictability estimation and provides a uni-fied protocol for comparing estimators without observable ground truth. The framework maps symbolic sequences, numeric trajectories, contex-tual features, and learned representations into a common feature–label space, then evaluates estimator outputs along controlled perturbation curves against a shared predictability reference interval by measuring deviations below the interval, above the interval, and across the full interval. Experiments on Foursquare NYC and TKY, GeoLife, and T-Drive show that several BER-based estimators achieve lower reference discrepancy than existing predictability methods on symbolic sequences and numeric trajectories, while their estimates track changes in em-pirical prediction performance under perturbation. Additional analyses show that contextual inputs and multiple structured representations can be evaluated under the same protocol, and that aggregating evidence across multiple perturbation levels provides a more reliable basis for estimator selection than relying on a single unperturbed observation. BER-PEF therefore offers a unified and verifiable path for evaluating predictability estimators on heterogeneous mobility data when ground-truth predictability is unavailable. 
+
+Index Terms —Human mobility, predictability evaluation, Bayes error rate, spatiotemporal data, representation learning. 
+
+1 INTRODUCTION 
+
+Mobile spatiotemporal data support urban computing, location-based services, and human behavior modeling. Research on these data considers next-location predic-tion, point-of-interest (POI) recommendation, and trajectory modeling, and evaluates specific predictors with metrics such as Acc@1, Acc@10, ADE, and FDE [1]–[4]. These empir-ical metrics answer how a particular model performs under a particular train–test protocol. They do not answer how much predictive structure remains after fixing the history, target labels, and representation space, or how far the model is from the attainable limit [5]–[7]. The latter question be-longs to mobility predictability evaluation, which concerns the predictability limit independently of any particular pre-dictor. 
+
+• E. Xu, J. Ding, and Y. Li are with the Department of Electronic Engineering, Tsinghua University, Beijing, China. E-mail: xuen@mail.tsinghua.edu.cn, dingjt15@tsinghua.org.cn, and liyong07@tsinghua.edu.cn. 
+
+• Z. Yu is with the School of Computer Science, Northwestern Polytechnical University, Xi’an, China. E-mail: zhiwenyu@nwpu.edu.cn. 
+
+Predictability analysis therefore has a practical role be-yond reporting another model-specific performance statis-tic. By providing a task-level reference independent of pre-dictor choice, it helps interpret empirical performance when different algorithms attain different accuracies or alternate as the best performer. Low empirical accuracy relative to a high predictability limit suggests room for improving the predictor or its training procedure, whereas low values of both may indicate limited predictive information under the current observation and representation conditions. Com-paring this limit across temporal, semantic, and structural conditions can further reveal which sources of mobility regularity contribute to prediction and inform whether to improve the model, enrich its inputs, or reconsider the task definition [5], [6], [8]–[10]. Existing predictability methods provide several routes for estimating this limit. Classical entropy-based methods with Fano-style mappings first estimate entropy from dis-crete location sequences and then map it to a predictability upper bound; compression-based methods such as Lempel– Ziv exploit repeated sequence structure for entropy estima-tion [11], [12]. Later studies refine the candidate space or contextual conditions through context transitions, context merging, reachability, and Top-ℓ structures [13]–[15]. Metric-based alternatives, such as permutation entropy, character-ize regularity through local ordinal patterns and sequence complexity [16]. These methods generally provide a static estimate or a bound under a particular assumption, and remain closely tied to the sequence form, state space, and entropy or complexity definition being used. Two more fundamental issues arise on real mobility data, as illustrated in Fig. 1. First, predictability ground truth is not directly observable. Different estimators may use differ-ent state spaces, assumptions, and output conventions [11], [13], [16], so their static outputs cannot by themselves es-tablish which estimator is reliable. A common protocol is needed in which methods share data, perturbations, rep-resentations, reference intervals, and discrepancy metrics. Second, real mobility data include not only discrete check-in sequences but also continuous GPS trajectories, temporal and semantic context, and learned embeddings. Methods tied to a particular symbolic sequence or complexity defini-tion cannot be directly applied to all such inputs. This work therefore asks how to construct and compare predictability estimators on real mobility data without observable ground truth, and how to extend the evaluation to heterogeneous arXiv:2609.04292v1 [cs.LG] 3 Sep 2026 2
+
+mobility inputs. We address these issues from the perspective of Bayes error rate (BER). Given a task and a representation space, the predictability limit is the complement of the Bayes-optimal error [10]. BER estimation directly targets this optimal error and provides an estimator family covering nearest-neighbor, density, and divergence assumptions [17]. BER-PEF uses this equivalence to turn BER estimators into mobility predictability estimators that produce lower- and upper-side predictability estimates on a common feature– label representation. The BER estimator produces the esti-mate, whereas the BER-PEF evaluation framework assesses its consistency and reliability. BER-PEF has two central designs. First, it constructs controlled perturbation curves on the same real data so that estimators share perturbed samples, label spaces, rep-resentations, and predictability reference intervals. It then evaluates the entire estimate curve using normalized lower-side, upper-side, and full-interval discrepancies rather than comparing unverifiable static outputs. Second, a unified representation layer maps symbolic sequences, numeric tra-jectories, and temporal or categorical context to a common feature–label representation, allowing the same BER estima-tor family to process heterogeneous inputs. We evaluate BER-PEF on Foursquare NYC, Foursquare TKY, GeoLife, and T-Drive from the perspectives of esti-mator quality, evaluation reliability, and representation ap-plicability. BER-based predictability estimates achieve low reference discrepancy across symbolic sequences and nu-meric trajectories and closely track empirical prediction performance under controlled perturbations. Across four datasets, they remain close to and strongly correlated with the best prediction performance observed among a diverse set of algorithms, even as the best-performing algorithm changes across conditions. These results demonstrate the value of predictability as a common task-level reference for interpreting predictor-dependent performance. Multi-point area evaluation provides stronger pooled evidence for estimator selection than an origin-only observation, while contextual inputs and multiple structured representations can be evaluated under the same protocol. Our contributions are as follows: 1) We propose a BER-based approach for estimat-ing human mobility predictability by relating pre-dictability to the complement of Bayes-optimal er-ror. The approach produces predictability estimates for symbolic mobility sequences and continuous trajectories within a common feature–label repre-sentation. 2) We develop a unified comparison framework for predictability estimators on real mobility data. The framework uses controlled perturbation curves, a shared predictability reference interval, and normal-ized lower-side, upper-side, and full-interval dis-crepancies to compare estimator outputs and assess reliability using perturbation levels and random realizations not used for estimator selection. 3) Experiments show that selected BER-based esti-mates achieve lower reference discrepancy than ex-isting upper-side methods on the evaluated mobility data and track empirical prediction performance under perturbation. These results support BER-based predictability evaluation within the proposed framework. 
+
+2 RELATED WORK 
+
+2.1 Human Mobility Prediction 
+
+Human mobility prediction studies next-location prediction, trajectory prediction, and POI recommendation from histor-ical locations, time information, user behavior, and spatial context. Early approaches represented mobility as transi-tions among discrete locations and used Markov chains or probabilistic models such as EPR and TimeGeo to character-ize return and exploration patterns [18], [19]. These models offer clear probabilistic interpretations and low training costs, but their expressive power is constrained by the prescribed transition structure and may not capture high-order spatiotemporal dependencies. Deep learning subsequently became a major paradigm for mobility prediction, shifting the focus from simple tran-sition probabilities to joint modeling of temporal regular-ities, periodic preferences, and location interactions. Re-current and attention-based models capture higher-order dependencies from historical sequences and spatiotemporal context [1], [20]; long–short-term preference models sepa-rately represent stable user preferences and recent behav-ior [21]. Graph, spatiotemporal-attention, and Transformer models further exploit relations among locations, trajectory flows, and non-adjacent visits for next-POI prediction [22], [23]. These methods form the main technical line of human mobility prediction, with the common objective of improv-ing empirical predictor accuracy under a specific task and data condition [24]. As mobility data are increasingly used across cities and regions, recent studies have examined mobility knowledge transfer and unified multi-city prediction to address data scarcity and distribution shifts in new cities [4], [25], [26]. Some recent work also uses external knowledge to support next-location prediction, but this remains an extension of predictor design [27]. In contrast, BER-PEF does not pro-pose a new mobility predictor. It estimates the attainable predictability limit for a given data form, context, and representation, and compares the reliability of predictability estimators under a common protocol. 
+
+2.2 Predictability Evaluation and Bayes Error Estima-tion 
+
+Predictability research estimates a model-independent pre-diction limit under given data, task, and representation conditions, providing an attainable reference for algorithm performance [6], [7]. Predictability analysis has also been extended to sequential, top-N , and rating prediction in recommender systems [28]–[30]. Classical human mobil-ity studies estimate entropy and combine it with Fano-style bounds to obtain predictability limits for symbolic sequences; compression-based methods such as Lempel–Ziv estimate entropy from repeated sequence structure [11], [12]. 3
+
+> Fig. 1. Problem setting for unified human mobility predictability evaluation. Existing methods are difficult to compare on real heterogeneous mobility data because predictability ground truth is unavailable and method assumptions differ across data forms.
+
+Later work revisits this paradigm for high-resolution local-ization, mobility prediction limits, refined limits, and alter-native bounds [31]–[35], analyzes stationarity, regularity, so-cial sources, and application-collected location data [5], [8], [9], [36], and incorporates context transitions, context merg-ing, candidate spaces, reachability, context entropy, and Top-ℓ structures [13]–[15]. Metric-based alternatives such as permutation entropy characterize regularity in short, noisy, or numeric time series through sequence complex-ity [16]. These methods provide important foundations, but most target a particular sequence form or report only an upper-side estimate, which complicates unified comparison across continuous trajectories, multidimensional context, and learned embeddings. Bayes error rate provides a formal bridge between predictability and optimal prediction performance. If pre-dictability denotes the best performance attainable by any classifier in a representation space, BER gives the same limit from the error-rate perspective. BER estimator research cov-ers nearest-neighbor, density/KDE, divergence/GHP, and extrapolation approaches [37]–[41], and prior work has sys-tematically evaluated these estimators on real classification data [17]. The equivalence between time-series predictabil-ity and Bayes error has also been established formally, with controlled theoretical models illustrating how BER estimation can address limitations of entropy-based pre-dictability estimates [10]. These results do not, however, provide a complete workflow for real mobility spatiotem-poral data that combine symbolic sequences, continuous trajectories, multidimensional context, and learned repre-sentations while lacking observable predictability ground truth. BER-PEF extends this connection to real mobility evaluation through a unified representation layer, controlled perturbation curves, and a common protocol for quantifying estimator reliability. 
+
+3 THE BER-PEF F RAMEWORK 
+
+3.1 Problem Formulation 
+
+Human mobility predictability describes how accurately a target mobility state can, in principle, be predicted from a given history and representation. It is a property jointly determined by the data-generating process, observable in-formation, and representation space, rather than the em-pirical accuracy of a particular predictor under one train– test protocol. We formalize predictability as the optimal attainable prediction performance in a given representation space. Raw mobility data are typically user-ordered temporal sequences rather than independent samples. Let the mobil-ity sequence of user u be 
+
+Su = {(ou, 1, c u, 1), (ou, 2, c u, 2), . . . , (ou,T u , c u,T u )}, (1) where ou,t is the t-th mobility observation, such as a discrete location, continuous coordinate, or trajectory state, and cu,t 
+
+denotes optional context such as time or location category. To convert next-step predictability into the feature–label form required by BER estimators, BER-PEF constructs a history window of length L:
+
+h(L) 
+
+> u,t
+
+=  (ou,τ , c u,τ )t−1 
+
+> τ=t−L
+
+,xu,t = ψ(h(L) 
+
+> u,t
+
+), yu,t = g(ou,t ). (2) Here, ψ organizes the history window as model input, and 
+
+g maps the next observation to a class label. For sym-bolic sequences, g(ou,t ) typically denotes a next-location or location-cluster ID; for continuous trajectories, it denotes a discretized next-state class. Context enters through h(L)
+
+> u,t
+
+rather than acting as a separate prediction target, allowing us to quantify the effect of additional information on pre-dictability. 4
+
+> Fig. 2. Overview of BER-PEF. A common representation layer supports symbolic and numeric mobility inputs; a bound-estimation layer applies BER estimators under controlled perturbations; and an area-evaluation layer compares estimated curves with a shared predictability reference interval.
+
+Let the resulting mobility prediction dataset be defined over input space X and label space Y = {1, . . . , C }, where 
+
+C is the number of target classes. Re-indexing all valid (u, t )
+
+samples gives 
+
+D = {(xj , y j )}nj=1 , (xj , y j ) ∼ PD (X, Y ), (3) where xj ∈ X is a history-window input and yj ∈ Y is its next-step target. A representation function 
+
+ϕ : X → Rd, zj = ϕ(xj ) (4) maps heterogeneous mobility inputs to d-dimensional nu-meric representations. Thus, ϕ is the common interface through which BER-PEF accepts symbolic sequences, con-tinuous trajectories, and contextual features. A BER estima-tor receives 
+
+DBER = {(zj , y j )}nj=1 . (5) Once the window construction ψ, label mapping g, and rep-resentation ϕ are fixed, predictability on a mobility sequence becomes an optimal classification-error estimation problem in feature–label space: predictability of Su ⇐⇒ Bayes error of DBER . (6) Given ϕ, a mobility predictor is a function f : Rd → Y .Its empirical error on D is 
+
+bRD (f ; ϕ) = 1
+
+n
+
+> n
+
+X
+
+> j=1
+
+1{f (ϕ(xj )) ̸ = yj }. (7) The commonly reported Acc@1 equals 1 − bRD (f ; ϕ) and therefore measures the empirical performance of one pre-dictor under the current protocol, not the predictability limit of the data and representation space. We instead consider the optimal attainable error in ϕ(X ).Let the population risk of predictor f be 
+
+RD (f ; ϕ) = Pr  
+
+> (X,Y )∼PD
+
+[f (ϕ(X)) ̸ = Y ] . (8) The Bayes-optimal error in this representation space is 
+
+R∗ 
+
+> D
+
+(ϕ) = inf  
+
+> f
+
+RD (f ; ϕ), (9) and the corresponding predictability is 
+
+ΠD (ϕ) = 1 − R∗ 
+
+> D
+
+(ϕ). (10) Estimating ΠD (ϕ) is therefore equivalent to estimating 
+
+R∗ 
+
+> D
+
+(ϕ). We use the error-rate formulation because R∗ 
+
+> D
+
+(ϕ) di-rectly corresponds to the Bayes error rate and connects natu-rally to existing BER estimators and theoretical bounds [10], [17]. BER-PEF does not train a new next-location predictor. It evaluates whether a predictability estimator reliably esti-mates ΠD (ϕ) or its equivalent error-rate form. For estimator 
+
+m, a static estimate can be denoted by bΠD,m (ϕ). Under the controlled perturbation protocol introduced below, we extend it to lower- and upper-side predictability curves 
+
+bΠL
+
+> D,m
+
+(ρ) and bΠU
+
+> D,m
+
+(ρ) and compare estimator reliability over perturbation strength ρ.
+
+3.2 Unified Evaluation Architecture 
+
+BER-PEF maps heterogeneous mobility data into a com-mon representation space, uses BER estimators to con-struct lower- and upper-side predictability curves under 5
+
+controlled perturbations, and compares estimator reliability through normalized area discrepancies. As shown in Fig. 2, BER-PEF has three layers. The 
+
+representation layer converts symbolic sequences, numeric trajectories, and temporal or categorical context into nu-meric features. The bound-estimation layer applies BER estimators to perturbed samples and produces lower- and upper-side predictability estimates. The area-evaluation layer compares these curves with a predictability reference interval and summarizes their discrepancies over perturba-tion strength. 
+
+3.2.1 Unified Representation Layer 
+
+Figure 3 details the representation layer. Input adapters map symbolic sequences, numeric trajectories, and optional context into a common sequence representation. A shared sequence encoder, mean–last temporal aggregation, and linear projection then produce a sample representation zj .The prediction head supplies next-step supervision during representation learning, whereas BER estimation operates on the resulting feature–label samples. Formally, for history-window input xj , the adapters define 
+
+rj, 1: L = α(xj ), rj,τ ∈ Rp. (11) For a symbolic main input, a lookup table maps each dis-crete location or state ID to a dense vector: 
+
+esym  
+
+> j,τ
+
+= Eloc [osym  
+
+> j,τ
+
+]. (12) For a numeric main input, a linear projection maps normal-ized coordinates, displacements, or local motion states ˜onum 
+
+> j,τ
+
+into the same vector space: 
+
+enum  
+
+> j,τ
+
+= Wnum ˜onum  
+
+> j,τ
+
++ bnum . (13) These two branches define emain  
+
+> j,τ
+
+∈ { esym  
+
+> j,τ
+
+, e num  
+
+> j,τ
+
+}. If tempo-ral, categorical, or other context cj,τ is available, a context embedding gives 
+
+ectx  
+
+> j,τ
+
+= Ectx [cj,τ ], (14) and ectx  
+
+> j,τ
+
+= 0 when no context is used. The input to the shared encoder is 
+
+rj,τ = Wr [emain  
+
+> j,τ
+
+; ectx  
+
+> j,τ
+
+] + br . (15) These operations correspond to the embedding lookup, nu-meric projection, and context injection in Fig. 3. The adapted sequence is processed by 
+
+Hj = Eθ (rj, 1: L) = ( hj, 1, . . . , h j,L ), (16) where Eθ is the shared sequence encoder. Our primary rep-resentation, U NI MOB , uses a recurrent sequence backbone. The temporal aggregation in U NI MOB combines mean pooling and the last hidden state: 
+
+Hj = GRU θ (rj, 1: L), (17) 
+
+aj =
+
+"
+
+hj,L ; 1
+
+L
+
+> L
+
+X 
+
+> τ=1
+
+hj,τ 
+
+#
+
+, (18) 
+
+zj = P (aj ) = Wpaj + bp. (19) The full representation function is 
+
+ϕθ (xj ) = P (A(Eθ (α(xj )))) = zj . (20) Thus, zj is the output of the representation function ϕθ
+
+for sample xj and determines the sample’s coordinates in the representation space ϕθ (X ). Subsequent BER estimation operates on the feature–label pair (zj , y j ) rather than on the encoder’s intermediate state Hj or the prediction head output ˆpj .To preserve discriminative structure relevant to mobility prediction, the representation is trained using next-location or next-state supervision. Let qω denote the prediction head. Then 
+
+ˆpj = softmax( qω (zj )) , Lsup = − 1
+
+n
+
+> n
+
+X
+
+> j=1
+
+log ˆ pj,y j . (21) This objective learns features related to next-step label yj ,but BER-PEF does not use qω , ˆpj , or their accuracy as the final predictability estimate. The learned representation is paired with yj to form 
+
+DBER = {(zj , y j )}nj=1 . (22) UNI MOB is the primary implementation of the represen-tation layer, not a mandatory component of BER-PEF. Dif-ferent choices of ϕθ define different representation spaces; the subsequent task is to determine whether an estimator reliably estimates R∗ 
+
+> D
+
+(ϕθ ) or its bounds in the chosen space. 
+
+3.2.2 Predictability-Curve Evaluation Protocol 
+
+The fundamental challenge on real mobility data is that the true predictability limit is unobservable. Estimator accuracy therefore cannot be judged against a known label as in ordi-nary supervised learning. A single estimate on unperturbed data also cannot reveal whether differences arise from task difficulty or estimator behavior. BER-PEF instead constructs a controlled difficulty curve on real data. As perturbation strength ρ increases, exploitable regularity should system-atically decrease. A reliable predictability estimator should follow this change and remain close to a reference interval constrained jointly by theoretical randomness and achieved model performance. For each dataset D and perturbation strength ρ, BER-PEF perturbs the same original samples and requires every estimator to share the perturbed instances, label space, and representation input. This turns each dataset into a predictability evaluation curve from low to high perturba-tion. Estimator comparison then tests whether an estimated curve respects the predictability constraints induced by this controlled change in difficulty. Section 4.1 specifies the perturbation levels, repetitions, and data configurations. Let C be the number of classes in D and aSOTA  
+
+> D
+
+the SOTA accuracy on the original task. BER-PEF defines two predictability-side reference bounds: 
+
+ΠL 
+
+> D
+
+(ρ) = (1 − ρ)aSOTA  
+
+> D
+
++ ρ 1
+
+C , (23) 
+
+ΠU 
+
+> D
+
+(ρ) = 1 − ρ
+
+
+
+1 − 1
+
+C
+
+
+
+. (24) These are reference quantities rather than estimator out-puts. The conservative lower reference ΠL 
+
+> D
+
+(ρ) starts from the demonstrated performance aSOTA  
+
+> D
+
+and degrades to-ward random-guess accuracy 1/C as perturbations remove learnable structure. The upper reference ΠU 
+
+> D
+
+(ρ) captures 6
+
+> Fig. 3. Unified representation module in BER-PEF. Symbolic, numeric, and contextual inputs are adapted to a shared sequence encoder; temporal aggregation and projection produce the sample representation used with its target label for BER estimation.
+
+the fact that even an optimal predictor cannot recover the randomized fraction, and therefore declines according to the random-error rate 1 − 1/C . Together they define the interval 
+
+[Π L 
+
+> D
+
+(ρ), ΠU 
+
+> D
+
+(ρ)] within which a reasonable predictability estimate should lie. They are complements of the corre-sponding error-rate references; we use the predictability-side formulation throughout the evaluation. For estimator m, let its predictability-side outputs at strength ρ be 
+
+bΠL
+
+> D,m
+
+(ρ), bΠU
+
+> D,m
+
+(ρ). (25) Native error-rate bounds are complemented to obtain these quantities. If bΠL
+
+> D,m
+
+(ρ) falls below ΠL 
+
+> D
+
+(ρ), the estimator regards the task as harder than demonstrated model per-formance supports, producing a lower-side underestimate. If bΠU
+
+> D,m
+
+(ρ) exceeds ΠU 
+
+> D
+
+(ρ), it assigns more regularity than is permitted by the randomized fraction, producing an upper-side overestimate. Let d(x, [l, u ]) = max {l−x, 0, x −u} be the distance from 
+
+x to interval [l, u ], and let ID (ρ) = [Π L 
+
+> D
+
+(ρ), ΠU 
+
+> D
+
+(ρ)] denote the reference interval. BER-PEF aggregates deviations over 
+
+[0 , 0.9] using normalized areas: 
+
+LD D,m = 10.9
+
+Z 0.90
+
+d
+
+ bΠL
+
+> D,m
+
+(ρ), I D (ρ)
+
+
+
+dρ, (26) 
+
+UD D,m = 10.9
+
+Z 0.90
+
+d
+
+ bΠU
+
+> D,m
+
+(ρ), I D (ρ)
+
+
+
+dρ, (27) 
+
+Total D,m = LD D,m + UD D,m . (28) The discrete implementation first aggregates repeated runs at each ρ and then applies trapezoidal integration over the actual ρ coordinates rather than equally averaging nonuni-form observation levels. LD and UD evaluate the lower-and upper-side estimates, respectively, while Total measures full-interval discrepancy; lower values indicate closer agree-ment with the reference interval. If two estimators have identical discrepancy at ρ = 0 but one has a strictly lower discrepancy over an interval of positive measure, an origin-only protocol cannot distinguish them whereas an area pro-tocol can. This property shows that area evaluation retains interval information; its practical reliability advantage is tested separately using held-out data. 
+
+3.3 BER Estimator Family and Extensibility 
+
+BER-PEF treats predictability estimators as interchangeable modules rather than binding the framework to one BER estimator. Given feature–label data D(ρ)BER and class count 
+
+C, every m ∈ M follows the interface 
+
+m : ( D(ρ)BER , C ) 7 → ( bΠL
+
+> D,m
+
+(ρ), bΠU
+
+> D,m
+
+(ρ)) , m ∈ M . (29) All estimators are thus compared under the same em-bedding representation, perturbed samples, label space, reference interval, and area metrics. BER-PEF contributes a common mobility predictability evaluation protocol for existing BER estimators rather than prescribing one fixed estimator [17]. Our experiments use three core estimators: 1NN( k = 3 ),
+
+kNN , and kNN-LOO . The first forms a local BER estimate from nearest-neighbor structure, kNN characterizes local classification uncertainty through neighborhood label distri-butions, and kNN-LOO reduces self-matching bias through leave-one-out evaluation. These estimators are related to classical nearest-neighbor bounds and kNN estimates of Bayes risk and Bayes error [37], [42]–[44]. The extended fam-ily includes GHP , KDE , KDE-kNN-LOO , kNN-Ext , and 
+
+LR to cover additional assumptions. GHP uses a multiclass Bayes error bound based on generalized Henze–Penrose divergence [40]; KDE and KDE-kNN-LOO represent den-sity/Parzen and kNN posterior-estimation approaches [38], [39]; and kNN-Ext extrapolates Bayes risk from nearest-neighbor sample statistics [41]. The extended family demon-strates estimator compatibility and is not assumed to out-perform the core estimators. The interface also permits future BER estimators to join M if they accept D(ρ)BER and output predictability-side curves. They can then be compared under the same per-turbations, reference interval, and LD/UD/Total metrics. SOTA-reference robustness and empirical performance cal-ibration are external evaluation evidence for the estimator family, not part of the estimator interface itself. 7
+
+4 EXPERIMENTS 
+
+4.1 Experimental Setup 
+
+We evaluate BER-PEF across symbolic mobility sequences and continuous trajectories using a common perturbation-based reference convention. The experiments compare es-timator agreement, empirical calibration, task-level predic-tion benchmarks, evaluation reliability, and representation robustness; the protocol specific to each research question is introduced with its corresponding results. 
+
+4.1.1 Datasets and Tasks 
+
+We use two forms of real mobility data. Symbolic exper-iments use Foursquare NYC and Foursquare TKY [45], where each sample contains a history of discrete location IDs and the label is the next-location class. Numeric experiments use GeoLife [46] and T-Drive [47], [48]; trajectory points are represented in local coordinates and discretized into next-state prediction tasks. These datasets cover common check-in sequence and continuous trajectory settings and test whether one protocol can compare predictability across data forms. For controlled comparisons across datasets, representa-tions, and estimators, we construct a fixed-size evaluation subset for each dataset and apply representation learning, perturbation generation, and curve evaluation to that sub-set. The subset is the controlled comparison unit of the protocol, not a survey sample intended to estimate a city-wide user distribution. User filtering and per-user sam-ple caps control computational scale and sample density across sources. Windowing places symbolic sequences and numeric trajectories in a common supervised interface; our objective is to evaluate predictability estimators in a fixed representation space rather than optimize long-history mo-bility predictors. Table 1 reports the resulting sample counts and task settings. The quantity aSOTA  
+
+> D
+
+is the original-task SOTA accuracy used to construct the reference interval. 
+
+4.1.2 Compared Methods 
+
+The first comparison group provides task-specific pre-dictability references. On symbolic mobility sequences, we evaluate three entropy-based methods. LZ-Fano estimates an LZ entropy rate and maps it to predictability through a Fano-style relation [11], [12]. Reachability-Fano uses the same entropy estimate and mapping but replaces the global class count with the empirical reachability size 
+
+Nr = max x |N (x)|, where N (x) is the set of distinct observed successors of state x [33], [36]. Permutation Predictability estimates sequence regularity from ordinal-pattern complexity [16]. For continuous trajectories, we use PermEnt-2D , a two-dimensional permutation-entropy method. Context analysis additionally includes Predictabil-ity(CTX) and Predictability(CTX-Merge) , corresponding to context-transition and context-merge variants [8], [15]. Their applicable inputs and assumptions differ across data forms. The second group contains BER-PEF estimators. The core family comprises 1NN( k = 3 ), kNN, and kNN-LOO. The extended analysis includes GHP, KDE, KDE-kNN-LOO, kNN-Ext, and LR, covering nearest-neighbor, density/KDE, divergence/GHP, and extrapolation approaches [17], [37]– [42]. Every BER-PEF estimator uses the same perturbed samples, representations, label space, and reference interval. For existing methods that produce only an upper-side pre-dictability estimate, we report UD. For BER-PEF estimators that produce both sides of the interval, we report LD, UD, and Total. 
+
+4.2 Cross-Form Estimator Comparison under a Unified Perturbation Protocol 
+
+This section examines the reference agreement of BER-based estimators across heterogeneous mobility data. Existing pre-dictability methods that output only an upper-side estimate are evaluated with upper-side discrepancy (UD). BER-based estimators that produce both sides of the reference interval are additionally evaluated with lower-side discrepancy (LD) and Total discrepancy ( Total = LD + UD ). UD measures agreement with the upper reference, whereas Total mea-sures aggregate deviation over the full perturbation interval. Figure 4 summarizes UD on four datasets, and the complete perturbation curves are shown in Figs. 5 and 6. Figure 4 summarizes the upper-side comparison on four datasets. To avoid selecting methods from an individual dataset or from the plotted UD itself, we first rank the formal BER estimator family by mean Total over the two datasets within each data form and then fix the top three. The selected estimators are KDE, KDE-kNN-LOO, and GHP for symbolic sequences, and kNN-LOO, 1NN( k = 3 ), and GHP for numeric trajectories. Selection is therefore based on full-interval quality, whereas the figure reports UD to enable comparison with existing methods that provide only an upper-side estimate. 
+
+4.2.1 Symbolic Mobility Sequences 
+
+For symbolic mobility sequences, LZ-Fano is the strongest existing predictability method on NYC and TKY, with UD values of 0.101 and 0.109 , respectively. Reachability-Fano obtains 0.170 and 0.121 , while Permutation Predictability obtains 0.305 and 0.306 . The KDE, KDE-kNN-LOO, and GHP estimators selected by mean Total obtain UD values of 0.046 /0.033 , 0.053 /0.052 , and 0.074 /0.071 on NYC/TKY, respectively, all below the strongest existing method on the corresponding city. Some BER estimators provide closer upper-reference agreement on discrete location sequences, although quality varies across the family. KDE and KDE-kNN-LOO obtain Total values of 0.091 /0.066 and 0.109 /0.105 , respectively. GHP has low UD but Total values of 0.325 /0.322 , indicating that its main discrepancy arises on the lower side. BER-PEF therefore compares upper-side estimates while also exposing full-interval deviations that are invisible under UD alone. 
+
+4.2.2 Numeric Trajectories 
+
+For numeric trajectories, BER-PEF also achieves close refer-ence agreement. PermEnt-2D obtains UD values of 0.152 on GeoLife and 0.042 on T-Drive. The kNN-LOO, 1NN( k = 3 ), and GHP estimators selected by mean Total obtain UD values close to zero on both datasets. Their Total values on GeoLife are 0.073 , 0.075 , and 0.075 , respectively, and their values on T-Drive are 0.035 , 0.035 , and 0.036 .8
+
+TABLE 1 Dataset statistics and task settings. 
+
+Dataset Data form Task Train/Test samples C aSOTA 
+
+> D
+
+Foursquare NYC Symbolic Next location 12,780 / 1,801 497 0.6130 Foursquare TKY Symbolic Next location 13,967 / 2,076 466 0.6267 GeoLife Numeric Next state 38,656 / 4,804 200 0.7161 T-Drive Numeric Next state 38,315 / 4,930 200 0.4254 LZ-Fano Reachability-Fano Permutation KDE KDE-kNN-LOO GHP 0.00 0.05 0.10 0.15 0.20 0.25 0.30 0.35  
+
+> Upper-side discrepancy (UD)  Existing methods BER-PEF estimators
+
+Symbolic sequences 
+
+NYC TKY 
+
+PermEnt-2D kNN-LOO 1NN(k=3) GHP  
+
+> Existing methods BER-PEF estimators
+
+Numeric trajectories 
+
+GeoLife T-Drive 
+
+Fig. 4. Upper-side discrepancy of existing predictability methods and the top-three BER-PEF estimators selected by mean Total across the two datasets within each data form. The left and right panels compare symbolic sequences and numeric trajectories on a shared UD scale; lower values indicate closer agreement with the upper-side reference. 0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Upper-side predictability estimate
+
+NYC TKY      
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Label noise
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Lower-side predictability estimate
+
+NYC      
+
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Label noise
+
+TKY 
+
+> Predictability reference Predictability: LZ+Fano Predictability: Reachability-Fano Predictability: Permutation BER-PEF: 1NN(k=3) BER-PEF: kNN BER-PEF: kNN-LOO BER-PEF: GHP BER-PEF: KDE BER-PEF: KDE-kNN-LOO BER-PEF: kNN-Ext BER-PEF: LR
+
+Fig. 5. Predictability estimation curves on symbolic mobility sequences. 
+
+The three estimators therefore achieve both near-zero UD and low full-interval discrepancy on continuous tra-jectories. The curves in Fig. 6 further show that BER-based estimates follow the reference interval as trajectory perturbation increases. These results indicate that BER-PEF can compare estimator quality for discrete sequences and continuous trajectory representations under one reference-interval protocol. 
+
+4.3 Calibration to Empirical Prediction Performance 
+
+This experiment asks whether predictability estimates are calibrated to observed prediction performance in both trend and numerical scale. On Foursquare NYC and TKY, two independent runs at ρ ∈ {0, 0.1, 0.3, 0.5, 0.7, 0.9} yield 12 aligned tasks per dataset. For each dataset–run– ρ key, Linear-Ngram, S EQ MLP, and U NI MOB use the same per-turbed labels, and their highest Acc@1 defines an empirical 90.0 0.2 0.4 0.6 0.8 1.0            
+
+> Upper-side predictability estimate  GeoLife T-Drive
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Label noise
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Lower-side predictability estimate  GeoLife
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Label noise
+> T-Drive
+> Predictability reference Predictability: PermEnt-2D BER-PEF: 1NN(k=3) BER-PEF: kNN BER-PEF: kNN-LOO BER-PEF: GHP BER-PEF: KDE BER-PEF: kNN-Ext BER-PEF: LR
+
+Fig. 6. Predictability estimation curves on numeric trajectories. 
+
+best-of-three proxy. BER lower error estimates are mapped to upper-side predictability as 1 − bRlower . We measure trend agreement using Pearson and Spearman correlations, good-ness of linear fit using OLS R2, and scale calibration using MAE to the identity line y = x; aggregate values weight the two datasets equally. Predictability(LZ) follows changes in the proxy but re-mains systematically above the identity line, with a dataset-balanced Pearson correlation of 0.9575 and identity MAE of 0.4372 . Among the evaluated BER estimators, BER-LR is the best calibrated, attaining Pearson correlation 0.9986 ,
+
+R2 = 0 .9972 , and identity MAE 0.0111 ; BER-1NN( k = 3 )and BER-kNN-LOO also achieve Pearson correlations above 
+
+0.997 . This contrast distinguishes trend agreement from scale calibration: strong correlation alone does not ensure that an estimate matches the magnitude of observed predic-tion performance. These results reinforce the preceding comparison based on the reference interval: the best-performing BER estima-tors not only track changes in prediction performance but also match its observed scale substantially more closely than Predictability(LZ). This demonstrates the empirical calibration value of BER-based predictability estimation for mobility prediction tasks. 
+
+4.4 BER Predictability against an Empirical Algorithm Benchmark 
+
+This experiment examines whether a BER-based predictabil-ity estimate can closely and consistently track empirical prediction performance across data forms. We evaluate Foursquare NYC, Foursquare TKY, GeoLife, and T-Drive at six perturbation levels R = {0, 0.1, 0.3, 0.5, 0.7, 0.9},with ten independent train–test perturbation realizations per level. BER-kNN and the seven prediction algorithms shared by all four datasets—1NN, 5NN, Logistic, Linear SVM, Random Forest, Extra Trees, and MLP—use the same samples, labels, split, and noise seed for every task key. Let 
+
+D denote the four datasets, d ∈ D a dataset, r ∈ { 1, . . . , 10 }
+
+a realization, and ρ ∈ R a perturbation level. For dataset d,let Ad be its complete applicable algorithm pool, a ∈ A d
+
+an algorithm, and Acc@1 d,r,ρ (a) its accuracy on the cor-responding task. We define the empirical best-of-family benchmark as 
+
+Bd,r,ρ = max 
+
+> a∈A d
+
+Acc@1 d,r,ρ (a), (30) the highest observed Acc@1 for dataset d, realization r, and perturbation level ρ.The ranking compares BER-kNN with the seven shared prediction algorithms. For a ranked method m, define its performance-scale value Pd,r,ρ (m) as Acc@1 d,r,ρ (m) for a prediction algorithm and 1 − bRkNN  
+
+> d,r,ρ
+
+for BER-kNN. The dataset-level mean absolute gap Gd,m and its four-dataset macro average Sm are 
+
+Gd,m = 110 |R| 
+
+> 10
+
+X
+
+> r=1
+
+X
+
+> ρ∈R
+
+|Pd,r,ρ (m) − Bd,r,ρ | , (31) 
+
+Sm = 1
+
+|D| 
+
+X
+
+> d∈D
+
+Gd,m , (32) respectively. Figure 8(a) and Table 2 report the ranking by Sm, while Fig. 8(b)–(e) shows the perturbation curves. Uncertainty is quantified by two-sided Student-t 95% confi-dence intervals over the ten independent realizations. BER-kNN ranks first with a four-dataset mean gap of 
+
+0.019298 , followed by Random Forest ( 0.029946 ) and 5NN (0.033425 ). Its gaps on NYC, TKY, GeoLife, and T-Drive are 
+
+0.011425 , 0.007166 , 0.038392 , and 0.020209 , respectively. BER-kNN therefore provides the closest task-level approx-imation to the empirical best-of-family benchmark among the eight common methods. 10 0.00 0.05 0.10 0.15 0.20 0.25 0.30 
+
+> Empirical best-of-three Acc@1 proxy
+> 0.0 0.2 0.4 0.6 0.8
+> Estimated predictability
+
+a Foursquare NYC       
+
+> 0.00 0.05 0.10 0.15 0.20 0.25 0.30
+> Empirical best-of-three Acc@1 proxy
+
+b Foursquare TKY       
+
+> Ideal calibration Predictability (LZ) BER-1NN ( k= 3 )BER-kNN-LOO BER-LR
+> Fig. 7. Calibration of predictability estimates to the empirical best-of-three Acc@1 proxy on Foursquare NYC and TKY. The proxy is the highest Acc@1 among Linear-Ngram, S EQ MLP, and U NI MOB for each aligned task; markers denote task instances, solid lines are OLS fits, and the dashed diagonal denotes exact calibration. TABLE 2 Mean absolute gap to the empirical best-of-family benchmark across four mobility datasets (lower is better).
+
+Method NYC TKY GeoLife T-Drive Macro BER-kNN 0.011425 0.007166 0.038392 0.020209 0.019298 
+
+Random Forest 0.042541 0.050979 0.014776 0.011487 0.029946 5NN 0.025412 0.046203 0.033993 0.028093 0.033425 1NN 0.080835 0.092718 0.107983 0.100166 0.095425 Extra Trees 0.078817 0.090575 0.224830 0.016176 0.102600 Logistic 0.002952 0.014387 0.445108 0.303181 0.191407 Linear SVM 0.047983 0.051228 0.446645 0.295740 0.210399 MLP 0.150120 0.175233 0.439745 0.249801 0.253725 
+
+Across the six perturbation-level means, Pearson corre-lation between BER-kNN and the benchmark ranges from 
+
+0.995 to 0.999 over the four datasets, and Spearman correla-tion is 1.0 throughout. BER-kNN thus consistently follows the decline in empirical prediction performance as pertur-bation increases, demonstrating stable agreement in both magnitude and trend. More importantly, this experiment demonstrates the di-rect diagnostic value of predictability analysis. The stable agreement between BER-kNN and the empirical algorithm envelope across data forms and perturbation conditions provides a consistent reference for the task-level prediction limit. A substantial gap between an algorithm and the BER predictability estimate indicates remaining room for algorithmic or representational improvement, whereas con-vergence of the empirical best-performing algorithm toward the estimate suggests that further gains are increasingly constrained by the predictable information available in the data. Predictability estimation therefore not only charac-terizes task difficulty but also helps distinguish algorithm mismatch from data-limited prediction performance. 
+
+4.5 Selection Reliability of Multi-Point Area Evaluation 
+
+Observing only the unperturbed point may overlook es-timator deviations that emerge as perturbation increases. Across symbolic NYC/TKY, numeric GeoLife/T-Drive, and context-enhanced NYC/TKY, we fix 1NN( k = 3), kNN, and kNN-LOO and partition a 19-level grid into candi-date levels RP = {0.1i}9 
+
+> i=0
+
+and held-out levels RH =
+
+{0.05 + 0 .1i}8
+
+> i=0
+
+. Origin-only selects the estimator with the lowest Total at ρ = 0 , whereas the prespecified protocol 
+
+{0, 0.1, 0.3, 0.4, 0.5, 0.6, 0.8, 0.9} selects by normalized Total area. Selection uses ten repetitions on RP ; validation uses 20 disjoint repetitions on RH .The primary metric is held-out selection regret, defined as the Total difference between the selected estimator and the held-out oracle; regret equal to zero means that the protocol selected the held-out oracle. Figures 9(a)–(b) show that, in the pooled evaluation over six symbolic, numeric, and context conditions, the eight-point protocol reduces regret from 0.000727 to 0.000130 , increases oracle top-1 re-covery from 0.567 to 0.887 , and increases pairwise ordering accuracy from 0.633 to 0.962 . The difference between the eight-point and Origin-only regret is −0.000596 , with a 95% hierarchical bootstrap interval of [−0.001476 , 0.000085] ; this difference is directionally consistent with the improvements in pooled regret, top-1 recovery, and pairwise ordering accuracy. Figure 9(c) enumerates all endpoint-anchored observa-tion subsets with two to eight points. As the number of points increases from four to six and eight, mean subset regret decreases from 0.000479 to 0.000201 and 0.000126 ,11 0.00 0.05 0.10 0.15 0.20 0.25                              
+
+> Dataset-balanced mean absolute gap to benchmark (lower is better)
+> MLP Linear SVM Logistic Extra Trees 1NN 5NN Random Forest BER-kNN 0.254 0.210 0.191 0.103 0.095 0.033 0.030
+> 0.019
+> aFour-dataset ranking
+> 0.1 .3 .5 .7 .9
+> Perturbation strength ρ
+> 0.0 0.2 0.4 0.6 0.8 1.0
+> Acc@1 / predictability  bFoursquare NYC
+> 0.1 .3 .5 .7 .9
+> Perturbation strength ρ
+> cFoursquare TKY
+> 0.1 .3 .5 .7 .9
+> Perturbation strength ρ
+> dGeoLife
+> 0.1 .3 .5 .7 .9
+> Perturbation strength ρ
+> eT-Drive
+> Empirical best-of-family benchmark BER-kNN 1NN 5NN Logistic Linear SVM Random Forest Extra Trees MLP
+> Fig. 8. Comparison with the empirical best-of-family benchmark: (a) dataset-balanced mean absolute gap for BER-kNN and the seven prediction algorithms shared by all datasets; (b–e) mean perturbation curves on Foursquare NYC, Foursquare TKY, GeoLife, and T-Drive. Error bars in (a) and shading for the benchmark and BER-kNN in (b–e) denote 95% CIs over ten realizations.
+
+while worst-case regret decreases from 0.001326 to 0.000875 
+
+and 0.000193 . These results show that multi-point area evaluation reduces estimator-selection sensitivity to both the single origin and the specific placement of observation levels, providing interval-level evidence for selection. 
+
+4.6 Predictive Information and Estimator Quality with Contextual Features 
+
+We evaluate contextual inputs from two perspectives. Em-pirical Acc@1 measures whether temporal and location-category features provide additional predictive information, whereas LD measures the agreement between a predictabil-ity estimator and the lower-side reference for a given con-textual representation. On NYC and TKY, we compare base-line, time, category, and time-plus-category inputs while fixing the history length, sample size, sequence-encoder and prediction-head architectures, training protocol, perturba-tion protocol, and reference definition. Figure 10(a) shows that all three contextual inputs improve empirical prediction performance: Acc@1 increases from 0.360 to 0.394 –0.399 
+
+on NYC and from 0.354 to 0.382 –0.405 on TKY. Cate-gory reaches 0.405 on TKY, while category and time-plus-category both reach approximately 0.399 on NYC. Temporal and location-category context therefore contain information useful for next-location prediction. Figures 10(b)–(c) compare CTX, CTX-Merge, the three core BER estimators, and the extended estimator KDE-kNN-LOO under the same LD metric. All methods can be eval-uated on baseline, time, category, and time-plus-category inputs. The best LD of the two context-aware predictability methods ranges from 0.133 to 0.201 over the eight dataset– context conditions, whereas KDE-kNN-LOO obtains 0.044 –
+
+0.085 and is lower in every condition. Each core estimator also has lower LD after adding context than under its cor-responding baseline. BER-PEF therefore supports context-enhanced inputs under one reference convention and can identify estimators with closer lower-side agreement. This comparison illustrates how predictability analysis can be used to assess the value of additional information. The improvement in empirical prediction performance shows that temporal and location-category context provides useful information for next-location prediction, while the corre-sponding BER evaluation places this improvement in a task-level framework rather than attributing it only to a particular predictor. 
+
+4.7 Prediction Effectiveness and BER Evaluation Ro-bustness of Unified Representations 
+
+We examine the unified representation layer from two perspectives: whether a representation retains information needed for next-location prediction, and whether BER-PEF provides a consistent assessment of estimator quality in that representation. Prediction effectiveness compares Linear-Ngram, S EQ MLP, and U NI MOB on NYC/TKY using Acc@1, Acc@10, and cosine-retrieval Hit@10. BER qual-ity covers symbolic, numeric, and time-plus-category con-text representations. The core estimator family is fixed to 1NN( k = 3 ), kNN, and kNN-LOO, and the lowest dis-crepancy within this family is reported for each available dataset–representation setting. This best-of-core value rep-resents the BER quality attainable under the representa-tion; Total always comes from one estimator and satisfies 
+
+Total = LD + UD .Figure 11 shows that U NI MOB obtains Acc@1 values of 0.379 /0.384 on NYC/TKY, above the 0.299 /0.305 of SEQ MLP and 0.233 /0.212 of Linear-Ngram. Its Acc@10 12 NYC TKY GeoLife T-Drive 00.5 11.5 22.5 Held-out selection regret ↓ (×10 −3 )
+
+(a) Dataset-level regret 
+
+> Origin only Fixed 8-point AUC
+> Top-1 recovery Pairwise accuracy 0.0 0.2 0.4 0.6 0.8 1.0 Ranking agreement ↑
+> Δ CI [-0.03, +0.67] Δ CI [-0.01, +0.67]
+
+(b) Ranking recovery        
+
+> 12345678Observed perturbation points 0.2 0.4 0.6 0.8 1.0 1.2 Held-out selection regret ↓ (×10 −3 )
+
+(c) Point-placement stability 
+
+> Subset mean Fixed 8-point
+
+Fig. 9. Estimator-selection reliability of multi-point area evaluation. (a) Held-out regret for Origin-only and the fixed eight-point protocol (lower is better); (b) pooled top-1 recovery and pairwise ordering accuracy, with 95% hierarchical bootstrap intervals for the protocol difference; (c) subset regret distributions for one to eight observation points. Baseline Time Category Time + category 0.20 0.25 0.30 0.35 0.40    
+
+> Empirical Acc@1
+> 0.360 0.394 0.399 0.399 0.354 0.382 0.405 0.399
+
+(a) Prediction accuracy across context inputs NYC TKY 
+
+B T C T+C B T C T+C CTX CTX-Merge                
+
+> NYC TKY
+> 0.443 0.182 0.133 0.214 0.442 0.204 0.185 0.153 0.182 0.173 0.216 0.201 0.179 0.183 0.193 0.193
+
+(b) Existing predictability methods 
+
+B T C T+C B T C T+C 1NN(k=3) kNN kNN-LOO KDE-kNN-LOO (extended)                              
+
+> NYC TKY
+> 0.299 0.243 0.239 0.238 0.254 0.238 0.223 0.224 0.315 0.263 0.252 0.251 0.273 0.250 0.230 0.232 0.297 0.246 0.240 0.239 0.257 0.243 0.224 0.225 0.085 0.051 0.050 0.050 0.056 0.049 0.044 0.045
+
+(c) BER-PEF estimator family 
+
+0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 LD ↓ 
+
+Fig. 10. Context information and estimator quality on NYC and TKY. (a) Empirical Acc@1 under baseline, time, category, and time-plus-category inputs (higher is better); (b) LD of context-aware predictability methods; (c) LD of the BER estimator family. The two LD panels share one color scale, and lower values are better. 
+
+values of 0.723 /0.760 are also highest in both cities. Hit@10 supplements these measures by assessing local neighbor-hood structure: U NI MOB reaches the highest value on TKY (0.586 ), while its 0.531 on NYC is close to the 0.545 of SEQ MLP. These results show that U NI MOB retains effective next-location prediction information and competitive local neighborhood structure. Figure 12 further tests whether BER-PEF is tied to a particular representation. Learned numeric representations reduce best Total on GeoLife/T-Drive from 0.237 /0.075 for RawTraj to 0.070 /0.046 for S EQ MLP and 0.074 /0.034 for UNI MOB . Under time-plus-category context, S EQ MLP-C and U NI MOB -C obtain 0.315 /0.297 and 0.297 /0.263 , both below the 0.582 /0.561 of OneHot. For symbolic data, Fre-quency, Ngram-PCA, Linear-Ngram, S EQ MLP, and U NI -MOB all produce comparable LD/UD results under the same protocol. BER-PEF is therefore not tied to U NI MOB :the task-relevant structure retained by a representation af-fects BER quality, while multiple structured representations can enter the same evaluation protocol. This result also illustrates the role of predictability analysis in representation design. When a representation leads to poorer prediction 13 Linear-Ngram SeqMLP UniMob 0.20 0.25 0.30 0.35 0.40 
+
+> Acc@1
+> 0.233 0.299 0.379
+> 0.212 0.305 0.384
+
+(a) Acc@1 ↑
+
+> Linear-Ngram SeqMLP UniMob 0.650 0.675 0.700 0.725 0.750 0.775
+> Acc@10
+> 0.654 0.680 0.723
+> 0.684 0.704 0.760
+
+(b) Acc@10 ↑ 
+
+> Linear-Ngram SeqMLP UniMob 0.48 0.50 0.52 0.54 0.56 0.58 0.60
+> Hit@10
+> 0.494 0.545 0.531 0.528 0.580 0.586
+
+(c) Hit@10 ↑ 
+
+> NYC TKY
+
+Fig. 11. Representation quality on NYC/TKY symbolic mobility sequences. (a)–(b) Acc@1 and Acc@10 under the same supervised protocol; (c) Hit@10 for cosine retrieval with test queries and a training-set gallery. Higher values are better, and all source values are annotated. NYC / GeoLife TKY / T-Drive          
+
+> Frequency SeqMLP UniMob RawTraj SeqMLP UniMob OneHot SeqMLP-C UniMob-C
+> 0.302 0.284 0.333 0.312 0.317 0.305 0.237 0.075 0.070 0.046 0.074 0.034 0.582 0.561 0.315 0.297 0.297 0.263
+> Symbolic Numeric Context T+C
+
+(a) Cross-form best Total ↓      
+
+> NYC TKY
+> Frequency Ngram-PCA Linear-Ngram SeqMLP UniMob
+> 0.242 0.236 0.242 0.236 0.231 0.238 0.254 0.247 0.247 0.244
+
+(b) Symbolic best LD ↓      
+
+> NYC TKY
+> Frequency Ngram-PCA Linear-Ngram SeqMLP UniMob
+> 0.061 0.049 0.061 0.050 0.046 0.050 0.079 0.065 0.070 0.061
+
+(c) Symbolic best UD ↓
+
+Fig. 12. Lowest discrepancy attainable by the predefined core BER family under different representations (lower is better). (a) Cross-form best Total for symbolic, numeric, and fixed time-plus-category context inputs; (b)–(c) best LD and best UD for five symbolic representations. Each value is optimized only within {1NN (k = 3) , kNN , kNN-LOO }, and Total comes from one estimator. 
+
+performance and higher discrepancy, the limitation may arise from predictive information lost during representation rather than from the predictor alone. Predictability evalua-tion therefore provides a task-level criterion for comparing representations and diagnosing whether an input repre-sentation preserves information relevant to the prediction target. 
+
+4.8 SOTA-Reference Robustness 
+
+The conservative predictability reference interval depends on the original-task SOTA accuracy aSOTA  
+
+> D
+
+. To isolate ref-erence uncertainty, we fix the estimator outputs from the symbolic-sequence experiment and vary only aSOTA  
+
+> D
+
+over factors 0.75 , 0.90 , 0.95 , 1.00 , 1.05 , 1.10 , and 1.25 . Each setting recomputes discrepancy without changing the per-turbed samples, representation, labels, or estimator out-puts. The main analysis focuses on the core estimators 1NN( k = 3 ), kNN, and kNN-LOO. Figure 13 shows that the absolute UD values change with the SOTA reference, while the core winner sets remain stable. On NYC, the core-only UD winner set contains kNN-LOO and 1NN( k = 3 ); on TKY, it contains 1NN( k = 3 ). The corresponding LD winners are kNN-LOO on NYC and 1NN( k = 3 ) on TKY. Reference uncertainty therefore changes the numerical discrepancy scale without altering the principal structure of the core estimator comparison. 
+
+5 CONCLUSION 
+
+We presented BER-PEF to address the absence of observable predictability ground truth and the resulting difficulty of comparing predictability estimators on real mobility data. BER-PEF defines the predictability limit as the complement of Bayes-optimal error and combines BER-based estimation 14 0.75 0.90 0.95 1.00 1.05 1.10 1.25 
+
+> SOTA factor
+> 0.00 0.05 0.10 0.15 0.20 0.25
+> Upper-side area  AUD  original SOTA stronger SOTA
+
+NYC   
+
+> 0.75 0.90 0.95 1.00 1.05 1.10 1.25
+> SOTA factor
+> original SOTA stronger SOTA
+
+TKY 
+
+> SOTA Robustness: Upper-side Predictability Discrepancy
+> 1NN(k=3) kNN kNN-LOO GHP KDE KDE-kNN-LOO kNN-Ext LR
+
+Fig. 13. Upper-side discrepancy obtained by varying the SOTA-accuracy reference while keeping estimator outputs fixed. The horizontal axis is the SOTA factor, and lower values indicate closer agreement with the upper-side reference. 
+
+with controlled perturbation evaluation through a shared reference interval and discrepancy measures. Its unified representation layer supports symbolic sequences, contin-uous trajectories, context-enhanced inputs, and multiple learned representations. Experiments show that the frame-work provides consistent evaluation across heterogeneous inputs. Overall, BER-PEF offers a unified, comparable, and verifiable path for predictability estimation and reliability analysis when observable predictability ground truth is unavailable. 
+
+REFERENCES 
+
+[1] J. Feng, Y. Li, C. Zhang, F. Sun, F. Meng, A. Guo, and D. Jin, “Deepmove: Predicting human mobility with attentional recurrent networks,” in Proceedings of the 2018 World Wide Web Conference .Republic and Canton of Geneva, CHE: International World Wide Web Conferences Steering Committee, 2018, pp. 1459–1468. [2] D. Lian, C. Zhao, X. Xie, G. Sun, E. Chen, and Y. Rui, “Geomf: Joint geographical modeling and matrix factorization for point-of-interest recommendation,” in Proceedings of the 20th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining .New York, NY, USA: ACM, 2014, pp. 831–840. [3] A. Gupta, J. Johnson, L. Fei-Fei, S. Savarese, and A. Alahi, “Social gan: Socially acceptable trajectories with generative adversarial networks,” in Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition . Los Alamitos, CA, USA: IEEE Computer Society, 2018, pp. 2255–2264. [4] C. Han, Y. Yuan, Y. Liu, J. Ding, J. Feng, and Y. Li, “Unimove: A unified model for multi-city human mobility prediction,” arXiv preprint arXiv:2508.06986 , 2025. [5] H. Wang, S. Zeng, Y. Li, and D. Jin, “Predictability and prediction of human mobility based on application-collected location data,” 
+
+IEEE Transactions on Mobile Computing , vol. 20, no. 7, pp. 2457– 2472, 2020. [6] E. Xu, Y. Bi, H. Hu, X. Chen, Z. Yu, Y. Li, Y. Hu, and T. Zhou, “Predictability of complex systems,” Physics Reports , vol. 1166, pp. 1–107, 2026. [7] E. Xu, J. Ding, and Y. Li, “On the accuracy limits of sequential rec-ommender systems: An entropy-based approach,” arXiv preprint arXiv:2603.27952 , 2026. [8] D. D. C. Teixeira, A. C. Viana, J. M. Almeida, and M. S. Alvim, “The impact of stationarity, regularity, and context on the predictability of individual human mobility,” ACM Transactions on Spatial Algo-rithms and Systems , vol. 7, no. 4, pp. 1–24, 2021. [9] Z. Chen, S. Kelty, A. G. Evsukoff, B. F. Welles, J. Bagrow, R. Menezes, and G. Ghoshal, “Contrasting social and non-social sources of predictability in human mobility,” Nature Communica-tions , vol. 13, no. 1, p. 1922, 2022. [10] E. Xu, T. Zhou, Z. Yu, Z. Sun, and B. Guo, “Equivalence between time series predictability and bayes error rate,” EPL , vol. 141, no. 6, p. 61003, 2023. [11] C. Song, Z. Qu, N. Blumm, and A.-L. Barab´ asi, “Limits of pre-dictability in human mobility,” Science , vol. 327, no. 5968, pp. 1018– 1021, 2010. [12] T. M. Cover and J. A. Thomas, Elements of Information Theory ,2nd ed. Wiley-Interscience, 2006. [13] D. Teixeira, M. Alvim, and J. Almeida, “On the predictability of a user’s next check-in using data from different social networks,” in 
+
+Proceedings of the 2nd ACM SIGSPATIAL Workshop on Prediction of Human Mobility , 2018, pp. 8–14. [14] W. Chen, Q. Gao, and H. Xiong, “Temporal predictability of online behavior in foursquare,” Entropy , vol. 18, no. 8, p. 296, 2016. [15] C. Zhang, K. Zhao, and M. Chen, “Beyond the limits of predictabil-ity in human mobility prediction: Context-transition predictabil-ity,” IEEE Transactions on Knowledge and Data Engineering , vol. 35, no. 5, pp. 4514–4526, 2022. [16] C. Bandt and B. Pompe, “Permutation entropy: A natural com-plexity measure for time series,” Physical Review Letters , vol. 88, no. 17, p. 174102, 2002. [17] C. Renggli, A. Pinto, L. Rimanic, W. Zhang, K. Kara, and C. Zhang, “Evaluating bayes error estimators on real-world datasets,” Pro-ceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks , 2021. [18] S. Gambs, M.-O. Killijian, and M. N ´ u ˜ nez del Prado Cortez, “Next place prediction using mobility markov chains,” in Proceedings of the First Workshop on Measurement, Privacy, and Mobility . New York, NY, USA: ACM, 2012, pp. 3:1–3:6. [19] S. Jiang, Y. Yang, S. Gupta, D. Veneziano, S. Athavale, and M. C. Gonz´ alez, “The timegeo modeling framework for urban mobility without travel surveys,” Proceedings of the National Academy of Sciences , vol. 113, no. 37, pp. E5370–E5378, 2016. [20] Q. Liu, S. Wu, L. Wang, and T. Tan, “Predicting the next loca-tion: A recurrent model with spatial and temporal contexts,” in 
+
+Proceedings of the Thirtieth AAAI Conference on Artificial Intelligence .Phoenix, AZ, USA: AAAI Press, 2016, pp. 194–200. [21] K. Sun, T. Qian, T. Chen, Y. Liang, Q. V. H. Nguyen, and H. Yin, “Where to go next: Modeling long- and short-term user prefer-ences for point-of-interest recommendation,” in Proceedings of the Thirty-Fourth AAAI Conference on Artificial Intelligence . New York, NY, USA: AAAI Press, 2020, pp. 214–221. [22] Y. Luo, Q. Liu, and Z. Liu, “Stan: Spatio-temporal attention net-work for next location recommendation,” in Proceedings of the Web Conference 2021 . ACM, 2021, pp. 2177–2185. [23] S. Yang, J. Liu, and K. Zhao, “Getnext: Trajectory flow map en-hanced transformer for next poi recommendation,” in Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval . New York, NY, USA: ACM, 2022, pp. 1144–1153. [24] M. Luca, G. Barlacchi, B. Lepri, and L. Pappalardo, “A survey 15 
+
+on deep learning for human mobility,” ACM Computing Surveys ,vol. 55, no. 1, pp. 1–44, 2021. [25] T. He, J. Bao, R. Li, S. Ruan, Y. Li, L. Song, H. He, and Y. Zheng, “What is the human mobility in a new city: Transfer mobility knowledge across cities,” in Proceedings of The Web Conference 2020 .ACM, 2020, pp. 1355–1365. [26] R. Jiang, X. Song, Z. Fan, T. Xia, Z. Wang, Q. Chen, Z. Cai, and R. Shibasaki, “Transfer urban human mobility via poi embedding over multiple cities,” ACM Transactions on Data Science , vol. 2, no. 1, pp. 1–26, 2021. [27] J. Feng, Y. Du, J. Zhao, and Y. Li, “Agentmove: A large language model based agentic framework for zero-shot next location pre-diction,” in Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers) , 2025, pp. 1322–1338. [28] E. Xu, Z. Yu, N. Li, H. Cui, L. Yao, and B. Guo, “Quantifying pre-dictability of sequential recommendation via logical constraints,” 
+
+Frontiers of Computer Science , vol. 17, no. 5, p. 175612, 2023. [29] E. Xu, K. Zhao, Z. Yu, Y. Zhang, B. Guo, and L. Yao, “Limits of predictability in top-N recommendation,” Information Processing & Management , vol. 61, no. 4, p. 103731, 2024. [30] E. Xu, K. Zhao, Z. Yu, H. Wang, S. Ren, H. Cui, Y. Liang, and B. Guo, “Upper bound on the predictability of rating prediction in recommender systems,” Information Processing & Management ,vol. 62, no. 1, p. 103950, 2025. [31] M. Lin, W.-J. Hsu, and Z. Q. Lee, “Predictability of individuals’ mobility with high-resolution positioning data,” in Proceedings of the 2012 ACM Conference on Ubiquitous Computing , 2012, pp. 381– 390. [32] X. Lu, E. Wetter, N. Bharti, A. J. Tatem, and L. Bengtsson, “Ap-proaching the limit of predictability in human mobility,” Scientific Reports , vol. 3, no. 1, p. 2923, 2013. [33] G. Smith, R. Wieser, J. Goulding, and D. Barrack, “A refined limit on the predictability of human mobility,” in 2014 IEEE International Conference on Pervasive Computing and Communications (PerCom) .IEEE, 2014, pp. 88–94. [34] E. L. Ikanovic and A. Mollgaard, “An alternative approach to the limits of predictability in human mobility,” EPJ Data Science , vol. 6, no. 1, p. 12, 2017. [35] V. Kulkarni, A. Mahalunkar, B. Garbinato, and J. D. Kelleher, “Ex-amining the limits of predictability of human mobility,” Entropy ,vol. 21, no. 4, p. 432, 2019. [36] D. D. C. Teixeira, A. C. Viana, M. S. Alvim, and J. M. Almeida, “De-ciphering predictability limits in human mobility,” in Proceedings of the 27th ACM SIGSPATIAL International Conference on Advances in Geographic Information Systems , 2019, pp. 52–61. [37] T. M. Cover and P. E. Hart, “Nearest neighbor pattern classifica-tion,” IEEE Transactions on Information Theory , vol. 13, no. 1, pp. 21–27, 1967. [38] K. Fukunaga and D. Kessell, “Nonparametric bayes error estima-tion using unclassified samples,” IEEE Transactions on Information Theory , vol. 19, no. 4, pp. 434–440, 1973. [39] K. Fukunaga and D. M. Hummels, “Bayes error estimation using parzen and k-nn procedures,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. PAMI-9, no. 5, pp. 634–643, 1987. [40] S. Y. Sekeh, B. Oselio, and A. O. Hero, “Learning to bound the multi-class bayes error,” IEEE Transactions on Signal Processing ,vol. 68, pp. 3793–3807, 2020. [41] R. R. Snapp and T. Xu, “Estimating the bayes risk from sample data,” in Advances in Neural Information Processing Systems 8.Denver, CO, USA: MIT Press, 1995, pp. 232–238. [Online]. Available: https://proceedings.neurips.cc/paper/1995/hash/ 1064-estimating-the-bayes-risk-from-sample-data-Abstract.html [42] P. A. Devijver, “A multiclass, k-nn approach to bayes risk estima-tion,” Pattern Recognition Letters , vol. 3, no. 1, pp. 1–6, 1985. [43] L. Devroye, “On the asymptotic probability of error in nonpara-metric discrimination,” The Annals of Statistics , vol. 9, no. 6, pp. 1320–1327, 1981. [44] K. Fukunaga and L. Hostetler, “k-nearest-neighbor bayes-risk esti-mation,” IEEE Transactions on Information Theory , vol. 21, no. 3, pp. 285–293, 1975. [45] D. Yang, D. Zhang, V. W. Zheng, and Z. Yu, “Modeling user activ-ity preference by leveraging user spatial temporal characteristics in LBSNs,” IEEE Transactions on Systems, Man, and Cybernetics: Systems , vol. 45, no. 1, pp. 129–142, 2015. [46] Y. Zheng, H. Fu, X. Xie, W.-Y. Ma, and Q. Li, GeoLife GPS Trajectory Dataset: User Guide , July 2011, version 1.1. [Online]. Available: https://www.microsoft.com/en-us/ research/publication/geolife-gps-trajectory-dataset-user-guide/ [47] J. Yuan, Y. Zheng, C. Zhang, W. Xie, X. Xie, G. Sun, and Y. Huang, “T-drive: Driving directions based on taxi trajectories,” in Proceed-ings of the 18th SIGSPATIAL International Conference on Advances in Geographic Information Systems . New York, NY, USA: ACM, 2010, pp. 99–108. [48] J. Yuan, Y. Zheng, X. Xie, and G. Sun, “Driving with knowledge from the physical world,” in Proceedings of the 17th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining .New York, NY, USA: ACM, 2011, pp. 316–324.

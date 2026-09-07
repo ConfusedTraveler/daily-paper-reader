@@ -1,0 +1,69 @@
+{
+  "label": "2026-09-07",
+  "date": "2026-09-07",
+  "generated_at": "2026-09-07T23:18:26",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202609/07/2609.04292v1-ber-pef-unified-human-mobility-predictability-evaluation-via-bayes-error-rate-estimation",
+      "section": "deep",
+      "title_en": "BER-PEF: Unified Human Mobility Predictability Evaluation via Bayes Error Rate Estimation",
+      "authors": "En Xu, Jingtao Ding, Zhiwen Yu, Yong Li",
+      "date": "2026-09-03",
+      "pdf": "https://arxiv.org/pdf/2609.04292v1",
+      "score": "10.0",
+      "evidence": "直接研究人类移动可预测性的贝叶斯错误率评估方法",
+      "tldr": "人类移动可预测性的真值难以直接观测，现有估计方法缺乏统一比较标准。本文提出BER-PEF框架，将贝叶斯错误率估计转化为可预测性估计，把符号序列、轨迹、上下文及表征映射到共同特征-标签空间，沿受控扰动曲线与共享参考区间比较偏差。多个真实数据集上，基于BER的估计器比已有方法更接近参考并能追踪经验表现，为无真值场景提供统一可验证的评估路径。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Human mobility predictability concerns the best prediction performance attainable from a given target and input information, but its ground truth is not directly observable on real mobility data. We present BER-PEF, a Bayes-error-rate-based framework that converts BER estimation into mobility predictability estimation and provides a unified protocol for comparing estimators without observable ground truth. The framework maps symbolic sequences, numeric trajectories, contextual features, and learned representations into a common feature--label space, then evaluates estimator outputs along controlled perturbation curves against a shared predictability reference interval by measuring deviations below the interval, above the interval, and across the full interval. Experiments on Foursquare NYC and TKY, GeoLife, and T-Drive show that several BER-based estimators achieve lower reference discrepancy than existing predictability methods on symbolic sequences and numeric trajectories, while their estimates track changes in empirical prediction performance under perturbation. Additional analyses show that contextual inputs and multiple structured representations can be evaluated under the same protocol, and that aggregating evidence across multiple perturbation levels provides a more reliable basis for estimator selection than relying on a single unperturbed observation. BER-PEF therefore offers a unified and verifiable path for evaluating predictability estimators on heterogeneous mobility data when ground-truth predictability is unavailable.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2609.05212v1-pac-bayesian-reconstruction-guarantees-for-time-series-variational-autoencoders",
+      "section": "deep",
+      "title_en": "PAC-Bayesian Reconstruction Guarantees for Time Series Variational Autoencoders",
+      "authors": "Chloé Hashimoto-Cullen, Ghislain Agoua, Benjamin Guedj, Sylvain Le Corff",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.05212v1",
+      "score": "8.0",
+      "evidence": "为时间序列VAE提供PAC-Bayesian泛化界，是序列预测的理论精度保证",
+      "tldr": "时间序列预测对能源、医疗、金融等复杂数据系统至关重要，生成式潜变量模型虽在这些任务中表现优异，却缺少可验证的泛化保证，尤其VAE研究多为i.i.d.设定。本文建立PAC-Bayesian分析框架，将重建界推广至具有马尔可夫潜在状态的时序生成结构，从而刻画时间依赖关系。推导出的界不会随轨迹长度增长，且对假设的要求在常见模型设定中均可满足，文中给出示例验证。该结果首次为非i.i.d.潜变量时间序列模型提供了可靠的PAC界，弥合理论与实际应用之间的鸿沟，有助于生成式模型的自信部署。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Forecasting time series accurately is critical for applications with complex data ranging from energy systems to healthcare and finance. Among current state of the art models, generative latent variable models are increasingly implemented; yet principled generalisation guarantees for modern latent variable models remain limited. In particular, while Variational AutoEncoders are widely used for sequential data, their theoretical analysis is largely restricted to i.i.d. settings. In this work, we develop a PAC-Bayesian framework for latent variables models applied to time series. Building on reconstruction-based bounds, we extend PAC-Bayesian guarantees to Markovian latent structures, capturing temporal dependencies through a sequential generative process. These guarantees do not grow with the length of the trajectory. Our bounds depend on assumptions which are common in the literature; we provide an example framework where they would be verified to show that they are not as restrictive as they may seem.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2608.29789v1-a-unified-perspective-on-conformal-prediction-and-wasserstein-distributionally-robust-optimization-for-uncertainty-quantification",
+      "section": "quick",
+      "title_en": "A Unified Perspective on Conformal Prediction and Wasserstein Distributionally Robust Optimization for Uncertainty Quantification",
+      "authors": "Kehan Long, Yiqi Zhao, Pol Mestres, Lars Lindemann, Nikolay Atanasov, Jorge Cortés",
+      "date": "2026-08-30",
+      "pdf": "https://arxiv.org/pdf/2608.29789v1",
+      "score": "6.0",
+      "evidence": "对共形预测与Wasserstein分布鲁棒优化做统一理论分析，用于预测不确定性量化",
+      "tldr": "有限数据下不确定性量化对机器学习与自动决策至关重要。CP与DRO分别从分位数水平修正与分位数价值移动两个互补角度，将校准数据转化为高概率覆盖真分布的预测集。二者均可纳为同一族估计器，但行为差异集中在分数分布尾部：CP在样本稀疏处易过冲，而合适半径的DRO可规避。该视角为两类方法的特性、校准条件与适用场景提供了统一解释。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Uncertainty quantification from finite data is central to machine learning, optimization, and automation systems, where decisions must remain reliable under limited samples and test-time distribution shift. Conformal prediction (CP) and distributionally robust optimization (DRO) offer two complementary approaches: CP constructs data-dependent prediction sets with distribution-free finite-sample validity under exchangeability, while DRO optimizes worst-case performance over an ambiguity set around an empirical distribution. We develop a unified probabilistic perspective on CP and DRO by viewing both as ways to turn finite calibration data into a data-dependent quantile estimator that a test score falls below with high probability. From this perspective, CP and DRO correct the empirical quantile along two coordinates of the same family of estimators: CP inflates the quantile level, whereas DRO shifts the quantile value through an ambiguity radius. Both methods provide the same calibration-conditional guarantee for the true distribution, requiring the target coverage to hold with high probability over the calibration sample. Their constructions differ, however: CP uses a closed-form, distribution-free level correction, while DRO uses a value-space correction whose certified radius depends on properties of the unknown distribution and additionally guarantees coverage uniformly over the ambiguity set. This distinction emerges in the tails of the score distribution. Because CP relies on sparse upper-tail order statistics of the calibration samples, its level inflation barely moves the estimator when those samples are dense near the target quantile but overshoots when they are sparse, whereas a well-chosen DRO radius corrects in value space and may avoid this overshoot.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/07/2608.30795v1-uncertainty-aware-end-to-end-ai-weather-forecasting-disentangling-observation-and-model-contributions",
+      "section": "quick",
+      "title_en": "Uncertainty-Aware End-to-End AI Weather Forecasting: Disentangling Observation and Model Contributions",
+      "authors": "Rodrigo Almeida, Noelia Otero, Jost Arndt, Simon Baur, Wojciech Samek, Jackie Ma",
+      "date": "2026-08-31",
+      "pdf": "https://arxiv.org/pdf/2608.30795v1",
+      "score": "6.0",
+      "evidence": "量化观测与模型不确定性对天气预报离散度的贡献",
+      "tldr": "端到端AI天气预报虽然高效准确，但当前为确定性系统，不提供不确定性。本文将Aardvark模型改造为概率形式：观测编码器引入输入相关的噪声，处理器应用MC Dropout，并使用总方差分解与扣留观测流交叉验证，将集合离散度分离为观测和模型两类贡献。概率化微调使平均预报提升4.2%，中期集合与ERA5校准（离散度-技能比0.98），且各提前时次CRPS均优于确定性模型。该工作实现了可归因的不确定性，为观测驱动的天气数字孪生奠定基础。",
+      "tags": "query:pred-limit",
+      "abstract_en": "End-to-end weather forecasting systems produce skillful global gridded and station forecasts directly from raw Earth observations, replacing the numerical weather prediction pipeline, including data assimilation, at a fraction of its cost. These systems are deterministic and issue no uncertainty. Here we render the Aardvark Weather model probabilistic by attaching one stochastic mechanism to each component: learned, input-dependent noise at the observation encoder, capturing aleatoric uncertainty inherited from the observing system, and Monte Carlo dropout in the processor, capturing epistemic uncertainty in the learned dynamics. The resulting nested ensemble attributes forecast spread to the two sources through a law-of-total-variance decomposition, cross-checked by withholding observation streams. Probabilistic finetuning significantly improves the mean forecast, by 4.2% on average across variables and lead times. The ensemble is calibrated against ERA5 through the medium range (spread-skill ratio 0.98), keeps station RMSE within 2.4% of the deterministic model while beating it in CRPS at every lead time, and trails the operational ECMWF ensemble. The encoder branch behaves as observation-driven uncertainty. Component-attributed uncertainty makes end-to-end forecasts more transparent, a step toward observation-driven digital twins of the atmosphere.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
