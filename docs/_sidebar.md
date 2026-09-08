@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-08 <!--dpr-date:20260908-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/08/2609.02733v1-optical-reservoir-computing-with-structural-nonlinearity-for-forecasting-chaotic-time-series" data-sidebar-item="{&quot;title&quot;: &quot;Optical Reservoir Computing with Structural Nonlinearity for Forecasting Chaotic Time Series&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.02733v1-optical-reservoir-computing-with-structural-nonlinearity-for-forecasting-chaotic-time-series&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;用于混沌时间序列预测的光学储层计算；与时间序列的可预测性主题相关。&quot;}">Optical Reservoir Computing with Structural Nonlinearity for Forecasting Chaotic Time Series</a>
   * 2026-09-07 <!--dpr-date:20260907-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/07/2609.04292v1-ber-pef-unified-human-mobility-predictability-evaluation-via-bayes-error-rate-estimation" data-sidebar-item="{&quot;title&quot;: &quot;BER-PEF: Unified Human Mobility Predictability Evaluation via Bayes Error Rate Estimation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.04292v1-ber-pef-unified-human-mobility-predictability-evaluation-via-bayes-error-rate-estimation&quot;, &quot;score&quot;: &quot;10.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;直接研究人类移动可预测性的贝叶斯错误率评估方法&quot;}">BER-PEF: Unified Human Mobility Predictability Evaluation via Bayes Error Rate Estimation</a>
