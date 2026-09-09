@@ -1,0 +1,10177 @@
+Title: Optimal estimation for Functional Linear Regression with Noisy Discretized Data
+
+URL Source: https://arxiv.org/pdf/2609.08671v1
+
+Published Time: Wed, 09 Sep 2026 03:52:30 GMT
+
+Number of Pages: 63
+
+Markdown Content:
+# Optimal estimation for Functional Linear Regression with Noisy Discretized Data 
+
+Sixtine Sphabmixay Université Paris Cité, CNRS, MAP5, F-75006 Paris, France September 9, 2026 
+
+Abstract 
+
+In this paper, we consider the scalar-on-function linear regression model under a realis-tic sampling scheme in which the functional covariates are observed on a regular grid and contaminated by additive noise. We propose a two-step estimation procedure: first, the un-derlying curves are reconstructed from the discrete noisy observations using a Fourier-based projection method; second, the slope function is estimated by a penalized least-squares cri-terion over finite-dimensional trigonometric spaces, with data-driven selection of the model dimension. We establish oracle-type inequalities for the prediction error, both with respect to the reconstructed curves and to the true latent curves. Under regularity assumptions on the slope function and polynomial decay of the eigenvalues of the covariate, we derive convergence rates for the prediction error and show that our estimator attains the minimax rate when the number of grid points is sufficiently large. Finally, the proposed method is illustrated on simulated data and on a real meteorological dataset. 
+
+# 1 Introduction 
+
+Functional data analysis (FDA), as formalized and popularized by Ramsay and Silverman [14], is a statistical framework designed to analyze data that are naturally expressed as functions rather than finite-dimensional vectors, which are commonly considered in classical statistical methods. This methodology is particularly well suited to modern datasets, where observations evolve continuously over domains such as time or space. Moreover, advances in data collection and storage have also led to a substantial increase in the availability of functional data. Consequently, FDA has been widely applied across various disciplines, including medicine (Frøslie et al. [10]), biology (Dieng et al. [9]), and finance (Kokoszka et al. [13]). A central inferential tool in FDA is the functional linear regression model, which extends classical regression by relating scalar or functional responses to functional predictors. In this paper, we focus on the scalar-on-function case. More precisely, we assume that a functional covariate X
+
+taking values in a Hilbert space X and a real-valued response variable Y in R are linked through the model, 
+
+Y = μY +
+
+Z 10
+
+β(t)( X(t) − μ(t)) dt + ϵ, (1) where μY = E(Y ), μ(t) = E(X(t)) for all t ∈ [0 , 1] and ϵ is a random variable which is centered and of finite variance σ2.This model was popularized in the FDA literature by Ramsay and Silverman [14] and has since been extensively developed, with numerous approaches proposed for estimating the coefficient function 
+
+β. For instance, Cardot et al. [5] introduced an estimator based on functional principal compo-nent analysis. James et al. [12] proposed the FLiRTI method, designed to produce interpretable estimates of β that highlight regions where the relationship between Y and X is negligible. More recently, Grollemund et al. [11] developed a Bayesian approach, known as Bliss, which leverages the conditional distribution Y | X, β ∼ N (⟨β, X ⟩X , σ 2). This approach also aims to identify the time intervals that have the greatest influence on the response. 1arXiv:2609.08671v1 [stat.ML] 8 Sep 2026 Studies of the statistical properties of existing estimators have also been developed under the assumption that the functional data are observed continuously and without noise, as in Cardot et al. [6] who derived minimax rates and oracle-type inequalities. However, this idealized setting is rarely encountered in practice, since observations are typically available only on a finite grid, which may be regularly or irregularly spaced, deterministic or random. This more realistic setting has received comparatively less attention. To our knowledge, Cardot et al. [7] were among the first to study it. Although their approach is more practically relevant, it requires the grid size to be sufficiently large for their results to hold. In this paper, we aim to to extend the approach of Brunel and Roche [4] to the more realistic setting where observations are available on a regular grid and are corrupted by noise. As them, we assume that the covariates are centered, periodic, and second-order stationary, with X(0) = X(1) .The sample (Xi)i=1 ,...,n consists of independent copies of X. Here we further assume that the functional covariates are observed on a common regular grid th = h/p for all h ∈ { 0, . . . , p − 1},and that the observations are contaminated by noise. Thus, rather than observing the full curves 
+
+Xi, we observe 
+
+Zi(th) = Xi(th) + ηi,h , (2) where the noise variables (ηi,h ) are centered, i.i.d., with variance τ 2, and independent of the processes Xi. For technical simplicity, we assume throughout this paper that σ2, the variance of ϵ
+
+defined in (1) is known. In the idealized setting of continuously observed noiseless curves, Brunel and Roche [4] proposed an estimator of the slope function β based on a least-squares contrast over finite-dimensional spaces generated by trigonometric bases, together with a penalization procedure for selecting the optimal dimension of the basis. They proved an oracle inequality and obtained convergence rates when the eigenvalues of the covariance operator associated to the true curves decay in either a polynomial or exponential way, and that β belongs to a periodic Sobolev space, 
+
+W per (k, L ) := {f ∈ W k 
+
+> 2
+
+(L), ∀j = 0 , ..., k − 1, f (j)(0) = f (j)(1) }, (3) with 
+
+W k 
+
+> 2
+
+(L) := {f : [0 , 1] → R, f (k−1) is absolutely continuous and ∥f (k)∥L2 ≤ L},
+
+for k a positive integer and L a positive real number. Here ∥ · ∥ L2 is defined as 
+
+∥f ∥L2 =
+
+Z 10
+
+f (t)2dt 
+
+1/2
+
+for any square-integrable function f on [0 , 1] .
+
+Our approach follows a similar philosophy. We estimate β by minimizing a least-squares criterion after a preliminary step that reconstructs the underlying curve X from the noisy discrete obser-vations. This reconstruction is based on a Riemann-sum approximation and a projection onto a finite-dimensional space spanned by a truncated Fourier basis. We then introduce a penalization procedure to automatically select the optimal number of Fourier terms used in the estimation of β.This strategy differs from the work of Cardot et al. [7] where they proposed a smoothing splines estimator to estimate the unknown slope function. We derive two oracle-type inequalities for the prediction error, one with respect to the reconstructed curves and one with respect to the true curves. We then establish convergence rates for the prediction error with respect to the true curves when β belongs to W per (k, L ) and the eigenvalues of the covariance operator decay polynomially. We recover the same rate as Brunel and Roche [4] when p is large enough but not necessarily infi-nite, namely that the prediction error decays as n− 2k+2 a 
+
+> 2k+2 a+1
+
+, where a denotes the decay parameter of the covariance eigenvalues. In this regime, we also establish a matching lower bound, showing that observing the trajectories only on a sufficiently fine grid incurs no minimax loss compared to the continuous setting. When p is moderately large, the number of observations on the grid also plays a role, and the prediction error decays as n− 2k+2 a 
+
+> 2k+2 a+1
+
++ p− 2a−12a . When p is small the error decays as p− 2a−12a . Finally, we apply our method on both simulated data and real-world meteorological observations. 2Outline of the paper. Section 2 introduces the estimation procedure for β and the risk measure considered in this work. Section 3 establishes oracle-type inequalities. Section 4 derives the con-vergence rates over periodic Sobolev spaces. Section 5 presents the lower bound in the case where 
+
+p is large. Section 6 reports numerical simulation results on artificial datasets and Section 7 on a true meteorological dataset. 
+
+Notation: We denote by L2 the space of square-integrable functions on the interval [0 , 1] equipped with the inner product ⟨f, g ⟩L2 = R 10 f (t)g(t)dt and the associated norm ∥f ∥L2 = ⟨f, f ⟩1/2 
+
+> L2
+
+. For any set A, we denote by 1A the indicator function and for all non-negative integers i and j we define δij as the Kronecker delta. For any square matrix A we define the operator norm by 
+
+∥A∥op = sup ∥a∥2=1 ∥Aa ∥2, where for any vector u, ∥u∥2 denotes the Euclidean norm. In particular, we consider the space l2 consisting of all sequences c = ( cl)l≥1, such that ∥c∥22 < ∞. We also consider ⟨· , ·⟩ 2 the standard Euclidean inner product. Moreover for any a, b ∈ Z and m ∈ N\{ 0},we write a ≡ b[m] to indicate that a and b are congruent modulo m.
+
+# 2 Estimation procedure 
+
+2.1 Curve reconstruction 
+
+We consider an i.i.d. sample (Yi, X i)i=1 ,...,n drawn from the distribution of (Y, X ). Thus, for each 
+
+i = 1 , . . . , n , the pair (Yi, X i) satisfies 
+
+Yi =
+
+Z 10
+
+β(t)Xi(t)d t + ϵi, (4) where the errors (ϵi)i=1 ,...,n are assumed to be i.i.d., centered, with finite variance σ2, and inde-pendent of the covariates (Xi)i=1 ,...,n .The first step of our methodology is to reconstruct the true unobserved curves Xi, from their noisy and discrete observations, Zi. To achieve this, we approximate each curve Xi by a finite series expansion in a suitable basis. Given our assumptions that the true curves are periodic, centered, second-order stationary and in L2([0 , 1]) , the Fourier basis provides a natural and efficient choice for this decomposition. This choice is further justified by the discussion in the next section (see Section 2.3). Let us first define Nn,p ∈ N\{ 0} and Mn,p = {1, . . . , N n,p }. We denote 
+
+Sm := Span {ϕ1, ϕ 2, . . . , ϕ 2m+1 }, (5) for all m ∈ M n,p with 
+
+ϕ1 = 1 , ϕ2j (·) = √2 cos  2πj ·, ϕ2j+1 (·) = √2 sin  2πj ·.
+
+We also define Dm the dimension of Sm (in particular, Dm = 2 m + 1 ). As we only consider Dm
+
+elements, Sm represents a finite dimension space spanned by a truncated Fourier basis. Since the Zi’s are only known at discrete points th, it’s impossible to compute ⟨Xi, ϕ j ⟩L2 directly. Hence we define 
+
+exi,j = 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+Zi(th)ϕj (th). (6) This quantity is a discrete approximation of the inner product ⟨Xi, ϕ j ⟩L2 , based on noisy observa-tions on a regular grid, and can be interpreted as a Riemann sum in the ideal continuous setting. This particular scheme and choice of grid create a convenient discrete orthogonality property for the chosen Fourier basis under the condition that DNn,p < p . This significantly simplifies the mathematical proofs required for the main results which are detailed in the appendix (Lemma B.1 and Lemma C.1). Then, we can define the reconstructed curves as follows : 
+
+eXi(t) := 
+
+> DNn,p
+
+X
+
+> j=1
+
+exi,j ϕj (t), for all i = 1 , . . . , n and for all t ∈ [0 , 1] . (7) 3Thus, eXi is a random element of the finite-dimensional space SNn,p , entirely determined by the discrete noisy sample  Zi(t0), . . . , Z i(tp−1).We also denote by eX a generic random element having the same distribution as any eXi. Equiv-alently, if (X, η 0, . . . , η p−1) is a generic copy of (Xi, η i, 0, . . . , η i,p −1), with Z(th) = X(th) + ηh,then 
+
+eX(t) = 
+
+> DNn,p
+
+X
+
+> j=1
+
+exj ϕj (t), t ∈ [0 , 1] ,
+
+with 
+
+exj = 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+Z(th)ϕj (th).
+
+In particular, eX1, . . . , eXn are i.i.d. copies of eX.
+
+2.2 Estimating the slope function 
+
+In this section, we build an estimator of the true slope function β. Let m ∈ M n,p . First of all, we define the following least-square criterion : 
+
+γn(f ) := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(Yi − ⟨ f, eXi⟩L2 )2, f ∈ Sm. (8) Because the trajectories Xi are unobserved, the ideal least-squares contrast (defined using Xi
+
+rather than eXi in (8)) cannot be directly minimized. We therefore use the least-square criterion 
+
+γn based on the reconstructed curves ( eXi)’s which are the only available curves. This induces a difference with the ideal model, which is quantified by the reconstruction error terms appearing in the oracle inequalities introduced in Section 3. We wish to minimize γn to get an estimate of β. More particularly, we define bβm as 
+
+bβm ∈ argmin  
+
+> f∈Sm
+
+γn(f ). (9) Any f ∈ Sm can be rewritten as f = PDm 
+
+> j=1
+
+vj ϕj where v = ( v1, v 2, . . . , v Dm ) is in RDm . Therefore, minimizing γn in Sm is equivalent to minimizing 
+
+F (v) := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Yi −
+
+> Dm
+
+X
+
+> j=1
+
+vj ⟨ϕj , eXi⟩L2
+
+
+
+> 2
+
+in RDm . (10) Considering 
+
+Φm := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+exi,k exi,j 
+
+!
+
+> 1≤j,k ≤Dm
+
+, (11) and 
+
+b := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Yi exi,k 
+
+!
+
+> 1≤k≤Dm
+
+, (12) we have the following result, 
+
+∇F (v) = −2b + 2Φ mv, (13) where ∇F denotes the gradient of F . The computations that lead to this result are detailed in Lemma A.1. If Φm is invertible we find that the minimum of F , eα, is such that eα = (Φ m)−1b and 
+
+bβm = PDm 
+
+> j=1
+
+eαj ϕj .However, Φm is built from only n observations projected onto a Dm-basis. If the model dimension exceeds the sample size ( Dm > n ) or if some projected coordinates are linearly dependent in the data, Φm loses rank, giving at least one zero eigenvalue so its determinant vanishes and it cannot 4be inverted. Even when Dm ≤ n, any direction that shows nearly zero empirical variance still makes the matrix singular or ill-conditioned. To deal with this issue, let us define the set Gm := {bλ(p) 
+
+> m
+
+≥ sn} where bλ(p) 
+
+> m
+
+is the smallest eigenvalue of Φm and 
+
+sn = 2
+
+nα
+
+
+
+1 − 1
+
+√ln n
+
+
+
+α > 0. (14) This form of sn is inspired by the one used in Brunel and Roche [4] introduced in Section 3.2. This condition guarantees positive definiteness and hence invertibility of Φm on Gm. Moreover it enables us to show that the probability of the event Gm not happening is small, for all m ∈ M n,p .Now, let G := T 
+
+> m∈M n,p
+
+Gm. On G we can compute the least squares estimate bβm of β in Sm for all m ∈ M n,p . Hence on this set, we can define an integer 
+
+bm ∈ arg min 
+
+> m∈M n,p
+
+(γn( bβm) + pen( m)) ,
+
+where 
+
+pen( m) = θ(1 + δ)Dmσ2/n for θ > 4 and δ > 0. (15) This penalty is crucial for model selection as it accounts for model complexity and thus helps to avoid overfitting. Moreover, we chose this particular penalty because its structure is specifically designed to control and bound certain terms that appear in the derivation of the oracle inequality (see Theorem 3.1). It is also inspired by the work of Brunel and Roche ([4], Equation (8)) and Brunel et al. ([3], Section 1.4). Finally, we set the estimate of the true slope function β as 
+
+eβ =
+
+ bβ bm on G, 
+
+0 on Gc. (16) 
+
+2.3 Risk measure 
+
+This section introduces the criterion used to evaluate the performance of the proposed estimator. We start by introducing the covariance operator of the true unobserved random curve X:
+
+Γf (·) = E (⟨f, X ⟩L2 X(·)) , f ∈ L2([0 , 1]) . (17) Under our assumptions that the curves (Xi) are periodic, centered and second-order stationary, the eigenfunctions of Γ coincide with the Fourier basis (as discussed in Section 2.1 of Comte and Johannes [8]). Denoting by (λj )j≥1 the associated eigenvalues, we have for each j ≥ 1,
+
+Γϕj = λj ϕj , ⟨ϕj , ϕ k⟩L2 = δjk .
+
+Let us define the kernel K associated with the operator Γ :
+
+K(s, t ) = E (X(s)X(t)) , s, t ∈ [0 , 1] . (18) We also introduce the empirical version of this operator, that we denote Γn, and which is associated with the kernel 
+
+Kn(s, t ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Xi(s)Xi(t), s, t ∈ [0 , 1] . (19) In particular for all f ∈ L2([0 , 1]) ,
+
+Γnf (·) = 
+
+Z 10
+
+Kn(., t )f (t)dt = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨f, X i⟩L2 Xi(·). (20) We next define the covariance kernel of the reconstructed process eX by 
+
+eK(s, t ) = E
+
+ eX(s) eX(t)
+
+
+
+, s, t ∈ [0 , 1] , (21) 5and its associated covariance operator 
+
+eΓf (·) = 
+
+Z 10
+
+eK(·, t )f (t)dt = E
+
+
+
+⟨f, eX⟩L2 eX(·)
+
+
+
+, f ∈ L2([0 , 1]) . (22) Given the reconstructed sample ( eXi)i=1 ,...,n , we also consider the empirical covariance kernel 
+
+eKn(s, t ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+eXi(s) eXi(t), s, t ∈ [0 , 1] , (23) together with the corresponding empirical covariance operator eΓn, defined for any f ∈ L2([0 , 1]) 
+
+by 
+
+eΓnf (·) = 
+
+Z 10
+
+eKn(·, t )f (t)dt = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨f, eXi⟩L2 eXi(·). (24) These operators naturally induce the following bilinear forms (and associated seminorms) 
+
+⟨f, g ⟩Γn = ⟨Γnf, g ⟩L2 = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨f, X i⟩L2 ⟨g, X i⟩L2 , (25) 
+
+⟨f, g ⟩eΓn = ⟨eΓnf, g ⟩L2 = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨f, eXi⟩L2 ⟨g, eXi⟩L2 , (26) 
+
+⟨f, g ⟩eΓ = ⟨eΓf, g ⟩L2 = E
+
+
+
+⟨f, eX⟩L2 ⟨g, eX⟩L2
+
+
+
+, (27) 
+
+⟨f, g ⟩Γ = ⟨Γf, g ⟩L2 = E (⟨f, X ⟩L2 ⟨g, X ⟩L2 ) . (28) To quantify the performance of the estimator, we study the prediction error under the distribution of the true process. More specifically, we consider a new curve Xn+1 with a scalar response Yn+1 
+
+independent of the sample with (Xn+1 , Y n+1 satisfying (1). We wish to quantify the following error 
+
+E
+
+
+
+⟨ eβ, X n+1 ⟩L2 − E (Yn+1 |Xn+1 )
+
+2
+
+X1, · · · , X n
+
+
+
+= E
+
+
+
+⟨ eβ − β, X n+1 ⟩L2
+
+2
+
+X1, · · · , X n
+
+
+
+= ∥ eβ − β∥2Γ,
+
+(29) This criterion quantifies the average discrepancy between predictions based on eβ and those based on β, when both are evaluated on the same unobserved curve. 
+
+Remark 1. In the functional linear model, the quantity of interest is the prediction ⟨β, X ⟩L2 ,rather than the function β itself. For this reason, the natural risk is 
+
+E ⟨ eβ − β, X ⟩2
+
+> L2
+
+ = E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+,
+
+which measures the prediction error. The L2-norm does not take into account the distribution of the covariate X, and in particular directions corresponding to small eigenvalues of the covariance operator Γ have little influence on the prediction, but may contribute significantly to the L2-error. 
+
+# 3 Main results 
+
+In this section, we derive an upper bound of E(∥ eβ − β∥2
+
+> eΓ
+
+) and E(∥ eβ − β∥2Γ) in the oracle setting. Before stating our assumptions, we recall the notion of a sub-Gaussian random variable from Vershynin [16], used throughout this section. A random variable A is sub-Gaussian with variance factor v if for all t ∈ RE
+
+
+
+et(A−E(A)) 
+
+≤ e t2v 
+
+> 2
+
+.
+
+Throughout this section, we work under the following assumptions: 6• ( H1 ) For all i ∈ { 1, ..., n } and for all (cl)l≥1 ∈ l2, P 
+
+> l≥1
+
+cl⟨Xi, ϕ l⟩L2 is sub-Gaussian with variance factor K21
+
+P 
+
+> l≥1
+
+c2 
+
+> l
+
+λl, where K1 is a positive constant. • ( H2 ) For all i = 1 , ..., n and h = 0 , ..., p − 1, ηi,h is sub-Gaussian with variance factor τ 2.• ( H3 ) We assume that the eigenvalues of Γ, namely the λj ’s decrease in a polynomial way : there exist two constants c′ > 0 and a > 1/2 such that for all j ≥ 1,
+
+λj ≤ c′j−2a.
+
+Assumption (H1) is satisfied under the following set of sufficient conditions: Assume that, for all i ∈ { 1, . . . , n } and all j ≥ 1, the Fourier coefficients ⟨Xi, ϕ j ⟩L2 are sub-Gaussian with variance factor λj . This assumption appears repeatedly in the works of Brunel and Roche [4] and Brunel et al. [3]. If in addition, for each i, the random variables ⟨Xi, ϕ j ⟩L2 and 
+
+⟨Xi, ϕ k⟩L2 are independent whenever j̸ = k, then Assumption (H1) holds. We emphasize however, that these conditions may be restrictive in practice. In particular, the independence of the Fourier coefficients is a strong requirement that is generally satisfied only in specific settings, such as Gaussian processes represented in their Karhunen–Loève basis. Nevertheless, this independence assumption can be dispensed when Hypothesis (H3) holds for some a > 1, thereby providing an alternative set of sufficient conditions for Assumption (H1) .Assumption ( H2 ) is primarily introduced to derive concentration inequalities. It is a mild and reasonable condition in practice when the observational noise is light-tailed. Assumption ( H3 ) imposes a polynomial decay on the eigenvalues of the covariance operator Γ.Such a condition is standard in functional data analysis (see, e.g., Brunel and Roche [4], Cardot and Johannes [6], and Comte and Johannes [8]) and reflects the regularity of the stochastic process 
+
+X. In particular, it implies that most of the variability of X is captured by the first Fourier modes, whereas the contribution of higher-frequency components decreases progressively. Moreover, larger values of the parameter a correspond to smoother sample paths of X. For example, Brownian motion satisfies this assumption with a = 1 , while integrated Brownian motion corresponds to 
+
+a = 2 , consistent with its smoother sample paths. 
+
+Remark 2. Since both Γ and eΓ are diagonal operators on Span {ϕ1, ϕ 2, . . . , ϕ 2Nn,p +1 } with strictly positive eigenvalues, the orthogonal projection of β onto Sm with respect to the scalar product ⟨· , ·⟩ Γ
+
+coincides with its orthogonal projection with respect to ⟨· , ·⟩ eΓ. We denote this common projection by β(m). The detailed proof of this result is established in Appendix E. 
+
+First let us state the following result which will be useful to derive oracle inequalities : 
+
+Proposition 3.1. Assume that there exists l > 4 such that υl := E(|ϵ|l) < ∞ and that E  ⟨β, X ⟩4
+
+> L2
+
+ <
+
+∞. Moreover we suppose that assumptions (H1) , (H2) , (H3) are verified. If 
+
+DNn,p < min 
+
+ n
+
+ln 2 n , p 
+
+
+
+,λDNn,p ≥ 2
+
+nα
+
+and α > 2a in the definition of sn (see in Equation (14) ), then for all slope β ∈ L2([0 , 1]) we have 
+
+E(∥ eβ − β∥2
+
+> eΓn
+
+) ≤ C0
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+E(∥β(m) − β∥2
+
+> eΓn
+
+) + pen( m)
+
+
+
++ ∥β∥2 
+
+> L2
+
+E(∥ eX − X∥2 
+
+> L2
+
+)+ ∥β∥2
+
+> L2
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ Cβ
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+,
+
+(30) 
+
+where pen( m) is defined in (15), C0 is a positive constant which depends on K1, θ, l, τ l, δ, σ 2. More-over we have: 
+
+Cβ = E(⟨β, X 1⟩4 
+
+> L2
+
+)1/2 + ∥β∥2 
+
+> L2
+
++ 1 . (31) 7The following result provides an oracle inequality with respect to the norm ∥ · ∥ eΓ, thereby evaluating the prediction risk based on the reconstructed curves. 
+
+Theorem 3.1. Suppose that the assumptions of Proposition 3.1 hold. Then for all slope β ∈
+
+L2([0 , 1]) ,
+
+E(∥ eβ − β∥2
+
+> eΓ
+
+) ≤ C1
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+E(∥β(m) − β∥2
+
+> eΓ
+
+) + pen( m)
+
+
+
++ ∥β∥2 
+
+> L2
+
+E(∥ eX − X∥2 
+
+> L2
+
+)+ ∥β∥2
+
+> L2
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ Cβ
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+,
+
+(32) 
+
+where pen( m) is defined in (15), C1 is a positive constant which depends on θ, l, τ l, δ, σ 2 and Cβ is defined in (31). 
+
+The following result provides an oracle inequality with respect to the norm ∥ · ∥ Γ, thereby evaluating the prediction risk based on the true curves. 
+
+Theorem 3.2. Suppose that the assumptions of Theorem 3.1 are satisfied. Then for all slope 
+
+β ∈ L2([0 , 1]) we have, 
+
+E(∥ eβ − β∥2Γ) ≤ C2
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2Γ + ∥β(m) − β∥2 
+
+> eΓ
+
++ pen( m)
+
+
+
++ ∥β∥2 
+
+> L2
+
+E(∥ eX − X∥2 
+
+> L2
+
+)+ ∥β∥2
+
+> L2
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ Cβ
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+,
+
+(33) 
+
+where pen( m) is defined in (15), C2 is a positive constant which depends on K1, θ, l, τ l, δ, σ 2, c′, a
+
+and Cβ is defined in (31). If we assume furthermore that β ∈ W per (k, L ) we obtain the following oracle inequality : 
+
+E(∥ eβ − β∥2Γ) ≤ C3
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2Γ + pen( m)
+
+
+
++ E(∥ eX − X∥2 
+
+> L2
+
+)+ 1
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ 1
+
+p + 1
+
+n + 1
+
+np 
+
+
+
+,
+
+(34) 
+
+where C3 is a positive constant which depends on K1, θ, l, τ l, δ, σ 2, c ′, a.
+
+The sequence of Proposition 3.1 and Theorems 3.1–3.2 reflects a progressive refinement of the risk bounds. Proposition 3.1 establishes an oracle type inequality expressed in terms of the empirical covariance operator of the reconstructed data, which is the most directly observable quantity in our framework. Theorem 3.1 then replaces this empirical operator by the covariance operator of the reconstructed process, thereby removing the effect of sampling variability. Finally, Theorem 3.2 transfers the result to the covariance operator of the true underlying process by controlling the discrepancy between the reconstructed and true covariance structures. The bounds obtained in Theorems 3.1 and 3.2 are of oracle type. They show that the estimator 
+
+eβ performs, up to a multiplicative constant and additional remainder terms, nearly as well as the best estimator in the collection (Sm)m∈M n,p . More precisely, the leading term in the bound of Theorem 3.1 is governed by the oracle criterion 
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2 
+
+> eΓ
+
++ pen( m)
+
+
+
+,
+
+whereas Theorem 3.2 involves 
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2Γ + pen( m)
+
+
+
+.
+
+8The additional terms involving ∥ eX − X∥L2 quantify the error induced by reconstructing the curves from discrete noisy observations and therefore measure the impact of the preliminary smoothing step on the final estimation procedure. The remaining terms, of order 1/n , 1/p , and 1/(np ), arise from the proof of the oracle inequalities. 
+
+# 4 Convergence rates over Sobolev spaces 
+
+In this part, we derive convergence rates for the error E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+.
+
+Theorem 4.1. Suppose that the assumptions of Theorem 3.2 are satisfied, with the exception that we consider a ≥ 1 instead of a > 1/2 in (H3) . Then, for all β ∈ W per (k, L ) :
+
+• If p ≳   n 
+
+> ln 2n
+
+2a then, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2a+2 k
+
+> 2a+2 k+1
+
+
+
+. (35) • If n 2a 
+
+> 2a+2 k+1
+
+≲ p ≲   n 
+
+> ln 2n
+
+2a then, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2a+2 k 
+
+> 2a+2 k+1
+
++ p− 2a−12a
+
+
+
+. (36) • If p ≲ n 2a 
+
+> 2a+2 k+1
+
+then, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+p− 2a−12a
+
+
+
+. (37) The stronger assumption a ≥ 1 is required in Theorem 4.1 to control the contribution of the reconstruction error and to ensure that the tail sum of the eigenvalues decays sufficiently fast. Moreover, the three regimes described in Theorem 4.1 reveal a phase transition phenomenon that depends on the relative magnitudes of p and n. When p is large, the problem behaves essentially as if the curves were fully observed. In contrast, when p is small, the estimation error is dominated by the discretization error, and increasing the sample size n alone is not sufficient to improve the convergence rate. Furthermore, when the number of observation points is sufficiently large, namely 
+
+p ≳
+
+ n
+
+ln 2 n
+
+2a
+
+,
+
+the convergence rate obtained in Theorem 4.1 coincides with the optimal rate established in the literature for functional linear models with fully observed curves. In particular, we recover the rate derived by Brunel and Roche [4]. Finally, as shown in the proof of Theorem 4.1, the dependence of the rate on p is primarily driven by the observation noise rather than by the reconstruction procedure itself. 
+
+# 5 Lower Bound for the case p large 
+
+In this section we derive a lower bound for the case 1 of Theorem 4.1. 
+
+Theorem 5.1. Let us assume that there exist two constants c′ > 0 and a > 1/2 such that for all 
+
+j ≥ 1,
+
+j−2a/c ′ ≤ λj ≤ c′j−2a.
+
+We also make the further assumption that 
+
+ϵi ∼ N (0 , σ 2) ∀i ∈ { 1, . . . , n },
+
+and that 
+
+ηi,h ∼ N (0 , τ 2) ∀i ∈ { 1, . . . , n }, ∀h ∈ { 0, . . . , p − 1}.
+
+Then for p ≥   n 
+
+> ln 2n
+
+2a and for all β ∈ W per (k, L ),
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+≥ C4n− 2a+2 k 
+
+> 2a+2 k+1
+
+,
+
+where C4 is a positive constant which depends on k, L, c ′, σ .
+
+9In Theorem 4.1, only the upper bound λj ≤ c′j−2a is required. Indeed, the proof relies on controlling approximation and reconstruction errors, which involve tail sums of the eigenvalues and therefore only require an upper estimate on their decay. In contrast, the proof of Theorem 5.1 is based on a minimax lower-bound construction. To ensure that the candidate slope functions defined in (81) belong to W per (k, L ) and remain sufficiently separated in the prediction norm ∥ · ∥ Γ,it is necessary to control both λj and 1/λ j . This requires the two-sided condition 1 
+
+> c′
+
+j−2a ≤ λj ≤
+
+c′j−2a. Furthermore, Theorem 5.1 establishes that, when p is sufficiently large, the rate n− 2a+2 k
+
+> 2a+2 k+1
+
+constitutes a lower bound for the prediction risk over the class W per (k, L ). Combined with the upper bound derived in Theorem 4.1, this shows that our estimator attains the minimax rate over this class. 
+
+# 6 Simulations 
+
+Across the next four paragraphs, we present a framework for evaluating our estimator on a sim-ulated dataset. This framework consists of generating the true functional curves, computing the corresponding scalar outputs, creating noisy discrete observations, reconstructing the curves, choos-ing adequate values for θ and δ, estimating the slope function, and finally assessing the model’s performance. We study here three slope functions 
+
+β1(t) = t(t − 1) , t ∈ [0 , 1] , (38) which is in W per (1 , 1) and also studied in Brunel and Roche [4]. Since for all t ∈ [0 , 1] β(1) 1 (t) = 2t − 1, therefore β(1) 1 (0) ̸ = β(1) 1 (1) and β1 /∈ W per (2 , 1) .
+
+β2(t) = 3 exp 
+
+
+
+− (t − 0.30) 2
+
+2 · 0.07 2
+
+
+
+− 2 exp 
+
+
+
+− (t − 0.70) 2
+
+2 · 0.08 2
+
+
+
+, t ∈ [0 , 1] , (39) which is defined as a linear combination of two Gaussian functions and 
+
+β3(t) = 4 sin(4 πt ) − sign( t − 0.3) − sign(0 .72 − t), t ∈ [0 , 1] , (40) which corresponds to the heavisine function. 
+
+Figure 1: Plot of β1 (left), β2 (middle), β3 (right) 
+
+6.1 Simulation setup and data generation 
+
+The simulation study begins with the generation of the true functional curves, denoted Xi, rep-resenting the underlying functional processes. These curves are constructed using a truncated Karhunen–Loève decomposition: 
+
+X(t) = 
+
+> 2J+1
+
+X
+
+> j=1
+
+ξj ϕj (t), t ∈ [0 , 1] . (41) Here, the sequence of independent, centered random variables {ξ1, ..., ξ 2J+1 } has variances Var( ξj ) = 
+
+λj . We set J = 500 and consider the ξj ’s to be Gaussian. 10 To generate the true curves (Xi)i=1 ,...,n , we first construct a high-resolution grid G1 over the observation interval [0 , 1] , defined as: 
+
+G1 := 
+
+ jpsim − 1 j = 0 , . . . , p sim − 1
+
+
+
+.
+
+This grid consists of psim = 10000 equally spaced points and provides a discrete approximation of the underlying continuous functions. Because it is not feasible to simulate the curves at every point in continuous time, this fine, regular grid serves as a practical compromise between approxi-mation accuracy and computational cost. Next, we define a lower-resolution observation grid, G2,consisting of p regularly spaced points where the noisy and discrete data are actually observed. This grid is defined as: 
+
+G2 := 
+
+
+
+th = hp h = 0 , . . . , p − 1
+
+
+
+.
+
+Because these observation points do not necessarily coincide with those of the high-resolution grid, we augment the latter to include G2. The true curves are generated on this combined grid, G1 ∪G2.Next, independent Gaussian noise terms ηi,h , with zero mean and variance τ 2 are added to the discretized observations. The value of τ 2 will vary and thus will be precised in each sections. This step aims to mimic measurement error in practical settings, yielding the observed sample 
+
+(Zi)i=1 ,...,n , defined as: 
+
+Zi(th) = Xobs i (th) + ηi,h , th ∈ G2. (42) Once the functional predictors are generated, the corresponding scalar response Yi for each curve is simulated according to the functional linear model defined in (4). To compute the integral term R 10 Xi(t)β(t)dt , we employ a discrete numerical approximation evaluated over the grid G1. In particular, Z 10
+
+Xi(t)β(t)dt ≈ 1
+
+psim − 1
+
+> psim −1
+
+X
+
+> j=0
+
+Xi(tj )β(tj ).
+
+Finally, the noise variables ϵi are generated independently from a zero-mean Gaussian distribution with variance σ2 = 0 .1.
+
+6.2 Estimation of the slope function 
+
+Prior to estimating β, the functional predictors are reconstructed from the noisy and discretized observations. Following the procedure described in Section 2.1, we first compute the coefficients 
+
+(exi,j )i=1 ,...,n ; j=1 ,...,D Nn,p as defined in Equation (6). These coefficients are then used to reconstruct the curves eXi according to Equation (7). This procedure yields a sample of reconstructed curves 
+
+( eXi)i=1 ,...,n , which can be interpreted as smoothed versions of the original observations. The choice of the basis dimension DNn,p matters. In particular, DNn,p must be chosen so as to ensure the invertibility of the empirical covariance matrix with high probability, and therefore to be able to compute eβ defined in (16). Theorem 3.1 shows that this condition is satisfied whenever 
+
+DNn,p < min 
+
+ n
+
+ln 2 n , p 
+
+
+
+.
+
+Accordingly, in our simulations, we select the largest value of DNn,p satisfying this constraint in order to achieve the most accurate curve reconstruction possible. Based on the reconstructed curves, we proceed to estimate the slope function β. To this end, we adopt a penalized model selection approach to determine the appropriate model complexity, as described in Section 2. The performance of the resulting estimator is supported by an oracle inequality (Theorem 3.1), provided that the penalty parameters satisfy θ > 4 and δ > 0. In practice, these parameters must be calibrated; the corresponding selection procedure is detailed in Section 6.4. 11 Figure 2: Simulation of a functional curve: true, observed, and reconstructed. Here p = 50 ,
+
+psim = 10000 , DNn,p = 11 , τ 2 = 0 .1 and λj = 1 /j 4 for all j = 1 , . . . , 2J + 1 .
+
+6.3 Prediction error 
+
+As discussed in the previous sections, we focus on the prediction error of the proposed estimator. More specifically, we aim to analyze the behavior of 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+.
+
+As ∥ eβ − β∥2Γ = P 
+
+> j≥1
+
+λj ⟨ eβ − β, ϕ j ⟩2 
+
+> L2
+
+, we approximate this quantity by using a finite number of elements in the Fourier basis, 
+
+∥ eβ − β∥2Γ ≈
+
+> 2J+1
+
+X
+
+> j=1
+
+λj ⟨ eβ − β, ϕ j ⟩2 
+
+> L2
+
+≈
+
+> 2J+1
+
+X
+
+> j=1
+
+λj
+
+ (eαj − βj )21j≤Dcm + β2 
+
+> j
+
+1j>D cm
+
+ ,
+
+where the last equality is derived from the definition of eβ given in Equation (16). Finally we estimate our prediction error using a Monte-Carlo method with nM C independent samples. In particular we derive nM C estimators of β that we denote as eβ(l) for l = 1 , ..., n M C . For each replication l ∈ { 1, . . . , n MC }, we obtain an estimator eβ(l) defined by Equation (16) and its definition is given on G by eβ(l) = PDcm(l) 
+
+> j=1
+
+eα(l) 
+
+> j
+
+ϕj , where bm(l) denotes the model selected at iteration l. We then compute an estimate of the prediction error: 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+≈ 1
+
+nM C nM C X
+
+> l=1
+
+bel,
+
+where bel = P2J+1  
+
+> j=1
+
+λj
+
+
+
+(eα(l) 
+
+> j
+
+− βj )21j≤Dcm(l) + β2 
+
+> j
+
+1j>D cm(l)
+
+
+
+. For our simulations we use nM C = 50 .
+
+6.4 Calibration of θ and δ
+
+The constant κ := θ(1 + δ), which appears in the penalty term defined by (15), must be calibrated. To determine a suitable value for it, we evaluate its predictive performance across a grid of candidate 12 values ranging from 1 to 20 (with a step size of 0.5), holding the sample size n = 1000 and the number of observation points p = 1000 fixed. Specifically, we conduct a Monte Carlo simulation study to assess the candidate values across the three distinct slope functions β1, β2, and β3. For each slope function, the prediction error, which is approximated via the procedure detailed in Section 6.3, is averaged over 50 independent replications. We then calculate the overall mean error across all three scenarios to identify a single, universal κ that minimizes the aggregate prediction error. The results of this calibration process are visualized in Figure 3. As indicated by the vertical dashed line, the aggregate prediction error attains its minimum at κ = 3 . However, given the constraints θ > 4 and δ > 0, the definition of the penalty parameter strictly requires κ > 4.Consequently, we select κ = 4 .01 , a value situated appropriately above this theoretical boundary but close to the lowest aggregate prediction error, for all subsequent simulations. 
+
+Figure 3: Average prediction error as a function of the penalty parameter κ ∈ [1 , 20] across the three slope functions β1, β2, β3.
+
+6.5 Results 
+
+We now study the performance of our estimator when various slope functions are considered. 
+
+6.5.1 Study of β1
+
+Now we consider β1 as the true slope function, which belongs to W per (1 , 1) and λj = 1 /j 4 for all 
+
+j = 1 , . . . , 2J + 1 .In Figures 4a, 4b we analyze the impact of the sample size n by setting a fixed p = 7500 . The variance of the noises τ 2 and σ2 are both set to 0.1. The sample size, n, varies across the set 
+
+{200 , 400 , 800 , 1600 , 3200 , 6400 }. The resulting log-log plot yields a slope of −0.92 , which is quite close to the value that we can expect given the convergence rate established in Theorem 4.1. Indeed, here we have k = 1 and a = 2 hence we expect to have an error which decreases in 
+
+n−(2 k+2 a)/(2 a+2 k+1) = n−6/7.In Figures 4c, 4d we study the impact of the size of the grid p by setting a fixed n = 1000 . The variance of the noise σ2 = 0 .1 but we use here a much higher variance for the noise of the observation 
+
+τ 2 = 4 . The number of observations, p, on the grid varies across the set {50 , 100 , 200 , 300 , 400 , 500 }.The resulting log-log plot yields a slope of −0.79 which matches the rate that we expect from Theorem 4.1. Indeed, here we have a = 2 hence we expect to have an error which decreases in p−(2 a−1) /(2 a) = p−3/4. However, for smaller values of τ , the rate of decrease is significantly higher. This could be explained by the fact that, when τ is small, the influence of noise on the reconstruction error of the curves is reduced; instead, the error is primarily driven by the choice of reconstruction scheme. We also studied the case where the true curves are less smooth. In particular we consider now 
+
+λj = 1 /j 2 for all j = 1 , . . . , 2J + 1 . All the parameters and considered function remain unchanged. 13 a. Average prediction error vs. sample size n       
+
+> b. Log-log plot of average prediction error vs. sample size n
+> c. Average prediction error vs. number of ob-servation points p
+> d. Log-log plot of average prediction error vs. number of observation points p
+
+Figure 4: Monte Carlo approximation of the mean squared Γ-norm error as a function of the sample size n and the grid density p. The solid red curves represent the empirical error averaged over the Monte Carlo replications. In panels a. and c. the blue dashed curves represent the 10th and 90th empirical deciles of the Monte Carlo errors. Panels b. and d. display the corresponding mean errors on a log-log scale; in these panels, the black dashed lines represent linear fits used to assess the empirical rate of decay of the error. 14 On Figure 5 we observe that the resulting log-log plot for the case p fixed - varying n yields a slope         
+
+> a. Average prediction error vs. sample size n
+> b. Log-log plot of average prediction error vs. sample size n
+> c. Average prediction error vs. number of ob-servation points p
+> d. Log-log Plot of average prediction error vs. number of observation points p
+
+Figure 5: Monte Carlo approximation of the mean squared Γ-norm error as a function of the sample size n and the grid density p. The solid red curves represent the empirical error averaged over the Monte Carlo replications. In panels a. and c. the blue dashed curves represent the 10th and 90th empirical deciles of the Monte Carlo errors. Panels b. and d. display the corresponding mean errors on a log-log scale; in these panels, the black dashed lines represent linear fits used to assess the empirical rate of decay of the error. of −0.76 , which is close to the value that we can expect given the convergence rate established in Theorem 4.1. Indeed, here we have k = 1 and a = 1 therefore we expect to have an error which decreases in n−(2 k+2 a)/(2 a+2 k+1) = n−0.8. For the case n fixed - varying p the log-log plot gives an estimated slope of approximately −0.55 , which indicates that the empirical decay of the prediction error is quite consistent with the expected p−(2 a−1) /(2 a) = p−1/2 behavior. 
+
+6.5.2 Study of β2
+
+In this section, we consider the true slope function β2. Because β2 does not perfectly satisfy the periodic boundary condition β2(0) = β2(1) , this setup allows us to evaluate how our estimator perform even if the true slope function does not perfectly lie in the space W per . In this part we pick a = 2 and aim to compare our result with the first study of β1. The same parameters are used for the simulations. The log-log plot in Figures 6b and 6d yield respectively slopes of −0.86 
+
+and −0.77 , which are very close to the one that we got previously and which match our theoretical results. 
+
+6.5.3 Study of β3
+
+In this section, we evaluate the estimator’s ability to handle change points by examining its behavior around the two discontinuities located at t1 = 0 .30 and t2 = 0 .72 of the true slope function β3
+
+defined in Equation (40). Instead of using a threshold-based detection method, we adopt a visual approach to better understand the local behavior of our estimator. We plot the true slope function against 10 estimated curves obtained from independent samples. To illustrate the asymptotic 15 a. Average prediction error vs. sample size n       
+
+> b. Log-log plot of average prediction error vs. sample size n
+> c. Average prediction error vs. number of ob-servation points p
+> d. Log-log plot of average prediction error vs. number of observation points p
+
+Figure 6: Monte Carlo approximation of the mean squared Γ-norm error as a function of the sample size n and the grid density p. The solid red curves represent the empirical error averaged over the Monte Carlo replications. In panels a. and c. the blue dashed curves represent the 10th and 90th empirical deciles of the Monte Carlo errors. Panels b. and d. display the corresponding mean errors on a log-log scale; in these panels, the black dashed lines represent linear fits used to assess the empirical rate of decay of the error. 16 behavior of the estimator, we compare two distinct settings: a moderate sample size ( n = 800 ,
+
+p = 5000 , DNn,p = 15 ) and a large sample size ( n = 6400 , p = 5000 , DNn,p = 81 ). Figure             
+
+> a. n= 800 ,p= 5000 , and DNn,p = 15 .
+> b. n= 6400 ,p= 5000 , and DNn,p = 81 .
+
+Figure 7: Estimation of the slope function β3 for p = 5000 and different sample sizes n.7a displays the results for the setting with n = 800 . The estimated curves (in red) capture the global trend of β3 but completely smooth over the discontinuities. On the other hand, Figure 7b illustrates the results for n = 6400 . With a larger sample size and a higher dimension for the basis ( DNn,p = 81 ), the variance of the estimators is significantly reduced, yielding a good fit on the continuous segments of β3. More importantly, around the jump location t2, the estimators actively attempt to fit the discontinuities as it benefits from an increased flexibility provided by 
+
+DNn,p = 81 .
+
+6.6 Effect of the unknown variance σ2
+
+Throughout this work we have assumed that σ2, the variance of ϵ defined in Equation (1), is known. In practice however, this is generally not the case and σ must therefore be estimated. To this end, for each model dimension m, we consider the empirical variance estimator 
+
+bσ2 
+
+> m
+
+:= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+
+
+Yi −
+
+D bβm, eXi
+
+E
+
+> L2
+
+2
+
+. (43) 17 We then select the dimension bmplug by minimizing the following penalized criterion: 
+
+bmplug ∈ arg min 
+
+> m∈M n,p
+
+
+
+γn( bβm) + θ(1 + δ) Dm bσ2
+
+> m
+
+n
+
+
+
+. (44) Table 1: Approximate mean squared Γ-norm prediction errors for the slope function β1 with variance σ2 known or unknown. The upper panel reports errors as n varies with p = 7500 fixed, while the lower panel reports errors as p varies with n = 1000 fixed. Fixed p = 7500 
+
+Slope σ2 n = 200 n = 400 n = 800 n = 1600 n = 3200 n = 6400 
+
+β1 known 1.42 × 10 −4 6.90 × 10 −5 3.52 × 10 −5 1.73 × 10 −5 1.09 × 10 −5 6.55 × 10 −6
+
+β1 unknown 1.27 × 10 −4 8.56 × 10 −5 3.73 × 10 −5 1.83 × 10 −5 8.68 × 10 −6 6.11 × 10 −6
+
+Fixed n = 1000 
+
+Slope σ2 p = 50 p = 100 p = 200 p = 300 p = 400 p = 500 
+
+β1 known 2.24 × 10 −4 1.06 × 10 −4 6.65 × 10 −5 5.09 × 10 −5 3.92 × 10 −5 3.94 × 10 −5
+
+β1 unknown 2.18 × 10 −4 9.32 × 10 −5 4.96 × 10 −5 4.72 × 10 −5 3.87 × 10 −5 3.44 × 10 −5
+
+Table 2: Approximate mean squared Γ-norm prediction errors for the irregular slope function β2
+
+with variance σ2 known or unknown. The upper panel reports errors as n varies with p = 7500 
+
+fixed, while the lower panel reports errors as p varies with n = 1000 fixed. Fixed p = 7500 
+
+Slope σ2 n = 200 n = 400 n = 800 n = 1600 n = 3200 n = 6400 
+
+β2 known 2.60 × 10 −3 1.64 × 10 −3 1.02 × 10 −3 5.18 × 10 −4 2.36 × 10 −4 1.48 × 10 −4
+
+β2 unknown 3.31 × 10 −3 1.84 × 10 −3 1.07 × 10 −3 4.56 × 10 −4 2.65 × 10 −4 1.55 × 10 −4
+
+Fixed n = 1000 
+
+Slope σ2 p = 50 p = 100 p = 200 p = 300 p = 400 p = 500 
+
+β2 known 5.93 × 10 −3 2.66 × 10 −3 1.66 × 10 −3 1.11 × 10 −3 1.01 × 10 −3 1.06 × 10 −3
+
+β2 unknown 5.63 × 10 −3 2.81 × 10 −3 1.51 × 10 −3 1.22 × 10 −3 1.07 × 10 −3 9.19 × 10 −4
+
+Tables 1 and 2 compare the mean squared Γ-norm prediction errors obtained when σ2 is known and when it is estimated using (43). The comparison is performed for β1 (38) and β2 (39). As in the previous simulations, we consider two asymptotic regimes: first, n varies while p = 7500 
+
+is fixed; second, p varies while n = 1000 is fixed. The results show that replacing σ2 by the residual-based estimator bσ2 
+
+> m
+
+has little impact on the performance of the estimator. Indeed, in the two tables the prediction errors obtained with known and unknown variance remain of the same order of magnitude and exhibit similar decreasing behavior as n or p increases. This suggests that the procedure remains reliable in the more realistic setting where the regression noise variance is unknown. 
+
+# 7 Application to meteorological data 
+
+We apply our estimation procedure to meteorological data provided by Météo-France, originally covering the period 1950–2024. For this application, we retain observations from the recent period 2019–2024 and average them over time to avoid making the estimated curve depend on the par-ticular weather realization of a single year. After removing observations with missing values and excluding February 29 to obtain a common yearly calendar, the final dataset consists of n = 305 
+
+temperature curves, each corresponding to one location, and p = 365 daily measurements. The annual average precipitation recorded at each site is used as the scalar response variable, while the corresponding annual temperature profile is treated as a functional covariate. This yields a scalar-on-function regression framework, whose objective is to investigate how the shape of the 18 temperature curve is associated with annual rainfall across the selected French departments high-lighted in Figure 8a. Figures 8b and 8c show examples of the functional data for four stations located in Finistère. The initial step involves partitioning the dataset into a training set ( 80% of observations) and a test set ( 20% of observations) to ensure an unbiased evaluation of the final model. We denote as trainIDX and testIDX the indexes of the data present in respectively the train and test set, as well as ntrain and ntest their dimensions. Both sets are subsequently centered to standardize the data. More particularly, the empirical means are computed exclusively from the training set. For the scalar response, we define 
+
+Y train = 1
+
+ntrain 
+
+X
+
+> i∈trainIDX
+
+Yi,
+
+while, for each time point tj , the mean temperature curve is given by 
+
+Ztrain (tj ) = 1
+
+ntrain 
+
+X
+
+> i∈trainIDX
+
+Zi(tj ).
+
+Both the training and test observations are then centered using these training-set means. Thus, the centered training data are defined as 
+
+eYtrain = Ytrain − Y train ,
+
+and for all j = 0 , . . . , p − 1 eZtrain (tj ) = Ztrain (tj ) − Ztrain (tj ).
+
+Similarly, the test data are centered using the same means computed from the training set: 
+
+eYtest = Ytest − Y train ,
+
+and for all j = 0 , . . . , p − 1 eZtest (tj ) = Ztest (tj ) − Ztrain (tj ).
+
+We then reconstruct the curves with the same methodology as in Section 2.1. Afterward we estimate the variance σ2 using only the elements of training set eZtrain and eYtrain , by using the estimator defined in Equation (43). The functional linear regression model is subsequently fitted on the training set, using the estimator of σ2 to select the dimension bmplug (see (44)). After this step we obtain an estimator of the slope function of the form 
+
+eβ(t) = 
+
+> bmplug
+
+X
+
+> j=1
+
+eαj ϕj (t),
+
+and its predictive performance is evaluated on the held-out test set by calculating the root mean squared error (RMSE). Since the true curves are not available, we use the reconstructed ones to make prediction. More particularly, in order to do so, we reconstruct the curves from the noisy and discrete data of the test set ( eZtest ). Thus we obtain 
+
+eXtest i (t) = 
+
+> DNn,p
+
+X
+
+> j=1
+
+exi,j ϕj (t), for all i ∈ testIDX and for all t ∈ [0 , 1] ,
+
+and then, for each observation i in the test set we predict 
+
+eYpred i =
+
+> bmplug
+
+X
+
+> j=1
+
+exi,j eαj .
+
+In Figure 9 we can see that the estimated slope function exhibits two extrema. One is negative during winter and early spring, with its lowest values around February–March, which indicates that higher temperatures during this period are associated with lower annual precipitation. The coefficient then plateau around 0 during the summer. Thus at this time the temperature curve 19 a. French departments included in the meteorological dataset. 
+
+b. Averaged annual temperature curves across four stations in Finistère. 
+
+c. Averaged annual temperature curves for the selected stations in Fin-istère. 
+
+Figure 8: Meteorological dataset map and the associated temperature curves in Finistère. 20 Figure 9: Estimated functional coefficient eβ(t), describing the effect of the annual temperature profile on average annual precipitation.      
+
+> a. Plot of the actual vs predicted values, the red dashed line is y=x.
+> b. Boxplot of the model’s residuals, showing the distribution of the prediction errors on the test set.
+
+Figure 10: Performance assessment of the estimator on the test set. 21 does not impact the annual precipitation. The estimated slope function then increase quickly, reaching its maximum around October-November. This indicates a positive association between autumnal temperatures and annual precipitation. It then decreases during winter. Figure 10a shows a positive relationship between the observed and predicted centred values, which indicates that the model is able to reproduce the overall trend in annual precipitation. Figure 10b confirm this. In particular, it shows that the prediction errors are mostly centred around zero therefore we don’t have a systematic bias. However, the lower whisker is longer than the upper one, suggesting a slightly greater dispersion among negative residuals. Hence, some locations are more strongly overpredicted than underpredicted. The model achieves a RMSE of 0.58, which is quite low. However, this performance is only a small improvement over the baseline method where we use the average rainfall quantity with all the data from the training set to predict the average rainfall of the test set. This method yields a RMSE of 0.91. A primary reason for this small difference could be that the baseline method is already quite effective. Given that the target variable is the annual average rainfall, it is a stable and predictable value. The variations from year to year might be minimal, meaning that a simple prediction of the overall average is a already a strong starting point. 
+
+# A Gradient Calculation for the Least Squares Minimization 
+
+Lemma A.1. The function F which is such that 
+
+F (v) := 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+Yi −
+
+> Dm
+
+X
+
+> j=1
+
+vj ⟨ϕj , eXi⟩L2
+
+
+
+> 2
+
+, for all v ∈ RDm ,
+
+is differentiable and its gradient is 
+
+∇F (v) = −2b + 2Φ mv, 
+
+where Φm is defined by Equation (11) and b by Equation (12) .Proof. The function F being convex and C1, finding a minimizer eα ∈ RDm of F is equivalent to finding an eα in RDm such that ∇F (eα) = 0 . Let us compute ∇F .First let us consider k ∈ { 1, . . . , D m}, then 
+
+∂F (v)
+
+∂v k
+
+= − 2
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨ϕk, eXi⟩L2
+
+Yi −
+
+> Dm
+
+X
+
+> j=1
+
+vj ⟨ϕj , eXi⟩L2
+
+
+
+= − 2
+
+n
+
+> n
+
+X
+
+> i=1
+
+Yi
+
+
+
+> DNn,p
+
+X
+
+> l=1
+
+exi,l ⟨ϕk, ϕ l⟩L2
+
+
+
++ 2
+
+n
+
+> n
+
+X
+
+> i=1
+> Dm
+
+X
+
+> j=1
+
+vj
+
+
+
+> DNn,p
+
+X
+
+> l=1
+
+exi,l ⟨ϕk, ϕ l⟩L2
+
+
+
+> DNn,p
+
+X
+
+> l′=1
+
+exi,l ′ ⟨ϕj , ϕ l′ ⟩L2
+
+
+
+= − 2
+
+n
+
+> n
+
+X
+
+> i=1
+
+Yi exi,k + 2
+
+n
+
+> n
+
+X
+
+> i=1
+
+exi,k DmX
+
+> j=1
+
+vj exi,j .
+
+The transition from the first to second line is obtained by replacing the eXi’s by their definition given in (7) and the one from the second to third by using the fact that the ϕj ’s are orthonormal. Hence, 
+
+∇F (v) = −2b + 2Φ mv. 
+
+22 B Proof of Section 3 
+
+B.1 Proof of Proposition 3.1 
+
+Let us start first by decomposing E(∥ eβ − β∥2
+
+> eΓn
+
+) into two terms : 
+
+E(∥ eβ − β∥2
+
+> eΓn
+
+) = E(∥ eβ − β∥2
+
+> eΓn
+
+1G) + E(∥ eβ − β∥2
+
+> eΓn
+
+1Gc )= E(∥ bβ bm − β∥2
+
+> eΓn
+
+1G) + E(∥β∥2
+
+> eΓn
+
+1Gc ).
+
+In a first hand we will focus on the left term E(∥ bβ bm − β∥2
+
+> eΓn
+
+1G). Let m ∈ M n,p be fixed. Consider 
+
+β(m) the orthogonal projection of β over Sm with respect to the scalar product ⟨· , ·⟩ eΓ. By definition of bβm, we have that γn( bβm) ≤ γn(β(m)). Moreover, the definition of bm implies that 
+
+γn( bβ bm) + pen( bm) ≤ γn( bβm) + pen( m) ≤ γn(β(m)) + pen( m).
+
+Therefore, replacing the γn’s by their definition given in (8) we have : 
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(Yi − ⟨ bβ bm, eXi⟩L2 )2 + pen( bm) ≤ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+(Yi − ⟨ β(m), eXi⟩L2 )2 + pen( m).
+
+As for all i = 1 , ..., n , Yi = ⟨β, eXi⟩L2 + ⟨β, X i − eXi⟩L2 + ϵi the previous equation is equivalent to the following one : 
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+
+
+β − bβ bm, eXi L2 + ϵi + β, X i − eXi L2
+
+2
+
++ pen( bm)
+
+≤ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+
+
+β − β(m), eXi L2 + ϵi + β, X i − eXi L2
+
+2
+
++ pen( m).
+
+Simplifying the terms leads then to this inequality, 
+
+∥β − bβ bm∥2
+
+> eΓn
+
+≤ ∥ β − β(m)∥2
+
+> eΓn
+
++ 2 νn( bβ bm − β(m)) + 2 rn( bβ bm − β(m)) + pen (m) − pen ( bm).
+
+where, 
+
+νn(f ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ϵi f, eXi L2 ,rn(f ) = 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+f, eXi L2 β, X i − eXi L2 .
+
+Let us focus on the νn part. As νn is a linear process, we have that 
+
+2νn( bβ bm − β(m)) ≤ 2∥ bβ bm − β(m)∥eΓn sup   
+
+> f∈SeΓnm∨cm
+
+νn(f ),
+
+with SeΓn  
+
+> m∨bm
+
+= {f ∈ Sm∨ bm, ∥f ∥eΓn = 1 }. Using the inequality 2xy ≤ 1 
+
+> θ
+
+x2 + θy 2 for all x, y and for all θ > 0, we get that 
+
+2νn( bβ bm − β(m)) ≤ 1
+
+θ ∥ bβ bm − β(m)∥2
+
+> eΓn
+
++ θ sup   
+
+> f∈SeΓnm∨cm
+
+(νn(f )) 2.
+
+Let us focus now on the rn part. Using the Cauchy–Schwarz inequality for the scalar product in 
+
+Rn we get that 
+
+rn( bβ bm − β(m)) ≤
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨ bβ bm − β(m), eXi⟩2
+
+> L2
+
+1/2 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨β, X i − eXi⟩2
+
+> L2
+
+1/2
+
+.
+
+23 Using now the Cauchy–Schwarz inequality for the scalar product ⟨· , ·⟩ L2 , we get that 
+
+rn( bβ bm − β(m)) ≤ ∥ bβ bm − β(m)∥eΓn
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+∥β∥2 
+
+> L2
+
+∥Xi − eXi∥2
+
+> L2
+
+1/2
+
+.
+
+Therefore, 
+
+2rn( bβ bm − β(m)) ≤ 1
+
+θ ∥ bβ bm − β(m)∥2
+
+> eΓn
+
++ θ ∥β∥2
+
+> L2
+
+n
+
+> n
+
+X
+
+> i=1
+
+∥Xi − eXi∥2 
+
+> L2
+
+.
+
+These two steps lead to the following inequality, 
+
+∥ bβ bm − β∥2
+
+> eΓn
+
+≤∥ β(m) − β∥2
+
+> eΓn
+
++ 2
+
+θ ∥ bβ bm − β(m)∥2
+
+> eΓn
+
++ θ sup   
+
+> f∈SeΓnm∨cm
+
+(νn(f )) 2
+
++ θ∥β∥2
+
+> L2
+
+n
+
+> n
+
+X
+
+> i=1
+
+∥Xi − eXi∥2 
+
+> L2
+
++ pen (m) − pen ( bm).
+
+Now, as ∥ bβ bm − β(m)∥2
+
+> eΓn
+
+≤ 2∥ bβ bm − β∥2
+
+> eΓn
+
++ 2 ∥β − β(m)∥2
+
+> eΓn
+
+, we obtain for all θ > 4:
+
+
+
+1 − 4
+
+θ
+
+
+
+∥ bβ bm − β∥2
+
+> eΓn
+
+≤
+
+
+
+1 + 4
+
+θ
+
+
+
+∥β − β(m)∥2
+
+> eΓn
+
++ θ sup   
+
+> f∈SeΓ
+> m∨cm
+
+(νn(f )) 2
+
++ θ∥β∥2
+
+> L2
+
+n
+
+> n
+
+X
+
+> i=1
+
+∥Xi − eXi∥2 
+
+> L2
+
++ pen (m) − pen ( bm),
+
+which leads to : 
+
+E ∥ bβ bm − β∥2
+
+> eΓn
+
+1G
+
+ ≤ θ + 4 
+
+θ − 4 E ∥β − β(m)∥2
+
+> eΓn
+
+ + θ2
+
+θ − 4 E
+
+
+
+sup   
+
+> f∈SeΓnm∨cm
+
+(νn(f )) 2
+
++ θ2
+
+θ − 4
+
+∥β∥2
+
+> L2
+
+n E
+
+ nX
+
+> i=1
+
+∥Xi − eXi∥2
+
+> L2
+
+
+
++ θθ − 4 E pen( m) − pen( bm).
+
+Now, for x > 0 and Z a random variable we have that Z = ( Z − x)+ + x − (x − Z)+ ≤ (Z − x)+ + x.Therefore, 
+
+sup   
+
+> f∈SeΓnm∨cm
+
+(νn(f )) 2 ≤
+
+
+
+sup   
+
+> f∈SeΓnm∨cm
+
+(νn(f )) 2 − p(m, bm)
+
+
+
+> +
+
++ p(m, bm),
+
+with p(m, bm) = (1 + δ)σ2Dm∨ bm/n = 1 
+
+> θ
+
+pen( m ∨ bm). Obviously, for all x, y ≥ 0, max ( x, y ) ≤ x + y.Thus pen( m) − pen( bm) + θp (m, bm) ≤ pen( m) − pen( bm) + pen( m) + pen( bm) = 2pen( m). Therefore, 
+
+E ∥ bβ bm − β∥2
+
+> eΓn
+
+1G
+
+ ≤ θ + 4 
+
+θ − 4 E ∥β − β(m)∥2
+
+> eΓn
+
+
+
++ θ2
+
+θ − 4
+
+X
+
+> m′∈M n,p
+
+E
+
+h 
+
+sup   
+
+> f∈SeΓnm∨m′
+
+(νn(f )) 2 − p(m, m ′)
+
+i
+
+> +
+
+
+
++ θ2
+
+θ − 4
+
+∥β∥2
+
+> L2
+
+n
+
+> n
+
+X
+
+> i=1
+
+E ∥Xi − eXi∥2
+
+> L2
+
+
+
++ 2θθ − 4 pen( m).
+
+Using the Lemma 1 of Brunel et al. [3], we find that 
+
+X
+
+> m′∈M n,p
+
+E
+
+
+
+[ sup   
+
+> f∈SeΓnm∨m′
+
+(νn(f )) 2 − p(m, m ′)] +
+
+
+
+≤ C(l, δ )
+
+n σ2.
+
+24 (The proof of this result is based on the Corollary 5.1 of Baraud [1]). To conclude this proof we need to control the term E(∥β∥2
+
+> eΓn
+
+1Gc ). Applying Cauchy–Schwarz inequality for the scalar product 
+
+⟨Z1, Z 2⟩ = E(Z1Z2) we have that, 
+
+E(∥β∥2
+
+> eΓn
+
+1Gc ) ≤
+
+h
+
+E(∥β∥4
+
+> eΓn
+
+)P(Gc)
+
+i1/2
+
+.
+
+Using the Lemma B.3 in the appendix leads to, 
+
+P(Gc) ≤ DNn,p exp 
+
+
+
+− n
+
+4 ln n(K21 + 1) 2
+
+
+
+.
+
+This quantity is negligible for a sufficiently large n as we chose DNn,p < n/ ln 2 n. Now, by definition of the norm ∥ · ∥ eΓn we have, 
+
+E
+
+
+
+∥β∥4
+
+> eΓn
+
+
+
+= E
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨β, eXi⟩2
+
+> L2
+
+!2
+
+= E 1
+
+n2
+
+> n
+
+X
+
+> i=1
+
+⟨β, eXi⟩4
+
+> L2
+
+!
+
++ E
+
+ 2
+
+n2
+
+X
+
+> 1≤i<i ′≤n
+
+⟨β, eXi⟩2 
+
+> L2
+
+⟨β, eXi′ ⟩2
+
+> L2
+
+
+
+= 1
+
+n E
+
+
+
+⟨β, eX1⟩4
+
+> L2
+
+
+
++ n − 1
+
+n ∥β∥4
+
+> eΓ
+
+.
+
+Using the fact that √x + y ≤ √x + √y for all x, y ≥ 0 and that n is a positive integer we obtain 
+
+E
+
+
+
+∥β∥4
+
+> eΓn
+
+1/2
+
+≤
+
+ 1
+
+n E
+
+
+
+⟨β, eX1⟩4
+
+> L2
+
+
+
++ n − 1
+
+n ∥β∥4
+
+> eΓ
+
+1/2
+
+≤ 1
+
+√n E
+
+
+
+⟨β, eX1⟩4
+
+> L2
+
+1/2
+
++ ∥β∥2
+
+> eΓ
+
+≤ eCβ .
+
+where 
+
+eCβ = E
+
+
+
+⟨β, eX1⟩4
+
+> L2
+
+1/2
+
++ ∥β∥2 
+
+> eΓ
+
++ 1 . (45) Hence since DNn,p < n  
+
+> ln 2n
+
+we have for n large enough 
+
+h
+
+E(∥β∥4
+
+> eΓn
+
+)P(Gc)
+
+i1/2
+
+≤ eCβ
+
+n1/2
+
+ln n exp 
+
+
+
+− n
+
+8 ln n(K21 + 1) 2
+
+
+
+≤ eCβ
+
+n .
+
+Lemma B.9 allows us to conclude the proof of this proposition. 
+
+Lemma B.1. Let us define for all l, j ∈ N\{ 0}⟨ϕl, ϕ j ⟩p := 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+ϕl(th)ϕj (th),
+
+where we recall that th = hp and h = 0 , . . . , p − 1. We have 
+
+⟨ϕl, ϕ j ⟩p =
+
+
+
+1 if l = j = 1 ,
+
+1{l≡j[2 p]} + 1{l≡− j[2 p]} if l and j are even ,
+
+1{l≡j[2 p]} − 1{l≡− j+2[2 p]} if l and j are odd and strictly larger than 1 ,√21{l≡0[2 p]} if j = 1 and l is even ,√21{j≡0[2 p]} if l = 1 and j is even ,
+
+0 otherwise .
+
+Moreover, if l and j are strictly lower than p then ⟨ϕl, ϕ j ⟩p = δlj .
+
+25 Proof. We distinguish four cases. 
+
+Case 1: j and l are even, meaning that there exist two positive integers a and b such that 
+
+j = 2 a and l = 2 b.Using the fact that for all x ∈ R, cos( x) = ( eix + e−ix )/2, we have that 
+
+> p−1
+
+X
+
+> h=0
+
+cos 
+
+ 2πah p
+
+
+
+cos 
+
+ 2πbh p
+
+
+
+= 14
+
+> p−1
+
+X
+
+> h=0
+
+
+
+e i2π(a−b)hp + e− i2π(a−b)hp + e i2π(a+b)hp + e− i2π(a+b)hp
+
+
+
+.
+
+Now, let us define S(r) := Pp−1 
+
+> h=0
+
+ei 2πrh p for all integer r. If r ≡ 0[ p] then S(r) = Pp−1 
+
+> h=0
+
+1 = p.Otherwise, 
+
+S(r) = 1 − ei2πr 
+
+1 − e i2πr p
+
+= 0 .
+
+Moreover S(−r) = S(r) = S(r) as for all integer r, S(r) is a real number. Hence, 
+
+> p−1
+
+X
+
+> h=0
+
+cos 
+
+ 2πah p
+
+
+
+cos 
+
+ 2πbh p
+
+
+
+= p
+
+2
+
+h
+
+1{b≡a[p]} + 1{b≡− a[p]}
+
+i
+
+,
+
+and 
+
+⟨ϕl, ϕ j ⟩p = 1{l≡j[2 p]} + 1{l≡− j[2 p]}.
+
+Case 2: j and l are odd and strictly bigger than 1, meaning that there exist two positive integer a and b such that j = 2 a + 1 and l = 2 b + 1 . Using the fact that for all x ∈ R, sin( x) = (eix − e−ix )/(2 i) we have that 
+
+> p−1
+
+X
+
+> h=0
+
+sin 
+
+ 2πah p
+
+
+
+sin 
+
+ 2πbh p
+
+
+
+= − 14
+
+> p−1
+
+X
+
+> h=0
+
+[−e i2π(a−b)hp − e− i2π(a−b)hp + e i2π(a+b)hp + e− i2π(a+b)hp ].
+
+Therefore, p−1X
+
+> h=0
+
+sin 
+
+ 2πah p
+
+
+
+sin 
+
+ 2πbh p
+
+
+
+= p
+
+2
+
+ 1{b≡a[p]} − 1{b≡− a[p]}
+
+,
+
+and 
+
+⟨ϕl, ϕ j ⟩p = 1{l≡j[2 p]} − 1{l≡− j+2[2 p]}.
+
+Case 3: j is equal to 1. If l is also equal to 1 then ⟨ϕl, ϕ j ⟩p = 1 . If l is odd and strictly larger than 1, then there exists a positive integer b such that l = 2 b + 1 and 
+
+⟨ϕl, ϕ j ⟩p =
+
+√2
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+sin 
+
+ 2πbh p
+
+
+
+= 0 .
+
+If l is even then there exists a positive integer b such that l = 2 b and 
+
+⟨ϕl, ϕ j ⟩p =
+
+√2
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+cos 
+
+ 2πbh p
+
+
+
+=
+
+√2
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+1 = √2
+
+provided that b ≡ 0[ p], and ⟨ϕl, ϕ j ⟩p = 0 otherwise. Consequently, we have 
+
+⟨ϕl, ϕ j ⟩p = √2
+
+whenever l ≡ 0[2 p] and j = 1 . By symmetry, the case l = 1 is treated analogously. 
+
+Case 4: j is odd and strictly larger than 1, and l is even. In this situation there exist two positive integers a and b such that j = 2 a + 1 and l = 2 b. Then, 
+
+> p−1
+
+X
+
+> h=0
+
+sin 
+
+ 2πah p
+
+
+
+cos 
+
+ 2πbh p
+
+
+
+= 12
+
+> p−1
+
+X
+
+> h=0
+
+h
+
+sin 
+
+ 2π(a + b)hp
+
+
+
++ sin 
+
+ 2π(a − b)hp
+
+i 
+
+.
+
+26 For any integer r, Pp−1 
+
+> h=0
+
+sin((2 πrh )/p ) = 0 , hence 
+
+> p−1
+
+X
+
+> h=0
+
+sin 
+
+ 2πah p
+
+
+
+cos 
+
+ 2πbh p
+
+
+
+= 0 ,
+
+and ⟨ϕl, ϕ j ⟩p = 0 . By symmetry of the roles of l and j we have the same result if l is odd and strictly bigger than 1, and j is even. 
+
+Lemma B.2. Let us assume that DNn,p < p , then we have for all j, k ∈ { 1, . . . , D Nn,p }
+
+E(exi,j exi,k ) = δjk eλj ,
+
+where 
+
+eλj = λj + λj + τ 2
+
+p , (46) 
+
+and 
+
+λj = 1{j even }
+
+X
+
+> q≥1
+
+ λj+2 qp + λ2qp −j
+
+
+
++ 1{j odd , j> 1}
+
+X
+
+> q≥1
+
+ λj+2 qp + λ2qp −j+2 
+
+
+
++ 2 1{j=1 }
+
+X
+
+> q≥1
+
+λ2qp .
+
+Proof. For all i ∈ { 1, . . . , n } and j ∈ { 1, . . . , D Nn,p }, let exi,j = xi,j + ηi,j where 
+
+xi,j = 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+Xi(th)ϕj (th) and ηi,j = 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+ηi,h ϕj (th). (47) Then, as the ηi,h ’s are supposed to be i.i.d, independent of everything else, centered and of variance 
+
+τ 2 we have for all j, k ∈ { 1, . . . , D Nn,p },
+
+E(exi,j exi,k ) = E(xi,j xi,k ) + E(ηi,j ηi,k ).
+
+Moreover E(ηi,j ηi,k ) = τ 2 
+
+> p
+
+⟨ϕj , ϕ k⟩p as the ηi,h ’s are supposed to be i.i.d, centered and of variance 
+
+τ 2. As j, k ≤ DNn,p < p the previous lemma leads to 
+
+E(ηi,j ηi,k ) = τ 2
+
+p δjk .
+
+We can then write xi,j as 
+
+xi,j = xi,j + ei,j where xi,j = ⟨Xi, ϕ j ⟩L2 (48) Therefore E(xi,j xi,k ) = E(xi,j xi,k ) + E(xi,j ei,k ) + E(xi,k ei,j ) + E(ei,k ei,j ).The first term can be rewritten as E(xi,j xi,k ) = λj δjk where the λj ’s are the eigenvalues of Γ.Indeed, for any j, k ≥ 1 and for any i ∈ { 1, . . . , n } we have, using the fact that the Xi’s are periodic and second order stationary, 
+
+E(xi,j xi,k ) = E (⟨Xi, ϕ j ⟩L2 ⟨Xi, ϕ k⟩L2 )= ⟨E (⟨ϕj , X i⟩L2 Xi) , ϕ k⟩L2
+
+= ⟨Γϕj , ϕ k⟩L2
+
+= ⟨λj ϕj , ϕ k⟩L2
+
+= λj δjk .
+
+(49) 27 Moreover for all i ∈ { 1, . . . , n } and t ∈ [0 , 1] , Xi(t) = P 
+
+> l≥1
+
+xi,l ϕl(t), therefore Xi(th) = P 
+
+> l≥1
+
+xi,l ϕl(th)
+
+and using Fubini we get, 
+
+E xi,j ei,k 
+
+ = E xi,j 
+
+ 1
+
+> pp−1
+
+X
+
+> h=0
+
+Xi(th)ϕk(th) − xi,k 
+
+!
+
+= E
+
+xi,j 
+
+X
+
+> l≥1
+
+xi,l 
+
+ 1
+
+> pp−1
+
+X
+
+> h=0
+
+ϕl(th)ϕk(th) − δlk 
+
+
+
+= X
+
+> l≥1
+
+E xi,j xi,l 
+
+ 1
+
+> pp−1
+
+X
+
+> h=0
+
+ϕl(th)ϕk(th) − δlk 
+
+
+
+= λj
+
+
+
+⟨ϕj , ϕ k⟩p − δjk 
+
+
+
+= 0 ,
+
+as j, k ≤ DNn,p < p . Similarly, we obtain E(xi,k ei,j ) = 0 . To compute E(ei,j ei,k ), we first express 
+
+ei,j for any j ∈ { 1, . . . , D Nn } as 
+
+ei,j = X
+
+> l≥1
+
+xi,l 
+
+ ⟨ϕl, ϕ j ⟩p − δlj 
+
+.
+
+Using Lemma B.1, we have If j = 1 ,
+
+⟨ϕl, ϕ 1⟩p =
+
+
+
+√2 if l ∈ (2 pq )q≥1,
+
+1 if l = j, 
+
+0 otherwise. If j > 1 and j is even, 
+
+⟨ϕl, ϕ j ⟩p =
+
+ 1 if l ∈ (j + 2 qp )q≥0 or l ∈ (−j + 2 qp )q≥1,
+
+0 otherwise. If j > 1 and j is odd, 
+
+⟨ϕl, ϕ j ⟩p =
+
+
+
+1 if l ∈ (j + 2 qp )q≥0,
+
+−1 if l ∈ (−j + 2 + 2 qp )q≥0,
+
+0 otherwise. Therefore, 
+
+ei,j =
+
+
+
+√2 P 
+
+> q≥1
+
+xi, 2qp if j = 1 ,
+
+P
+
+> q≥1
+
+[xi, 2s+2 qp + xi, −2s+2 qp ] if j = 2 s with s ∈ { 1, . . . , ⌊ DNn,p  
+
+> 2
+
+⌋} ,
+
+P
+
+> q≥1
+
+[xi, 2s+1+2 qp − xi, 2qp +2 −(2 s+1) ] if j = 2 s + 1 with s ∈ { 1, . . . , ⌊ DNn,p  
+
+> 2
+
+⌋} .
+
+(50) Given Equation (49)), we notice that, when expanding E(ei,j ei,k ) into sums of terms of the form 
+
+E(xi,t xi,s ) every term vanishes unless the indices coincide. In other words, E(ei,j ei,k ) = 0 as soon as the index sets used in ei,j and ei,k are disjoint. Let us first describe the sets of indices involved: • For j = 1 :
+
+T1 = {2qp : q ≥ 1}, all even multiples of p.• For j = 2 s with 1 ≤ s ≤ ⌊ (p − 1) /2⌋:
+
+T2s = {2s + 2 qp, −2s + 2 qp : q ≥ 1}, all even. • For j = 2 s + 1 with 1 ≤ s ≤ ⌊ (p − 1) /2⌋:
+
+T2s+1 = {2s + 1 + 2 qp, 2qp + 1 − 2s : q ≥ 1}, all odd. 28 Trivial cases . From this, two trivial vanishing cases appear: when j and k don’t have the same parity and when j = 1 and k > 1 (or k = 1 and j > 1). As the role of j and k are symmetric, we can assume that j is odd and k is even. Then Tj contains only odd indices while Tk contains only even ones. Hence Tj ∩ Tk = ∅ and 
+
+E(ei,j ei,k ) = 0 .
+
+For the second case, let us consider j = 1 versus k > 1. If k is odd, this falls into the previous parity case. If k = 2 s is even, we must check T1 ∩ T2s = ∅. Let us suppose that there exist q, q ′ ≥ 1
+
+such that 
+
+2qp = 2 s + 2 q′p or 2qp = −2s + 2 q′p. 
+
+This would imply 2s ≡ 0[2 p], or s ≡ 0[ p]. But since 1 ≤ s ≤ ⌊ DNn,p  
+
+> 2
+
+⌋ ≤ ⌊ (p − 1) /2⌋, this is impossible. Therefore T1 ∩ T2m = ∅ and 
+
+E(ei, 1ei, 2s) = 0 .
+
+To conclude, j and k have different parity, or if one of them is 1 and the other is strictly larger than 1, then E(ei,j ei,k ) = 0 .
+
+j and k are even . Then there exist a, b ∈ { 1, . . . , ⌊ DNn,p  
+
+> 2
+
+⌋} with j = 2 a and k = 2 b. Using the notation introduced above, the index sets are 
+
+T2a = {2a + 2 qp, −2a + 2 qp : q ≥ 1}, T2b = {2b + 2 q′p, −2b + 2 q′p : q′ ≥ 1}.
+
+To determine whether E(ei, 2aei, 2b) can be nonzero we must look for coincidences between elements of T2a and T2b. Thus we consider equalities of the form (with q, q ′ ≥ 1): 
+
+2a + 2 qp = 2 b + 2 q′p, (I) 
+
+2a + 2 qp = −2b + 2 q′p, (II) 
+
+− 2a + 2 qp = 2 b + 2 q′p, (III) 
+
+− 2a + 2 qp = −2b + 2 q′p. (IV) • Cases (I) and (IV) : From (I) we get 
+
+2( a − b) = 2 p(q′ − q) ⇐⇒ a − b = p(q′ − q).
+
+Since |a − b| ≤ ⌊ DNn,p  
+
+> 2
+
+⌋ ≤ ⌊ (p − 1) /2⌋ < p , the only multiple of p in that range is 0. Hence 
+
+a − b = 0 , or a = b. If a = b then (I) reduces to 2qp = 2 q′p, or q = q′. The same reasoning applied to (IV) yields the identical conclusion: (IV) can occur only when a = b and q = q′.• Cases (II) and (III) : From (II) we obtain 
+
+2( a + b) = 2 p(q′ − q) ⇐⇒ a + b = p(q′ − q).
+
+But 2 ≤ a + b ≤ 2⌊ DNn,p  
+
+> 2
+
+⌋ ≤ 2⌊(p − 1) /2⌋ ≤ p − 1, therefore 1 ≤ a + b ≤ p − 1 and therefore 
+
+a + b cannot equal a nonzero multiple of p. Thus (II) is impossible. The same argument applied to (III), −2( a + b) = 2 p(q′ − q), shows (III) is impossible as well. Combining the four cases we conclude that if a̸ = b then no equality between elements of T2a
+
+and T2b can occur, therefore T2a ∩ T2b = ∅ and 
+
+E(ei, 2aei, 2b) = 0 (a̸ = b).
+
+If a = b the only coincidences are the trivial ones coming from matching identical indices 
+
+2a + 2 qp with 2a + 2 qp and −2a + 2 qp with −2a + 2 qp . Using Equation (49) we get 
+
+E(e2
+
+> i, 2a
+
+) = X
+
+> q≥1
+
+λ2a+2 qp + X
+
+> q≥1
+
+λ−2a+2 qp .
+
+29 Hence, 
+
+E(ei,j ei,k ) = 
+
+
+
+0, j̸ = k, 
+
+X
+
+> q≥1
+
+λj+2 qp + X
+
+> q≥1
+
+λ−j+2 qp , j = k. j and k are odd and strictly bigger than 1. Then there exist a, b ∈ { 1, . . . , ⌊ DNn,p  
+
+> 2
+
+⌋} 
+
+with j = 2 a + 1 and k = 2 b + 1 . Recalling the notation introduced above, the index sets are 
+
+T2a+1 = {2a + 1 + 2 qp, 2qp + 1 − 2a : q ≥ 1},T2b+1 = {2b + 1 + 2 q′p, 2q′p + 1 − 2b : q′ ≥ 1}.
+
+To determine whether E(ei, 2a+1 ei, 2b+1 ) can be nonzero we must look for coincidences between elements of T2a+1 and T2b+1 . There are four types of equalities to consider (with q, q ′ ≥ 1): 
+
+2a + 1 + 2 qp = 2 b + 1 + 2 q′p, (I) 
+
+2a + 1 + 2 qp = 2 q′p + 1 − 2b, (II) 
+
+2qp + 1 − 2a = 2 b + 1 + 2 q′p, (III) 
+
+2qp + 1 − 2a = 2 q′p + 1 − 2b. (IV) We treat each case separately. • Cases (I) and (IV) : From (I) we get 
+
+2( a − b) = 2 p(q′ − q) ⇐⇒ a − b = p(q′ − q).
+
+Since |a − b| ≤ ⌊ DNn,p  
+
+> 2
+
+⌋ ≤ ⌊ (p − 1) /2⌋ < p , the only multiple of p in that range is 0. Hence 
+
+a − b = 0 , or a = b. If a = b then (I) reduces to 2qp = 2 q′p, hence q = q′. Thus (I) can occur only when a = b and q = q′. The same reasoning applied to (IV) yields the identical conclusion : (IV) can occur only when a = b and q = q′.• Cases (II) and (III) : From (II) we obtain 
+
+2( a + b) = 2 p(q′ − q) ⇐⇒ a + b = p(q′ − q).
+
+But 2 ≤ a + b ≤ 2⌊ DNn,p  
+
+> 2
+
+⌋ ≤ 2⌊(p − 1) /2⌋ ≤ p − 1, thus 1 ≤ a + b ≤ p − 1 and therefore a + b
+
+cannot equal a nonzero multiple of p. Hence (II) is impossible for any a, b, q, q ′. The same reasoning applied to (III) yields the identical conclusion. Combining the four cases we conclude that if a̸ = b then no equality between elements of 
+
+T2a+1 and T2b+1 can occur, therefore T2a+1 ∩ T2b+1 = ∅ and 
+
+E(ei, 2a+1 ei, 2b+1 ) = 0 (a̸ = b)
+
+If a = b the only coincidences are the trivial ones coming from matching identical indices 
+
+2a + 1 + 2 qp with itself and 2qp + 1 − 2a with itself. Using Equation (49) we therefore get the expression 
+
+E(e2
+
+> i, 2a+1
+
+) = X
+
+> q≥1
+
+λ2a+1+2 qp + X
+
+> q≥1
+
+λ2qp +1 −2a
+
+Hence, 
+
+E(ei,j ei,k ) = 
+
+
+
+0, j̸ = k, 
+
+X
+
+> q≥1
+
+λj+2 qp + X
+
+> q≥1
+
+λ2qp +2 −j , j = k. j and k are equal to 1 . Let us recall that ei, 1 = √2 P 
+
+> q≥1
+
+xi, 2qp and the index set is 
+
+T1 = {2qp : q ≥ 1}. To check possible coincidences between indices in the product e2 
+
+> i, 1
+
+we look for solutions q, q ′ ≥ 1 of 
+
+2qp = 2 q′p ⇐⇒ q = q′.
+
+30 Hence we get 
+
+E(e2
+
+> i, 1
+
+) = 2 X
+
+> q≥1
+
+E x2
+
+> i, 2qp
+
+ = 2 X
+
+> q≥1
+
+λ2qp .
+
+Finally get that E(exi,j exi,k ) = δjk 
+
+
+
+λj + λj + τ 2
+
+> p
+
+
+
+= δjk eλj and Var( exi,j ) = eλj .
+
+Lemma B.3. Let us assume that λDNn,p ≥ 2 
+
+> nα
+
+and α > 2a in the definition of sn defined in Equation (14) . We also suppose that DNn,p < min   n  
+
+> ln 2n
+
+, p  and that ( H1 ) and ( H2 ) hold. Then we have 
+
+P(Gc) ≤ DNn,p exp 
+
+
+
+− n
+
+4( K21 + 1) 2 ln n
+
+
+
+.
+
+Proof. The proofs for this lemma and the succeeding one were developed by Brunel and Roche [4], based on their work in Lemma 6. We only adapt them to our setting. First of all, we have 
+
+P(Gc) = P
+
+ [
+
+> m∈M n,p
+
+Gcm
+
+ ≤ X
+
+> m∈M n,p
+
+P(bλ(p) 
+
+> m
+
+< s n),
+
+where bλ(p) 
+
+> m
+
+is the smallest eigenvalue of Φm and sn = 2 
+
+> nα
+
+(1 − 1√ln n ) with α > 2a. The last two quantities are defined in Section 2.2. By Lemma B.4 we have 
+
+P(bλ(p) 
+
+> m
+
+< s n) ≤ P bμ(p) 
+
+> m
+
+< sn
+
+min 1≤j≤Dm
+
+eλj
+
+!
+
+,
+
+where bμ(p) 
+
+> m
+
+is the smallest eigenvalue of the matrix Ψm defined in Lemma B.4. Since for all 
+
+j ∈ { 1, . . . , D Nn,p } we have 
+
+eλj = λj + λj + τ 2
+
+p ≥ λj ,
+
+then using the fact that the eigenvalues decrease we get 
+
+min 
+
+> 1≤j≤DNn,p
+
+eλj ≥ min 
+
+> 1≤j≤DNn,p
+
+λj = λDNn,p .
+
+Using the assumption that λDNn,p ≥ 2 
+
+> nα
+
+and the definition of sn given in (14) we obtain, 
+
+sn
+
+min 1≤j≤Dm
+
+eλj
+
+≤ 1 − 1
+
+√ln n .
+
+We can then apply Lemma B.6 with ω = 1 − 1/√ln n and get 
+
+P(bλ(p) 
+
+> m
+
+< s n) ≤ 2 exp 
+
+
+
+− n
+
+4( K21 + 1) 2 ln n
+
+
+
+.
+
+As Nn,p ≤ DNn,p /2,
+
+X
+
+> m∈M n,p
+
+P(bλ(p) 
+
+> m
+
+< s n) ≤ DNn,p exp 
+
+
+
+− n
+
+4( K21 + 1) 2 ln n
+
+
+
+.
+
+Combining this with the first inequality of this proof gives the desired result. 
+
+Lemma B.4. For m ∈ M n,p , let bλm be the smallest eigenvalue of the matrix Φm defined in Section 2.2, and bμ(p) 
+
+> m
+
+be the smallest eigenvalue of the matrix 
+
+Ψm := 
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+exi,j 
+
+qeλj
+
+exi,k 
+
+qeλk
+
+
+
+> 1≤j,k ≤Dm
+
+. (51) 31 Then, 
+
+bλ(p)
+
+> m
+
+ρ(eΓ) ≤ bμ(p) 
+
+> m
+
+≤ bλ(p)
+
+> m
+
+
+
+min 
+
+> 1≤j≤Dm
+
+eλj
+
+−1
+
+,
+
+where ρ(eΓ) is the spectral radius of the operator eΓ.Proof. Now let us define 
+
+Λm := diag( 
+
+qeλ1, . . . , 
+
+qeλDm ). (52) We have that 
+
+Φm = Λ mΨmΛm.
+
+Recall that bμ(p) 
+
+> m
+
+is the smallest eigenvalue of the matrix Ψm. We notice that bμ(p) 
+
+> m
+
+> 0 directly implies that Ψm is a positive definite matrix which by definition is invertible. As a consequence, 
+
+det (Ψ (p) 
+
+> m
+
+)̸ = 0 . Moreover, Λm is invertible as it is a diagonal matrix with positive coefficient. Therefore det (Λ (p) 
+
+> m
+
+)̸ = 0 . As 
+
+det (Φ m) = det (Λ m) · det (Ψ m) · det (Λ m),
+
+thus we get that det (Φ m)̸ = 0 and that Φm is invertible. Hence, bμ(p) 
+
+> m
+
+> 0 implies that both Φm
+
+and Ψm are invertible and we have 
+
+bμ(p) 
+
+> m
+
+= ρ(Ψ −1 
+
+> m
+
+)−1 and bλ(p) 
+
+> m
+
+= ρ(Φ −1 
+
+> m
+
+)−1,
+
+where ρ is the spectral radius. We recall that for all square matrix A
+
+∥A∥op = sup 
+
+> ∥a∥2=1
+
+∥Aa ∥2.
+
+If A is symmetric, ρ(A) = ∥A∥op and we get, by using the definition of the spectral radius as well as the sub-multiplicative property of matrix norms, 
+
+ρ(Φ −1 
+
+> m
+
+) = ∥Φ−1 
+
+> m
+
+∥op 
+
+= ∥Λ−1 
+
+> m
+
+Ψ−1 
+
+> m
+
+Λ−1 
+
+> m
+
+∥op 
+
+≤ ∥ Λ−1 
+
+> m
+
+∥2
+
+> op
+
+∥Ψ−1 
+
+> m
+
+∥op 
+
+= ρ(Λ −1 
+
+> m
+
+)2ρ(Ψ −1 
+
+> m
+
+).
+
+Hence, 
+
+bμ(p) 
+
+> m
+
+· min 
+
+> 1≤j≤Dm
+
+eλj ≤ bλ(p) 
+
+> m
+
+.
+
+As Ψm = Λ −1 
+
+> m
+
+ΦmΛ−1 
+
+> m
+
+, we have, using the same reasoning that 
+
+bμ(p)−1 
+
+> m
+
+≤ bλ(p)−1 
+
+> m
+
+max 
+
+> 1≤j≤Dm
+
+eλj ≤ ρ(eΓ) bλ(p)−1 
+
+> m
+
+.
+
+The second inequality can be deduced from Lemma B.5. 
+
+Lemma B.5. Let us assume that DNn,p < p . For all k ∈ { 1, . . . , D Nn,p }
+
+eΓϕk = eλkϕk,
+
+where eλk’s defined in (46) are the eigenvalues of eΓ associated to ϕk, and for all integer k > D Nn,p ,
+
+eΓϕk = 0 .
+
+32 Proof. For all s, t ∈ [0 , 1] we have using the definition (21) and Lemma B.2, 
+
+eK(s, t ) = E
+
+ eX(s) eX(t)
+
+
+
+=
+
+> DNn,p
+
+X
+
+> j=1
+> DNn,p
+
+X
+
+> k=1
+
+ϕj (t)ϕk(s)E(exj exk)=
+
+> DNn,p
+
+X
+
+> j=1
+
+eλj ϕj (s)ϕj (t).
+
+Hence, for all integer k ∈ { 1, ..., D Nn,p },
+
+eΓϕk(s) = 
+
+Z 10
+
+eK(s, t )ϕk(t)dt 
+
+=
+
+> DNn,p
+
+X
+
+> j=1
+
+eλj ϕj (s)
+
+Z 10
+
+ϕj (t)ϕk(t)dt 
+
+= eλkϕk(s),
+
+and for all integer k > D Nn,p ,
+
+eΓϕk(s) = 
+
+Z 10
+
+eK(s, t )ϕk(t)dt 
+
+=
+
+> DNn,p
+
+X
+
+> j=1
+
+eλj ϕj (s)
+
+Z 10
+
+ϕj (t)ϕk(t)dt 
+
+= 0 .
+
+Lemma B.6. Let ω be a real number such that 0 < ω < 1. For m ∈ M n,p , consider the smallest eigenvalue bμ(p) 
+
+> m
+
+of the matrix Ψm. Then, under Assumptions (H1 ), (H2 ), we have 
+
+P(bμ(p) 
+
+> m
+
+< ω ) ≤ 2 exp 
+
+
+
+−n (1 − ω)2
+
+4( K21 + 1) 2
+
+
+
+.
+
+Proof. We have 
+
+{bμ(p) 
+
+> m
+
+< ω } = {1 − bμ(p) 
+
+> m
+
+> 1 − ω}.
+
+Since 1 − ω > 0,
+
+{| 1 − bμ(p) 
+
+> m
+
+| > 1 − ω} = {∥ Ψm − I∥op > 1 − ω}.
+
+Thus our goal is now to control P (∥Ψm − I∥op > 1 − ω). Let 
+
+U (m) 
+
+> i
+
+=
+
+ exi, 1
+
+qeλ1
+
+, . . . , exi,D m
+
+qeλDm
+
+
+
+> T
+
+∈ RDm , i ∈ { 1, ..., n }, (53) and 
+
+Am =
+
+
+
+U (m)T 
+
+> 1
+
+, . . . , U (m)Tn
+
+T
+
+∈ Rn×Dm . (54) We can easily check that 
+
+ATmAm =
+
+
+
+> n
+
+X
+
+> i=1
+
+exi,j 
+
+qeλj
+
+exi,k 
+
+qeλk
+
+
+
+> 1≤j,k ≤Dm
+
+,
+
+and thus 
+
+Ψm = 1
+
+n ATmAm.
+
+33 Our aim is to apply Theorem 4.6.1 of Vershynin [16]. In order to do this, we must check that the vectors U (m) 
+
+> i
+
+’s are independent, mean-zero, isotropic and sub-gaussian. As we assumed that for all 
+
+i ∈ { 1, . . . , n } the true curves Xi are independent, that for all i ∈ { 1, . . . , n }, h ∈ { 0, . . . , p − 1} the noises ηi,h are also independent and that for all i ∈ { 1, . . . , n }, h ∈ { 0, . . . , p − 1} Xi and ηi,h are independent we have that the U (m) 
+
+> i
+
+’s are also independent. Moreover, as we made the assumption that the Xi’s and the ηi,h ’s are centered we have that 
+
+E(exi,j ) = E 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+Xi(th)ϕj (th) + 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+ηi,h ϕj (th)
+
+!
+
+= 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+E (Xi(th)) ϕj (th) + 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+E(ηi,h )ϕj (th)= 0 .
+
+Finally we can easily check that 
+
+U (m) 
+
+> i
+
+U (m)Ti =
+
+ exi,j 
+
+qeλj
+
+· exi,k 
+
+qeλk
+
+
+
+> 1≤j,k ≤Dm
+
+,
+
+and Lemma B.2 gives us that E(exi,j exi,k ) = eλj δjk . Therefore, 
+
+E
+
+
+
+U (m) 
+
+> i
+
+U (m)Ti
+
+
+
+= IDm .
+
+Lemma B.7 bellow gives us that the U (m) 
+
+> i
+
+’s are sub-gaussian. Thus all the conditions needed to apply Theorem 4.6.1 of Vershynin [16] are satisfied and we get that 
+
+P
+
+
+
+∥Ψm − I∥op > eK2 max( eδ, eδ2)
+
+
+
+≤ 2 exp  −t2 ,
+
+where eδ = C′
+
+q Dm 
+
+> n
+
++ t√n and eK2 = K21 + 1 . Let us now find which t allows us to have eKeδ ≤ 1 − ω.Replacing eδ by its definition we get that 
+
+eK2eδ ≤ 1 − ω ⇐⇒ C′
+
+r Dm
+
+n + t
+
+√n ≤ 1 − ω
+
+eK2
+
+⇐⇒ t ≤ √n 1 − ω
+
+eK2 − C′
+
+r Dm
+
+n
+
+!
+
+.
+
+We get that for n large enough 1ln n < 1−ω  
+
+> 2C′eK2
+
+, therefore in this setting Dm < n  
+
+> ln 2n
+
+<
+
+ 1−ω 
+
+> 2CeK2
+
+2
+
+n,which means that C′
+
+q Dm 
+
+> n
+
+< 1−ω  
+
+> 2eK2
+
+. Thus we can pick 
+
+t = 12
+
+ 1 − ω
+
+eK2
+
+ √n. 
+
+Then eδ = C′
+
+q Dm 
+
+> n
+
++ t√n ≤
+
+ 1−ω
+
+> eK2
+
+
+
+. As 1 − ω < 1 ≤ eK2 we have that 1−ω 
+
+> eK2
+
+< 1 and max( eδ, eδ2) = eδ.Therefore, 
+
+P (∥Ψm − I∥op > 1 − ω) ≤ 2 exp 
+
+
+
+− (1 − ω)2n
+
+4 eK4
+
+
+
+.
+
+Lemma B.7. Under hypotheses (H1) and (H2) we have for all i ∈ { 1, ..., n } that U (m) 
+
+> i
+
+defined in (53) is sub-Gaussian with variance factor K21 + 1 .
+
+34 Proof. Let v ∈ RDm such that ∥v∥2 = 1 . By definition of the U (m) 
+
+> i
+
+given in (53) we have that for all t ∈ RE
+
+
+
+et⟨v,U (m) 
+
+> i⟩2
+
+
+
+= E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+vj U (m)
+
+> i,j
+
+
+
+= E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+vj
+
+exi,j 
+
+qeλj
+
+ .
+
+As defined in equation (47) we have that for all j ∈ { 1, . . . , D Nn,p } exi,j = xi,j + ηi,j . Let us focus on E
+
+
+
+exp 
+
+
+
+t PDm 
+
+> j=1
+
+ηi,j vj
+
+> eλj
+
+ 
+
+. As we assumed that the ηi,h ’s are independent, we have that for all 
+
+t ∈ RE
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+ηi,j 
+
+vj
+
+eλj
+
+ = E
+
+exp 
+
+ tp
+
+> p−1
+
+X
+
+> h=0
+
+ηi,h DmX
+
+> j=1
+
+vj ϕj (th)
+
+eλj
+
+
+
+=
+
+> p−1
+
+Y
+
+> h=0
+
+E
+
+exp 
+
+ tp ηi,h DmX
+
+> j=1
+
+vj ϕj (th)
+
+qeλj
+
+ ,
+
+and as we assumed ( H2 ) we have that for all t′ ∈ R, i ∈ { 1, . . . , n } and h ∈ { 0, . . . , p − 1}
+
+E (exp ( t′ηi,h )) ≤ exp 
+
+ τ 2t′2
+
+2
+
+
+
+.
+
+Hence, 
+
+E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+ηi,j 
+
+vj
+
+eλj
+
+ ≤
+
+> p−1
+
+Y
+
+> h=0
+
+exp 
+
+ τ 2t2
+
+2p2
+
+
+
+> Dm
+
+X
+
+> j=1
+
+vj ϕj (th)
+
+qeλj
+
+
+
+> 2
+
+
+
+= exp 
+
+ τ 2t2
+
+2p2
+
+> p−1
+
+X
+
+> h=0
+
+
+
+> Dm
+
+X
+
+> j=1
+
+vj ϕj (th)
+
+qeλj
+
+
+
+> 2
+
+.
+
+Using Lemma B.1 we get that 
+
+1
+
+p2
+
+> p−1
+
+X
+
+> h=0
+
+
+
+> Dm
+
+X
+
+> j=1
+
+vj ϕj (th)
+
+qeλj
+
+
+
+> 2
+
+= 1
+
+p2
+
+> p−1
+
+X
+
+> h=0
+> Dm
+
+X
+
+> j,k =1
+
+vj
+
+qeλj
+
+vk
+
+qeλk
+
+ϕj (th)ϕk(th)= 1
+
+p
+
+> Dm
+
+X
+
+> j,k =1
+
+vj
+
+qeλj
+
+vk
+
+qeλk
+
+⟨ϕj , ϕ k⟩p
+
+= 1
+
+p
+
+> Dm
+
+X
+
+> j=1
+
+v2
+
+> j
+
+eλj
+
+.
+
+Hence, 
+
+E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+ηi,j 
+
+vj
+
+eλj
+
+ ≤ exp 
+
+ τ 2t2
+
+2p
+
+> Dm
+
+X
+
+> j=1
+
+v2
+
+> j
+
+eλj
+
+.
+
+As τ 2 
+
+> p
+
+≤ eλj for all j ∈ { 1, ..., D Nn,p } we have that τ 2
+
+> peλj
+
+≤ 1, therefore 
+
+E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+ηi,j 
+
+vj
+
+eλj
+
+ ≤ exp 
+
+ t2
+
+2 ∥v∥22
+
+
+
+= exp 
+
+ t2
+
+2
+
+
+
+.
+
+35 Now let us focus on E
+
+
+
+exp 
+
+
+
+t PDm 
+
+> j=1
+
+xi,j vj
+
+√eλj
+
+ 
+
+. Using the definition of xi,j given in (47) and the fact that for all i ∈ { 1, ..., n } and for all s ∈ [0 , 1] Xi(s) = P 
+
+> j≥1
+
+xi,j ϕj (s) we have, 
+
+> Dm
+
+X
+
+> j=1
+
+xi,j 
+
+vj
+
+qeλj
+
+=
+
+> Dm
+
+X
+
+> j=1
+
+vj
+
+qeλj
+
+ 1
+
+p
+
+> p−1
+
+X
+
+> h=0
+
+X
+
+> l≥1
+
+xi,l ϕl(th)
+
+ ϕj (th)
+
+
+
+= X
+
+> l≥1
+
+xi,l DmX
+
+> j=1
+
+vj
+
+qeλj
+
+⟨ϕj , ϕ l⟩p.
+
+(55) Let us consider cl := PDm
+
+> j=1
+> vj
+
+√eλj
+
+⟨ϕj , ϕ l⟩p. As we assumed that ( H1 ) holds, we get that 
+
+E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+xi,j 
+
+vj
+
+qeλj
+
+ = E
+
+exp 
+
+t X
+
+> l≥1
+
+xi,l cl
+
+
+
+≤ exp 
+
+ t2K21
+
+2
+
+X
+
+> l≥1
+
+λlc2
+
+> l
+
+.
+
+Using Fubini’s theorem we get that 
+
+E
+
+X
+
+> l≥1
+
+xi,l cl
+
+
+
+> 2
+
+ = X
+
+> l,r ≥1
+
+E(xi,l xi,r )clcr
+
+= X
+
+> l≥1
+
+λlc2 
+
+> l
+
+,
+
+where we used the fact that E(xi,l xi,r ) = λlδlr for all l, r ≥ 1 (see Equation (49)) to get from the last equality. On an other hand, the same computations as in (55) give that 
+
+> Dm
+
+X
+
+> j=1
+
+vj
+
+qeλj
+
+xi,j = X
+
+> l≥1
+
+xi,l dl.
+
+Therefore, 
+
+X
+
+> l≥1
+
+λlc2 
+
+> l
+
+= E
+
+X
+
+> l≥1
+
+xi,l cl
+
+
+
+> 2
+
+
+
+= E
+
+
+
+> Dm
+
+X
+
+> j=1
+
+vj
+
+qeλj
+
+xi,j 
+
+
+
+> 2
+
+
+
+=
+
+> Dm
+
+X
+
+> j,k =1
+
+vj
+
+qeλj
+
+vk
+
+qeλk
+
+E(xi,j xi,k ).
+
+As for all i ∈ { 1, . . . , n } and j ∈ { 1, . . . , D Nn,p }, xi,j = exi,j − ηi,j , that the ηi,h ’s are independent of everything else and centered, we get 
+
+E(xi,j xi,k ) = E(exi,j exi,k ) − E(ηi,j ηi,k ) = δjk 
+
+eλj − τ 2
+
+p
+
+
+
+.
+
+36 The last inequality can be deduced from the reasoning in the proof of Lemma B.2. We then have 
+
+X
+
+> l≥1
+
+λlc2 
+
+> l
+
+=
+
+> Dm
+
+X
+
+> j=1
+
+v2
+
+> j
+
+eλj
+
+eλj − τ 2
+
+p
+
+
+
+≤
+
+> Dm
+
+X
+
+> j=1
+
+v2
+
+> j
+
+= ∥v∥22
+
+= 1 .
+
+Therefore, 
+
+E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+xi,j 
+
+vj
+
+qeλj
+
+ ≤ exp 
+
+ t2K21
+
+2
+
+
+
+.
+
+Using the fact that the ηi,h ’s are independent of the Xi’s, we get that for all i ∈ { 1, . . . , n }
+
+E
+
+
+
+exp 
+
+
+
+t⟨v, U (m) 
+
+> i
+
+⟩2
+
+ 
+
+= E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+xi,j 
+
+vj
+
+qeλj
+
+ E
+
+exp 
+
+t
+
+> Dm
+
+X
+
+> j=1
+
+ηi,j 
+
+vj
+
+qeλj
+
+
+
+≤ exp 
+
+ t2(K21 + 1) 2
+
+
+
+.
+
+Therefore, for all i ∈ { 1, . . . , n } U (m) 
+
+> i
+
+is sub-gaussian with variance factor K21 + 1 .
+
+Lemma B.8. Let us assume that ( H3 ) holds. Recall that for all j ∈ { 1, . . . , D Nn,p },
+
+λj =
+
+
+
+2 X
+
+> q≥1
+
+λ2qp , if j = 1 ,
+
+X
+
+> q≥1
+
+ λj+2 qp + λ2qp −j+2 
+
+, if j > 1 is odd ,
+
+X
+
+> q≥1
+
+ λj+2 qp + λ2qp −j
+
+, if j is even .
+
+Then there exist a positive constant C(a, c ′) such that for every p ≥ 2 and every j ∈ { 1, . . . , p − 1},
+
+λj ≤ C(a, c ′)p−2a.
+
+Proof. We first note the following inequalities valid for every q ≥ 1 and 1 ≤ j < p :
+
+2qp ≤ 2qp + j ≤ (2 q + 1) p, 
+
+(2 q − 1) p ≤ 2qp − j ≤ 2qp, 
+
+(2 q − 1) p + 2 ≤ 2qp − j + 2 ≤ (2 q + 1) p. 
+
+Since (λk) is non-increasing, if u ≤ v then λu ≥ λv . We repeatedly use this together with ( H3 )
+
+Case 1. j even. We have 
+
+λj = X
+
+> q≥1
+
+ λ2qp +j + λ2qp −j
+
+.
+
+Since 2qp + j ≥ 2qp and 2qp − j ≥ (2 q − 1) p,
+
+λ2qp +j ≤ c′(2 qp )−2a, λ2qp −j ≤ c′((2 q − 1) p)−2a.
+
+Hence 
+
+λj ≤ c′p−2a X
+
+> q≥1
+
+ (2 q)−2a + (2 q − 1) −2a = c′ζ(2 a)p−2a,
+
+37 where ζ denotes the Riemann function. Thus 
+
+λj ≤ C(a, c ′)p−2a.
+
+Case 2. j odd and j > 1. We have 
+
+λj = X
+
+> q≥1
+
+ λ2qp +j + λ2qp −j+2 
+
+.
+
+Since 2qp + j ≥ 2qp and 2qp − j + 2 ≥ (2 q − 1) p,
+
+λj ≤ c′ζ(2 a) p−2a.
+
+we conclude that λj ≤ C(a, c ′)p−2a.
+
+Case 3. j = 1 . We have 
+
+λ1 = 2 X
+
+> q≥1
+
+λ2qp .
+
+Using assumption ( H3 ) we get, 
+
+λ1 ≤ 2c′ X
+
+> q≥1
+
+(2 qp )−2a.
+
+But X
+
+> q≥1
+
+(2 qp )−2a = p−2a2−2aζ(2 a),
+
+therefore 
+
+λ1 ≤ C(a, c ′)p−2a.
+
+Combining the three cases yields the result. 
+
+Lemma B.9. Suppose that DNn,p < p , E⟨β, X 1⟩4
+
+> L2
+
+ < ∞ and that ( H3 ) holds. Then, 
+
+eCβ
+
+n ≤ C(a, c ′, τ )Cβ
+
+ 1
+
+n + 1
+
+np 
+
+
+
++2∥β∥2
+
+> L2
+
+
+
+E∥ eX1 − X1∥4
+
+> L2
+
+1/2
+
+n , (56) 
+
+where eCβ is defined in (45) and Cβ in (31). Proof. First we can rewrite ⟨β, eX1⟩L2 as 
+
+⟨β, eX1⟩L2 = ⟨β, X 1⟩L2 + ⟨β, eX1 − X1⟩L2 .
+
+By Minkowski’s inequality in L4 we have, 
+
+
+
+E⟨β, eX1⟩4
+
+> L2
+
+1/2
+
+≤
+
+ E⟨β, X 1⟩4
+
+> L2
+
+1/4 +  E|⟨ β, eX1 − X1⟩L2 |41/42
+
+.
+
+Cauchy–Schwarz inequality gives, 
+
+|⟨ β, eX1 − X1⟩L2 | ≤ ∥ β∥L2 ∥ eX1 − X1∥L2 ,
+
+Therefore,  E|⟨ β, eX1 − X1⟩L2 |41/4 ≤ ∥ β∥L2
+
+ E∥ eX1 − X1∥4
+
+> L2
+
+1/4.
+
+Hence, 
+
+E⟨β, eX1⟩4
+
+> L2
+
+1/2
+
+≤
+
+ E⟨β, X 1⟩4
+
+> L2
+
+1/4 + ∥β∥L2
+
+ E∥ eX1 − X1∥4
+
+> L2
+
+1/42
+
+.
+
+Using now (u + v)2 ≤ 2u2 + 2 v2, u, v ∈ R, we obtain the simpler bound 
+
+
+
+E⟨β, eX1⟩4
+
+> L2
+
+1/2
+
+≤ 2
+
+
+
+E⟨β, X 1⟩4
+
+> L2
+
+1/2
+
++ 2 ∥β∥2
+
+> L2
+
+
+
+E∥ eX1 − X1∥4
+
+> L2
+
+1/2
+
+.
+
+38 Using the definition of ∥.∥eΓ given in (27), Lemma B.5 and Lemma B.8 we get 
+
+∥β∥2 
+
+> eΓ
+
+= ⟨eΓβ, β ⟩L2 = ⟨X
+
+> j≥1
+
+βj eΓϕj , X
+
+> k≥1
+
+βkϕk⟩L2 = X
+
+> j,k ≥1
+
+βj βk⟨eΓϕj , ϕ k⟩L2 =
+
+> DNn,p
+
+X
+
+> j=1
+
+eλj β2 
+
+> j
+
+(57) 
+
+≤ max 
+
+> 1≤j≤DNn,p
+
+eλj ∥β∥2 
+
+> L2
+
+≤ ∥ β∥2
+
+> L2
+
+ τ 2
+
+p + C1
+
+p2a + c′
+
+
+
+≤ C(a, c ′, τ )∥β∥2
+
+> L2
+
+ 1
+
+p + 1 
+
+
+
+.
+
+Hence, 
+
+eCβ
+
+n ≤
+
+2
+
+
+
+E⟨β, X 1⟩4
+
+> L2
+
+1/2
+
+n +2∥β∥2
+
+> L2
+
+
+
+E∥ eX1 − X1∥4
+
+> L2
+
+1/2
+
+n + C(a, c ′, τ )∥β∥2
+
+> L2
+
+n
+
+ 1
+
+p + 1 
+
+
+
++ 1
+
+n .
+
+Therefore we have that 
+
+eCβ
+
+n ≤ C(a, c ′, τ )Cβ
+
+ 1
+
+n + 1
+
+np 
+
+
+
++2∥β∥2
+
+> L2
+
+
+
+E∥ eX1 − X1∥4
+
+> L2
+
+1/2
+
+n .
+
+B.2 Proof of Theorem 3.1 
+
+Proof. We have that 
+
+E(∥ eβ − β∥2
+
+> eΓ
+
+) = E(∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n) ) + E(∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c ), (58) where Ω(n) is such that 
+
+Ω(n) := \
+
+> m∈M n
+
+Ωm, (59) with 
+
+Ωm := 
+
+ sup   
+
+> f∈Sm
+> f̸=0
+
+∥f ∥2
+
+> eΓn
+
+∥f ∥2
+
+> eΓ
+
+− 1 ≤ eω
+
+ , (60) where 0 < eω < 1. The second term of the sum in Equation (58) is controlled by Lemma B.10. Let us focus now on the first term of the sum. Let β(m) be the projection of β onto Sm with respect to the semi-norm ⟨· , ·⟩ Γ, for all m ∈ M n,p . Then, 
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n) = ∥ eβ − β(m) + β(m) − β∥2
+
+> eΓ
+
+1Ω(n)
+
+≤ 2∥ eβ − β(m)∥2
+
+> eΓ
+
+1Ω(n) + 2 ∥β(m) − β∥2
+
+> eΓ
+
+1Ω(n)
+
+≤ 21 − eω ∥ eβ − β(m)∥2
+
+> eΓn
+
++ 2 ∥β(m) − β∥2
+
+> eΓ
+
+≤ 41 − eω ∥ eβ − β∥2
+
+> eΓn
+
++ 41 − eω ∥β − β(m)∥2
+
+> eΓn
+
++ 2 ∥β(m) − β∥2
+
+> eΓ
+
+,
+
+where we used the definition of Ω(n) to go from the second to third line. Taking the expectation, using the results of Proposition 3.1 we get that 
+
+E(∥ eβ − β∥2
+
+> eΓ
+
+) ≤ C1
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+E(∥β(m) − β∥2
+
+> eΓ
+
+) + pen (m)
+
+
+
++ ∥β∥2 
+
+> L2
+
+E(∥ eX1 − X1∥2 
+
+> L2
+
+)+ ∥β∥2
+
+> L2
+
+n
+
+
+
+E∥ eX1 − X1∥4
+
+> L2
+
+1/2
+
++ Cβ
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+,
+
+where Cβ = E(⟨β, X 1⟩4)1/2 + ∥β∥2 
+
+> L2
+
++ 1 and C1 > 0 depends on θ, K, l, τ l, δ, σ 2.39 Lemma B.10. Under the assumptions that DNn,p < min   n  
+
+> ln 2n
+
+, p  and that ( H1 ), ( H2 ) and ( H3 )hold, there exist a constant C′ 
+
+> 0
+
+depending on ρ, K, σ, a and c′ such that 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ωcn
+
+
+
+≤ C′
+
+> 0
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+E(⟨β, X 1⟩4)1/2 + ∥β∥2 
+
+> L2
+
++ 1 
+
+
+
+.
+
+Proof. The proof of this Lemma was developped by Brunel and Roche [4] in their Lemma 5. Here we just adapt it to our setting. Using the triangular inequality and the definition of eβ we have, 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ 2E
+
+
+
+(∥ eβ∥2 
+
+> eΓ
+
++ ∥β∥2
+
+> eΓ
+
+)1Ω(n)c
+
+
+
+= 2 E
+
+
+
+∥ bβ bm∥2
+
+> eΓ
+
+1Ω(n)c∩G
+
+
+
++ 2 ∥β∥2
+
+> eΓ
+
+P(Ω (n)c).
+
+(61) Lemma B.4 and the definition of G allow us to derive the following inclusions : 
+
+G ⊂ { bλ(p) 
+
+> Nn,p
+
+> s n} ⊂ 
+
+(bμNn,p > sn
+
+ρ(eΓ) 
+
+)
+
+, (62) where ρ denotes the spectral radius of the operator. By using the same reasoning as detailed in the proof of Lemma B.11 bellow, we have 
+
+inf  
+
+> f∈SNn,p
+
+∥f ∥2
+
+> eΓn
+
+∥f ∥2
+
+> eΓ
+
+= inf  
+
+> b̸=0 ,∥b∥=1
+
+bT ΨNn,p b. (63) If we assume that bμNn,p > 0, ΨNn,p is a symmetric matrix which is positive and there exists an orthogonal matrix U such that U T ΨNn,p U is a diagonal matrix whose diagonal entries are the eigenvalues of ΨNn,p . Therefore, 
+
+bμNn,p = inf  
+
+> b̸=0 ,∥b∥=1
+
+bT U T ΨNn,p U b = inf  
+
+> c̸=0 ,∥c∥=1
+
+cT ΨNn,p c. (64) Combining the results from Equations (62), (63) and (64), we have for all f ∈ SNn,p and f̸ = 0 ,
+
+∥f ∥2 
+
+> eΓ
+
+< ρ(eΓ) ∥f ∥2
+
+> eΓn
+
+sn
+
+.
+
+Taking f = bβ bm we get 
+
+E
+
+
+
+∥ bβ bm∥2
+
+> eΓ
+
+1Ω(n)c∩G
+
+
+
+≤ ρ(eΓ) 
+
+sn
+
+E
+
+
+
+∥ bβ bm∥2
+
+> eΓn
+
+1Ω(n)c∩G
+
+
+
+. (65) As bβ bm is a mean-square-type estimator, the vector 
+
+
+
+⟨ bβ bm, eX1⟩L2 , . . . , ⟨ bβ bm, eXn⟩L2
+
+T
+
+can be seen as the orthogonal projection with respect to the euclidean scalar product on Rn of the vector 
+
+(Y1, . . . , Y n)T on the subspace 
+
+n
+
+(⟨f, eX1⟩L2 , . . . , ⟨f, eXn⟩L2 )T , f ∈ S bm
+
+o
+
+. Therefore, 
+
+> n
+
+X
+
+> i=1
+
+⟨ bβ bm, eXi⟩2 
+
+> L2
+
+≤
+
+> n
+
+X
+
+> i=1
+
+Y 2 
+
+> i
+
+,
+
+and 
+
+n∥ bβ bm∥2
+
+> eΓn
+
+≤
+
+> n
+
+X
+
+> i=1
+
+Y 2 
+
+> i
+
+.
+
+Replacing Yi by its definition, Yi = ⟨β, X i⟩L2 + ϵi we get 
+
+∥ bβ bm∥2
+
+> eΓn
+
+≤ 2∥β∥2Γn + 2
+
+n
+
+> n
+
+X
+
+> i=1
+
+ϵ2 
+
+> i
+
+. (66) 40 Using Equations (65) and (66) we get 
+
+E
+
+
+
+∥ bβ bm∥2
+
+> eΓ
+
+1Ω(n)c∩G
+
+
+
+≤ 2ρ(eΓ) 
+
+sn
+
+E  ∥β∥2Γn + 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ϵ2
+
+> i
+
+1Ω(n)c
+
+!
+
+. (67) As the ϵi’s are independent of the eXi’s and that the set Ωcn depends only on the eXi’s we have 
+
+E 1Ω(n)c
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+ϵ2
+
+> i
+
+!
+
+= σ2P(Ω (n)c). (68) Cauchy–Schwarz inequality gives, 
+
+E  ∥β∥2Γn 1Ω(n)c
+
+ ≤ E  ∥β∥4Γn
+
+1/2 P(Ω (n)c)1/2.
+
+By definition of the norm ∥ · ∥ Γn we have, 
+
+E  ∥β∥4Γn
+
+ = E
+
+"
+
+1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨β, X i⟩2
+
+> L2
+
+#2
+
+= E 1
+
+n2
+
+> n
+
+X
+
+> i=1
+
+⟨β, X i⟩4
+
+> L2
+
+!
+
++ E
+
+ 2
+
+n2
+
+X
+
+> 1≤i<i ′≤n
+
+⟨β, X i⟩2 
+
+> L2
+
+⟨β, X i′ ⟩2
+
+> L2
+
+
+
+= 1
+
+n E  ⟨β, X 1⟩4
+
+> L2
+
+ + n − 1
+
+n ∥β∥4Γ.
+
+Hence, 
+
+E  ∥β∥2Γn 1Ω(n)c
+
+ ≤
+
+ 1
+
+n E  ⟨β, X 1⟩4
+
+> L2
+
+ + n − 1
+
+n ∥β∥4Γ
+
+1/2
+
+P(Ω (n)c)1/2.
+
+Using the fact that for all x, y ≥ 0 √x + y ≤ √x + √y we have 
+
+E  ∥β∥2Γn 1Ω(n)c
+
+ ≤
+
+ 1
+
+√n E  ⟨β, X 1⟩4
+
+> L2
+
+1/2 + ∥β∥2Γ
+
+
+
+P(Ω (n)c)1/2. (69) Combining Equations (67), (68) and (69), 
+
+E
+
+
+
+∥ bβ bm∥2
+
+> eΓ
+
+1Ω(n)c∩G
+
+
+
+≤ 2P(Ω (n)c)1/2
+
+sn
+
+
+
+ρ(eΓ) 
+
+ 1
+
+√n E  ⟨β, X 1⟩4
+
+> L2
+
+1/2 + ∥β∥2Γ + σ2
+
+ 
+
+.
+
+As P(Ω (n)c) ≤ P(Ω (n)c)1/2 and sn ≤ 2 we get, combining the previous result and Equation (61) : 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ 4P(Ω (n)c)1/2
+
+sn
+
+
+
+ρ(eΓ) 
+
+ 1
+
+√n E  ⟨β, X 1⟩4
+
+> L2
+
+1/2 + ∥β∥2Γ + σ2
+
+
+
++ ∥β∥2
+
+> eΓ
+
+
+
+. (70) Using Lemma B.11 and the assumption that DNn,p < n/ ln 2 n we have 
+
+P(Ω (n)c)1/2
+
+sn
+
+≤ 1/21 − 1/√ln n (ln n)−1nα+1 /2 exp 
+
+
+
+− eω2n
+
+8( K21 + 1) 2
+
+
+
+≤ C exp 
+
+ 
+
+α + 12
+
+
+
+ln n − C′n
+
+
+
+≤ C′′ 
+
+n ,
+
+(71) with C, C ′, C ′′ depending on K1. Now, using Lemma B.5 and Lemma B.8 we have that 
+
+ρ(eΓ) = max 
+
+> 1≤j≤DNn,p
+
+eλj = τ 2
+
+p + C1
+
+p2a + c′ ≤ C2
+
+ 1
+
+p + 1 
+
+
+
+,
+
+41 where C1, C 2 > 0 depends on c′, a and τ (for C2). We recall that here ρ denotes the spectral radius. Let’s now define the following quantity : 
+
+An := 1
+
+√n E  ⟨β, X 1⟩4
+
+> L2
+
+1/2 + ∥β∥2Γ + σ2.
+
+Then using Equation (70) and (71) we get, 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ C3
+
+ 1
+
+n An + 1
+
+np An + 1
+
+n ∥β∥2
+
+> eΓ
+
+
+
+,
+
+where C3 depends on K1, a and c′. Using the definition of the eλj ’s and the fact that the λj ’s decrease in a polynomial way (see ( H3 )), we get using the same computations as used in (57) 
+
+∥β∥2 
+
+> eΓ
+
+=
+
+> DNn,p
+
+X
+
+> j=1
+
+eλj β2
+
+> j
+
+≤ max 
+
+> 1≤j≤DNn,p
+
+eλj ∥β∥2
+
+> L2
+
+≤ ∥ β∥2
+
+> L2
+
+ τ 2
+
+p + C1
+
+p2a + c′
+
+
+
+≤ C4∥β∥2
+
+> L2
+
+ 1
+
+p + 1 
+
+
+
+.
+
+Hence, 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ C5
+
+ 1
+
+n An + 1
+
+np An + 1
+
+n ∥β∥2 
+
+> L2
+
++ 1
+
+np ∥β∥2
+
+> L2
+
+
+
+,
+
+where C5 > 0 depends on eω, K 1, a and c′. Therefore we obtain 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ C6
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+E  ⟨β, X 1⟩4
+
+> L2
+
+1/2 + ∥β∥2Γ + ∥β∥2 
+
+> L2
+
++ 1 
+
+
+
+,
+
+where C6 > 0 is a constant which depends on K1, a and c′. Finally, as 
+
+∥β∥2Γ = ⟨Γβ, β ⟩L2 = ⟨X
+
+> j≥1
+
+βj Γϕj , X
+
+> k≥1
+
+βkϕk⟩L2 = X
+
+> j,k ≥1
+
+βj βk⟨Γϕj , ϕ k⟩L2 = X
+
+> j≥1
+
+λj β2 
+
+> j
+
+(72) 
+
+≤ max  
+
+> j≥1
+
+λj ∥β∥2 
+
+> L2
+
+≤ c′∥β∥2 
+
+> L2
+
+,
+
+we get that 
+
+E
+
+
+
+∥ eβ − β∥2
+
+> eΓ
+
+1Ω(n)c
+
+
+
+≤ C′
+
+> 0
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+E(⟨β, X 1⟩4)1/2 + ∥β∥2 
+
+> L2
+
++ 1 
+
+
+
+,
+
+where C′ 
+
+> 0
+
+> 0 depends on K1, σ, a and c′.
+
+Lemma B.11. Let us assume that ( H1 ), ( H2 ) hold and that DNn,p < p . Then, 
+
+P
+
+
+
+Ω(n)c
+
+≤ DNn,p exp 
+
+
+
+− neω2
+
+4( K21 + 1) 2
+
+
+
+,
+
+where Ω(n)c is defined in (58). 
+
+42 Proof. Let f ∈ Sm. We can write f as f = PDm 
+
+> j=1
+
+fj ϕj . Therefore, by using the definition (26), we have 
+
+∥f ∥2
+
+> eΓn
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨f, eXi⟩2
+
+> L2
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+⟨
+
+> Dm
+
+X
+
+> j=1
+
+fj ϕj ,
+
+> DNn,p
+
+X
+
+> k=1
+
+exi,k ϕk⟩2
+
+> L2
+
+= 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+DmX
+
+> j=1
+
+fj exi,j 
+
+2
+
+=
+
+> Dm
+
+X
+
+> j,k =1
+
+fj fk
+
+ 1
+
+n
+
+> n
+
+X
+
+> i=1
+
+exi,j exi,k 
+
+
+
+= hT Φ(p) 
+
+> m
+
+h, 
+
+where h = ( f1, . . . , f Dm )T , and Φ(p) 
+
+> m
+
+was defined in (11). We used the fact that the ϕj ’s are orthonormal to get the third line. Moreover, using the definition (27) we get 
+
+∥f ∥2 
+
+> eΓ
+
+= E
+
+
+
+⟨ eX, f ⟩2
+
+> L2
+
+
+
+= E
+
+
+
+⟨
+
+> DNn,p
+
+X
+
+> k=1
+
+exkϕk,
+
+> Dm
+
+X
+
+> j=1
+
+fj ϕj ⟩2
+
+> L2
+
+
+
+=
+
+> Dm
+
+X
+
+> j,k =1
+
+fj fkE(exk exj )=
+
+> Dm
+
+X
+
+> j=1
+
+f 2 
+
+> j
+
+eλj
+
+= hT ΛTmΛmh, 
+
+where Λm was defined by (52). We get the last line by using Lemma B.2. Using the matrix Ψm
+
+defined in (51), we get the following equation, 
+
+∥f ∥2
+
+> eΓn
+
+= hT Φmh = hT ΛTmΨmΛmh = bT Ψmb, 
+
+with b = Λ mh, and 
+
+∥f ∥2 
+
+> eΓ
+
+= hT ΛTmΛmh = bT b. 
+
+Therefore, 
+
+∥f ∥2
+
+> eΓn
+
+∥f ∥2
+
+> eΓ
+
+= bT ΨmbbT b , (73) and 
+
+sup   
+
+> f∈Sm
+> f̸=0
+
+∥f ∥2
+
+> eΓn
+
+∥f ∥2
+
+> eΓ
+
+− 1 = sup 
+
+> b̸=0
+
+bT (Ψ m − I)bbT b = ∥Ψm − I∥op ,
+
+as Ψm is symmetric. Therefore we can rewrite Ωm as 
+
+Ωm = {∥ Ψm − I∥op ≤ eω} .
+
+As discussed in the proof of Lemma B.6 we can apply after some computations Theorem 4.6.1 of Vershynin [16] to get 
+
+P (Ω cm) = P(∥Ψm − I∥op > eω) ≤ 2 exp 
+
+
+
+− n ew2
+
+4( K21 + 1) 2
+
+
+
+,
+
+43 and using the fact that Nn,p ≤ DNn,p /2 we get that 
+
+P
+
+
+
+Ω(n)c
+
+= X
+
+> m∈M n
+
+P(Ω cm) ≤ DNn,p exp 
+
+
+
+− neω2
+
+4( K21 + 1) 2
+
+
+
+.
+
+B.3 Proof of Theorem 3.2 
+
+Proof. Lemma B.5 gives us that the eigenvalues of eΓ in SNn,p are the eλj ’s which are defined in (46). Now for all j ∈ { 1, . . . , D Nn,p } we have that λj ≤ eλj , therefore for all f ∈ SNn,p ,
+
+∥f ∥Γ ≤ ∥ f ∥eΓ.
+
+For all m ∈ M n,p and considering β(m) the projection of β on Sm we get that, 
+
+∥ eβ − β∥2Γ = ∥ eβ − β(m) + β(m) − β∥2Γ
+
+≤ 2∥ eβ − β(m)∥2Γ + 2 ∥β(m) − β∥2Γ
+
+≤ 2∥ eβ − β(m)∥2 
+
+> eΓ
+
++ 2 ∥β(m) − β∥2Γ
+
+≤ 4∥ eβ − β∥2 
+
+> eΓ
+
++ 4 ∥β − β(m)∥2 
+
+> eΓ
+
++ 2 ∥β(m) − β∥2Γ.
+
+Taking the expectation in the equation just above and using Theorem 3.1, we get that 
+
+E(∥ eβ − β∥2Γ) ≤ C2
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2Γ + ∥β(m) − β∥2 
+
+> eΓ
+
++ pen (m)
+
+
+
++ ∥β∥2 
+
+> L2
+
+E(∥ eX − X∥2 
+
+> L2
+
+)+ ∥β∥2
+
+> L2
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ Cβ
+
+ 1
+
+n + 1
+
+np 
+
+ 
+
+,
+
+To derive Equation (34) we combine this result with Lemma A.3 of Tsybakov [15]. 
+
+Lemma B.12. Let us suppose that ( H3 ) hold, DNn,p < p and that β ∈ W per (k, L ). Then for all 
+
+m ∈ M n,p ,
+
+∥β(m) − β∥2 
+
+> eΓ
+
+≤ C′′ 
+
+> 2
+
+
+
+∥β(m) − β∥2Γ + 1
+
+p
+
+
+
+,
+
+where C′′  
+
+> 2
+
+is a positive constant which depends on L, k, c ′, a, τ .Proof. We have, denoting as βj the coefficients of β in the Fourier basis, 
+
+∥β − β(m)∥2 
+
+> eΓ
+
+= ⟨eΓ( β − β(m)), β − β(m)⟩L2
+
+=
+
+> DNn,p
+
+X
+
+> j=Dm+1
+
+eλj β2 
+
+> j
+
+,
+
+since Lemma B.5 gives us that the eigenvalues of eΓ associated with the elements of the Fourier basis are the eλj for j ∈ { 1, . . . , D Nn,p }, and are 0 for j > D Nn,p . Using now the definition of the 
+
+eλj ’s defined in (46) and our assumption that β ∈ W per (k, L ) for a certain positive integer k and a positive real number L we get that 
+
+E(∥β − β(m)∥2
+
+> eΓ
+
+) = 
+
+> DNn,p
+
+X
+
+> j=Dm+1
+
+λj β2 
+
+> j
+
++
+
+> DNn,p
+
+X
+
+> j=Dm+1
+
+λj β2 
+
+> j
+
++
+
+> DNn,p
+
+X
+
+> j=Dm+1
+
+τ 2
+
+p β2
+
+> j
+
+≤ X
+
+> j>D m
+
+λj β2 
+
+> j
+
++ sup 
+
+> Dm<l ≤DNn,p
+
+λl
+
+X
+
+> j>D m
+
+β2 
+
+> j
+
++ X
+
+> j>D m
+
+τ 2
+
+p β2
+
+> j
+
+≤ C′
+
+> 3
+
+ ∥β − β(m)∥2Γ + D−2km p−2a + τ 2
+
+p D−2km
+
+,
+
+(74) 44 where C′ 
+
+> 3
+
+> 0 depends on a, c ′, L, k . Let us give more details on how we derived the last inequality. Let us focus first on the term sup Dm<l ≤DNn,p λl
+
+P 
+
+> j>D m
+
+β2 
+
+> j
+
+. Lemma B.8 allows us to deduce that 
+
+λj = O(p−2a) for all j = 1 , ..., D Nn . Hence by Lemma A.3 of Tsybakov [15] we have 
+
+sup 
+
+> Dm<l ≤DNn,p
+
+λl
+
+X
+
+> j>D m
+
+β2 
+
+> j
+
+≤ C′p−2aD−2km ,
+
+where C′ is a positive constant which depends on c′, a, L, k . Using Lemma A.3 of Tsybakov [15] again we get that τ 2
+
+> p
+
+P 
+
+> j>D m
+
+β2 
+
+> j
+
+≤ C′′ τ 2 
+
+> p
+
+D−2km where C′′ is a positive constant which depends on 
+
+L, k . Hence, for all m ∈ M n,p ,
+
+E(∥β − β(m)∥2
+
+> eΓ
+
+) ≤ C′
+
+> 3
+
+ ∥β − β(m)∥2Γ + sup 
+
+> l∈M n,p
+
+D−2kl p−2a + τ 2
+
+p D−2kl
+
+.
+
+Since for all l ∈ M n,p Dl ≥ 1 we have sup l∈M n,p D−2kl p−2a + τ 2 
+
+> p
+
+D−2kl =
+
+
+
+p−2a + τ 2
+
+> p
+
+
+
+. Now using the fact that p−2a ≤ p−1 as a > 1/2, we find that 
+
+E(∥β − β(m)∥2
+
+> eΓ
+
+) ≤ C′′ 
+
+> 2
+
+ ∥β − β(m)∥2Γ + p−1.
+
+# C Proof of Theorem 4.1 
+
+Using the result of Theorem 3.2, we get that 
+
+E(∥ eβ − β∥2Γ) ≤ C3
+
+
+
+min 
+
+> m∈M n,p
+
+
+
+∥β(m) − β∥2Γ + pen (m)
+
+
+
++ E(∥ eX − X∥2 
+
+> L2
+
+)+ 1
+
+n
+
+
+
+E∥ eX − X∥4
+
+> L2
+
+1/2
+
++ 1
+
+p + 1
+
+n + 1
+
+np 
+
+
+
+.
+
+With the assumption that the λj ’s decay in a polynomial way (see ( H3 )) and that β is in W per (k, L ),we can use the result of the Theorem 2 of Brunel and Roche [4] which gives that 
+
+∥β − β(m)∥2Γ = X
+
+> j>D m
+
+β2 
+
+> j
+
+λj ≤ CD −2a−2km .
+
+Combining this reasoning with Lemmas C.1 and C.2 leads to the following equation, 
+
+E(∥ eβ − β∥2Γ) ≤ C min  
+
+> 1≤DNn,p <p ∧
+
+√ n  
+
+> ln 3n,
+> 1≤Dm≤DNn,p
+
+ f (Dm) + g(DNn,p ), (75) where for all x ≥ 1,
+
+f (x) = x−2k−2a + x σ2
+
+n and g(x) = 1
+
+n + 1
+
+p + 1
+
+np +
+
+
+
+x−(2 a−1) + xp
+
+  1
+
+n + 1 
+
+
+
+.
+
+Let us focus on minimizing the function g first. As g is strictly convex, coercive and C1, g admits a unique minimum which is given by solving g′ = 0 . For all x ≥ 1, we have 
+
+g′(x) = 
+
+
+
+(1 − 2a)x−2a + 1
+
+p
+
+
+
+·
+
+ 1
+
+n + 1 
+
+
+
+.
+
+Therefore, g′(x) = 0 ⇐⇒ x =  (2 a − 1) p1/(2 a). Taking into account the fact that DNn,p must satisfy the following inequality DNn,p < min( p, n  
+
+> ln 2n
+
+), we get that 
+
+D∗ 
+
+> Nn,p
+
+≈
+
+(p 12a if p ≲   n
+
+> ln( n)2
+
+2an 
+
+> ln( n)2
+
+otherwise . 45 Remark : We derive the condition p ≲   n
+
+ln( n)2
+
+2a since if min( p, n
+
+ln 2 n ) = p then p 12a ≤ p as a > 1/2,and D∗
+
+Nn,p ≈ p1/(2 a) in this situation. Otherwise, if min( p, n
+
+ln 2 n ) = n
+
+ln 2 n then 
+
+p1/(2 a) ≲ n
+
+ln 2 n ⇐⇒ p ≲
+
+ n
+
+ln 2 n
+
+2a
+
+.
+
+If p ≳   n
+
+ln 2 n
+
+2a then the best value that DNn,p can reach is n
+
+ln( n)2 .Now let’s focus on f . We can easily verify that f is C1, strictly convex and coercive therefore the function admits a unique minimum. For all x ≥ 1 we have 
+
+f ′(x) = −(2 k + 2 a)x−(2 k+2 a+1) + σ2
+
+n .
+
+Therefore, f ′(x) = 0 ⇐⇒ x =   n(2 k+2 a)
+
+σ2
+
+1/(2 k+2 a+1) . Thus, 
+
+D∗
+
+m ≈ n1/(2 a+2 k+1) .
+
+Now let’s check when D∗
+
+m ≤ D∗
+
+Nn,p . We distinguish two cases : • If D∗
+
+Nn,p ≈ p1/(2 a) (or the case where p ≲   n
+
+ln( n)2
+
+2a) then, 
+
+D∗
+
+m ≤ D∗
+
+Nn,p ⇐⇒ n 12a+2 k+1 ≤ p 12a ⇐⇒ n 2a 
+
+> 2a+2 k+1
+
+≤ p. 
+
+• If D∗
+
+Nn,p ≈ n
+
+ln( n)2 (or the case where p ≳   n
+
+ln( n)2
+
+2a) then, 
+
+D∗
+
+m ≤ D∗
+
+Nn,p ⇐⇒ n 12a+2 k+1 ≤ n
+
+ln 2(n) .
+
+As a > 0 and k ≥ 1, the last inequality and the condition p ≳   n
+
+ln( n)2
+
+2a are always compatible for n large enough. From these two cases, we can deduce the following ones : • If n 2a 
+
+> 2a+2 k+1
+
+≲ p ≲   n
+
+ln( n)2
+
+2a, then 
+
+E(∥ eβ − β∥2Γ) ≤ C1
+
+
+
+n −2k−2a 
+
+> 2k+2 a+1
+
++ p −(2 a−1) 2a + p −(2 a−1) 2a n−1 + 1
+
+n + 1
+
+p + 1
+
+np 
+
+
+
+,
+
+where C1 > 0. Since k ≥ 1, a > 0, (−2k − 2a)/(2 k + 2 a + 1) lies between -1 and 0. Therefore 
+
+n −2k−2a 
+
+> 2k+2 a+1
+
+converges slower than n−1. Moreover the fact that −1 ≤ − (2 a − 1) /(2 a) allows us to deduce that p−1 is dominated by p−(2 a−1) /(2 a). We also have, 
+
+n−1p−1
+
+n−1p− (2 a−1) 2a
+
+= p− 12a −−−→
+
+p→∞ 0,
+
+and 
+
+n−1p− (2 a−1) 2a
+
+n− 2k+2 a
+
+> 2k+2 a+1
+
+≲ n− 2a 
+
+> 2a+2 k+1
+
+−−−−→
+
+n→∞ 0,
+
+where we used the fact that p−1 ≲ n− 2a 
+
+> 2a+2 k+1
+
+and thus that p− (2 a−1) 2a ≲ n− 2a−12a+2 k+1 to derive the last inequality. This allows us to conclude that n−1p− (2 a−1) 2a and n−1p−1 are dominated by n− 2a+2 k 
+
+> 2a+2 k+1
+
+. Hence the dominant rate is O(n −2k−2a 
+
+> 2k+2 a+1
+
++ p −(2 a−1) 2a ), and 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2a+2 k 
+
+> 2a+2 k+1
+
++ p− 2a−12a
+
+
+
+.
+
+46 • If p ≳   n
+
+> ln( n)2
+
+2a, then 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+≤ C2
+
+h
+
+n −2k−2a 
+
+> 2k+2 a+1
+
++ n−(2 a−1) ln −2(2 a−1) (n) + n−2a ln −2(2 a−1) (n)+ 1
+
+pn
+
+ln 2(n) + 1
+
+np n
+
+ln 2(n) + 1
+
+n + 1
+
+p + 1
+
+np 
+
+i
+
+,
+
+where C2 > 0. We now compare the different terms. First, let’s denote 
+
+T1 := n− 2k+2 a 
+
+> 2k+2 a+1
+
+, T2 := n−(2 a−1) ln −2(2 a−1) (n), T3 := n−2a ln −2(2 a−1) (n),T4 := np ln 2 n , T5 := 1
+
+p ln 2 n , T6 := 1
+
+n , T7 := 1
+
+p , T8 := 1
+
+np .
+
+Then the bound may be rewritten as 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+≤ C2(T1 + T2 + T3 + T4 + T5 + T6 + T7 + T8).
+
+We first observe that 
+
+T3 = n−2a ln −2(2 a−1) (n) = 1
+
+n n−(2 a−1) ln −2(2 a−1) (n) = 1
+
+n T2.
+
+Hence T3 = o(T2) and thus T3 is negligible compared with T2. In a similar way we get that 
+
+T5 = 1
+
+p ln 2 n = 1
+
+nnp ln 2 n = 1
+
+n T4,
+
+therefore T5 = o(T4). Moreover, 
+
+T8 = 1
+
+np = 1
+
+n
+
+1
+
+p = 1
+
+n T7,
+
+thus T8 = o(T7). Next, let’s compare T7 and T4:
+
+T4
+
+T7
+
+= n/ (p ln 2 n)1/p = n
+
+ln 2 n −−−−→ 
+
+> n→∞
+
+∞.
+
+Therefore T7 = o(T4), and consequently T8 = o(T4) as well. Finally, let us compare T6 and 
+
+T1. Since 2k+2 a 
+
+> 2k+2 a+1
+
+< 1, we have that T1 = n− 2k+2 a 
+
+> 2k+2 a+1
+
+decays more slowly than n−1. Hence 
+
+T6 = o(T1). Therefore the bound simplifies to 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2k+2 a 
+
+> 2k+2 a+1
+
++ n−(2 a−1) ln −2(2 a−1) (n) + np ln 2 n
+
+
+
+.
+
+As we are in the situation where p ≳   n 
+
+> ln 2n
+
+2a we have that 
+
+T4 = np ln 2 n ≲ n
+
+ n/ ln 2 n2a ln 2 n = nn2a ln −4a n · ln 2 n = n1−2a ln 4a−2(n).
+
+Since 1 − 2a = −(2 a − 1) , we obtain 
+
+T4 = O
+
+
+
+n−(2 a−1) ln 4a−2(n)
+
+
+
+.
+
+Therefore, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2k+2 a 
+
+> 2k+2 a+1
+
++ n−(2 a−1) ln −2(2 a−1) (n) + n−(2 a−1) ln 4a−2(n)
+
+
+
+.
+
+We compare now the last two terms. Since for all n ≥ 2, ln 4a−2(n) ≥ ln −2(2 a−1) (n) the term 
+
+n−(2 a−1) ln 4a−2(n) is larger than n−(2 a−1) ln −2(2 a−1) (n). Thus T2 is dominated by T4 under the present lower bound on p. Therefore, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2k+2 a 
+
+> 2k+2 a+1
+
++ n−(2 a−1) ln 4a−2(n)
+
+
+
+.
+
+47 We now compare 
+
+n− 2k+2 a 
+
+> 2k+2 a+1
+
+and n−(2 a−1) ln 4a−2(n).
+
+The dominant term is determined first by the powers of n. We therefore study whether  
+
+> 2k+2 a
+> 2k+2 a+1
+
+< 2a − 1. We have 
+
+2k + 2 a
+
+2k + 2 a + 1 < 2a − 1 ⇐⇒ 2k + 2 a < (2 a − 1)(2 k + 2 a + 1) 
+
+⇐⇒ 2k + 2 a < 4ak + 4 a2 − 2k − 1
+
+⇐⇒ 0 < 4a2 + 4 ak − 2a − 4k − 1
+
+⇐⇒ 0 < 4a(a − 1) + 4 k(a − 1) + (2 a − 1) 
+
+⇐⇒ 0 < (a − 1)(4 a + 4 k) + (2 a − 1) .
+
+Since a ≥ 1 and k ≥ 0, it follows that 
+
+(a − 1)(4 a + 4 k) ≥ 0 and 2a − 1 > 0,
+
+and thus (a − 1)(4 a + 4 k) + (2 a − 1) > 0. Hence, 
+
+2k + 2 a
+
+2k + 2 a + 1 < 2a − 1.
+
+Therefore n− 2k+2 a 
+
+> 2k+2 a+1
+
+decays more slowly and is the dominant term. We conclude that 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+n− 2k+2 a
+
+> 2k+2 a+1
+
+
+
+.
+
+Let us focus now on the case where p ≲ n 2a 
+
+> 2a+2 k+1
+
+. In this situation we can’t have D∗ 
+
+> m
+
+≤ D∗
+
+> Nn,p
+
+and D∗ 
+
+> m
+
+≈ n1/(2 a+2 k+1) . Here the best value possible that minimizes f is attained by taking 
+
+D∗ 
+
+> m
+
+= D∗ 
+
+> Nn,p
+
+≈ p1/(2 a). We then get 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+≤ C3
+
+
+
+p− 2a+2 k 
+
+> 2a
+
++ n−1p 12a + p− 2a−12a + p− 2a−12a n−1 + n−1 + p−1 + n−1p−1
+
+.
+
+Following the previous discussion, we have that p−1 is dominated by p− 2a−12a . As a > 0 and k ≥ 1
+
+we have −(2 a + 2 k)/(2 a) ≤ − (2 a − 1) /(2 a) and p− 2a+2 k 
+
+> 2a
+
+is dominated by p− 2a−12a .Since we are in the framework of p ≲ n 2a 
+
+> 2a+2 k+1
+
+, we have n−1 ≲ p− 2a+2 k+1 2a and obviously, −(2 a +2k + 1) /(2 a) ≤ − (2 a − 1) /(2 a). Hence p−(2 a−1) /(2 a) dominates n−1.We also have, n−1p 12a ≲ p− 2a+2 k 
+
+> 2a
+
+and using a previous argument, we get that p− 2a−12a dominates 
+
+n−1p 12a . Moreover, 
+
+p− (2 a−1) 2a n−1
+
+p− (2 a−1) 2a
+
+≲ p− 2a+2 k+1 2a −−−→ 
+
+> p→∞
+
+0
+
+and n−1p−1
+
+p− (2 a−1) 2a
+
+≲ p− 2a+2 k 
+
+> 2a
+
+−−−→ 
+
+> p→∞
+
+0.
+
+Therefore, p− (2 a−1) 2a n−1 and n−1p−1 are dominated by p− (2 a−1) 2a . Hence, 
+
+E
+
+
+
+∥ eβ − β∥2Γ
+
+
+
+= O
+
+
+
+p− 2a−12a
+
+
+
+.
+
+Lemma C.1. Assume that (H3) holds. Then 
+
+E
+
+
+
+∥ eX − X∥2
+
+> L2
+
+
+
+≤ C′
+
+ DNn,p 
+
+p + D−(2 a−1) 
+
+> Nn,p
+
+
+
+,
+
+where C′ is a positive constant which depends on τ, c ′, a .
+
+48 Proof. We can express X in the Fourier basis : X = P 
+
+> 1≤l
+
+xlϕl, where xl = ⟨X, ϕ l⟩L2 . Using the definition of X and eX we get that 
+
+E(∥ eX − X∥2 
+
+> L2
+
+) = E
+
+Z 10
+
+( eX(t) − X(t)) 2dt 
+
+
+
+= E
+
+Z 10
+
+|
+
+> DNn,p
+
+X
+
+> j=1
+
+exj ϕj (t) − X
+
+> 1≤j
+
+xj ϕj (t)|2dt 
+
+
+
+= E
+
+Z 10
+
+|
+
+> DNn,p
+
+X
+
+> j=1
+
+(exj − xj )ϕj (t) − X 
+
+> DNn,p <j
+
+xj ϕj (t)|2dt 
+
+
+
+.
+
+As the (ϕj )1≤j are orthonormal, we then get 
+
+E(∥ eX − X∥2 
+
+> L2
+
+) = E
+
+DNn,p 
+
+X
+
+> j=1
+
+(exj − xj )2
+
++ E
+
+ X 
+
+> DNn,p <j
+
+x2
+
+> j
+
+
+
+.
+
+As exj = xj + ηj for all j ∈ { 1, . . . , D Nn,p }, where xj and ηj are defined in (47), we get that 
+
+(exj − xj )2 = ( xj − xj )2 + η2 
+
+> j
+
++ 2 ηj (xj − xj ). Now, using the fact that E(ηj ) = 0 , E(η2 
+
+> j
+
+) = τ 2 
+
+> p
+
+by Lemma B.2 and that (ηj )j=1 ,...,D Nn are independent of X, we get the following equation : 
+
+E
+
+
+
+∥ eX − X∥2
+
+> L2
+
+
+
+≤ DNn,p τ 2
+
+p + E
+
+DNn,p 
+
+X
+
+> j=1
+
+(xj − xj )2
+
++ E
+
+ X 
+
+> DNn,p <j
+
+x2
+
+> j
+
+
+
+. (76) Let us focus on the second term of the right part of the inequality. Using Fubini’s theorem we have, 
+
+E
+
+ X 
+
+> DNn,p <j
+
+x2
+
+> j
+
+
+
+= X 
+
+> DNn,p <j
+
+E  x2
+
+> j
+
+ .
+
+Now using Fubini’s theorem and the definition of the kernel K associated with the norm Gamma mentioned in (18) we get, 
+
+E  x2
+
+> j
+
+ = E  ⟨X, ϕ j ⟩2
+
+> L2
+
+
+
+=
+
+Z 10
+
+Z 10
+
+ϕj (t)ϕj (s)E (X(s)X(t)) dsdt 
+
+=
+
+Z 10
+
+ϕj (t)
+
+Z 10
+
+K(s, t )ϕj (s)dsdt 
+
+= ⟨Γϕj , ϕ j ⟩L2
+
+= λj .
+
+Hence using ( H3 ), 
+
+E
+
+ X 
+
+> DNn,p <j
+
+x2
+
+> j
+
+
+
+= X 
+
+> DNn,p <j
+
+E  x2
+
+> j
+
+
+
+= X 
+
+> DNn,p <j
+
+λj
+
+≤ c′ X 
+
+> DNn,p <j
+
+j−2a
+
+≤ c′
+
+2a − 1 D−(2 a−1)  
+
+> Nn,p
+
+.
+
+(77) Let us focus now on E
+
+PDNn,p  
+
+> j=1
+
+(xj − xj )2
+
+
+
+. In Lemma B.2 we defined for all j ∈ { 1, . . . , D Nn,p }
+
+ej = xj − xj ,
+
+49 and proved that 
+
+E  e2
+
+> j
+
+ = λj .
+
+Using now Lemma B.8 we get that 
+
+∀j ∈ { 1, . . . , D Nn,p } λj = O(p−2a).
+
+Hence, 
+
+E
+
+
+
+> DNn,p
+
+X
+
+> j=1
+
+(xj − xj )2
+
+ ≤ CD Nn,p p−2a. (78) Combining Equations (76), (77) and (78) and using the fact that p−2a ≤ p−1 as a > 1/2, we get 
+
+E
+
+
+
+∥ eX − X∥2
+
+> L2
+
+
+
+≤ C′
+
+ DNn,p 
+
+p + D−(2 a−1) 
+
+> Nn,p
+
+
+
+.
+
+Lemma C.2. Assume that (H1), (H2), (H3) hold. Then, 
+
+E1/2 
+
+∥X − eX∥4
+
+> L2
+
+
+
+≤ C(a, c ′, τ )
+
+
+
+D−(2 a−1)  
+
+> Nn,p
+
++ DNn,p 
+
+p
+
+
+
+.
+
+Proof. By definition of X1 and eX1 we have 
+
+∥X − eX∥2 
+
+> L2
+
+= X
+
+> j≤DNn,p
+
+(exj − xj )2 + X
+
+> j>D Nn,p
+
+x2 
+
+> j
+
+.
+
+Using the inequality (x + y)2 ≤ 2x2 + 2 y2 first, and then the inequality √x + y ≤ √x + √y we get that 
+
+E1/2 
+
+∥X − eX∥4
+
+> L2
+
+
+
+≤ √2
+
+E
+
+  X
+
+> j≤DNn,p
+
+(exj − xj )22
+
++ E
+
+  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+> 1/2
+
+≤ √2
+
+E1/2  X
+
+> j≤DNn,p
+
+(exj − xj )22
+
++ E1/2  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2 .
+
+Let us first study the term E
+
+ P 
+
+> j≤DNn,p
+
+(exj − xj )221/2
+
+. Let us recall that we can write exj as 
+
+exj = xj + ej + ηj as defined in Equations (47) and (48). Therefore, applying Cauchy–Schwarz inequality to the vector (1 , 1, . . . , 1) ∈ RDNn,p and  (ej + ηj )2
+
+> j=1 ,...,D Nn,p
+
+we get 
+
+
+
+> DNn,p
+
+X
+
+> j=1
+
+(exj − xj )2
+
+
+
+> 2
+
+=
+
+
+
+> DNn,p
+
+X
+
+> j=1
+
+(ej + ηj )2
+
+
+
+> 2
+
+≤ DNn,p 
+
+> DNn,p
+
+X
+
+> j=1
+
+(ej + ηj )4
+
+≤ 8DNn,p 
+
+
+
+> DNn,p
+
+X
+
+> j=1
+
+e4 
+
+> j
+
++
+
+> DNn,p
+
+X
+
+> j=1
+
+η4
+
+> j
+
+ .
+
+Let us study the term E
+
+PDNn,p  
+
+> j=1
+
+e4
+
+> j
+
+
+
+. Hypothesis (H1) implies that the ej ’s are sub-Gaussian with variance factor λj . Theorem 2.1 of Boucheron et al. [2] gives us that for all q′ ≥ 1 and for all 
+
+1 ≤ j ≤ DNn,p ,
+
+E
+
+
+
+e2q′
+
+> j
+
+
+
+≤ q′!(4 λj )q′
+
+,
+
+50 and taking q′ = 2 leads to 
+
+E  e4
+
+> j
+
+ ≤ 32 λ2 
+
+> j
+
+.
+
+Lemma B.8 gives that for all 1 ≤ j ≤ DNn,p , λj ≤ C(a, c ′)p−2a, hence 
+
+E  e4
+
+> j
+
+ ≤ C(a, c ′)p−4a.
+
+Now, let us focus on the term E  η4
+
+> j
+
+. In a similar way, hypothesis (H2) gives us that ηj is sub-Gaussian with variance factor τ 2/p . Theorem 2.1 of Boucheron et al. [2] gives that for all q′ ≥ 1
+
+and for all 1 ≤ j ≤ DNn,p ,
+
+E
+
+
+
+η2q′
+
+> j
+
+
+
+≤ q′!
+
+
+
+4 τ 2
+
+p
+
+q′
+
+.
+
+Taking q′ = 2 we get that 
+
+E  η4
+
+> j
+
+ ≤ 32 τ 4
+
+p2 .
+
+This allows us to get that 
+
+E1/2  X
+
+> j≤DNn,p
+
+(exj − xj )22
+
+≤ DNn,p 
+
+ C(c′, a )
+
+p4a + C(τ )
+
+p2
+
+1/2
+
+≤ DNn,p 
+
+C(c′, a, τ )
+
+p ,
+
+(79) where we used the fact that √x + y ≤ √x + √y and that a > 1/2 to get the last inequality. Lastly, let’s focus on E1/2
+
+ P 
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+. By using Tonelli’s theorem, we have 
+
+E
+
+  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+= E
+
+ X
+
+> j>D Nn,p
+
+X
+
+> k>D Nn,p
+
+x2 
+
+> j
+
+x2
+
+> k
+
+
+
+= X
+
+> j>D Nn,p
+
+X
+
+> k>D Nn,p
+
+E  x2 
+
+> j
+
+x2
+
+> k
+
+ .
+
+Applying Cauchy–Schwarz inequality to x2 
+
+> j
+
+and x2 
+
+> k
+
+we find 
+
+E
+
+  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+≤ X
+
+> j>D Nn,p
+
+X
+
+> k>D Nn,p
+
+E(x4 
+
+> j
+
+)1/2E(x4
+
+> k
+
+)1/2
+
+=
+
+ X
+
+> j>D Nn,p
+
+E(x4 
+
+> j
+
+)1/2
+
+
+
+> 2
+
+.
+
+Hypothesis (H1) and the fact that the λj ’s decrease in a polynomial way, give us that 
+
+E
+
+  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+≤ 32 
+
+ X
+
+> j>D Nn,p
+
+λj
+
+
+
+> 2
+
+≤ 32 c′2
+
+ X
+
+> j>D Nn,p
+
+j−2a
+
+
+
+> 2
+
+≤ C(a, c ′)D−2(2 a−1)  
+
+> Nn,p
+
+,
+
+and 
+
+E1/2  X
+
+> j>D Nn,p
+
+x2
+
+> j
+
+2
+
+≤ C(a, c ′)D−(2 a−1)  
+
+> Nn,p
+
+. (80) 51 Combining (79) and (80) we find that 
+
+E
+
+
+
+∥X − eX∥4
+
+> L2
+
+
+
+≤ C(a, c ′, τ )
+
+
+
+D−(2 a−1)  
+
+> Nn,p
+
++ DNn,p 
+
+p
+
+
+
+.
+
+# D Proof of Theorem 5.1 
+
+This section is divided into four parts. The first part presents the three conditions of Theorem 2.7 from Tsybakov [15], while the remaining three sections provide the results used to prove them. The proof follows the methodology introduced in Section 2.6 of Tsybakov [15]. The first step of the proof is to build test functions. We define M ∈ N∗ and for all l = 1 , . . . , M we consider 
+
+w(l) ∈ { 0, 1}d . We set w(0) = (0 , . . . , 0) ∈ Rd. Then we consider the following test functions 
+
+βw(l) (t) = 
+
+> d
+
+X
+
+> j=1
+
+w(l) 
+
+> j
+
+uj ϕj (t) for all l = 0 , . . . , M, (81) where 
+
+u2 
+
+> j
+
+= Cnλ j
+
+with C = min 
+
+
+
+L2(2 π)−2kc′− 1, σ 2 α′ log(2) 4
+
+
+
+. (82) We set 0 < α ′ < 1/8 and 0 < κ < 1 such that 
+
+n ≥ (1 − κ)−(2 a+2 k+1) . (83) We also define 
+
+d = ⌈κn 12a+2 k+1 ⌉ (84) with n such that d ≥ 8.
+
+Remark 3. The parameter M corresponds to the number of hypotheses in the packing set. Its introduction is motivated by the Varshamov–Gilbert lemma (Lemma 2.9 in Tsybakov [15]), which ensures the existence of a large subset of binary vectors with pairwise Hamming distance bounded below. This large family of well-separated alternatives is the key ingredient for applying Tsybakov’s lower-bound theorem. 
+
+We then consider the following setting : • A class of functions containing the true slope function β that we want to estimate : W per (k, L )
+
+which is given by Equation (3). • A sample (Zi, Y i)ni=1 which is such that for all h = 0 , . . . , p − 1, for all i = 1 , . . . , n ,
+
+Zi(th) = Xi(th) + ηi,h , (85) where the ηi,h ’s are i.i.d, Gaussian, centered and of variance τ 2. For each l = 0 , . . . , M we consider 
+
+Yi = ⟨Xi, β w(l) ⟩L2 + ϵi, (86) where βw(l) ∈ W per (k, L ) and the ϵi’s are i.i.d, are Gaussian, centered and of variance σ2.Both the ϵi’s and ηi,h ’s are independent of everything else. We denote the joint distribution of this sample by Pl = Pw(l) .• A semi distance ∥ · ∥ Γ which is defined in (28). In order to apply Theorem 2.7 of Tsybakov [15] we need to check the three following conditions: 1. ∀l = 0 , . . . , M , βw(l) ∈ W per (k, L ).
+
+52 2. Pj ≪ P0 for all j = 1 , . . . , M and 
+
+1
+
+M
+
+> M
+
+X
+
+> j=1
+
+K(Pj ∥P0) ≤ α′ log( M ),
+
+with 0 < α ′ < 1/8 and Pj = Pw(j) for j = 0 , 1, . . . , M . Here K(·∥· ) denotes the Kullback– Leibler divergence. 3. ∀ 0 ≤ l < l ′ ≤ M
+
+∥βw(l) − βw(l′) ∥2Γ ≥ 2C4n− 2k+2 a 
+
+> 2k+2 a+1
+
+,
+
+where C4 > 0 is a positive constant which will be defined bellow. Proposition D.1, D.2 and D.3 allow us to apply this theorem and therefore to prove the result. 
+
+D.1 Condition 1. of the proof 
+
+Proposition D.1. Consider M ∈ N\{ 0} and for all l = 1 , . . . , M , define w(l) ∈ { 0, 1}d, as well as w(0) = (0 , 0, . . . , 0) ∈ Rd where d is defined by (84). Consider for all l = 0 , 1, . . . , M , the test functions βw(l) given by (81). Then, for all l = 0 , 1, . . . , M ,
+
+βw(l) ∈ W per (k, L ).
+
+Proof. As for all t ∈ [0 , 1] βw(0) (t) = 0 we have that βw(0) is trivially in W per (k, L ). Let us focus on the case where l = 1 , 2, . . . , M . We need to prove that for all s = 1 , . . . , k , β(s) 
+
+> w(l)
+
+is 1-periodic and that ∥β(s) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ L2. For all s = 1 , . . . , k we have, by Lemma D.1 
+
+β(s) 
+
+> w(l)
+
+(t) = 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+(2 πj )sasw(l)2j u2j + cs1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j (t)+ bsw(l)2j u2j + as1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j+1 (t)
+
+
+
+.
+
+As each real Fourier basis function is 1-periodic we have that β(s) 
+
+> w(l)
+
+is 1-periodic for all s = 1 , ..., M .With the same argument we have, for s = 0 that the function is also 1-periodic. To conclude the proof we then need to prove that ∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ L2. By Lemma D.1 we have 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ (2 π)2kdX
+
+> j=1
+
+j2k(wj uj )2.
+
+Using the definition of uj given by (82) and the fact that λj decrease in a polynomial way we have 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ L2
+
+n
+
+> d
+
+X
+
+> j=1
+
+j2k+2 a.
+
+As a > 1/2 and k is a positive integer, 2k + 2 a ≥ 1 and we get 
+
+L2
+
+n
+
+> d
+
+X
+
+> j=1
+
+j2k+2 a ≤ L2
+
+n d2k+2 a+1 .
+
+Using now the definition of d and equation (83) we find for n large enough 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ L2.
+
+Therefore, for all l = 0 , 1, . . . , M ,
+
+βw(l) ∈ W per (k, L ).
+
+53 Lemma D.1. Consider M ∈ N\{ 0} and for all l = 1 , . . . , M , define w(l) ∈ { 0, 1}d where d is defined by (84). Consider for all l = 1 , . . . , M , the test functions βw(l) given by (81). Then, for all 
+
+l = 1 , . . . , M and for all integer s ≥ 1, βw(l) is s-times differentiable and 
+
+β(s) 
+
+> w(l)
+
+(t) = 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+(2 πj )sasw(l)2j u2j + cs1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j (t)+ bsw(l)2j u2j + as1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j+1 (t)
+
+
+
+,
+
+with as = cos ( sπ  
+
+> 2
+
+), bs = − sin ( sπ  
+
+> 2
+
+) and cs = sin ( sπ  
+
+> 2
+
+). Moreover, 
+
+∥β(s) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ (2 π)2kdX
+
+> j=1
+
+j2k(wj uj )2.
+
+Proof. Let s ∈ { 1, . . . , k }. Then, βw(l) is s-times differentiable as a sum of s-times differentiable functions and 
+
+β(s) 
+
+> w(l)
+
+(t) = 
+
+> d
+
+X
+
+> j=1
+
+w(l) 
+
+> j
+
+uj ϕ(s) 
+
+> j
+
+(t) = 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+w(l)2j u2j ϕ(s)2j (t) + 
+
+> ⌊(d−1) /2⌋
+
+X
+
+> j=1
+
+w(l)2j+1 u2j+1 ϕ(s)2j+1 (t).
+
+Now, √2 ds cos(2 πjt )
+
+dt s = √2(2 πj )s cos 
+
+
+
+2πjt + sπ 
+
+2
+
+
+
+,
+
+√2 ds sin(2 πjt )
+
+dt s = √2(2 πj )s sin 
+
+
+
+2πjt + sπ 
+
+2
+
+
+
+.
+
+The trigonometric formulas lead to, 
+
+√2 cos 
+
+
+
+2πjt + sπ 
+
+2
+
+
+
+= √2 cos 
+
+ sπ 
+
+2
+
+
+
+cos(2 πjt ) − √2 sin 
+
+ sπ 
+
+2
+
+
+
+sin(2 πjt )= asϕ2j (t) + bsϕ2j+1 (t),
+
+and √2 sin 
+
+
+
+2πjt + sπ 
+
+2
+
+
+
+= √2 sin 
+
+ sπ 
+
+2
+
+
+
+cos(2 πjt ) + √2 cos 
+
+ sπ 
+
+2
+
+
+
+sin(2 πjt )= csϕ2j (t) + asϕ2j+1 (t),
+
+with as = cos ( sπ  
+
+> 2
+
+), bs = − sin ( sπ  
+
+> 2
+
+) and cs = sin ( sπ  
+
+> 2
+
+). More particularly these coefficients have the following values depending on s:s mod 4 as bs cs
+
+0 1 0 01 0 -1 12 -1 0 03 0 1 -1 Using the previous result, we get that 
+
+β(s) 
+
+> w(l)
+
+(t) = 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+(2 πj )sasw(l)2j u2j ϕ2j (t) + bsw(l)2j u2j ϕ2j+1 (t)
+
++
+
+> ⌊(d−1) /2⌋
+
+X
+
+> j=1
+
+(2 πj )scsw(l)2j+1 u2j+1 ϕ2j (t) + asw(l)2j+1 u2j+1 ϕ2j+1 (t)
+
+=
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+(2 πj )sasw(l)2j u2j + cs1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j (t)+ bsw(l)2j u2j + as1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+ϕ2j+1 (t)
+
+
+
+,
+
+54 which proves the first point of the Lemma. Now let us focus on the second one. Let’s consider 
+
+Aj := (2 πj )k 
+
+akw(l)2j u2j + ck1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+
+
+,Bj := (2 πj )k 
+
+bkw(l)2j u2j + ak1{2j+1 ≤d}w(l)2j+1 u2j+1 
+
+
+
+,
+
+as well as, 
+
+xj := w(l)2j u2j , yj := 1{2j+1 ≤d}w(l)2j+1 u2j+1 .
+
+This gives the following expressions for Aj and Bj :
+
+Aj = (2 πj )k(akxj + ckyj ), Bj = (2 πj )k(bkxj + akyj ).
+
+From this we can deduce that 
+
+A2 
+
+> j
+
++ B2 
+
+> j
+
+= (2 πj )2k(akxj + ckyj )2 + ( bkxj + akyj )2
+
+= (2 πj )2k(a2 
+
+> k
+
++ b2
+
+> k
+
+)x2 
+
+> j
+
++ ( c2 
+
+> k
+
++ a2
+
+> k
+
+)y2 
+
+> j
+
++ 2 xj yj (akck + akbk).
+
+Now we can notice that 
+
+a2 
+
+> k
+
++ b2 
+
+> k
+
+= cos 2   kπ 
+
+> 2
+
+ + sin 2   kπ 
+
+> 2
+
+ = 1 , c2 
+
+> k
+
++ a2 
+
+> k
+
+= sin 2   kπ 
+
+> 2
+
+ + cos 2   kπ 
+
+> 2
+
+ = 1 ,
+
+and 
+
+akck + akbk = ak(ck + bk) = 0 .
+
+Therefore the cross term vanishes and both quadratic coefficients are equal to 1, which gives 
+
+A2 
+
+> j
+
++ B2 
+
+> j
+
+= (2 πj )2k(x2 
+
+> j
+
++ y2 
+
+> j
+
+) = (2 πj )2k 
+
+(w(l)2j u2j )2 + 1{2j+1 ≤d} (w(l)2j+1 u2j+1 )2
+
+. (87) By orthonormality of the real Fourier basis {ϕj }j≥1 in L2(0 , 1) , we have ⟨ϕi, ϕ j ⟩L2 = δij . Hence, when β(k) 
+
+> w(l)
+
+is written as a linear combination 
+
+β(k) 
+
+> w(l)
+
+(t) = 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+ Aj ϕ2j (t) + Bj ϕ2j+1 (t),
+
+its squared L2 norm is simply the sum of the squared coefficients : 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+=
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+ A2 
+
+> j
+
++ B2
+
+> j
+
+,
+
+since all cross terms ⟨ϕi, ϕ j ⟩L2 with i̸ = j vanish. Substituting equation (87) we obtain 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+= (2 π)2k
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+j2k  w(l)2j u2j
+
+2 + 1{2j+1 ≤d}
+
+ w(l)2j+1 u2j+1 
+
+2
+
+= (2 π)2k
+
+
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+j2k(w2j u2j )2 +
+
+> ⌊(d−1) /2⌋
+
+X
+
+> j=1
+
+j2k(w2j+1 u2j+1 )2
+
+ ,
+
+(88) where the indicator function has been replaced by the upper limit ⌊(d − 1) /2⌋. Let us treat the first sum. We set r = 2 j. Then j = r/ 2, and when j = 1 we have r = 2 , while when j = ⌊d/ 2⌋,
+
+r = 2 ⌊d/ 2⌋ ≤ d. Therefore 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+j2k(w2j u2j )2 = X
+
+> r=2 ,4,... r≤d
+
+ r
+
+2
+
+2k
+
+(wr ur )2.
+
+55 Since r/ 2 ≤ r, we get the bound 
+
+> ⌊d/ 2⌋
+
+X
+
+> j=1
+
+j2k(w2j u2j )2 ≤ X
+
+> r=2 ,4,... r≤d
+
+r2k(wr ur )2.
+
+Let us now focus on the second sum of equation (88). We set r = 2 j + 1 . Then j = ( r − 1) /2, and as j runs from 1 to ⌊(d − 1) /2⌋, r runs over all odd integers r = 3 , 5, . . . , 2⌊(d − 1) /2⌋ + 1 ≤ d.Hence, ⌊(d−1) /2⌋
+
+X
+
+> j=1
+
+j2k(w2j+1 u2j+1 )2 = X
+
+> r=1 ,3,... r≤d
+
+ r − 12
+
+2k
+
+(wr ur )2.
+
+Since (r − 1) /2 ≤ r, we obtain 
+
+> ⌊(d−1) /2⌋
+
+X
+
+> j=1
+
+j2k(w2j+1 u2j+1 )2 ≤ X
+
+> r=1 ,3,... r≤d
+
+r2k(wr ur )2.
+
+Adding the even and odd contributions gives 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ (2 π)2k
+
+X
+
+> r=2 ,4,... r≤d
+
+r2k(wr ur )2 + X
+
+> r=1 ,3,... r≤d
+
+r2k(wr ur )2
+
+ .
+
+The union of even and odd indices from 1 to d is simply {1, 2, . . . , d }, therefore we can merge the sums: 
+
+∥β(k) 
+
+> w(l)
+
+∥2 
+
+> L2
+
+≤ (2 π)2kdX
+
+> r=1
+
+r2k(wr ur )2.
+
+D.2 Condition 2. of the proof 
+
+Proposition D.2. Let M ∈ N \ { 0} and, for each l = 1 , . . . , M , let w(l) ∈ { 0, 1}d and w(0) =(0 , . . . , 0) , where d is defined in (84) . For j ∈ { 0, l }, let βw(j) be defined by (81) . Let Pj denote the joint law of the observed sample {(Zi, Y i)}ni=1 under the model associated with βw(j) . Then, for every l = 1 , . . . , M ,
+
+K(P0∥Pl) ≤ α′ log M, 
+
+for some 0 < α ′ < 18 .Proof. We first work at the level of a single observation (X, Z, Y ), and later use the fact that 
+
+(Xi, Z i, Y i)i=1 ,...,n are i.i.d to recover the result for the full sample. Using Lemma D.2, we have 
+
+K P 10 ∥P 1
+
+> l
+
+ ≤ EX∼P (0) ,1full (X)
+
+h
+
+K P (0) ,1full (Y | X)∥P (l),1full (Y | X)i
+
+, (89) where P (l),1full is the probability of the triplet (X, Z, Y ) under model l. We now compute the right-hand side. Under P (l),1full , conditionally on X, we have 
+
+Y | X ∼ N  ⟨X, β w(l) ⟩L2 , σ 2.
+
+Define 
+
+ν(l) := ⟨X, β w(l) ⟩L2 =
+
+> d
+
+X
+
+> j=1
+
+w(l) 
+
+> j
+
+uj ⟨X, ϕ j ⟩L2 . (90) and 
+
+ν(0) := 0 .
+
+56 Since the conditional distributions are Gaussian with the same variance, we obtain 
+
+dP (0) ,1full (Y | X)
+
+dP (l),1full (Y | X) = exp 
+
+ 12σ2
+
+h
+
+(Y − ν(l))2 − (Y − ν(0) )2i
+
+,
+
+and after developing the square we get 
+
+dP (0) ,1full (Y | X)
+
+dP (l),1full (Y | X) = exp 
+
+ 12σ2
+
+
+
+ν(l)2
+
+− 2Y ν (l)
+
+ 
+
+= exp 
+
+ ν(l)2
+
+2σ2 − Y ν (l)
+
+σ2
+
+!
+
+.
+
+By taking expectation under P (0) ,1full (Y | X), we obtain 
+
+EP (0) ,1full 
+
+"
+
+log dP (0) ,1full (Y | X)
+
+dP (l),1full (Y | X) X
+
+#
+
+= 12σ2
+
+h  
+
+ν(l)2
+
+− 2ν(l)E(Y | X)
+
+i
+
+.
+
+Now, under P (0) ,1full , we have E(Y | X) = ν(0) = 0 , hence 
+
+EP (0) ,1full 
+
+"
+
+log dP (0) ,1full (Y | X)
+
+dP (l),1full (Y | X) X
+
+#
+
+= 12σ2
+
+
+
+ν(l)2
+
+.
+
+Using the definition of ν(l) given in (90) we have that 
+
+
+
+ν(l)2
+
+=
+
+> d
+
+X
+
+> j,k =1
+
+w(l) 
+
+> j
+
+w(l) 
+
+> k
+
+uj uk ⟨X, ϕ j ⟩L2 ⟨X, ϕ k⟩L2 .
+
+Taking expectation with respect to X ∼ P (0) ,1full (X), we obtain 
+
+E
+
+
+
+ν(l)2
+
+=
+
+> d
+
+X
+
+> j,k =1
+
+w(l) 
+
+> j
+
+w(l) 
+
+> k
+
+uj ukE⟨X, ϕ j ⟩L2 ⟨X, ϕ k⟩L2
+
+.
+
+Using now equation (49) we get that 
+
+E
+
+
+
+ν(l)2
+
+=
+
+> d
+
+X
+
+> j=1
+
+λj u2
+
+> j
+
+ w(l)
+
+> j
+
+2.
+
+Combining with (89), we get for one observation 
+
+K P 10 ∥P 1
+
+> l
+
+ ≤ 12σ2
+
+> d
+
+X
+
+> j=1
+
+λj u2
+
+> j
+
+ w(l)
+
+> j
+
+2,
+
+Since the observations are independent, we have 
+
+K P0∥Pl
+
+ = nK  P 10 ∥P 1
+
+> l
+
+,
+
+and therefore 
+
+K(P0∥Pl) ≤ n
+
+2σ2
+
+> d
+
+X
+
+> j=1
+
+λj u2
+
+> j
+
+ w(l)
+
+> j
+
+2.
+
+Using the definition u2 
+
+> j
+
+= Cnλ j and the bound C ≤ σ2 α′ log(2) 4 , we obtain 
+
+n
+
+2σ2
+
+> d
+
+X
+
+> j=1
+
+λj u2
+
+> j
+
+ w(l)
+
+> j
+
+2 ≤ α′ log(2) d
+
+8 .
+
+Finally, by the Varshamov–Gilbert bound (Lemma 2.9 in [15]), M ≥ 2d/ 8, hence d ≤ 8 log( M )log(2) ,which concludes the proof. 57 Lemma D.2. Let l ∈ { 1, . . . , M }. Let P 10 and P 1 
+
+> l
+
+denote the joint laws of (Z, Y ) under the models associated with βw(0) and βw(l) , respectively. Let P (0) ,1full and P (l),1full denote the corresponding joint laws of (X, Z, Y ). Then 
+
+K(P 10 ∥P 1 
+
+> l
+
+) ≤ EX∼P (0) ,1full (X)
+
+h
+
+K
+
+
+
+P (0) ,1full (Y |X)∥P (l),1full (Y |X)
+
+i 
+
+.
+
+Proof. We work with the full joint model for each j ∈ { 0, l }, denoted P (j),1full , governing the triplet 
+
+(X, Z, Y ). The observed law P 1 
+
+> j
+
+is the (Z, Y )-marginal of P (j),1full .Using Lemma D.3 stated below and its associated notation, we have 
+
+K P 10 ∥P 1
+
+> l
+
+ = K P 1,Z  
+
+> 0
+
+∥P 1,Z l
+
+ + EZ∼P 1,Z 
+
+> 0
+
+K P 10 (· | Z)∥P 1 
+
+> l
+
+(· | Z) . (91) Since the marginal law of Z does not depend on j for j ∈ { 0, l } (the distribution of (X, η ) being identical across models), we have P 1,Z  
+
+> 0
+
+= P 1,Z l and thus 
+
+K P 1,Z  
+
+> 0
+
+∥P 1,Z l
+
+ = 0 .
+
+Now fix z. For j ∈ { 0, l } we can define under the full model P (j),1full ,
+
+μz (dx ) := P (j),1full (X ∈ dx | Z = z)
+
+be a regular conditional distribution of X given Z = z. Note that μz does not depend on j, since the joint law of (X, Z ) is the same for all j. Let us denote by μ(dx ) the law of X. We have using Bayes’s formula that the density of μz (dx ) with respect to μ(dx ) is 
+
+μz (dx ) = fZ|X=x(z)
+
+R fZ|X=u(z)μ(du ) μ(dx ), (92) where fZ|X=x is defined in equation (95). Using the definition of the conditional density (98) we have for j ∈ { 0, l } that 
+
+pj (y | z) = pj (z, y )
+
+pZj (z) =
+
+R fZ|X=x(z)p(j)full (y | x)μ(dx )
+
+R fZ|X=x(z)μ(dx ) .
+
+Now using the definition of μz given in equation (92) we find for j ∈ { 0, l },
+
+Z
+
+p(j)full (y | x)μz (dx ) = 
+
+Z
+
+p(j)full (y | x) fZ|X=x(z)
+
+R fZ|X=u(z)μ(du ) μ(dx )=
+
+R fZ|X=x(z)p(j)full (y | x)μ(dx )
+
+R fZ|X=x(z)μ(dx )= pj (y | z).
+
+Let us still consider z fixed, and let us compute K P 10 (· | Z = z)∥P 1 
+
+> l
+
+(· | Z = z). Using the definition of the Kullback–Leibler divergence and the previous representation for pj (y | z), we have 
+
+K P 10 (· | Z = z)∥P 1 
+
+> l
+
+(· | Z = z) =
+
+Z
+
+p0(y | z) log p0(y | z)
+
+pl(y | z) dy 
+
+=
+
+Z Z 
+
+p(0) full (y | x)μz (dx )
+
+
+
+log 
+
+R p(0) full (y | x)μz (dx )
+
+R p(l)full (y | x)μz (dx ) dy. 
+
+Now let us fix y and set 
+
+a(x) = p(0) full (y | x), b(x) = p(l)full (y | x), s =
+
+Z
+
+b(x)μz (dx ).
+
+58 Let us define the probability measure π(dx ) = b(x)μz (dx ) 
+
+> s
+
+and the ratio r(x) = a(x)/b (x). For 
+
+φ(t) = t log t which is a convex function on (0 , ∞) we have by Jensen’s inequality, 
+
+Z
+
+a(x) log 
+
+ a(x)
+
+b(x)
+
+
+
+μz (dx ) = 
+
+Z
+
+b(x)φ(r(x)) μz (dx )= s
+
+Z
+
+φ(r(x)) π(dx )
+
+≥ sφ 
+
+Z 
+
+r(x)π(dx )
+
+
+
+= s
+
+ R a(x)μz (dx )
+
+s
+
+
+
+log 
+
+ R a(x)μz (dx )
+
+s
+
+
+
+.
+
+As s = R b(x)μz (dx ), we obtain for each y,
+
+ Z
+
+p(0) full (y | x)μz (dx )
+
+
+
+log 
+
+R p(0) full (y | x)μz (dx )
+
+R p(l)full (y | x)μz (dx ) ≤
+
+Z
+
+p(0) full (y | x) log p(0) full (y | x)
+
+p(l)full (y | x) μz (dx ).
+
+Integrating over y and applying Fubini’s theorem gives 
+
+K P 10 (Y | Z = z)∥P 1 
+
+> l
+
+(Y | Z = z) ≤
+
+Z Z
+
+p(0) full (y | x) log p(0) full (y | x)
+
+p(l)full (y | x) dy 
+
+!
+
+μz (dx ).
+
+The inner integral is the Kullback–Leibler divergence K P (0) ,1full (Y | X = x)∥P (l),1full (Y | X = x).Hence 
+
+K P 10 (Y | Z = z)∥P 1 
+
+> l
+
+(Y | Z = z) ≤ EX∼P (0) ,1full (X|Z=z)
+
+h
+
+K P (0) ,1full (Y | X)∥P (l),1full (Y | X)i
+
+.
+
+Taking expectations over Z ∼ P 1,Z  
+
+> 0
+
+and using (91) we get, 
+
+K P 10 ∥P 1
+
+> l
+
+ ≤ EX∼P (0) ,1full (X)
+
+h
+
+K P (0) ,1full (Y | X)∥P (l),1full (Y | X)i
+
+. (93) 
+
+Lemma D.3. Let P 10 and P 1 
+
+> l
+
+, l = 1 , . . . , M , be two probability measures on Rp × R corresponding to the joint distribution of (Z, Y ). In particular, for all model j ∈ { 0, l },
+
+Y = ⟨X, β w(j) ⟩L2 + ϵ, (94) 
+
+where βw(j) given by (81) and ϵ ∼ N (0 , σ 2). Assume that P 10 ≪ P 1 
+
+> l
+
+and let us denote by P 1,Z  
+
+> 0
+
+and 
+
+P 1,Z l the marginal laws of Z. Then, 
+
+K(P 10 ∥P 1 
+
+> l
+
+) = K(P 1,Z  
+
+> 0
+
+∥P 1,Z l ) + EZ∼P 1,Z 
+
+> 0
+
+K P 10 (· | Z)∥P 1 
+
+> l
+
+(· | Z) .
+
+Proof. We first show that P 10 and P 1 
+
+> l
+
+admit densities with respect to the Lebesgue measure on 
+
+Rp+1 . By definition of Z and using the fact that the ηi,h ’s are Gaussian, centered and of variance 
+
+τ 2, we have that 
+
+Z | X = x ∼ N (xgrid , τ 2Ip),
+
+where xgrid = ( x(h/p )) h=0 ,...,p −1. Therefore Z | X = x admits a density fZ|X=x which is such that 
+
+fZ|X=x(z) = 1(2 πτ 2)p/ 2 exp 
+
+
+
+− ∥z − xgrid ∥22
+
+2τ 2
+
+
+
+. (95) Moreover, under P 1 
+
+> j
+
+, j ∈ { 0, l }, the response variable Y is described by equation (94). Therefore for all j ∈ { 0, l } we have conditional on X = x,
+
+Y | X = x ∼ N (⟨x, β w(j) ⟩L2 , σ 2).
+
+59 Hence it admits a density p(j)full (· | x) which is such that 
+
+p(j)full (y | x) = 1(2 πσ 2)1/2 exp 
+
+
+
+− (y − ⟨ x, β w(j) ⟩L2 )2
+
+2σ2
+
+
+
+.
+
+As the ϵi’s and ηi,h ’s are assumed to be independent we have that for all j ∈ { 0, l }, l = 1 , . . . , M ,
+
+(Z, Y ) | X = x admits a density which is given by 
+
+f (j)(Z,Y )|X=x(z, y ) = fZ|X=x(z)p(j)full (y | x).
+
+Let us now integrate out with respect to the law of X that we denote as μ(dx ). We obtain that the density of P 1 
+
+> j
+
+is given by 
+
+pj (z, y ) = 
+
+Z
+
+f (j)(Z,Y )|X=x(z, y )μ(dx )=
+
+Z
+
+fZ|X=x(z)p(j)full (y | x)μ(dx ).
+
+(96) Finally, we get that P 1,Z j admits a density too which is given by 
+
+pZj (z) = 
+
+Z
+
+pj (z, y )dy 
+
+=
+
+Z Z
+
+fZ|X=x(z)p(j)full (y | x)μ(dx )dy 
+
+=
+
+Z
+
+fZ|X=x(z)μ(dx ),
+
+(97) where we used Fubini’s theorem and the definition of a density to derive the last line. Thus the conditional density of Y given Z under P 1 
+
+> j
+
+is given by 
+
+pj (y | z) = pj (z, y )
+
+pZj (z)=
+
+R fZ|X=x(z)p(j)full (y | x)μ(dx )
+
+R fZ|X=x(z)μ(dx ) ,
+
+(98) By definition of the Kullback–Leibler divergence, we have 
+
+K  P 10 ∥P 1
+
+> l
+
+ =
+
+Z
+
+p0(z, y ) log 
+
+ p0(z, y )
+
+pl(z, y )
+
+
+
+dzdy 
+
+=
+
+Z
+
+p0(z, y ) log 
+
+ p0(y | z)pZ 
+
+> 0
+
+(z)
+
+pl(y | z)pZl (z)
+
+
+
+dzdy 
+
+=
+
+Z
+
+p0(z, y ) log 
+
+ pZ 
+
+> 0
+
+(z)
+
+pZl (z)
+
+
+
+dzdy +
+
+Z
+
+p0(z, y ) log 
+
+ p0(y | z)
+
+pl(y | z)
+
+
+
+dzdy, 
+
+where we used the definition of the conditional density given by equation (98) to get the second line and the property of the log to get the last one. Now let’s deal with these two terms one by one. For the first one we have, using Fubini’s theorem and the definition of the marginal density that Z
+
+p0(z, y ) log 
+
+ pZ 
+
+> 0
+
+(z)
+
+pZl (z)
+
+
+
+dzdy =
+
+Z
+
+log 
+
+ pZ 
+
+> 0
+
+(z)
+
+pZl (z)
+
+ Z 
+
+p0(z, y )dy 
+
+
+
+dz 
+
+=
+
+Z
+
+pZ 
+
+> 0
+
+(z) log 
+
+ pZ 
+
+> 0
+
+(z)
+
+pZl (z)
+
+
+
+dz 
+
+= K
+
+
+
+P 1,Z  
+
+> 0
+
+∥P 1,Z l
+
+
+
+.
+
+60 For the second term, we get using the definition of conditional densities given in (98) and Fubini’s theorem that 
+
+Z
+
+p0(z, y ) log 
+
+ p0(y | z)
+
+pl(y | z)
+
+
+
+dzdy =
+
+Z
+
+pZ 
+
+> 0
+
+(z)p0(y | z) log 
+
+ p0(y | z)
+
+pl(y | z)
+
+
+
+dzdy 
+
+=
+
+Z
+
+pZ 
+
+> 0
+
+(z)
+
+Z 
+
+p0(y | z) log 
+
+ p0(y | z)
+
+pl(y | z)
+
+
+
+dy 
+
+
+
+dz 
+
+= EZ∼P 1,Z 
+
+> 0
+
+ K(P 10 (· | Z)∥P 1 
+
+> l
+
+(· | Z))  .
+
+Combining these two results yields the desired property. 
+
+D.3 Condition 3. of the proof 
+
+Proposition D.3. Consider d defined by Equation (84), the test functions given by Equation (81), the semi-norm described by Equation (28). Then, 
+
+∥βw(l) − βw(l′) ∥2Γ ≥ 2C4n− 2a+2 k 
+
+> 2a+2 k+1
+
+,
+
+where C4 is a positive constant which depends on k, L, c ′, σ .Proof. Using the definition of Γ given in (17) we find that 
+
+∥βw(l) − βw(l′) ∥2Γ = ⟨Γ( βw(l) − βw(l′) ), β w(l) − βw(l′) ⟩L2
+
+= ⟨
+
+> d
+
+X
+
+> j=1
+
+uj (w(l) 
+
+> j
+
+− w(l′) 
+
+> j
+
+)Γ ϕj ,
+
+> d
+
+X
+
+> k=1
+
+uk(w(l) 
+
+> k
+
+− w(l′) 
+
+> k
+
+)ϕk⟩L2
+
+=
+
+> d
+
+X
+
+> j,k =1
+
+uj uk(w(l) 
+
+> j
+
+− w(l′) 
+
+> j
+
+)( w(l) 
+
+> k
+
+− w(l′) 
+
+> k
+
+)⟨Γϕj , ϕ k⟩L2
+
+=
+
+> d
+
+X
+
+> j=1
+
+λj (w(l) 
+
+> j
+
+− w(l′) 
+
+> j
+
+)2u2 
+
+> j
+
+,
+
+(99) as the λj ’s are eigenvalues of Γ associated to the eigenvectors ϕj ’s. Now using the definition of uj
+
+given by (82) we get 
+
+∥βw(l) − βw(l′) ∥2Γ ≥ Cn
+
+> d
+
+X
+
+> j=1
+
+(w(l) 
+
+> j
+
+− w(l′) 
+
+> j
+
+)2.
+
+Now, as dX
+
+> j=1
+
+(w(l) 
+
+> j
+
+− w(l′) 
+
+> j
+
+)2 =
+
+> d
+
+X
+
+> j=1
+
+1{w(l)  
+
+> j̸=w(l′)
+> j}
+
+,
+
+we can use the Varshamov–Gilbert bound (Lemma 2.9 of Tsybakov [15]) and get that 
+
+∥βw(l) − βw(l′) ∥2Γ ≥ Cd 
+
+8n .
+
+Using the definition of d we find that 
+
+∥βw(l) − βw(l′) ∥2Γ ≥ 2C4n− 2a+2 k 
+
+> 2a+2 k+1
+
+,
+
+where C4 = Cκ  
+
+> 16
+
+which is the desired result. 
+
+# E Orthogonal projection of β onto Sm with respect to ⟨· , ·⟩ Γ
+
+# and ⟨· , ·⟩ eΓ
+
+As β is in L2([0 , 1]) and the Fourier basis forms a basis of this space, we can write 
+
+β = X
+
+> j≥1
+
+βj ϕj ,
+
+61 where βj = ⟨β, ϕ j ⟩L2 . We first determine β(m)Γ the orthogonal projection of β onto Sm with respect to ⟨· , ·⟩ Γ. Using the definition of Sm defined by equation (5) we have that (ϕ1, ϕ 2, . . . , ϕ Dm ) form a basis of Sm. By definition of the orthogonal projection β(m)Γ is in Sm, there exist real numbers 
+
+μ1, μ 2, . . . , μ Dm , such that 
+
+β(m)Γ =
+
+> Dm
+
+X
+
+> j=1
+
+μj ϕj ,
+
+and for the same argument we have that β − β(m)Γ ∈ S⊥
+
+> m
+
+. As (ϕ1, ϕ 2, . . . , ϕ Dm ) is a basis of Sm this implies that for all k = 1 , . . . , D m,
+
+⟨β − β(m)Γ , ϕ k⟩Γ = 0 .
+
+Using the fact that for all j, k = 1 , . . . , D m
+
+⟨ϕj , ϕ k⟩Γ = ⟨Γϕj , ϕ k⟩L2 = ⟨λj ϕj , ϕ k⟩L2 = λj δjk ,
+
+with λj > 0 for all j = 1 , . . . , D m, and Fubini’s theorem to justify the following computation, we obtain 
+
+⟨β − β(m)Γ , ϕ k⟩Γ = ⟨ X
+
+> j>D m
+
+βj Γϕj , ϕ k⟩L2 + ⟨
+
+> Dm
+
+X
+
+> j=1
+
+(βj − μj )Γ ϕj , ϕ k⟩L2 = λk(βk − μk).
+
+Therefore, ⟨β − β(m)Γ , ϕ k⟩Γ = 0 ⇐⇒ λk(βk − μk) = 0 for all k = 1 , . . . , D m. And as λk > 0 we find that ⟨β − β(m)Γ , ϕ k⟩Γ = 0 ⇐⇒ βk = μk. Hence, β(m)Γ = PDm 
+
+> j=1
+
+βj ϕj . We proceed in a similar way to determine β(m) 
+
+> eΓ
+
+the orthogonal projection of β onto Sm with respect to ⟨· , ·⟩ eΓ. By the definition of the orthogonal projection, we must have β(m) 
+
+> eΓ
+
+∈ Sm, therefore there exist eμ1, . . . , eμDm such that 
+
+β(m) 
+
+> eΓ
+
+=
+
+> Dm
+
+X
+
+> j=1
+
+eμj ϕj .
+
+We also have that for all k = 1 , . . . , D m,
+
+β − β(m) 
+
+> eΓ
+
+= 0 .
+
+Using Lemma B.5 and Fubini’s theorem we obtain, 
+
+⟨β − β(m) 
+
+> eΓ
+
+, ϕ k⟩eΓ = ⟨ X
+
+> j>D m
+
+βj eΓϕj , ϕ k⟩L2 + ⟨
+
+> Dm
+
+X
+
+> j=1
+
+(βj − eμj )eΓϕj , ϕ k⟩L2 = eλk(βk − eμk).
+
+Hence, ⟨β − β(m) 
+
+> eΓ
+
+, ϕ k⟩eΓ = 0 ⇐⇒ λk(βk − eμk) = 0 for all k = 1 , . . . , D m. And as eλk > 0 we find that ⟨β − β(m) 
+
+> eΓ
+
+, ϕ k⟩eΓ = 0 ⇐⇒ βk = eμk. Therefore, β(m) 
+
+> eΓ
+
+= PDm 
+
+> j=1
+
+βj ϕj and β(m) 
+
+> eΓ
+
+= β(m)Γ .
+
+# Acknowledgments 
+
+I am deeply grateful to my supervisors, Gaëlle Chagny, Vincent Rivoirard and Angelina Roche, for their insightful comments and constructive feedback. The author also acknowledge the support of the French Agence Nationale de la Recherche (ANR) under reference ANR-24-CE40-2439 (FUNMathStat project). 
+
+# References 
+
+[1] Yannick Baraud. “Model Selection for Regression on a Fixed Design”. In: Probability Theory and Related Fields 117 (2000), pp. 467–493. doi : 10.1007/PL00008731 .62 [2] Stéphane Boucheron, Gábor Lugosi, and Pascal Massart. Concentration Inequalities: A Nonasymp-totic Theory of Independence . Oxford, UK: Oxford University Press, 2013. isbn : 9780199535255. 
+
+doi : 10.1093/acprof:oso/9780199535255.001.0001 .[3] Elodie Brunel, André Mas, and Angelina Roche. “Non-Asymptotic Adaptive Prediction in Functional Linear Models”. In: Journal of Multivariate Analysis 143 (2016), pp. 208–232. 
+
+issn : 0047-259X. doi : 10.1016/j.jmva.2015.09.008 .[4] Elodie Brunel and Angelina Roche. “Penalized Contrast Estimation in Functional Linear Models with Circular Data”. In: Statistics 49.6 (2015), pp. 1298–1321. doi : 10 . 1080 / 02331888.2014.993986 .[5] Hervé Cardot, Frédéric Ferraty, and Pascal Sarda. “Functional Linear Model”. In: Statistics & Probability Letters 45.1 (1999), pp. 11–22. doi : 10.1016/S0167-7152(99)00036-X .[6] Hervé Cardot and Jan Johannes. “Thresholding Projection Estimators in Functional Linear Models”. In: Journal of Multivariate Analysis 101.2 (2010), pp. 395–408. issn : 0047-259X. 
+
+doi : 10.1016/j.jmva.2009.03.001 .[7] Hervé Cardot et al. “Smoothing Splines Estimators in Functional Linear Regression with Errors-in-Variables”. In: Computational Statistics & Data Analysis 51.10 (2007). [8] F. Comte and J. Johannes. “Adaptive Estimation in Circular Functional Linear Models”. In: 
+
+Mathematical Methods of Statistics 19.1 (2010), pp. 42–63. [9] S. Dieng et al. “Application of Functional Data Analysis to Identify Patterns of Malaria Incidence, to Guide Targeted Control Strategies”. In: International Journal of Environmental Research and Public Health 17.11 (2020), p. 4168. doi : 10.3390/ijerph17114168 .[10] K. F. Frøslie, J. Røislien, E. Qvigstad, et al. “Shape Information from Glucose Curves: Functional Data Analysis Compared with Traditional Summary Measures”. In: BMC Medical Research Methodology 13.6 (2013). doi : 10.1186/1471-2288-13-6 .[11] Paul-Marie Grollemund et al. “Bayesian Functional Linear Regression with Sparse Step Func-tions”. In: Bayesian Analysis 14.1 (2019), pp. 111–135. doi : 10.1214/18-BA1095 .[12] Gareth M. James, Jing Wang, and Ji Zhu. “Functional Linear Regression That’s Inter-pretable”. In: The Annals of Statistics 37.5A (2009), pp. 2083–2108. doi : 10 . 1214 / 08 -AOS641 .[13] Piotr Kokoszka, Hong Miao, and Ben Zheng. “Testing for Asymmetry in Betas of Cumulative Returns: Impact of the Financial Crisis and Crude Oil Price”. In: Statistics & Risk Modeling 
+
+34.1–2 (2017), pp. 33–53. doi : 10.1515/strm-2016-0010 .[14] J. O. Ramsay and B. W. Silverman. Functional Data Analysis . 2nd ed. Springer Series in Statistics. Springer, 2005. [15] Alexandre B. Tsybakov. Introduction to Nonparametric Estimation . Springer Series in Statis-tics. New York, NY: Springer, 2009. isbn : 978-0-387-79051-0. doi : 10.1007/b13794 .[16] Roman Vershynin. High-Dimensional Probability: An Introduction with Applications in Data Science . 2nd ed. Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge: Cambridge University Press, 2026. 63
