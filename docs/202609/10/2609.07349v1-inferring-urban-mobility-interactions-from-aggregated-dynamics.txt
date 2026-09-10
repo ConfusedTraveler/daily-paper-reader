@@ -1,0 +1,453 @@
+Title: 2609.07349v1.pdf
+
+URL Source: https://arxiv.org/pdf/2609.07349v1
+
+Published Time: Wed, 09 Sep 2026 02:12:55 GMT
+
+Number of Pages: 26
+
+Markdown Content:
+> 1
+
+# Inferring Urban Mobility Interactions from Aggregated Dynamics 
+
+Yi Wang 1, 2, # , Jing Li 2, #, * , Jinliang Deng 3, * , Zhenghong Wang 4, Yizhi Zhang 1, Fan Zhang 1, * , Ivor W. Tsang 2, Yu Liu 1 
+
+> 1
+
+Institute of Remote Sensing and Geographic Information System, School of Earth and Space Sciences, Peking University, Beijing, China  
+
+> 2
+
+Centre for Frontier AI Research, Institute of High-Performance Computing, Agency for Science, Technology and Research (A*STAR), Singapore  
+
+> 3
+
+Department of Computer Science and Engineering, Hong Kong University of Science and Technology, Hong Kong, China.  
+
+> 4
+
+College of Computer and Data Science, Fuzhou University, Fuzhou, China  
+
+> #
+
+These authors have equal contributions  
+
+> *
+
+Corresponding author(s): Jing Li (li_jing@a-star.edu.sg), Jinliang Deng (jinliangdeng9588@gmail.com), Fan Zhang (fanzhanggis@pku.edu.cn) 
+
+## Abstract 
+
+Real-time urban governance depends not only on knowing where people are, but on how they move between places, directional flows that could be conventionally resolved by tracking individuals through space—expensive to sustain and built on traces that are highly unique and readily re-identifiable. Here we show that this directional structure need not be observed to be known: aggregated counts which cities already collect retain enough information to reconstruct the temporal evolution of origin–destination (OD) matrix. Using an uncertainty-aware physics-informed framework (ODIN), we infer future OD flows from area-level counts alone across twelve mobility datasets from cities in the United States and China, reaching accuracy comparable to models that take historical OD matrices as input. Probabilistic modeling corrects the systematic underestimation of sparse, high-value corridors and yields calibrated predictions consistent with observed flows. Architectures that respect the generation-before-assignment logic of transport planning recover interactions more faithfully, indicating that location-level spatial heterogeneity should be preserved before pairwise interactions are reconstructed. Because inference requires only aggregated observations after training, recovering interactions this way reduces reliance on continuous individual-level tracking, pointing toward a more deployable and less exposure-heavy basis for real-time urban intelligence. 
+
+## Introduction 
+
+Spatiotemporal interactions are a fundamental organizing principle of complex systems, describing how entities exchange people, goods, information or risks across space and time 1. They shape a wide range of dynamic processes, from global trade 2 and supply-chain connectivity 3 to epidemic transmission 2
+
+and evolving social relations 4. Human mobility 5,6 represents one of the most direct and measurable forms of such interactions within cities. The continuous flux of human mobility underpins the resilience 4,7 ,productivity 8,9 and sustainable development of urban systems 10,11 . Real-time urban governance therefore increasingly depends on understanding not only where people are, but where they are moving from and to 12-14 . These directed, time-varying transitions are formalized as dynamic Origin-Destination (OD) flows, and interventions ranging from transport optimization 15 and crowd management 16 to infectious disease containment 17 all depend on knowing them. Yet the standard route to these flows runs through individual trajectories—costly to sustain, and intrusive by construction. Learning-based paradigms have become the dominant route to dynamic OD inference, but they are typically formulated to predict OD flows from historical OD observations at the same granularity 18 . At deployment, they therefore presuppose a continuous supply of OD observations as input—a supply that the real world is doubly ill-equipped to provide. First, ubiquitous sensing infrastructures 19,20 (e.g., inductive loops and photoelectric sensors) typically provide only cross-sectional counting capabilities. This “count-but-not-track” mechanism captures local aggregate dynamics but fails to record individual end-to-end trajectories 21 , leaving the underlying origin–destination interactions unobserved. Second, fine-grained OD observations from GPS or cellular signaling 22,23 are not the innocuous aggregates they appear to be. At the resolutions required for real-time inference, a large fraction of OD–time cells contain a single trip (Fig. 1a and Fig. 6), and such cells are individual records in aggregate clothing. Montjoye et al. have shown that traces of this kind are highly unique, with as few as four spatiotemporal points sufficing to identify an individual from a population of millions with 95% accuracy 24 . These limitations motivate a shift from directly observing OD flows to asking whether spatially aggregated dynamics 25,26 ,which are more widely accessible and already routinely collected, still retain recoverable fine-grained information about latent mobility interactions. To examine this recoverability, we study coarse-to-fine dynamic OD prediction. This problem is severely under-constrained 27-29 : recovering high-dimensional OD interactions from low-dimensional aggregate counts resembles inferring a joint distribution from its marginals, so that at any single instant the same aggregate observations are consistent with vastly different underlying OD structures. This difficulty is compounded by the temporal dynamics, as periodicity, volatility and sparsity at fine resolutions jointly amplify the ambiguity. Yet aggregation does not erase interaction structure entirely: temporal and spatial regularities may leave indirect but recoverable signatures of the latent flows 30-32 , an assumption our study is designed to test. Classical physical principles, such as maximum entropy 33,34 , can in principle constrain OD recovery toward physically plausible interaction structures, but their canonical realizations, such as gravity model 33 or radiation model 35 assume dense and stationary interactions. Real-time OD flows violate such assumptions as they shift strongly across time and remain highly sparse. Standard deterministic learning faces a complementary obstacle rooted in the long-tail nature of mobility 5,36 , where abundant low-value flows dominate the sparse, high-value corridors that carry most operational significance. This imbalance pulls estimates toward the low-volume majority and systematically underestimates high-value flows so that interactions become hardest to recover precisely where accuracy matters most, during mass gatherings or epidemic spread (Fig. 1b). To test whether this recoverable information is truly present, we develop ODIN, an uncertainty-aware physics-informed framework, as a probe. Across twelve mobility datasets from cities in the United States and China, we find that aggregated dynamics retain recoverable information about latent mobility interactions: from area-level counts alone, ODIN infers future OD flows with accuracy comparable to 3
+
+models that observe full historical OD. Modeling OD flows probabilistically further corrects the systematic underestimation of sparse high-value corridors and yields calibrated predictions consistent with observed flow distributions. Recovery also depends on modeling order: architectures aligned with the generation-before-assignment logic of transport planning recover interactions more faithfully, indicating that location-level spatial heterogeneity must be preserved before pairwise interactions are reconstructed. Because inference then requires only aggregated observations, the need for individual-level data shifts from continuous operation to a one-time training stage, substantially reducing both the annual acquisition burden and the exposure of sparse, potentially identifiable records. 
+
+## Results 
+
+Overview Task formulation and ODIN framework 
+
+In this study, the urban area is defined as a graph 𝒢(𝒱, ℰ) , where spatial units (e.g., traffic zones or census tracks) are represented as vertices 𝒱 ∈ ℝ ! , and the connectivity between these units is represented as edges ℰ ∈ ℝ !×! . Unlike traditional forecasting tasks that extrapolate future states using historical observation within the same granularity, our task is to infer fine-grained edge-level OD flow from coarse-grained node-level aggregated dynamics (i.e., inflow, outflow and overall flow). Let 𝑋 #$ = +𝑋 %&'() #$ , 𝑋 %&'(* #$ , … , 𝑋 %#$ -𝒢. ∈ ℝ !×+ !" ×) and 𝑋 ,-% = +𝑋 %&'() ,-% , 𝑋 %&'(* ,-% , … , 𝑋 %,-% -𝒢. ∈ ℝ!×+ !" ×) denote the historical observed inflow and outflow intensity signals on 𝑁 nodes over 𝑇 #$ 
+
+time steps. Here, 𝑞 denotes the number of time steps within the observation window 𝑇 #$ . The target is the future OD flow matrix, denoted as 𝑌 ./ = +𝑌 %() , 𝑌 %(* , … , 𝑌 %(0 -𝒢. ∈ ℝ !×!×+ #$% ×1 , representing the movement magnitude between any pair of nodes in every future time step 𝑝 . Therefore, the proposed task, i.e., coarse-to-fine dynamic OD flow prediction, can be formally defined as follows: Given the historical coarse-grained flow observations 𝑋 ,23 = {𝑋 #$ , 𝑋 ,-% |𝒢} , the objective is to learn a mapping function 𝐹(∙) to predict the future fine-grained OD matrices 𝑌 ./ :
+
+{𝑋 #$ , 𝑋 ,-% |𝒢} 9: ::;: ::< 
+
+> 4#&'
+> ℱ
+
+→ +𝑌 %() , 𝑌 %(* , … , 𝑌 %(0 -𝒢. 9: :::::;: :::::< 
+
+> 6()
+
+, (1) To recover latent OD interactions from these aggregated inputs, we develop ODIN (Fig. 2), an uncertainty-aware, physics-informed framework built on two ideas. A spatial and temporal transformer backbone first captures how each location’s mobility state evolves in time and co-varies across space, yielding representations shared by two downstream modules. The Temporally Resolved Gravity Model (TRGM) supplies a physical prior for structural recovery: rather than assuming a single static interaction pattern, it lets gravity-type structure vary over time, anchoring plausible OD structure within an otherwise intractable solution space. The Disentangled Gaussian Mixture Model (DGMM) then addresses distributional imbalance: because the long-tailed nature of OD flows leads deterministic estimators to systematically underestimate sparse, high-value corridors, DGMM separates reducible (epistemic) from irreducible (aleatoric) uncertainty and uses the former to recalibrate these underestimated flows. ODIN is then trained by maximizing likelihood under regularization that stabilizes the mixture and its training dynamics (See Methodology). Together, these components make ODIN a probe designed to extract as much recoverable structure as the aggregated signal permits—the basis for the analyses that follow. 
+
+Baselines and evaluation metrics 
+
+To establish how much of the OD structure existing methods can recover under this setting, we select benchmark methods spanning time-series forecasting, OD flow generation, spatiotemporal 4
+
+forecasting and OD flow forecasting, ranging from classical to state-of-the-art approaches, for comparison with ODIN. Specifically, these include: (1) time-series forecasting methods: DLinear 37 and iTransformer 38 ; (2) OD flow generation methods: Deep Gravity 39 , GEML 40 , ODGN 41 , and GSTE-DF 42 ;(3) spatiotemporal forecasting methods (deterministic forecasting): STGCN 43 , STID 44 , and STAEformer 45 ; (4) spatiotemporal forecasting methods (uncertainty-aware forecasting): STNB 46 ,STGS 46 , STTD 47 , and UQGNN 48 ; (5) OD flow forecasting methods: GEML* 49 , ODCRN 50 , HIAM 51 ,CAMLO 52 , ODMixer 53 , and PDMTSOD 54 .Because coarse-to-fine dynamic OD flow prediction differs from other existing paradigms (refer to task settings comparison in Supplementary), existing methods must be repurposed for this setting. We evaluate all baselines under a unified information constraint: only historical node-level aggregated dynamics, including inflow and outflow, are used to predict future fine-grained OD flows. For methods originally relying on auxiliary or multi-source information, we retain their core spatiotemporal modeling components but instantiate them with the same node-level mobility signals and temporal embeddings as ODIN. This avoids unfair comparison caused by unequal information access while preserving the essential modeling capacity of each baseline. According to their primary modeling objects, we further group the repurposed baselines into two categories: 
+
+l Node-first modeling methods. These methods first encode node-level temporal signals and are therefore naturally compatible with our aggregated inputs. Their original encoder is kept unchanged. To predict OD flows, we convert the learned origin and destination node representations into edge representations through an interaction layer at the decoding stage, followed by a multilayer perceptron (MLP) projection to generate future OD flows. 
+
+l Edge-first modeling methods. These methods are originally designed to model historical OD matrices. Since such fine-grained inputs are unavailable in our setting, we construct their initial edge representations from paired origin–destination embeddings derived from node-level inflow and outflow signals during encoding stage. The original edge-oriented forecasting modules are then retained for subsequent modeling. To evaluate prediction performance, we employ three regression metrics: root mean square error (RMSE), mean absolute error (MAE), and weighted mean absolute percentage error (WAPE). Notably, we adopt WAPE instead of MAPE to avoid bias caused by zero values in the denominator, given the prevalence of zeros in OD data. Furthermore, to assess the reliability of uncertainty quantification, we introduce two additional metrics for models capable of uncertainty estimation: Continuous Ranked Probability Score (CRPS) and Jensen-Shannon Divergence (JSD). The detailed mathematical formulations of these metrics are provided in the Supplementary section Experiment settings. 
+
+How far aggregated inputs support OD recovery across methods 
+
+(1) Recovery from aggregated inputs matches OD-based models 
+
+Across all twelve datasets, methods restricted to aggregated inputs recover fine-grained OD flows to a degree that varies widely, and ODIN recovers them most fully: it matches, and in several cases exceeds, models that observe complete historical OD matrices as input, improving over the strongest aggregated-input competitor by up to 15% in RMSE (Fig. 3a, Extended Data Fig. 1). That a model reading only node-level inflow and outflow can rival methods with direct OD access indicates that much of the recoverable structure is already latent in the aggregated signal—and that ODIN extracts it more completely than the other repurposed methods. Beyond aggregate error, the flows ODIN recovers 5
+
+preserve the observed temporal structure of mobility, tracking day-of-week variation with the smallest weekend fluctuation among all compared models (Fig. 3b, c). Under the proposed coarse-to-fine prediction setting, time-series forecasting methods and OD flow generation methods are generally less competitive. Time-series models mainly capture temporal variations but lack explicit modeling of origin–destination interactions, whereas OD generation models focus on spatial allocation but are less effective in tracking short-term temporal dynamics. These complementary failures show that recoverability from aggregated inputs is unlocked only when temporal dependencies and spatial interactions are modeled jointly—neither alone suffices. Node-level spatiotemporal forecasting methods (both deterministic and uncertainty-aware), particularly STAEformer and UQGNN, achieve stronger performance than most other baselines. GSTE-DF, the only dynamic OD generation baseline, also performs competitively. By contrast, conventional OD forecasting methods do not show a clear advantage in this setting. These methods are originally designed to exploit historical OD matrices, where observed edge-level sparsity provides direct cues for future prediction. In the proposed task, such fine-grained OD observations are unavailable. Therefore, directly prioritizing edge-level modeling from reconstructed edge features may introduce redundant or noisy interactions. These results suggest that learning effective node-level representations is crucial for decoding latent interactions from aggregated dynamics. We further examine this issue in the following section by comparing node-first and edge-first modeling under different input granularities. The performance of ODIN suggests that aggregated dynamics can be decoded into fine-grained mobility interactions when node-level spatiotemporal representation learning is combined with physics-informed and uncertainty-aware OD dynamics inference. Specifically, TRGM constrains the reconstruction of edge-level interactions from node-level dynamics, while DGMM improves prediction reliability under imbalanced OD flow distributions. 
+
+(2) ODIN holds up where recovery is hardest 
+
+Recovery is not uniformly difficult. Prediction error rises with OD-flow magnitude across all methods (Fig. 4a), confirming that sparse, high-value corridors—the interactions that matter most operationally—are the hardest to infer from aggregated observations. This difficulty is intrinsic to the task: aggregate counts constrain such rare flows only weakly. What distinguishes ODIN is that its error grows most slowly in exactly this regime, recovering high-value interactions that abundant low-value flows tend to mask. The same holds across time and space: ODIN forms the lower error bound across most hours of the day (Fig. 4b) and produces fewer high-error links and more spatially coherent predictions than competing methods (Fig. 4c). In the temporal view, we compare the average hourly RMSE of different models. ODIN consistently forms the lower bound across most time periods, showing that its advantage is not restricted to specific hours but remains stable under varying daily mobility patterns. In the spatial view, flow maps of WAPE further reveal that ODIN produces fewer high-error OD links and more spatially coherent predictions. These results indicate that ODIN reduces prediction errors not only on average, but also across high-value flows, temporal variations and spatial interaction patterns. 
+
+(3) Uncertainty improves the recoverable reliability 
+
+To evaluate whether probabilistic modeling improves the reliability of interaction recovery, we compare all uncertainty-aware methods using CRPS and JSD. A reliable uncertainty estimate should be both accurate and well calibrated: lower CRPS indicates that the predicted probabilistic distribution better matches the observed OD flow, while lower JSD reflects smaller divergence between the predicted and empirical distributions. As shown in Extended Data Table 1, ODIN consistently outperforms other 6
+
+uncertainty-aware baselines across these metrics, demonstrating that it provides more reliable probabilistic recovery of OD interactions in addition to lower prediction errors. We further visualize the epistemic and aleatoric uncertainty of ODIN across temporal and spatial dimensions (Fig. 4d–e). Aleatoric uncertainty remains relatively stable, reflecting irreducible randomness in mobility demand. In contrast, epistemic uncertainty varies more strongly with flow magnitude and prediction error, and spatially concentrates on OD links where prediction is more difficult. This pattern suggests that epistemic uncertainty captures recoverable model uncertainty caused by imbalanced observations. Therefore, epistemic uncertainty provides a useful calibration signal for recovering high-value OD interactions, where deterministic models tend to underestimate flows. 
+
+Aggregated dynamics retain sufficient information for interaction inference 
+
+The central claim of this study is that aggregated urban dynamics retain recoverable information about mobility interactions. A key test of this claim is whether reducing input granularity from historical OD matrices to node-level aggregate counts substantially weakens OD recovery. To examine this, we further conduct controlled experiments under three input settings: historical OD matrices, node-level inflow/outflow, and node-level total flow. Recovery accuracy degrades only marginally along this sequence. Even when the input is stripped to a single total-flow count per location, discarding the directional split between inflow and outflow entirely, ODIN recovers OD structure at accuracy close to that obtained from full OD observations (Fig. 5a). The signal required to reconstruct directional interactions therefore does not depend on observing those interactions, or even on their directional aggregates; it persists in the coarsest summary of local activity. A non-learning reference that allocates the same aggregated counts by historical averages and a static gravity model (HA + Gravity, Fig. 5a) recovers OD far less accurately, confirming that this recoverability comes from modeling the dynamics of the aggregate signal rather than from the aggregate counts alone. This robustness is not shared by all architectures: node-first methods remain stable as the input coarsens, whereas edge-first methods built to operate on OD matrices degrade sharply once true OD input is withheld, with the strongest OD-forecasting baseline, ODMixer, losing much of its accuracy in this regime. The underlying reason for this node-first advantage is examined in the next section. Together these results settle the central question of this study. The fine-grained interactions that cities depend on are not lost to aggregation; they remain latent in the coarse dynamics already being collected, and can be recovered without ever observing OD directly. Aggregated observations are therefore not merely low-resolution substitutes for trajectory data. They carry enough structure to reconstruct directional interactions while removing the need for individual-level tracking at deployment, an implication we quantify later. 
+
+Generation-before-assignment logic explains the advantage of node-first modeling 
+
+The node-first advantage seen above raises a sharper question: is it merely a matter of input information, or does the modeling order itself shape what can be recovered? To separate the two, we compare the original node-first ODIN against an edge-first variant that shares all components but reverses the stage at which OD inference is performed. For a fair comparison, the edge-first variant retains the main components of ODIN but changes the stage at which OD inference is performed. In the original ODIN, node-level representations are first learned and then converted into edge-level OD representations during decoding. In the edge-first variant, we construct edge-level representations immediately after the embedding layer, before the Transformer 7
+
+blocks, so that subsequent modules operate directly on origin–destination pairs. The remaining components are kept unchanged. The results show that the edge-first variant underperforms the original node-first ODIN in most input settings (Fig. 5b). Although providing historical OD matrices improves the edge-first variant, the gain remains limited. This indicates that the performance gap is not only caused by input information, but is also related to the learning preference induced by the modeling paradigm. In this task, early edge construction may introduce redundant pairwise interactions, whereas node-first modeling preserves compact and informative representations before OD inference. To further understand this difference, we extract latent features from the penultimate layer of both variants and visualize them using t-SNE 55 (Fig. 5c). The node-first model produces a smoother and more structured latent space 56 , whereas the edge-first model shows a more fragmented distribution. In deep regression tasks, smoother latent representations are often associated with better generalization 57 ,because nearby samples tend to produce more consistent predictions. This observation is consistent with the stronger predictive performance of node-first modeling. The two modeling paradigms also exhibit different preferences in temporal and spatial dimensions. Edge-first modeling tends to separate features by forecast horizons, suggesting a stronger emphasis on temporal heterogeneity. By contrast, node-first modeling produces clearer spatial clustering, i.e., nodes with similar flow levels are grouped more coherently in the latent space. This suggests that, for coarse-to-fine OD prediction, preserving spatial heterogeneity at the node level is more beneficial than directly modeling all pairwise edge interactions from the beginning. This finding is consistent with the sequential logic of classical transportation planning framework 58 .In the conventional four-step framework, trip planning at locations precedes the distribution and assignment of human mobility flows 59 . In other words, spatial units and their functional attributes provide the basis for mobility generation 39 , while OD flows are the resulting interactions 59 . From this perspective, node-first modeling better aligns with the generative process of human mobility. Specifically, it first learns the location-level causes of mobility and then reconstructs the edge-level effects. Edge-first modeling, although effective when historical OD matrices are available, may be less suited to setting of aggregated-input recovery because it starts from pairwise effects before sufficiently learning their node-level origins. More broadly, this suggests a principle for recovering interactions from aggregated signals: represent the state of places before inferring the flows between them. Where the generative order of mobility is respected, recovery is more faithful. 
+
+Reducing data acquisition burden and privacy exposure 
+
+A practical implication of recovering OD interactions from aggregated dynamics is the reduced dependence on trajectory-level data acquisition and exposure. To quantify this advantage, we conducted an annualized cost analysis using literature-calibrated unit prices. Area-level aggregated sensing was parameterized using volume-only traffic count prices of US$375–725 per station for 7 days 60 , equivalent to US$19,875–38,425 per station-year over the 366 days of 2024. Individual-level trajectory acquisition was parameterized using a survey-cost range from US$25 per GPS-instrumented participant 61 for a 3-day tracking window to US$350 per completed survey unit 62 . Assuming 50 trajectory records per participant per day, this corresponds to US$0.167–2.333 per trajectory record. We then combined these unit prices with the number of required counting stations or participants in each dataset to estimate annual acquisition costs (Fig. 6). Across all datasets, area-level aggregated sensing costs approximately US$4.85–9.38 million, whereas trajectory-based acquisition costs approximately US$18.38–257.37 8
+
+million, corresponding to an estimated 73.6–96.4% reduction in annual acquisition burden. The lower bound of trajectory acquisition uses US$25 per participant from a volunteer GPS-survey incentive. This is a highly conservative estimate. Real-world purchase or continuous collection of individual trajectory data would likely cost more, so the actual cost advantage of area-level sensing may be larger. We further quantified privacy exposure using cell-level uniqueness and k-anonymity risk 63 . OD-level observations were evaluated over origin–destination–time cells, whereas aggregated observations were evaluated over node–time cells. Across datasets, OD flows show an average unique-cell rate ( k=1) of 43.9% and low-3 exposure ( k=3) of 61.8%. In contrast, inflow/outflow aggregation reduces these values to 16.3% and 24.0%, corresponding to reductions of 72.0% and 67.9%, respectively. Total-flow aggregation further reduces the average unique-cell rate and low-3 exposure to 12.1% and 18.2%. These results indicate that area-level aggregated observations can reduce both annual acquisition burden and the exposure of sparse, potentially distinguishable mobility records, although they do not provide a formal privacy guarantee. A distinction is essential here. The privacy exposure we quantify concerns the acquisition of OD data, where each fine-grained cell traces back to real individuals whose trajectories were recorded. ODIN’s recovered OD flows are model estimates inferred from aggregate counts; no individual trajectory is collected or held at inference, and a recovered single-trip cell corresponds to no identifiable person. The reduction in exposure therefore arises at the sensing stage, not merely in the choice of what to output. 
+
+## Discussion 
+
+Fine-grained mobility interactions are among the most useful yet most costly and privacy-sensitive urban data to collect. Here we have shown that this directional structure need not be observed to be known: aggregated inflow and outflow, which cities already collect and which reveal nothing about who moves where, retain enough information to recover future OD flows. Once trained, ODIN draws only on these aggregated counts, substantially reducing the recurring cost of data acquisition and the exposure of sparse, potentially identifiable records. Cities can thus infer fine-grained directional interactions from accessible, already-collected aggregate sensing, rather than from the continuous collection of individual trajectories or full OD matrices. This capability is important because many urban interventions require directional mobility information, but not necessarily individual-level tracking. During epidemic response, inferred OD dynamics can help identify likely transmission corridors and support the placement of targeted screening or inspection stations 4. In traffic management, direction-specific OD dynamics inference can inform adaptive signal control for specific road segments, turning movements or commuting corridors 64 . For mass events, emergency evacuation and public transport operations, the same framework could help anticipate where mobility demand will emerge and where flows are likely to concentrate. In each case, ODIN supports finer-grained management without deploying new infrastructure to continuously track individuals. Methodologically, our contribution is a reframing: we treat dynamic OD prediction not as forecasting from same-granularity history, but as recovering latent interactions under an information constraint, where the observable signal (aggregate counts) is coarser than the target (directional flows). This shift turns a data-hungry forecasting problem into one of extracting the interaction structure already latent in aggregate dynamics, using physical priors to constrain plausible OD allocations and uncertainty modeling to recover the sparse, high-value flows that dominate operational risk. Framing the problem this way is what allows recovery to proceed without OD inputs at all. 9
+
+The experiments also reveal a modeling principle for coarse-to-fine interaction recovery that is relevant beyond this specific architecture. Models that better follow the generation-before-assignment logic 58 in transportation planning achieve stronger reconstruction performance. This suggests that, when historical OD observations are unavailable, it is more effective to first preserve the dynamic states and spatial heterogeneity of locations, and then reconstruct their pairwise interactions. This points to the central role of place representation: the model must first learn how locations differ in their mobility potential before inferring how they interact over time. In practical terms, node-level dynamics describe the mobility potential of places, whereas OD flows represent realized interactions between them. Respecting this generative order aligns model design with classical transportation reasoning and offers a principle for recovering interactions from any aggregated signal: represent the parts before inferring the whole. More broadly, this work points to a responsible direction for geospatial artificial intelligence. Fine-grained interaction knowledge underpins many urban functions, yet acquiring it need not depend on intrusive or expensive individual-level tracking. A distinction is central to this claim. The exposure we reduce is that of data acquisition, where each fine-grained OD cell traces back to a real person whose movement was recorded. ODIN’s recovered flows, by contrast, are model estimates inferred from aggregate counts, and a recovered single-trip cell corresponds to no identifiable individual. Recovery therefore shifts reliance away from collecting and retaining real trajectories, rather than reproducing that risk in its outputs. This is not a formal anonymity or differential-privacy guarantee, but an operational reduction in the need to continuously acquire and hold individual-level records. Aggregated observations can, under some conditions, still be susceptible to reconstruction 28,29 .Several limitations remain. First, our approach recovers OD without OD inputs only at deployment; training still requires ground-truth OD as supervision. The method therefore suits settings where historical OD is available once to train a model that is then run on aggregate counts alone, rather than settings with no OD access at all. Second, recoverability is bounded by the information the aggregate signal carries: in sparse, highly volatile regimes, aggregate counts constrain directional flows only weakly, and recovery accuracy is correspondingly limited—a property of the task rather than of any particular model. Third, although our datasets span the United States and China, broader cross-regional generalization remains to be tested, as mobility systems vary with urban form, infrastructure, land use and policy. Finally, the framework deliberately relies only on aggregate dynamics and distance; incorporating non-sensitive context (road networks, land use, weather, events, transit schedules) may improve robustness under atypical conditions, and multimodal urban foundation models may help probe the upper bound of what is recoverable, though reliable OD-supervised data for such pretraining remain scarce. 
+
+## Methodology 
+
+Our proposed method consists of four main components: node-level dynamics embedding, spatiotemporal representation learning, temporally resolved gravity-based edge reconstruction and disentangled gaussian mixture model. 
+
+Node-level dynamics embedding 
+
+The first step of ODIN is to embed raw node-level mobility observations into a latent representation for subsequent spatiotemporal modeling. At each historical time step, each spatial unit contains two aggregated signals, inflow and outflow, denoted as 𝑋 ,23 ∈ ℝ !×+ !" ×* . These signals describe the local 10 
+
+mobility state of each unit, with inflow reflecting attraction intensity and outflow reflecting production intensity. We project them into a high-dimensional mobility feature embedding through a linear layer: 
+
+𝐸 7 = 𝑊 7𝑋 ,23 + 𝑏 7, (2) Human mobility also exhibits strong temporal regularities. We therefore introduce learnable temporal embeddings to encode time-of-day and day-of-week information, rather than treating timestamps as fixed periodic patterns. Specifically, daily period embeddings 𝐸 8 ∈ ℝ /×1 % and weekly period embeddings 𝐸 9 ∈ ℝ :×1 % provide temporal context for learning daily and weekly mobility rhythms. In addition, adaptive embeddings 𝐸 ; ∈ ℝ !×+×1 * are introduced as learnable parameters to capture latent spatial heterogeneity and recurring spatiotemporal patterns not explicitly represented by inflow and outflow. The final initial representation is obtained by concatenating these components and projecting them through a linear transformation: 
+
+𝑍 < = 𝑊 ,(𝐸 8⨁𝐸 9⨁𝐸 ;⨁𝐸 7) + 𝑏 ,, (3) where ⊕ denotes concatenation, 𝑊 7 ∈ ℝ *×1 +, 𝑊 , ∈ ℝ (*1 %(1 *(1 +)×1 ,!-, 𝑏 7 ∈ ℝ 1+and 𝑏 , ∈ ℝ 1,!-are learnable parameters. 
+
+Spatiotemporal dependencies modeling 
+
+After obtaining the initial node representation 𝑍 <, we use Transformer blocks to learn dynamic dependencies along the temporal and spatial dimensions. This module differs from the embedding layer: the embedding layer only maps observed signals and temporal identifiers into a latent space, whereas the transformer updates these representations by modeling interactions across time steps and spatial units. Each block follows the vanilla transformer architecture, consisting of multi-head self-attention 
+
+ℱ?@AB , feed-forward networks ℱCC! and layer normalization ℱD! . In our setting, temporal attention captures dependencies among historical mobility states, such as short-term fluctuations and periodic changes, while spatial attention captures coordinated variations among urban units. For the 𝑙 -th layer 
+
+(𝑙 ∈ [1, 𝐿]) , the computation is formulated as: 
+
+𝑍 !"# (%) = ℱ𝐿𝑁 (𝑍 (%'() + ℱ𝑀𝐻𝑆𝐴 %𝑍 (%'() &), (4) 
+
+𝑍 (K) = ℱ D! (𝑍 L#8 (K) + ℱ CC! K𝑍 L#8 (K) L), (5) where 𝑍 (K) denotes the output of the 𝑙 -th transformer block. Following this structure, we first apply the transformer along the temporal dimension and then along the spatial dimension to obtain the final node-level spatiotemporal representation 𝑍 A+ (D) , which is passed to the subsequent edge reconstruction module. 
+
+Spatiotemporal interaction reconstruction 
+
+The spatiotemporal transformer captures node-level dynamics, while OD prediction requires edge-level representations between origin–destination pairs. This node-to-edge mapping is intrinsically underdetermined, because many possible OD matrices can correspond to the same aggregated inflow and outflow observations. To constrain this solution space, we introduce a gravity-informed inductive bias 65 
+
+for spatial interaction reconstruction. The classical gravity model assumes that interaction intensity increases with origin and destination importance and decreases with geographical distance 12 . In mobility systems, this formulation provides a 11 
+
+physically interpretable prior for estimating potential interactions between locations based on maximum entropy theory 34 . Its standard form and logarithmic transformation 66 are: 
+
+𝑇 #M = 𝐺 𝑃 #N.𝑃 MN/
+
+𝐷 O , (6) 
+
+logK𝑇 #M L = 𝑙𝑜𝑔𝐺 + 𝛼 )𝑙𝑜𝑔𝑃 # + 𝛼 *𝑙𝑜𝑔𝑃 M − 𝛽𝑙𝑜𝑔𝐷, (7) where 𝑇 #M denotes the interaction intensity from location 𝑖 to location 𝑗 , 𝑃 # and 𝑃 M denote the importance of the origin and destination, 𝐷 is their geographical distance, and 𝐺, 𝛼 ), 𝛼 *, 𝛽 are learnable scaling parameters. However, classic gravity models are mainly designed for static and relatively dense interaction patterns. In our setting, OD flows are dynamic, sparse and highly imbalanced. We therefore propose the Temporally Resolved Gravity Model (TRGM) to stabilize edge representation learning by combining point-to-point local interaction and patch-to-patch temporal trend interaction. The point-to-point branch estimates local origin–destination attraction from node representations, while the patch-to-patch branch compares historical inflow and outflow patterns to capture broader temporal compatibility between spatial units. These two interaction features are further integrated with a distance-decay kernel to construct edge-level representations for future OD prediction. Specifically, the transformer output 𝑍 A+ (D) is first mapped to the prediction horizon to obtain 𝑍 . The point-to-point interaction 𝐼 0% is then computed from two projected node representations, corresponding to origin-side production and destination-side attraction. For patch-to-patch trend modeling, we apply the Fast Fourier Transform to inflow and outflow sequences and use Mahalanobis distance to compare their dominant temporal components 67,68 . 𝐼 %P) measures the compatibility between upstream outflow and downstream inflow patterns 69 , while 𝐼 %P* measures the reverse pattern similarity. The two trend features are fused into 𝐼 %P . Finally, 𝐼 0% , 𝐼 %P , and the gaussian distance-decay kernel 43 𝑤 are combined to obtain the final edge-level interaction representation 𝐼 :
+
+𝑍 = 𝑊 Q* (𝑊 Q) 𝑍 A+ (D) + 𝑏 Q) ) + 𝑏 Q* (8) 
+
+𝐼 0% = (𝑊 ;𝑍 + 𝑏 ;)⊺(𝑊 P𝑍 + 𝑏 P) (9) 
+
+𝐼 %P) = \ℱ 77% (𝑋 #$ ) − ℱ 77% (𝑋 ,-% )] ⊺
+
+𝑄 ) \ℱ 77% (𝑋 #$ ) − ℱ 77% (𝑋 ,-% )] (10) 
+
+𝐼 %P* = \ℱ 77% (𝑋 ,-% ) − ℱ 77% (𝑋 #$ )] ⊺
+
+𝑄 * \ℱ 77% (𝑋 ,-% ) − ℱ 77% (𝑋 #$ )] (11) 
+
+𝐼 %P = 𝑊 %* (𝑊 %) (𝐼 %P) ⨁𝐼 %P* ⊺ ) + 𝑏 %) ) + 𝑏 %* (12) 
+
+𝑤 = 𝑒𝑥𝑝(− 𝐷 *
+
+𝜏 * ) (13) 
+
+𝐼 = 𝑊 S* (𝑊 S) K𝐼 0% ⨁𝐼 %P ⨁𝑤L + 𝑏 S) ) + 𝑏 S* , (14) where ℱ77% (⋅) denotes the Fast Fourier Transform, which extracts dominant temporal components for more stable sequence comparison. 𝑄 ), 𝑄 * is the learnable matrix used in the Mahalanobis distance. 
+
+𝑤 denotes the Gaussian distance-decay kernel derived from the geographical distance matrix 𝐷 . And 
+
+𝑊 ∗, 𝑏 ∗(∗∈ 𝑒1, 𝑒2, 𝑡1, 𝑡2, 𝑔1, 𝑔2) denote learnable projection parameters with compatible dimensions. The resulting 𝐼 serves as the edge-level representation for the subsequent probabilistic OD decoder. 12 
+
+Uncertainty-aware spatiotemporal interaction decoding 
+
+Based on the edge-level interaction representation 𝐼 , we further decode future OD flows in a probabilistic manner. Dynamic OD flows are sparse and long-tailed, and a deterministic decoder tends to underestimate rare but important high-value flows. We therefore introduce the Disentangled Gaussian Mixture Model (DGMM), which first models the predictive distribution of OD flows and then separates epistemic uncertainty from aleatoric uncertainty for reliability-aware calibration. Specifically, we first use a Gaussian Mixture Model (GMM) to avoid assuming a single parametric form for the target distribution. Given the edge representation 𝐼 , a multilayer decoder outputs the mixture parameters {𝒩(𝜇, 𝜎 *), 𝜋} UV) W :
+
+𝐻 = 𝑊 #) 𝐼 + 𝑏 #) , (15) 
+
+𝜋 = 𝒮(𝑊 0# 𝐻 + 𝑏 0# ), (16) 
+
+𝜇 = 𝜃(𝑊 X-𝐻 + 𝑏 X-), (17) 
+
+𝜎 * = 𝑒𝑥𝑝(𝑊 3#S 𝐻 + 𝑏 3#S ), (18) where 𝐻 denotes the hidden decoding feature. 𝜋 , 𝜇 and 𝜎 * are the mixture coefficient, mean and variance of the Gaussian components, respectively. 𝒮(⋅) denotes the Softmax function, 𝜃(⋅) denotes the Softplus function for non-negative OD estimates, and 𝑒𝑥𝑝(⋅) ensures positive variance. 𝑊 ∗ and 𝑏 ∗ (∗ ∈ 𝜋, 𝜇, 𝜎) are learnable decoder parameters with compatible dimensions. Although the GMM decoder provides a full predictive distribution, directly using its mean can still lead to biased estimates for sparse high-value OD flows. This is because probabilistic learning under imbalanced OD distributions may assign weaker effective gradients to samples with large predicted variance. For a Gaussian likelihood, the gradient with respect to the mean is proportional to (𝜇 − 𝑦)/𝜎 *,indicating that samples with larger predicted variance contribute smaller effective gradients. When this variance mainly reflects epistemic uncertainty caused by sparse or imbalanced observations, the model may underfit rare high-value OD flows. Epistemic uncertainty therefore provides a useful signal for identifying underrepresented regions of the target distribution and increasing their calibration strength. However, the predictive uncertainty of a standard GMM mixes two different sources: aleatoric uncertainty, which reflects irreducible randomness in mobility demand, and epistemic uncertainty, which reflects model uncertainty caused by insufficient or imbalanced observations. Since only epistemic uncertainty is reducible and informative for correcting model bias, we separate it from total predictive uncertainty using Jensen–Rényi Divergence (JRD). Specifically, JRD measures the gap between the uncertainty of the whole mixture and the average uncertainty of individual Gaussian components, and this gap is interpreted as epistemic uncertainty: 
+
+𝜑 Q0# = ℱ YZ/ ({𝒩(𝜇, 𝜎 *)} UV) W )9: :::::;: :::::< 
+
+> [0#3%QX#\ -$\QP%;#$%^
+
+= 𝐻 N qr 1𝐾 
+
+> WUV)
+
+𝒩 U(𝜇, 𝜎 *)t 9::::::;::::::< 
+
+> +,%;K -$\QP%;#$%^
+
+− r 1𝐾 
+
+> WUV)
+
+𝐻 NK𝒩 U(𝜇, 𝜎 *)L 9:::::;:::::< 
+
+> BKQ;%,P#\ -$\QP%;#$%^
+
+, (19) Directly computing the entropy of a Gaussian mixture is generally intractable, and Monte Carlo estimation is computationally expensive for real-time OD prediction. We therefore adopt a closed-form approximation of JRD based on quadratic Rényi entropy ( 𝛼 = 2 ) , which avoids repeated sampling: 13 
+
+𝐻 N(𝑍) = 11 − 𝛼 𝑙𝑜𝑔 u 𝑝(𝑧) N𝑑𝑧, (20) 
+
+𝜑 Q0# ≈ − log y 1𝐾 * r r 𝔇 #M WMV) W#V) 
+
+{ + 1𝐾 r log[𝔇 ## ]
+
+> W#V)
+
+, (21) 
+
+𝑤ℎ𝑒𝑟𝑒 𝔇 #M = 1~𝜎 #* + 𝜎 M*
+
+𝑒𝑥𝑝(− (𝜇 # − 𝜇 M)*
+
+2(𝜎 #* + 𝜎 M*)), (22) where 𝐻 N(⋅) denotes Rényi entropy, 𝔇 #M measures the overlap between the 𝑖 -th and 𝑗 -th gaussian components, and 𝐾 is the number of mixture components. Finally, DGMM uses epistemic uncertainty to adaptively compensate the GMM mean. A compensation branch computes an additional mean term 𝜇 ;$ from the decoding feature 𝐻 , while 𝜑 Q0# 
+
+controls the compensation strength through a gating weighted function. The final calibrated mean is: 
+
+𝜇 ,-% = ∅(𝑊 X-*𝐻 + 𝑏 X-*)9: ::::;: ::::< 
+
+> _*"
+
+⨀ 𝜃(𝑊 Q0#* K𝑊 Q0#) 𝜑 Q0# + 𝑏 Q0#) L + 𝑏 Q0#* )9:::::::::::;:::::::::::< 
+
+> [0#3%QX#\ 9Q#SL%
+
++ 𝜇, (23) where 𝜇 ;$ denotes the compensation term for high-value OD flows, ⊙ denotes element-wise multiplication, and ∅(⋅) denotes the Sigmoid activation function. 𝑊 ∗ and 𝑏 ∗ (∗∈ 𝑒𝑝𝑖1, 𝑒𝑝𝑖2) are learnable parameters for the compensation and gating branches. The calibrated mean 𝜇 ,-% is used as the final OD flow estimate. 
+
+Loss functions and training process 
+
+ODIN is trained to learn both the predictive distribution and the expected magnitude of future OD flows. The overall objective consists of three terms: negative log-likelihood (NLL) loss, L1 regularization and entropy regularization on mixture coefficients. 
+
+Negative Log-Likelihood Loss: Since DGMM outputs a Gaussian mixture distribution for each OD flow, the primary objective is to maximize the likelihood of the observed ground-truth flows. Equivalently, we minimize the negative log-likelihood ℒ$KK :
+
+ℒ$KK = − 1𝑁 r 𝑙𝑜𝑔(r 𝜋 #UWUV) 
+
+1~2𝜋(𝜎 #U)*
+
+𝑒𝑥𝑝 − K𝑌 # − 𝜇 #UL*
+
+2(𝜎 #U)* ) 
+
+> !#V)
+
+, (24) where 𝑌 # denotes the ground-truth OD flow sample, and 𝜋 #U , 𝜇 #U and 𝜎 #U denote the mixture coefficient, mean and standard deviation of the 𝑘 -th Gaussian component. 
+
+L1 Regularization: Likelihood optimization alone may produce unstable mean estimates under sparse and long-tailed OD distributions. We therefore add an L1 term 70 between the observed flow and the expectation of the mixture distribution. 
+
+ℒD) = 1𝑁 r 𝑌 # − (r 𝜋 #U𝜇 ,-% !
+
+> UWUV)
+
+) 
+
+> !#V)
+
+, (25) which provides direct supervision on the predicted flow magnitude and improves robustness to extreme errors. 
+
+Entropy Regularization on Mixture Coefficients : To prevent the GMM from collapsing to a single dominant component, we impose entropy regularization on the mixture coefficients: 14 
+
+ℒQ$ = 1𝑁 r r 𝜋 #Ulog(𝜋 #U)
+
+> WUV) !#V)
+
+, (26) which encourages different Gaussian components to capture different flow regimes. The final training objective is: 
+
+ℒ = ℒ $KK + 𝜆 )ℒD) + 𝜆 *ℒQ$ , (27) where 𝜆 ) and 𝜆 * are regularization weight coefficients. To further stabilize training, we maintain an exponential moving average 71 (ema) of the model parameters. After each gradient update, the smoothed parameters 𝛩 ` are updated as: 
+
+𝛩 ` ← 𝑠𝛩 ` + (1 − 𝑠)𝛩, (28) where 𝛩 denotes the current model parameters and 𝑠 is the smoothing factor. The ema parameters are used to reduce abrupt parameter fluctuations during optimization. The full training procedure is summarized in Extending Data Table 2. 
+
+Datasets 
+
+We evaluated ODIN using twelve dynamic mobility datasets from cities in the United States and China (Extending Data Fig. 2). The U.S. datasets were constructed from public taxi and bike-sharing trip records in New York City and Chicago. For New York City, trips were aggregated by taxi zones, whereas for Chicago, trips were aggregated by community areas. For each U.S. city and mobility mode, we constructed two evaluation settings: a core-region setting containing high-volume spatial units and an ordinary-region setting containing all non-redundant spatial units. The China datasets were constructed from anonymized mobile-phone mobility records in Beijing, Shanghai, Guangzhou and Shenzhen, and were aggregated by subdistricts. All raw mobility records were converted into temporally indexed OD matrices, where each entry denotes the number of movements from an origin spatial unit to a destination spatial unit within a given aggregation interval. Because the native temporal resolution differs across data sources, the U.S. datasets were organized at a 1-hour interval, whereas the China datasets were organized at a 2-hour interval. Accordingly, each U.S. dataset contains 8,784 temporal snapshots, and each China dataset contains 4,392 temporal snapshots, covering the full year of 2024. To construct node-level aggregated dynamics, we derived three time-varying signals from the OD matrices: inflow, outflow and total flow. Inflow measures the number of trips arriving at each spatial unit, outflow measures the number of trips departing from each spatial unit, and total flow is the sum of the two. These aggregated signals serve as the input to the proposed coarse-to-fine prediction task, whereas the full OD matrices are used only as prediction targets. Because dynamic OD matrices are highly sparse, spatial units with extremely limited mobility activity may introduce unstable training and evaluation signals. We therefore applied a systematic filtering procedure. Spatial units were grouped into three categories according to their average hourly mobility volume: core units, whose average hourly flow exceeds the regional mean; ordinary units, whose average hourly total flow exceeds one; and redundant units, which do not satisfy either criterion. Redundant units were removed from model training and evaluation. Based on the remaining units, we constructed two evaluation settings for each city and mobility mode: a core-region setting containing 15 
+
+only high-volume units, and an ordinary-region setting containing all non-redundant units. The detailed dataset statistics after filtering are provided in Extended Data Table 3. For each dataset, the time series was split chronologically into training, validation and test sets with a ratio of 7:1:2. To keep the learning setting consistent across temporal resolutions, all models used 12 historical time steps to predict OD flows for the subsequent 4 time steps. Z-score normalization was applied to the input node-level dynamics using statistics computed from the training set. Additionally, to evaluate OD prediction performance, we employ three regression metrics and two metrics of uncertainty estimation, including RMSE, MAE, WAPE, CRPS, JSD. For CRPS computation, the number of samples was set to 50. These metrics are calculated as follows: 
+
+𝑅𝑀𝑆𝐸 = ~ )$ ∑ K𝑌 # − 𝑌 #L*$#V) 
+
+, (29) 
+
+𝑀𝐴𝐸 = )$ ∑ -𝑌 # − 𝑌 #-$#V) 
+
+, (30) 
+
+𝑊𝐴𝑃𝐸 = ∑ -𝑌 # − 𝑌 #-$#V) 
+
+∑ |𝑌 #|$#V) 
+
+, (31) 
+
+𝐶𝑅𝑃𝑆 = u(𝑓(𝑥) − 𝟏(𝑥 ≥ 𝑦)) *𝑑𝑥 (32) 
+
+𝐽𝑆𝐷 =  12 (𝐷 WD 𝑃 ∥  𝑃 + 𝑄 2  + 𝐷 WD  𝑃 + 𝑄 2  ∥ 𝑃) (33) where 𝑌 # denotes the ground-truth OD flow, 𝑌 # denotes the predicted OD flow, 𝑃 denotes the ground-truth OD flow distribution, 𝑄 denotes the predicted OD flow distribution, 𝑓(⋅) is the predicted cumulative distribution function, and 𝟏 denotes the indicator function. 
+
+## References 
+
+1 Holme, P. & Saramäki, J. Temporal networks. Physics reports 519 , 97-125 (2012). 2 García-Algarra, J., Mouronte-López, M. L. & Galeano, J. A stochastic generative model of the world trade network. 
+
+Scientific reports 9, 18539 (2019). 3 Perera, S., Bell, M. G. H. & Bliemer, M. C. J. Network science approach to modelling the topology and robustness of supply chain networks: a review and perspective. Applied network science 2, 33 (2017). 4 Kraemer, M. U. G. et al. The effect of human mobility and control measures on the COVID-19 epidemic in China. 
+
+Science 368 , 493-497 (2020). 5 Schläpfer, M. et al. The universal visitation law of human mobility. Nature 593 , 522-527 (2021). 6 Gonzalez, M. C., Hidalgo, C. A. & Barabasi, A.-L. Understanding individual human mobility patterns. Nature 453 , 779-782 (2008). 7 Hong, B., Bonczak, B. J., Gupta, A. & Kontokosta, C. E. Measuring inequality in community resilience to natural disasters using large-scale mobility data. Nature communications 12 , 1870 (2021). 8 Brottrager, M., Crespo Cuaresma, J., Kniveton, D. & Ali, S. H. Natural resources modulate the nexus between environmental shocks and human mobility. Nature Communications 14 , 1393 (2023). 9 Wang, S. et al. Infrequent activities predict economic outcomes in major American cities. Nature Cities 1, 305-314 (2024). 10 Xu, F. et al. Using human mobility data to quantify experienced urban inequalities. Nature human behaviour 9, 654-664 (2025). 11 Xu, F., Li, Y., Jin, D., Lu, J. & Song, C. Emergence of urban growth patterns from human mobility behavior. Nature 16 
+
+Computational Science 1, 791-800 (2021). 12 Barbosa, H. et al. Human mobility: Models and applications. Physics Reports 734 , 1-74 (2018). 13 Pappalardo, L., Manley, E., Sekara, V. & Alessandretti, L. Future directions in human mobility science. Nature computational science 3, 588-600 (2023). 14 Zheng, Y., Capra, L., Wolfson, O. & Yang, H. Urban computing: concepts, methodologies, and applications. ACM Transactions on Intelligent Systems and Technology (TIST) 5, 1-55 (2014). 15 Castillo, E., Grande, Z., Calviño, A., Szeto, W. Y. & Lo, H. K. A state‐of‐the‐art review of the sensor location, flow observability, estimation, and prediction problems in traffic networks. Journal of Sensors 2015 , 903563 (2015). 16 Haraguchi, M. et al. Human mobility data and analysis for urban resilience: A systematic review. Environment and Planning B: Urban Analytics and City Science 49 , 1507-1535 (2022). 17 Meloni, S. et al. Modeling human mobility responses to the large-scale spreading of infectious diseases. Scientific reports 1, 62 (2011). 18 Mohammed, M. & Oke, J. Origin-destination inference in public transportation systems: A comprehensive review. 
+
+International Journal of Transportation Science and Technology 12 , 315-328 (2023). 19 Ma, Y. et al. A Survey on Magnetic Sensing and Communication: Technologies, Sensors, and Applications. IEEE Communications Surveys & Tutorials (2025). 20 Guerrero-Ibáñez, J., Zeadally, S. & Contreras-Castillo, J. Sensor technologies for intelligent transportation systems. 
+
+Sensors 18 , 1212 (2018). 21 Hou, Y.-Q., Chen, X.-J., Huang, Z., Peng, X. & Liu, Y. Advancing population-targeted urban sensing: A comparative study on mobile and static sensing paradigms. Computers, Environment and Urban Systems 119 , 102288 (2025). 22 Zheng, Y. Trajectory data mining: an overview. ACM Transactions on Intelligent Systems and Technology (TIST) 6, 1-41 (2015). 23 Chen, W. et al. Deep learning for trajectory data management and mining: A survey and beyond. arXiv preprint arXiv:2403.14151 (2024). 24 De Montjoye, Y.-A., Hidalgo, C. A., Verleysen, M. & Blondel, V. D. Unique in the crowd: The privacy bounds of human mobility. Scientific reports 3, 1376 (2013). 25 Jiang, R. et al. Dl-traff: Survey and benchmark of deep learning models for urban traffic prediction. 4515-4525 (2021). 26 Liu, X. et al. Largest: A benchmark dataset for large-scale traffic forecasting. Advances in Neural Information Processing Systems 36 , 75354-75371 (2023). 27 Bakushinsky, A. & Goncharsky, A. Ill-posed problems: theory and applications . Vol. 301 (Springer Science & Business Media, 2012). 28 Tu, Z., Xu, F., Li, Y., Zhang, P. & Jin, D. A new privacy breach: User trajectory recovery from aggregated mobility data. 
+
+IEEE/ACM Transactions on Networking 26 , 1446-1459 (2018). 29 Xu, F. et al. Trajectory recovery from ash: User privacy is not preserved in aggregated mobility data. Proceedings of the 26th international conference on world wide web , 1241-1250 (2017). 30 Xu, Y. et al. Predicting human mobility flows in cities using deep learning on satellite imagery. Nature Communications 
+
+16 , 10372 (2025). 31 Yang, J. et al. Transferable human mobility network reconstruction with neuroGravity. Nature Computational Science 
+
+6, 630-641 (2026). 32 Cabanas-Tirapu, O., Danús, L., Moro, E., Sales-Pardo, M. & Guimerà, R. Human mobility is well described by closed-form gravity-like models learned automatically from data. Nature Communications 16 , 1336 (2025). 33 Batty, M. & Mackie, S. The calibration of gravity, entropy, and related models of spatial interaction. Environment and Planning A 4, 205-233 (1972). 34 Nijkamp, P. Reflections on gravity and entropy models. Regional Science and Urban Economics 5, 203-225 (1975). 17 
+
+35 Simini, F., González, M. C., Maritan, A. & Barabási, A.-L. A universal model for mobility and migration patterns. 
+
+Nature 484 , 96-100 (2012). 36 Song, C., Koren, T., Wang, P. & Barabási, A.-L. Modelling the scaling properties of human mobility. Nature physics 6,818-823 (2010). 37 Zeng, A., Chen, M., Zhang, L. & Xu, Q. Are transformers effective for time series forecasting? Proceedings of the AAAI conference on artificial intelligence 37 , 11121-11128 (2023). 38 Liu, Y. et al. itransformer: Inverted transformers are effective for time series forecasting. arXiv preprint arXiv:2310.06625 (2023). 39 Simini, F., Barlacchi, G., Luca, M. & Pappalardo, L. A deep gravity model for mobility flows generation. Nature communications 12 , 6576 (2021). 40 Liu, Z. et al. Learning geo-contextual embeddings for commuting flow prediction. Proceedings of the AAAI conference on artificial intelligence 34 , 808-816 (2020). 41 Rong, C., Wang, H. & Li, Y. Origin-destination network generation via gravity-guided gan. arXiv preprint arXiv:2306.03390 (2023). 42 Rong, C., Li, T., Feng, J. & Li, Y. Inferring origin-destination flows from population distribution. IEEE Transactions on Knowledge and Data Engineering 35 , 603-613 (2021). 43 Yu, B., Yin, H. & Zhu, Z. Spatio-temporal graph convolutional networks: a deep learning framework for traffic forecasting. Proceedings of the 27th International Joint Conference on Artificial Intelligence , 3634-3640 (2018). 44 Shao, Z., Zhang, Z., Wang, F., Wei, W. & Xu, Y. Spatial-temporal identity: A simple yet effective baseline for multivariate time series forecasting. Proceedings of the 31st ACM international conference on information & knowledge management , 4454-4458 (2022). 45 Liu, H. et al. Spatio-temporal adaptive embedding makes vanilla transformer sota for traffic forecasting. Proceedings of the 32nd ACM international conference on information and knowledge management , 4125-4129 (2023). 46 Zhuang, D., Wang, S., Koutsopoulos, H. & Zhao, J. Uncertainty quantification of sparse travel demand prediction with spatial-temporal graph neural networks. Proceedings of the 28th ACM SIGKDD Conference on Knowledge Discovery and Data Mining , 4639-4647 (2022). 47 Jiang, X. et al. Uncertainty quantification via spatial-temporal tweedie model for zero-inflated and long-tail travel demand prediction. Proceedings of the 32nd ACM International Conference on Information and Knowledge Management , 3983-3987 (2023). 48 Yu, D. et al. UQGNN: Uncertainty Quantification of Graph Neural Networks for Multivariate Spatiotemporal Prediction. 
+
+Proceedings of the 33rd ACM International Conference on Advances in Geographic Information Systems , 52-65 (2025). 49 Wang, Y. et al. Origin-destination matrix prediction via graph convolution: A new perspective of passenger demand modeling. Proceedings of the 25th ACM SIGKDD international conference on knowledge discovery & data mining ,1227-1235 (2019). 50 Jiang, R. et al. Countrywide origin-destination matrix prediction and its application for covid-19. Joint European conference on machine learning and knowledge discovery in databases , 319-334 (2021). 51 Liu, L. et al. Online metro origin-destination prediction via heterogeneous information aggregation. IEEE Transactions on Pattern Analysis and Machine Intelligence 45 , 3574-3589 (2022). 52 Wang, L. et al. Camlo: Cross-attentive multi-view network for long-term origin-destination flow prediction. 
+
+Proceedings of the 2024 SIAM International Conference on Data Mining (SDM) , 454-462 (2024). 53 Liu, Y. et al. ODMixer: Fine-grained Spatial-temporal MLP for Metro Origin-Destination Prediction. IEEE Transactions on Knowledge and Data Engineering (2025). 54 Zhang, J., Yang, Y., Yang, L. & Gao, Z. Joint Short-term Origin-destination Demand Prediction for Multimodal Transport Systems. IEEE Transactions on Pattern Analysis and Machine Intelligence (2025). 18 
+
+55 Maaten, L. v. d. & Hinton, G. Visualizing data using t-SNE. Journal of machine learning research 9, 2579-2605 (2008). 56 Gouk, H., Frank, E., Pfahringer, B. & Cree, M. J. Regularisation of neural networks by enforcing lipschitz continuity. 
+
+Machine Learning 110 , 393-416 (2021). 57 Zhang, S., Yang, L., Mi, M. B., Zheng, X. & Yao, A. Improving deep regression with ordinal entropy. arXiv preprint arXiv:2301.08915 (2023). 58 Ortúzar, J. d. D. & Willumsen, L. G. Modelling transport . Vol. 3 (2002). 59 Mitchell, R. B. & Rapkin, C. Urban traffic: A function of land use . (Columbia University Press, 1954). 60 North Carolina Department of, T. Traffic Data Collection Price List 2022-2024. (Transportation Mobility and Safety Division, North Carolina Department of Transportation, Raleigh, NC, 2023). 61 Michigan Department of, T. MI Travel Counts III Methodology Report. (Michigan Department of Transportation, Lansing, MI, 2016). 62 Stopher, P. R. & Greaves, S. P. Household travel surveys: Where are we going? Transportation Research Part A: Policy and Practice 41 , 367-381 (2007). https://doi.org/https://doi.org/10.1016/j.tra.2006.09.005 63 Matet, B., Furno, A., Fiore, M., Côme, E. & Oukhellou, L. Adaptative generalisation over a value hierarchy for the k-anonymisation of Origin–Destination matrices. Transportation Research Part C: Emerging Technologies 154 , 104236 (2023). 64 Wu, K. et al. Big-data empowered traffic signal control could reduce urban carbon emission. Nature Communications 
+
+16 , 2013 (2025). 65 Zipf, G. K. The P 1 P 2/D hypothesis: on the intercity movement of persons. American sociological review 11 , 677-686 (1946). 66 Martínez-Zarzoso, I. The log of gravity revisited. Applied Economics 45 , 311-327 (2013). 67 Xiang, S., Nie, F. & Zhang, C. Learning a Mahalanobis distance metric for data clustering and classification. Pattern recognition 41 , 3600-3612 (2008). 68 Qiu, X. et al. Duet: Dual clustering enhanced multivariate time series forecasting. Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining , 1185-1196 (2025). 69 Du, W.-B., Zhang, M.-Y., Zhang, Y., Cao, X.-B. & Zhang, J. Delay causality network in air transport systems. 
+
+Transportation research part E: logistics and transportation review 118 , 466-476 (2018). 70 Xu, Z., Zhang, H., Wang, Y., Chang, X. & Liang, Y. L 1/2 regularization. Science China Information Sciences 53 , 1159-1169 (2010). 71 Cai, Z. et al. Exponential moving average normalization for self-supervised and semi-supervised learning. Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 194-203 (2021). 
+
+## Figures and tables 19 
+
+Fig. 1. (a) Fine-grained OD observations provide directional mobility interactions needed for traffic management, but obtaining such data often requires trajectory-level acquisition, which is costly and exposes sparse origin–destination records to potential privacy risks. In contrast, area-level aggregated inflow and outflow observations are easier to collect and less privacy-invasive, but the underlying OD matrix is unobserved. The proposed task aims to infer future fine-grained OD interactions from these spatially aggregated mobility dynamics. (b) Increasing spatially aggregated mobility flow expands the difficulty for OD dynamics prediction: 1. Real-time OD flows differ substantially from daily aggregated OD flows, showing stronger sparsity and heavier imbalance across flow magnitudes. These temporal distributional changes weaken the dense-interaction assumptions of classical gravity models, leading to amplified inference errors in dynamic OD settings. To examine this limitation, we augment the classical gravity formulation with time-dependent weights using time step index, allowing origin-destination interactions to vary across temporal states rather than being governed by a single static interaction pattern. This temporal extension reduces errors, particularly for high-flow OD regimes; 2. Empirical analysis using results of STAEformer 45 at NYC taxi dataset. As the OD flow magnitude increases, the variation of the prediction error expands. The empirical distribution of OD flows further reveals the difficulty of dynamic inference. High-magnitude interactions are rare but associated with larger prediction errors and higher uncertainty, emphasizing the need for models that explicitly account for temporal OD dynamics. 20 
+
+Fig. 2. The overall framework of proposed ODIN. The framework adopts a Transformer paradigm integrated with gravity-informed learning and uncertainty learning modules, comprising three core components: a Spatiotemporal Transformer, a Temporal Resolved Gravity Model (TRGM), and a Disentangled Gaussian Mixture Model (DGMM). 
+
+Fig. 3 . (a) Overall prediction performance across taxi and bike-sharing datasets in New York City and Chicago. Each table reports RMSE, MAE and WAPE for ODIN and baseline models, with darker colors indicating better performance. ODIN achieves consistently strong performance across datasets. For results from other datasets, please refer to Figs. S2 and S3. (b) Temporal evolution of OD flow observations and predicted results on the NYC Taxi dataset. Each curve represents an OD pair, and color indicates RMSE magnitude. Compared with representative baselines, ODIN better preserves the temporal structure of observed mobility dynamics and produces fewer high-error trajectories. (c) Day-of-week error distribution on the NYC Taxi dataset. The left panel reports mean RMSE from Monday to Sunday, and the right panel shows each day’s deviation from the model average. ODIN maintains low and stable errors across weekdays and weekends, with the smallest weekend fluctuation among compared models. 21 
+
+Fig. 4 . Error and uncertainty analysis on the NYC Taxi dataset. (a) The bars show the sample count of OD flows at different magnitudes on a logarithmic scale, and the lines show MAE for different models. ODIN exhibits a slower error increase as flow magnitude grows, indicating better reconstruction of sparse high-value flows. (b) Temporal error distribution. Average hourly RMSE shows that ODIN maintains lower prediction errors across the daily mobility cycle, including both low-demand and peak-demand periods. (c) Spatial error distribution. OD links are visualized by percentage error, showing that ODIN produces fewer high-error links and a more spatially coherent error pattern than competing methods. (d) Temporal uncertainty decomposition. ODIN’s predicted mean follows the average 24-hour ground truth, while epistemic and aleatoric uncertainty describe different temporal sources of prediction uncertainty. (e) Spatial uncertainty decomposition. The spatial distributions of prediction error, epistemic uncertainty and aleatoric uncertainty show that epistemic uncertainty better aligns with difficult OD links, supporting its use for reliability-aware calibration. 22 
+
+Fig. 5. (a) Performance of edge-first and node-first models under different input granularities on NYC Taxi Core and NYC Bike Core datasets. Circles denote RMSE and triangles denote WAPE. Node-first models show stronger and more stable inference performance, especially when only aggregated inflow/outflow or total-flow observations are available. (b) Controlled comparison between the original node-first ODIN and an edge-first variant of ODIN under OD, inflow/outflow and total-flow inputs. The node-first design consistently achieves lower RMSE, MAE and WAPE, indicating that the performance advantage is not only caused by input information but also by modeling order. (c) Latent-space visualization of node-first and edge-first representations. Node-first modeling produces a smoother and more compact overall latent space 56 , clearer temporal organization across prediction horizons and stronger spatial separation between low-flow and high-flow nodes. Edge-first modeling yields more fragmented representations. These patterns suggest that learning spatial-unit mobility states before reconstructing pairwise interactions better preserves spatial heterogeneity and aligns with the generation-before-assignment logic in transportation planning. In the spatial dimension, we randomly select four nodes each from the top and bottom 10% by flow volume for visualization. 23 
+
+Fig. 6. Privacy exposure and acquisition burden of OD-level and aggregated mobility observations. Left, privacy exposure measured by cell-level uniqueness and low-3 risk across OD flow, inflow/outflow and total-flow observations. OD-level observations are evaluated over origin–destination–time cells, whereas aggregated observations are evaluated over node–time cells. Aggregated inflow/outflow and total-flow observations substantially reduce the proportion of unique and low-count mobility records, indicating lower exposure of sparse and potentially distinguishable movements. Right, annual data acquisition burden under area-level aggregated sensing and individual-level trajectory acquisition. Area-level costs are estimated from annualized traffic-count prices, whereas individual-counting costs are estimated from trajectory-record acquisition scenarios. Across taxi and bike-sharing datasets, aggregated sensing requires lower annual acquisition costs than trajectory-level acquisition, supporting the practical value of coarse-to-fine OD flow prediction. 24 
+
+Extending Data Fig. 1. Overall performance across additional urban mobility datasets. (a) Prediction performance on four core-area mobility datasets from Beijing, Shanghai, Shenzhen and Guangzhou. (b) Prediction performance on taxi and bike-sharing core-region datasets from Chicago and New York City. Each table reports RMSE, MAE and WAPE for ODIN and baseline models. Across different cities, transport modes and spatial settings, ODIN consistently achieves top or near-top performance while using only spatially aggregated mobility dynamics as input. 
+
+Extending Data Fig. 2. Spatial coverage of the mobility datasets in New York, Chicago, Beijing, Shanghai, Guangzhou and Shenzhen. New York uses taxi zones, Chicago uses community areas, and Chinese cities use subdistricts as spatial units. Grey denotes unselected areas, teal denotes general study regions and orange denotes core or selected regions for evaluation. 25 
+
+Extending Data Table 1 Trustworthy performance of different uncertainty models. ** mean that the values are too large to be negligible. 
+
+Datasets \ Benchmarks NYCBike (Core) NYCTaxi (Core) NYCBike NYCTaxi CRPS JSD CRPS JSD CRPS JSD CRPS JSD 
+
+STNB ** 0.484 ** 0.409 ** 0.422 ** 0.465 STTD ** 0.562 ** 0.456 ** 0.620 ** 0.550 STGS 0.876 0.299 1.381 0.230 0.541 0.317 0.832 0.279 UQGNN 1.931 0.586 3.197 0.486 1.257 0.659 2.018 0.605 
+
+ODIN(Ours) 0.692 0.273 1.111 0.209 0.458 0.303 0.679 0.259 Datasets \ Benchmarks NYCBike (Core) NYCTaxi (Core) NYCBike NYCTaxi CRPS JSD CRPS JSD CRPS JSD CRPS JSD 
+
+STNB ** 0.595 ** 0.420 ** 0.427 ** 0.393 STTD ** 0.800 ** 0.525 ** 0.796 ** 0.695 STGS 0.078 0.334 2.499 0.192 0.073 0.311 0.498 0.281 UQGNN 0.265 0.818 9.322 0.580 0.288 0.814 1.856 0.775 
+
+ODIN(Ours) 0.050 0.270 1.706 0.160 0.058 0.287 0.362 0.251 
+
+Extending Data Table 2 The pseudocode of training ODIN. 
+
+Algorithm The training process of ODIN. 1: Input: 
+
+2: Node-level inflow data and outflow data: Xin = { 𝑋 !"#$% &' , 𝑋 !"#$( &' ,…, 𝑋 !&' }, Xout = { 𝑋 !"#$% )*! , 𝑋 !"#$( )*! ,…, 𝑋 !)*! },3: Time-stamps data of time-of-day and day-of-week: 𝑆 +, = { 𝑆 !"#$% , , 𝑆 !"#$( , ,…, 𝑆 !,}, 𝑆 +- = { 𝑆 !"#$% - , 𝑆 !"#$( - ,…, 𝑆 !-}
+
+4: The initialized node-level dynamics embedding: ℱ'./ (·) 
+
+5: The initialized spatial transformer module: ℱ0(·) 
+
+6: The initialized temporal transformer module: ℱ1(·) 
+
+7: The initialized temporal resolved gravity model: ℱ1234 (·) 
+
+8: The initialized disentangled gaussian mixture model: ℱ5344 (·) 
+
+9: Hyperparameter: Predicted snapshots: p, Historical snapshots: q, Learning rate r, Smoothing factor s
+
+10: Ground truth of OD flow: 𝑌 31 = {Y t+1 , Y t+2 , …, Y t+p }
+
+11: Output: 
+
+12: Learnable parameters of ODIN: Θ
+
+13: Predicted future OD flow: 𝑌 6= { 𝑌 ( t+1 , 𝑌 ( t+2 , …, 𝑌 ( t+p }
+
+14: procedure ODIN Training 
+
+15: represent the spatiotemporal embedding feature 𝑍 7 → ℱ ,!/ (𝑋 +, 𝑆 +, , 𝑆 +-)
+
+16: for l in 0:L do 
+
+17: compute the dynamic temporal correlation feature 𝑍 18 → ℱ 18 (𝑍 18"% )
+
+18: for l in 0:L do 
+
+19: compute the dynamic spatial correlation feature 𝑍 08 → ℱ 08(𝑍 08"% )
+
+20: reconstruct edge-level feature using the node-level feature 𝐼 → ℱ 1234 (𝑍 01 9 )
+
+21: decode the OD flow from latent feature via uncertainty modeling 𝑌 6 → ℱ 5344 (𝐼) 
+
+22: calculate the loss from prediction and ground truth 𝐿𝑜𝑠𝑠 → ℒ(𝑌 31 , 𝑌 6)
+
+23: weights the learnable parameters 𝑠𝛩 + (1 − 𝑠)𝛩’ using exponential moving average 24: updates the learnable parameters 𝛩’ based on their gradients and learning rate r
+
+25: end for 
+
+26: repeat 26 
+
+27: optimize the model parameters by Adam optimizer to minimize 𝐿𝑜𝑠𝑠 
+
+28: until convergence 29: return learned parameters Θ
+
+Extending Data Table 3 Description of human mobility datasets. 
+
+Category U.S. datasets China datasets New York (Core) New York Chicago (Core) Chicago Beijing (Core) Shanghai (Core) Guangzhou (Core) Shenzhen (Core) Time Span 2024.1.1-2024.12.31 
+
+Time Interval 1 h / Snapshot 2 h / Snapshot 
+
+Spatial Units 32 53 13 26 40 25 48 15 
+
+Attributes Taxi, Bike Cell Phone 
+
+Zero Percentage 
+
+Taxi: 33.465% Taxi: 38.944% Taxi: 32.667% Taxi: 44.838% 64.90% 76.83% 57.79% 50.12% Bike: 42.086% Bike: 38.684% Bike: 49.400% Bike: 49.242% 
+
+Source Website 
+
+> https://on.nyc.gov/Taxis; https://www.nyc.gov/html/dot/html.shtml https://data.cityofchicago.org/Transportation/ Taxi-Trips-2024-/ajtu-isnz; https://divvybikes.com/system-data
+
+None 
+
+Spatial Grain Taxi Zone Community Area Subdistrict

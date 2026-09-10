@@ -1,0 +1,895 @@
+Title: Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications
+
+URL Source: https://arxiv.org/pdf/2609.04787v2
+
+Published Time: Wed, 09 Sep 2026 02:16:56 GMT
+
+Number of Pages: 36
+
+Markdown Content:
+# Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 
+
+HAILIANG ZHAO, School of Software Technology, Zhejiang University, China 
+
+XUEYAN TANG, School of Computer Science and Engineering, Nanyang Technological University, Singa-pore 
+
+PENG CHEN, College of Computer Science and Technology, Zhejiang University, China 
+
+ZENONG YE, School of Software Technology, Zhejiang University, China 
+
+TIANJUN ZHU, School of Engineering, Stanford University, United States 
+
+JIANWEI YIN, College of Computer Science and Technology, Zhejiang University, China 
+
+SHUIGUANG DENG, College of Computer Science and Technology, Zhejiang University, China Learning-augmented algorithms use fallible predictions while retaining formal performance guarantees. This survey synthesizes prediction interfaces, error measures, consistency–robustness trade-offs, and five representative construction mechanisms across online optimization, caching, learned data structures, graph problems, and mechanism design. An orthogonal theorem-level axis distinguishes achieved upper bounds from matched asymptotic dependence. Formal guarantees are separated from empirical systems evidence, with explicit treatment of prediction cost, feedback, and composition. The resulting synthesis states sufficient conditions for limited end-to-end reasoning and delineates open problems in cost-aware prediction, endogenous error, semantic predictors, and benchmarking. CCS Concepts: • Theory of computation → Online algorithms ; Online learning algorithms ; Data structures design and analysis ; • Computing methodologies → Machine learning .Additional Key Words and Phrases: Algorithms with predictions, error-sensitive guarantees, consistency– robustness trade-offs, prediction portfolios, prediction cost, predictor queries, learned indexes, mechanism design 
+
+1 Introduction 
+
+Consider a cloud operator investigating a latency spike. The following three hypothetical scenarios illustrate failure modes that are relevant to the scope of this survey. 
+
+(S1) An autoscaler trained on earlier traffic over-provisions after the workload changes. Its prediction is stale, and the cost of updating the predictor is not included in the scaling objective. 
+
+(S2) A caching layer uses a learned eviction policy tuned for average-case hit rate. Under request patterns outside its evaluation distribution, the policy has no stated prediction-independent worst-case guarantee. 
+
+(S3) A query planner relies on a cardinality estimate invalidated by a schema migration and selects a poor join order. A downstream scheduler does not observe the source of the resulting delay. These scenarios expose a recurring tension: algorithms that ignore predictable structure can be conservative, whereas learned heuristics often lack a useful worst-case statement outside their evaluation assumptions. Learning-Augmented Algorithms (LAA) provide one formal interface 
+
+Authors’ Contact Information: Hailiang Zhao, School of Software Technology, Zhejiang University, Ningbo, China, hliangzhao@zju.edu.cn; Xueyan Tang, School of Computer Science and Engineering, Nanyang Technological University, Singapore, Singapore, asxytang@ntu.edu.sg; Peng Chen, College of Computer Science and Technology, Zhejiang University, Hangzhou, China, pgchen@zju.edu.cn; Zenong Ye, School of Software Technology, Zhejiang University, Ningbo, China, yezenong@zju.edu.cn; Tianjun Zhu, School of Engineering, Stanford University, Stanford, United States, tizhu@stanford.edu; Jianwei Yin, College of Computer Science and Technology, Zhejiang University, Hangzhou, China, zjuyjw@zju.edu.cn; Shuiguang Deng, College of Computer Science and Technology, Zhejiang University, Hangzhou, China, dengsg@zju.edu.cn. arXiv:2609.04787v2 [cs.LG] 7 Sep 2026 2 Zhao et al. 
+
+between the two [90]. They admit a possibly inaccurate prediction and distinguish behavior under perfect predictions ( consistency ), arbitrary predictions ( robustness ), and intermediate error (often called smoothness ) [101]. Results cover, e.g., ski rental, caching, scheduling, and matching [37, 76, 101, 104]; related prediction-sensitive analyses appear in learned indexes [55, 75]. Predictor computation, feedback, retraining, and cross-component effects are usually outside the component objective. This is distinct from stationarity: robustness is commonly proved for adversarial inputs. To connect these results with deployment, we use learning-augmented systems (LAS) as shorthand for a system-level reading of the literature. This reading makes prediction, decision, actuation, and monitoring explicit so that omitted costs and interface assumptions can be audited. LAS is an organizing perspective in this survey, not a claim that architecture alone composes component guarantees. Section 6 states limited sufficient conditions and the assumptions they require. Section 7 applies the same discipline to semantic predictions. A language model may provide a typed input, but no consistency–robustness guarantee follows without a new model and proof. 
+
+1.1 Scope 
+
+Prior surveys organize the literature by prediction type, warm-start versus online use, or advice complexity [32, 33, 90, 91]; the ALPS index maintains a living bibliography. We instead classify 
+
+where and how a prediction enters a construction or analysis and examine the assumptions needed when prediction-consuming components share compute, state, and failure domains. A direction not located in our search is labeled unverified or open in the surveyed corpus, not absent from the literature. 
+
+1.2 Organization 
+
+Section 2 states the method and limitations. Section 3 fixes the formal framework, and Section 4 presents five construction mechanisms plus an orthogonal evidence axis. Sections 5–8 cover domains, system composition, semantic prediction, and open problems. Recurrent qualifications concerning error measures, prediction cost, ex ante trust, and composition are made explicit where used. 
+
+2 Scope and Method 
+
+This section states the questions, corpus construction, taxonomy derivation, and limitations. 
+
+2.1 Research Questions 
+
+Four questions organize the material. 
+
+RQ1 What reusable technical devices convert an untrusted prediction into a provable guarantee, and under what conditions does each apply? 
+
+RQ2 Within the surveyed corpus, which stated trade-offs or error dependencies are paired with matching lower bounds under the same model, and which are recorded only as achieved upper bounds? 
+
+RQ3 Which assumptions of the algorithmic contract require additional modeling when the algorithm is one component of a running system? 
+
+RQ4 What is established, what remains conditional, and what is unsupported in the recent turn toward predictions produced by foundation models? Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 3
+
+2.2 Corpus Construction 
+
+Sources and update protocol. Entry points were prior surveys [33, 90, 91], the ALPS index, 1 and early caching and ski-rental papers [81, 101]. Citation snowballing and targeted searches of major publisher, proceedings, and preprint indexes continued through 3 September 2026. Queries combined field-level terms with application, mechanism, prediction-budget, uncertainty, and foundation-model terms. The protocol was broad but not exhaustive. 
+
+Review type and audit trail. This is a structured narrative survey, not a registered systematic review. Snowballing and targeted queries replaced a single database export, and no deduplicated screening log was retained. We therefore report neither PRISMA counts nor empty taxonomy cells as absence of research. The bibliography identifies the cited corpus; Table 5 gives selected examples of the E0/E1 coding, and Table 6 maps mechanisms to named results. These records facilitate checking of representative claims without implying an exhaustive claim-level audit. 
+
+Inclusion and exclusion. The core corpus contains algorithms with a stated consistency, robustness, or explicit error-dependent guarantee. Learned data structures and deployed components are used only as labeled adjacent evidence about interfaces and failure modes; empirical or average-case gains are not promoted to LAA guarantees. Advice complexity is background unless coupled to an error-sensitive prediction guarantee, and offline learning of a fixed configuration lies outside the core corpus. 
+
+A note on verifiability. Metadata and representative claims were checked against publisher records or authoritative preprints. Interpretive assignments are author synthesis; missing combinations are questions suggested by the corpus, not absence claims. 
+
+2.3 How the Taxonomy Was Derived 
+
+Unit of classification. Axis A classifies construction mechanisms, so one paper may receive several P1–P5 labels. Axis B classifies theorem records: E0 means that this survey does not pair the upper bound with a matching lower bound in the same formal model; E1 means matched asymptotic dependence. N/A denotes empirical or adjacent records outside Axis B, not a third evidence level. 
+
+The two classifying questions. Axis A asks where prediction enters: P1 combines prediction-following and prediction-independent behavior; P2 modifies an optimization update while preserv-ing feasibility; P3 couples a prediction-sensitive fractional construction with rounding; P4 controls access, switching, queries, or portfolios; and P5 uses a predicted distribution directly. Axis B asks whether the dependence is achieved (E0) or matched in the same model (E1). The mechanisms are non-exclusive and incomplete. 
+
+Coding procedure. For each E0/E1 row, we compared the prediction object, adversary, benchmark, objective, error, and bound assumptions at theorem level. E1 requires agreement on every model-defining dimension. No independent second coder or inter-rater statistic is reported; the tables are navigation aids, not prevalence estimates. 
+
+2.4 Relation to Existing Classifications 
+
+Prior organizations cut along different axes. Mitzenmacher and Vassilvitskii [90, 91] emphasize what is predicted and the warm-start-versus-online distinction. Boyar et al. [33] classify by advice information, measured in bits. These views are complementary but not interchangeable: a full sequence of next-request predictions may contain far more information than an advice bound with  
+
+> 1https://algorithms-with-predictions.github.io/ 4Zhao et al.
+
+Table 1. Relation to the principal surveys used as entry points. “Present” describes the scope of this article, not a claim of exhaustive coverage.     
+
+> Source Primary organizing axis Coverage emphasis Difference from the present survey
+> Boyar et al. [33] Advice complexity in bits Online algorithms with advice Predictions are treated as fallible task objects with error-dependent guarantees, not only information budgets. Mitzenmacher and Vassilvitskii [90, 91] Predicted object; warm start vs. online use Foundational algorithms-with-predictions examples The present survey separates construction mechanism from tightness evidence and extends the comparison to systems interfaces. Present survey Mechanism axis P1–P5; tightness-status axis E0/E1 Five algorithmic domains, adjacent systems, composition, and semantic interfaces Adds theorem-level matching-bound status and conditions for cost, feedback, and cross-component reasoning.
+
+the same per-symbol alphabet. Succinct-prediction results make that budget explicit [11]. Table 1 states the incremental scope claimed here. 
+
+2.5 The Shape of the Literature Over Time 
+
+From 2018 to roughly 2022, work popularized the consistency–robustness contract and sharpened trade-offs for ski rental, caching, weighted paging, and metric tasks [12, 27, 81, 101, 104, 114]. Later work broadened predictions to distributions, explicit learners, portfolios, and query budgets, and expanded strategic, dynamic, streaming, and graph applications [20, 44, 46, 48, 53, 67, 99]. Empirical benchmarks expose cost, feedback, and deployment questions [35, 112, 116]. This is a qualitative shift in emphasis; tightness remains relative to a particular model. 
+
+2.6 Threats to Validity 
+
+Three limitations should temper how the reader uses what follows. 
+
+• P1–P5 are a working set of construction mechanisms, not an exhaustive partition; papers may occupy multiple rows. E0/E1 records theorem-level evidence on a separate axis. 
+
+• The assignments in Table 5 reflect the works found by the targeted search and are qualitative. They are not paper counts or evidence that an unassigned combination is empty. 
+
+• The systems-oriented discussion includes empirical systems without competitive guarantees. Similarities to formal robustifiers, fallbacks, or restricted action spaces are architectural analogies unless a reduction is stated. 
+
+3 Background and Formal Framework 
+
+This section fixes the vocabulary used throughout the survey. We first give the notation and three commonly reported evaluation criteria (§3.2), then distinguish what a predictor outputs (§3.3) from how its error is measured (§3.4). Not every paper proves all three criteria, and several use additive rather than purely multiplicative guarantees. We close with a worked ski-rental example. 
+
+3.1 Notation 
+
+Table 2 collects the notation. Let I be the instance space, 𝑧 (𝐼 ) the information observable when a prediction is issued, and ˆ 𝑦 = 𝑃 (𝑧 (𝐼 )) ∈ Y the output; thus the algorithm receives no unrevealed Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 5
+
+Table 2. Nomenclature.                                                  
+
+> Symbol Meaning
+> I, 𝐼 Instance space; a single instance
+> Y,ˆ𝑦 Prediction space; a predictor output
+> 𝑦 ∗(𝐼 )True (unknown) label of instance 𝐼 𝜂 (𝐼, ˆ𝑦 )Prediction error ℓ𝐼 (ˆ𝑦, 𝑦 ∗(𝐼 ) ) , including stated normaliza-tion
+> ℓ𝐼 Instance-aware error measure (see Table 3) OPT (𝐼 )Optimal offline cost with full knowledge of 𝐼
+> ALG ,AThe online (learning-augmented) algorithm CR Expected competitive ratio for cost minimization
+> 𝜆 ∈ [ 0,1]Trust parameter; smaller 𝜆 means more trust here
+> 𝑐 (𝜆 )Consistency: ratio attained when 𝜂 =0
+> 𝑟 (𝜆 )Robustness: worst-case ratio over all ˆ 𝑦 𝑓 𝜆 (𝜂 )Smoothness curve at trust 𝜆 ; omit the subscript when absent
+> 𝜎 =(𝜎 1, . . . , 𝜎 𝑇 )Request sequence of length 𝑇 𝑘 Cache size (§5.2)
+> 𝐻 𝑘 𝑘 -th harmonic number Í𝑘 𝑖 =11/𝑖 𝐵 Purchase cost in ski rental (§3.5)
+
+part of 𝐼 . For unknown target 𝑦 ∗ (𝐼 ), define 
+
+𝜂 (𝐼, ˆ𝑦 ) = ℓ𝐼 
+
+  ˆ𝑦, 𝑦 ∗ (𝐼 ), (1) where ℓ𝐼 is problem specific and may include the normalization used by the cited theorem. Write cost (A ( 𝐼, ˆ𝑦 )) for algorithmic cost and OPT (𝐼 ) for offline optimum. The symbol E ranges over every random variable admitted by the theorem. For a fixed adversarial instance this may be only the algorithm’s internal randomness; a stochastic or distributional model must additionally identify randomness in the realized input, target, or oracle. Unless stated otherwise, definitions concern minimization and ratios assume OPT (𝐼 ) > 0; zero optima need an additive convention. Maximization results use OPT /E[ALG ] or an explicit approximation factor. 
+
+3.2 Evaluation Criteria 
+
+A learning-augmented algorithm is commonly evaluated by the following quantities [90]. Through-out, 𝜆 ∈ [ 0, 1] denotes a trust parameter chosen before the unrevealed part of the instance is seen. Parameter conventions differ across papers; in this survey and the running ski-rental example, smaller 𝜆 denotes greater trust. The parameter is not a function of the realized error, which is unavailable online. 
+
+Definition 3.1 (Consistency). A is 𝑐 (𝜆 )-consistent if, whenever the prediction is exact, 
+
+Ecost (A ( 𝐼, ˆ𝑦 ))  ≤ 𝑐 (𝜆 ) · OPT (𝐼 ) for all 𝐼, ˆ𝑦 with 𝜂 (𝐼, ˆ𝑦 ) = 0. (2) The expectation follows the probability space declared above. The special case 𝑐 (𝜆 ) = 1 is called 1-consistency : the algorithm matches the offline optimum exactly under perfect predictions. Some results instead achieve 𝑐 (𝜆 ) = 1 + 𝑜 (1) as a problem parameter grows, e.g., the horizon 𝑇 → ∞ . We say so explicitly whenever the distinction matters. 6 Zhao et al. 
+
+Definition 3.2 (Robustness). A is 𝑟 (𝜆 )-robust if 
+
+E[cost (A ( 𝐼, ˆ𝑦 ))] 
+
+OPT (𝐼 ) ≤ 𝑟 (𝜆 ) for all 𝐼 ∈ I and all ˆ 𝑦 ∈ Y , (3) where the expectation follows the model’s declared probability space and 𝑟 (𝜆 ) does not depend on 
+
+𝜂 . The bound must hold even for arbitrarily inaccurate predictions. Robustness need not be as small as the best prediction-free ratio 𝛼 ★: a trade-off may accept 𝑟 (𝜆 ) > 𝛼 ★ in exchange for improved consistency. An algorithm can recover 𝛼 ★ by explicitly ignoring the prediction, but a fixed trust setting need not do so. 
+
+Definition 3.3 (Smoothness). At trust setting 𝜆 , A has an 𝑓 𝜆 -error-dependent guarantee (often called smoothness) if there is a non-decreasing envelope 𝑓 𝜆 such that 
+
+E[cost (A ( 𝐼, ˆ𝑦 ))] 
+
+OPT (𝐼 ) ≤ 𝑓 𝜆 (𝜂 (𝐼, ˆ𝑦 )) for all 𝐼 ∈ I , ˆ𝑦 ∈ Y . (4) When 𝑓 𝜆 (0) = 𝑐 (𝜆 ) the bound recovers the stated consistency guarantee, and when 𝑓 𝜆 is uniformly bounded it also implies robustness. We do not require continuity because error domains and published bounds may be discrete, piecewise, or include additive terms. If a result has the form 
+
+E[cost ] ≤ 𝑓 𝜆 (𝜂 )OPT + 𝑏 , we report the additive constant 𝑏 rather than suppress it. For results without a trust parameter, the subscript is omitted. Many papers report a consistency–robustness pair traced by 𝜆 ; a particular frontier is tight only when an accompanying lower bound rules out every dominating pair in the same model. The term “smoothness” is not fully standardized. Azar et al.’s discrete-smoothness separates pre-dicted and unpredicted parts of a combinatorial solution [19], whereas Definition 3.3 uses the broader convention of any stated error-dependent envelope. Moreover, a Pareto-optimal consistency– robustness pair need not control performance at small nonzero error; one-way trading provides explicit brittleness examples and motivates user-specified smoothness profiles [52]. 
+
+Remark 3.4 (Smoothness is not robustness). The distinction in Definitions 3.2 and 3.3 is substantive. A bound CR ≤ 𝑓 𝜆 (𝜂 ) with unbounded 𝑓 𝜆 provides no prediction-independent cap. Robustness requires a problem-specific construction, such as explicit interpolation with a baseline, an algorithm-combination theorem that accounts for state, or a formally analyzed robustifier. 
+
+3.3 Prediction Objects and Representations 
+
+Table 3 separates three levels that are easily conflated: the task object being predicted, an optional uncertainty annotation, and the representation used at the interface. The first level constrains meaningful constructions and errors but does not determine a paradigm. The latter two can qualify any task object. 
+
+Point predictions estimate a scalar or vector; distributional predictions specify a distribution whose calibration requirements depend on the theorem [8, 44]; and ordinal predictions give rankings that can suffice in scheduling [79]. Structural predictions name combinatorial objects such as matchings or dual solutions [45, 78]. An uncertainty annotation adds, e.g., a range and a coverage probability to a point prediction [110]; it is not necessarily a full predictive distribution. This model is also distinct from 𝜖 -accurate advice, where each prediction is independently correct with probability at least 𝜖 and may otherwise be arbitrary [61]. A semantic representation is free-form and requires an adapter plus a task-defined error before an LAA theorem applies (Section 7). Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 7
+
+Table 3. Task objects and orthogonal interface qualifiers, with typical error measures and mechanisms used in cited examples. Evidence status E0/E1 is assigned separately to individual theorems. Entries are illustrative rather than exclusive.                              
+
+> Level and type Predictor output Typical error measure Mechanisms in cited examples Representative use
+> Task object: point A scalar or vector estimate of 𝑦 ∗
+> ℓ1,ℓ∞,|ˆ𝑦 −𝑦 ∗|/ 𝑦 ∗P1–P4 Ski rental horizon; job sizes; next request time [81, 101] Task object: distributional A distribution ˆDover Y𝑊 𝑝 (ˆD,D∗),𝑑 TV , KL P4, P5 Binary search over a predicted key distribution; contract scheduling [8, 44] Task object: ordinal A ranking or pairwise comparisons Kendall 𝜏 ; number of inversions P1, P3, P4 Speed-oblivious scheduling; relative job order [79] Task object: structural A combinatorial object: dual solution, matching, edge subset Symmetric difference;
+> ∥ˆy−y∗∥1; edit distance P1–P4 Warm-started matchings and flows; predicted dual variables [41, 45, 78] Representation: semantic Unstructured text, code, or policy fragments
+> No canonical measure ;requires task-defined semantics and a loss None directly; needs an adapter (§7) Log interpretation; fallback-policy synthesis
+
+3.4 How Error Is Measured 
+
+The loss ℓ𝐼 is substantive, so curves are comparable only when error definitions, normalization, and benchmarks align. Absolute and relative error produce different curves; relative normalization also needs positive, meaningful denominators. Aggregation differs as well: ℓ1 charges all coordinates, whereas ℓ∞ charges the worst, and neither reveals how caching errors are distributed over requests. Finally, observability is distinct from theorem validity. A late-revealed target supports ex post analysis but cannot directly drive an online controller; a deployment instead needs timely proxies, constraints, or reversible fallback rules (Section 6). 
+
+3.5 A Running Example: Ski Rental 
+
+Ski rental exhibits all three criteria. For unknown skiing days 𝑇 , daily rent 1, and one-time purchase cost 𝐵 , OPT = min {𝑇 , 𝐵 }. Without predictions, the optimal deterministic and randomized ratios are 2 and 𝑒 /( 𝑒 − 1) ≈ 1.58 [72, 73]. Now suppose a predictor supplies ˆ 𝑇 . Fix a trust parameter 𝜆 ∈ ( 0, 1) and run the deterministic rule of Purohit et al. [101]: if ˆ 𝑇 ≥ 𝐵 , buy at the start of day ⌈𝜆𝐵 ⌉; otherwise buy at the start of day 
+
+⌈𝐵 /𝜆 ⌉. Writing 𝜂 abs = | ˆ𝑇 − 𝑇 |, the bound stated for this rule is CR ≤ min 
+
+n
+
+1 + 1 
+
+> 𝜆
+
+, 1 + 𝜆 + 𝜂 abs  
+
+> (1−𝜆 )OPT
+
+o
+
+. (5) The three criteria can be read directly off (5). Setting 𝜂 abs = 0 gives 𝑐 (𝜆 ) = 1 + 𝜆 . The first branch is independent of the error and gives 𝑟 (𝜆 ) = 1 + 1/𝜆 . For the normalized error 𝜂 (𝐼, ˆ𝑇 ) = 𝜂 abs /OPT, the second branch is the well-defined envelope 𝑓 𝜆 (𝜂 ) = 1 + 𝜆 + 𝜂 /( 1 − 𝜆 ). The endpoint 𝜆 = 1 is understood separately as the classical deterministic algorithm. For 𝐵 = 100 and 𝜆 = 1/2, the long-season branch buys on day 50 and the short-season branch defers to day 200, giving guarantees 𝑐 ≤ 1.5 and 𝑟 ≤ 3. As 𝜆 → 0, consistency approaches 1 while robustness diverges; 𝜆 = 1 recovers the classical ratio 2. The displayed deterministic guarantee curve 8 Zhao et al.               
+
+> consistency 𝑐 (𝜆 )
+> robustness  𝑟  (𝜆 )
+> 11.5212357
+> 𝜆 =1: the classical prediction-free algorithm
+> 𝜆 =12
+> 𝜆 =14
+> 𝜆 →0: blind trust, 𝑟 → ∞
+> asymptotically infeasible
+
+Fig. 1. The deterministic ski-rental guarantee curve  𝑐 (𝜆 ), 𝑟 (𝜆 ) =  1 + 𝜆, 1 + 1/𝜆  for 𝜆 ∈ ( 0, 1]. Every point corresponds to a parameterized guarantee, and the shaded region is asymptotically unattainable as the integer purchase cost 𝐵 grows; finite-𝐵 lower bounds include rounding terms. The endpoint 𝜆 = 1 is the classical 
+
+2-competitive rule, and exact 1-consistency is approached only as robustness diverges. 
+
+Axis A: where the prediction enters the construction (non-exclusive) 
+
+> P1
+> Trust-based combination
+> P2
+> Prediction-guided primal–dual update
+> P3
+> Sensitive relaxation plus rounding
+> P4
+> Prediction ac-cess, portfolios, and switching
+> P5
+> Distribution-guided decision rule
+> A paper may occupy several mechanism positions; predictor type alone does not select one.
+
+Axis B: theorem-level evidence status (orthogonal to P1–P5) 
+
+> E0: achieved bound
+> No matching lower bound paired in the same model
+> E1: matched dependence
+> Upper and lower bounds agree under the same formal assumptions
+> E0/E1 records matching-bound status, not a general quality or maturity ranking.
+
+Fig. 2. The two-axis taxonomy. Axis A records one or more construction mechanisms P1–P5. Axis B separately records whether a theorem provides an achieved upper bound (E0) or whether its error dependence is matched by a lower bound under the same prediction model, error measure, adversary, benchmark, and computational assumptions (E1). Neither coordinate follows from the predictor type alone. 
+
+is asymptotically Pareto-optimal as 𝐵 grows; exact finite-𝐵 lower bounds retain integer-rounding terms. The corresponding randomized trade-off is characterized separately [114]. Two features recur throughout the survey. First, the trust parameter is fixed before the realized error is known. Adaptive trust therefore requires an observable proxy and a separate theorem, such as a problem-specific algorithm-combination result. Second, the error term is additive in 𝜂 /OPT but scaled by 1 /( 1 − 𝜆 ); error and trust cannot be interpreted independently. This interaction remains relevant once predictor invocations carry cost (Section 8). 
+
+4 Design Paradigms for Learning-Augmented Algorithms 
+
+Axis A uses five labels to organize construction mechanisms that are recurring or representative in the surveyed corpus. They are non-exclusive and not equally broad; in particular, P3 is represented Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 9
+
+Table 4. The two taxonomy axes. P1–P5 describe construction mechanisms; E0/E1 describes theorem-level evidence. A label alone implies no guarantee. 
+
+Core mechanism What is guaranteed Typical scope Failure mode Refs. P1 A single algorithm parameterized by a trust value 𝜆 fixed offline, or a randomized mixture of two A theorem-specific pair  𝑐 (𝜆 ), 𝑟 (𝜆 ) when both branches are controlled 
+
+Online problems with a known prediction-free baseline 
+
+Needs that baseline to exist; dynamic switching additionally requires state-migration accounting [58, 60, 101, 114] 
+
+P2 Prediction initializes, guides, or repairs a primal or dual certificate in an optimization method A problem-specific competitive, approximation, or running-time bound from feasibility and dual-based analysis 
+
+Online covering / packing; combinatorial warm starts 
+
+Requires an explicit relaxation, advice semantics, and invariant; a predicted dual alone gives no generic guarantee [25, 26, 45, 60, 106] 
+
+P3 Prediction guides a fractional solution; a separate online rounding theorem makes it integral Product of the fractional guarantee and the rounding factor, when their assumptions align 
+
+Online scheduling and facility location 
+
+Rounding may dominate the ratio and need not preserve consistency [76, 77] 
+
+P4 Control which predictor or algorithm is consulted or followed, including query, switching, and state costs Competition with a specified benchmark or a bound using fewer prediction calls, under a problem-specific reduction 
+
+Multiple predictors or costly access to one predictor 
+
+Prediction regret alone does not imply cost competitiveness or robustness [1, 7, 14, 40, 46, 49, 67] 
+
+P5 Use a predicted distribution directly in a search, schedule, or other problem-specific rule Error-dependent performance in a stated distributional distance, plus a separate worst-case bound when proved 
+
+Distributional predictions 
+
+No generic Wasserstein or risk theorem transfers across objectives [8, 10, 44] 
+
+Axis B: evidence status E0 : achieved upper bound; 
+
+E1 : matching lower bound under the same formal model 
+
+Assigned per theorem 
+
+Tightness does not transfer across error measures, adversaries, benchmarks, or computational models [15, 44, 104] 
+
+by a narrower line of work than P1, P2, P4, or P5. Axis B separately records tightness status at theorem level. Table 4 summarizes both axes, and Figure 2 shows how to read a pair of coordinates. (1) P1 : Trust-Based Combination. Let A𝑐 be a prediction-following algorithm with consistency fac-tor 𝑐 𝑐 , potentially unbounded when the prediction is inaccurate, and let A𝑟 be a prediction-free algorithm with worst-case ratio 𝛼 𝑟 . P1 combines them under a trust parameter 𝜆 ∈ [ 0, 1]
+
+fixed before the instance is revealed. Two distinct constructions share this name, and they are analyzed by different tools. 
+
+(i) Randomized mixture. To keep the survey’s convention that smaller 𝜆 means more trust, draw once at the start and run A𝑐 with probability 1 − 𝜆 and A𝑟 with probability 𝜆 . By linearity of expectation, 
+
+E[cost ] = (1 − 𝜆 ) · E[cost (A 𝑐 )] + 𝜆 · E[cost (A 𝑟 )] , (6) 10 Zhao et al. 
+
+which yields 𝑐 (𝜆 ) ≤ ( 1 − 𝜆 )𝑐 𝑐 + 𝜆𝛼 𝑟 ; the displayed factor reduces to (1 − 𝜆 ) + 𝜆𝛼 𝑟 when A𝑐 
+
+is 1-consistent. If A𝑐 has unbounded worst-case ratio, every mixture with 𝜆 < 1 remains non-robust; randomization alone does not cap that branch. 
+
+(ii) Parameterized interpolation. A different construction builds a single algorithm whose decision rule is continuously deformed by 𝜆 , as in the ski rental rule of §3.5, where 𝜆 moves the purchase day between ⌈𝜆𝐵 ⌉ and ⌈𝐵 /𝜆 ⌉. Here 𝜆 does not select between two codebases. It tunes one. The design goal is to trace the Pareto frontier 
+
+P =
+
+n 𝑐 (𝜆 ), 𝑟 (𝜆 ) : 𝜆 ∈ ( 0, 1]
+
+o
+
+, (7) and a result is tight when no algorithm attains a pair dominating a point of P. For ski rental, 
+
+(1 + 𝜆, 1 + 1/𝜆 ) is the standard deterministic guarantee curve and is asymptotically Pareto-optimal as 𝐵 grows; finite-𝐵 statements retain integer-rounding terms. The randomized trade-off is characterized separately [58, 101, 114]. The parameter 𝜆 is not a function of the realized error unless that error is observable before the corresponding decision. Adaptive trust needs a causal proxy and a problem-specific analysis; neither a generic cost monitor nor a generic expert algorithm supplies a competitive ratio automatically. 
+
+Applies when a robust prediction-free baseline exists and either an up-front mixture or a single parameterized rule yields the stated guarantee. A one-shot mixture draws one branch before execution, so it neither switches online nor requires the two branches to share state. State compatibility and migration cost become additional obligations only for dynamic switching, which is classified under P4. This distinction matters in caching, where separately maintained cache states can be expensive to reconcile. (2) P2 : Prediction-Guided Primal–Dual Methods. For online covering problems, Bamas et al. [26] treat a prediction as advice specifying a candidate solution or action sequence. The algorithm modifies the rates at which primal and dual variables increase, with 𝜆 controlling how strongly the advice influences those rates. Feasibility and dual fitting then yield a bound of the form cost (A) ≤ min {𝐶 (𝜆 ) 𝑆 ( ˆ𝑦, 𝐼 ), 𝑅 (𝜆 ) OPT (𝐼 )} , (8) where 𝑆 ( ˆ𝑦, 𝐼 ) is the cost of following the advice on the realized instance. The exact updates and constants depend on the covering formulation; there is no universal additive “predicted-dual bias” whose cumulative magnitude alone proves robustness. A distinct use of predictions is an offline warm start. Dinitz et al. [45] predict dual variables for matching and measure how repairing or augmenting that prediction affects running time. Sakaue and Oki [106] extend this direction through discrete convex analysis, with applications including weighted perfect bipartite matching, weighted matroid intersection, and discrete energy minimization; their bounds use distance to an optimal discrete-convex solution. These works belong under P2 because feasibility and optimization certificates drive the analysis, but they predict different objects and improve running time rather than online cost. P2 applies only after the paper identifies the optimization formulation, advice semantics, and invariant that survives inaccurate advice. (3) P3 : Prediction-Sensitive Relaxation and Rounding. A representative example is online sched-uling via learned weights [76]. The prediction is used to construct a fractional assignment whose competitive ratio depends on prediction error; a separate online rounding theorem converts an eligible fractional assignment into an integral schedule. A newer line develops online rounding specifically for facility location and applies it to learning-augmented inte-gral facility location [77]. If the fractional stage is 𝑔 (𝜂 )-competitive and the rounding incurs Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 11 
+
+factor 𝜌 , the combined guarantee is 𝜌𝑔 (𝜂 ) only when the rounding theorem’s assumptions apply to the generated fractional solution. The proof obligation is therefore not a generic variance inequality. A variance bound by itself does not control expected cost, and prediction-dependent sampling does not automatically preserve feasibility or robustness. P3 applies when the literature supplies both an error-sensitive fractional guarantee and a compatible online rounding result. The rounding factor may dominate the final ratio and may prevent exact consistency even when the fractional prediction is perfect. (4) P4 : Prediction-Access, Portfolio, and Switching Reductions. A portfolio result must connect predictor choice to the online problem’s actual cost. For losses in [0, 1], a standard Hedge guarantee for weights 𝑤 𝑡 in the probability simplex has the form ∑︁ 
+
+> 𝑡 𝑀
+
+∑︁ 
+
+> 𝑗 =1
+
+𝑤 𝑗,𝑡 ℓ𝑡 ( ˆ𝑦 𝑗,𝑡 ) ≤ min 
+
+> 𝑗
+
+∑︁ 𝑡 
+
+ℓ𝑡 ( ˆ𝑦 𝑗,𝑡 ) + 𝑂 (√︁ 𝑇 log 𝑀 ), (9) where 𝑀 is the number of predictors. The left side is also the expected loss when an expert is sampled from 𝑤 𝑡 . If ¯ 𝑦 𝑡 = Í𝑗 𝑤 𝑗,𝑡 ˆ𝑦 𝑗,𝑡 is feasible and ℓ𝑡 is convex, Jensen’s inequality additionally bounds Í𝑡 ℓ𝑡 ( ¯𝑦 𝑡 ) by this weighted loss. Without convexity, the latter form is not implied. The surrogate-loss guarantee does not by itself imply a competitive ratio: one also needs a reduction from ℓ𝑡 to algorithm cost, a compatible state or migration rule, and a benchmark whose scale absorbs any additive regret. Anand et al. [7] give a potential-based framework for multiple predictions in online covering, while Dinitz et al. [46] provide problem-specific portfolio algorithms and Antoniadis et al. [14] analyze combinations for metrical task systems against static or switching-aware benchmarks. Cosa and Eliáš [40] restrict each round to one queried MTS predictor. Writ-ing OPT ≤0 for the cost of the best supplied heuristic, their main regret upper bound is 
+
+𝑂 (OPT 2/3 
+
+> ≤0
+
+) when the metric diameter, number of predictors, and 𝑚 -delayed-access parame-ter are treated as constants; the lower bound is eΩ(OPT 2/3 
+
+> ≤0
+
+), i.e., tight only up to logarithmic factors. Nguyen [95] instead compares online covering decisions with a time-varying linear combination of experts. Sparse-query and costly-prediction models also belong to P4 when they control whether or when a predictor is accessed [1, 49, 67]. These results justify P4 only under their stated feedback, state, query, and comparator models. Robustness follows when the portfolio contains or is coupled to a robust algorithm and the combination theorem preserves its bound; adversarial regret against a pool of non-robust experts is not sufficient. (5) P5 : Algorithms with Distributional Predictions. Here the prediction itself is a probability dis-tribution rather than a point. Dinitz et al. [44] interleave distribution-guided median probes with classical binary search and obtain expected query complexity 𝑂 (𝐻 (𝑝 ) + max {log 𝜂, 0}) ,where 𝑝 is the true access distribution and 𝜂 is its earth mover distance from the prediction. The truncation is essential because 𝜂 may be smaller than one or zero. Angelopoulos et al. [8] design contract schedules that use distributional advice while retaining a problem-specific worst-case guarantee. These examples do not instantiate a general coherent-risk theorem. A risk-sensitive ob-jective may separately use expectation, CVaR, an entropic risk measure, or a quantile, but these objects have different axioms: entropic risk is convex rather than coherent in general, and a quantile (VaR) is not coherent in general. A Wasserstein bound additionally requires regularity of the loss and distributions, and a bound for a fixed decision does not automati-cally bound the excess cost of the optimizer selected under a misspecified distribution. P5 12 Zhao et al. 
+
+Table 5. Selected theorem records illustrating the two-axis coding. Each status applies only to the stated guarantee. N/A marks adjacent empirical evidence outside Axis B, not a third evidence level.                                     
+
+> Theorem record Axis A Eligible upper-bound claim Lower-bound pairing in the same model Axis B
+> Deterministic ski rental [101, 114] P1 Guarantee curve (1+𝜆, 1+1/𝜆 )for 𝜆 ∈ ( 0,1]Asymptotically matching impossibility frontier for the same deterministic model; finite-𝐵
+> rounding remains E1 Caching with next-arrival predictions [104] P1 Error-dependent competitive guarantee under the paper’s arrival-error metric Upper and lower bounds are near-optimal but leave a functional and logarithmic gap under the strict rule E0 Binary search with distributional predictions [44] P5 𝑂 (𝐻 (𝑝 ) + max {log 𝜂, 0} ) expected queries Matching dependence under the paper’s distribu-tional model E1 MTS with bandit predictor access [40] P4 𝑂 (OPT 2/3
+> ≤0)regret when auxiliary parameters are constants
+> eΩ(OPT 2/3
+> ≤0)leaves logarithmic factors E0 Stochastic online bidding [10] P1, P5 Distributional deterministic: tight Pareto trade-off; randomized point oracle: class-specific upper bounds The distributional deterministic frontier is matched; the randomized results do not form one blanket match P5: E1; P1: E0 Randomized strategic facility location [20] outside P1–P5 The line: truthful-in-expectation frontier; higher-dimensional settings: model-specific upper bounds The line has a matching impossibility result; the other settings do not share one matched frontier line: E1; others: E0 ALEX adaptive learned index [42] adjacent Workload-dependent empirical update and lookup performance No eligible consistency, robustness, or error-dependent theorem N/A
+
+therefore records distributional prediction models and their problem-specific analyses, not a universal Lipschitz principle. 
+
+Axis B: theorem-level tightness status. E1 is attached when an upper bound 𝑓 (𝜂 ) is accompanied by a lower bound with the same asymptotic dependence under the same prediction model, error measure, adversary, benchmark, and computational assumptions [15, 20, 44, 114]. Otherwise the result remains at E0 in this survey, which means only that a matching result is not paired here. Logarithmic gaps, class-restricted lower bounds, or changes of benchmark remain E0 under this strict rule. It is not a claim that no matching result exists, nor is E1 a general ranking of empirical validity, breadth, or practical importance. Neither label transfers between incomparable models. We use “tight” below only for explicit matching upper and lower bounds under the same model, not merely for an apparently favorable empirical frontier. 
+
+4.1 Reading the Taxonomy: Where the Gaps Are 
+
+Table 5 reports representative positive assignments rather than a mechanism × domain grid with empty cells. Unlisted combinations remain search and modeling questions, not asserted research gaps. For example, applying P2 to a learned data structure would require an online relaxation and dual invariant that deterministic gapped-array layouts do not presently expose. Applying P5 to a graph problem would require a tractable distributional object and a stability argument linking its misspecification to graph cost. In mechanism design, any P3 or P5 construction must preserve incentive constraints in addition to feasibility. Other combinations expose accounting questions. A learned-index portfolio would need to charge model-selection latency, rebuild cost, and state migration before regret could imply query latency. Data-driven selection of 𝜆 must distinguish an offline validation rule from an online rule that observes only causal feedback. These are questions suggested by the included models; the survey makes no claim that the corresponding literatures are empty. Finally, tight upper and lower bounds are concentrated in a smaller set of well-specified models, including ski rental, distributional binary search, and selected prediction or advice models for caching and strategic facility location. Graph, data-structure, and mechanism-design results often optimize different quantities, e.g., competitive ratio, approximation, query complexity, or running Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 13 
+
+time, so their guarantees should not be ranked on one maturity scale without preserving those distinctions. 
+
+5 Problem Domains 
+
+Table 6 consolidates the five domains while preserving the objective in each row. Evidence status is intentionally omitted from these grouped rows because one row may cite several incomparable theorems. The selected records in Table 5 assign E0 or E1 only to a specific stated guarantee. We now examine five problem domains and one cross-cutting methodological strand. Each domain is presented in the same three parts: the classical formulation, the LAA-theoretic extension, and the representative problem classes. A short assessment of what remains open in that domain follows. The uniformity is deliberate. It lets a reader who cares about one domain read a single subsection, and it lets a reader comparing domains see which structural features drive the differences in guarantee. 
+
+5.1 Online Optimization 
+
+5.1.1 Classical Formulation. Online optimization models sequential decision-making under uncer-tainty. An online algorithm receives a request sequence 𝜎 = (𝜎 1, . . . , 𝜎 𝑇 ) and chooses 𝑥 𝑡 using only the revealed history. Feasibility, state transitions, and movement costs may couple decisions across time. For a randomized cost-minimization algorithm, the competitive ratio is CR (A) = sup 
+
+> 𝜎
+
+E[cost A (𝜎 )] 
+
+OPT (𝜎 ) , (10) where OPT obeys the same feasibility and state constraints but knows the full sequence. An additive constant is included when required by the problem’s standard definition. Ski rental has deterministic optimum ratio 2 and randomized optimum ratio 𝑒 /( 𝑒 − 1) ≈ 1.58 [72, 73]. 
+
+5.1.2 LAA Extension. LAA adds a prediction and states separately what happens when it is exact and when it is arbitrary. Robustness is a finite prediction-independent ratio, not necessarily the optimal prediction-free ratio. For deterministic ski rental the standard guarantee trade-off is (1+𝜆, 1+
+
+1/𝜆 ) for 𝜆 ∈ ( 0, 1], and its impossibility frontier is asymptotically matching as 𝐵 grows [101, 114]. Consequently, approaching exact 1-consistency sends this deterministic robustness bound to infinity; the randomized frontier is different and should not be conflated with the deterministic formula. 
+
+5.1.3 Representative Problem Classes. 
+
+One-Dimensional Stopping Problems. The simplest online problems involve a single irrevocable decision whose optimal timing depends on an unknown scalar. In deterministic ski rental, the prediction determines whether the purchase threshold is ⌈𝜆𝐵 ⌉ or ⌈𝐵 /𝜆 ⌉; 𝜆 is fixed before the realized error is known. The classical randomized benchmark is 𝑒 /( 𝑒 − 1)-competitive, not 𝑒 -competitive. Deterministic and randomized trade-off frontiers are analyzed separately [58, 101, 114]. This stopping framework generalizes to problems with richer cost structures. The Bahncard problem models travelers choosing between purchasing time-limited discount cards or paying full fare, introducing expiration and residual-value effects absent in ski rental. Zhao et al. [119] analyze consistency–robustness trade-offs for this model. Dynamic power management with multiple power-saving states is another generalization: the prediction concerns the length of an idle period, and the guarantee degrades with its error [13]. Contract scheduling changes the objective and admits both point and distributional advice [8, 9]. Online bidding admits several stochastic formulations that must be separated [10]. The deterministic strategy under distributional predictions has a 14 Zhao et al. 
+
+Table 6. Consolidated view of representative problem domains. Mechanisms can fall outside P1–P5. Grouped rows summarize objectives and guarantees but do not receive a single evidence label. 
+
+Domain Problem class Core tension Mechanism by cited result Representative guarantee 
+
+Online optimization 
+
+(§5.1) One-dimensional and multistate stopping (ski rental, Bahncard, dynamic power management) Irrevocable timing vs. unknown horizon P1 for ski rental; problem-specific extensions Ski rental has the asymptotically tight curve 
+
+(1+𝜆, 1+1/𝜆 ); extensions use different guarantees [13, 101, 114, 119] Metrical task systems Movement cost vs. service cost P1 robustifi-cation; P4 predictor mixing Robust black-box combinations and switching-aware mixtures of predictors [12, 14] Online convex optimization Adversarial regret vs. temporal regularity optimistic online learning Classical optimistic methods give regret controlled by √︁ Í𝑡 ∥𝑔 𝑡 − ˆ𝑔 𝑡 ∥2 
+
+> ∗
+
+under the stated geometry; imperfect-hint refinements use more specific quantities [31, 102] Scheduling, load balancing, online allocation Capacity uncertainty vs. irrevocable assignment P3 for Lattanzi et al.; other mechanisms differ Bounds use distinct weight, size, speed, or learned-parameter errors and objectives [38, 39, 76, 79, 120] 
+
+Caching (§5.2) Prediction-aware paging 1-consistency without prohibitive overhead P1 Error-dependent trade-offs and reduced-prediction variants [1, 104] Randomized robustification Preserving 1-consistency while capping the worst case problem-specific robustifier 1-consistent and (2𝐻 𝑘 −1 +2)-robust with 𝑂 (1)
+
+additional algorithmic time per request in the cited model [34] Weighted and succinct variants Non-uniform costs; coarse predictions Structural analysis; one-bit advice Bounds depending on weight classes and prediction error; consistency, robustness, and smoothness with one-bit advice [11, 27, 69] 
+
+Data structures 
+
+(§5.3) Indexes with worst-case error bounds Query time vs. approximation error and data regularity problem-specific segmenta-tion 
+
+Θ(𝑚 ) space for the minimum number 𝑚 of 
+
+𝜖 -approximate segments; 𝑚 ≤ 𝑛 /( 2𝜖 ) for integer 
+
+𝜖 ≥ 1 [55] Adaptive layouts and model selection Static models may degrade under workload drift adjacent systems Dynamic layouts and workload-dependent empirical performance [42, 116] Filters and sketches False-positive rate vs. space adjacent systems Distribution-dependent false-positive/space trade-offs with a backup filter [64, 89] 
+
+Graphs and networks (§5.4) Incremental shortest paths Running time vs. error in a predicted update sequence prediction-guided dynamic update 
+
+(1 + 𝜖 )-approximate distances with update time depending on sequence error [85] Matching, flow, structure Dual initialization sensitivity P2 for learned duals; problem-specific advice otherwise Runtime warm starts from learned optimization solutions; error-dependent online guarantees [41, 45, 78, 106] Dynamic maintenance Error in predicted update order sequence prediction Prediction-guided incremental and dynamic maintenance under distinct error models [3, 86, 87] 
+
+Mechanism design (§5.5) Pricing and revenue Prediction error vs. revenue guarantees problem-specific Error-dependent revenue guarantees for learned reserve information [92] Online selection and matching Irrevocable decisions; arrival-model ambiguity problem-specific Advice-sensitive and fairness-aware bounds under distinct secretary, chosen-order, and matching models [22, 50, 70, 71] Facility location; general allocation Incentives, welfare, and revenue under error Facility: problem-specific; allocation: weakest competitor Facility-location guarantees use stated prediction models [5, 20]; Prasad et al. give bicriteria welfare/revenue guarantees from side information [100] 
+
+matched Pareto frontier. For a randomized algorithm receiving a single-valued oracle, the paper instead gives upper bounds for a parameterized strategy class and a distinct general lower bound; Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 15 
+
+these do not establish one blanket matching frontier. Tail-risk formulations evaluate a quantile of the competitive ratio rather than its expectation [47]. General analyses also show that consistency, robustness, smoothness, and stochastic performance can impose distinct, interacting trade-offs [30]. 
+
+Stateful Decision-Making on Metric Spaces. Unlike stopping problems, metrical task systems 
+
+(MTS) require maintaining and transitioning among states in a metric space (𝑋, 𝑑 ) while serving requests. A central trade-off is between movement cost (transitioning between states) and service cost (serving a request from the current state). On arbitrary 𝑛 -point metrics, deterministic classical guarantees scale linearly with 𝑛 ; randomized guarantees obey different bounds, so the adversary and randomization model must be stated explicitly [12]. Prediction models for metrical task systems typically provide recommended states, actions, or several predictors rather than generic “future locations”. Antoniadis et al. [12] give robust black-box combinations for online metric algorithms. Their later work [14] studies dynamic combinations of multiple predictors, obtaining an 𝑂 (ℓ2) ratio against an unconstrained combination of ℓ predictors and a (1 + 𝜖 ) guarantee against a benchmark with a slightly constrained number of switches. With bandit access, only one predictor can be queried per round and the unqueried movement-dependent costs are not observed. Cosa and Eliáš [40] obtain 𝑂 (OPT 2/3 
+
+> ≤0
+
+) regret relative to the best supplied heuristic when the metric diameter, number of predictors, and 𝑚 -delayed-access parameter are constants. Their eΩ(OPT 2/3 
+
+> ≤0
+
+) lower bound leaves logarithmic factors, so Table 5 records E0 under the strict same-asymptotics rule. These are problem-aware combination results, not the generic predicted-dual update of P2 or a universal 𝑂 (log 𝜂 ) frontier. 
+
+Convex Optimization with Predictable Structure. Online convex optimization (OCO) generalizes many online problems by allowing convex loss functions 𝑓 𝑡 revealed after each decision. Under the usual bounded-domain and bounded-gradient assumptions, classical OCO achieves 𝑂 (√𝑇 ) regret against adversarial sequences, but this horizon-only rate can be pessimistic when losses exhibit temporal regularity. When gradient or loss predictions are available, classical optimistic OMD/FTRL can replace a horizon-only bound by one depending on cumulative hint error, such as a square root of Í𝑡 ∥𝑔 𝑡 − ˆ𝑔 𝑡 ∥2
+
+> ∗
+
+under the theorem’s geometry and regularity assumptions [102]. Bhaskara et al. [31] study imperfect hints in a constrained Hilbert-space setting, obtaining refined upper bounds and near-matching lower bounds for their own error quantities; their result should not be cited as the source of every optimistic-gradient formula. These are point-prediction regret guarantees, not P5 distributional optimization, and perfect hints do not imply constant regret without checking the precise bound and comparator assumptions. 
+
+Resource Allocation and Scheduling. Problems such as load balancing , bin packing , and scheduling 
+
+involve assigning jobs to resources with limited capacity. Classical worst-case algorithms do not use predicted workload structure, whereas a prediction-driven policy without an independent guarantee can incur high cost when its predictions are inaccurate. In these models, LAA results use problem-specific prediction objects and analyses. Learned weights can guide a fractional restricted-assignment schedule whose 𝑂 (log 𝜂 ) guarantee is followed by an online rounding factor [76]. Im et al. [65] analyze total-completion-time scheduling with predicted job sizes under a tailored error measure. Cohen and Panigrahi study broader online allocation frameworks with learned per-agent parameters or weights, first for divisible allocation and later for a more general option-based model [38, 39]; these formulations and objectives should not be collapsed into one scheduling theorem. Other work predicts machine speeds, job sizes, rankings, item frequencies, or deadlines and uses different distortion measures [6, 17, 18, 23, 24, 43, 66, 79]. Zhao and Zomaya [120] study a refined smoothness definition for nonclairvoyant 16 Zhao et al. 
+
+scheduling; its bounds are tied to their information restriction and are not interchangeable with Definition 3.3. For nonclairvoyant joint replenishment with deadlines, Dinitz et al. [43] prove 
+
+𝑂 (min {𝜂 1/3 log 2/3 𝑛, √𝜂, √𝑛 }) and an Ω(𝜂 1/3) lower bound only for a specified class of deterministic algorithms. The logarithmic gap and class restriction make this near-tight evidence, not E1. For online packing with concave objectives, Grigorescu et al. [60] switch between advice and a classical algorithm; for convex covering, they extend prediction-guided primal–dual methods. Another line combines multiple experts against a time-varying covering benchmark [95]. These results should therefore be compared only after matching the prediction object, objective, feedback, and error metric. 
+
+Open gaps in this domain. Two structural questions stand out in the surveyed corpus. The ski-rental model has an asymptotically tight consistency–robustness frontier, whereas many higher-dimensional resource-allocation and scheduling results summarized here are upper bounds under distinct prediction models. Separately, trust-parameterized results choose 𝜆 before the relevant error is known. Portfolio methods, formal robustifiers, and fallbacks can adapt in particular models, but their regret, state-coupling, and overhead costs must be included in the analysis. 
+
+5.2 Caching and Paging 
+
+5.2.1 Classical Formulation. The caching (or paging) problem is a cornerstone of online algorithm design, where a decision-maker must serve a sequence of 𝑇 page requests with a cache of limited size 𝑘 , aiming to minimize cache misses. In the deterministic setting, the competitive ratio is lower bounded by 𝑘 , a barrier matched by LRU and FIFO [108]. Against an oblivious adversary, randomized paging has lower bound 𝐻 𝑘 , and the Marker algorithm is (2𝐻 𝑘 − 1)-competitive [56]. Partition and Equitable achieve the optimal 𝐻 𝑘 ratio, with different computational costs [2, 88]. The offline optimum, Belady’s rule, evicts the page whose next request is furthest in the future [29]. 
+
+5.2.2 LAA Extension. Learning-augmented caching extends the classical model by incorporating machine-learned predictions to guide eviction decisions. Predictions typically take one of two forms: 
+
+• Next Request Time (NRT) : When page 𝑝 is requested, the predictor supplies a timestamp ˆ 𝑡 𝑝 
+
+for its next request; the algorithm retains that prediction while 𝑝 remains cached. Accurate NRT predictions approximate the information used by Belady’s oracle. 
+
+• Binary or Action Predictions : A binary label indicating whether a page will be requested again within a certain window, or a direct eviction recommendation. These are often easier to learn but provide coarser information. An important question is whether 1 -consistency , i.e., matching Belady’s oracle when predictions are perfect, can coexist with robustness and low algorithmic overhead. Blindly following NRT predictions can be 1-consistent but have unbounded worst-case performance under adversarial errors. Reverting entirely to a classical algorithm ignores the prediction [81, 82, 104]. Later construc-tions analyze different combinations of consistency, robustness, prediction use, and computational overhead [113]. 
+
+5.2.3 Representative Problem Classes. 
+
+Deterministic Switching Approaches. Combining a prediction-following paging algorithm with a classical algorithm is difficult because their cache states need not agree and moving between states can itself cause misses. A valid switching theorem must charge that coupling cost; one cannot set 
+
+𝜆 = 𝜆 (𝜂 ) unless the relevant error has already been revealed. Separate work studies how to retain Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 17 
+
+guarantees while querying the predictor less often [1, 67]. Query complexity, running time, and competitive ratio are distinct resources and should be reported separately. 
+
+Randomized Robustification. For a relaxed-Belady-following (RB-following) caching algorithm 𝐴 ,Guard& 𝐴 preserves 1-consistency and achieves (2𝐻 𝑘 −1 + 2)-robustness while maintaining the base algorithm’s asymptotic running time [34]. The paper establishes RB-following instantiations for BlindOracle, LRB, and Parrot, so the corresponding guarded variants receive the stated guarantees in its model. The result relies on paging-specific phase and protection rules; it is not a domain-independent wrapper, and its overhead accounting excludes predictor inference. 
+
+Structured and Weighted Extensions. Beyond uniform-cost paging, weighted paging assigns known heterogeneous eviction costs to pages. The prediction studied by Bansal et al. [27] concerns each page’s next arrival, not its weight. Their deterministic and randomized guarantees depend on the number of distinct weight classes and degrade with prediction error toward the classical 𝑘 
+
+and 𝑂 (log 𝑘 ) regimes; the analysis uses structural properties of Belady’s algorithm and prediction-aware potential functions. Jiang et al. [69] instead compare PRP, strong-lookahead, SPRP, Static, and Follow models through model-specific algorithms, error measures, and lower bounds. Their contribution is not classified here as a prediction-guided primal–dual update. Paging with succinct predictions instead limits the advice accompanying each request to one bit [11]. The paper proves consistency, robustness, and smoothness guarantees together with lower bounds under that one-bit model. It does not assume a Markov chain or aggregate Markov predictors of different orders. 
+
+Open gaps in this domain. Three questions remain. First, aggregate per-request error can hide whether error is concentrated on frequently requested objects. Second, the fixed-cache results reviewed here do not model co-located services whose available capacity varies over time. Third, additional algorithmic running time excludes predictor-call cost. Query-budget work counts how often a predictor is used [1, 67], but converting inference latency or energy into the caching objective requires a different model. 
+
+5.3 Learned Data Structures 
+
+5.3.1 Classical Formulation. Learned data structures study how data regularity can improve prac-tical search, indexing, and filtering, with formal guarantees or empirical evidence depending on the design. Given a sorted dataset {( 𝑥 𝑖 , 𝑦 𝑖 )} 𝑛 𝑖 =1, a comparison search locates a key in 𝑂 (log 𝑛 )
+
+comparisons, while hash-based alternatives can provide expected 𝑂 (1) lookup without ordered range-query semantics [103]. Learned indexes use a fitted model to narrow the search interval; any improvement is conditional on data regularity and must include the model and correction structure in the space and time accounting. 
+
+5.3.2 LAA Extension. A learned index uses a model 𝑓 𝜃 : 𝑥 ↦ → cpos (𝑥 ) to narrow the search range. When a certified maximum position error 𝜖 𝜃 is available, a local binary search costs 𝑂 (log (𝜖 𝜃 + 1)) ;the +1 covers exact predictions. Total lookup cost also includes model space and inference time [75]. These quantities form a workload- and architecture-dependent trade-off, not a universal Pareto frontier. Unlike online algorithms with irrevocable decisions, learned indexes primarily improve query or update time. A certified bound 𝜖 𝜃 ≤ ¯𝜖 is conditional on the fitted structure; it is not robustness to arbitrary prediction error. A genuine worst-case fallback searches a larger range or the full index, typically recovering a classical bound such as 𝑂 (log 𝑛 ). We therefore treat learned indexes as an adjacent prediction-sensitive literature and keep their running-time guarantees distinct from competitive ratios. 18 Zhao et al. 
+
+5.3.3 Representative Problem Classes. 
+
+Indexes with Worst-Case Error Guarantees. Some early learned-index designs emphasized average-case performance. Latency-sensitive use additionally requires a certified or monitored error bound and a correction or fallback procedure. One formal objective is to ensure 𝜖 𝜃 ≤ ¯𝜖 uniformly while controlling space. The PGM-index computes an optimal piecewise-linear approximation for a fixed array and integer error tolerance 𝜖 ≥ 1: if 𝑚 is the minimum number of 𝜖 -approximate segments, the recursive index uses Θ(𝑚 ) space, and 𝑚 ≤ 𝑛 /( 2𝜖 ) is a worst-case upper bound [55]. The minimum-segment result is different from claiming that Θ(𝑛 /𝜖 ) space is necessary for every dataset. The same paper also gives a fully dynamic variant with insertion and deletion bounds. FITing-tree uses linear models and a fixed integer error parameter 𝜖 indexed by a B-tree [57]; it is not a distributional-risk method and does not adapt a local tolerance through P5. 
+
+Adaptive Layouts and Model Selection. Static learned models may degrade when access patterns or data distributions drift over time. The challenge is adapting the index structure while accounting for retraining and data-movement costs. ALEX is an updatable learned index using learned linear models, gapped-array data nodes, cost models, and adaptive splitting or expansion policies [42]. Gapped arrays are a deterministic layout technique rather than randomized rounding, and ALEX does not prove a Hedge-style guarantee over linear and polynomial experts. Wongkham et al. [116] benchmark updatable learned indexes under multiple workloads; they do not propose an ensemble that routes each query among specialized indexes. These systems provide empirical adaptability, not a consistency–robustness theorem under distribution shift. 
+
+Filters and Emerging Representations. Beyond ordered indexes, learned techniques have been applied to approximate membership queries and frequency estimation, with guarantees that differ from those of learned indexes. Learned Bloom filters combine a classifier with a backup Bloom filter for keys the classifier might falsely reject [89, 90]. Their false-positive rate depends on the classifier, the negative-query distribution, and the memory allocated to the backup. Even a classifier with perfect precision does not by itself force the total false-positive rate to zero, because the backup Bloom filter can return false positives. Nor is “no worse than a classical Bloom filter” automatic for every allocation; it must be established under the paper’s distributional and space assumptions. 
+
+Open gaps in this domain. Static learned models expose one set of guarantees, while PGM and ALEX show that updates can also be supported with formal or empirical costs [42, 55]. Benchmark studies find that performance varies across insertion patterns and datasets [116]. Open questions concern adversarial update sequences, rebuild policy, and end-to-end accounting for retraining and memory movement. A model portfolio would additionally need a state-migration analysis before per-query selection regret could imply an index-level guarantee. 
+
+5.4 Graph Algorithms and Networking 
+
+5.4.1 Classical Formulation. Graph optimization encompasses problems such as shortest paths, matchings, cuts, and spanning trees, with applications in transportation, communication networks, and social network analysis. For an edge-weighted minimization problem, a common abstraction is min 𝑆 ∈ F 
+
+Í𝑒 ∈𝑆 𝑤 (𝑒 ) over a problem-specific feasible family F ; maximization and flow formulations use different objectives. Because feasibility and optimality can depend nonlocally on the graph, a local prediction error may alter a global solution. Prediction-augmented work therefore asks, Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 19 
+
+model by model, whether a declared hint can improve running time or online performance while retaining a stated worst-case guarantee. 
+
+5.4.2 LAA Extension. Prediction-augmented graph work studies several distinct objectives. In offline matching and flow, a predicted dual solution can improve running time while the output remains exact. In incremental graph problems, a predicted update sequence can warm-start a data structure and reduce total update time. In online matching, flow allocation, or load balancing, advice can improve competitive performance. “Consistency” must therefore name the improved quantity, e.g., running time, approximation, or online cost, rather than uniformly mean recovery of an exact optimal subgraph. Prediction errors likewise range from dual distance to inversions or edit distance between update sequences and are not interchangeable. 
+
+5.4.3 Representative Problem Classes. 
+
+Path and Routing Problems. Shortest-path problems exhibit global dependencies, but the repre-sentative incremental result here predicts update order rather than a shortest path or hidden edge weights. McCauley et al. [85] consider incremental approximate single-source shortest paths. Before edges arrive, the data structure receives a prediction of the entire edge-insertion sequence and uses it to warm-start its state. The result maintains (1 +𝜖 )-approximate distances with total running time that degrades with sequence-prediction error and recovers a worst-case bound up to logarithmic factors. It is not a switch between a predicted path and Dijkstra, and its guarantee concerns dynamic-data-structure running time. In a separate offline model, Polak and Schmidt [99] predict detour-certificate vertex sets for all-pairs shortest paths and obtain running time 𝑂 (𝑛 2.83 + 𝜂𝑛 ), where 𝜂 counts pairs whose prediction does not suffice to compute and certify the shortest-path distance. This conditional speedup is neither a dynamic update guarantee nor a consistency–robustness ratio. 
+
+Matching, Flow, and Structural Optimization. LP duality supplies certificates for several matching and flow formulations, making predicted dual information a plausible source of computational speedups. The challenge is translating an inaccurate structural prediction into a valid initialization or certificate without violating feasibility. P2 takes a distinctive form here. Dinitz et al. [45] use predicted dual information to acceler-ate matching, with running time that depends on distance from suitable optimal duals. Related prediction-sensitive ideas appear in flows [41] and online fractional matching [37], but their predic-tion objects and guarantees differ. In the offline matching and flow results, the improved quantity is running time rather than solution quality. Any use of a predicted dual must also respect or repair feasibility under the conditions of the specific algorithm; there is no single warm-start theorem covering all the cited online and offline problems. Lavastida et al. [78] instead design learnable, instance-robust predictions for online matching, flow allocation, and load balancing. Their prediction objects and reductions are problem specific; the paper does not establish a generic prediction-biased edge-sampling paradigm. Predictions of imperfect and unknown quality have also been analyzed for online bipartite matching [36]; predicted structure or sequences have been used for minimum cut, online Steiner tree, and acknowledgement problems [68, 96, 117]. These works do not share a single mechanism. Discarding a prediction and running a classical method is safe only when its additional computation, prior irreversible decisions, and state conversion are included in the model. 
+
+Dynamic and Distributional Settings. Graph updates and uncertain future demands require models that specify when predictions are issued, how sequence error is measured, and whether the update 20 Zhao et al. 
+
+process may react to the algorithm. A static prediction theorem is not automatically invalid under change, but it may omit update and feedback costs. Prediction-guided data structures maintain solutions under update sequences for problems including list labeling and topological ordering [86, 87]. Dong et al. [48] instead study arbitrary-order streaming correlation clustering with predicted pairwise distances. Their guarantees couple approximation and space, e.g., a better-than-3 approximation on complete graphs under good prediction quality with e𝑂 (𝑛 ) space, rather than a dynamic-update competitive ratio. Dynamic submodular maximization provides another objective: predicted insertion and deletion times yield amortized update time polynomial in logarithms of the timing error and model parameters while maintaining a (1/2 − 𝜖 ) approximation in expectation [3]. Classical streaming and dynamic bounds vary by problem, approximation, adversary, and update model, so these statements are not interchangeable. Multi-predictor guarantees also require a state-coupling theorem rather than generic expert routing. Classical route-planning algorithms [28] and empirical learned routing are adjacent to, but distinct from, a formal P5 treatment of predicted traffic distributions. The corpus summarized here does not supply an end-to-end consistency–robustness theorem for that formulation. Such a result would require a precise routing model, prediction object, distributional error measure, and benchmark. 
+
+Open gaps in this domain. Among the representative graph results in Table 6, matching lower bounds are sparse, so an upper bound should not be read as a complete characterization unless its cited model supplies one. Structural predictions also raise a question that scalar point predictions avoid: what does it mean for a predicted combinatorial object to be slightly wrong? Symmetric difference and edit distance are both used, but they are not generally comparable and neither is universally the right error measure. For learned routing, a useful next step is therefore to state one concrete model in which accurate traffic advice improves the objective while adversarial advice retains a bounded approximation guarantee. 
+
+5.5 Mechanism Design and Algorithmic Game Theory 
+
+5.5.1 Classical Formulation. Mechanism design studies allocations and payments when agents hold private information. Objectives include welfare, revenue, cost, and makespan, and incentive notions must be distinguished: dominant-strategy incentive compatibility (DSIC) requires truthful reporting for every report profile, whereas Bayesian incentive compatibility (BIC) is defined in expectation over other agents’ types. Myerson’s result concerns a particular Bayesian single-parameter auction model [93]; it is not a template for all mechanism-design problems. For maximization objectives, approximation is reported as OPT /E[ALG ] or an equivalent factor. 
+
+5.5.2 LAA Extension. Learning-augmented mechanism design uses predictions of values, pro-cessing times, locations, or side information while preserving a specified incentive notion. The model is not limited to predicted type distributions. The problems include, e.g., unrelated-machine scheduling. Balkanski et al. [21] use predicted processing times and give a strategyproof mechanism with consistency and robustness guarantees; this is not an auction-reserve result. Sample-based mechanisms can also be DSIC or universally truthful, so sampling does not imply that IC holds only in expectation. Every result must state separately the prediction object, approximation objective, error measure, and incentive concept. 
+
+5.5.3 Representative Problem Classes. Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 21 
+
+Auctions and Pricing Problems. Auction revenue can be sensitive to distributional assumptions and reserve prices. A learning-augmented mechanism must therefore state how revenue changes under prediction error while preserving its declared incentive property. Medina and Vassilvitskii [92] relate learned reserve-price information to revenue. Combining mechanisms preserves DSIC only when the selection rule and payments are designed so that an agent cannot manipulate the branch; ordinary switching is not sufficient. Prasad et al. [100] take a prior-free perspective and build a meta-mechanism using side information and a weakest-competitor construction to obtain welfare and revenue guarantees. Their result is not a predicted-virtual-value primal–dual warm start. Online bidding is non-strategic in its standard target-search formulation, but it is adjacent to this domain: Angelopoulos and Simon [10] prove a tight deterministic frontier for distributional predictions and separate randomized results for a single-valued oracle. Those bounds should not be conflated with one another or read as auction truthfulness guarantees. 
+
+Online Selection and Matching. Secretary, prophet-inequality, and online bipartite-matching models all involve irrevocable choices, but their classical benchmarks differ: the secretary success probability is 1 /𝑒 , the basic prophet-inequality factor is commonly 1 /2, and online bipartite matching has the 1 − 1/𝑒 benchmark in its standard randomized model. They should not be summarized as one 1 /𝑒 barrier. Advice-augmented secretary and online matching papers establish guarantees in their own models [50, 70]. Recent secretary variants add fairness of selection [22] or allow the decision-maker to choose the arrival order from predicted values [71]; neither guarantee transfers to a different arrival model. Thresholding is not the same as randomized rounding, and portfolio results do not justify a general claim that multi-item mechanisms use Hedge over bidder observations. Where strategic agents are present, truthfulness must be proved in addition to the online performance bound. 
+
+Contracts and Information Design. Contract design and Bayesian persuasion involve hidden action or hidden information, and the principal’s utility depends on agent responses to incentives. Prediction-dependent objectives must therefore be analyzed together with the relevant incentive and best-response constraints. P5 offers one possible lens: a principal could optimize worst-case expected utility over an ambiguity set around ˆD. This construction should not be inferred from robust Bayesian persuasion, which studies uncertainty about information available to receivers and equilibrium selection under its own payoff criterion [51]. The feasibility comparison also depends on the incentive model. For a DSIC auction with a distribution-independent feasible mechanism class, perturbing ˆD changes the objective but not the DSIC constraints; under Bayesian incentive constraints, the distribution can also enter feasibility. In a contract, the agent’s best response is itself a function of the contract, so a perturbation can change which actions are induced. Stability of the induced action under distributional perturbation is therefore one quantity that an end-to-end theorem would have to control. We did not identify such a P5 theorem in the surveyed corpus and record this combination as open. 
+
+Open gaps in this domain. The strategic setting differs from many non-strategic models because prediction error need not be exogenous. An agent who understands the predictor may manipulate its inputs, so 𝜂 can become an equilibrium object rather than a fixed parameter. Moreover, an “instance-optimal” benchmark is delicate once the comparison class must itself satisfy an incentive constraint. Randomized strategic facility-location results illustrate why evidence status must remain model-specific: they establish upper and lower bounds for stated prediction types and objectives, 22 Zhao et al. 
+
+not a domain-wide frontier [20]. Other reported consistency–robustness curves should be read as achievability results unless the cited work proves matching tightness. 
+
+5.6 Cross-Cutting Methodological Developments 
+
+5.6.1 Classical Formulation. Much of the theory conditions on advice ˆ 𝑦 . Unless modeled explic-itly, this leaves predictor training, query frequency, and changes in the observation–outcome relationship outside the theorem. 
+
+5.6.2 LAA Extension. Cross-cutting work treats prediction generation, query budget, and uncer-tainty as design variables. The guarantee can therefore depend on how advice is produced, accessed, and represented, not only on the consuming algorithm. 
+
+5.6.3 Representative Methodological Threads. We describe four established methodological threads and two directions whose current guarantees remain conditional or incomplete. 
+
+Learning the prediction, not just consuming it. A generic loss need not align with downstream cost because equal prediction errors can perturb different decisions. Decision-focused training differentiates through a relaxation or surrogate [115]; algorithm-aware learning derives sample-complexity bounds for the prediction consumed by a fixed LAA [74]; explicit-predictor algorithms expose and update the learning rule in stated caching and scheduling models [53]. 
+
+Budgeting predictor queries. Query-budget models optimize consultations separately from ac-curacy. Parsimonious caching queries a vanishing fraction of requests, and related work reduces predictions for caching and MTS [1, 67]. Drygala et al. [49] instead attach a cost to prediction in ski rental and Bahncard and analyze whether and when to query. Section 8.1 introduces a separate abstract conversion into objective units. 
+
+Portfolios in place of a single predictor. Problem-specific multiple-prediction and portfolio frame-works select among predictors under stated covering, regret, or competitive guarantees [7, 46]. This P4 control loop must include state-transition costs when decisions carry state. 
+
+Using uncertainty-quantified predictions. Sun et al. [110] study ski rental and online search when a prediction carries a range and its stated coverage probability, and formulate a multi-instance learning problem. Gupta et al. [61] instead assume independently 𝜖 -accurate predictions for caching and covering problems. Neither model calibrates arbitrary confidence scores or makes a coverage statement a generic downstream cost bound. 
+
+Two incompletely resolved directions. Time-decay moment estimation proves results for a suffix-compatible heavy-hitter oracle and empirically instantiates it with sketches, recurrent models, and language models [94]; it does not prove the oracle premise for a particular language model. A second direction combines distribution-free calibration with P5, but still needs a reduction from coverage to downstream cost. 
+
+Open gaps in this domain. Relating differentiable surrogates to a discrete objective remains problem specific. Our search found no general lower-bound characterization for query budgets. Portfolio regret converts to a competitive statement only through problem-specific relations between comparator loss and offline optimum. 
+
+6 System-Level Implications and Composition 
+
+The results reviewed above usually analyze one algorithm, one prediction interface, and one objective. Deployed systems may connect several such components while sharing compute, state, and feedback. We use learning-augmented systems (LAS) only as a compact name for examining those Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 23   
+
+> Signal
+> telemetry, traces, logs, request stream
+> Prediction
+> models, calibration, uncertainty
+> Decision and safety
+> LAA core +constraints, fallback, or robustifier
+> Actuation
+> evict, schedule, provision, route
+> ˆ𝑦 , confidence
+> fast
+> safety signal ms–s
+> slow
+> labels, drift h–d
+
+Fig. 3. An accounting view of a learning-augmented deployment. Solid arrows form the decision path and dashed arrows denote feedback. Fast mechanisms can use only immediately observable signals; delayed outcomes may support recalibration or retraining. 
+
+interfaces. The perspective is survey-derived: it exposes costs and assumptions that component theorems legitimately leave outside their scope, but supplies no guarantee by architecture alone. 
+
+6.1 Three Considerations Often Outside Component Objectives 
+
+The opening scenarios isolate three omissions that a deployment must handle even when a compo-nent theorem is correct. 
+
+S1: predictions are not free. Standard competitive objectives normally do not charge inference, training, or sample collection. Thus “ 𝑂 (1) overhead per request” describes the algorithm around the prediction, not the cost of producing it. Costly-prediction and query-budget results make different parts of this resource explicit [1, 49, 67]; Section 8.1 discusses an abstract accounting in the objective’s units. 
+
+S2: prediction quality is only partly observable and can be endogenous. Robust competitive analysis may already cover adversarial request sequences; the separate issue is observability. A smoothness bound can depend on a target revealed only after the decision or censored by it. In admission, pricing, recommendation, and routing, actions may also change later training data. Such endogeneity requires a problem-specific feedback model, not a generic appeal to distribution shift. 
+
+S3: components are not isolated. Adjacent stages can see different induced instances and different offline benchmarks. Consequently, component ratios alone do not determine a pipeline ratio; benchmark distortion, state transitions, and error sensitivity must also be related. 
+
+6.2 A Reference Architecture 
+
+Figure 3 is an accounting diagram rather than a prescribed architecture. It separates the decision path from feedback whose signals may arrive at different times. The prediction layer must declare the output type and any calibrated uncertainty used by the decision theorem. The decision layer contains the augmented algorithm plus separately justified feasibility checks, constraints, fallbacks, or formal robustifiers. Replacing a model preserves a theorem only when the theorem quantifies over arbitrary predictions or the replacement satisfies 24 Zhao et al. 
+
+every assumption. Safety mechanisms can act only while their required signal is available and the affected action remains reversible. 
+
+6.3 Modularized Learning 
+
+Modularity is an engineering aid, not a prerequisite for a guarantee. Separating prediction from decision exposes a typed object ˆ 𝑦 ; separating model from policy makes replacement obligations explicit; separating update from execution permits staged validation and rollback. Mathematical and service boundaries need not coincide, so the design record should state the objective, benchmark, state, and assumptions attached to each analyzed interface. 
+
+6.4 Inference Graphs, and How Guarantees Compose 
+
+Model a pipeline as a directed acyclic graph whose nodes are learning-augmented components. Component 𝑖 may have consistency 𝑐 𝑖 , robustness 𝑟 𝑖 , and smoothness 𝑓 𝑖 relative to its own instance and benchmark OPT 𝑖 . Those triples are not an algebra for a pipeline because an output may change the next instance and benchmark. The following propositions are expository sufficient conditions derived to clarify this gap; they synthesize elementary inequalities rather than claim general composition theorems from the cited literature. 
+
+Definition 6.1 (Inference graph). An inference graph is a directed acyclic graph (DAG) 𝐺 = (𝑉 , 𝐸 )
+
+in which each node 𝑖 ∈ 𝑉 is a learning-augmented component with a declared triple (𝑐 𝑖 , 𝑟 𝑖 , 𝑓 𝑖 ), and each edge (𝑖, 𝑗 ) ∈ 𝐸 indicates that the output of 𝑖 is an input to the predictor or the decision rule of 𝑗 . A node with no incoming edges consumes an external prediction. A node with no outgoing edges actuates. The first pattern is additive : component costs sum and their benchmarks admit a common comparison. Proposition 6.2 (Expository condition: additive composition). Fix the external instance and suppose cost sys = Í𝑖 cost 𝑖 pathwise and OPT sys > 0. Let H𝑖 determine reachable 𝐼 𝑖 , its prediction, and its error before component 𝑖 draws new randomness. Suppose every zero-additive-term component bound holds conditionally on each reachable history, 
+
+E[cost 𝑖 | H 𝑖 ] ≤ 𝑎 𝑖 (H 𝑖 ) OPT 𝑖 (𝐼 𝑖 ).
+
+This requires fresh randomness independent of prior history or a guarantee valid against adaptive instance selection. If OPT sys ≥ 𝛽 Í𝑖 OPT 𝑖 (𝐼 𝑖 ) holds pathwise for 𝛽 ∈ ( 0, 1], then 
+
+E[cost sys ]
+
+OPT sys 
+
+≤ 1
+
+𝛽 E
+
+h
+
+max  
+
+> 𝑖
+
+𝑎 𝑖 (H 𝑖 )
+
+i
+
+. (11) 
+
+Consequently, exact predictions give 𝑐 sys ≤ max 𝑖 𝑐 𝑖 /𝛽 , arbitrary predictions give 𝑟 sys ≤ max 𝑖 𝑟 𝑖 /𝛽 , and deterministic error caps 𝜂 𝑖 ≤ ¯𝜂 𝑖 give 𝑓 sys ( ¯𝜼 ) ≤ max 𝑖 𝑓 𝑖 ( ¯𝜂 𝑖 )/ 𝛽 for non-decreasing 𝑓 𝑖 .
+
+Proof sketch. By the tower property, 
+
+E[cost sys ] =∑︁ 
+
+> 𝑖
+
+E[E[cost 𝑖 | H 𝑖 ]] ≤ E
+
+"∑︁ 
+
+> 𝑖
+
+𝑎 𝑖 (H 𝑖 )OPT 𝑖 (𝐼 𝑖 )
+
+#
+
+≤ OPT sys 
+
+𝛽 E
+
+h
+
+max  
+
+> 𝑖
+
+𝑎 𝑖 (H 𝑖 )
+
+i
+
+.
+
+□Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 25 
+
+The conditional guarantees and pathwise benchmark decomposition must be proved for the application; marginal component bounds are insufficient. Additive terms 𝑏 𝑖 contribute Í𝑖 E[𝑏 𝑖 ], so multiplicative triples no longer suffice. The second pattern is cascaded : the output of component 𝑖 helps define the instance 𝐼 𝑖 +1 seen by component 𝑖 + 1. In this case a local competitive ratio compares the wrong pair of quantities to support a product rule. Proposition 6.3 (Expository condition: cascaded composition). Let 1 → 2 → · · · → 𝑚 
+
+be a chain in which component 𝑖 induces reachable 𝐼 𝑖 +1. Suppose system cost is the last-stage cost and OPT 1 (𝐼 1) > 0. Let H𝑚 determine 𝐼 𝑚 before the last component draws new randomness. Require 
+
+OPT 𝑚 (𝐼 𝑚 ) > 0 on every reachable history, absent an additive zero-optimum convention, and suppose 
+
+E[cost 𝑚 (𝐼 𝑚 ) | H 𝑚 ] ≤ 𝑟 𝑚 OPT 𝑚 (𝐼 𝑚 ).
+
+This requires fresh randomness independent of H𝑚 or a guarantee valid against adaptive input selection. For each edge, suppose finite 𝑑 𝑖 ≥ 0 gives the pathwise inequality 
+
+OPT 𝑖 +1 (𝐼 𝑖 +1) ≤ 𝑑 𝑖 OPT 𝑖 (𝐼 𝑖 )
+
+for every reachable transition. Then 
+
+E[cost sys ] ≤ 𝑟 𝑚 
+
+> 𝑚 −1
+
+Ö
+
+> 𝑖 =1
+
+𝑑 𝑖 
+
+!
+
+OPT 1 (𝐼 1). (12) Proof sketch. The tower property bounds E[cost 𝑚 ] by 𝑟 𝑚 E[OPT 𝑚 (𝐼 𝑚 )] . Iterating the pathwise edge inequalities bounds the latter benchmark by (Î𝑚 −1 
+
+> 𝑖 =1
+
+𝑑 𝑖 )OPT 1 (𝐼 1), proving (12). □
+
+The factors 𝑑 𝑖 do not follow from (𝑐 𝑖 , 𝑟 𝑖 , 𝑓 𝑖 ). Earlier-stage ratios matter only if they control downstream benchmark distortion; perfect component consistency therefore need not imply perfect system consistency. Smoothness composes only under an additional regularity condition, and stating it clarifies what an inference graph must declare about its edges. Proposition 6.4 (Expository condition: error propagation). For a path 1 → 2 → · · · → 𝑚 ,equip each component-output space and downstream-input space with metrics 𝑑 out  
+
+> 𝑖
+
+and 𝑑 in 
+
+> 𝑖 +1
+
+. Let the ideal edge map 𝐹 𝑖 be 𝐿 𝑖 -Lipschitz, let 𝑜 ∗ 
+
+> 𝑖
+
+and 𝑜 𝑖 be the ideal and actual outputs with 𝑑 out  
+
+> 𝑖
+
+(𝑜 𝑖 , 𝑜 ∗ 
+
+> 𝑖
+
+) ≤ 𝑔 𝑖 (𝜂 𝑖 ),and let 𝑥 ∗ 
+
+> 𝑖 +1
+
+= 𝐹 𝑖 (𝑜 ∗ 
+
+> 𝑖
+
+). If the actual downstream input 𝑥 𝑖 +1 also satisfies 𝑑 in  
+
+> 𝑖 +1
+
+(𝑥 𝑖 +1, 𝐹 𝑖 (𝑜 𝑖 )) ≤ 𝜂 own  
+
+> 𝑖 +1
+
+, then the triangle inequality gives 
+
+𝜂 𝑖 +1 := 𝑑 in  
+
+> 𝑖 +1
+
+(𝑥 𝑖 +1, 𝑥 ∗
+
+> 𝑖 +1
+
+) ≤ 𝐿 𝑖 𝑔 𝑖 (𝜂 𝑖 ) + 𝜂 own  
+
+> 𝑖 +1
+
+. (13) 
+
+If these conditions hold on every edge of the path, the recursion can be unrolled and a last-stage smoothness bound evaluated at the resulting upper bound on 𝜂 𝑚 . A general DAG with multiple parents additionally needs a joint map from the product of parent-output spaces and a compatible product metric; applying the single-parent inequality independently does not establish such a bound. If an edge lacks an appropriate metric, Lipschitz bound, or additive perturbation model, this argument supplies no transferred smoothness guarantee. 
+
+Component guarantees must therefore be accompanied by interface facts: which instance is produced, how benchmarks relate, which costs have already been incurred, and which sensitivity property supports error propagation. Safety placement has no universal dominance rule: a monitor can constrain only observable costs and reversible actions, and a fallback requires its own proof. Pipeline depth matters through these edge effects, not through automatic multiplication of local ratios. 26 Zhao et al. 
+
+6.5 Control Loops Separated by Timescale 
+
+Feedback operates on application-specific timescales determined by observability and reversibility. A fast mechanism can use only an immediately available hard constraint or accountable cost; prediction may be restricted to actions that preserve feasibility [4]. Delayed labels can support recalibration or retraining but cannot repair an irreversible action. Drift diagnostics, intervention rates, and confidence are proxies rather than certificates. Portfolio selection has a guarantee only when its losses and comparator satisfy a problem-specific reduction [46]. 
+
+6.6 Formal Robustifiers and Operational Safety Mechanisms 
+
+Formal robustifiers, feasibility checks, circuit breakers, restricted action spaces, and fallbacks must not be treated as interchangeable. A formal robustifier has a problem-specific rule and proved guarantee; an operational mechanism does not inherit a competitive ratio by monitoring cost or running a baseline. Evaluation should state the observed signal, maintained state, reversible action, fallback feasibility, and evidence justifying a transition. Intervention rate is useful operationally but should be reported with objective value, violations, inference and monitoring overhead, and fallback frequency. 
+
+6.7 Case Studies 
+
+The architecture above provides a common accounting lens for selected deployed systems; it is not a claim that they implement one shared design. Table 7 separates eight systems or system classes that were previously easy to conflate. Each row states what is predicted, what evidence exists, what prediction costs are visible, and what happens when the predictor is wrong. The evidence falls into three declared categories: formal theorem, operational safeguard, and empirical evaluation. A later formal robustifier must be treated separately from its empirical base. In particular, the Guard&LRB and Guard&Parrot guarantees follow from the paper’s proofs that these base algorithms are RB-following in its model, together with the robustification theorem [34]. This conclusion remains specific to the stated paging and prediction assumptions. Learned storage routing likewise uses predicted latency as a hint but requires separate assumptions about routing constraints and fallback behavior [62]. 
+
+6.8 Deployment Practice 
+
+Deployment practice follows the same accounting. Report interventions together with objective values, violations, inference cost, and policy version. Shadow execution can test latency and proposed actions, but policy-dependent state or labels require explicit replay, off-policy, or canary assumptions. Rollback must handle state conversion and already-incurred costs. Incident reviews should attribute failures to signal, prediction, decision, or actuation. Finally, every prediction-consuming edge should record its object, benchmark relation, sensitivity evidence, and remaining reversible costs; depth alone is not a competitive-ratio parameter. 
+
+7 Semantic Predictions and Large Language Models 
+
+The learning-augmented literature usually assumes a prediction object with task-defined semantics: a number, ranking, distribution, or combinatorial structure. A foundation model may instead emit free-form text. This section asks what changes when text must be converted into the prediction space of Figure 3. It is deliberately conservative: operational uses are growing, whereas results of the form in Definitions 3.1–3.3 with a language model in the prediction layer remain sparse. Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 27 
+
+Table 7. Eight systems-oriented examples viewed through the LAS questions. Each row refers only to the named system or class; formal guarantees, operational safeguards, and empirical behavior are not transferred across rows. 
+
+System Predicted quantity Evidence and guarantee Prediction cost Behavior under error 
+
+LRB [109] Reuse distance or next access for eviction Empirical cache performance; no native competitive guarantee Inference on the eviction path Error can increase misses; no theorem-level worst-case cap follows from LRB alone Parrot [80] Eviction priority learned by imitation Empirical cache performance; no native competitive guarantee Policy inference on eviction Error can change eviction order; robustness remains empirical for Parrot itself PGM [55] Key position with certified segment error Static recursive index has 
+
+𝑂 (log 𝑚 + log (𝜖 + 1) ) query time and Θ(𝑚 ) space Model evaluation and bounded local search Correctness is retained by searching the certified interval; update costs use a separate dynamic analysis ALEX [42] Key position and layout cost Correct index semantics plus empirical latency and memory results; no (𝑐, 𝑟, 𝑓 ) contract Model evaluation, inserts, splits, and expansion Adaptive structure handles updates empirically; performance varies by workload [116] Decima [83] Scheduling policy from job DAG and cluster state Empirical system objective; no competitive guarantee Offline trace training and online policy inference Behavior beyond the evaluated workloads is an empirical question; no LAA theorem bounds it Autopilot [105] Resource settings from workload observations Production evaluation and operational constraints; no 
+
+(𝑐, 𝑟, 𝑓 ) theorem Continuous observation and recommendation Limits and gradual changes are safeguards, not competitive-ratio certificates Bao [84] Performance of optimizer hint sets Empirical query-performance evidence; action space is restricted to hint sets Plan scoring and periodic adaptation Restriction narrows possible plans but does not itself bound regret or competitive ratio Cardinality estimators [111, 112] Relation or subplan cardinalities Accuracy and downstream latency are empirical and workload dependent Training and inference per selected estimator Optimizer behavior mediates error; estimator accuracy alone does not determine plan cost 
+
+7.1 What Semantic Prediction Adds, and What It Does Not 
+
+Foundation models can map unstructured context, e.g., tickets, changelogs, logs, or operator notes, to a declared task object. This is not unique to them, so accuracy and cost should be compared with parsers, information-extraction systems, and other NLP models. Token-sequence likelihood is not automatically a calibrated probability of task correctness; sequence-likelihood calibration and semantic-uncertainty methods address narrower versions of this mismatch [54, 121]. Free-form text therefore cannot be inserted into P1–P5 without an interface that maps it to the prediction space and defines an error measure. Once such an interface is supplied, any compatible mechanism may apply, but its theorem must account for the adapter’s failure modes rather than treating semantics as a new guarantee. Nagawanshi et al. [94] provide a boundary case: time-decay streaming theorems assume a suffix-compatible heavy-hitter oracle, while experiments instantiate it with CountSketch, an LSTM, ChatGPT, and Gemini. The experiments do not prove that a named model satisfies the oracle condition on arbitrary streams. This is conditional-interface evidence, not an unconditional LLM guarantee. 
+
+7.2 Four Integration Patterns 
+
+Four roles are useful to distinguish. Their risk is not totally ordered: it depends on validation, runtime authority, and whether a human acts on the output. 28 Zhao et al. 
+
+As a predictor. The model emits ˆ 𝑦 , e.g., a duration or job order. P1–P5 apply only after parsing and establishing the theorem’s error assumptions; calibration is not universally sufficient. 
+
+As an adapter. The model extracts a structured input from text. A guarantee survives only if it tolerates arbitrary outputs or validation enforces its assumptions; range restriction alone gives no Lipschitz bound. 
+
+As a policy synthesizer. The model proposes an offline rule or fallback. The artifact still needs the verification and deployment controls applied to human-written code. 
+
+As an explainer. The model renders telemetry for an operator. Even outside the automated path, it can affect consequential actions, so factuality, provenance, and uncertainty remain necessary. The architectural question is where an unvalidated output can change state. The interface should expose only the needed authority, with validation proportional to consequences. 
+
+7.3 The Calibration Problem 
+
+Suppose a model is used as a predictor and the surrounding algorithm needs confidence to set 𝜆 .Token-level likelihood need not rank generated sequences by task quality [121], and its relationship to correctness can vary with prompts, decoding, and model versions. Agreement across sampled completions measures self-consistency rather than labeled accuracy; semantic entropy is one empirically studied alternative uncertainty signal, not a universal correctness certificate [54]. One possible route is a conformal or other distribution-free wrapper that converts task outputs and a calibration sample into a prediction set. Standard split-conformal coverage uses exchange-ability; extensions to non-exchangeable data incur model-specific coverage penalties [97]. Marginal coverage is not automatically a bound on downstream cost. Existing online algorithms with UQ make the uncertainty statement part of a problem-specific input model [110]; they do not provide a generic reduction from conformal coverage or language-model confidence to a P5 cost guarantee. Such a reduction would require a separate end-to-end analysis. When calibrated confidence is unavailable, available responses are application dependent, e.g., abstaining, requesting review, constraining the action, or using a fallback with an independently justified guarantee. A generic safety mechanism does not automatically bound the resulting cost or harm (§6.6). 
+
+7.4 Failure Modes Specific to Generative Components 
+
+Four failure mechanisms merit explicit treatment. Some have numerical analogues, while text and tool use add interfaces; P1–P5 do not remove them. 
+
+Fabrication. A language model can emit a fluent, specific, and wrong statement. Numerical predictors can also be confidently wrong, so any switching rule that consumes confidence must assume or verify a relationship between that confidence and task error. 
+
+Injection. The signal layer may carry attacker-influenced text such as filenames or log lines echoing request content. Indirect prompt-injection demonstrations show that retrieved data can redirect an integrated model or tool workflow [59]. Numerical systems also face adversarial inputs, but instruction/data ambiguity creates a distinct interface risk. Treat such text as untrusted data, isolate tool authority, and validate structured outputs. 
+
+Non-determinism and version drift. Sampling can produce different outputs across calls, and model updates can change behavior. A guarantee must quantify over that randomness and specify the version or model class to which its assumptions apply. Pinning, regression tests, and staged promotion help operationally but do not replace that analysis. 
+
+Feedback contamination. If model outputs are logged and later ingested as training data or context, model-generated errors can re-enter later inputs. Experiments on recursively generated training data demonstrate one concrete degradation mechanism, although they do not characterize every Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 29 
+
+operational feedback loop [107]. This is one form of the endogeneity described in S2. Provenance labels can support separate treatment of model-generated content in later training and evaluation. 
+
+7.5 The State of the Evidence 
+
+We separate three claims that are often stated together. What is established : an AIOps survey documents language-model applications to log analysis, incident triage, and root-cause analysis [118], but does not itself establish production prevalence or an LAA guarantee. Time-decay moment estimation separately proves results for a declared heavy-hitter oracle and tests language-model implementations [94]. What remains conditional : a language model can be a predictor if an adapter defines the object and its output satisfies the theorem’s premise. No surveyed work proves this unconditionally for a particular model over the theorem’s full instance class; calibration alone is insufficient. What is unsupported without a new model and proof : that semantic reasoning improves an existing guarantee automatically. Richer side information can change the formal information structure and can therefore change achievable bounds, but only relative to a clearly specified predictor class, error model, and benchmark. Lower bounds proved for a fixed information model cannot simply be transferred to a richer one, nor can they be declared overcome without re-analysis. Thus, a conditional oracle reduction exists for one streaming family [94], but no surveyed result unconditionally verifies its premise for a particular language model or transfers a general LAA guarantee to free-form output. 
+
+8 Open Challenges 
+
+Four cross-cutting problems concern predictor cost, composition, endogenous error, and empirical comparability. 
+
+8.1 Pricing the Prediction 
+
+The competitive ratios of Section 5 charge nothing for obtaining ˆ 𝑦 . One survey-derived accounting convention is the following definition, which is a modeling proposal rather than a theorem. 
+
+Definition 8.1 ( 𝜅 -augmented competitive ratio). Let 𝜅 ≥ 0 be a declared conversion from one predictor invocation to the units of the objective, and let 𝑞 A (𝜎, ˆ𝑦 ) be the possibly random number of invocations made by algorithm A. Define the augmented expected cost cost 𝜅 (A ( 𝜎, ˆ𝑦 )) =
+
+E[cost (A ( 𝜎, ˆ𝑦 )) + 𝜅 𝑞 A (𝜎, ˆ𝑦 )] , where the expectation is over the algorithm’s internal randomness, and CR 𝜅 (A) = sup  
+
+> 𝜎, ˆ𝑦
+
+cost 𝜅 (A ( 𝜎, ˆ𝑦 )) 
+
+OPT (𝜎 ) , (14) where the supremum ranges over pairs with OPT (𝜎 ) > 0, and OPT remains the prediction-free offline optimum and is not charged 𝜅 .For a fixed pair on which 𝑞 A = 𝑇 almost surely, the augmented ratio gains 𝜅𝑇 /OPT (𝜎 ); one may not instead add separate suprema. Exact multiplicative 1-consistency against the uncharged optimum is therefore impossible whenever an exact-prediction instance has 𝜅 E[𝑞 A ] > 0, absent an additive term or another benchmark. Drygala et al. [49] analyze cost and query timing for specific stopping problems; reduced-query models instead budget calls [1, 67]. Neither yields a universal three-way frontier. 30 Zhao et al. 
+
+8.2 A Calculus for Composition 
+
+Propositions 6.2-6.4 require benchmark decomposition, distortion factors, or metric sensitivity; node triples alone do not determine a system triple. A fuller calculus must model correlated claims, policy-dependent cycles, objectives, state constraints, and limited fallback capacity. 
+
+8.3 Endogenous, Adversarial and Strategic Error 
+
+Bounds conditional on realized 𝜂 do not model how decisions change later observations. Performa-tive prediction studies decision-dependent distributions [98], feedback control studies explicitly modeled dynamics [16], and strategic classification studies utility-driven adaptation [63]. These dis-tinct tools do not by themselves yield a consistency–robustness guarantee under policy-dependent data. 
+
+8.4 Benchmarking and Reproducibility 
+
+A (𝑐, 𝑟 ) pair follows from definitions and proof; experiments test implementations and workloads. Comparable benchmarks should declare traces, shifts, error protocols, objectives, feasibility, inter-ventions, predictor calls, latency, prediction type, trust, splits, and baselines [35, 112, 116]. They complement rather than validate universal guarantees. 
+
+9 Conclusion 
+
+Learning-augmented algorithms give theorem-specific consistency, robustness, and error-dependent guarantees. Our two axes record five non-exclusive construction mechanisms and same-model matching-bound status; neither is a maturity ranking. This separates proved frontiers, achieved upper bounds, and empirical systems evidence. Systems also incur prediction cost, policy-dependent feedback, and component interactions. Definition 8.1 prices calls in one model, while Propositions 6.2–6.4 require explicit objective, benchmark, state, and error relations for composition. Operational safeguards become guarantees only through problem-specific analysis. 
+
+References 
+
+[1] Karim Abdel Sadek and Marek Eliáš. 2024. Algorithms for caching and MTS with reduced number of predictions. In 
+
+International Conference on Learning Representations (ICLR) . arXiv:2404.06280. [2] Dimitris Achlioptas, Marek Chrobak, and John Noga. 2000. Competitive analysis of randomized paging algorithms. 
+
+Theoretical Computer Science 234, 1–2 (2000), 203–218. doi:10.1016/S0304-3975(98)00116-9 [3] Arpit Agarwal and Eric Balkanski. 2024. Learning-Augmented Dynamic Submodular Maximization. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. doi:10.52202/079017-0453 [4] Kunal Agrawal, Sanjoy K. Baruah, Michael A. Bender, and Alberto Marchetti-Spaccamela. 2023. The safe and effective use of low-assurance predictions in safety-critical systems. In 35th Euromicro Conference on Real-Time Systems (ECRTS) (LIPIcs, Vol. 262) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 3:1–3:19. [5] Priyank Agrawal, Eric Balkanski, Vasilis Gkatzelis, Tingting Ou, and Xizhi Tan. 2022. Learning-augmented mechanism design: Leveraging predictions for facility location. In Proceedings of the 23rd ACM Conference on Economics and Computation (EC) . ACM, 497–528. doi:10.1145/3490486.3538306 [6] Sara Ahmadian, Hossein Esfandiari, Vahab Mirrokni, and Binghui Peng. 2023. Robust load balancing with machine learned advice. Journal of Machine Learning Research 24 (2023), 44:1–44:46. [7] Keerti Anand, Rong Ge, Amit Kumar, and Debmalya Panigrahi. 2022. Online Algorithms with Multiple Predictions. In Proceedings of the 39th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 162) . PMLR, 582–598. [8] Spyros Angelopoulos, Marcin Bienkowski, Christoph Dürr, and Bertrand Simon. 2024. Contract scheduling with distributional and multiple advice. In Proceedings of the 33rd International Joint Conference on Artificial Intelligence (IJCAI) . International Joint Conferences on Artificial Intelligence, 3652–3660. doi:10.24963/ijcai.2024/404 [9] Spyros Angelopoulos and Shahin Kamali. 2023. Contract scheduling with predictions. Journal of Artificial Intelligence Research 77 (2023), 395–426. Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 31 
+
+[10] Spyros Angelopoulos and Bertrand Simon. 2025. Learning-Augmented Online Bidding in Stochastic Settings. In 
+
+Advances in Neural Information Processing Systems (NeurIPS) , Vol. 38. Curran Associates, Inc. doi:10.52202/085713-2269 [11] Antonios Antoniadis, Joan Boyar, Marek Eliáš, Lene M. Favrholdt, Ruben Hoeksma, Kim S. Larsen, Adam Polak, and Bertrand Simon. 2023. Paging with succinct predictions. In Proceedings of the 40th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 202) . PMLR, 952–968. [12] Antonios Antoniadis, Christian Coester, Marek Eliáš, Adam Polak, and Bertrand Simon. 2020. Online metric algorithms with untrusted predictions. In Proceedings of the 37th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 119) . PMLR, 345–355. [13] Antonios Antoniadis, Christian Coester, Marek Eliáš, Adam Polak, and Bertrand Simon. 2021. Learning-augmented dynamic power management with multiple states via new ski rental bounds. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 34. 16714–16726. [14] Antonios Antoniadis, Christian Coester, Marek Eliáš, Adam Polak, and Bertrand Simon. 2023. Mixing Predictions for Online Metric Algorithms. In Proceedings of the 40th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 202) . PMLR, 969–983. [15] Antonios Antoniadis, Christian Coester, Marek Eliáš, Adam Polak, and Bertrand Simon. 2023. Online metric algorithms with untrusted predictions. ACM Transactions on Algorithms 19, 2, Article 19 (2023), 34 pages. doi:10.1145/3582689 [16] Karl J. Åström and Richard M. Murray. 2008. Feedback Systems: An Introduction for Scientists and Engineers . Princeton University Press. [17] Yossi Azar, Stefano Leonardi, and Noam Touitou. 2021. Flow time scheduling with uncertain processing time. In 
+
+Proceedings of the 53rd Annual ACM SIGACT Symposium on Theory of Computing (STOC) . ACM, 1070–1080. [18] Yossi Azar, Stefano Leonardi, and Noam Touitou. 2022. Distortion-oblivious algorithms for minimizing flow time. In 
+
+Proceedings of the 33rd Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) . SIAM, 252–274. [19] Yossi Azar, Debmalya Panigrahi, and Noam Touitou. 2023. Discrete-Smoothness in Online Algorithms with Predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 36. Curran Associates, Inc. [20] Eric Balkanski, Vasilis Gkatzelis, and Golnoosh Shahkarami. 2024. Randomized Strategic Facility Location with Predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. doi:10.52202/079017-1124 [21] Eric Balkanski, Vasilis Gkatzelis, and Xizhi Tan. 2023. Strategyproof scheduling with predictions. In 14th Innovations in Theoretical Computer Science Conference (ITCS) (LIPIcs, Vol. 251) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 11:1–11:22. [22] Eric Balkanski, Will Ma, and Andreas Maggiori. 2024. Fair Secretaries with Unfair Predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. doi:10.52202/079017-0122 [23] Eric Balkanski, Tingting Ou, Clifford Stein, and Hao-Ting Wei. 2023. Scheduling with speed predictions. In 21st International Workshop on Approximation and Online Algorithms (WAOA) (Lecture Notes in Computer Science, Vol. 14297) .Springer, 74–89. [24] Eric Balkanski, Noémie Périvier, Clifford Stein, and Hao-Ting Wei. 2023. Energy-efficient scheduling with predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 36. arXiv:2402.17143. [25] Étienne Bamas, Andreas Maggiori, Lars Rohatgi, and Ola Svensson. 2020. Learning augmented energy minimization via speed scaling. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 33. 15350–15359. [26] Étienne Bamas, Andreas Maggiori, and Ola Svensson. 2020. The primal-dual method for learning augmented algorithms. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 33. 20083–20094. [27] Nikhil Bansal, Christian Coester, Ravi Kumar, Manish Purohit, and Erik Vee. 2022. Learning-augmented weighted paging. In Proceedings of the 33rd Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) . SIAM, 67–89. doi:10.1137/1.9781611977073.4 [28] Hannah Bast, Daniel Delling, Andrew V. Goldberg, Matthias Müller-Hannemann, Thomas Pajor, Peter Sanders, Dorothea Wagner, and Renato F. Werneck. 2016. Route planning in transportation networks. In Algorithm Engineering: Selected Results and Surveys . Lecture Notes in Computer Science, Vol. 9220. Springer, 19–80. doi:10.1007/978-3-319-49487-6_2 [29] László A. Belady. 1966. A study of replacement algorithms for a virtual-storage computer. IBM Systems Journal 5, 2 (1966), 78–101. [30] Ziyad Benomar and Vianney Perchet. 2025. On Tradeoffs in Learning-Augmented Algorithms. In Proceedings of the 28th International Conference on Artificial Intelligence and Statistics (AISTATS) (Proceedings of Machine Learning Research, Vol. 258) , Yingzhen Li, Stephan Mandt, Shipra Agrawal, and Emtiyaz Khan (Eds.). PMLR, Mai Khao, Thailand, 802–810. [31] Aditya Bhaskara, Ashok Cutkosky, Ravi Kumar, and Manish Purohit. 2020. Online learning with imperfect hints. In Proceedings of the 37th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 119) . PMLR, 822–831. 32 Zhao et al. 
+
+[32] Joan Boyar. 2023. Online algorithms with predictions (invited talk). In 48th International Symposium on Mathematical Foundations of Computer Science (MFCS) (LIPIcs, Vol. 272) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 2:1–2:2. doi:10.4230/LIPIcs.MFCS.2023.2 [33] Joan Boyar, Lene M. Favrholdt, Christian Kudahl, Kim S. Larsen, and Jesper W. Mikkelsen. 2017. Online algorithms with advice: A survey. Comput. Surveys 50, 2 (2017), 19:1–19:34. doi:10.1145/3056461 [34] Peng Chen, Hailiang Zhao, Jiaji Zhang, Xueyan Tang, Yixuan Wang, and Shuiguang Deng. 2025. Robustifying learning-augmented caching efficiently without compromising 1-consistency. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 38. doi:10.52202/085713-4092 arXiv:2507.16242. [35] Jakub Chłędowski, Adam Polak, Bartosz Szabucki, and Konrad Żołna. 2021. Robust learning-augmented caching: An experimental study. In Proceedings of the 38th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 139) . PMLR, 1920–1930. [36] Davin Choo, Themis Gouleakis, Chun Kai Ling, and Arnab Bhattacharyya. 2024. Online bipartite matching with imper-fect advice. In Proceedings of the 41st International Conference on Machine Learning (ICML) . PMLR. arXiv:2405.09784. [37] XianJun Davin Choo, Billy Jin, and Yongho Shin. 2025. Learning-augmented online bipartite fractional matching. In 
+
+Advances in Neural Information Processing Systems (NeurIPS) , Vol. 38. 8579–8594. doi:10.52202/085713-0262 [38] Ilan Reuven Cohen and Debmalya Panigrahi. 2023. A General Framework for Learning-Augmented Online Allocation. In 50th International Colloquium on Automata, Languages, and Programming (ICALP) (Leibniz International Proceedings in Informatics (LIPIcs), Vol. 261) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 43:1–43:21. doi:10.4230/LIPIcs. ICALP.2023.43 [39] Ilan Reuven Cohen and Debmalya Panigrahi. 2025. A Learning-Augmented Approach to Online Allocation Problems. In 
+
+Advances in Neural Information Processing Systems (NeurIPS) , Vol. 38. Curran Associates, Inc. doi:10.52202/085713-5425 [40] Matei Gabriel Cosa and Marek Eliáš. 2025. Learning-Augmented Algorithms for MTS with Bandit Access to Multiple Predictors. In Proceedings of the 42nd International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 267) . PMLR, 11357–11378. [41] Sami Davies, Benjamin Moseley, Sergei Vassilvitskii, and Yuyan Wang. 2023. Predictive flows for faster Ford-Fulkerson. In Proceedings of the 40th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 202) . PMLR. [42] Jialin Ding, Umar Farooq Minhas, Jia Yu, Chi Wang, Jaeyoung Do, Yinan Li, Hantian Zhang, Badrish Chandramouli, Johannes Gehrke, Donald Kossmann, David Lomet, and Tim Kraska. 2020. ALEX: An updatable adaptive learned index. In Proceedings of the 2020 ACM SIGMOD International Conference on Management of Data . ACM, 969–984. doi:10.1145/3318464.3389711 [43] Michael Dinitz, Jeremy Fineman, and Seeun William Umboh. 2026. Learning-Augmented Online Algorithms for Non-clairvoyant Joint Replenishment Problem with Deadlines. In 53rd International Colloquium on Automata, Languages, and Programming (ICALP) (Leibniz International Proceedings in Informatics (LIPIcs), Vol. 374) , Sayan Bhattacharya, Danupon Nanongkai, Michael Benedikt, and Gabriele Puppis (Eds.). Schloss Dagstuhl – Leibniz-Zentrum für Infor-matik, Dagstuhl, Germany, 77:1–77:21. doi:10.4230/LIPIcs.ICALP.2026.77 [44] Michael Dinitz, Sungjin Im, Thomas Lavastida, Benjamin Moseley, Aidin Niaparast, and Sergei Vassilvitskii. 2024. Binary search with distributional predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. Curran Associates, Inc., 90456–90472. doi:10.52202/079017-2871 arXiv:2411.16030. [45] Michael Dinitz, Sungjin Im, Thomas Lavastida, Benjamin Moseley, and Sergei Vassilvitskii. 2021. Faster matchings via learned duals. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 34. 10393–10406. [46] Michael Dinitz, Sungjin Im, Thomas Lavastida, Benjamin Moseley, and Sergei Vassilvitskii. 2022. Algorithms with prediction portfolios. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 35. 20273–20286. doi:10.52202/068431-1474 [47] Michael Dinitz, Sungjin Im, Thomas Lavastida, Benjamin Moseley, and Sergei Vassilvitskii. 2024. Controlling tail risk in online ski-rental. In Proceedings of the 2024 Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) . SIAM. doi:10.1137/1.9781611977912.147 [48] Yinhao Dong, Shan Jiang, Shi Li, and Pan Peng. 2025. Learning-Augmented Streaming Algorithms for Correlation Clustering. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 38. Curran Associates, Inc. doi:10. 52202/085713-5208 [49] Marina Drygala, Sai Ganesh Nagarajan, and Ola Svensson. 2023. Online Algorithms with Costly Predictions. In 
+
+Proceedings of the 26th International Conference on Artificial Intelligence and Statistics (AISTATS) (Proceedings of Machine Learning Research, Vol. 206) . PMLR, 8078–8101. [50] Paul Dütting, Silvio Lattanzi, Renato Paes Leme, and Sergei Vassilvitskii. 2021. Secretaries with advice. In Proceedings of the 22nd ACM Conference on Economics and Computation (EC) . ACM, 409–429. doi:10.1145/3465456.3467623 [51] Piotr Dworczak and Alessandro Pavan. 2022. Preparing for the Worst but Hoping for the Best: Robust (Bayesian) Persuasion. Econometrica 90, 5 (2022), 2017–2051. doi:10.3982/ECTA19107 Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 33 
+
+[52] Alex Elenter, Spyros Angelopoulos, Christoph Dürr, and Yanni Lefki. 2024. Overcoming Brittleness in Pareto-Optimal Learning-Augmented Algorithms. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. Curran Associates, Inc. doi:10.52202/079017-0296 [53] Marek Eliáš, Haim Kaplan, Yishay Mansour, and Shay Moran. 2024. Learning-Augmented Algorithms with Explicit Predictors. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. doi:10.52202/079017-3109 [54] Sebastian Farquhar, Jannik Kossen, Lorenz Kuhn, and Yarin Gal. 2024. Detecting Hallucinations in Large Language Models Using Semantic Entropy. Nature 630 (2024), 625–630. doi:10.1038/s41586-024-07421-0 [55] Paolo Ferragina and Giorgio Vinciguerra. 2020. The PGM-index: A fully-dynamic compressed learned index with provable worst-case bounds. Proceedings of the VLDB Endowment 13, 8 (2020), 1162–1175. doi:10.14778/3389133. 3389135 [56] Amos Fiat, Richard M. Karp, Michael Luby, Lyle A. McGeoch, Daniel D. Sleator, and Neal E. Young. 1991. Competitive paging algorithms. Journal of Algorithms 12, 4 (1991), 685–699. [57] Alex Galakatos, Michael Markovitch, Carsten Binnig, Rodrigo Fonseca, and Tim Kraska. 2019. FITing-tree: A data-aware index structure. In Proceedings of the 2019 International Conference on Management of Data (SIGMOD) . ACM, 1189–1206. doi:10.1145/3299869.3319860 [58] Sreenivas Gollapudi and Debmalya Panigrahi. 2019. Online algorithms for rent-or-buy with expert advice. In 
+
+Proceedings of the 36th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 97) . PMLR, 2319–2327. [59] Kai Greshake, Sahar Abdelnabi, Shailesh Mishra, Christoph Endres, Thorsten Holz, and Mario Fritz. 2023. Not What You’ve Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection. In 
+
+Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security . ACM, 79–90. doi:10.1145/3605764.3623985 [60] Elena Grigorescu, Young-San Lin, and Maoyuan Song. 2025. Learning-Augmented Algorithms for Online Concave Packing and Convex Covering Problems. In Proceedings of the 28th International Conference on Artificial Intelligence and Statistics (AISTATS) (Proceedings of Machine Learning Research, Vol. 258) , Yingzhen Li, Stephan Mandt, Shipra Agrawal, and Emtiyaz Khan (Eds.). PMLR, Mai Khao, Thailand, 1072–1080. [61] Anupam Gupta, Debmalya Panigrahi, Bernardo Subercaseaux, and Kevin Sun. 2022. Augmenting Online Algorithms with 𝜖 -Accurate Predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 35. Curran Associates, Inc. [62] Mingzhe Hao, Levent Toksoz, Nanqinqin Li, Edward Edberg Halim, Henry Hoffmann, and Haryadi S. Gunawi. 2020. LinnOS: Predictability on unpredictable flash storage with a light neural network. In 14th USENIX Symposium on Operating Systems Design and Implementation (OSDI) . USENIX Association, 173–190. [63] Moritz Hardt, Nimrod Megiddo, Christos H. Papadimitriou, and Mary Wootters. 2016. Strategic Classification. In Proceedings of the 2016 ACM Conference on Innovations in Theoretical Computer Science (ITCS) . ACM, 111–122. doi:10.1145/2840728.2840730 [64] Chen-Yu Hsu, Piotr Indyk, Dina Katabi, and Ali Vakilian. 2019. Learning-based frequency estimation algorithms. In 
+
+International Conference on Learning Representations (ICLR) .[65] Sungjin Im, Ravi Kumar, Mahshid Montazer Qaem, and Manish Purohit. 2021. Non-clairvoyant scheduling with predictions. In Proceedings of the 33rd ACM Symposium on Parallelism in Algorithms and Architectures (SPAA) . ACM, 285–294. doi:10.1145/3409964.3461790 [66] Sungjin Im, Ravi Kumar, Mahshid Montazer Qaem, and Manish Purohit. 2021. Online knapsack with frequency predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 34. [67] Sungjin Im, Ravi Kumar, Aditya Petety, and Manish Purohit. 2022. Parsimonious learning-augmented caching. In 
+
+Proceedings of the 39th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 162) . PMLR, 9588–9601. [68] Sungjin Im, Benjamin Moseley, Chenyang Xu, and Ruilong Zhang. 2023. Online dynamic acknowledgement with learned predictions. In IEEE INFOCOM 2023 – IEEE Conference on Computer Communications . IEEE. [69] Zhihao Jiang, Debmalya Panigrahi, and Kevin Sun. 2020. Online algorithms for weighted paging with predictions. In 
+
+47th International Colloquium on Automata, Languages, and Programming (ICALP) (LIPIcs, Vol. 168) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 69:1–69:18. doi:10.4230/LIPIcs.ICALP.2020.69 [70] Billy Jin and Will Ma. 2022. Online bipartite matching with advice: Tight robustness-consistency tradeoffs for the two-stage model. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 35. arXiv:2206.11397. [71] Helia Karisani, Mohammadreza Daneshvaramoli, Hedyeh Beyhaghi, Mohammad Hajiesmaili, and Cameron Musco. 2026. The Secretary Problem with Predictions and a Chosen Order. In 17th Innovations in Theoretical Computer Science Conference (ITCS) (Leibniz International Proceedings in Informatics (LIPIcs), Vol. 362) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 86:1–86:24. doi:10.4230/LIPIcs.ITCS.2026.86 [72] Anna R. Karlin, Mark S. Manasse, Lyle A. McGeoch, and Susan Owicki. 1994. Competitive randomized algorithms for nonuniform problems. Algorithmica 11, 6 (1994), 542–571. 34 Zhao et al. 
+
+[73] Anna R. Karlin, Mark S. Manasse, Larry Rudolph, and Daniel D. Sleator. 1988. Competitive snoopy caching. Algorith-mica 3, 1–4 (1988), 79–119. doi:10.1007/BF01762111 [74] Mikhail Khodak, Maria-Florina Balcan, Ameet Talwalkar, and Sergei Vassilvitskii. 2022. Learning predictions for algorithms with predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 35. 3542–3555. doi:10.52202/068431-0256 [75] Tim Kraska, Alex Beutel, Ed H. Chi, Jeffrey Dean, and Neoklis Polyzotis. 2018. The case for learned index structures. In Proceedings of the 2018 International Conference on Management of Data (SIGMOD) . ACM, 489–504. doi:10.1145/ 3183713.3196909 [76] Silvio Lattanzi, Thomas Lavastida, Benjamin Moseley, and Sergei Vassilvitskii. 2020. Online scheduling via learned weights. In Proceedings of the 31st Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) . SIAM, 1859–1877. doi:10.1137/1.9781611975994.114 [77] Silvio Lattanzi, Debmalya Panigrahi, and Ola Svensson. 2026. Online Rounding and Learning Augmented Algorithms for Facility Location. In The Fourteenth International Conference on Learning Representations (ICLR) . OpenReview.net. [78] Thomas Lavastida, Benjamin Moseley, R. Ravi, and Chenyang Xu. 2021. Learnable and instance-robust predictions for online matching, flows and load balancing. In 29th Annual European Symposium on Algorithms (ESA) (LIPIcs, Vol. 204) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik. [79] Alexander Lindermayr, Nicole Megow, and Martin Rapp. 2023. Speed-oblivious online scheduling: Knowing (precise) speeds is not necessary. In Proceedings of the 40th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 202) . PMLR. [80] Evan Zheran Liu, Milad Hashemi, Kevin Swersky, Parthasarathy Ranganathan, and Junwhan Ahn. 2020. An imitation learning approach for cache replacement. In Proceedings of the 37th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 119) . PMLR, 6237–6247. arXiv:2006.16239. [81] Thodoris Lykouris and Sergei Vassilvitskii. 2018. Competitive caching with machine learned advice. In Proceedings of the 35th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 80) .PMLR, 3296–3305. [82] Thodoris Lykouris and Sergei Vassilvitskii. 2021. Competitive caching with machine learned advice. J. ACM 68, 4 (2021), 24:1–24:25. doi:10.1145/3447579 [83] Hongzi Mao, Malte Schwarzkopf, Shaileshh Bojja Venkatakrishnan, Zili Meng, and Mohammad Alizadeh. 2019. Learning scheduling algorithms for data processing clusters. In Proceedings of the ACM Special Interest Group on Data Communication (SIGCOMM) . ACM, 270–288. doi:10.1145/3341302.3342080 [84] Ryan Marcus, Parimarjan Negi, Hongzi Mao, Nesime Tatbul, Mohammad Alizadeh, and Tim Kraska. 2021. Bao: Making learned query optimization practical. In Proceedings of the 2021 International Conference on Management of Data (SIGMOD) . ACM, 1275–1288. doi:10.1145/3448016.3452838 [85] Samuel McCauley, Benjamin Moseley, Aidin Niaparast, Helia Niaparast, and Shikha Singh. 2025. Incremental approximate single-source shortest paths with predictions. In 52nd International Colloquium on Automata, Languages, and Programming (ICALP) (LIPIcs, Vol. 334) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 117:1–117:20. doi:10.4230/LIPIcs.ICALP.2025.117 [86] Samuel McCauley, Benjamin Moseley, Aidin Niaparast, and Shikha Singh. 2023. Online list labeling with predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 36. doi:10.52202/075280-2633 [87] Samuel McCauley, Benjamin Moseley, Aidin Niaparast, and Shikha Singh. 2024. Incremental topological ordering and cycle detection with predictions. In Proceedings of the 41st International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 235) . PMLR. [88] Lyle A. McGeoch and Daniel D. Sleator. 1991. A strongly competitive randomized paging algorithm. Algorithmica 6, 1–6 (1991), 816–825. doi:10.1007/BF01759073 [89] Michael Mitzenmacher. 2018. A model for learned Bloom filters and optimizing by sandwiching. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 31. 464–473. [90] Michael Mitzenmacher and Sergei Vassilvitskii. 2021. Algorithms with predictions. In Beyond the Worst-Case Analysis of Algorithms , Tim Roughgarden (Ed.). Cambridge University Press, 646–662. doi:10.1017/9781108637435.037 [91] Michael Mitzenmacher and Sergei Vassilvitskii. 2022. Algorithms with predictions. Commun. ACM 65, 7 (2022), 33–35. doi:10.1145/3528087 [92] Andres Munoz Medina and Sergei Vassilvitskii. 2017. Revenue optimization with approximate bid predictions. In 
+
+Advances in Neural Information Processing Systems (NIPS) , Vol. 30. 1858–1866. arXiv:1706.04732. [93] Roger B. Myerson. 1981. Optimal auction design. Mathematics of Operations Research 6, 1 (1981), 58–73. doi:10.1287/ moor.6.1.58 [94] Soham Nagawanshi, Shalini Panthangi, Chen Wang, David P. Woodruff, and Samson Zhou. 2026. Learning-Augmented Moment Estimation on Time-Decay Models. In The Fourteenth International Conference on Learning Representations (ICLR) . OpenReview.net. arXiv:2603.02488. Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications 35 
+
+[95] Kim Thang Nguyen. 2026. Online Covering with Multiple Experts. In Proceedings of the 37th International Conference on Algorithmic Learning Theory (ALT) (Proceedings of Machine Learning Research, Vol. 313) . PMLR, 1–36. [96] Helia Niaparast, Benjamin Moseley, and Karan Singh. 2025. Faster global minimum cut with predictions. In Proceedings of the 42nd International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 267) .PMLR, 46305–46319. [97] Roberto I. Oliveira, Paulo Orenstein, Thiago Ramos, and João Vitor Romano. 2024. Split Conformal Prediction and Non-Exchangeable Data. Journal of Machine Learning Research 25, 225 (2024), 1–38. [98] Juan C. Perdomo, Tijana Zrnic, Celestine Mendler-Dünner, and Moritz Hardt. 2020. Performative Prediction. In 
+
+Proceedings of the 37th International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 119) . PMLR, 7599–7609. [99] Adam Polak and Jonas Schmidt. 2026. Warm-Starting All-Pairs Shortest Paths with Predictions. In 34th Annual European Symposium on Algorithms (ESA) (Leibniz International Proceedings in Informatics (LIPIcs), Vol. 388) , Philip Bille, Seth Pettie, and Sabine Storandt (Eds.). Schloss Dagstuhl – Leibniz-Zentrum für Informatik, Dagstuhl, Germany, 62:1–62:20. doi:10.4230/LIPIcs.ESA.2026.62 [100] Siddharth Prasad, Maria-Florina Balcan, and Tuomas Sandholm. 2023. Bicriteria multidimensional mechanism design with side information. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 36. Curran Associates, Inc. [101] Manish Purohit, Zoya Svitkina, and Ravi Kumar. 2018. Improving online algorithms via ML predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 31. 9684–9693. [102] Alexander Rakhlin and Karthik Sridharan. 2013. Online Learning with Predictable Sequences. In Proceedings of the 26th Annual Conference on Learning Theory (COLT) (Proceedings of Machine Learning Research, Vol. 30) , Shai Shalev-Shwartz and Ingo Steinwart (Eds.). PMLR, Princeton, NJ, USA, 993–1019. [103] Stefan Richter, Victor Alvarez, and Jens Dittrich. 2015. A seven-dimensional analysis of hashing methods and its implications on query processing. Proceedings of the VLDB Endowment 9, 3 (2015), 96–107. [104] Dhruv Rohatgi. 2020. Near-optimal bounds for online caching with machine learned advice. In Proceedings of the 31st Annual ACM-SIAM Symposium on Discrete Algorithms (SODA) . SIAM, 1834–1845. doi:10.1137/1.9781611975994.112 [105] Krzysztof Rzadca, Pawel Findeisen, Jacek Swiderski, Przemyslaw Zych, Przemyslaw Broniek, Jarek Kusmierek, Pawel Nowak, Beata Strack, Piotr Witusowski, Steven Hand, and John Wilkes. 2020. Autopilot: Workload autoscaling at Google. In Proceedings of the 15th European Conference on Computer Systems (EuroSys) . ACM, 16:1–16:16. doi:10.1145/ 3342195.3387524 [106] Shinsaku Sakaue and Taihei Oki. 2022. Discrete-Convex-Analysis-Based Framework for Warm-Starting Algorithms with Predictions. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 35. Curran Associates, Inc. [107] Ilia Shumailov, Zakhar Shumaylov, Yiren Zhao, Nicolas Papernot, Ross Anderson, and Yarin Gal. 2024. AI Models Collapse When Trained on Recursively Generated Data. Nature 631 (2024), 755–759. doi:10.1038/s41586-024-07566-y [108] Daniel D. Sleator and Robert E. Tarjan. 1985. Amortized efficiency of list update and paging rules. Commun. ACM 28, 2 (1985), 202–208. doi:10.1145/2786.2793 [109] Zhenyu Song, Daniel S. Berger, Kai Li, and Wyatt Lloyd. 2020. Learning relaxed Belady for content distribution network caching. In 17th USENIX Symposium on Networked Systems Design and Implementation (NSDI) . USENIX Association, 529–544. [110] Bo Sun, Jerry Huang, Nicolas Christianson, Mohammad Hajiesmaili, Adam Wierman, and Raouf Boutaba. 2024. Online Algorithms with Uncertainty-Quantified Predictions. In Proceedings of the 41st International Conference on Machine Learning (ICML) (Proceedings of Machine Learning Research, Vol. 235) , Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp (Eds.). PMLR, 47056–47077. [111] Ji Sun, Jintao Zhang, Zhaoyan Sun, Guoliang Li, and Nan Tang. 2022. Learned cardinality estimation: An in-depth study. In Proceedings of the 2022 International Conference on Management of Data (SIGMOD) . ACM, 1214–1227. doi:10.1145/3514221.3526154 [112] Xiaoying Wang, Changbo Qu, Weiyuan Wu, Jiannan Wang, and Qingqing Zhou. 2021. Are we ready for learned cardinality estimation? Proceedings of the VLDB Endowment 14, 9 (2021), 1640–1654. doi:10.14778/3461535.3461552 [113] Alexander Wei. 2020. Better and simpler learning-augmented online caching. In Approximation, Randomization, and Combinatorial Optimization (APPROX/RANDOM) (LIPIcs, Vol. 176) . Schloss Dagstuhl – Leibniz-Zentrum für Informatik, 60:1–60:17. [114] Alexander Wei and Fred Zhang. 2020. Optimal robustness-consistency trade-offs for learning-augmented online algorithms. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 33. 8042–8053. [115] Bryan Wilder, Eric Ewing, Bistra Dilkina, and Milind Tambe. 2019. End to end learning and optimization on graphs. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 32. [116] Chaichon Wongkham, Baotong Lu, Chris Liu, Zhicong Zhong, Eric Lo, and Tianzheng Wang. 2022. Are updatable learned indexes ready? Proceedings of the VLDB Endowment 15, 11 (2022), 3004–3017. doi:10.14778/3551793.3551848 36 Zhao et al. 
+
+[117] Chenyang Xu and Benjamin Moseley. 2022. Learning-augmented algorithms for online Steiner tree. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 36. AAAI Press. [118] Lingzhe Zhang, Tong Jia, Mengxi Jia, Yifan Wu, Aiwei Liu, Yong Yang, Zhonghai Wu, Xuming Hu, Philip S. Yu, and Ying Li. 2026. A survey of AIOps in the era of large language models. Comput. Surveys 58, 2, Article 44 (2026), 35 pages. doi:10.1145/3746635 [119] Hailiang Zhao, Xueyan Tang, Peng Chen, and Shuiguang Deng. 2024. Learning-augmented algorithms for the Bahncard problem. In Advances in Neural Information Processing Systems (NeurIPS) , Vol. 37. [120] Tianming Zhao and Albert Y. Zomaya. 2026. On Smoothness Bounds for Non-Clairvoyant Scheduling with Predictions. In The Fourteenth International Conference on Learning Representations (ICLR) . OpenReview.net. [121] Yao Zhao, Misha Khalman, Rishabh Joshi, Shashi Narayan, Mohammad Saleh, and Peter J. Liu. 2023. Calibrating Se-quence Likelihood Improves Conditional Language Generation. In International Conference on Learning Representations (ICLR) .
