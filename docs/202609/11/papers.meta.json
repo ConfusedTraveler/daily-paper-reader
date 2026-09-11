@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-11",
+  "date": "2026-09-11",
+  "generated_at": "2026-09-11T22:05:31",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/11/2609.11132v1-how-wrong-can-a-good-predictor-be-diverging-updates-with-vanishing-predictive-kl",
+      "section": "quick",
+      "title_en": "How Wrong Can a Good Predictor Be? Diverging Updates with Vanishing Predictive KL",
+      "authors": "Qifu Wen, Shuaijun Liu, Zihan Zhou, Xi Zeng, Ningxin Su",
+      "date": "2026-09-10",
+      "pdf": "https://arxiv.org/pdf/2609.11132v1",
+      "score": "7.0",
+      "evidence": "高斯隐马尔可夫模型中预测KL与更新映射发散的理论分析",
+      "tldr": "准确后验预测是否要求精确贝叶斯更新？本文在平稳对称高斯 HMM 中构造精确混合与确定性径向滤波器的对比，二者共享同一 K-1 维信念坐标。证明当 q→0+ 时，中心 logits 的更新差距可无界增长，但类别 KL 与沿轨迹期望终端 KL 仍趋于零。该结果说明无界内部更新差距本身不意味着预测失败，并分离出分离状态贡献与解码器敏感度两个缺失环节。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Accurate posterior prediction need not require accurate approximation of Bayesian updates. We prove that an unbounded gap between the update maps can coexist with vanishing predictive KL for every fixed finite $K\\ge2$ in a stationary symmetric Gaussian HMM. Exact Bayesian mixing and an explicit deterministic radial filter act on the same $K-1$ belief coordinates. As $q\\to0^+$, their separation in centered logits in the worst case grows at least linearly in the natural confidence scale $L_K(q)$, while their categorical $D_{\\mathrm{KL}}(\\mathrm{exact}\\|\\mathrm{radial})$ vanishes at the same explicit witness. Along stationary HMM trajectories, the expected terminal KL between filtered posteriors also converges to zero at $H(q)=\\lceil-\\log(q)/c\\rceil+1$. Typical blocks without switches drive both filters into a common confidence cone, where softmax curvature suppresses their disagreement; a single Gaussian maximal event controls adaptive noise. A sweep with equally spaced Gaussians over $K\\in\\{2,4,8\\}$ illustrates the opposing trends, and binary controls at long horizons compare saturating and nonsaturating recurrences. The result isolates two missing links between internal update gaps and predictive cost: the contribution of separating states to expected loss and decoder sensitivity. Thus even an unbounded internal update gap does not by itself certify predictive failure. The construction is fixed in $K$ and does not provide a universal criterion for when compression is harmless or characterize when internal gaps must incur task loss.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/11/2609.10767v1-weighted-empirical-risk-minimization-for-machine-learning-under-long-range-dependence-exact-pathwise-rates-and-learning-error-geometry",
+      "section": "quick",
+      "title_en": "Weighted Empirical Risk Minimization for Machine Learning under Long-Range Dependence: Exact Pathwise Rates and Learning-Error Geometry",
+      "authors": "Elina Moldavskaya",
+      "date": "2026-09-09",
+      "pdf": "https://arxiv.org/pdf/2609.10767v1",
+      "score": "6.0",
+      "evidence": "依赖数据下精确几乎必然学习速率，给出估计与预测精度的理论界限",
+      "tldr": "针对长程依赖数据上的带权经验风险最小化，本文建立光滑参数模型的精确几乎必然学习理论。观测来自平稳高斯序列的固定窗，权重正则变化；在长记忆内部区域，若总体最优处损失梯度的Wiener混沌秩为m且低频系数非零，有限滞后得分在迭代对数尺度上约化为单个加权Hermite混沌。由此得到几乎必然Bahadur表示、参数精确limsup律，以及m≥2时学习轨迹的泛函聚簇集。多项式学习指数由记忆参数与混沌秩决定且对容许幂权重不变，尖锐路径常数与聚簇几何依赖权重；秩一时所有最优幂指数为正。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We develop an exact almost-sure learning theory for smooth parametric models trained by regularly weighted empirical risk minimization on long-range dependent data. The training observations are generated from a fixed finite window of a stationary Gaussian sequence, and the sample weights are regularly varying. If the loss gradient at the population minimizer has Wiener-chaos rank $m$ and a nonzero low-frequency coefficient, then, in the long-memory interior regime, the finite-lag score reduces on the iterated-logarithm scale to a single weighted Hermite chaos. This yields an almost-sure Bahadur representation, an exact limsup law for the learned parameter, and, for $m\\ge2$, the functional cluster set of the complete learning trajectory. The polynomial learning exponent is determined by the memory parameter and the chaos rank and is invariant under the admissible power weighting, whereas the sharp pathwise constant and cluster geometry depend on the weights. In the rank-one case, global optimization over the admissible power exponents shows that every optimizer is positive. Time-series prediction and classification examples illustrate the results.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/11/2609.11282v1-when-does-text-inform-benchmarking-information-theoretic-metrics-for-multimodal-time-series-forecasting",
+      "section": "quick",
+      "title_en": "When Does Text Inform? Benchmarking Information-Theoretic Metrics for Multimodal Time-Series Forecasting",
+      "authors": "Emma Andrews, Gianmarco Mengaldo",
+      "date": "2026-09-10",
+      "pdf": "https://arxiv.org/pdf/2609.11282v1",
+      "score": "6.0",
+      "evidence": "用信息论指标量化标注对预测的信息贡献",
+      "tldr": "问题背景：多模态时序预测常融合文本标注，但标注是否真正提供预测信息缺乏基准。核心方法：构建带语义正确、错误、无关标注的合成时序，已知真实信息量，评测六种互信息估计器 KSG、MINE、InfoNCE、CCA、PID、V-information。关键结果：六者均能识别正确标注信息最高，并可无训练审计混合语料、筛选最佳下游标注；真实数据暴露弱信号差异。贡献：给出标注审计与融合选择的实用规则。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Multimodal forecasting models that combine time series with text annotations promise richer prediction through textual context, but how do we know whether a text annotation meaningfully contributes to the forecasters prediction? This is an information-theoretic question, but to evaluate whether information-theoretic metrics can reliably measure the predictive value an annotation provides, a ground truth benchmark is needed, and none currently exist. We create a synthetic time series signal with annotations in three categories: semantically correct, incorrect, and irrelevant. Because the data generation process is fully controlled, ground-truth information content is known exactly, enabling principled evaluation of six complementary mutual information estimators (KSG, MINE, InfoNCE, CCA, PID and V-information). We show that all six estimators identify correct annotations as most informative, and are able to audit the quality of mixed text corpora, choosing the annotations that result in the best downstream forecasting results without the need for model training. Our benchmark identifies limitations of each estimator, and these are validated on seven real-world datasets, which show how estimator performance differs on weak signals. Finally, we establish practical rules for implementing these metrics for annotation auditing and fusion selection.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
