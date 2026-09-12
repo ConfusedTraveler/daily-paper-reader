@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-12",
+  "date": "2026-09-12",
+  "generated_at": "2026-09-12T21:10:45",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/12/2609.04662v1-is-forecasting-accuracy-enough-a-comparative-study-of-traffic-forecasters-for-beam-hopping-leo-satellite-networks",
+      "section": "quick",
+      "title_en": "Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks",
+      "authors": "Yekta Demirci, Guillaume Mantelet, Stéphane Martel, Jean-François Frigon, Gunes Karabulut Kurt",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.04662v1",
+      "score": "6.0",
+      "evidence": "质疑预测精度是否为目标；给出自相似流量的最优预测器",
+      "tldr": "针对波束跳变LEO卫星网络的用户业务预测，论文质疑仅追求预测精度是否合理。作者用二阶自相似流量模型与公开Wi-Fi数据，对比自相似最优预测器、离散最优线性预测器、FARIMA及Transformer/轻量线性网络，并以MASE和BH仿真器评估孤立精度与系统级影响。结果显示，自相似流量下自相似感知模型优于学习模型，但真实Wi-Fi轨迹上排序近乎反转；更关键的是，精度差异在系统层面几乎不传播，丢包率与缓存积压主要受利用率和规划周期影响，0.90利用率以下预测器差距消失。因此应优先优化利用率余量与规划周期，而非追逐边际精度。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We evaluate diverse models for user traffic demand forecasting in Low Earth Orbit (LEO) satellite networks with Beam Hopping (BH), questioning whether predictive accuracy is the right objective for this task. To capture the complex nature of the user traffic demand, we employ a second-order self-similar traffic model, supplemented by a publicly available Wi-Fi dataset to validate the self-similar model against the empirical traffic patterns. We compare forecasters ranging from classical statistical approaches, such as the optimal forecaster for self-similar data and the optimal linear predictor on the discrete sampling grid, to Fractional Auto-Regressive Integrated Moving Average (FARIMA) models, as well as emerging deep learning architectures. The latter category encompasses foundation and domain-specific transformer models, alongside a lightweight neural network consisting solely of linear layers. We assess these models at two levels: in isolation, through the Mean Absolute Scaled Error (MASE), and in context, through a BH simulator in which the forecast drives the illumination plan. On purely self-similar traffic the three self-similarity aware forecasters perform on par with one another and dominate the learned models, whereas on the raw Wi-Fi trace this ordering nearly reverses. Seasonality violates their stationary increment assumption; removing the periodic component restores their comparative accuracy. Crucially, these accuracy differences barely propagate to the system level. Loss ratio and buffer backlog are affected more by system utilization and the planning period than by the choice of forecaster, with the performance gap between forecasters vanishing entirely below 0.90 utilization. This suggests design efforts are better spent optimizing utilization margins and planning periods rather than chasing marginal gains in raw accuracy.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/12/2609.04787v1-learning-augmented-algorithms-guarantees-construction-mechanisms-and-system-level-implications",
+      "section": "quick",
+      "title_en": "Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications",
+      "authors": "Hailiang Zhao, Peng Chen, Xueyan Tang, Jianwei Yin, Shuiguang Deng",
+      "date": "2026-09-04",
+      "pdf": "https://arxiv.org/pdf/2609.04787v1",
+      "score": "6.0",
+      "evidence": "预测误差度量、一致性与鲁棒性权衡及上界",
+      "tldr": "学习增强算法利用可能出错的预测，同时保留形式化性能保证，但预测接口、误差度量与一致性—鲁棒性权衡仍较分散。该综述系统梳理在线优化、缓存、学习数据结构、图问题与机制设计中的预测接口、误差度量和五类代表性构造机制。它另设定理级坐标，区分已达上界与匹配渐近依赖，并把形式保证与经验系统证据分开讨论，显式处理预测成本、反馈与组合。最终给出有限端到端推理的充分条件，并指出成本感知预测、内生误差、语义预测器与基准测试等开放问题。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Learning-augmented algorithms use fallible predictions while retaining formal performance guarantees. This survey synthesizes prediction interfaces, error measures, consistency--robustness trade-offs, and five representative construction mechanisms across online optimization, caching, learned data structures, graph problems, and mechanism design. An orthogonal theorem-level axis distinguishes achieved upper bounds from matched asymptotic dependence. Formal guarantees are separated from empirical systems evidence, with explicit treatment of prediction cost, feedback, and composition. The resulting synthesis states sufficient conditions for limited end-to-end reasoning and delineates open problems in cost-aware prediction, endogenous error, semantic predictors, and benchmarking.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/12/2609.07328v1-pv-wm-a-heterogeneous-micro-macro-world-model-for-articulated-pedestrian-vehicle-co-rollout",
+      "section": "quick",
+      "title_en": "PV-WM: A Heterogeneous Micro-Macro World Model for Articulated Pedestrian-Vehicle Co-Rollout",
+      "authors": "Haozhuang Chi, Jingsong Liang, Ziying Song, Lei Yang, Shihao Li, Haoruo Zhang, Chen Lv",
+      "date": "2026-09-07",
+      "pdf": "https://arxiv.org/pdf/2609.07328v1",
+      "score": "6.0",
+      "evidence": "预测行人根运动、关节姿态与车辆状态的世界模型用于人类移动性预测",
+      "tldr": "行人-车辆联合预测涉及异构物理尺度：行人含根运动与15关节articulation，车辆为刚体。PV-WM以仅历史轨迹构建异构微观-宏观世界模型，循环同步推进行人根运动、关节与学习车辆状态，并在每次转移后重算P-V几何。相比单次完整状态预测器，循环执行使Root ADE降12.7%、MPJPE降14.8%。在824个Waymo对齐场景中，其精度优于模块化专家，且参数、FLOPs与p95延迟显著更低。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Local pedestrian-vehicle forecasting spans heterogeneous physical scales: pedestrians combine root locomotion with articulated motion, whereas vehicles are rigid bodies described by kinematic state and oriented extent. Existing road-agent forecasters typically omit pedestrian articulation, while pose forecasters leave vehicle futures outside the learned rollout. We introduce PV-WM, a history-only world model over structured post-perception tracks. It recurrently advances pedestrian root motion, 15-joint articulation, and learned vehicle states within a synchronized heterogeneous state. The generated pedestrian and vehicle chunks supply the next recurrent boundary; vehicle boxes are reconstructed from predicted center and heading with observed extent, and P-V geometry is recomputed after every transition. Relative to a matched one-shot complete-state predictor, recurrent execution reduces Root ADE by 12.7% and MPJPE by 14.8%. Feedback interventions show that later predictions depend on the content, temporal order, and pedestrian identity of generated articulation. Across 824 aligned Waymo contexts, with 797 providing valid future vehicle support, PV-WM reduces Root ADE by 5.2%, MPJPE by 7.6%, P-V distance error by 11.9%, and oriented-box closest-approach error by 5.8% relative to a validation-selected Modular Specialist. The single-network model uses 57.1% fewer parameters, 96.5% lower average FLOPs per local scene, and 25.5% lower measured p95 latency. PV-WM unifies this heterogeneous future state while preserving type-specific pedestrian and vehicle dynamics.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

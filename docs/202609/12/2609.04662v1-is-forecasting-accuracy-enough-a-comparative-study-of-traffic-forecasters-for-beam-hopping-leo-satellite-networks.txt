@@ -1,0 +1,453 @@
+Title: Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks
+
+URL Source: https://arxiv.org/pdf/2609.04662v1
+
+Published Time: Mon, 07 Sep 2026 00:32:45 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+Accepted for publication in the IEEE Journal of RFID. This is the preprint version of the accepted manuscript. 
+
+# Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks 
+
+Yekta Demirci ∗, Guillaume Mantelet †, St´ ephane Martel †
+
+Jean-Franc ¸ois Frigon ∗, Gunes Karabulut Kurt ∗∗Poly-Grames Research Center, Department of Electrical Engineering, Polytechnique Montr´ eal, QC, Canada 
+
+† Satellite Systems, MDA Space, Canada 
+
+Abstract —We evaluate diverse models for user traffic demand forecasting in Low Earth Orbit (LEO) satellite networks with Beam Hopping (BH), questioning whether predictive accuracy is the right objective for this task. To capture the complex nature of the user traffic demand, we employ a second-order self-similar traffic model, supplemented by a publicly available Wi-Fi dataset to validate the self-similar model against the empirical traffic patterns. We compare forecasters ranging from classical statistical approaches, such as the optimal forecaster for self-similar data and the optimal linear predictor on the discrete sampling grid, to Fractional Auto-Regressive Integrated Moving Average (FARIMA) models, as well as emerging deep learning architectures. The latter category encompasses foundation and domain-specific transformer models, alongside a lightweight neu-ral network consisting solely of linear layers. We assess these models at two levels: in isolation, through the Mean Absolute Scaled Error (MASE), and in context, through a BH simulator in which the forecast drives the illumination plan. On purely self-similar traffic the three self-similarity aware forecasters perform on par with one another and dominate the learned models, whereas on the raw Wi-Fi trace this ordering nearly reverses. Seasonality violates their stationary increment assump-tion; removing the periodic component restores their comparative accuracy. Crucially, these accuracy differences barely propagate to the system level. Loss ratio and buffer backlog are affected more by system utilization and the planning period than by the choice of forecaster, with the performance gap between forecasters vanishing entirely below 0.90 utilization. This suggests design efforts are better spent optimizing utilization margins and planning periods rather than chasing marginal gains in raw accuracy. 
+
+Index Terms —LEO Satellite Networks, Beam Hopping, Traffic Demand Forecasting, Self-Similar Traffic, Deep Learning, Re-source Allocation 
+
+I. I NTRODUCTION 
+
+Low Earth Orbit (LEO) satellites are uniquely positioned to provide global connectivity through constellations formed by the dense meshes of interconnections. Even though the concept of LEO-based communications dates back to a few decades to pioneers like Globestar and Iridium [1], the industry has only recently entered a phase of rapid, large-scale deployments. The players such as Telesat, OneWeb, SpaceX (Starlink), and Ama-zon LEO (Kuiper) proposed deploying modern constellations consisting of thousands of satellites in iterative phases [2]. These rapid deployments are also reflected by data where the annual launches have increased fivefold from 2019 to 2024, accompanied by an exponential rise in the cumulative number of satellites currently in orbit since 2019 [3]. The deployments have been accelerated by a convergence of economic and technological factors. Primarily, the reusable rockets have fundamentally changed the economics of space access, reducing the launch costs more than threefold since the early 2000s [4], complemented by advancements in onboard processing and antenna technology, specifically the develop-ment of advanced reconfigurable phased arrays and electrically steerable beamforming systems [5]. These innovations have provided the technical foundation for space-based solutions to help meet the escalating global demand for high-speed broadband [6] by supplementing terrestrial infrastructure. Addressing the global demand via space-based solutions sparked a fundamental shift in satellite system design, moving from traditional bent-pipe architectures toward regenerative payloads. In a bent-pipe system, the satellite acts as a simple transparent relay, performing only RF filtering, amplification, and frequency conversion without accessing the underlying data. In contrast, regenerative payloads allow the satellite to demodulate and decode signals, enabling on-board routing and more granular signal management. Crucially, this regenerative capability supports multi-beam operations, allowing satellites to move beyond static footprints toward highly flexible re-source allocation techniques, such as Beam Hopping (BH). BH is a dynamic resource allocation technique that is used in multi-beam satellites to manage non-uniform user traffic demand. In a traditional multi-beam satellite, power and bandwidth are often distributed equally across different beams, regardless of actual demand. Yet the user demand is inherently nonuniform. For instance, a beam over a densely populated area is likely to require significantly more service capacity compared to open oceans with sparse aeronautical and maritime traffic. BH emerges as a promising tool to mitigate this problem by offering Time-Division Multiplexing (TDM) and adjustable Dwell-Time (DT) where the DT is illumina-tion duration of a beam. Instead of illuminating all beams simultaneously, the satellite would “hop” its beams between different areas in a predefined or adaptive time window. By dynamically adjusting the DT and the bandwidth for each arXiv:2609.04662v1 [eess.SP] 4 Sep 2026 beam, the system can proactively align satellite resources with the spatiotemporal fluctuations of the user traffic demand. Yet this flexibility comes with a design cost. Despite the inherent flexibility of BH, its operational efficiency is strictly restrained by the design of the beam illumination plan. Therefore, a significant amount of research has focused on optimizing these plans from different perspectives. For instance, several studies have integrated BH scheduling with physical layer constraints, such as carrier aggregation [7] and hybrid digital-analog beamforming to maximize system sum-rates [8]. Others have employed advanced mathematical and algorithmic frameworks, including mean-field theory for joint power and scheduling design [9] and reinforcement learning for autonomous plan generation [10]. Furthermore, the scope has expanded to multi-satellite coordination, addressing sub-problems like load balancing and inter-satellite interference avoidance [11], as well as geometric optimizations that treat beam positioning as a p-center problem to minimize queue delays [12]. However, there remains a critical limitation in these ap-proaches, the assumption of static or slowly-varying traffic demands. While the allocation methods focus on the optimiza-tion aspect, they simply use current traffic snapshots, yet in highly dynamic LEO environments, an “optimal” solution may already be obsolete by the time it is implemented. While some frameworks acknowledge traffic variability [13], they lack a mechanism to anticipate future demand. This creates a signifi-cant literature gap regarding predictive resource management. Specifically, there is a lack of research into how near-term traf-fic forecasting should be done, so that it can be integrated into the BH optimization loop to ensure that capacity allocation remains aligned with the actual spatiotemporal fluctuations of user demand. Since the user demand is tracked by discrete temporal samples, this is essentially a Time Series Forecasting (TSF) problem, a field in which the research community has also proposed numerous solutions. Broadly the forecasters can be categorized into statistical and data-driven deep learning mod-els. Traditional statistical models, such as the Autoregressive Integrated Moving Average (ARIMA) [14], rely on historical parameters to project future values and remain widely used in fields ranging from finance to cloud resource management [15]. On the other hand, deep learning approaches leverage neural networks being pre-trained on high dimensional data to capture complex non-linear patterns. Some examples include Long Short-Term Memory (LSTM) networks [16], DeepAR [17] and Multi-Layer Perceptron based architectures like N-Beats [18] and DLinear [19]. More recently, Transformer based architectures have redefined State of the Art (SOTA) performance in TSF. Transformers are a neural network ar-chitecture consisting of an encoder and a decoder layers that utilize attention mechanism to model relationships between any two positions in a sequence, regardless of their distance [20]. Even though they were initially proposed for sequence to sequence problems, their strong pattern recognition capa-bilities soon applied for TSF. Transformer based models can be further divided into do-main specific models such as Informer [21] which is trained solely on a specific dataset and foundation models such as Chronos [22] and TimesFM [23] which are pre-trained on massive, diverse datasets to enable zero-shot forecasting across any domain. While foundation models offer strong generaliza-tion, their significant parameter counts and subsequent energy consumption often make them unsuitable for the limited size and power constraints of LEO satellite payloads. Unlike ter-restrial data centers, satellites require resource-efficient models that prioritize local traffic patterns over global generalization. However, to provide a competitive analysis, we also utilized a leading foundation model as a benchmark. Beyond the choice of forecasting model, the user traffic model and its simulation is another challenge to be ad-dressed. In the survey work [24], the authors shared some tools to generate satellite network traffic. While platforms such as Satellite Network Simulator 3 (sns-3) [25] and Open Source Satellite Simulator (OS 3) [26] offer diverse tools for generating satellite traffic, they still necessitate user-defined assumptions regarding the underlying probability distributions. Highlighting this we make the following observations; from the satellite’s perspective, user demand is highly aggregated within a single beam. Furthermore, the underlying traffic is fundamentally Internet Protocol (IP) based. Last but not the least, user demand fluctuates over millisecond intervals, producing bursty patterns. This millisecond granularity is particularly important; since the DT can be in millisecond windows, modeling at this resolution enables the system to allocate dwells more precisely to meet rapidly changing user demands. Consequently, we assume the underlying traffic model is self-similar. This assumption is supported by three empirical studies across various networking domains. Leland et al. [27], established the self-similar nature of Ethernet packets by analyzing Bellcore Labs datasets that spanned up to 40 hours with second granularity. In [28], the authors analyzed WAN packets in a university campus where the traces had up to 3.7M TCP connections which exhibit asymptotic self-similarity. Furthermore, in [29] the authors confirmed these characteristics in high-resolution WWW request traces. De-spite this technical consensus, the LEO satellite community currently lacks publicly available traffic datasets to empirically verify these patterns. To bridge this gap and provide a rigorous benchmark for our forecasting framework, we leverage apublicly available WiFi dataset that was collected from a large university campus with a high-density user population. By aggregating traces from hundreds of concurrent users, this dataset serves as a proxy for the bursty, self-similar nature of aggregated LEO beam traffic, allowing for model validation against real-world user traffic pattern. Building upon our previous work [30], we introduced several significant extensions. First, we verified daily user demand fluctuations using WiFi data, which further revealed a multi-day seasonality pattern. To strengthen our evaluation, we integrated an optimal forecasting benchmark that provides Fig. 1. Comparative snapshots of LEO satellite network configurations: On the left, a conventional bent-pipe architecture employing static beam patterns regardless of fluctuating traffic demands. On the right, regenerative system utilizing Inter-Satellite Link (ISL) connectivity and BH to dynamically adapt to real-time user requirements. 
+
+a more robust comparison than the FARIMA model used previously. Furthermore, to address the substantial model size of Transformers, we introduced a more computationally efficient, smaller-scale neural network model. Additionally, we also introduced a foundation transformer model to leverage the strong zero-shot performances seen in other domains [31]. We also embedded the forecasters in a BH simulator, so that the models are judged by the loss ratio and the buffer backlog they induce rather than by predictive accuracy alone. Finally, we adopted the Mean Absolute Scaled Error (MASE) instead of standard MSE, as its normalization by the persistence forecast makes the results comparable across datasets with different scales and burstiness levels, while also indicating whether a model provides a genuine gain over simply repeating the last observation. More particularly, we make the following contributions in this work: C1 We provide a comprehensive comparison of seven fore-casters spanning a wide spectrum of available solutions, from theoretical optimal benchmarks to SOTA foundation transformer models, evaluated on synthetic self-similar traces at three levels of long range dependence and on an empirical Wi-Fi trace. C2 We validate the self-similar traffic model against an empirical high-density Wi-Fi trace, and show that the model ranking nearly reverses between the raw and the deseasonalized series. The classical forecasters therefore do not fail on empirical traffic as such, they require the periodic component to be removed first, which reframes the gap as a preprocessing problem rather than a lack of model capacity. C3 We embed the forecasters in a BH simulator and show, across five scenarios, that the accuracy differences barely propagate to the loss ratio and the buffer backlog. System utilization and the planning period dominate both metrics. The effect of the planning period is moreover non-monotone: below a certain threshold, the rigid granularity of the slot allocation, rather than the forecast itself, be-comes the binding constraint. We show that pursuing pure predictive accuracy is not necessarily the most effective route to improving system performance. . The remainder of this paper is organized as follows: Section II details the considered traffic models and the proposed fore-casting models. Section III presents the forecasting accuracy results and the beam hopping simulation study. Finally, Section IV concludes the paper and proposes potential directions for future research. II. S YSTEM MODEL AND THEORETICAL FRAMEWORK 
+
+A. The Self-similar Traffic Model 
+
+In this work, we consider a LEO satellite constellation with a focus on the forwardlink (downlink). We assume the satellites have regenerative payload and provide broadband services to Earth-fixed cells. Due to the varying number of active users, their heterogeneous demands, and the aggregated nature of traffic at the beam level, we assume that the traffic has self-similar characteristics. More formally, let At define the traffic model, a process given by 
+
+At = mt + √αm Zt, t ∈ (−∞ , ∞) (1) where m > 0 is a mean input rate, α > 0 is a variance coefficient and H ∈ [ 12 , 1) is the self-similarity parameter of 
+
+Zt [32]. As Zt is a normalized fractional Brownian motion (fBm), it meets the following properties: (i) Z has stationary increments . Fig. 2. Aggregated downlink traffic demand from the CRAWDAD dataset (Sept. 18 – Nov. 18 2001) [33] The SNMP data is aggregated into 10 minute intervals, showing a mean of 359 active users and an average downlink demand of 797 Gbits per interval. 
+
+(ii) Z0 = 0 and E[Zt] = 0 for ∀t .(iii) E[Zt]2 = |t|2H .(iv) Z has continuous paths. (v) Finite-dimensional distributions of Z are Gaussian distri-butions. 
+
+B. Synthetically Generating Self-similar Traffic 
+
+Taqqu et. al [34] showed that it is possible to generate a self-similar traffic using M Independent and identically distributed (i.i.d.) sources. Following their notation, assume each source generates its own reward sequence {W (m) 
+
+> t
+
+, t ≥ 0}. The packet generation process is modeled by a binary reward process, W t ∈ { 0, 1}, where W t = 1 denotes an ON period characterized by packet arrivals and W t = 0 denotes an OFF period of inactivity. Given this, consider the superposition of the reward sequences, rescaling time by a factor T :
+
+W ∗ 
+
+> T t
+
+=
+
+Z T t 
+
+> 0
+> M
+
+X
+
+> m=1
+
+W (m)
+
+> u
+
+!
+
+du. (2) When the duration of the ON/OFF periods have a long tailed distribution (such as Pareto), for large M and T , the aggregated process {W ∗
+
+> T t
+
+, t ≥ 0} behaves statistically like the following as shown in [34]: 
+
+T M μ1
+
+μ1 + μ2
+
+t + T H
+
+q
+
+L(tM )σlim Zt, (3) where μi equals to R ∞ 
+
+> 0
+
+xf i(x)dx and fi(x) is the probability density function of ON/OFF periods for i = 1 representing ON and i = 2 representing OFF period. Say the probability density function follows a Pareto distribution and both ON and OFF periods have the same shape parameter of β for 1 < β < 2.For both ON and OFF periods, the complementary distribution would be Fc(x) ∼ lx β L(·) where l is a constant and L(·) is a slowly varying function at infinity, lim x→∞ L(tx )/L (x) = 1 
+
+for t > 0. Γ( ·) being the Gamma function, σ2 
+
+> lim
+
+can be found as [34] 
+
+σ2 
+
+> lim
+
+= β
+
+2μ × Γ(4 − β) . (4) There is a direct relationship between the self-similarity of the traffic model and the Hurst parameter as H = (3 − β)/2.Additionally, (1) and (3) exhibit the same functional structure, as each involves a linear scaling of the temporal variable ( t)and a constant scaling of the underlying fBm. 
+
+C. Publicly Available Dataset 
+
+To the best of our knowledge, there is no empirical user demand datasets for LEO based broadband services. To miti-gate this and rigorously validate our self-similar traffic model, we utilize a high-density wireless network dataset as a proxy. We argue that a Wi-Fi dataset is a reasonable proxy for LEO satellite downlink demand for several reasons. First, in both settings the observed traffic is an aggregation over many users sharing a common access point: for Wi-Fi this aggregation happens at the Acess Point (AP), while for a beam-hopped LEO satellite it happens at the beam level, so the two traces are structurally analogous realizations of aggregated access-network demand. Second, both systems ultimately deliver a broadband service over IP, so the resulting traffic inherits similar higher layer statistical properties, such as heavy-tailed flow sizes and session durations, regardless of the underlying access technology. Third, in both cases the last hop is a wireless link with a dynamic, time-varying link budget, as opposed to a deterministic wired connection, which is aproperty our self-similar traffic model is meant to capture. We acknowledge that the two channels differ in propagation environment and round-trip time, and that satellite users are more likely to have a Line-of-Sight (LOS) connection than Wi-Fi users, who are frequently subject to non-LOS conditions indoors. Nevertheless, both remain wireless links governed by a variable link budget rather than a fixed-capacity wire, which supports using the Wi-Fi trace as a proxy for validating the self-similarity of the traffic model. Specifically, we leverage CRAWDAD dataset from Dath-mouth College which has records of Simple Network Man-agement Protocol (SNMP) polling [33]. The data reflects a campus wide network consisting of 476 Wi-Fi (802.11b) APs serving approximately 5,500 students and 1,200 faculty members. For this study, we specifically analyzed the “fall01” trace collected during the 2001 Fall term. To analyze downlink traffic, we extracted the awcTpFdbDestOctetsImmed object and aggregated it per AP and MAC address into fixed-length time buckets, handling 32-bit counter wraparound and proportionally splitting byte deltas that span multiple buckets by time overlap. 1 While we tracked active user counts, we acknowledge that the dataset sanitization process may have affected the precision of these specific values. To ensure data integrity, we performed a cleaning step to remove “garbage” entries caused by buggy AP firmware as mentioned by the authors. We particularly considered the data from September 18 to November 18. Data were aggregated into 10-minute windows to ensure that each interval captures at least one polling cycles, given the 5-minute periodicity. While this resolution is coarser than our target, it represents the finest granularity available among public datasets to the best of our knowledge. For traces spanning multiple intervals, we proportionally allocated the octet counts based on the duration of the trace within each respective window. Figure 2 illustrates the obtained downlink demand data. As one can see there is seasonality in the data where the user demand increases during the daytime. 
+
+D. Forecasting Models 
+
+We evaluate seven forecasting models which represent a di-verse spectrum of solutions, ranging from theoretical statistical predictors to transformer models. First, we establish a theoretical baseline using the optimal predictor for fractional Brownian motion (fBm) derived by Gripenberg and Norros [35]. While specialized, this method provides the mathematically unique optimal forecast for pure fBm traces. To complement this, we employ Fractional ARIMA (FARIMA), as FARIMA processes are known to be asymptotically second-order self-similar [27], making them highly suitable for modeling long-range dependent traffic. Within the of deep learning options, we consider three dis-tinct architectures. We include Informer [21], which utilizes a 
+
+ProbSparse attention mechanism to mitigate the quadratic time complexity typically associated with vanilla Transformer mod-els. Furthermore, we evaluate the foundation model Chronos [22], a time-series foundation model that has demonstrated superior performance across the GIFT-Eval benchmark [31] which is a standardized platform designed for the compar-ative analysis of foundation TSF models. Finally, we in-tegrate DLinear, a model that challenges the necessity of complex Transformer layers for TSF by proposing a simple, decomposition-based linear architecture that often outperforms more computationally intensive models according to the au-thors [36]. 
+
+1) The optimal predictor for continuous fBm: Despite, being relatively overlooked in the recent literature, Gripenberg 
+
+> 1All source code, along with the processed Wi-Fi dataset, is publicly available at https://github.com/YektaDemirci/leoForecast.git.
+
+and Norros [35] derived the closed-form optimal predictor fBm driven processes. Let Z be a fBm process as given in section II-A. Then, for a forecasting horizon ∆ > 0
+
+and a look-back window τ ∈ (0 , ∞], the optimal predictor 
+
+ˆZ∆,τ = E[Z∆|Zs, s ∈ (−τ, 0)] is found by Gripenberg and Norros [35]: 
+
+ˆZ∆,τ =
+
+Z 0
+
+> −τ
+
+gτ (∆ , t )dZt for τ < ∞, t ∈ (0 , τ ) (5) where 
+
+gτ (∆ , −t) = sin (π(H − 12 )) 
+
+π t−H+ 12 (τ − t)(−H+ 12 )
+
+Z ∆0
+
+zH− 12 (z + τ )H− 12
+
+z + t dz. (6) It is worth noting (5) has a stochastic integral. To provide familiarity, the integration is defined as the following for a process of Yt = Pkk=1 Zt1(Tk−1,T k )(t) [35]: 
+
+Z ∞−∞ 
+
+Y tdZtdef 
+
+=
+
+> r
+
+X
+
+> k=1
+
+Zk(ZTk − ZTk−1 ), r > k 
+
+Furthermore, it is worth mentioning that the authors found the closed form expression for the relative variance of error 
+
+D2(Z1 − ˆZ1,τ )/D 2(Z1) and pointed out that for relatively high H parameter (> 0.9) it makes relatively a small differ-ence whether one knows Z on (−∆, 0) or (−∞ , 0) for the prediction of Z∆.In the remainder of the paper, we refer this forecaster as Norros forecaster. 
+
+2) The optimal predictor for discrete stationary processes: 
+
+The predictor in (5) is optimal with respect to the continuous 
+
+path {Zs, s ∈ (−τ, 0) }. In practice a forecaster observes only the traffic volume accumulated within each measurement interval, so (6) must be collapsed to one weight per interval. We therefore also consider the predictor that is optimal on the discrete grid itself. Although fBm is self-similar and hence non-stationary, by property (i) of Section II-A its increments are stationary. Sampling (1) at unit intervals and normalizing, we obtain the fractional Gaussian noise (fGn) sequence 
+
+Xk = Zk − Zk−1, k ∈ Z, (7) which is stationary with zero mean and autocovariance de-pending only on the lag k,
+
+γ(k) = 12
+
+ |k − 1|2H − 2|k|2H + |k + 1 |2H  . (8) For a sequence of this kind the best linear predictor follows from a classical projection result [37]. Let S and Wn, . . . , W 1
+
+be any random variables with finite second moments whose means μS = E[S], μi = E[Wi] and covariances are known. Collecting the observations in W = (Wn, . . . , W 1)′ with mean vector μW = ( μn, . . . , μ 1)′, and writing 
+
+γ = Cov( S, W ), Σ = Cov( W , W ), (9) the best linear predictor of S in terms of {1, W n, . . . , W 1}
+
+[37] is 
+
+P (S | W ) = μS + a′(W − μW ), (10) where a = ( a1, . . . , a n)′ is any solution of 
+
+Σ a = γ. (11) Specializing (9)–(11) to our notation, let the look-back window be the T most recently observed increments, ordered from newest to oldest, 
+
+W = ( Xt, Xt−1, . . . , Xt−T +1 )′, (12) and let the target be the demand accumulated over the next h
+
+intervals, 
+
+S = Zt+h − Zt =
+
+> h
+
+X
+
+> j=1
+
+Xt+j , (13) which reduces to S = Xt+1 for the one-step-ahead case h =1. By property (ii) both μS and μW vanish, so the intercept term in (10) drops out. The entries Σij of Σ and γi of γ
+
+follow directly from (8): 
+
+Σij = γ(i − j), γi =
+
+> h
+
+X
+
+> j=1
+
+γ(i + j − 1) , (14) for i, j = 1 , . . . , T . The resulting linear predictor is: 
+
+ˆSh,T = a′W =
+
+> T
+
+X
+
+> i=1
+
+ai Xt−i+1 . (15) (15) has a direct consequence for our comparison. Once discretized to the same grid, the Norros forecaster is itself a linear function of the same T increments, and therefore cannot outperform (15). Any gap between the two is attributable solely to the discretization of (6), and (15) serves as a strict lower bound on the attainable error. In the remainder of the paper we refer to this predictor as Linear predictor. 
+
+3) FARIMA: A FARIMA (p, d, q ) process generalizes the standard autoregressive integrated moving average model by allowing the differencing parameter d to take non-integer values. Following the notation of Box and Jenkins [38], a FARIMA process Zt is defined by the equation: 
+
+ϕ(B)(1 − B)dZt = ψ(B)εt, t ≥ 1 (16) where εt is assumed to be i.i.d. with zero mean and finite variance σ2 
+
+> ε
+
+. The term (1 − B)d represents the fractional differencing operator. For d ∈ (− 12 , 12 ), this operator is defined via the binomial series expansion: 
+
+(1 − B)d =
+
+> ∞
+
+X
+
+> j=0
+
+aj Bj (17) where the coefficients aj are determined using the Gamma function Γ( ·):
+
+aj = Γ( j − d)Γ( j + 1)Γ( −d) = Γ( d + 1) Γ( j + 1)Γ( d − j + 1) (−1) j (18) The stationary and invertible nature of the process is governed by the autoregressive polynomial ϕ(k) = 1 − Ppj=1 ϕj kj and the moving-average polynomial ψ(k) = Pqj=0 ψj kj . These polynomials are assumed to have no common roots, with all roots lying outside the unit circle |k| > 1 [38]. 
+
+4) Informer: The quadratic time and memory complexity of the self-attention mechanism represents the primary bottleneck when adapting vanilla Transformers for TSF. To mitigate this, the Informer introduces ProbSparse self-attention mechanism which identifies and prioritizes the most active queries that contribute significantly to the attention distribution [21]. Given this performance advantage, we considered Informer as the domain specific transformer model in this work. Let Q ∈ RLQ×d, K ∈ RLK ×d and V ∈ RLV ×d represent the Query, Key and Value matrices respectively, where d
+
+represents the model dimension and LQ = LK = LV
+
+represent the input sequence length. The ProbSparse attention is defined as: 
+
+A(Q, K, V ) = Softmax 
+
+ ¯QK ⊤
+
+√dk
+
+
+
+V, (19) where ¯Q containing the Top- ¯LQ queries of Q under the sparsity measurement of M (q, K ). The number of selected queries is typically set to u = c · ln LQ, where c is a sampling factor. The Informer evaluates the importance of a query qi by measuring the divergence between its attention probability dis-tribution p(kj |qi) and a uniform distribution q(kj |qi) = 1 /L K .Using the Kullback-Leibler (KL) divergence as a metric, a query is considered “active” if its attention distribution is highly concentrated. The sparsity measurement M (qi, K ) is bounded as follows [21]: 
+
+ln LK ≤ M (qi, K ) ≤ ¯M (qi, K ) + ln LK (20) To avoid the O(LQLK ) complexity of calculating the full KL-divergence, the model utilizes the Log-Sum-Exp approximation for ¯M (qi, K ):
+
+¯M (qi, K ) = max 
+
+> j
+
+( qik⊤
+
+> j
+
+√d
+
+)
+
+− 1
+
+LKLKX
+
+> j=1
+
+qik⊤
+
+> j
+
+√d (21) In practice, to maintain O(L log L) complexity, the Informer does not compute ¯M for all keys. Instead, it randomly samples a subset of keys ( LK ln LQ) to estimate the measurement. This allows the model to efficiently extract the most informative temporal dependencies while significantly reducing the com-putational overhead for long-range sequences. 
+
+5) DLinear: The authors in [36] introduced DLinear as a surprisingly effective baseline, specifically designed to ques-tion the marginal gains provided by relatively heavy trans-former architectures for TSF. Unlike the Informer model, which relies on attention to capture dependencies, DLinear utilizes a simple temporal linear layer combined with a de-composition scheme. The DLinear model first decomposes the input hidden sequence into two components: a trend-cyclical Fig. 3. Deseasonalised and detrended downlink demand from the CRAWDAD dataset, obtained from the raw series in Figure 2. 
+
+component ( Xt) and a seasonal-remainder component ( Xs). This is achieved through a moving average kernel. Following the decomposition of the time series, DLinear utilizes a linear layer formulation for each constituent part. This approach regresses the input data directly to the fu-ture horizon, leveraging a one-step mapping that bypasses the recursive errors inherent in step-by-step forecasting. As highlighted by the authors, the model maintains a focus on temporal dependencies by sharing weights across different variates rather than explicitly modeling spatial or inter-variate relationships. Given this simplicity and its documented performance in outperforming Transformer based solutions in certain domains [36], we include DLinear as one of our benchmark solutions. 
+
+6) Chronos: Chronos is a foundation model framework that adapts Transformer based language model architectures from T5 family [39], for probabilistic TSF. It is pre-trained on massive and diverse datasets to enable zero-shot generalization                              
+
+> TABLE I COMPARATIVE SUMMARY OF FORECASTING ARCHITECTURES
+> Model Category Summary
+> Norros Statistical Optimal predictor for fBm datasets, utilizing constant weights. Linear Statistical Best linear predictor of dis-crete fGn increments from a finite look-back window. FARIMA Statistical Fractional differencing oper-ator (1 −B)dusing binomial series and Gamma functions. Informer Deep learning A Transformer model with
+> ProbSparse self-attention. DLinear Deep learning Decomposition of (Trend-Seasonal) followed by tem-poral linear layers. Chronos Deep learning Azero-shot Transformer model underlying T5.
+
+across unseen domains. Unlike traditional forecasters that use parametric distributions (like Gaussian), Chronos performs re-gression via classification. It models a categorical distribution over a fixed vocabulary, which allows it to learn complex, multimodal output distributions without needing specific struc-tural constraints. To map real valued observations into discrete tokens, Chronos uses a two-step tokenization process. Firstly, it employs mean scaling where each individual time series is first normalized using its mean absolute value from the historical context. Secondly, it performs uniform quantization where these scaled values are mapped to one of B discrete bins. The model is then trained on these tokenized sequences using cross-entropy loss. To achieve strong zero-shot performance, the pre-training process is supplemented by two data augmentation strategies. The first strategy, TSMixup, generates new training samples by taking combinations of randomly sampled scaled time series from different datasets. The second strategy, KernelSynth uses Gaussian processes to generate synthetic time series through a random composition of basis kernels. During inference, Chronos generates forecasts by sampling multiple trajectories from the predicted categorical distribution. These sampled token paths are then de-quantized and unscaled back to the original numerical range. This approach allows the model to handle diverse datasets without requiring task-specific retrain-ing. III. S IMULATIONS AND NUMERICAL RESULTS 
+
+A. Synthetic Traffic Data Generation 
+
+To model self-similar behavior, we directly generate the ag-gregate traffic as the superposition of M independent ON/OFF sources with Pareto-distributed ON and OFF durations (2), following the construction of Taqqu et al. [34]. Each source alternates between an ON period, during which it emits at a fixed rate, and an OFF period of silence, with both period lengths drawn from a Pareto distribution with the same shape parameter β. The instantaneous aggregate demand is obtained by summing the emission rate of all M sources at each sampling instant. We use M = 500 sources emitting at 1 Mb/s while ON and pareto shape of β ∈ { 1.04 , 1.24 , 1.44 }, corresponding to H ∈ { 0.98 , 0.88 , 0.78 }, with ten independent seeds per value of β. We used a common scale 1ms for both states, so the minimum state durations can be 1ms. Following Whittle estimation we found the Hurst values of the generated datasets to be 0.981 + −0.015 , 0.875 + −0.020 and 0.782 + −0.020 
+
+for β = 1 .04 , β = 1 .24 and β = 1 .44 respectively. In the remainder of this paper, we refer to these datasets synthetic datasets. 
+
+B. Investigating Self-Similarity in the Wifi Dataset 
+
+As noted in Section II-A, the raw CRAWDAD trace ex-hibits pronounced daily and weekly seasonality, which is not accounted for by the self-similar traffic model in (1). We therefore deseasonalise the series with an additive decompo-sition of two nested periods, daily and weekly, inspired by the classical seasonal decomposition [37]. For each 10-minute slot we subtract a trailing mean over the preceding seven days, which tracks slow drift in the diurnal level and shape, followed by a day-of-week profile fitted on the training block; both profiles are smoothed across neighbouring slots to suppress estimation noise. The weekly profile is estimated on the first 70% of the record and applied unchanged thereafter, while the trailing mean is by construction a function of strictly earlier buckets. We followed this split because we train our models using the first 70% of the dataset and didn’t want to leake information from the test data. Figure 3 shows the resulting series, in which the daily and weekly cycles of Figure 2 are no longer visible. Using local Whittle estimation [38], restricted to the band of frequencies corresponding to periods above 16 hours, we ob-tained a Hurst value of H = 0 .84 for the deseasonalized data. This estimate is representative of a range H ∈ [0 .78 , 0.90] 
+
+obtained under nearby, similarly justified bandwidth choices. Following the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test [40] implemented in SciPy, we found a p-value of 0.1, which indicates that the null hypothesis of stationarity cannot be rejected. This is consistent with the self-similar traffic model in (1), which is stationary after differencing. We would like to bridge the gap between the 10-minute sam-pling granularity of the WiFi dataset and the finer timescales utilized in subsequent sections. The raw WiFi data could not be resolved at intervals finer than 10 minutes, so scale-invariance of the estimated Hurst parameter below this resolution cannot be verified directly from this dataset. We instead adopt it as a modeling assumption, consistent with prior evidence that aggregate network traffic exhibits long-range dependence over a broad range of timescales [27]. We note that this assumption is a simplification. Building on this, the remainder of this paper models traffic at a finer temporal resolution. 
+
+C. Implementation and Model Sizes 
+
+We implemented Norros in Python using the integrate function of the SciPy library [41], and Linear likewise in Python with SciPy, while the FARIMA model was executed in         
+
+> TABLE II ONE -STEP -AHEAD MASE ( ±95% CI OVER 10 SEEDS )FOR THE SYNTHETIC DATASET WITH β= 1 .04
+
+Rank Forecaster MASE 1 Linear 0.9237 ± 0.0093 2 Norros 0.9248 ± 0.0086 3 FARIMA 0.9252 ± 0.0080 4 Chronos* 0.9380 ± 0.0089 5 Informer 0.9408 ± 0.0121 6 Chronos 0.9762 ± 0.0104 7 DLinear 1.0880 ± 0.0253         
+
+> TABLE III ONE -STEP -AHEAD MASE ( ±95% CI OVER 10 SEEDS )FOR THE SYNTHETIC DATASET WITH β= 1 .24
+
+Rank Forecaster MASE 1 Linear 0.8840 ± 0.0081 2 FARIMA 0.8842 ± 0.0078 3 Norros 0.8842 ± 0.0084 4 Chronos* 0.8961 ± 0.0104 5 Informer 0.8992 ± 0.0074 6 Chronos 0.9219 ± 0.0096 7 DLinear 0.9662 ± 0.0158         
+
+> TABLE IV ONE -STEP -AHEAD MASE ( ±95% CI OVER 10 SEEDS )FOR THE SYNTHETIC DATASET WITH β= 1 .44
+
+Rank Forecaster MASE 1 Linear 0.8393 ± 0.0030 2 FARIMA 0.8393 ± 0.0029 3 Norros 0.8398 ± 0.0032 4 Informer 0.8463 ± 0.0040 5 Chronos* 0.8492 ± 0.0030 6 DLinear 0.8670 ± 0.0058 7 Chronos 0.8711 ± 0.0054 
+
+R via the arfima package [42]. We trained our deep learning models using the authors’ open source implementations for Informer [21] and DLinear [36] respectively. We selected the chronos-bolt-tiny variant as our foundation model because it is the smallest available version, making it more acceptable for the limited computational resources of LEO satellites. We evaluated this model in two ways: first, in its original zero-shot state (Chronos), and second by fine-tuning it on our specific traffic datasets (Chronos*). Training, finetuning and forecasting of the deep learning models were performed on an NVIDIA RTX 500 Ada GPU TABLE V ONE -STEP -AHEAD MASE ACROSS DIFFERENT FORECASTERS FOR THE PARSED WIFI DATASET , ON THE RAW AND THE DESEASONALIZED SERIES                                          
+
+> Raw Deseasonalized Rank Forecaster MASE Rank Forecaster MASE 1DLinear 0.9864 1FARIMA 0.9665 2Chronos* 0.9873 2DLinear 0.9756 3Informer 1.0229 3Chronos* 0.9903 4FARIMA 1.0549 4Norros 0.9922 5Chronos 1.0659 5Informer 0.9966 6Norros 1.1278 6Linear 1.0011 7Linear 1.1690 7Chronos 1.0528
+
+(4 GB memory). The model complexity varies significantly. In-former and chronos-bolt-tiny utilize approximately 11.3M and 8.6M trainable parameters, respectively. Conversely, DLinear maintains an exceptionally small footprint compared to the transformer models, ranging from 150 to 3,000 parameters. 
+
+D. Performance Metrics 
+
+To assess accuracy, we utilized the Mean Absolute Scaled Error (MASE), defined as: 
+
+M ASE =
+
+> 1
+> n
+
+Pni=1 |yi − ˆyi |
+
+> 1
+> n−1
+
+P i = 2 n|yi − yi−1| ,
+
+where yi represents the ground truth and ˆyi is the forecasted value. The denominator is the mean absolute one-step change of the ground truth over the scored window, the error of the persistence (naive) forecast. This metric provides a scale independent assessment in which M ASE = 1 corresponds to persistence and values closer to 0 indicate higher precision. For all models, the forecasting horizon is generated based on the 48 most recent demand samples. 
+
+E. Forecasting Accuracy Results 
+
+The forecasting performance of the evaluated models is summarized in Tables II through V, reported as one-step-ahead MASE so that a value of 1 corresponds exactly to the persistence forecast and values below 1 indicate a genuine gain over it. Tables II to IV detail the results for the synthetic datasets, where we vary the Pareto shape parameter β to observe the impact of different self-similarity intensities; each entry is the mean over 10 seeds together with the half-width of the 95% confidence interval across seeds. Table V then presents the performance results using empirical WiFi traffic data, evaluated both on the raw series and on the deseasonalized series of Figure 3. Our analysis focuses on two main goals: (i) understanding how self-similarity affects forecasting accuracy and (ii) assessing how well the models generalize from synthetic to real-world data. In our synthetic datasets, as β increases from 1.04 to 1.44, the intensity of Long Range Dependency (LRD) decreases. Correspondingly, the best MASE value, attained by the Linear forecaster of Section II-D2. The MASE values comparing the datasets with different β must be interpreted cautiously, as the numerical values themselves do not imply that strongly self-similar traffic is inherently more difficult to forecast. Because MASE is normalized by the persistence forecast, it reports the relative gain over repeating the last observation rather than the absolute forecast error. In datasets with strong LRD (higher Hurst parameter H), the persistence forecast itself is highly accurate due to strong positive autocorrelation (8). As shown in Tables II, III, and IV, the three self-similarity aware forecasters, Linear, Norros and FARIMA, occupy the top three ranks at every value of β, and their confidence intervals overlap throughout. Linear is nominally first in all three settings, which is expected: it is the predictor that is optimal on the discrete sampling grid (Section II-D2), whereas the Norros weights of (6) are optimal for the continuous path and lose a small amount of accuracy when collapsed to one weight per measurement interval. This is the cost of discretization. At β = 1.44 the Linear and FARIMA forecasters in fact reach the same MASE of 0.8393 . This convergence is not coincidental. All three are, by different routes, estimates of the same optimal linear predictor for fGn. The practical implication is that on purely self-similar traffic these three forecasters are interchangeable, and the choice between them should be governed by implementation cost rather than accuracy. The learned models trail this group consistently. Fine-tuning is what makes the foundation model competitive at all, moving Chronos* ahead of the zero-shot Chronos, yet Chronos* never reaches the top three and Informer ranks fourth or fifth throughout. DLinear is the weakest model on synthetic traces. When evaluated against the WiFi dataset (Table V), the picture changes substantially. On the raw series DLinear has the best accuracy, and the models that dominated the synthetic experiments are now the worst performers Linear and Norros. The ordering is close to a reversal of the synthetic ranking, and the cause is the seasonality visible in Figure 2: the time-of-day and day-of-week profile violates the stationary increment assumption that forecasters are derived from. Investigating the deseasonalized data confirms the claim. On the deseasonalized series every model except Chronos* improves, and the gains are concentrated precisely in the self-similarity aware forecasters. FARIMA becomes the best model overall at 0.9665 . The classical forecasters therefore do not fail on empirical traffic as such; they require the periodic component to be removed first, whereas the deep models absorb part of it internally and consequently benefit far less from the same preprocessing. These accuracy differences come with different computa-tional costs. Informer is computationaly expensive compared to Linear and Norros forecasters: its model size is large and its run time complexity is O(L log L). Chronos* adds further overhead, since it also requires fine-tuning on representative traffic before it becomes competitive. Considering Norros forecaster, the weight function in (6) depends only on the Hurst parameter H, the look-back window T , and the forecasting horizon ∆.These results point to a practical trade-off driven primarily by data preparation rather than model size. Under specific operational conditions involving targeted signal preprocessing, specialized lightweight models can achieve performance com-parable to larger, more complex architectures while signifi-cantly reducing computational overhead. 
+
+F. Beam Hopping Simulation Scenarios 
+
+After analysing the forecasting accuracy of the models in isolation, we investigate what that accuracy is worth to a BH scheduler. We implemented in Python a BH simulator that abstracts away the radio and mobility layers and retains only the elements the forecast acts on: demand generation, the periodic illumination plan, and the per-cell buffers it feeds. Three cells share a single beam, at 1 ms slot granularity. Each cell’s demand is an independent superposition of Pareto ON/OFF sources, which yields self-similar traffic, and is accumulated into a per-cell buffer of 1 MiB; arrivals that do not fit are dropped, and the resulting loss ratio is one of our metrics. The total generated demand is created by 1500 sources across every scenario. Under fixed-period scheduling, a plan is generated from a one-step-ahead forecast of each cell’s demand for the upcom-ing period. Each cell’s weight is its forecast demand, clipped at zero, plus its current buffer occupancy. The slots are then apportioned to the cells in proportion to these weights using largest-remainder apportionment: the exact real-valued shares are floored, and the leftover slots go to the cells with the largest fractional parts. Finally, the resulting per-cell slot counts are interleaved into the beam schedule round-robin rather than as contiguous blocks, so the cells are visited more evenly, reducing the peak buffer occupancy down. In each slot, the illuminated cell drains the served amount of bits from its buffer, capped by what it currently holds. Two forecasters are compared on the identical traffic realisa-tion, so that any difference between them is attributable solely to the forecaster: Linear and DLinear. These two models were selected because they represent opposite ends of the perfor-mance spectrum on the synthetic datasets, with one achieving the highest accuracy and the other the lowest. Each scenario is run for ten independent replicates, with each replicate utilizing a testing window spanning two hours of traffic. The models are refitted per replicate using an independent training realization of 4,200 samples. To ensure a fair comparison, all scenarios share a common seed base, allowing policies to be evaluated pairwise on identical traffic traces. We investigate three metrics: i. the loss ratio, ii. the mean backlog, and iii. the maximum mean per-cell backlog. i. The loss ratio is the total number of bits dropped across all three cells divided by the total bits offered over the whole test window. A drop is recorded at arrival time: at each millisecond, a cell’s occupancy plus that millisecond’s arrivals is clipped to the 1 MiB buffer capacity and any excess is discarded and counted. ii. The mean backlog Mean backlog is the time average over every 1 ms slot of the test window of the total bits queued across the three cell buffers, in Mbit. It measures how loaded the buffers run, so it separates planners even when nothing overflows and the loss ratio is zero. iii. The maximum mean per-cell backlog is the mean backlog of the worst-served cell: for each cell, we compute the time-averaged occupancy of its buffer exactly, from every-slot accumulators, and then take the maximum over the three cells. We evaluate five distinct scenarios to investigate the im-pact of forecasting alongside various network design choices. While every experiment instantiates exactly three cells, we sys-tematically vary the beam’s service rate (system utilization), the forecasting period, the number of sources per cell, and the burstiness of the underlying traffic (Hurst parameter) as shown in Table VI.                                      
+
+> TABLE VI CONFIGURATION OF THE FIVE BEAM HOPPING SCENARIOS . E VERY SCENARIO USES THREE CELLS SHARING ONE BEAM .
+> Scenario Varied parameter Beam capacity
+> C[Mb/s] ρ= 750 /C Forecast period & Granularity Sources per cell (cell 1 / 2 / 3) Pareto shape β
+> (cell 1 / 2 / 3) 1System utilization ρ
+> 760 790 833 938 0.99 0.95 0.90 0.80 1.5 500 / 500 / 500 1.04 / 1.04 / 1.04 2Forecasting granularity 790 0.95 0.015 0.15 1.5 15 60 500 / 500 / 500 1.04 / 1.04 / 1.04 3Asymmetric demand self-similarity 790 0.95 1.5 500 / 500 / 500 1.04 / 1.24 / 1.44 4Asymmetric number of users 790 0.95 1.5 950 / 450 / 150 1.04 / 1.04 / 1.04 5Asymmetric users and demand self-similarity 790 0.95 1.5 950 / 450 / 150 1.04 / 1.24 / 1.44 TABLE VII SCENARIO 1VARYING SYSTEM UTILIZATION FROM 0.98 TO 0.80.
+
+ρ
+
+(C [Mb/s]) Policy Loss ratio [ppm] Backlog mean [Mb] Max mean per-cell [Mb] 0.98 (760) Linear 2499 ± 1000 6.56 ± 2.00 2.22 ± 0.70 
+
+DLinear 2524 ± 1000 6.53 ± 2.00 2.36 ± 0.80 
+
+0.95 (790) Linear 2.68 ± 2.0 0.90 ± 0.06 0.32 ± 0.02 
+
+DLinear 4.30 ± 4.0 0.92 ± 0.07 0.33 ± 0.03 
+
+0.90 (833) Linear 0 0.78 ± 0.01 0.27 ± <0.01 
+
+DLinear 0 0.78 ± 0.01 0.27 ± <0.01 
+
+0.80 (938) Linear 0 0.76 ± 0.01 0.26 ± <0.01 
+
+DLinear 0 0.76 ± 0.01 0.26 ± <0.01      
+
+> TABLE VIII SCENARIO 2, VARYING FORECASTING PERIODS &GRANULARITY FROM
+> 15 MS TO 60 S.
+
+Period [s] Policy Loss ratio [ppm] Backlog mean [Mb] Max mean per-cell [Mb] 0.015 Linear 0.65 ± 0.6 1.02 ± 0.06 0.37 ± 0.03 
+
+DLinear 0.69 ± 0.6 1.02 ± 0.06 0.37 ± 0.03 
+
+0.15 Linear 0.70 ± 0.6 0.91 ± 0.05 0.32 ± 0.02 
+
+DLinear 0.77 ± 0.7 0.91 ± 0.06 0.33 ± 0.03 
+
+1.5 Linear 3.82 ± 3 0.99 ± 0.09 0.35 ± 0.03 
+
+DLinear 6.51 ± 5 1.01 ± 0.10 0.38 ± 0.05 
+
+15 Linear 51 .7 ± 30 1.17 ± 0.20 0.42 ± 0.07 
+
+DLinear 60 .4 ± 40 1.19 ± 0.20 0.46 ± 0.09 
+
+60 Linear 89 .7 ± 50 1.26 ± 0.20 0.46 ± 0.08 
+
+DLinear 101 .4 ± 60 1.28 ± 0.20 0.51 ± 0.10 
+
+1) Scenario 1: Varying system utilization: Table VII reports the three metrics as the beam capacity is swept and the system utilization falls from ρ = 0 .983 to ρ = 0 .797 . All three metrics are dominated by the utilization rather than by the choice of forecaster. Table VII clearly shows that under low utilization, the forecasting accuracy is irrelevant given the considered metrics. The reason is that at low utilization, the beam has enough spare capacity to fully process mis-forecasted cells within a single period, emptying the queue before forecast errors can accumulate into a backlog. 
+
+2) Scenario 2: Varying forecasting granularity: Table VIII sweeps the planning period from 15 ms to 60 s at a fixed utilization. The loss ratio is essentially flat below 150 ms, and then grows by two orders of magnitude. The mean backlog is not monotone: it is lowest at 150 ms, slightly higher at 15 ms, and rises to 1.26 Mb at 60 s; the maximum mean per-cell backlog follows the same shape, with its minimum at 150 ms. The two forecasters are indistinguishable for periods of 150 ms and below, while at longer periods Linear attains the lower loss ratio, although the replicate standard deviations of the two overlap throughout. 
+
+3) Scenario 3: Different self similarity characteristics: 
+
+Table IX varies the burstiness of the demand generated by each cell. The traffic were generated with Pareto shapes of β = 1.04 , 1.24 and 1.44 causing different self-similar characteristics.      
+
+> TABLE IX SCENARIO 3, V ARYING SELF -SIMILARITY CHARACTERISTICS WHERE ALL CELLS EITHER HAS A HURST PARAMETER OF 0.98, 0.88, OR 0.78.
+
+β
+
+(H) Policy Loss ratio [ppm] Backlog mean [Mb] Max mean per-cell [Mb] 1.04 (0.98) Linear 2.68 ± 2.0 0.90 ± 0.06 0.32 ± 0.02 
+
+DLinear 4.30 ± 4.0 0.92 ± 0.07 0.33 ± 0.03 
+
+1.24 (0.88) Linear 0.056 ± 0.06 0.86 ± 0.01 0.29 ± <0.01 
+
+DLinear 0.059 ± 0.06 0.86 ± 0.01 0.29 ± <0.01 
+
+1.44 (0.78) Linear 0 0.77 ± <0.01 0 .26 ± <0.01 
+
+DLinear 0 0.77 ± <0.01 0 .26 ± <0.01     
+
+> TABLE X SCENARIO 4WHERE CELLS HAVE 950, 450, 150 USERS RESPECTIVELY .
+
+Policy Loss ratio [ppm] Backlog mean [Mb] Max mean per-cell [Mb] Linear 0.067 ± 0.07 1.00 ± 0.02 0.372 ± 0.009 
+
+DLinear 0.070 ± 0.07 1.00 ± 0.02 0.370 ± 0.009            
+
+> TABLE XI SCENARIO 5WHERE CELLS HAVE 950, 450, 150 USERS AND PARETO SHAPE βOF 1.04, 1.24 AND 1.44 RESPECTIVELY .
+
+Policy Loss ratio [ppm] Backlog mean [Mb] Max mean per-cell [Mb] Linear 0.042 ± 0.04 1.02 ± 0.02 0.371 ± 0.009 
+
+DLinear 0.030 ± 0.03 1.02 ± 0.02 0.371 ± 0.008 
+
+The gap between the forecasters closes as self similarity decreases. At H = 0 .98 Linear retains the advantage seen in the previous scenarios, but by H = 0 .78 the considered metrics are similar. Forecaster choice therefore matters only where the traffic is bursty enough. 
+
+4) Scenario 4: Asymmetric number of users with identical self-similarity characteristics.: Table X shows that asymmetric number of users does not significantly impact the considered metrics: the loss ratio falls to below 0.1 ppm. The two forecasters are indistinguishable considering backlog mean and maximum mean per-cell backlog. 
+
+5) Scenario 5: Asymmetric number of users with varying self-similarity characteristics.: Compared to Scenario 4, we also changed the self-similarity characteristics of the cells alongside their asymmetric number of users. According to XI except the loss ratio, the performance of both forecasters remains similar. Across all evaluated scenarios, the difference in accuracy between forecasters does not translate into a significant change in performance metrics. In fact, system utilization and fore-casting granularity dictate system performance much more than the choice of forecasting model. It is also worth noting that under low utilization, the specific forecaster chosen be-comes effectively irrelevant. Conversely, pushing the system to higher utilization enters regimes where the loss ratio naturally increases. Therefore, pursuing pure forecasting accuracy may not be the most effective strategy for improving overall system performance. IV. C ONCLUSION 
+
+In this paper, we evaluated statistical and deep learning-based traffic forecasters for proactive capacity allocation in LEO satellite networks with BH. We first compared the models in isolation by measuring the one-step-ahead MASE, using both synthetic self-similar traces and an empirical Wi-Fi trace as a proxy for aggregated beam demand. Finally, we evaluated them in context using a BH simulator where the forecast drives the illumination plan. Our results show that the forecasting accuracy does not translate into system performance metrics. On purely self-similar traffic, the three self-similarity aware forecasters, Linear, Norros and FARIMA, occupied the top three ranks at every value of the Pareto shape parameter. On the raw Wi-Fi trace the ranking was close to a reversal: DLinear was the most accurate one alongside the deep learning models. Removing the seasonality, FARIMA became the best model overall and both statistical and deep learning based models performed comparably. Next, using a BH simulator, we evaluated how the forecast-ers impact broader system metrics. Across all five scenarios, the substantial accuracy gap between the best and worst synthetic forecasters (Linear and DLinear) did not translate into a comparable difference in loss ratio, mean backlog, or worst-cell mean backlog. Rather, system utilization and forecasting granularity proved to dictate overall performance far more than the choice of forecaster. Taken together, these findings argue for a design approach that departs from the conventional pursuit of raw predictive ac-curacy. Optimizing the utilization margin and carefully tuning the planning period are likely to yield much larger system-level gains than simply deploying a more accurate forecasting model. In future work, we plan to relax the current abstractions of our simulator by incorporating dynamic channel conditions and joint power and bandwidth allocation, alongside expand-ing our analysis to a full constellation level. Additionally, evaluating power consumption, memory usage, and overall scalability will be a key priority. ACKNOWLEDGMENT 
+
+This work was supported in part by MDA Space; in part by the Consortium de Recherche et d’innovation en A´ erospatiale au Qu´ ebec (CRIAQ); and in part by the Natural Sciences and Engineering Research Council of Canada (NSERC). REFERENCES [1] S. R. Pratt, R. A. Raines, C. E. Fossa, and M. A. Temple, “An operational and performance overview of the IRIDIUM low earth orbit satellite system,” IEEE Communications Surveys , vol. 2, no. 2, pp. 2–10, 2009. [2] N. Pachler, I. Del Portillo, E. F. Crawley, and B. G. Cameron, “An updated comparison of four low Earth orbit satellite constellation systems to provide global broadband,” in IEEE international conference on communications workshops (ICC workshops) , 2021, pp. 1–7. [3] G. Pan, X. Zhang, P. Chen, S. Wang, R. Zhang, Z. Hua, D. Niy-ato, P. Xiao, M. Di Renzo, and G. K. Karagiannidis, “Multi-satellite collaborations: Conception, merits, mechanisms, and prospects,” IEEE Communications Surveys & Tutorials , 2026. [4] N. Adilov, P. Alexander, B. Cunningham, and N. Albertson, “An analysis of launch cost reductions for low earth orbit satellites,” Economics Bulletin , vol. 42, no. 3, pp. 1561–1574, 2022. [5] O. B. Yahia, Z. Garroussi, O. B´ elanger, B. Sans` o, J.-F. Frigon, S. Mar-tel, A. Lesage-Landry, and G. Karabulut Kurt, “Evolution of high-throughput satellite systems: A vision of programmable regenerative payload,” IEEE Communications Surveys & Tutorials , vol. 27, no. 3, pp. 1565–1597, 2024. [6] E. Yaacoub and M.-S. Alouini, “A key 6G challenge and opportu-nity—connecting the base of the pyramid: A survey on rural connectiv-ity,” Proceedings of the IEEE , vol. 108, no. 4, pp. 533–582, 2020. [7] M. G. Kibria, H. Al-Hraishawi, E. Lagunas, S. Chatzinotas, and B. Ottersten, “Joint beam hopping and carrier aggregation in high throughput multibeam satellite systems,” IEEE Access , vol. 10, pp. 122 125–122 135, 2022. [8] J. Wang, C. Qi, S. Yu, and S. Mao, “Joint beamforming and illumination pattern design for beam-hopping LEO satellite communications,” IEEE Transactions on Wireless Com. , vol. 23, no. 12, pp. 18 940–18 950, 2024. [9] L. Chen, L. Wu, E. Lagunas, A. Wang, L. Lei, S. Chatzinotas, and B. Ot-tersten, “Joint power allocation and beam scheduling in beam-hopping satellites: A two-stage framework with a probabilistic perspective,” IEEE Transactions on Wireless Com. , vol. 23, no. 10, pp. 14 685–14 701, 2024. [10] Y. Ran, F. Tan, S. Chen, J. Lei, and J. Luo, “Towards beam hopping and power allocation in multi-beam satellite systems with parameterized reinforcement learning,” IEEE Transactions on Vehicular Technology ,vol. 73, no. 9, pp. 14 050–14 055, 2024. [11] Z. Lin, Z. Ni, L. Kuang, C. Jiang, and Z. Huang, “Multi-satellite beam hopping based on load balancing and interference avoidance for NGSO satellite communication systems,” IEEE Transactions on Com. , vol. 71, no. 1, pp. 282–295, 2023. [12] J. Tang, D. Bian, G. Li, J. Hu, and J. Cheng, “Optimization method of dynamic beam position for leo beam-hopping satellite communication systems,” IEEE Access , vol. 9, pp. 57 578–57 588, 2021. [13] G. Xu, F. Tan, Y. Ran, Y. Zhao, and J. Luo, “Joint beam-hopping scheduling and coverage control in multibeam satellite systems,” IEEE Wireless Communications Letters , vol. 12, no. 2, pp. 267–271, 2022. [14] G. E. Box and D. A. Pierce, “Distribution of residual autocorrelations in autoregressive-integrated moving average time series models,” Journal of the American statistical Association , vol. 65, no. 332, pp. 1509–1526, 1970. [15] M. Jin, H. Y. Koh, Q. Wen, D. Zambon, C. Alippi, G. I. Webb, I. King, and S. Pan, “A survey on graph neural networks for time series: Forecasting, classification, imputation, and anomaly detection,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 46, no. 12, pp. 10 466–10 485, 2024. [16] S. Siami-Namini, N. Tavakoli, and A. Siami Namin, “A comparison of arima and lstm in forecasting time series,” in 2018 17th IEEE Inter-national Conference on Machine Learning and Applications (ICMLA) ,2018, pp. 1394–1401. [17] “DeepAR: Probabilistic forecasting with autoregressive recurrent net-works,” International Journal of Forecasting , vol. 36, no. 3, pp. 1181– 1191, 2020. [18] B. N. Oreshkin, D. Carpov, N. Chapados, and Y. Bengio, “N-BEATS: Neural basis expansion analysis for interpretable time series forecasting,” in International Conference on Learning Representations , 2020. [Online]. Available: https://openreview.net/forum?id=r1ecqn4YwB [19] A. Zeng, M. Chen, L. Zhang, and Q. Xu, “Are transformers effective for time series forecasting?” arXiv preprint arXiv:2205.13504 , 2022. [20] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, “Attention is all you need,” in 
+
+International Conference on Neural Information Processing Systems ,2017, p. 6000–6010. [21] H. Zhou, S. Zhang, J. Peng, S. Zhang, J. Li, H. Xiong, and W. Zhang, “Informer: Beyond efficient transformer for long sequence time-series forecasting,” in Proceedings of the AAAI conference on artificial intel-ligence , vol. 35, no. 12, 2021, pp. 11 106–11 115. [22] A. F. Ansari, L. Stella, A. C. Turkmen, X. Zhang, P. Mercado, H. Shen, O. Shchur, S. S. Rangapuram, S. P. Arango, S. Kapoor, J. Zschiegner, D. C. Maddix, H. Wang, M. W. Mahoney, K. Torkkola, A. G. Wilson, M. Bohlke-Schneider, and B. Wang, “Chronos: Learning the language of time series,” Transactions on Machine Learning Research , 2024. [23] A. Das, W. Kong, R. Sen, and Y. Zhou, “A decoder-only foundation model for time-series forecasting,” in International Conference on Machine Learning , 2024. [24] W. Jiang, Y. Zhan, X. Xiao, and G. Sha, “Network simulators for satellite-terrestrial integrated networks: A survey,” IEEE Access , vol. 11, pp. 98 269–98 292, 2023. [25] J. Puttonen, S. Rantanen, F. Laakso, J. Kurjenniemi, K. Aho, and G. Ac ¸ar, “Satellite model for network simulator 3.” in SimuTools , 2014, pp. 86–91. [26] A. Valentine and G. Parisis, “Developing and experimenting with LEO satellite constellations in OMNeT++,” in Proceedings of the 8th OMNeT++ Community Summit Conference , Hamburg, Germany, 2021. [27] W. Leland, M. Taqqu, W. Willinger, and D. Wilson, “On the self-similar nature of Ethernet traffic (extended version),” IEEE/ACM Transactions on Networking , vol. 2, no. 1, pp. 1–15, 1994. [28] V. Paxson and S. Floyd, “Wide area traffic: the failure of poisson modeling,” IEEE/ACM Transactions on Networking , vol. 3, no. 3, pp. 226–244, 1995. [29] M. Crovella and A. Bestavros, “Self-similarity in world wide web traffic: evidence and possible causes,” IEEE/ACM Transactions on Networking ,vol. 5, no. 6, pp. 835–846, 1997. [30] Y. Demirci, G. Mantelet, S. Martel, J.-F. Frigon, and G. Karabulut Kurt, “Forecasting self-similar user traffic demand using transformers in LEO satellite networks,” IEEE International Conference on Wireless for Space and Extreme Environments (WiSEE) , 2025. [31] T. Aksu, G. Woo, J. Liu, X. Liu, C. Liu, S. Savarese, C. Xiong, and D. Sahoo, “Gift-eval: A benchmark for general time series forecasting model evaluation,” in NeurIPS Workshop on Time Series in the Age of Large Models .[32] I. Norros, “On the use of fractional brownian motion in the theory of connectionless networks,” IEEE Journal on Selected Areas in Commu-nications , vol. 13, no. 6, pp. 953–962, 1995. [33] D. Kotz, T. Henderson, I. Abyzov, and J. Yeo, “CRAWDAD dataset dartmouth/campus (v. 2009-09-09),” Downloaded from https://doi.org/ 10.15783/C7F59T, Sep. 2009, accessed: 01/03/2026. [34] M. S. Taqqu, W. Willinger, and R. Sherman, “Proof of a fundamental result in self-similar traffic modeling,” ACM SIGCOMM Computer Communication Review , vol. 27, no. 2, pp. 5–23, 1997. [35] G. Gripenberg and I. Norros, “On the prediction of fractional brownian motion,” Journal of Applied Probability , vol. 33, no. 2, pp. 400–410, 1996. [36] A. Zeng, M. Chen, L. Zhang, and Q. Xu, “Are transformers effective for time series forecasting?” in Proceedings of the AAAI conference on artificial intelligence , vol. 37, no. 9, 2023, pp. 11 121–11 128. [37] P. J. Brockwell and R. A. Davis, Introduction to Time Series and Fore-casting , 3rd ed., ser. Springer Texts in Statistics. Cham, Switzerland: Springer, 2016. [38] J. Beran, Y. Feng, S. Ghosh, and R. Kulik, Long-Memory Processes: Probabilistic Properties and Statistical Methods , ser. SpringerLink : B¨ ucher. Springer Berlin Heidelberg, 2013. [39] C. Raffel, N. Shazeer, A. Roberts, K. Lee, S. Narang, M. Matena, Y. Zhou, W. Li, and P. J. Liu, “Exploring the limits of transfer learning with a unified text-to-text transformer,” Journal of machine learning research , vol. 21, no. 140, pp. 1–67, 2020. [40] S. Seabold, J. Perktold et al. , “Statsmodels: econometric and statistical modeling with python.” SciPy , vol. 7, no. 1, pp. 92–96, 2010. [41] P. Virtanen, R. Gommers, T. E. Oliphant, M. Haberland, T. Reddy, D. Cournapeau, E. Burovski, P. Peterson, W. Weckesser, J. Bright, S. J. van der Walt, M. Brett, J. Wilson, K. J. Millman, N. Mayorov, A. R. J. Nelson, E. Jones, R. Kern, E. Larson, C. J. Carey, ˙ I. Polat, Y. Feng, E. W. Moore, J. VanderPlas, D. Laxalde, J. Perktold, R. Cimrman, I. Henrik-sen, E. A. Quintero, C. R. Harris, A. M. Archibald, A. H. Ribeiro, F. Pedregosa, P. van Mulbregt, and SciPy 1.0 Contributors, “SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python,” Nature Methods , vol. 17, pp. 261–272, 2020. [42] J. Q. Veenstra, Persistence and Anti-Persistence: Theory and Software .Ph.D dissertation, The University of Western Ontario (Canada), 2013. 
+
+Yekta Demirci (Student Member, IEEE) received the B.Sc. degree in electrical and electronics en-gineering from Middle East Technical University (METU), Ankara, T¨ urkiye, in 2019 (with honors), and the M.A.Sc. degree in electrical and computer engineering from the University of Waterloo, Wa-terloo, ON, Canada, in 2022. From 2022 to 2023, he was a Full Stack Software Engineer with aToronto-based startup. He is currently pursuing the Ph.D. degree with the Poly-Grames Research Center, Polytechnique Montr´ eal, QC, Canada. His research interests include beam management, traffic demand forecasting, and RF channel modeling for LEO satellite systems. 
+
+Guillaume Mantelet received the equivalent to M.Sc. in telecommunication engineering from ENST Bretagne (now IMT Atlantique) in 2007, and Ph.D in electrical engineering from the ETS, Canada, in 2012. His research interest are next-generation network communications. Since 2023 he has been a Senior Software Developer at Satellite Systems, MDA, where he contributes to the development of high-performance software for space-based commu-nications. 
+
+St´ ephane Martel received the bachelor’s degree in electrical engineering from McGill University in 2001. He was with the broadcast television industry, until 2021, where he occupied multiple roles in soft-ware development and management. He specializes in network communications and embedded software development. He joined Satellite Systems, MDA, in 2021 as a Research and Development Product Development Manager, where he contributes to the advancement of space communication technologies. 
+
+Jean-Franc ¸ois Frigon (Senior Member, IEEE) re-ceived the B.Eng. degree from the Ecole Polytech-nique de Montreal, Montreal, QC, Canada, in 1996, the M.A.Sc. degree from the University of British Columbia, Vancouver, BC, Canada, in 1998, and the Ph.D. degree from the University of California, Los Angeles (UCLA), Los Angeles, CA, USA, in 2004. He joined the Electrical Engineering Department, Ecole Polytechnique de Montreal, in 2004, where he is currently a Full Professor and the Department Head. He has authored or coauthored more than 115 articles in peer-reviewed journals and conferences and is a co-inventor for 13 granted U.S. patents. His research interests include reconfigurable antennas, machine learning algorithms for wireless communications, energy harvesting wireless sensor networks, and energy efficient radio resource management in wireless systems. Gunes Karabulut Kurt (Senior Member, IEEE) received the B.S. degree (Hons.) in electronics and electrical engineering from Bo˘ gazic ¸i University, Is-tanbul, T¨ urkiye, in 2000, and the M.A.Sc. and Ph.D. degrees in electrical engineering from the University of Ottawa, Canada, in 2002 and 2006, respectively. She is currently a Canada Research Chair (Tier 1) with the New Frontiers in Space Communications and a Professor with Polytechnique Montr´ eal, QC, Canada. She is the Director of the Poly-Grames Research Center and the Co-Founder and the Sci-entific Director of ASTROLITH, Transdisciplinary Research Unit of Space Resource and Infrastructure Engineering, Polytechnique Montr´ eal. She is also an Adjunct Research Professor with Carleton University, Canada. Prior to her current position, s he was a Professor with Istanbul Technical University from 2010 to 2021. She is a Marie Curie Fellow and a fellow of Canadian Academy of Engineering.

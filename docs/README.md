@@ -6,30 +6,34 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-11
-- 运行时间：2026-09-11 22:05:25 UTC
+- 最新运行日期：2026-09-12
+- 运行时间：2026-09-12 21:10:40 UTC
 - 运行状态：成功
 - 本次总论文数：3
 - 精读区：0
 - 速读区：3
 
 ### 今日简报（AI）
-今日速读 3 篇，聚焦预测模型误差边界、长程依赖下的学习率与多模态时序信息度量。最值得看的是《How Wrong Can a Good Predictor Be?》（7.0/10），它追问预测越准是否更新越稳，以及文本信息在多模态时序预测中何时真正有用。普通读者可优先从这两篇入手，先建立"预测准不等于信息有效"的判断框架。
-- 详情：[/202609/11/README](/202609/11/README)
+今日日报完成 3 篇速读、无精读，三篇均获 6.0 分，选题横跨卫星网络、算法理论与自动驾驶仿真。
+
+值得关注两个方向：一是波束跳变低轨卫星网络的流量预测——研究提醒"预测准不等于够用"，需看对比维度；二是学习增强算法的保证机制与系统级影响，偏理论但覆盖面广。
+
+普通读者可先挑与自己场景最接近的一篇速读（如关注卫星通信选前者），有共鸣再回看原文细节。
+- 详情：[/202609/12/README](/202609/12/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [How Wrong Can a Good Predictor Be? Diverging Updates with Vanishing Predictive KL](/202609/11/2609.11132v1-how-wrong-can-a-good-predictor-be-diverging-updates-with-vanishing-predictive-kl)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：高斯隐马尔可夫模型中预测KL与更新映射发散的理论分析
-2. [Weighted Empirical Risk Minimization for Machine Learning under Long-Range Dependence: Exact Pathwise Rates and Learning-Error Geometry](/202609/11/2609.10767v1-weighted-empirical-risk-minimization-for-machine-learning-under-long-range-dependence-exact-pathwise-rates-and-learning-error-geometry)  
+1. [Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks](/202609/12/2609.04662v1-is-forecasting-accuracy-enough-a-comparative-study-of-traffic-forecasters-for-beam-hopping-leo-satellite-networks)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：依赖数据下精确几乎必然学习速率，给出估计与预测精度的理论界限
-3. [When Does Text Inform? Benchmarking Information-Theoretic Metrics for Multimodal Time-Series Forecasting](/202609/11/2609.11282v1-when-does-text-inform-benchmarking-information-theoretic-metrics-for-multimodal-time-series-forecasting)  
+   evidence：质疑预测精度是否为目标；给出自相似流量的最优预测器
+2. [Learning-Augmented Algorithms: Guarantees, Construction Mechanisms, and System-Level Implications](/202609/12/2609.04787v1-learning-augmented-algorithms-guarantees-construction-mechanisms-and-system-level-implications)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：用信息论指标量化标注对预测的信息贡献
+   evidence：预测误差度量、一致性与鲁棒性权衡及上界
+3. [PV-WM: A Heterogeneous Micro-Macro World Model for Articulated Pedestrian-Vehicle Co-Rollout](/202609/12/2609.07328v1-pv-wm-a-heterogeneous-micro-macro-world-model-for-articulated-pedestrian-vehicle-co-rollout)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：预测行人根运动、关节姿态与车辆状态的世界模型用于人类移动性预测
 
 
 <div class="dpr-home-promo-card">
