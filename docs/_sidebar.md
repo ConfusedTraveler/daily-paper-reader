@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-13 <!--dpr-date:20260913-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/13/2609.11918v1-general-quantification-of-covariate-and-concept-shifts" data-sidebar-item="{&quot;title&quot;: &quot;General Quantification of Covariate and Concept Shifts&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.11918v1-general-quantification-of-covariate-and-concept-shifts&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;统一协变量与概念漂移的泛化误差界&quot;}">General Quantification of Covariate and Concept Shifts</a>
   * 2026-09-12 <!--dpr-date:20260912-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/12/2609.04662v1-is-forecasting-accuracy-enough-a-comparative-study-of-traffic-forecasters-for-beam-hopping-leo-satellite-networks" data-sidebar-item="{&quot;title&quot;: &quot;Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.04662v1-is-forecasting-accuracy-enough-a-comparative-study-of-traffic-forecasters-for-beam-hopping-leo-satellite-networks&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;质疑预测精度是否为目标；给出自相似流量的最优预测器&quot;}">Is Forecasting Accuracy Enough? A Comparative Study of Traffic Forecasters for Beam-Hopping LEO Satellite Networks</a>
