@@ -6,28 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-13
-- 运行时间：2026-09-13 21:28:45 UTC
+- 最新运行日期：2026-09-14
+- 运行时间：2026-09-14 22:39:52 UTC
 - 运行状态：成功
-- 本次总论文数：1
+- 本次总论文数：0
 - 精读区：0
-- 速读区：1
+- 速读区：0
 
 ### 今日简报（AI）
-2026-09-13 日报速览：1 篇速读、0 篇精读，聚焦《General Quantification of Covariate and Concept Shifts》（6.0/10）。
-
-这篇论文关注协变量偏移与概念偏移的统一量化，适合想了解模型在分布变化下如何被评估的读者。
-
-普通读者可先看它的速读摘要，判断是否需要深入原文，暂不必安排精读。
-- 详情：[/202609/13/README](/202609/13/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202609/14/README](/202609/14/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [General Quantification of Covariate and Concept Shifts](/202609/13/2609.11918v1-general-quantification-of-covariate-and-concept-shifts)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：统一协变量与概念漂移的泛化误差界
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
