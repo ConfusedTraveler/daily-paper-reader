@@ -1,0 +1,603 @@
+Title: The Free Inference Dimension: Complexity Measure for Zero-Collision Navigation under Hypothesis Mixtures
+
+URL Source: https://arxiv.org/pdf/2609.17816v1
+
+Published Time: Thu, 17 Sep 2026 00:14:51 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# The Free Inference Dimension: A Complexity Measure for Zero-Collision Navigation under Hypothesis Mixtures 
+
+Luiz Carlos Castro Guedes 1,2[0009 −0005 −2405 −2379] and Edward Hermann Haeusler 1[0000 −0002 −4999 −7476] ⋆ 
+
+> 1
+
+Departamento de Informática – PUC-Rio, Brazil  
+
+> 2
+
+Seção de Engenharia de Computação – Instituto Militar de Engenharia, Brazil 
+
+lcguedes@ime.eb.br, hermann@inf.puc-rio.br 
+
+Abstract. Solomonoff induction frames prediction as a mixture over computable hypotheses, typically leading to identification of the true en-vironment. In a finite meta-reinforcement learning setting with nested constraint families, in our previous work, we observe a different regime: a value-mixture (VM) agent achieves near-optimal, zero-collision navi-gation without identifying the true environment, a phenomenon we call Free Inference. This regime persists up to a sharp density threshold, be-yond which performance degrades and posterior-mode selection (PMS) becomes preferable. We formalize this behavior via the Free Inference dimension dF I (S, N ), a combinatorial measure of the environmental complexity a VM agent can handle while preserving trajectory coherence. We prove dF I is strictly smaller than the VC-dimension and relates to the Natarajan dimension up to a path-length factor, capturing the cost of non-decomposable loss. A PAC-style relaxation yields generalization bounds driven by dε,δ F I . We also define a complementary PMS identification dimension and show that a hybrid strategy—averaging until the first collision, then switch-ing to selection—is optimal, with links to Littlestone-type dimensions supported by grid-world experiments. 
+
+Keywords: VC-Dim · Solomonoff · Meta-RL · Bayesian model averag-ing · Combinatorial dim. · PAC-Bayes · Online learning · Safe exploration. 
+
+## 1 Introduction 
+
+A central design question in meta-reinforcement learning [2, 5, 8, 11] is how an agent should exploit a finite Bayesian belief over candidate environments. Two canonical answers stand out. The value-mixture (VM) agent averages the opti-mal Q-functions Q1, . . . , Q N of the N hypothesized environments under a belief 
+
+ξ and acts greedily with respect to ¯Q = P 
+
+> i
+
+ξ(νi)Qi; this is a finite, construc-tive approximation of a Solomonoff-style universal mixture [6, 9] restricted to a  
+
+> ⋆
+
+Edward H. Haeusler is p.f by FAPERJ grant APQ1 E-26/210.258/2019.249292), CNPq grant 309287/2023-5 and CAPES/COFECUB 88881.878969/2023-01 arXiv:2609.17816v1 [cs.LG] 15 Sep 2026 2 L.C.C. Guedes and E.H. Haeusler 
+
+hypothesis class of environment models, and it corresponds to the risk-neutral Bayes-adaptive control rule [4]. The posterior mode sampling (PMS) agent , by contrast, selects the maximum-a-posteriori (MAP) environment at each step and follows its policy, updating the belief only upon collision. Averaging versus se-lection is the defining tension in action under posterior uncertainty, and the two strategies have shown on our experiments to behave very differently in the action-selection setting even though they use the same posterior. On a recent work on this setting we have identified a striking phase transition in the relative performance of the two modes. When the candidate environments form a nested family, where environments differ in how many cells are classified as obstacles and more restrictive environments contain all the obstacles of less restrictive ones, the VM agent was shown to navigate from a start state to a goal state without any collisions and without identifying the true environment , up to a sharp density threshold. We have termed that regime as Free Inference , the regime where the agent collects value without paying the usual identification cost, while the belief remains approximately uniform throughout the episode. Beyond a certain density threshold, the mixture becomes navigationally incoherent, the agent oscillates or collides, and PMS begins to outperform VM. Empirically the boundary is remarkably stable: ρc ≈ 0.7 across grid sizes ranging from 10 × 5 to 
+
+100 × 50 .The empirical behaviour of this threshold has the hallmarks of a combina-torial capacity measure. It is a sharp threshold transition, not a gradual one; it scales linearly with the state space; and it separates a regime in which the learner is reliably correct from one in which it is reliably wrong. Yet it does not match any existing dimension in the learning-theoretic landscape, for two struc-tural reasons. First, the loss function (trajectory success) is non-decomposable :local correctness at every state is necessary but not sufficient for global suc-cess, so Vapnik-Chervonenkis- and Natarajan-style pointwise arguments do not apply [7, 10]. Second, the adversary is non-adaptive : the environment is commit-ted before the episode begins, in contrast to the adaptive adversary assumed by Littlestone-style mistake-bound dimensions. This paper develops the complexity-theoretic foundations of Free Inference, taking the empirical phase transition as a starting point. Our central question is: what is the combinatorial dimension underlying Free Inference, and how does it sit within the existing hierarchy? 
+
+Contributions. We make the following contributions. 1. We introduce the Free Inference dimension dFI (S, N ), defined as the maxi-mum size of a set of constraint cells FI-shatterable under all N -level nesting assignments (Definition 6). 2. We show dFI < d VC for N ≥ 2, and quantify the “coherence gap” as ∆coh ≈
+
+0.3 |S| empirically (Section 4). 3. We formulate a PAC-style relaxation ( ε-Free Inference) and prove a gener-alization bound in which dε,δ  
+
+> FI
+
+controls the sample complexity of certifying coherent navigation on unseen nesting schemes (Theorem 4). The Free Inference Dimension 3
+
+4. We introduce the complementary PMS identification dimension dPMS ≤ N −
+
+1 and prove that the hybrid strategy “VM until first collision, then PMS” is optimal in a precise sense (Theorem 6). 5. We position dFI with respect to the Randomized Littlestone dimension of Filmus et al. [3] and the Stackelberg–Littlestone dimension of Balcan et al. [1], identifying non-adaptivity as the structural feature that enables the exponential gap dFI = Θ(|S| ) vs. Ldim = O(log N ).6. We describe a concrete experimental protocol on grid-world benchmarks (Sec-tion 8) designed to characterize the scaling of dFI (N ) with the family size N
+
+and validate the generalization bound. 
+
+Paper organization. Section 2 fixes the abstract setting. Section 3 defines 
+
+dFI via an adversarial shattering game and establishes elementary properties. Section 4 relates dFI to VC, Littlestone and Natarajan dimensions. Section 5 develops the ε-relaxation and proves the generalization bound. Section 6 intro-duces dPMS and the VM–PMS duality. Section 7 summarizes the connection to recent online-learning results. Section 8 presents the experimental protocol, and Section 9 concludes with open problems. 
+
+## 2 Abstract Setting 
+
+2.1 Environments and Constraints Definition 1 (Structured decision environment). A structured decision en-vironment is a tuple ν = ( S, A, T ν , R ν , s 0, g ) where S and A are finite state and action spaces, Tν : S × A → S is deterministic, Rν has asymmetric costs (|rpenalty | ≫ | rstep |), and s0, g ∈ S are shared start and goal states. Each ν
+
+defines a constraint set Oν ⊂ S (obstacles) and a feasible set Fν = S \ Oν .
+
+A family V = {ν1, . . . , ν N } is nested if Oν1 ⊆ · · · ⊆ OνN . The consensus feasible set is F ∗ = T 
+
+> ν∈V
+
+Fν .
+
+Definition 2 (Entry-level assignment). Given a set C ⊆ S \ { s0, g } of con-straint cells and N levels, an entry-level assignment is a map ℓ : C → { 1, . . . , N }.The induced nested family VC,ℓ has obstacle sets Ok = {c ∈ C : ℓ(c) ≤ k}. The number of such assignments is N |C|.
+
+2.2 Value-Mixture Agent and Free Inference 
+
+Given expert action-value functions {Qi}Ni=1 , one per environment, and belief 
+
+ξ : V → [0 , 1] , the value-mixture policy is 
+
+πVM (s) = arg max 
+
+> a∈A
+> N
+
+X
+
+> i=1
+
+ξ(νi) Qi(s, a ).
+
+Under uniform belief ξ(νi) = 1 /N this reduces to πVM (s) = arg max a ¯Q(s, a ).4 L.C.C. Guedes and E.H. Haeusler 
+
+Definition 3 (Free Inference). The VM agent achieves Free Inference on V
+
+if, under uniform belief, the trajectory (s0, s 1, . . . , s T ) generated by πVM satisfies (i) sT = g and (ii) st ∈ F ∗ for all t.
+
+Free Inference is a zero-regret, zero-collision property: the agent reaches the goal while remaining in cells that are free in every candidate environment. 
+
+Remark 1 (Averaging as a worst-case guarantee). Under uniform belief ¯Q(s, a ) = 
+
+> 1
+> N
+
+P 
+
+> i
+
+Qi(s, a ), and since penalties dominate step costs ( |rpenalty | ≫ | rstep |), any action colliding in even one hypothesis incurs a term ≈ rpenalty /N that dominates the step-cost spread from the others. Thus arg max a ¯Q vetoes any action unsafe in any νi: greedy-on-average acts as a soft max–min over the family, which is why averaging, not identification, yields a guarantee holding across all hypotheses at once. It also shows why the loss is non-decomposable : at a fork where every action is locally feasible, ¯Q may steer into a consensus-free pocket whose only exit is a contested cell; the veto then blocks that exit, so the agent never collides yet never reaches g. Local correctness held everywhere; global coherence (C2) did not. 
+
+## 3 The Free Inference Dimension 
+
+3.1 The Shattering Game 
+
+We define dFI through an adversarial game between a Constructor , who designs the constraint structure, and the VM agent, which must navigate coherently. 
+
+Definition 4 (FI-shattering game). The game GFI (S, N ) proceeds as follows: (1) the Constructor selects C ⊆ S \ { s0, g } of size d; (2) the Constructor selects an entry-level assignment ℓ : C → { 1, . . . , N }, inducing the family VC,ℓ (Defini-tion 2); (3) the VM computes the mixture policy πVM ; (4) the VM wins iff Free Inference holds on VC,ℓ .
+
+Definition 5 (FI-shatterable set). A set C is FI-shatterable if, for every entry-level assignment ℓ : C → { 1, . . . , N } (i.e., for all N |C| nesting schemes), the VM achieves Free Inference. 
+
+Definition 6 (Free Inference dimension). The Free Inference dimension of 
+
+S with N environments is 
+
+dFI (S, N ) = max |C| : C ⊆ S \ { s0, g }, C is FI-shatterable .
+
+The construction parallels VC-dimension closely. Table 1 juxtaposes the two definitions: where VC requires that for every binary labeling of d points some hypothesis realizes it, dFI requires that for every N -level entry-level assignment of d constraint cells the VM achieves Free Inference. The structural shifts from pointwise correctness to trajectory coherence, and from decomposable to non-decomposable loss, are what distinguish dFI from dVC .The Free Inference Dimension 5                
+
+> Table 1. Analogy between VC-dimension and the Free Inference dimension.
+> VC-dimension Free Inference dimension
+> Max dpoints shatterable Max dconstraint cells FI-shatterable For all 2dbinary labelings For all Ndentry-level assignments Some hypothesis realizes each labeling VM achieves FI for each nesting Pointwise correctness Trajectory coherence Decomposable loss Non-decomposable loss
+
+3.2 Characterization via Coherence 
+
+Checking all N |C| assignments is the Constructor’s discrete trap-door game of Section 3; the margin below is its continuous certificate : for a fixed assignment, a non-negative margin at every state along some path through F ∗ means the greedy mixture follows that path coherently, so C(V) ≥ 0 is exactly “the VM wins” reduced to arithmetic on ¯Q.Let C(V) denote the coherence score , defined as the minimum normalized margin along the widest-bottleneck path through F ∗:
+
+C(V) = max  
+
+> P
+
+min  
+
+> s∈P
+
+m(s, P, V),
+
+where m(s, P, V) is the normalized margin at state s along path P , between the path-continuation action ( aP (s)) and the best alternative under ¯Q:
+
+m(s, P, V) = ¯Q(s, a P (s)) − max a̸=aP (s) ¯Q(s, a )max a ¯Q(s, a ) − min a ¯Q(s, a )
+
+When the denominator vanishes (all actions share the same expected value) we set m(s, P, V) = 0 : the path-continuation action is not disfavored, so the state contributes no margin violation. 
+
+Theorem 1 (Coherence characterization). Free Inference holds on a nested family V iff C(V) ≥ 0. Consequently, 
+
+dFI (S, N ) = max 
+
+n
+
+|C| : min   
+
+> ℓ:C→[N]
+
+C(VC,ℓ ) ≥ 0
+
+o
+
+.
+
+This gives a computable (though not yet efficient) characterization of dFI :check the worst-case entry-level assignment. 
+
+## 4 Relationship to Classical Dimensions 
+
+We can now answer the guiding question of Section 2: dFI is the combinatorial capacity of Free Inference (Definition 6), sitting strictly below VC by the coher-ence gap (Theorem 2), between Natarajan bounds up to the non-decomposability factor Lmax (Theorem 3), and exponentially above the Littlestone scale through non-adaptivity (Section 7). 6 L.C.C. Guedes and E.H. Haeusler 
+
+4.1 VC-dimension and the Coherence Gap 
+
+Let HC1 denote the hypothesis class of functions hV : S → { 0, 1} where hV (s) = 
+
+1[s ∈ F ∗] as the family V varies. For nested grid families, dVC (HC1 ) = |S| − 2.
+
+Theorem 2 (Strict separation from VC). For |S| > N + 2 and N ≥ 2,
+
+dFI (S, N ) < d VC (HC1 ).Proof (Sketch). VC captures pointwise feasibility (Condition C1: F ∗ definable). FI additionally requires trajectory coherence (Condition C2: ¯Q points into F ∗
+
+at every state on the path). For N ≥ 2 there exist constraint configurations C
+
+with |C| < |S| − 2 where F ∗ is connected but inter-environment disagreement breaks coherence. ⊓⊔
+
+Definition 7 (Coherence gap). ∆coh (S, N ) = dVC (HC1 ) − dFI (S, N ).
+
+The gap quantifies the capacity cost of requiring trajectory coherence beyond local obstacle avoidance. Empirically ∆coh ≈ 0.3 |S| : about 30% of grid capacity is consumed by the non-decomposability of the trajectory loss, a ≈ 43% overhead over the pointwise regime. 
+
+4.2 Littlestone and Natarajan Dimensions 
+
+The Littlestone dimension of the N -expert class UN is Ldim( UN ) = ⌊log 2 N ⌋.The natural comparison point for dFI in the online-learning literature is the 
+
+collision depth 
+
+col( S, N ) = max  
+
+> V,ν ∗
+
+BVM (V, ν ∗),
+
+where BVM is the number of obstacle collisions suffered during a single navigation episode. Since each collision eliminates at least one environment, col( S, N ) ≤
+
+N − 1.
+
+Proposition 1 (Structural duality). dFI and col answer dual questions about the same adversarial game: dFI is the maximum problem size for which zero collisions are achievable (a capacity , analogous to VC-dimension); col is the maximum collision count under any problem size (an error count , analogous to Littlestone dimension). They are incommensurable (measured in different units) and neither bounds the other non-trivially. 
+
+The Natarajan dimension generalizes VC to multi-class labels. Since the nest-ing label ℓ(c) ∈ { 1, . . . , N } is ordinal, the FI-shattering condition of Definition 6 coincides with an “FI-Natarajan” shattering of C under ordinal labels. 
+
+Theorem 3 (Non-decomposability gap). dFI (S, N ) ≤ dNat (Hordinal , N ) ≤
+
+dFI (S, N ) · Lmax , where Lmax is the maximum path length from s0 to g through 
+
+F ∗.
+
+The multiplicative factor Lmax quantifies the cost of non-decomposable loss: trajectory coherence requires Lmax pointwise conditions simultaneously , while Natarajan shattering treats them independently. For grid-worlds, Lmax = O(W +
+
+H), so the gap is at most linear in the grid diameter. The Free Inference Dimension 7
+
+## 5 ε-Free Inference and a PAC Relaxation 
+
+Strict Free Inference requires zero errors. We now develop a probabilistic relax-ation connecting the framework to standard PAC learning. 
+
+5.1 The ε-Free Inference Condition 
+
+Let the margin violation rate along the widest-bottleneck path P ∗ be 
+
+εmargin (V) = |{ s ∈ P ∗ : m(s, P ∗, V) < 0}| |P ∗| .
+
+Definition 8 ( ε-Free Inference). The VM agent achieves ε-Free Inference on 
+
+V if εmargin (V) ≤ ε. At most an ε-fraction of states on P ∗ have negative margin; the trajectory may still reach g after a small number of “one-bump” corrections in which a collision concentrates the belief and restores coherence. 
+
+Strict Free Inference is ε = 0 . The ε-relaxation formalizes the near-critical regime in which a single collision suffices to reach the goal. 
+
+5.2 The PAC-Free Inference Dimension Definition 9 (PAC-FI dimension). 
+
+dε,δ  
+
+> FI
+
+(S, N ) = max 
+
+n
+
+|C| : Pr   
+
+> ℓ∼Unif([ N]C)
+
+[εmargin (VC,ℓ ) ≤ ε] ≥ 1 − δ
+
+o
+
+.
+
+Proposition 2. d0,0FI (S, N ) = dFI (S, N ), and for any ε, δ ≥ 0: dFI ≤ dε,δ  
+
+> FI
+
+≤|S| − 2.
+
+5.3 Generalization Bound Theorem 4 (Generalization for Free Inference). Fix a constraint set C.Draw m entry-level assignments independently and uniformly at random, 
+
+ℓ1, . . . , ℓ m ∼ Unif  [N ]|C|,
+
+and let ˆpm = 1
+
+> m
+
+Pmi=1 1{εmargin (VC,ℓ i ) > ε } denote the empirical failure rate. Then, with probability at least 1 − δ over the random draw, a new assignment 
+
+ℓnew drawn uniformly from the same distribution satisfies 
+
+Pr 
+
+> ℓnew
+
+εmargin (VC,ℓ new ) > ε  ≤ ˆpm +
+
+r d log mN + log(1 /δ )2m ,
+
+where d = dε,δ  
+
+> FI
+
+(S, N ).8 L.C.C. Guedes and E.H. Haeusler 
+
+Proof (Sketch). The argument is a uniform-convergence Hoeffding bound, adapted to the N -ary FI setting. 
+
+Step 1: Indicator and population mean. Each assignment ℓ defines a Bernoulli random variable Z(ℓ) = 1{εmargin (VC,ℓ ) > ε }, the failure indicator. Its mean p = Pr ℓ[εmargin > ε ] is the population failure probability we wish to bound. The empirical mean ˆpm = 1
+
+> m
+
+P 
+
+> i
+
+Z(ℓi) is the natural estimator. 
+
+Step 2: Growth function. The set of distinct success/failure patterns that the failure indicator can induce on m assignments, as the constraint set 
+
+C varies over subsets of size |C|, is bounded by the growth function Π(m). By the Natarajan–Haussler generalisation of the Sauer–Shelah lemma to N -ary la-bels, Π(m) ≤ (mN )d where d = dε,δ  
+
+> FI
+
+.
+
+Step 3: Hoeffding and union bound. For each fixed failure pattern, Ho-effding’s inequality gives 
+
+Pr p − bpm > t  ≤ e−2mt 2
+
+.
+
+Taking a union bound over all realizable patterns, whose number satisfies Π(m) ≤
+
+(mN )d, we obtain 
+
+Pr p − bpm > t  ≤ (mN )de−2mt 2
+
+.
+
+Choosing t such that (mN )de−2mt 2
+
+≤ δ yields, with probability at least 1 − δ,
+
+p ≤ bpm +
+
+r d log( mN ) + log(1 /δ )2m .
+
+Remark. In regimes where log m ≪ log N , one may write informally 
+
+ˆpm +
+
+r d log N + log(1 /δ )2m .
+
+Theorem 4 is the statistical-learning-theoretic statement of Free Inference: 
+
+dε,δ  
+
+> FI
+
+is the complexity parameter controlling how many tested nesting schemes are required before one can certify, with confidence 1−δ and tolerance ε, that the VM agent will navigate coherently on untested nestings. The O(1 /√m) convergence rate is the familiar PAC scaling, and the additive form ˆpm + √· accommodates the regime in which some tested nestings fail. The empirical results in Section 8.2 confirm that this is the relevant operational regime, and that the Hoeffding form holds in 100% of informative configurations even when ˆpm ∈ (0 .2, 0.8) .
+
+5.4 Graded Capacity at the Phase Transition Theorem 5 (Phase transition). For grid-worlds with N = 10 , the coherence score C exhibits a sharp threshold at coarse density resolution ( ∆ρ ≈ 0.1): a single-step jump from C = 0 to C ≈ − 0.43 across all tested grid sizes. At finer resolution ( ∆ρ = 0 .025 ), the jump resolves into a continuous transition band of width ≈ 0.10 –0.15 , within which dε,δ  
+
+> FI
+
+(S, N ) is a strictly increasing function of ε.The Free Inference Dimension 9
+
+The discrete-versus-continuous distinction has substantive consequences for how dε,δ  
+
+> FI
+
+relates to dFI . Under the coarse-resolution view, the strict and relaxed dimensions were approximately equal ( dε, 0FI ≈ dFI for small ε), and the relaxation served principally as a vehicle for sample-complexity bounds rather than as a source of additional capacity. The fine-resolution finding inverts this. The in-
+
+F ∗ perturbation analysis (Section 8.3) shows the regime composition shifting smoothly across roughly six ρ-steps, with the variance of C peaking at the band midpoint, the signature of a continuous order parameter rather than a delta-function discontinuity. Within the band, the map ε 7 → dε,δ  
+
+> FI
+
+has a non-trivial slope: small increments in ε buy substantively larger constraint sets that admit (probabilistic) Free Inference. Concretely, at perturbation rate ρtest = 0 .075 ,choosing ε ≈ 0.15 reduces the failure rate from 23% to near zero. 
+
+## 6 The PMS Identification Dimension and VM–PMS Duality 
+
+The Posterior Mode Sampling agent commits at each step to the MAP hypothesis 
+
+ˆνt = arg max ν ξt(ν) and follows πˆνt . We reserve PMS for this posterior-mode mechanism and use TTS (true Thompson Sampling) for the stochastic variant that samples ˆνt ∼ ξt.The PMS navigation game maps onto online prediction with expert advice: at each state (round), PMS predicts the action of the MAP expert; a collision is a mistake, after which the belief is updated via Bayes’ rule. 
+
+Definition 10 (PMS identification dimension). 
+
+dPMS (S, N ) = max  
+
+> V,ν ∗
+
+BPMS (V, ν ∗),
+
+the worst-case number of collisions PMS suffers in the true environment ν∗, over all nested families and choices of ν∗.
+
+Proposition 3. ⌊log 2 N ⌋ ≤ dPMS (S, N ) ≤ N −1. The lower bound Ldim( UN ) = 
+
+⌊log 2 N ⌋ is the optimal deterministic mistake bound in the abstract Littlestone game; PMS cannot beat it. The upper bound N −1 is attained when each collision eliminates exactly one environment. 
+
+6.1 The VM–PMS Duality 
+
+The pair (dFI , d PMS ) provides complementary complexity measures: dFI is mea-sured in constraint cells and captures the zero-collision capacity of VM; dPMS 
+
+is measured in collisions and captures the identification cost of PMS when zero-collision navigation is infeasible. The continuous transition band established empirically in Section 8.3 subdivides the region around dFI into a gradient: 
+
+dFI ≤ | C| ≤ dε,δ  
+
+> FI
+
+is a non-trivial interval over which collisions remain rare-but-nonzero in a controlled, ε-dependent way. 10 L.C.C. Guedes and E.H. Haeusler 
+
+Theorem 6 (Graded hybrid strategy). For tolerance ε ≥ 0, the hybrid strat-egy that runs VM and switches to PMS only after the collision rate exceeds the band’s expected rate at the operational density (the ε-aware switching rule )achieves a number of collisions 
+
+Bhybrid (ε) ≤
+
+
+
+0 if |C| ≤ dFI ,ε · | P ∗| if dFI < |C| ≤ dε,δ  
+
+> FI
+
+,
+
+1 + dPMS if |C| > d ε,δ  
+
+> FI
+
+.
+
+The deterministic “switch on first collision” rule of the zero-tolerance setting is the limiting case ε → 0.Proof (Sketch). Below dFI , VM is collision-free and no switch occurs. In the band 
+
+dFI < |C| ≤ dε,δ  
+
+> FI
+
+, ε-Free Inference holds with high probability, so the expected number of margin violations along P ∗ is at most ε·| P ∗|; the ε-aware rule absorbs these without switching. Above dε,δ  
+
+> FI
+
+, ε-Free Inference fails: the first collision in excess of the band rate concentrates the belief and signals |C| > d ε,δ  
+
+> FI
+
+, and the switch to PMS then costs at most dPMS − 1 further collisions. ⊓⊔
+
+## 7 Connections to Online Learning Theory 
+
+The Free Inference framework connects precisely to two recent developments. 
+
+Randomized Littlestone (Filmus et al. [3]). The VM agent is a randomized learner in the expert-advice sense: ¯Q produces a soft action preference analogous to predicting pi ∈ [0 , 1] . The N trained Q-agents are experts; the true environ-ment ν∗ is a perfect expert ( k = 0 -realizable). Free Inference corresponds to 
+
+RL( H) = 0 : the randomized learner suffers zero expected mistakes because the adversary cannot construct a shattered tree of positive expected depth. 
+
+Stackelberg–Littlestone (Balcan et al. [1]). The VM agent is a leader who commits to an action via ¯Q before the follower (environment type) responds. The SL tree weight recursion ρs = inf x max j (r(zs, x, f (j)) + ρsj ) is structurally identical to the coherence recursion underlying C(V). Balcan et al. ’s SSOA al-gorithm is the abstract counterpart of the VM action rule. Their Theorem 3.6 (infinite Littlestone dimension but zero leader regret) is the abstract Stackelberg statement of the Free Inference phenomenon; our dVC > d FI separation is its finite instance. 
+
+The non-adaptive gap. A crucial distinction separates our setting from stan-dard online learning: our adversary is non-adaptive . The environment is com-mitted before the episode begins; states visited are determined by the agent’s trajectory, not adaptively by an adversary. This non-adaptivity creates an expo-nential capacity gap: 
+
+dFI = Θ(|S| ) vs. Ldim( UN ) = O(log N ).
+
+For a 20 × 10 grid with N = 10 : dFI ≈ 140 vs. Ldim( U10 ) = 3 , a ratio of ≈ 47 .The non-adaptive adversary is ≈ 47 times weaker, and this weakness is precisely the structural feature that enables Free Inference. The Free Inference Dimension 11 
+
+## 8 Experimental Protocol 
+
+This section describes a concrete experimental protocol designed to validate the central theoretical predictions. We emphasize the experiments most directly tied to falsifiable claims. 
+
+Setup The base environment is made of Random-Maze nested families across six grid sizes {10 × 5, 20 × 10 , 40 × 20 , 60 × 30 , 80 × 40 , 100 × 50 } with obstacle density ρ, start s0 = (0 , H − 1) and goal g = ( W − 1, 0) . ρ is the fraction of the base maze’s obstacle cells retained, so ρ = 0 .05 keeps 5% (a nearly open grid) and ρ = 1 keeps all of them. For each density level ρ ∈ { 0.1, 0.2, . . . , 1.0}
+
+we precompute an optimal Q-table Qi via value iteration, yielding a library of 
+
+N = 10 nested environments. Experiments below reuse this Q-table library with no additional training required, except where noted. 
+
+8.1 Experiment A: Scaling of the Critical Threshold in N
+
+Question. The introduction reports that ρc ≈ 0.7 is remarkably stable across grid sizes spanning more than an order of magnitude. How does ρc, and therefore 
+
+dFI ≈ ρc ·|S| , scale with the family size N ? More environments could either lower 
+
+ρc (more Q-value conflicts to reconcile) or raise it (intermediate densities fill the Q-value gradient, suppressing idiosyncratic preferences). We conjecture the latter: ρc(N ) is non-decreasing and saturates at ρ∞ 
+
+> c
+
+(S) ≈ 0.7 for Random-Maze grids. The measurements below support this conjecture. 
+
+Protocol. We compose nested Random-Maze families from precomputed Q-tables across six grid sizes {10 × 5, 20 × 10 , 40 × 20 , 60 × 30 , 80 × 40 , 100 × 50 }
+
+and four family sizes N ∈ { 2, 5, 10 , 20 }. The density gradients are evenly spaced in each case: N = 2 uses ρ ∈ { 0.5, 1.0}, N = 5 uses ρ ∈ { 0.2, 0.4, 0.6, 0.8, 1.0},
+
+N = 10 uses ρ ∈ { 0.1, 0.2, . . . , 1.0}, and N = 20 uses ρ ∈ { 0.05 , 0.10 , . . . , 1.0}.For each (N, S) pair we incrementally add environments in increasing order of density, computing C(V) at every step. The critical density ρc is the largest value of max k ρk at which C ≥ 0.
+
+Results. Table 2 reports the measured critical density ρc for each (N, S) pair: rows show how ρc evolves as the family grows from N = 2 to N = 20 , columns the across-grid stability at fixed N . The smallest grid ( 10 ×5) is too sparse for the family to ever fail ( ρc pinned at 1.0); the remaining five rows are the operative dataset. Excluding the smallest grid, three patterns emerge: ρc is non-decreasing in 
+
+N , rising from 0.50 at N = 2 to a plateau around 0.65 –0.70 ; the increase concen-trates between N = 2 and N = 10 , with N = 10 to N = 20 flat (within resolu-tion ∆ρ = 0 .05 ); and the asymptote ρ∞ 
+
+> c
+
+≈ 0.7 matches the across-grid constant of the introduction. The data directly support the conjectured monotone-with-saturation behaviour. 
+
+Empirical claim. We summarise the finding as: 
+
+(Empirical N -scaling of ρc.) For natural nested families built from a smooth obstacle-density gradient ρ1 < ρ 2 < · · · < ρ N , the critical den-sity ρc(N ) is non-decreasing in N and converges to a grid-dependent 12 L.C.C. Guedes and E.H. Haeusler Grid N = 2 N = 5 N = 10 N = 20 10 × 5 1.00 1.00 1.00 1.00                                      
+
+> 20 ×10 1.00 0.60 0.70 0.70
+> 40 ×20 0.50 0.60 0.70 0.70
+> 60 ×30 0.50 0.60 0.70 0.70
+> 80 ×40 0.50 0.60 0.60 0.65
+> 100 ×50 0.50 0.60 0.70 0.70
+> Table 2. Empirical critical density ρcas a function of family size Nand grid size. The smallest grid ( 10 ×5) is too sparse for the family to ever fail.
+
+asymptote ρ∞ 
+
+> c
+
+(S) that on Random-Maze grids satisfies ρ∞ 
+
+> c
+
+≈ 0.65 –0.70 ,with rapid saturation ( ρc(20) ≈ ρc(10) ). 
+
+Mechanistic interpretation. Two structural properties explain the observed pattern. First, intermediate environments reduce per-state disagreement D(s) = Var ν Qν (s, ·): on the 100 ×50 grid at ρ = 1 .0, D(s) drops from ≈ 0.042 (N = 2 ) to 
+
+≈ 0.009 (N = 20 ), and the disagreement field becomes diffuse (max D(s) < 0.005 
+
+at N = 20 ), so no single bottleneck dominates. Second, the consensus free space 
+
+F ∗ depends on the densest environment alone, but the path along which C is evaluated changes with N . Together these effects describe belief-weighted averag-ing as a denoiser : averaging over N correlated Q-tables suppresses idiosyncratic preferences and preserves shared structure, raising the tolerated density. Satu-ration reflects the limit of denoising, once the gradient spans [ρ1, ρ N ] densely, additional levels yield diminishing returns. 
+
+8.2 Experiment B: Empirical Generalization Bound 
+
+Question. Theorem 4 states that observing ε-Free Inference on m random entry-level assignments ℓ : C → [N ] controls the failure probability on held-out assign-ments, with dε,δ  
+
+> FI
+
+as the sample-complexity parameter: 
+
+Pr 
+
+> ℓnew
+
+[εmargin > ε ] ≤ ˆpm +
+
+r d log N + log(1 /δ )2m .
+
+The empirical question is whether the held-out failure rate ˆptest stays below this predicted bound across operationally interesting regimes. 
+
+Protocol. On the 100 × 50 Random-Maze with N = 20 density levels, we compute Qmix once from the fixed family and reuse it across samples. We sample 
+
+m = 50 training nestings ℓ uniformly over [N ]|C|, construct a test maze at operational level k with obstacle set Ck(ℓ) = {c ∈ C : ℓ(c) ≤ k}, and find the VM-traversed path P ∗(ℓ, k ) as the coherence-maximising widest-path under 
+
+Qmix over the test maze’s free cells (full grid minus Ck(ℓ), not the family’s F ∗). A nesting fails if εmargin > ε . We repeat for 50 held-out nestings to obtain 
+
+ˆptest , sweep k ∈ { 1, . . . , N −1}, and explore three (ρmax , ε ) pairs spanning the The Free Inference Dimension 13 
+
+ρmax = 0 .75 , ε = 0 .02 , N = 15 ρmax = 0 .80 , ε = 0 .03 , N = 16 
+
+k ˆptr ˆpte bound ˆptr ˆpte bound 1 0.10 0.18 0.34 0.08 0.08 0.32 2 0.34 0.34 0.75 0.16 0.28 0.44 3 0.40 0.44 0.85 0.26 0.36 0.62 4 0.54 0.56 1.00 0.38 0.38 0.82 5 0.64 0.68 1.00 0.42 0.40 0.88 6 0.68 0.76 1.00 0.48 0.56 0.97 7 0.76 0.82 1.00 0.60 0.66 1.00 8 0.78 0.84 1.00 0.68 0.70 1.00 9 0.80 0.82 1.00 0.66 0.68 1.00 10 0.80 0.74 1.00 0.62 0.60 1.00 11 0.74 0.70 1.00 0.50 0.54 1.00 12 0.46 0.42 0.94 0.44 0.64 0.91 13 0.18 0.26 0.48 0.54 0.62 1.00 14 0.02 0.10 0.26 0.62 0.56 1.00 15 0.78 0.82 1.00 
+
+Table 3. Empirical failure rates ˆptr , ˆpte on m = 50 training and 50 held-out nestings versus the Hoeffding bound of Theorem 4, as a function of evaluation level k. The bound is reported in worst-case substitution d = dε,δ  
+
+> FI
+
+inverted from ˆptr , with δ = 0 .05 .
+
+regime structure: below-threshold (ρmax = 0 .7, ε = 0 , all nestings achieve FI), 
+
+at-threshold (ρmax = 0 .75 , ε = 0 .02 , ε just above typical εmargin ), and above-threshold (ρmax = 0 .80 , ε = 0 .03 ). We use δ = 0 .05 .
+
+Results. Table 3 reports the per-level training and test failure rates and the predicted bound for the two informative configurations. The below-threshold case ( ρmax = 0 .7, ε = 0 ) yields ˆptrain = ˆ ptest = 0 at every level: the fixed family is genuinely free-inference and the bound holds vacuously, providing a sanity check. Two patterns emerge from Table 3. (i) The Hoeffding bound holds in 100% of the 29 informative configurations : ˆptest ≤ bound at every level across both sweeps, including the central regime where ˆp exceeds 0.5, the headline validation of The-orem 4. (ii) ˆp(k) has an inverted-U shape : sparse at small k, near-deterministic at large k, peaking at 0.7–0.8 where random structure maximises layout variance. The bound tracks ˆp but stays above it throughout. 
+
+Empirical claim. (Empirical generalization for dε,δ  
+
+> FI
+
+.) On the canonical Random-Maze, ˆptest is bounded by the Hoeffding form of Theorem 4 in 100% of opera-tionally informative configurations spanning ˆp ∈ [0 .02 , 0.84] , both at- ( ρmax =0.75 ) and above-threshold ( ρmax = 0 .80 ). 
+
+8.3 Experiment C: Fine-Resolution Phase Transition Question. Does the sharp jump in C observed at ∆ρ = 0 .1 (Theorem 5) resolve into a continuous band at finer resolution, or remain discontinuous? 
+
+Protocol. On the 100 × 50 grid we hold the N = 11 family fixed (the marginal baseline, ρmax =0 .55 , C| ρtest =0 =0 ) and probe coherence by in-F ∗ perturbation :14 L.C.C. Guedes and E.H. Haeusler 
+
+at each test rate ρtest , mask a random ρtest · | F ∗|-fraction of F ∗ interior cells as additional obstacles, find the coherence-maximising widest path through the residual set, and record C and εmargin . We sweep ρtest ∈ { 0.000 , 0.025 , . . . , 0.500 }
+
+with M = 30 random masks per density. 
+
+Results. Table 4 reports the regime composition and C across the transition window. The fraction of marginal samples decays smoothly across six succes-sive ρtest values, spanning ∆ρ test ≈ 0.15 . The C-score traverses 0 → − 0.06 →−0.25 → − 0.63 → − 0.91 → − 0.94 → − 1.00 over the same six steps, with C std rising to ≈ 0.44 at the midpoint and falling back to zero, the variance peak is the signature of a continuous order parameter, not a delta-function discontinuity.                                    
+
+> ρtest 0.000 0.025 0.050 0.075 0.100 0.125 0.150 0.175 % marginal 100 97 87 63 20 730% fails 0013 23 67 83 53 40
+> C0.000 0.000 –0.061 –0.248 –0.628 –0.906 –0.941 –1.000
+> Table 4. N= 11 marginal-baseline sweep across the transition window. % marginal decays smoothly through six intermediate values rather than dropping in a single step.
+
+Empirical claim. The transition is continuous at fine resolution, with band width ∆ρ band ≈ 0.10 –0.15 . The ε-relaxation therefore delivers non-trivial ad-ditional capacity within the band: at ρtest = 0 .075 , choosing ε ≈ 0.15 lifts the failure rate from 23% to near-zero, since most failures at that density have 
+
+εmargin ∈ [0 .05 , 0.20] .
+
+Reproducibility Original experiments use the same Q-table library with N =10 ; Experiments A and B (for N = 20 ) require additional training at intermediate densities. Coherence-score computation is O(|F ∗| log |F ∗|) per assignment, so all experiments are feasible on a single workstation. Source code and data files can be accessed at https://github.com/anonarticle/BRACIS2026-SUBMISSION 
+
+## 9 Conclusion and Open Problems 
+
+This paper formalizes a regime of Bayesian meta-RL in which successful control does not require identifying the true environment: in nested constrained grid-worlds, a value-mixture agent reaches the goal collision-free while its posterior stays non-concentrated, Free Inference . Its capacity is the Free Inference dimen-sion dFI (S, N ), which, unlike VC- or Natarajan-style dimensions, measures not pointwise labeling but how much structured variation posterior averaging ab-sorbs before global trajectory coherence breaks. Theoretically dFI lies strictly below VC, relates to Natarajan up to a path-length factor, and is dual to the collision depth; with the PMS dimension dPMS it yields a three-regime picture: averaging suffices below dFI , identification becomes valuable above the relaxed capacity, and hybrids exploit both near the boundary. The Free Inference Dimension 15 
+
+Empirically the critical density is stable across Random-Maze families ( ρc ≈
+
+0.65 –0.70 ) and, at fine resolution, opens into a band where small tolerated mar-gin violations buy substantially larger usable capacity, so dε,δ  
+
+> FI
+
+reads as a graded operational capacity: since safety is often specified through tolerances or near-miss rates, it converts such tolerances into a sample-complexity-controlled ca-pacity, with the hybrid rule offering a simple robustness/efficiency/identification trade-off. Conceptually the paper connects Solomonoff-style mixture prediction, Bayesian RL, meta-RL task inference, and online learning with structured ad-versaries; the key distinction is non-adaptivity, which yields the exponential sep-aration dFI = Θ(|S|) vs. a Littlestone scale O(log N ).Several open problems remain: extending the theory to non-nested fami-lies; defining a navigation-specific Littlestone-type dimension for multi-action, trajectory-constrained control; formalizing non-adaptive Randomized Littlestone learning; deriving finite-size scaling laws for the transition band; and character-izing how adversarial constructions affect the asymptotic critical density. By making the regime measurable, testable, and connected to classical dimensions, 
+
+dFI is a tool for analyzing safe meta-RL under structured environmental uncer-tainty on grid-worlds. 
+
+Disclosure of AI use . The authors carefully reviewed, verified, and take full responsi-bility for all content. No AI tools were used to generate theoretical or empirical results, figures, or code unless explicitly stated elsewhere. 
+
+Disclosure of Interests. The authors have no competing interests to declare that are relevant to the content of this article. 
+
+## References 
+
+1. Balcan, M.F., Fragkia, K., Harris, K.: The stackelberg–littlestone dimension: Learn-ing to commit under strategic uncertainty. arXiv:2504.09006v3 (2026) 2. Duan, Y., Schulman, J., Chen, X., Bartlett, P.L., Sutskever, I., Abbeel, P.: rl 2: Fast reinforcement learning via slow reinforcement learning. arXiv:1611.02779 (2016) 3. Filmus, Y., Hanneke, S., Mehalel, I., Moran, S.: The randomized littlestone dimen-sion and prediction with expert advice. arXiv:2302.13849v4 (2025) 4. Ghavamzadeh, M., Mannor, S., Pineau, J., Tamar, A.: Bayesian reinforcement learning: A survey. Foundadions and Trends in ML 8(5–6), 359–483 (2015) 5. Humplik, J., Galashov, A., Hasenclever, L., Ortega, P.A., Teh, Y.W., Heess, N.: Meta reinforcement learning as task inference. arXiv:1905.06424 (2019) 6. Hutter, M.: Universal Artificial Intelligence: Sequential Decisions Based on Algo-rithmic Probability. Springer, Berlin (2005) 7. Natarajan, B.K.: On learning sets and functions. ML 4(1), 67–97 (1989) 8. Rakelly, K., Zhou, A., Quillen, D., Finn, C., Levine, S.: Efficient off-policy meta-reinforcement learning via probabilistic context variables. In: ICML. pp. 5331–5340 (2019) 9. Solomonoff, R.J.: A formal theory of inductive inference, parts i and ii. Information and Control 7(1–2), 1–22, 224–254 (1964) 10. Vapnik, V., Chervonenkis, A.: Theory of Pattern Recognition. Nauka (1974) 11. Zintgraf, L.M., Ortega, P.A., Goel, S., Khetarpal, K., Pascanu, R., Osband, I., Blundell, C., Heess, N.: Varibad: A very good method for bayes-adaptive deep rl via meta-learning. Journal of Machine Learning Research 22 (289), 1–39 (2021)
