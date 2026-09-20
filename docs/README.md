@@ -6,27 +6,22 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-19
-- 运行时间：2026-09-19 21:10:54 UTC
+- 最新运行日期：2026-09-20
+- 运行时间：2026-09-20 21:04:21 UTC
 - 运行状态：成功
-- 本次总论文数：2
+- 本次总论文数：0
 - 精读区：0
-- 速读区：2
+- 速读区：0
 
 ### 今日简报（AI）
-2026-09-19 日报速读两篇统计与推断方向论文，均获 6.0 分，无精读。值得关注的是准极大似然变点估计的"锐利信噪比阈值"，以及零碰撞导航在假设混合下的"自由推断维度"复杂度度量。普通读者可优先看变点估计那篇，理解信噪比何时让估计从不可靠变为可靠。
-- 详情：[/202609/19/README](/202609/19/README)
+> 今日无新推荐，系统未产出可展示论文。
+- 详情：[/202609/20/README](/202609/20/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [A Sharp Signal-to-Noise Threshold for Quasi-Maximum Likelihood Breakpoint Estimation](/202609/19/2609.12271v1-a-sharp-signal-to-noise-threshold-for-quasi-maximum-likelihood-breakpoint-estimation)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列变点估计的锐利信噪比阈值
-2. [The Free Inference Dimension: Complexity Measure for Zero-Collision Navigation under Hypothesis Mixtures](/202609/19/2609.17816v1-the-free-inference-dimension-complexity-measure-for-zero-collision-navigation-under-hypothesis-mixtures)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：无需识别真实环境的预测复杂度阈值理论
+- 本次无速读推荐。
 
 
 <div class="dpr-home-promo-card">
