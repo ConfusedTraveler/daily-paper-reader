@@ -1,0 +1,214 @@
+Title: Leaky-integrator reconstruction: taming error accumulation in recursive differenced time-series forecasting
+
+URL Source: https://arxiv.org/pdf/2609.23378v1
+
+Published Time: Tue, 22 Sep 2026 01:17:50 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+# LEAKY-INTEGRATOR RECONSTRUCTION: TAMING ERROR ACCUMULATION IN RECURSIVE DIFFERENCED TIME-SERIES FORECASTING 
+
+# Zijiang Yang 
+
+# New York University, Tandon School of Engineering, Brooklyn, NY 11201 zy3110@nyu.edu 
+
+ABSTRACT 
+
+We introduce leaky-integrator reconstruction , a training-free method that cures the error accumulation of recursive differenced forecast-ing. Our first contribution is diagnostic: predicting one-step changes and integrating them by cumulative summation, the standard rem-edy for non-stationarity, is a discrete integrator with a pole on the 
+
+unit circle , and we show this makes recursive rollout of a nonlin-ear model diverge , its 336 -step error reaching several times that of a well-behaved forecaster (normalised MAE 1.6–3.8 versus about 
+
+0.8) across every neural architecture tested. Our second, central contribution is the fix: move the pole inside the unit circle with a leaky integrator H(z)=1 /(1 −γz −1), γ< 1, which provably bounds the accumulated error variance. Applied at reconstruction time with a single fixed γ=0 .9 (no retraining, a two-line change to any de-ployed one-step or foundation-model forecaster), it shrinks error at every horizon, the mean gain over seven diverging architectures and twenty datasets growing from ∼ 3% at H=24 to 23% at H=96 ,
+
+37% at H=192 and 51% (43 –74% across those architectures) at 
+
+H=336 (78% with an oracle pole). Crucially, it is provably inert where no pathology exists (stable or joint predictors already at the irreducible rate), making it a safe, general default. 
+
+Index Terms — Time-series forecasting, differencing, error ac-cumulation, recursive forecasting, leaky integrator 
+
+1. INTRODUCTION 
+
+A pervasive way to forecast a non-stationary series {yt} is to predict its first difference ∆yt = yt − yt−1 and reconstruct levels by cumu-lative summation [1, 2]. This underlies ARIMA, autoregressive and probabilistic neural forecasters [3], recursively sampled foundation models, and is kin to the re-centering of instance normalization [4] and linear detrending [5]. When such a forecaster is rolled out re-cursively (each predicted increment fed back to form the next input), the reconstruction is a discrete integrator 1/(1 − z−1) with a pole at z = 1 , and the per-step errors are integrated without bound. We show this is not benign: recursively rolled out nonlinear forecast-ers diverge, their 336 -step error growing several-fold above a stable baseline. We propose a direct remedy from classical signal processing: move the pole inside the unit circle, i.e. reconstruct with a leaky 
+
+integrator 1/(1 − γz −1), γ < 1. The fix is applied purely at re-construction time ( no retraining, one scalar ), yet it rescues every diverging architecture. Our contributions are: (i) a signal-processing account of recursive differenced forecasting as a unit-pole integra-tor, and evidence that nonlinear rollout diverges (Sec. 2, 3); (ii) the leaky-integrator reconstruction, which provably bounds accumula-tion and, with a single fixed pole and no tuning, cuts H=336 error by 43 –74% across the diverging architectures over twenty datasets, the gain growing with horizon (Sec. 5); and (iii) a clear delineation of when the remedy applies (and, by design, does nothing), sepa-rating recursive over-accumulation from the irreducible growth of stable and joint predictors (Sec. 5). 
+
+2. METHOD: LEAKY-INTEGRATOR RECONSTRUCTION 
+
+Let a one-step model predict the increment ∆ˆ y. Rolling it out and reconstructing levels from the last observation yt−1 gives 
+
+ˆyt+h = yt−1 +
+
+> h
+
+X
+
+> j=1
+
+∆ˆ yt+j , (1) the discrete integrator H(z) = 1 /(1 − z−1) with a pole at z = 1 .Writing the increment error as ej = ∆ˆ yt+j − ∆yt+j , the recon-structed level error is the running sum εh = P 
+
+> j≤h
+
+ej ; for zero-mean, weakly correlated ej of variance σ2, Var( εh) ≈ hσ 2, so 
+
+RMS( εh) ∝ √h for white errors; a learned model’s errors are bi-ased and correlated , so the sum accumulates faster. This excess is a property of the integration, not of recursive feedback (Sec. 3); the remedy is to damp the integrator. 
+
+Our reconstruction. We replace the pure integrator with a leaky 
+
+one, Hγ (z) = 1 /(1 − γz −1) with 0 < γ ≤ 1:
+
+ˆyt+h = yt−1 + sh, sh = γ s h−1 + ∆ˆ yt+h. (2) Older increments now decay geometrically as γh−j , moving the pole to z = γ inside the unit circle. Equivalently, (2) is a first-order IIR low-pass (an exponentially-weighted integrator) on the predicted-increment stream, with γ interpolating between pure inte-gration ( γ=1 ) and pure persistence ( γ=0 ). The accumulated error variance is then bounded , Var( εh) → σ2/(1 − γ2): the pole trades an O(1 −γ) steady-state trend bias for arrested variance growth, so the optimal γ tracks the ratio of accumulated error variance to genuine trend: strong damping when the recursion diverges, none when it is stable. Crucially (2) is post-hoc: the increment model is untouched, so the fix costs a single scalar and no retraining. 
+
+Synthetic validation. Fig. 1 verifies both halves of the model di-rectly. Integrating a white increment-error sequence gives α = 0 .50 
+
+to three digits; endowing the errors with AR(1) autocorrelation ρ
+
+shifts α smoothly, and the mild anti-correlation of real increment errors ( ρ ≈ − 0.2) recovers the empirical 0.44 . Passing the same sequence through the leaky filter caps its accumulated RMS at 
+
+1/p1 − γ2 (5.0 at γ=0 .98 , 2.3 at γ=0 .9), matching theory to within 1% .
+
+3. WHY TRADITIONAL RECURSION FAILS 
+
+The integrator makes error grow as √k with forecast step k. On a benchmark of five forecasters over sixteen datasets and seven hori-zons, the change formulation grows with exponent α=0 .44 (Fig. 2), arXiv:2609.23378v1 [cs.AI] 20 Sep 2026 0.4 0.2 0.0 0.2 0.4 increment-error autocorrelation ρ           
+
+> 0.44 0.46 0.48 0.50 0.52 growth exponent  α
+> observed 0.44
+> Synthetic: αvs. ρ
+> 050 100 150 200 250 300 350 step k
+> 510 15 integrated-error RMS
+> Leaky bounds accumulation
+> γ=0.9
+> γ=0.95
+> γ=0.98
+> γ=0.99
+> γ=1.0
+
+Fig. 1 . Synthetic validation of the error model. Left: integrating an AR(1) increment-error sequence of autocorrelation ρ gives growth exponent α; white noise yields α=0 .5, and mild anti-correlation (ρ ≈ − 0.2) reproduces the observed 0.44 . Right: the leaky integra-tor caps the accumulated RMS at 1/p1 − γ2, versus the unbounded √h of the pure integrator. 10 0 10 1 10 2
+
+forecast step k
+
+10 0
+
+10 1
+
+> MAE( k)/MAE(1)
+
+Error accumulation ( H = 336 )
+
+> change ( α=0.44) random walk ( α=0.41) RevIN ( α=0.44) direct ( α=0.36)
+> √
+> k
+
+Fig. 2 . Per-step error growth MAE( k)/MAE(1) at H=336 ,averaged over five of our architectures (LSTM, GRU, DLinear, PatchTST, iTransformer), sixteen datasets and three seeds. Differ-enced (change) error tracks the √k integrator law and coincides with the random-walk (irreducible) rate; level prediction grows far more slowly. reaching 14 × at 336 steps versus 5.0× for level prediction; the exponent is architecture-independent ( α ∈ [0 .41 , 0.45] , Table 1) and coincides with the random-walk baseline ( α=0 .41 ), the irre-ducible rate for which persistence is optimal. This √k is the floor for white errors; a learned model’s increment errors are biased and correlated, so integrating them sends H=336 normalised MAE to 
+
+1.6–3.8 (pure column, Table 3), well above the ≈ 0.8 floor. Cru-cially this excess is intrinsic to the integration , not to feedback: a 
+
+teacher-forced rollout (every increment predicted from the true past, no feedback) accumulates as much or more (mean H=336 nMAE over MLP/GRU/Transformer: 2.3 teacher-forced vs. 1.8 recursive), and free-running recursion even self-damps as its inputs contract. Damping the integrator removes this excess, leaving the irreducible √k.
+
+4. EXPERIMENTAL SETUP Data. We use twenty univariate target series spanning ten domains and a wide range of sampling rates, from daily financial data to 
+
+10 –15 min energy, climate and traffic sensors: cryptocurrencies (BTC, ETH, SOL, BNB, XRP), equity indices (S&P 500, Nikkei), commodities (oil, gold), rates/volatility (10y yield, VIX), FX (ex-change rate), energy (electricity), climate (weather, temperature), 
+
+Table 1 . Per-step growth exponent α and factor g(336) of differ-enced (change) vs. level (direct) forecasting, by model (benchmark, joint prediction). The change exponent is ≈ √k for every architec-ture. change direct model α g(336) α g(336) 
+
+LSTM 0.45 15.0 0.25 2.6 GRU 0.45 14.8 0.26 3.2 DLinear 0.41 13.6 0.49 13.0 PatchTST 0.45 14.3 0.30 3.4 iTransformer 0.43 14.1 0.27 2.7 traffic, and industrial ETT sensors (ETTh1/2, ETTm1/2). Each se-ries is split 70 /10 /20 chronologically (train/val/test) to preclude look-ahead leakage, and z-standardised using only training-window statistics so that normalised MAE is scale-free and comparable across domains. We group the series into three regimes: drift (12 trending financial/commodity series, where differencing is needed), 
+
+structured (4 ETT sensors with strong daily/weekly seasonality), and near-stationary (4: electricity, weather, temperature, traffic), which isolate where the integrated errors drift most. 
+
+Architectures. We evaluate nine one-step increment predictors: linear autoregression, MLP, LSTM [6], GRU, DLinear [5], a dilated TCN, PatchTST [7], iTransformer [8] and a small Transformer. Our LSTM, GRU and Transformer rollouts are genuine autoregres-sive decoders (the native mode of ARIMA, DeepAR and sampled foundation models), where exposure bias [9] is expected; DLinear, PatchTST and iTransformer are natively joint multi-output mod-els that we additionally roll out to test whether the mechanism is architecture-general (their joint use is inert, Sec. 5). These are compact univariate reimplementations that keep each design’s core (patching, inverted attention, linear decomposition); the univariate iTransformer in particular loses its cross-variate mixing, so its roll-out figures probe the mechanism rather than rank the architecture. 
+
+Training. Every model is trained once (single seed) to predict the next normalised increment ∆zt from the previous L=96 incre-ments, minimising a one-step MSE with Adam (learning rate 10 −3,batch 256 , a few epochs over the sliding windows of the training split, sub-sampled for the longest series). The networks are deliber-ately compact, so that the reconstruction pole, not model capacity, is the variable under study, with a 64 -unit MLP, 32 –64 -unit recurrent cells, a three-block dilated TCN, a one-layer width-32 four-head Transformer, and lightweight univariate PatchTST/iTransformer en-coders. The direct multi-horizon (direct-MH) variant of each shares this backbone but replaces the one-step head with an H-output head trained jointly on all H future increments. 
+
+Rollout, reconstruction and metric. At each of up to 200 stride-spaced forecast origins per test series (series yielding fewer than 15 
+
+valid origins are dropped), we roll the one-step model out autoregres-sively to H=336 , feeding each predicted increment back as the next input, and reconstruct levels from the last observation either with the traditional pure integrator ( γ=1 , a cumulative sum) or with our leaky filter (Eq. (2), a first-order IIR). We report normalised MAE 
+
+(MAE /σ train , scale-free and averageable across series) at horizons 
+
+{24 , 96 , 192 , 336 }, averaged over origins then datasets. For the or-acle upper bound the pole is swept over a 13 -point grid in [0 , 1] ;unless stated we use the deployable γ=0 .9.Table 2 . Per-dataset normalised MAE at H=336 (mean over the seven nonlinear architectures). Our fixed-γ=0 .9 reconstruction low-ers error over the traditional recursive integrator (rec.) on nineteen of twenty datasets, dramatically where recursion diverges (e.g. Traffic 
+
+7.07 → 1.06 , Weather 2.93 → 1.06 ), the sole exception being the near-random-walk SP500 ( 0.90 → 0.96 ). Bold marks the better of rec. and ours; a well-trained direct multi-horizon model (d-MH) is shown for reference. dataset rec. ours d-MH dataset rec. ours d-MH BTC 2.81 1.33 1.37 VIX 1.27 0.59 0.60 ETH 2.05 0.71 0.74 Exch. 0.68 0.47 0.48 SOL 1.98 0.67 1.02 ETTh1 1.16 0.34 0.34 BNB 1.97 0.76 0.67 ETTh2 1.90 0.63 0.54 XRP 4.09 3.43 3.51 ETTm1 1.01 0.28 0.27 SP500 0.90 0.96 0.92 ETTm2 2.07 0.56 0.46 Nikkei 0.84 0.81 0.79 Elec. 1.42 1.06 0.76 Oil 0.95 0.49 0.50 Weather 2.93 1.06 1.01 Gold 0.99 0.94 0.88 Temp 2.71 1.22 1.23 Yield10y 1.05 0.57 0.65 Traffic 7.07 1.06 1.16 
+
+Table 3 . Our leaky reconstruction vs. the traditional pure-recursive integrator , at H=336 (normalised MAE, 20 datasets, nine architectures). “ours” is a single fixed pole γ=0 .9 (deployable, no tuning; γ=1 for stable linear-AR); “oracle” is the best per-dataset pole (an upper bound); “Impr.” is the fixed-γ reduction over the pure integrator. Nonlinear recursion diverges and the fixed pole rescues it; stable linear-AR is correctly unchanged. architecture recursive ours oracle Impr. linear-AR 0.80 0.80 0.79 0% MLP 1.56 0.90 0.84 43% LSTM 1.57 0.90 0.86 43% GRU 1.77 0.88 0.82 50% DLinear 0.90 0.86 0.81 4% TCN 1.75 0.88 0.86 50% PatchTST 1.74 0.87 0.82 50% iTransformer 1.74 0.89 0.81 49% Transformer 3.80 0.97 0.84 74% 
+
+5. RESULTS Improvement over traditional recursion (nine architectures). We train a one-step increment predictor for each of nine architectures (linear-AR, MLP, LSTM, GRU, DLinear, TCN, PatchTST, iTrans-former, Transformer), roll each out to H=336 on twenty datasets, and reconstruct with the pure ( γ=1 ) versus our leaky pole. Table 3 and Fig. 3 give the result. Every nonlinear model diverges under the pure integrator; a single fixed pole γ=0 .9 pulls all of them back to 
+
+≈ 0.87 –0.97 nMAE, a 43 –74% error reduction (the Transformer, which diverges worst at 3.8, gains most; an oracle per-dataset pole reaches 0.81 –0.86 , i.e. up to 78% ); Table 2 gives the full per-dataset breakdown. Linear-AR is stable and, correctly, left at γ=1 . Fig. 4 shows the mechanism on individual forecasts, the pure integrator drifts away while our reconstruction stays anchored, and Table 4 breaks the effect down by regime: divergence is worst on near-stationary series (pure nMAE 3.53 , where a trendless target gives the integrated increment errors no real trend to anchor to), which the fixed pole rescues to 1.10 . Over three seeds the fixed-γ=0 .9 error is stable (std ≤ 0.24 nMAE) while the pure integrator is seed-erratic (Transformer std 5.4), so the fix also removes recursion’s run-to-run 24 96 192 336 horizon H  
+
+> 025 50 75 improvement (%)
+> (a) Advantage grows with horizon
+> linear-AR MLP LSTM GRU DLinear TCN PatchTST iTransformer Transformer
+> linear-AR MLP LSTM GRU DLinear TCN PatchTST iTransformer Transformer
+> 0123nMAE @  H = 336
+> (b) Divergence rescued (9 architectures)
+> traditional recursive ours (fixed γ= 0 .9)
+
+Fig. 3 . (a) Improvement of our leaky reconstruction (fixed γ=0 .9)over the traditional pure-recursive integrator vs. horizon, the advan-tage grows monotonically with H for every nonlinear architecture and is flat for stable linear-AR. (b) At H=336 the pure integrator diverges (nMAE 1.6–3.8); our method restores every diverging ar-chitecture to ≈ 0.87 –0.97 .instability. 
+
+The advantage grows with the horizon. Fig. 3(a) and Table 5 show the improvement is negligible at short horizons (where little has ac-cumulated, and a fixed pole can even over-damp) and rises monoton-ically to 43 –74% at H=336 for the recurrent and attention models, so the method is most valuable exactly at the long horizons where naive recursion is most damaged. 
+
+The pole needs no tuning. Fig. 5 shows the error is a smooth func-tion of γ that plateaus once γ ≲ 0.9, with the optimum shifting to stronger damping at longer horizons. This is why we headline a sin-gle fixed γ=0 .9: it recovers almost all of the oracle gain ( +43% vs. 
+
++46% for MLP; +74% vs. +78% for the Transformer, Table 3) with no per-dataset search. Selecting γ per (model,dataset) on a held-out validation split reaches test nMAE 0.76 , just below the fixed γ=0 .9
+
+(0.81 ) and near the oracle ( 0.73 ): the fixed default leaves little on the table. The one rule: withhold damping from a stable recursion. Applied to linear-AR, γ=0 .9 instead costs 9.3% , as there is no di-vergence to arrest, a case the super-√k diagnostic (Sec. 6) detects automatically. 
+
+Relation to direct multi-horizon prediction. The usual alterna-tive, a direct multi-horizon (direct-MH) model emitting all H steps jointly, is a strong baseline overall competitive with our recon-structed one-step model (Tables 2, 4), but it is a separate, wider model with its own training run; our fix instead reuses an existing predictor at no cost, so the two are complementary. 
+
+Scope. The remedy targets integration over -accumulation, not the irreducible √k: it is inert for stable linear recursion and for joint 
+
+multi-output forecasters (which never integrate one-step increments, gaining ≈ 0% ), where accuracy is governed by the signal and the 0 50 100 150 200 250 300 350 forecast step k            
+
+> 2
+> 024standardised level Weather
+> true pure ( γ= 1 )leaky ( γ= 0 .9)
+> 050 100 150 200 250 300 350 forecast step k
+> 2
+> 1
+> 012standardised level Temp
+> true pure ( γ= 1 )leaky ( γ= 0 .9)
+
+Fig. 4 . A single 336 -step recursive Transformer forecast on two near-stationary series. The pure integrator ( γ=1 ) drifts away, down on Weather, up on Temp, as the integrated increment errors accumu-late, while the leaky reconstruction ( γ=0 .9) stays anchored to the true level. 
+
+Table 4 . Recursive rollout by regime at H=336 (nMAE, mean over the seven nonlinear architectures). The pure integrator diverges most on near-stationary series; our reconstruction rescues every regime, approaching a well-trained direct multi-horizon model (direct-MH, shown for reference) at no training cost. regime recursive ours direct-MH drift ( n=12 ) 1.63 0.98 1.01 structured ( n=4 ) 1.54 0.45 0.40 stationary ( n=4 ) 3.53 1.10 1.04 target choice. 
+
+6. DISCUSSION Practical guidance. Deployment is a two-line change (reconstruct with a fixed γ=0 .9, no retraining) gated by a one-line diagnostic: damp only when the pure-integrator error grows super-√k on a val-idation split, else leave a stable or joint model at γ=1 .
+
+Cost and generality. The remedy adds no parameters and no train-ing: at inference it is an O(H) first-order filter over the predicted increments. That a single γ=0 .9 works across every diverging archi-tecture is no accident: the divergence is a property of the unit-pole reconstruction, not of any one model, and the error-versus-γ curve is flat over a wide plateau (Fig. 5). 
+
+7. RELATION TO PRIOR WORK Differencing and stationarisation. Differencing to induce station-arity is the foundation of Box–Jenkins ARIMA modelling [1], and error-correction / cointegration models [2] formalise how integrated series are recombined. The same idea reappears in deep forecast-ing as per-window re-centring: reversible instance normalisation [4], non-stationary attention [10] and DLinear’s linear detrending [5] all forecast a de-trended or differenced target, exactly the setting we analyse; the leaky reconstruction we adopt is itself a first-order ex-ponential smoother of the increment stream [11]. 
+
+Long-horizon architectures and the multi-horizon strategy. Most modern long-sequence forecasters (Informer [12], Autoformer [13], FEDformer [14], PatchTST [7] and iTransformer [8]) emit all H
+
+steps jointly (direct multi-horizon), and N-BEATS [15] and its hi-erarchical successor N-HiTS [16] use direct basis-expansion heads, precisely to avoid recursion. Whether to forecast directly or iterate one step at a time is a long-standing question in the forecasting lit-erature [17]. Recursive rollout nonetheless remains the native mode 
+
+Table 5 . Improvement of our reconstruction (fixed γ=0 .9) over the traditional recursive integrator (% reduction in nMAE) by horizon .The advantage grows monotonically with H; at short horizons the fixed pole can slightly over-damp (negative entries), as γ∗ → 1 when 
+
+H→0 (Fig. 5). Linear-AR is held at γ=1 .architecture H=24 H=96 H=192 H=336 
+
+linear-AR 0 0 0 0MLP −11 4 23 43 LSTM 1 17 29 43 GRU 3 21 36 50 DLinear −6 −6 −3 4TCN 6 22 36 50 PatchTST 6 25 38 50 iTransformer −3 12 29 49 Transformer 22 57 67 74 0.0 0.2 0.4 0.6 0.8 1.0 leaky pole γ     
+
+> 10 0
+> 2 × 10 0
+> 3 × 10 0
+> 4 × 10 0
+> nMAE @  H = 336
+> Error vs. pole
+> linear-AR MLP LSTM GRU DLinear TCN PatchTST iTransformer Transformer
+> 24 96 192 336 horizon H
+> 0.0 0.2 0.4 0.6 0.8 1.0 optimal  γ ∗
+> More damping at longer H
+
+Fig. 5 . Setting the pole. Left: H=336 error vs. γ (γ decreasing rightward, log scale), nonlinear models fall steeply and plateau be-low γ ≈ 0.8; stable linear-AR degrades under any damping. Right: 
+
+the optimal pole γ∗ falls with the horizon. for classical ARIMA, autoregressive probabilistic models such as DeepAR [3], and autoregressively sampled foundation models such as TimesFM [18], the regime in which our fix is most needed. 
+
+Exposure bias and our position. In recurrent sequence mod-els [19] recursive error growth is known as exposure bias and is usually attacked at training time (scheduled sampling [9], professor forcing [20] and probabilistic rollout [3]), while its bias–variance trade-off has been studied for multistep forecasting [21]. In contrast, we contribute (i) a signal-processing account that identifies recur-sive differenced reconstruction as a unit-pole integrator , whose error accumulates as √k and, for a biased learned model, diverges; and (ii) a training-free , single-scalar remedy by pole placement, with a closed-form variance bound, that rescues every diverging archi-tecture at no training cost. To our knowledge the leaky-integrator reconstruction and its bias–variance analysis are new to time-series forecasting. 
+
+8. CONCLUSION 
+
+We identified the root cause of long-horizon failure in differenced forecasting: its reconstruction is a discrete integrator with a pole on the unit circle, so a learned model’s biased increment errors are in-tegrated without bound, diverging to several times the irreducible √k rate (up to 3.8 normalised MAE). Our contribution turns this di-agnosis into a cure: placing the pole inside the unit circle (a leaky integrator with one scalar γ) provably bounds the accumulated vari-ance, and applied post hoc with a fixed γ=0 .9 and no retraining it cuts 336 -step error by 43 –74% on the seven diverging architectures over twenty datasets, and is principled , general , and safe by design. 9. REFERENCES 
+
+[1] George E. P. Box and Gwilym M. Jenkins, Time Series Analy-sis: Forecasting and Control , Holden-Day, 1970. [2] Robert F. Engle and Clive W. J. Granger, “Co-integration and error correction: Representation, estimation, and testing,” 
+
+Econometrica , vol. 55, no. 2, pp. 251–276, 1987. [3] David Salinas, Valentin Flunkert, Jan Gasthaus, and Tim Januschowski, “DeepAR: Probabilistic forecasting with au-toregressive recurrent networks,” Int. J. of Forecasting , vol. 36, no. 3, pp. 1181–1191, 2020. [4] Taesung Kim, Jinhee Kim, Yunwon Tae, Cheonbok Park, Jang-Ho Choi, and Jaegul Choo, “Reversible instance normalization for accurate time-series forecasting against distribution shift,” in Int. Conf. on Learning Representations (ICLR) , 2022. [5] Ailing Zeng, Muxi Chen, Lei Zhang, and Qiang Xu, “Are transformers effective for time series forecasting?,” in AAAI Conf. on Artificial Intelligence , 2023, pp. 11121–11128. [6] Sepp Hochreiter and J¨ urgen Schmidhuber, “Long short-term memory,” Neural Computation , vol. 9, no. 8, pp. 1735–1780, 1997. [7] Yuqi Nie, Nam H. Nguyen, Phanwadee Sinthong, and Jayant Kalagnanam, “A time series is worth 64 words: Long-term forecasting with transformers,” in Int. Conf. on Learning Rep-resentations (ICLR) , 2023. [8] Yong Liu, Tengge Hu, Haoran Zhang, Haixu Wu, Shiyu Wang, Lintao Ma, and Mingsheng Long, “iTransformer: Inverted transformers are effective for time series forecasting,” in Int. Conf. on Learning Representations (ICLR) , 2024. [9] Samy Bengio, Oriol Vinyals, Navdeep Jaitly, and Noam Shazeer, “Scheduled sampling for sequence prediction with recurrent neural networks,” in Advances in Neural Information Processing Systems (NeurIPS) , 2015, pp. 1171–1179. [10] Yong Liu, Haixu Wu, Jianmin Wang, and Mingsheng Long, “Non-stationary transformers: Exploring the stationarity in time series forecasting,” in Advances in Neural Information Processing Systems (NeurIPS) , 2022, pp. 9881–9893. [11] Everette S. Gardner Jr., “Exponential smoothing: The state of the art—part II,” Int. J. of Forecasting , vol. 22, no. 4, pp. 637–666, 2006. [12] Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong, and Wancai Zhang, “Informer: Be-yond efficient transformer for long sequence time-series fore-casting,” in AAAI Conf. on Artificial Intelligence , 2021, pp. 11106–11115. [13] Haixu Wu, Jiehui Xu, Jianmin Wang, and Mingsheng Long, “Autoformer: Decomposition transformers with auto-correlation for long-term series forecasting,” in Advances in Neural Information Processing Systems (NeurIPS) , 2021, pp. 22419–22430. [14] Tian Zhou, Ziqing Ma, Qingsong Wen, Xue Wang, Liang Sun, and Rong Jin, “FEDformer: Frequency enhanced decomposed transformer for long-term series forecasting,” in Int. Conf. on Machine Learning (ICML) , 2022. [15] Boris N. Oreshkin, Dmitri Carpov, Nicolas Chapados, and Yoshua Bengio, “N-BEATS: Neural basis expansion analy-sis for interpretable time series forecasting,” in Int. Conf. on Learning Representations (ICLR) , 2020. [16] Cristian Challu, Kin G. Olivares, Boris N. Oreshkin, Federico Garza, Max Mergenthaler-Canseco, and Artur Dubrawski, “N-HiTS: Neural hierarchical interpolation for time series fore-casting,” in AAAI Conf. on Artificial Intelligence , 2023. [17] Massimiliano Marcellino, James H. Stock, and Mark W. Wat-son, “A comparison of direct and iterated multistep AR meth-ods for forecasting macroeconomic time series,” Journal of Econometrics , vol. 135, no. 1–2, pp. 499–526, 2006. [18] Abhimanyu Das, Weihao Kong, Rajat Sen, and Yichen Zhou, “A decoder-only foundation model for time-series forecasting,” in Int. Conf. on Machine Learning (ICML) , 2024. [19] Ilya Sutskever, Oriol Vinyals, and Quoc V. Le, “Sequence to sequence learning with neural networks,” in Advances in Neural Information Processing Systems (NeurIPS) , 2014, pp. 3104–3112. [20] Alex Lamb, Anirudh Goyal, Ying Zhang, Saizheng Zhang, Aaron Courville, and Yoshua Bengio, “Professor forcing: A new algorithm for training recurrent networks,” in Advances in Neural Information Processing Systems (NeurIPS) , 2016. [21] Souhaib Ben Taieb and Amir F. Atiya, “A bias and variance analysis for multistep-ahead time series forecasting,” IEEE Trans. on Neural Networks and Learning Systems , vol. 27, no. 1, pp. 62–76, 2016.

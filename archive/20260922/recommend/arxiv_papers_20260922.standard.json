@@ -1,0 +1,134 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-22T21:49:00.844476+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2609.22820v1",
+      "source": "arxiv",
+      "title": "Beyond Average Error through Oracle-Informed Stress Tests for Time-Series Forecasting",
+      "abstract": "Average squared error cannot reveal whether forecasting performance degrades because the future becomes less predictable or because forecasts move farther from the conditional mean. We introduce paired, mechanism-controlled stress tests that decompose changes in expected squared error at each lead time into environmental risk and forecast-oracle distance, using an origin-conditioned predictive oracle unavailable to the evaluated models. Three end-to-end controls have known attribution. Specifically, the null, environmental-only, and information-gap controls verify that the pipeline assigns changes to the correct component. We then apply the benchmark to 24 deployable forecasters. Under frequent switching, 14 methods have higher realized MSE but lower oracle distance; under outlier-variance feedback, 19 have higher MSE but lower scale-standardized MSE. Short- and long-lead stress-response rankings have Spearman correlation 0.624, revealing substantial horizon-dependent reordering. We then study multivariate relation shifts. Across six models and three coupling severities, oracle distance accounts for only 0.7-3.9% of the decomposed expected-risk increase, and environmental-risk majority persists in an eight-channel system and a matched-difficulty audit of Ring, Block, and Hub relations. Finally, prespecified contrasts on independent data-generating process (DGP) realizations show that several visually compelling discovery profiles, including trend accumulation and the hypothesized switching reversal, do not replicate. The benchmark thus combines component-wise diagnosis with a held-out stability audit. It complements real-data out-of-distribution evaluation, which measures performance under realistic shifts when exact oracle attribution is unavailable.",
+      "authors": [
+        "Xu Lin",
+        "Runheng Zuo",
+        "Shengxuan Xu",
+        "Qitai Tan",
+        "Hongyu Lin",
+        "Xiao-Ping Zhang"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-19T06:42:49+00:00",
+      "link": "https://arxiv.org/pdf/2609.22820v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "decomposes forecast error to reveal whether the future becomes less predictable",
+      "llm_evidence_cn": "分解预测误差以判断未来是否更不可预测",
+      "llm_evidence": "分解预测误差以判断未来是否更不可预测",
+      "canonical_evidence": "分解预测误差以判断未来是否更不可预测",
+      "llm_tldr_en": "Average squared error cannot tell whether forecasts degrade because the future becomes less predictable or because predictions drift from the conditional mean. The authors propose oracle-informed stress tests that decompose error into environmental risk and forecast-oracle distance, validated by three controls and applied to 24 forecasters.",
+      "llm_tldr_cn": "平均平方误差无法区分预测性能下降是因为未来本身变得更难预测，还是因为预测偏离了条件均值。作者提出基于预言机的配对压力测试，将各预测步长的误差分解为环境风险与预测-预言机距离两个成分，并用三种已知归因的对照实验验证流程正确性。在24个可部署预测器上，该方法揭示了频繁切换情形下不同方法的可预测性差异。这项工作为时间序列预测提供了区分环境不可预测性与模型误差的诊断框架。",
+      "llm_tldr": "平均平方误差无法区分预测性能下降是因为未来本身变得更难预测，还是因为预测偏离了条件均值。作者提出基于预言机的配对压力测试，将各预测步长的误差分解为环境风险与预测-预言机距离两个成分，并用三种已知归因的对照实验验证流程正确性。在24个可部署预测器上，该方法揭示了频繁切换情形下不同方法的可预测性差异。这项工作为时间序列预测提供了区分环境不可预测性与模型误差的诊断框架。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2609.23378v1",
+      "source": "arxiv",
+      "title": "Leaky-integrator reconstruction: taming error accumulation in recursive differenced time-series forecasting",
+      "abstract": "We introduce leaky-integrator reconstruction, a training-free method that cures the error accumulation of recursive differenced forecasting. Our first contribution is diagnostic: predicting one-step changes and integrating them by cumulative summation, the standard remedy for non-stationarity, is a discrete integrator with a pole on the unit circle, and we show this makes recursive rollout of a nonlinear model diverge, its 336-step error reaching several times that of a well-behaved forecaster (normalised MAE 1.6-3.8 versus about 0.8) across every neural architecture tested. Our second, central contribution is the fix: move the pole inside the unit circle with a leaky integrator H(z) = 1/(1 - gamma z^-1), gamma < 1, which provably bounds the accumulated error variance. Applied at reconstruction time with a single fixed gamma=0.9 (no retraining, a two-line change to any deployed one-step or foundation-model forecaster), it shrinks error at every horizon, the mean gain over seven diverging architectures and twenty datasets growing from ~3% at H=24 to 23% at H=96, 37% at H=192 and 51% (43-74% across those architectures) at H=336 (78% with an oracle pole). Crucially, it is provably inert where no pathology exists (stable or joint predictors already at the irreducible rate), making it a safe, general default.",
+      "authors": [
+        "Zijiang Yang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "q-fin.CP"
+      ],
+      "published": "2026-09-20T05:59:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.23378v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical analysis of error accumulation and divergence in recursive forecasting",
+      "llm_evidence_cn": "递归预测中误差累积与发散的理论分析",
+      "llm_evidence": "递归预测中误差累积与发散的理论分析",
+      "canonical_evidence": "递归预测中误差累积与发散的理论分析",
+      "llm_tldr_en": "The paper diagnoses that recursive differenced forecasting acts as a discrete integrator with a unit-circle pole, causing nonlinear rollout divergence, and fixes it with a training-free leaky-integrator reconstruction.",
+      "llm_tldr_cn": "针对递归差分预测误差累积导致发散的问题，论文首先给出诊断：一步变化预测再累加求和等价于单位圆上带极点的离散积分器，会使非线性模型递归展开发散，336步误差可达良好预测器的数倍。随后提出无需训练的泄漏积分器重构方法，将极点移入单位圆内以抑制误差累积。该工作从理论层面刻画了时间序列递归预测的误差增长边界，对理解预测极限与稳定性有直接意义。",
+      "llm_tldr": "针对递归差分预测误差累积导致发散的问题，论文首先给出诊断：一步变化预测再累加求和等价于单位圆上带极点的离散积分器，会使非线性模型递归展开发散，336步误差可达良好预测器的数倍。随后提出无需训练的泄漏积分器重构方法，将极点移入单位圆内以抑制误差累积。该工作从理论层面刻画了时间序列递归预测的误差增长边界，对理解预测极限与稳定性有直接意义。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.24929v1",
+      "source": "arxiv",
+      "title": "Conformalized Quantile Regression and Minimax Limits of Fixed-Score Calibration under Known Covariate Shift",
+      "abstract": "In this paper, we study nonasymptotic $L^p$ error bounds for interval length and conditional coverage in split conformalized quantile regression (CQR). Our bounds rely on local regularity conditions and accuracy guarantees for the estimated quantiles. We further instantiate our bounds for quantile regression with sparse ReLU neural networks. We also consider covariate shift, where the calibration and test covariates have different distributions, and derive nonasymptotic bounds for this setting. We obtain matching minimax upper and lower bounds in expectation for two constructed fixed-score calibration benchmarks under known covariate shift. The bounds match for every $p\\in[1,\\infty]$ in the scalar problem and for finite $p$ in the $K$-threshold problem; for the latter, a high-probability minimax lower bound holds for every $p\\in[1,\\infty]$.",
+      "authors": [
+        "Rustam Isaev",
+        "Anton Conrad",
+        "Denis Belomestny",
+        "Eric Moulines",
+        "Sergey Samsonov"
+      ],
+      "primary_category": "math.ST",
+      "categories": [
+        "math.ST",
+        "cs.LG",
+        "stat.ML"
+      ],
+      "published": "2026-09-21T17:24:00+00:00",
+      "link": "https://arxiv.org/pdf/2609.24929v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "minimax upper and lower bounds on prediction calibration accuracy",
+      "llm_evidence_cn": "预测校准精度的极小极大上下界",
+      "llm_evidence": "预测校准精度的极小极大上下界",
+      "canonical_evidence": "预测校准精度的极小极大上下界",
+      "llm_tldr_en": "Derives nonasymptotic Lp bounds for conformalized quantile regression and matching minimax upper and lower bounds for fixed-score calibration under known covariate shift.",
+      "llm_tldr_cn": "针对保形分位数回归的区间长度与条件覆盖缺乏非渐近误差刻画的问题，本文在局部正则条件与分位数估计精度保证下推导L^p非渐近界。作者进一步对稀疏ReLU网络的分位数回归实例化这些界，并在校准与测试协变量分布不同的已知协变量偏移下给出相应界。研究构造两个固定分数校准基准，得到期望意义下匹配的极小极大上下界。其贡献在于为预测区间与校准方法提供了理论极限刻画。",
+      "llm_tldr": "针对保形分位数回归的区间长度与条件覆盖缺乏非渐近误差刻画的问题，本文在局部正则条件与分位数估计精度保证下推导L^p非渐近界。作者进一步对稀疏ReLU网络的分位数回归实例化这些界，并在校准与测试协变量分布不同的已知协变量偏移下给出相应界。研究构造两个固定分数校准基准，得到期望意义下匹配的极小极大上下界。其贡献在于为预测区间与校准方法提供了理论极限刻画。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

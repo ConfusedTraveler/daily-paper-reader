@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-22",
+  "date": "2026-09-22",
+  "generated_at": "2026-09-22T21:54:57",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/22/2609.22820v1-beyond-average-error-through-oracle-informed-stress-tests-for-time-series-forecasting",
+      "section": "deep",
+      "title_en": "Beyond Average Error through Oracle-Informed Stress Tests for Time-Series Forecasting",
+      "authors": "Xu Lin, Runheng Zuo, Shengxuan Xu, Qitai Tan, Hongyu Lin, Xiao-Ping Zhang",
+      "date": "2026-09-19",
+      "pdf": "https://arxiv.org/pdf/2609.22820v1",
+      "score": "8.0",
+      "evidence": "分解预测误差以判断未来是否更不可预测",
+      "tldr": "平均平方误差无法区分预测变差是未来更难预测还是预测偏离条件均值。本文提出配对、机制可控的压力测试，用仅评估方可见的起点条件预测oracle，将各提前期期望平方误差变化分解为环境风险与预测-oracle距离。对24个可部署预测器测试发现，频繁切换下14个方法MSE更高但oracle距离更低；多变量关系偏移中oracle距离仅解释0.7-3.9%风险增量。基准还通过独立DGP预注册对比揭示若干发现不可复现，提供组件诊断与稳定性审计。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Average squared error cannot reveal whether forecasting performance degrades because the future becomes less predictable or because forecasts move farther from the conditional mean. We introduce paired, mechanism-controlled stress tests that decompose changes in expected squared error at each lead time into environmental risk and forecast-oracle distance, using an origin-conditioned predictive oracle unavailable to the evaluated models. Three end-to-end controls have known attribution. Specifically, the null, environmental-only, and information-gap controls verify that the pipeline assigns changes to the correct component. We then apply the benchmark to 24 deployable forecasters. Under frequent switching, 14 methods have higher realized MSE but lower oracle distance; under outlier-variance feedback, 19 have higher MSE but lower scale-standardized MSE. Short- and long-lead stress-response rankings have Spearman correlation 0.624, revealing substantial horizon-dependent reordering. We then study multivariate relation shifts. Across six models and three coupling severities, oracle distance accounts for only 0.7-3.9% of the decomposed expected-risk increase, and environmental-risk majority persists in an eight-channel system and a matched-difficulty audit of Ring, Block, and Hub relations. Finally, prespecified contrasts on independent data-generating process (DGP) realizations show that several visually compelling discovery profiles, including trend accumulation and the hypothesized switching reversal, do not replicate. The benchmark thus combines component-wise diagnosis with a held-out stability audit. It complements real-data out-of-distribution evaluation, which measures performance under realistic shifts when exact oracle attribution is unavailable.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/22/2609.23378v1-leaky-integrator-reconstruction-taming-error-accumulation-in-recursive-differenced-time-series-forecasting",
+      "section": "quick",
+      "title_en": "Leaky-integrator reconstruction: taming error accumulation in recursive differenced time-series forecasting",
+      "authors": "Zijiang Yang",
+      "date": "2026-09-20",
+      "pdf": "https://arxiv.org/pdf/2609.23378v1",
+      "score": "6.0",
+      "evidence": "递归预测中误差累积与发散的理论分析",
+      "tldr": "递归差分预测常先预测一步变化再累加积分，但该离散积分器在单位圆上有极点，导致非线性模型多步 rollout 误差累积甚至发散。本文提出免训练的漏积分重建，将极点移入单位圆：H(z)=1/(1-γz^-1)，γ<1，在重建阶段固定γ=0.9即可。实验覆盖7种发散架构和20个数据集，H=336时平均误差降低51%，且对原本稳定预测器无害。贡献是给出可证明有界、两行改动、通用安全的默认修复。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We introduce leaky-integrator reconstruction, a training-free method that cures the error accumulation of recursive differenced forecasting. Our first contribution is diagnostic: predicting one-step changes and integrating them by cumulative summation, the standard remedy for non-stationarity, is a discrete integrator with a pole on the unit circle, and we show this makes recursive rollout of a nonlinear model diverge, its 336-step error reaching several times that of a well-behaved forecaster (normalised MAE 1.6-3.8 versus about 0.8) across every neural architecture tested. Our second, central contribution is the fix: move the pole inside the unit circle with a leaky integrator H(z) = 1/(1 - gamma z^-1), gamma < 1, which provably bounds the accumulated error variance. Applied at reconstruction time with a single fixed gamma=0.9 (no retraining, a two-line change to any deployed one-step or foundation-model forecaster), it shrinks error at every horizon, the mean gain over seven diverging architectures and twenty datasets growing from ~3% at H=24 to 23% at H=96, 37% at H=192 and 51% (43-74% across those architectures) at H=336 (78% with an oracle pole). Crucially, it is provably inert where no pathology exists (stable or joint predictors already at the irreducible rate), making it a safe, general default.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/22/2609.24929v1-conformalized-quantile-regression-and-minimax-limits-of-fixed-score-calibration-under-known-covariate-shift",
+      "section": "quick",
+      "title_en": "Conformalized Quantile Regression and Minimax Limits of Fixed-Score Calibration under Known Covariate Shift",
+      "authors": "Rustam Isaev, Anton Conrad, Denis Belomestny, Eric Moulines, Sergey Samsonov",
+      "date": "2026-09-21",
+      "pdf": "https://arxiv.org/pdf/2609.24929v1",
+      "score": "6.0",
+      "evidence": "预测校准精度的极小极大上下界",
+      "tldr": "本文研究分裂共形分位数回归（CQR）在有限样本下的区间长度与条件覆盖的 L^p 误差界，依赖局部正则条件与分位数估计精度。作者进一步用稀疏 ReLU 神经网络实例化这些界，并扩展到校准集与测试集协变量分布不同的已知协变量偏移场景。针对两个构造的固定分数校准基准，给出期望意义下匹配的极小极大上下界。结果表明标量问题对所有 p∈[1,∞] 匹配，K阈值问题对有限 p 匹配，且高概率下界对所有 p 成立。",
+      "tags": "query:pred-limit",
+      "abstract_en": "In this paper, we study nonasymptotic $L^p$ error bounds for interval length and conditional coverage in split conformalized quantile regression (CQR). Our bounds rely on local regularity conditions and accuracy guarantees for the estimated quantiles. We further instantiate our bounds for quantile regression with sparse ReLU neural networks. We also consider covariate shift, where the calibration and test covariates have different distributions, and derive nonasymptotic bounds for this setting. We obtain matching minimax upper and lower bounds in expectation for two constructed fixed-score calibration benchmarks under known covariate shift. The bounds match for every $p\\in[1,\\infty]$ in the scalar problem and for finite $p$ in the $K$-threshold problem; for the latter, a high-probability minimax lower bound holds for every $p\\in[1,\\infty]$.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
