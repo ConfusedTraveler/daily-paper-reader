@@ -1,0 +1,54 @@
+{
+  "label": "2026-09-23",
+  "date": "2026-09-23",
+  "generated_at": "2026-09-23T22:43:22",
+  "count": 3,
+  "papers": [
+    {
+      "paper_id": "202609/23/2609.22820v2-beyond-average-error-through-oracle-informed-stress-tests-for-time-series-forecasting",
+      "section": "quick",
+      "title_en": "Beyond Average Error through Oracle-Informed Stress Tests for Time-Series Forecasting",
+      "authors": "Xu Lin, Runheng Zuo, Shengxuan Xu, Qitai Tan, Hongyu Lin, Xiao-Ping Zhang",
+      "date": "2026-09-19",
+      "pdf": "https://arxiv.org/pdf/2609.22820v2",
+      "score": "7.0",
+      "evidence": "分离可预测性与预测误差",
+      "tldr": "平均平方误差无法区分预测变差是因未来更难预测，还是预测偏离条件均值。论文提出配对、机制受控的压力测试，利用评估模型不可见的原点条件预测oracle，将各提前期期望平方误差变化分解为环境风险与预测-oracle距离。在24个可部署预测器上，频繁切换下14个方法MSE更高但oracle距离更低；多变量关系偏移中oracle距离仅解释0.7–3.9%风险增加。该基准结合分量诊断与留出稳定性审计，补充真实数据OOD评估。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Average squared error cannot reveal whether forecasting performance degrades because the future becomes less predictable or because forecasts move farther from the conditional mean. We introduce paired, mechanism-controlled stress tests that decompose changes in expected squared error at each lead time into environmental risk and forecast-oracle distance, using an origin-conditioned predictive oracle unavailable to the evaluated models. Three end-to-end controls have known attribution. Specifically, the null, environmental-only, and information-gap controls verify that the pipeline assigns changes to the correct component. We then apply the benchmark to 24 deployable forecasters. Under frequent switching, 14 methods have higher realized MSE but lower oracle distance; under outlier-variance feedback, 19 have higher MSE but lower scale-standardized MSE. Short- and long-lead stress-response rankings have Spearman correlation 0.624, revealing substantial horizon-dependent reordering. We then study multivariate relation shifts. Across six models and three coupling severities, oracle distance accounts for only 0.7-3.9% of the decomposed expected-risk increase, and environmental-risk majority persists in an eight-channel system and a matched-difficulty audit of Ring, Block, and Hub relations. Finally, prespecified contrasts on independent data-generating process (DGP) realizations show that several visually compelling discovery profiles, including trend accumulation and the hypothesized switching reversal, do not replicate. The benchmark thus combines component-wise diagnosis with a held-out stability audit. It complements real-data out-of-distribution evaluation, which measures performance under realistic shifts when exact oracle attribution is unavailable.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/23/2609.22444v1-asymptotics-and-finite-sample-bounds-for-prediction-and-smoothing-in-wright-fisher-hidden-markov-models",
+      "section": "quick",
+      "title_en": "Asymptotics and finite sample bounds for prediction and smoothing in Wright-Fisher hidden Markov models",
+      "authors": "Luigi M. Malgieri, Filippo Ascolani, Matteo Giordano, Matteo Ruggiero",
+      "date": "2026-09-18",
+      "pdf": "https://arxiv.org/pdf/2609.22444v1",
+      "score": "6.0",
+      "evidence": "隐马尔可夫时间序列模型的预测有限样本界",
+      "tldr": "针对古DNA等重复抽样时间序列，本文研究隐信号为多类型Wright-Fisher扩散、观测为离散计数的隐马尔可夫模型。在父系独立突变下，证明精确贝叶斯预测与平滑分布在组内样本量发散时以全变差收敛到极限频率的群体转移律与桥律。进一步给出预测律与边缘平滑器的有限样本界，并刻画检查时刻条件律的集中性及高斯/Gamma渐近。分析核心是Kingman合并块计数过程的固定区间尾界。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We study prediction and smoothing in hidden Markov models with a latent signal given by a multi-type Wright-Fisher diffusion and discrete-time categorical observations, motivated by repeated-sampling time-series settings, including temporally binned ancient-DNA data, in which noisy frequency counts are recorded at finitely many times. Our focus is on the exact Bayesian predictive and smoothing distributions available under parent-independent mutation, in relation to their large-sample targets under repeated within-time sampling. For a fixed collection-time grid and diverging within-time sample sizes, we show that the exact Wright-Fisher predictive and smoothing distributions converge in total variation to the corresponding population transition and bridge laws at the limiting neighboring frequencies. We then derive explicit finite-sample control for the predictive law and a corresponding finite-sample bound for the marginal smoother. Finally, at the inspection times, we show that the joint conditional law concentrates at the target frequencies and that its active coordinates are asymptotically Gaussian, while coordinates with zero true frequencies converge to Gamma limits at faster rates. Our regime imposes no restriction on dependence across inspection times beyond within-time sampling. The analysis rests on a fixed-interval tail bound for Kingman's coalescent block-counting process, which is of independent interest.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202609/23/2609.24153v1-quantifying-long-range-dependence-in-object-valued-time-series",
+      "section": "quick",
+      "title_en": "Quantifying Long-Range Dependence in Object-Valued Time Series",
+      "authors": "Won-Ki Seo, Jiazhen Xu, Han Lin Shang",
+      "date": "2026-09-21",
+      "pdf": "https://arxiv.org/pdf/2609.24153v1",
+      "score": "6.0",
+      "evidence": "量化时间序列的长程时间依赖",
+      "tldr": "对象值时间序列（分布、协方差矩阵、网络、成分数据）缺乏线性结构，传统基于自协方差的长期记忆定义失效。本文在负型度量空间中建立内在框架：通过等距嵌入得到中心化Hilbert值过程，用其滞后协方差算子的迹度量时间依赖，并证明该迹恰等于边际平均成对距离与期望滞后距离之差，从而估计只需原始对象间距离。记忆参数由该迹的不可和衰减定义，估计采用基于距离的Bartlett聚合，并针对共同中心化偏差提出迭代块差分、对数比与多带宽对数斜率估计及局部自洽修正。模拟显示偏差大幅降低，并在外汇收益分布与美国电力发电成分中发现长期记忆证据。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Object-valued time series, including distributions, covariance matrices, networks, and compositions, lack the linear structure required by conventional autocovariance-based definitions of long memory. We develop an intrinsic framework for defining and estimating long memory in metric spaces of negative type. An isometric embedding yields a centered Hilbert-valued process, and the trace of its lag-covariance operator provides a signed, additive measure of temporal dependence. Crucially, this trace equals the difference between the marginal mean pairwise distance and expected lagged distance, so the framework and its estimators use only distances between the original objects. We define the memory parameter through the nonsummable decay of this trace and show that it coincides with the usual parameter in Hilbert-valued settings. Estimation uses Bartlett aggregates of distance-based lag measures. Estimating the common marginal distance from the same dependent sample induces a common-centering bias in these aggregates. We derive its finite-sample form and propose iterated block-difference corrections, log-ratio and multi-bandwidth log-slope estimators, and a localized self-consistency refinement. We establish consistency, document substantial bias reduction in simulations, and find long-memory evidence in foreign-exchange return distributions and U.S. electricity-generation compositions.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

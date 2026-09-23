@@ -1,0 +1,3761 @@
+Title: Asymptotics and finite sample bounds for prediction and smoothing in Wright-Fisher hidden Markov models
+
+URL Source: https://arxiv.org/pdf/2609.22444v1
+
+Published Time: Tue, 22 Sep 2026 00:13:57 GMT
+
+Number of Pages: 44
+
+Markdown Content:
+# Asymptotics and finite sample bounds for prediction and smoothing in Wright–Fisher hidden Markov models 
+
+Luigi M. Malgieri 1, Filippo Ascolani 1, Matteo Giordano 2 and Matteo Ruggiero 3
+
+> 1
+
+Department of Statistical Science, Duke University, Durham, NC, USA 
+
+> 2
+
+ESOMAS Department and Collegio Carlo Alberto, University of Torino, Torino, Italy 
+
+> 3
+
+Stern School of Business, New York University Abu Dhabi, UAE 
+
+Abstract 
+
+We study prediction and smoothing in hidden Markov models with a latent signal given by a multi-type Wright–Fisher diffusion and discrete-time categorical observations, motivated by repeated-sampling time-series settings, including temporally binned ancient-DNA data, in which noisy frequency counts are recorded at finitely many times. Our focus is on the exact Bayesian predictive and smoothing distributions available under parent-independent mutation, in relation to their large-sample targets under repeated within-time sampling. For a fixed collection-time grid and diverging within-time sample sizes, we show that the exact Wright– Fisher predictive and smoothing distributions converge in total variation to the corresponding population transition and bridge laws at the limiting neighboring frequencies. We then derive explicit finite-sample control for the predictive law and a corresponding finite-sample bound for the marginal smoother. Finally, at the inspection times, we show that the joint conditional law concentrates at the target frequencies and that its active coordinates are asymptotically Gaussian, while coordinates with zero true frequencies converge to Gamma limits at faster rates. Our regime imposes no restriction on dependence across inspection times beyond within-time sampling. The analysis rests on a fixed-interval tail bound for Kingman’s coalescent block-counting process, which is of independent interest. 
+
+# Contents 
+
+1 Introduction 22 Wright–Fisher HMMs and the sampling assumptions 5
+
+2.1 The Wright–Fisher diffusion . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52.2 The Bayesian model . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62.3 Data generating mechanism . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 72.4 Finite-sample predictive and smoothing laws . . . . . . . . . . . . . . . . . . . . . . 71arXiv:2609.22444v1 [math.ST] 18 Sep 2026 3 Asymptotic results and finite-sample approximations 8
+
+3.1 A fixed-interval coalescent tail estimate . . . . . . . . . . . . . . . . . . . . . . . . . 83.2 Prediction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 93.3 Marginal smoothing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10 3.4 Stability under additional conditioning . . . . . . . . . . . . . . . . . . . . . . . . . . 11 3.5 Joint smoothing . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12 
+
+4 Numerical illustration 13 5 Concluding remarks 14 Supplementary Material 20 A Proofs and auxiliary results 20 
+
+A.1 Proof of Proposition 3.1 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20 A.2 Proofs of Theorem 3.2 and Corollary 3.4 . . . . . . . . . . . . . . . . . . . . . . . . . 21 A.3 Proof of Proposition 3.5 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 24 A.4 Proof of Theorem 3.6 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 27 A.5 Proof of Theorem 3.8 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31 A.6 Proof of Proposition 3.7 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 37 
+
+B Additional numerical illustrations 39 
+
+B.1 Two-type baseline regime . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39 B.2 Rate behavior across gaps . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39 B.3 Gaussian approximation at an inspection time . . . . . . . . . . . . . . . . . . . . . . 39 B.4 Multi-type case . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42 B.5 Sensitivity to mutation and gap . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42 B.6 Surrogate transition approximation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42 
+
+# 1 Introduction 
+
+Hidden Markov models (HMMs) provide a standard framework for inferring latent dynamics from noisy discrete-time observations; see Capp´ e et al. (2005); Zucchini and MacDonald (2009); S¨ arkk¨ a(2013). An unobserved signal evolves according to a Markov process, while data are emitted conditionally on the current state. The primary inferential tasks are filtering and smoothing, namely reconstructing current and past or intermediate states from the observed data. These problems are well understood in linear-Gaussian and finite-state settings: linear-Gaussian models admit exact Kalman and Kalman–Bucy recursions (Kalman, 1960; Kalman and Bucy, 1961), while finite-state HMMs support a substantial asymptotic literature for likelihood-based inference and 2stability (Baum et al., 1970; Bickel et al., 1998; Douc et al., 2004; Gland and Mevel, 2000). Many modern applications, however, involve latent states that evolve on other spaces, such as time-indexed frequency vectors, and therefore fall outside these standard frameworks. The Wright–Fisher (WF) diffusion is the canonical model for evolving proportions because it lives on the simplex, preserves positivity and unit mass, and has a rich probabilistic structure; see Ethier and Kurtz, 1986; Griffiths, 1979; Ethier and Griffiths, 1993; Dawson, 2017. WF-type dynamics have found applications in population genetics (Bollback et al., 2008; Steinr¨ ucken et al., 2014; Schraiber et al., 2016), econometrics (Gourieroux and Jasiak, 2006), mathematical finance (Larsen and Sørensen, 2007; Ackerer et al., 2018), topic modeling (Perrone et al., 2017), Bayesian nonparametrics (Mena and Ruggiero, 2016), opinion dynamics (Toscani, 2006; Chen et al., 2016), and neuroscience (D’Onofrio et al., 2024). In population genetics, for example, the latent object is an allele-frequency trajectory, whereas the data are noisy frequencies obtained through counts sampled from the population types at a moderate number of times (Bollback et al., 2008; Malaspinas et al., 2012; Schraiber et al., 2016; Steinr¨ ucken et al., 2014; Sant et al., 2025). Ancient genomic studies now provide increasingly rich time-series data of this kind (Fages et al., 2019; Wutke et al., 2016). Under parent-independent mutation, the WF signal is Dirichlet-stationary and reversible, and its transition and bridge laws admit explicit Dirichlet-mixture representations through duality with Kingman’s coalescent (Kingman, 1982; see Section 2.1). This structure has recently been exploited to obtain exact filtering, smoothing, and out-of-sample prediction algorithms from noisy categor-ical samples (Papaspiliopoulos and Ruggiero, 2014; Papaspiliopoulos et al., 2016; Ascolani et al., 2021; 2023), together with associated software (Kon Kam King et al., 2021). Closely related, but methodologically distinct, exact-simulation approaches have also been developed for WF diffusions and bridges (Griffiths et al., 2018; Jenkins and Span` o, 2017; Garc´ ıa-Pareja et al., 2021; Sant et al., 2023), as well as for inference from allele-frequency time series (Sant et al., 2025). The distinction lies in the conditioning mechanism: filtering and smoothing condition on noisy frequencies through predictive and posterior laws, whereas bridge simulation conditions on endpoint states treated as observed. What is still missing is a large-sample validation linking these viewpoints by showing that the exact filtering and smoothing procedures recover the corresponding WF transition and bridge laws. This paper studies the exact WF predictive and smoothing laws in a regime where the inspection times 0 < t 1 < · · · < t k are fixed, the within-time sample sizes grow, and independence is assumed only within each inspection time. This repeated-sampling, rather than high-frequency, asymptotic regime is intended for settings in which the number of inspection times is small to moderate, while the amount of information available at each inspection time is comparatively rich. Ancient-DNA studies provide one concrete motivation for this regime: observations are often aggregated into a limited number of broad temporal bins, while genome-scale data continue to accumulate within each bin (He et al., 2023; Bouzid et al., 2021). A separate motivation for allowing dependence 3across inspection times comes from longitudinal or panel sampling of categorical units, where repeated measurements naturally induce serial dependence across times even when the within-time observations are conditionally multinomial; see, for example, Maruotti (2011). In such settings, the inferential target is the evolving marginal composition at each time, rather than a full model for subject-level temporal dependence. When observations are independent across inspection times, finite-grid asymptotics largely reduce to a standard parametric Bayesian problem for the latent compositions. Our contribution is to show that the same transition, bridge, and Gaussian limits persist in the more general setting where observations may be longitudinally dependent across times. The main objects of interest are conditional laws of latent states given subsets of the observa-tions, written generically as qI|J (· | Y (n) 
+
+> J
+
+), where I indexes the latent state(s) of interest and J
+
+the inspection times on which one conditions. For example, qi|i−1(· | Y (n) 
+
+> i−1
+
+) denotes the one-step predictive law of Xi given the sample at time i − 1, while q1: k|1: k(· | Y (n)1: k ) denotes the joint posterior law of ( X1, . . . , X k) given all observations. The local laws are those in which the conditioning set involves only the nearest inspection times around the state of interest, such as qi|i−1(· | Y (n) 
+
+> i−1
+
+) and 
+
+qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+). In this regime, we first derive explicit finite-sample bounds for the local predictive and smoothing laws. Theorem 3.2 controls the error made by replacing the one-step predictive law qi|i−1(· | Y (n) 
+
+> i−1
+
+)with the WF transition law started from the empirical composition at the previous inspection time. Theorem 3.6 treats the local smoother qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+). As an immediate consequence, the predictive bound also yields control of bounded predictive functionals (Corollary 3.3). Together, these results quantify the worst-case error incurred by replacing the exact local posterior laws by corresponding WF laws based on empirical endpoint information. We then identify the corresponding population limits. Corollary 3.4 shows that qi|i−1(· | Y (n) 
+
+> i−1
+
+)converges in total variation to the WF transition distribution evaluated at the limiting previous-time frequency, while Theorem 3.5 shows that qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) converges to the corresponding WF bridge distribution evaluated at the limiting neighbouring frequencies. Proposition 3.7 further shows that these local limits are asymptotically unaffected by conditioning on additional non-adjacent inspection times: once the neighbouring endpoint frequencies are learned, more distant observations do not alter the first-order local laws. Finally, at the inspection times we study the full joint posterior law q1: k|1: k(· | Y (n)1: k ). Theorem 3.8 proves concentration and identifies a boundary-aware Bernstein–von Mises regime, where coordi-nates with positive true frequencies exhibit the usual Gaussian approximation, while coordinates with zero true frequencies fluctuate on the smaller n−1 scale and converge to Gamma limits. When all true frequencies are positive, this reduces to the familiar block-diagonal Gaussian approximation. This result is related to the classical Bernstein–von Mises behaviour of the Multinomial–Dirichlet model (van der Vaart, 1998, Chapter 10), but the present setting is different. Our asymptotic 4regime is designed for inference on the marginal compositions under possible longitudinal depen-dence across inspection times, so the joint law of the observations need not factorize and the usual product-form reduction is unavailable. Moreover, the conditional uncertainty between inspection times is governed by the corresponding WF bridge. The main technical input throughout is a fixed-interval tail bound for the coalescent block-count process, which is of independent interest and makes it possible to truncate the transition and bridge mixtures uniformly over the data. This is contained in Proposition 3.1 below. The paper is organized as follows. Section 2 collects the WF-HMM preliminaries, including the transition, bridge, and local finite-sample formulas. Section 3 formalizes the frequentist regime and then treats prediction, marginal smoothing, and joint smoothing in turn. Section 4 gives a brief numerical illustration of the predictive approximation, including its application to bounded functionals. Section 5 discusses implications and limitations. The Supplementary Material contains the proofs of all results, auxiliary lemmas, and additional numerical illustrations. 
+
+# 2 Wright–Fisher HMMs and the sampling assumptions 
+
+This section introduces the WF hidden Markov model and the exact conditional laws studied in the paper. For the statistical developments that follow, the key point is that these Bayesian conditional laws are explicit Dirichlet mixtures, so the asymptotic problem becomes one of controlling the associated mixing weights. The data generating mechanism under which we derive our (frequentist) asymptotic results and finite sample bounds is also described. 
+
+2.1 The Wright–Fisher diffusion 
+
+For d ≥ 2, let ∆ d = {x ∈ [0 , 1] d : Pdr=1 xr = 1 } be the usual d simplex, and let α = ( α1, . . . , α d) ∈
+
+(0 , ∞)d, θ = Pdr=1 αr. We write X = {Xt}t≥0 for the neutral d-type WF diffusion with parent-independent mutation parameter α, that is, the standard ∆ d-valued WF diffusion with Dirichlet stationary and reversible law πα; see, e.g., Ethier and Kurtz (1986, Chs. 10–11) and Dawson (2017, Ch. 5). This will be the prior distribution of the latent underlying signal. Under parent-independent mutation, the transition law of the WF signal admits a Dirichlet-mixture representation arising from duality with Kingman’s coalescent (Kingman, 1982). Roughly speaking, this duality expresses moments of the forward WF diffusion through a backward ancestral counting process, which turns the transition law into a mixture over latent ancestral configurations; see also Griffiths and Span` o (2010); Papaspiliopoulos and Ruggiero (2014). At a heuristic level, over a time gap s one first draws an auxiliary count k ≥ 0, interpretable as the number of ancestral lineages surviving backward in time, then allocates these k lineages across the d categories according to the starting composition x, and finally samples the arrival state from a Dirichlet law with updated 5parameter α + k. This yields the exact transition density 
+
+ps(x, x ′) = X
+
+> k∈Zd
+> +
+
+px
+
+> k
+
+(s) πα+k(x′), x, x ′ ∈ ∆d, (1) where 
+
+px
+
+> k
+
+(s) := p|k|(s)
+
+|k|
+
+k
+
+
+
+xk, xk := 
+
+> d
+
+Y
+
+> r=1
+
+xkr 
+
+> r
+
+.
+
+Here {pk(s)}k≥0 are the limiting block-count probabilities from Kingman’s coalescent over a gap of length s, and πα+k denotes the Dirichlet density with parameter α + k. See Griffiths (1979); Ethier and Griffiths (1993) for the WF transition formula and Griffiths (1980); Tavar´ e (1984) for the coalescent weights. These mixture weights are the population quantities that will later appear as asymptotic limits of the finite-sample predictive laws. Given 0 < t < s < u and endpoints x, x ′ ∈ ∆d, the WF bridge law at time s is the conditional law of the latent composition at the intermediate time s, given that the process is at x at time 
+
+t and at x′ at time u. Under parent-independent mutation, this bridge law is again an explicit Dirichlet mixture: 
+
+bs|t,u (z | x, x ′) = X
+
+> k∈Zd
+> +
+
+X
+
+> k′∈Zd
+> +
+
+wk,k′ (s − t, u − s) πα+k+k′ (z), (2) where 
+
+wk,k′ (h, h ′) ∝ Ck,k′ px
+
+> k
+
+(h) px′ 
+
+> k′
+
+(h′), (3) and Ck,k′ is the explicit coefficient arising from the product rule for Dirichlet densities, πα+k(z)πα+k′ (z) ∝
+
+Ck,k′ πα+k+k′ (z); see equation (SM.23) of the Supplementary Material. Thus the bridge combines a left and a right ancestral count vector, one propagated from each endpoint, and merges the corresponding Dirichlet components through the coefficient Ck,k′ . For two-type bridge formulas and genealogical interpretations, see Griffiths et al. (2018). This bridge mixture is the population law that later appears as the asymptotic target of the local smoothing distributions. 
+
+2.2 The Bayesian model 
+
+Fix an inspection grid 0 < t 1 < · · · < t k and let Xi := Xti denote the latent diffusion state at time i. Conditionally on Xi = x ∈ ∆d, the observations collected at time i are categorical with parameter x:
+
+Yi,j | Xi i.i.d. 
+
+∼ Cat( Xi), i = 1 , . . . , k, j = 1 , . . . , n i. (4) Equivalently, if ni = ( ni, 1, . . . , n i,d ) denotes the vector of category counts at time ti, then ni | Xi = x
+
+is multinomial with size ni and cell probabilities x. The Bayesian model is completed by taking the law of a Wright–Fisher process with transition density (1) as the prior for the latent signal X.62.3 Data generating mechanism 
+
+For each inspection time i = 1 , . . . , k , let x∗ 
+
+> i
+
+∈ ∆d denote the “true” category proportions at i. We assume that for every n there is a joint law μ(n)1: k for the samples Y (n)1: k , whose within-time marginals satisfy 
+
+Yi,j i.i.d. 
+
+∼ Cat( x∗ 
+
+> i
+
+), j = 1 , . . . , n, (5) where Cat( x∗ 
+
+> i
+
+) denotes the categorical law on {1, . . . , d } with probability vector x∗ 
+
+> i
+
+. For notational simplicity we take all within-time sample sizes equal to n, but all results below extend to hetero-geneous sample sizes. Thus (5) imposes independence only within each inspection time; the joint law μ(n)1: k is otherwise unrestricted and may contain arbitrary dependence across distinct times. Let Y (n) 
+
+> i
+
+= ( Yi, 1, . . . , Y i,n ) denote the sample at time i, and Y (n) 
+
+> i:j
+
+= ( Y (n) 
+
+> i
+
+, . . . , Y (n) 
+
+> j
+
+) the samples from times i through j. Let also μi be the law of a single draw Yi, 1 at time i, and denote by 
+
+μ(n) 
+
+> i
+
+= μ⊗ni and μ(∞) 
+
+> i
+
+= μ⊗∞  
+
+> i
+
+the associated product measures. For 1 ≤ i ≤ j ≤ k, let μ(n) 
+
+> i:j
+
+denote the joint law of ( Y (n) 
+
+> i
+
+, . . . , Y (n) 
+
+> j
+
+) and similarly μ(∞) 
+
+> i:j
+
+for infinite sequences; in general, however, these need not factorize across times. For future reference we set ˆxi =
+
+ ni, 1
+
+n , . . . , ni,d 
+
+n
+
+
+
+, ˆx1: k = (ˆ x1, . . . , ˆxk), (6) where ni,j is the multiplicity of category j in Y (n) 
+
+> i
+
+.
+
+2.4 Finite-sample predictive and smoothing laws 
+
+The inferential objects studied in this paper are the the conditional laws of latent states under differ-ent conditioning sets, corresponding to prediction, smoothing, and joint latent-state reconstruction. In particular, we consider the following posterior laws: 
+
+• the one-step predictive posterior qi|i−1(· | Y (n) 
+
+> i−1
+
+) of Xi given the sample at time i − 1; 
+
+• the local smoother posterior qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) of Xi given the samples at times i − 1and i + 1; 
+
+• the enlarged-conditioning analogues of the two above laws, qi|1: i−1(· | Y (n)1: i−1) and qi|1: i−1,i +1: k(· | 
+
+Y (n)1: i−1, Y (n)
+
+> i+1: k
+
+); 
+
+• the full marginal smoother qi|1: k(· | Y (n)1: k ), i.e. the marginal posterior of Xi under all obser-vations; 
+
+• the joint smoother q1: k|1: k(· | Y (n)1: k ), i.e. the posterior of ( X1, . . . , X k) under all observations;. A key consequence of the coalescent duality recalled in Section 2.1 is that the above conditional laws can still be written explicitly as finite mixtures of Dirichlet distributions whose weights are determined by finite coalescent count configurations. Specifically, for hi = ti − ti−1, the one-step 7predictive density is a finite Dirichlet mixture: 
+
+qi|i−1(x | Y (n) 
+
+> i−1
+
+) = X
+
+> k≤ni−1
+
+pni−1,k(hi) πα+k(x), x ∈ ∆d, (7) where 
+
+pn,k(s) := p|n|,|k|(s)
+
+nk
+
+−1nk
+
+
+
+.
+
+Here {pn,k (s)}k≥0 are the transition probabilities of a suitable death process starting from n; see Papaspiliopoulos and Ruggiero (2014) and Papaspiliopoulos et al. (2016, Lemma 4.1). Thus the population transition mixture (1) is replaced, at finite sample size, by a finite Dirichlet mixture indexed by all surviving count vectors k ≤ ni−1.Similarly, the local smoother admits the representation 
+
+qi|i−1,i +1 (x | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) = X 
+
+> k≤ni−1,k′≤ni+1
+
+wni−1,ni+1  
+
+> k,k′
+
+(hi, h i+1 ) πα+k+k′ (x), (8) where the weights couple the forward and backward coalescent contributions through 
+
+wni−1,ni+1  
+
+> k,k′
+
+(hi, h i+1 ) ∝ Ck,k′ pni−1,k(hi) pni+1 ,k′ (hi+1 ), (9) with Ck,k′ as in Supplementary Material, equation (SM.23); see Kon Kam King et al. (2021). This is the finite-sample analogue of the population bridge mixture (2). The importance of (7) and (8) is that they make the predictive and smoothing laws fully explicit at finite sample size. This makes it possible to derive quantitative finite-sample bounds and to identify the corresponding population limits by comparing these Dirichlet mixtures with the tran-sition and bridge mixtures in (1) and (2). Moreover, by combining (7) and (8), it is possible to express all the other posterior laws of interest as suitable finite mixtures of Dirichlet laws. 
+
+# 3 Asymptotic results and finite-sample approximations 
+
+3.1 A fixed-interval coalescent tail estimate 
+
+The analytical validation of WF filtering and smoothing requires passing from finite-sample Dirich-let mixtures to their infinite-population limits. As discussed in Section 2.1, both the transi-tion density (1) and the bridge density (2) are infinite mixtures where the index k represents the number of ancestral lineages surviving over a time interval t. The corresponding weights depend on pk(t) = P(Nt = k | N0 = ∞), where Nt is the block-counting process of King-man’s coalescent. Similarly, the predictive and smoothing distributions (7) and (8) depend on 
+
+pn,k (t) = P(Nt = k | N0 = n), where the Kingman’s coalescent is started at n, the total number of observations collected at each time. 8Therefore, a key tool in establishing total variation convergence for these laws is to provide uniform control over the mixture tails. Specifically, we require an explicit bound on the remainder 
+
+X
+
+> k>M
+
+pn,k (t) = P(Nt > M | N0 = n), (10) which quantifies the truncation error incurred by keeping only terms with at most M lineages. While the exact density of Nt is known (Tavar´ e, 1984), its series form with alternating signs is not convenient for the arguments used below. The following upper bound is based on Markov’s inequal-ity and the representation of the Kingman’s coalescent thorugh sums of exponential distributions. 
+
+Proposition 3.1. Fix t > 0. There exists a constant c > 0 such that for every n ∈ N ∪ { +∞} and 
+
+M ≥ 0, X
+
+> k>M
+
+pn,k (t) ≤ exp {− cM 2t}.
+
+In particular, pn,k (t) ≤ exp {− ck 2t} for all k.
+
+The proof is given in Supplementary Material, Section A.1. This bound is the main technical input behind the results that follow. Small-time lineage asymptotics, deterministic speeds, and large-deviation results for related pure-death models are available in the literature; see, for example, Griffiths (1984); Schweinsberg (2000); Berestycki et al. (2010); Bansaye et al. (2016); Depperschmidt et al. (2015); Sagitov and France (2017). However, existing estimates do not directly provide the fixed-interval truncation control needed for the WF transition and bridge mixtures. 
+
+3.2 Prediction 
+
+As a first result, the next theorem proves that the predictive distribution (7) can be well approxi-mated by the one-step predictive evaluated at the empirical proportions ˆ xi−1. More precisely, we provide a finite sample bound in the total variation distance, herefater denoted by dTV (·). 
+
+Theorem 3.2. For every i = 2 , . . . , k , there exists a constant Lhi such that 
+
+dT V 
+
+
+
+qi|i−1(· | Y (n) 
+
+> i−1
+
+), p i|i−1(· | ˆxi−1)
+
+
+
+≤ εi,n := Lhi
+
+2θn + θ +
+
+r dn + θ + 1 
+
+!
+
+almost surely under μ(n)
+
+> i−1
+
+.
+
+The expression for Lhi can be found in Lemma SM.A.1 of the Supplementary Material. The next corollary follows immediately by definition of total variation distance. 
+
+Corollary 3.3. For every i = 2 , . . . , k and every bounded measurable function f : ∆ d → R,
+
+Z
+
+> ∆d
+
+f (z) qi|i−1(z | Y (n) 
+
+> i−1
+
+) d z −
+
+Z
+
+> ∆d
+
+f (z) pi|i−1(z | ˆxi−1) d z ≤ ∥ f ∥∞ εi,n ,
+
+with εi,n as in Theorem 3.2. 
+
+9As a simple illustration, consider Simpson’s diversity index 
+
+f (x) = 1 −
+
+> d
+
+X
+
+> j=1
+
+x2 
+
+> j
+
+, x ∈ ∆d. (11) Since 0 ≤ f (x) ≤ 1 on ∆ d, Corollary 3.3 gives 
+
+Eqi|i−1(·| Y (n) 
+
+> i−1)
+
+1 −
+
+> d
+
+X
+
+> j=1
+
+X2
+
+> i,j
+
+ − Epi|i−1(·| ˆxi−1)
+
+1 −
+
+> d
+
+X
+
+> j=1
+
+X2
+
+> i,j
+
+ ≤ εi,n .
+
+Thus the predictive expectation of diversity under the exact filter can be replaced by the corre-sponding expectation under the WF transition started from ˆ xi−1, with explicit worst-case error control. The bound depends only on the observed composition ˆ xi−1, the sample size n, the simplex dimension d, the precision parameter θ, and the inspection gap hi through Lhi . In practice, one may approximate Epi|i−1(·| ˆxi−1)[f (Xi)] numerically, for instance by Monte Carlo based on exact WF simulation methods; see, for example, Jenkins and Span` o (2017); Garc´ ıa-Pareja et al. (2021); Sant et al. (2023). Corollary 3.3 therefore controls the error incurred by replacing the exact predictive expectation by its WF-transition surrogate. The bound is most informative when the within-time sample size is large relative to the simplex dimension and the inspection gap is not too small; since 
+
+Lhi grows like h−1 
+
+> i
+
+for small hi, one expects the worst-case error bound to be useful when n is large compared to d/h 2 
+
+> i
+
+. Section 4 provides an empirical illustration of this approximation. We close by identifying the population target behind the finite-sample approximation. Indeed, by combining Theorem 3.2 with the convergence of ˆ xi−1 to x∗
+
+> i−1
+
+, the next proposition proves the convergence of the predictive distribution to the one-step predictive evaluated at the true value 
+
+x∗
+
+> i−1
+
+.
+
+Corollary 3.4. Let Y (n)1: k be generated as in (5) . Then, for every i = 2 , . . . , k ,
+
+dTV 
+
+ qi|i−1(· | Y (n) 
+
+> i−1
+
+), p i|i−1(· | x∗
+
+> i−1
+
+) → 0, (12) 
+
+μ(∞) 
+
+> i−1
+
+-almost surely as n → ∞ .Proof. Combine Theorem SM.A.3, proved in Supplementary Material, Section A.4, with the almost-sure convergence ˆ xi−1 → x∗ 
+
+> i−1
+
+under μ(∞) 
+
+> i−1
+
+.A quantitative version of this result, with a high probability bound, is given in Theorem SM.A.3 of the Supplementary Material. 
+
+3.3 Marginal smoothing 
+
+The next proposition is the analog of Proposition 3.4 to the case of marginal smoothing, where observations are collected at both adjacent time points. 10 Proposition 3.5. Let Y (n)1: k be generated as in (5) . Then, for every i = 2 , . . . , k − 1,
+
+dTV 
+
+ qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+), b i|i−1,i +1 (· | x∗
+
+> i−1
+
+, x ∗
+
+> i+1
+
+) → 0, (13) 
+
+μ(∞)
+
+> i−1,i +1
+
+-almost surely as n → ∞ .
+
+Coherently with the previous results, asymptotically the adjacent inspection times behave as if their endpoint frequencies were known, so the uncertainty remaining at time i is exactly that of a WF bridge between x∗ 
+
+> i−1
+
+and x∗
+
+> i+1
+
+. The statement extends immediately to heterogeneous sample sizes by replacing n → ∞ with the local conditions ni−1 → ∞ and ni+1 → ∞ .In the next theorem instead we consider the full marginal smoother qi|1: k(· | Y (n)1: k ) and prove finite sample concentration in a neighborhood ˆ xi of radius n−1/2.
+
+Theorem 3.6. For every i = 2 , . . . , k − 1, there exists a constant Ahi,h i+1 such that 
+
+qi|1: k
+
+ 
+
+z ∈ ∆d : ∥z − ˆxi∥2 ≥ r
+
+√n
+
+
+
+| Y (n)1: k
+
+
+
+≤ Ahi,h i+1 
+
+n + 16 
+
+r2 , (14) 
+
+for every r > 0 and for every n > N , with N := N (θ, r ).
+
+The bound in (14) contains two elements: a truncation error of order n−1, controlling the contri-bution of large coalescent counts, and a concentration term coming from the Dirichlet component. Given the convergence of ˆ xi to x∗ 
+
+> i
+
+, Theorem 3.6 implies convergence of qi|1: k(· | Y (n)1: k ) to δx∗ 
+
+> i
+
+(·): this is proved in Section 3.5 in much greater generality. 
+
+3.4 Stability under additional conditioning 
+
+We record a secondary but structurally useful result, which states that enlarging the conditioning set beyond the neighboring inspection times does not change the first-order local targets. In particular, the conditional law of Xi given all past data still has pi|i−1(· | x∗
+
+> i−1
+
+) as its asymptotic target, and the conditional law of Xi given all data except at time i still has the local bridge bi|i−1,i +1 (· | x∗
+
+> i−1
+
+, x ∗
+
+> i+1
+
+)as its asymptotic target. Its proof is deferred to Supplementary Material, Section A.6. 
+
+Proposition 3.7. For every i = 2 , . . . , k , let qi|1: i−1(· | Y (n)1: i−1) denote the conditional law of Xi
+
+given all past data. Then 
+
+dTV 
+
+ qi|1: i−1(· | Y (n)1: i−1), p i|i−1(· | x∗
+
+> i−1
+
+) → 0, (15) 
+
+μ(∞)1: i−1-almost surely as n → ∞ .Moreover, for every i = 2 , . . . , k − 1, let qi|1: i−1,i +1: k(· | Y (n)1: i−1, Y (n)
+
+> i+1: k
+
+) denote the conditional law of Xi given all data except at time i. Then 
+
+dTV 
+
+ qi|1: i−1,i +1: k(· | Y (n)1: i−1, Y (n)
+
+> i+1: k
+
+), b i|i−1,i +1 (· | x∗
+
+> i−1
+
+, x ∗
+
+> i+1
+
+) → 0, (16) 
+
+μ(∞)1: i−1,i +1: k-almost surely as n → ∞ .
+
+11 3.5 Joint smoothing 
+
+We now turn to the joint posterior law of the inspection-time states X1: k. At finite n, this law is built by combining information from earlier and later inspection times through forward–backward Dirichlet-mixture recursions. In particular, each inspection-time posterior remains a finite Dirichlet mixture, and the dependence across times enters only through the corresponding coalescent-based mixture weights; see Supplementary Material, Section A.5, for the explicit recursions. The main joint result identifies the asymptotic behaviour of this posterior law at the inspection times. We retain a separate consistency statement because it remains valid without any interiority assumption and is proved in the stronger almost-sure form. The asymptotic fluctuations are shown to depend on the support of the true frequency vectors x∗ 
+
+> i
+
+. Coordinates corresponding to positive true frequencies satisfy the same Gaussian Bernstein–von Mises behaviour of the static Dirichlet-Multinomial model, whereas coordinates corresponding to zero true frequencies fluctuate on the smaller n−1 scale and converge to Gamma limits. We write “ ⇒” for convergence in distribution. 
+
+Theorem 3.8. Let Y (n)1: k be generated as in (5) . Then, as n → ∞ ,
+
+q1: k|1: k(· | Y (n)1: k ) ⇒ δx∗ 
+
+> 1
+
+(·) × · · · × δx∗ 
+
+> k
+
+(·), (17) 
+
+μ(∞)1: k -almost surely. Moreover, suppose, without loss of generality, that for each i = 1 , . . . , k , for some 1 ≤ ri ≤ d,
+
+x∗ 
+
+> i
+
+= ( x∗
+
+> i, 1
+
+, . . . , x ∗ 
+
+> i,r i
+
+, 0, . . . , 0) , x∗ 
+
+> i,j
+
+> 0, j = 1 , . . . , r i.
+
+Write Xi = ( X+ 
+
+> i
+
+, X 0 
+
+> i
+
+), where X+ 
+
+> i
+
+= ( Xi, 1, . . . , X i,r i ) and X0 
+
+> i
+
+= ( Xi,r i+1 , . . . , X i,d ), and define similarly ˆxi = (ˆ x+ 
+
+> i
+
+, ˆx0 
+
+> i
+
+). Let 
+
+Σ+ 
+
+> i
+
+= diag( x∗+ 
+
+> i
+
+) − x∗+ 
+
+> i
+
+x∗+⊤ 
+
+> i
+
+, Σ+ = diag(Σ +1 , . . . , Σ+ 
+
+> k
+
+).
+
+Then, as n → ∞ , in μ(∞)1: k -probability, 
+
+L (√n(X+ 
+
+> i
+
+− ˆx+ 
+
+> i
+
+)) ki=1 | Y (n)1: k
+
+ ⇒ N (·; 0 , Σ+) (18) 
+
+and 
+
+L (nX 0 
+
+> i
+
+)ki=1 | Y (n)1: k
+
+ ⇒
+
+> k
+
+O
+
+> i=1
+> d
+
+O
+
+> j=ri+1
+
+Γ( αj , 1) , (19) 
+
+with the convention that the inner product for each i is a point mass at the empty vector when 
+
+ri = d. In fact, the convergences in (18) and (19) hold jointly, with limiting law equal to the product of the laws in (18) and (19) . If ri = d for all i = 1 , . . . , k , then (18) holds also in total variation. 
+
+12 A key feature of Theorem 3.8 is that it imposes no assumption on dependence across distinct inspection times. The only sampling assumption is within-time independence, so the conclusion applies even when the observations are longitudinally dependent across inspection times. The the-orem shows that, after integrating over the full forward–backward HMM structure, the exact joint posterior behaves to first order as if each inspection time were estimated separately from its own multinomial sample. For coordinates corresponding to positive true frequencies, this yields a block-diagonal Gaussian limit, so posterior correlations across distinct inspection times are asymptotically negligible. For coordinates corresponding to zero true frequencies, the posterior fluctuations occur on the smaller n−1 scale rather than the usual n−1/2 scale, and the corresponding rescaled coor-dinates converge to Gamma laws with shape parameters determined by the mutation parameters 
+
+αj . Thus the Gaussian approximation survives on the active face of the simplex, while the inactive coordinates exhibit a distinct boundary asymptotic regime. In the interior case ri = d for every i,the inactive block is empty and Theorem 3.8 recovers the standard Gaussian Bernstein–von Mises approximation of the static Dirichlet-Multinomial model. The proof has three steps. First, one rewrites the relevant local conditional laws as Dirichlet mixtures indexed by neighbouring latent states and proves a uniform truncation bound for their mixture weights. Second, one combines this truncation with the usual concentration of Dirichlet laws to obtain local conditional concentration around the inspection-time target frequencies, which yields (17). Third, one studies the asymptotic behaviour of the Dirichlet components themselves. For coordinates corresponding to positive true frequencies, the usual finite-dimensional Bernstein– von Mises theorem for regular statistical models yields the Gaussian approximation (18). For coordinates corresponding to zero true frequencies, the appropriate scaling is n rather than √n,and the corresponding posterior fluctuations converge to Gamma limits, giving (19). The detailed intermediate statements and proofs are collected in Supplementary Material, Section A.5. 
+
+# 4 Numerical illustration 
+
+We give a brief numerical illustration of the results, focusing on three representative displays, and defer further experiments to the Supplementary Material. These include the Gaussian approxi-mation at inspection times, a three-type boundary regime, and additional parameter sensitivity checks. We first consider a two-type Wright–Fisher model with symmetric parent-independent mutation parameter α = (2 , 2), which provides a simple interior baseline, a near-boundary true frequency 
+
+x∗ = 0 .05, and inspection gap h = 0 .01. The Supplementary Material records analogous experi-ments for other true frequencies, other inspection gaps, and additional mutation levels. For each 
+
+n ∈ { 20 , 50 , 200 }, a single dataset is generated under multinomial sampling at the previous inspec-tion time, the empirical proportion is denoted by ˆ x, and the exact predictive law qi|i−1(· | Y (n) 
+
+> i−1
+
+)is compared with the transition law pi|i−1(· | ˆx) started at the empirical composition. This is the 13 20 50 200 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0510 15 0510 15 0510 15 Xi Density Empirical−start transition Exact predictive Figure 1: Two-type predictive approximation with α = (2 , 2), x∗ = 0 .05, h = 0 .01, and n ∈{20 , 50 , 200 }. The three panels show the exact predictive density qi|i−1(· | Y (n) 
+
+> i−1
+
+) and the Wright–Fisher transition density pi|i−1(· | ˆxi−1) started at the empirical composition. numerical experiment naturally associated with Theorem 3.2. The predictive curves are obtained by direct evaluation of the exact Beta-mixture formulas. Figure 1 shows that the discrepancy is clearly visible at small and moderate sample sizes and then decreases steadily as n grows. We next turn to local smoothing. At an unobserved intermediate time between two neighboring inspection times, the exact local smoother qi|i−1,i +1 (· | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) is compared with the Wright– Fisher bridge bi|i−1,i +1 (· | ˆxi−1, ˆxi+1 ) obtained by plugging the empirical endpoint compositions into the bridge law. This is the comparison associated with Proposition 3.5. Figure 2 shows that, in the same repeated-sampling regime, the exact local smoother is already well captured by the empirical-endpoint bridge. To complement these law-level displays, we examine the sample-size dependence in Theorem 3.2. Figure 3 compares the empirical maximum predictive total-variation discrepancy with the n-dependent factor in the bound across the true compositions x∗ ∈ { 0.01 , 0.15 , 0.50 } at the rep-resentative gap h = 0 .10. Corresponding displays for the shorter and longer gaps h ∈ { 0.05 , 0.50 }
+
+are reported in the Supplementary Material. The left panel shows that the empirical predictive discrepancy decreases with the same sample-size scale as the n-dependent factor in the theorem, while the right panel records the corresponding behavior for the Simpson-diversity functional (11). 
+
+# 5 Concluding remarks 
+
+We studied exact prediction and smoothing in WF–HMMs under a repeated-sampling regime with fixed inspection times and growing within-time sample sizes. In this setting, the predictive and 14 20 50 200 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 024602460246Xi Density Empirical−endpoint bridge Exact local smoother Figure 2: Two-type local smoothing comparison at an unobserved intermediate time, with the middle state unobserved and n ∈ { 20 , 50 , 200 }. The three panels compare the exact local smoother qi|i−1,i +1 (· | Y (n)
+
+i−1 , Y (n)
+
+i+1 ) with the empirical-endpoint Wright–Fisher bridge 
+
+bi|i−1,i +1 (· | ˆxi−1, ˆxi+1 ). Predictive total−variation discrepancy Simpson−diversity mean gap 20 50 100 200 400 20 50 100 200 400 1e−04 1e−03 1e−02 1e−01 0.001 0.010 0.100 n (log scale) Log scale n−dependent bound term x* = 0.01 x* = 0.15 x* = 0.50 
+
+Figure 3: Exact two-type predictive rate comparison across the true compositions x∗ ∈{0.01 , 0.15 , 0.50 }, with α = (2 , 2), h = 0 .10, and n ∈ { 20 , 50 , 100 , 200 , 400 }. Left: em-pirical maximum predictive total-variation discrepancy and the n-dependent factor in Theorem 3.2. Right: average Simpson-diversity mean gap and the same reference term. local smoothing laws converge to the corresponding WF transition and bridge laws, and the full joint posterior law at the inspection times concentrates at the target frequencies with a boundary-aware Bernstein–von Mises limit. We also obtained explicit finite-sample control for the predictive 15 law and a corresponding concentration bound for the marginal smoother. These results clarify the role of temporal borrowing in the model. At finite sample size, infor-mation is propagated across inspection times through the coalescent-based smoothing recursions. In the present asymptotic regime, however, the dominant contribution comes from the multinomial sampling at each inspection time, while the induced longitudinal dependence does not affect the first-order inspection-time uncertainty. Several questions remain open. The present regime is tailored to data sets with a fixed and relatively small number of inspection times and substantial within-time information; it does not address growing time grids, sparse counts, or more irregular observation schemes. Parameter learning is also outside the scope of the present paper: extending these arguments to mutation, selection, or other structural parameters would require combining the repeated-sampling regime studied here with an additional asymptotic framework and understanding how that interacts with the coalescent structure behind the exact conditional laws. More broadly, it would be of interest to understand how much of this asymptotic picture persists for related duality-based or quasi-conjugate models, including coupled WF diffusions (Boetti and Ruggiero, 2024), Poisson–Dirichlet hidden Markov models (Dalla Pria et al., 2026), approximate filters based on discrete dual processes (Kon Kam King et al., 2024), and nonparametric measure-valued signal models such as the Fleming– Viot settings studied in Ascolani et al. (2021; 2023). 
+
+# Supplementary Material 
+
+The Supplementary Material contains the proofs of all results, together with several auxiliary lemmas and additional numerical illustrations. 
+
+# References 
+
+Ackerer, D., Filipovi´ c, D., and Pulido, S. (2018). The Jacobi stochastic volatility model. Finance and Stochastics , 22:667–700. Ascolani, F., Lijoi, A., and Ruggiero, M. (2021). Predictive inference with Fleming–Viot-driven dependent Dirichlet processes. Bayesian Analysis , 16(2):371–395. Ascolani, F., Lijoi, A., and Ruggiero, M. (2023). Smoothing distributions for conditional Fleming– Viot and Dawson–Watanabe diffusions. Bernoulli , 29(2):1410–1434. Bansaye, V., M´ el´ eard, S., and Richard, M. (2016). Speed of coming down from infinity for birth-and-death processes. Advances in Applied Probability , 48(4):1183–1210. Baum, L. E., Petrie, T., Soules, G., and Weiss, N. (1970). A maximization technique occurring in the statistical analysis of probabilistic functions of markov chains. Annals of Mathematical Statistics , 41(1):164–171. 16 Berestycki, J., Berestycki, N., and Limic, V. (2010). The λ-coalescent speed of coming down from infinity. Annals of Probability , 38(1):207–233. Bickel, P. J., Ritov, Y., and Ryd´ en, T. (1998). Asymptotic normality of the maximum-likelihood estimator for general hidden markov models. Annals of Statistics , 26(4):1614–1635. Boetti, C. and Ruggiero, M. (2024). Filtering coupled Wright–Fisher diffusions. Journal of Math-ematical Biology , 89:64. Bollback, J. P., York, T. L., and Nielsen, R. (2008). Estimation of 2Nes from temporal allele frequency data. Genetics , 179(1):497–502. Bouzid, N., Bravo, G. A., Austin, J. J., Cooper, A., and Poinar, H. N. (2021). Ancient DNA analysis. Nature Reviews Methods Primers , 1:14. Capp´ e, O., Moulines, E., and Ryd´ en, T. (2005). Inference in Hidden Markov Models . Springer. Chen, Y.-T., Choi, J., and Cox, J. T. (2016). On the convergence of densities of finite voter models to the Wright–Fisher diffusion. In Annales de l’Institut Henri Poincar´ e-Probabilit´ es et Statistiques , volume 52, pages 286–322. Dalla Pria, M., Ruggiero, M., and Span` o, D. (2026). Exact inference via quasi-conjugacy in two-parameter Poisson–Dirichlet hidden Markov models. Journal of the American Statistical Asso-ciation . Forthcoming. Dawson, D. A. (2017). Introductory lectures on stochastic population systems. Technical Report 451, Laboratory for Research in Statistics and Probability, School of Mathematics and Statistics, Carleton University, Ottawa, Canada. https://arxiv.org/abs/1705.03781. Depperschmidt, A., Pfaffelhuber, P., and Scheuringer, A. (2015). Some large deviations in king-man’s coalescent. Electronic Communications in Probability , 20(7):1–14. D’Onofrio, G., Patie, P., and Sacerdote, L. (2024). Jacobi processes with jumps as neuronal models: A first passage time analysis. SIAM Journal on Applied Mathematics , 84(1):189–214. Douc, R., Moulines, ´E., and Ryd´ en, T. (2004). Asymptotic properties of the maximum likelihood estimator in autoregressive models with Markov regime. Annals of Statistics , 32(5):2254. Ethier, S. N. and Griffiths, R. (1993). The transition function of a fleming-viot process. The Annals of Probability , pages 1571–1590. Ethier, S. N. and Kurtz, T. G. (1986). Markov Processes: Characterization and Convergence . Wiley Series in Probability and Mathematical Statistics. John Wiley & Sons, New York. Fages, A., Hanghøj, K., Khan, N., Gaunitz, C., Seguin-Orlando, A., Leonardi, M., Constantz, C. M., Gamba, C., Al-Rasheid, K. A. S., Albizuri, S., et al. (2019). Tracking five millennia of horse management with extensive ancient genome time series. Cell , 177(6):1419–1435.e31. Garc´ ıa-Pareja, C., Hult, H., and Koski, T. (2021). Exact simulation of coupled Wright–Fisher diffusions. Advances in Applied Probability , 53(4):923–950. Gland, F. L. and Mevel, L. (2000). Exponential forgetting and geometric ergodicity in hidden markov models. Mathematics of Control, Signals, and Systems , 13:63–93. Gourieroux, C. and Jasiak, J. (2006). Multivariate Jacobi process with application to smooth 17 transitions. Journal of econometrics , 131(1-2):475–505. Griffiths, R. (1979). A transition density expansion for a multi-allele diffusion model. Advances in Applied Probability , 11(2):310–325. Griffiths, R. C. (1980). Lines of descent in the diffusion approximation of neutral Wright–Fisher models. Theoretical Population Biology , 17(1):37–50. Griffiths, R. C. (1984). Asymptotic line-of-descent distributions. Journal of Mathematical Biology ,21(1):67–75. Griffiths, R. C., Jenkins, P. A., and Span` o, D. (2018). Wright–fisher diffusion bridges. Theoretical Population Biology , 122:67–77. Griffiths, R. C. and Span` o, D. (2010). Diffusion processes and coalescent trees. In Bingham, N. H. and Goldie, C. M., editors, Probability and Mathematical Genetics: Papers in Honour of Sir John Kingman , volume 378 of London Mathematical Society Lecture Note Series , pages 257–276. Cambridge University Press, Cambridge. He, Z., Wang, Z., Beaumont, M., and Yu, F. (2023). Estimating temporally variable selection intensity from ancient dna data. Molecular Biology and Evolution , 40(3):msad008. Jenkins, P. and Span` o, D. (2017). Exact simulation of the Wright-Fisher diffusion. Annals of Applied Probability , 27(3):1478–1509. Kalman, R. E. (1960). A New Approach to Linear Filtering and Prediction Problems. Transactions of the ASME–Journal of Basic Engineering , 82(Series D):35–45. Kalman, R. E. and Bucy, R. S. (1961). New results in linear filtering and prediction theory. Journal of Basic Engineering , 83(1):95–108. Kingman, J. F. C. (1982). The coalescent. Stochastic processes and their applications , 13(3):235– 248. Kon Kam King, G., Pandolfi, A., Piretto, M., and Ruggiero, M. (2024). Approximate filtering via discrete dual processes. Stochastic Processes and their Applications , 168:104268. Kon Kam King, G., Papaspiliopoulos, O., and Ruggiero, M. (2021). Exact inference for a class of hidden Markov models on general state spaces. Electronic Journal of Statistics , 15:2832–2875. Larsen, K. S. and Sørensen, M. (2007). Diffusion models for exchange rates in a target zone. 
+
+Mathematical Finance , 17(2):285–306. Malaspinas, A.-S., Malaspinas, O., Evans, S. N., and Slatkin, M. (2012). Estimating allele age and selection coefficient from time-serial data. Genetics , 192(2):599–607. Maruotti, A. (2011). Mixed hidden Markov models for longitudinal data: An overview. Interna-tional Statistical Review , 79(3):427–454. Mena, R. H. and Ruggiero, M. (2016). Dynamic density estimation with diffusive Dirichlet mixtures. 
+
+Bernoulli , 22(2):901–926. Papaspiliopoulos, O. and Ruggiero, M. (2014). Optimal filtering and the dual process. Bernoulli ,20(4):1999–2019. Papaspiliopoulos, O., Ruggiero, M., and Span` o, D. (2016). Conjugacy properties of time-evolving 18 Dirichlet and gamma random measures. Electronic Journal of Statistics , 10(2):3452–3489. Perrone, V., Jenkins, P. A., Spano, D., and Teh, Y. W. (2017). Poisson random fields for dynamic feature models. Journal of Machine Learning Research , 18(127):1–45. Sagitov, S. and France, T. (2017). Limit theorems for pure death processes coming down from infinity. Journal of Applied Probability , 54(3):720–731. Sant, J., Jenkins, P. A., Koskela, J., and Span` o, D. (2023). EWF: simulating exact paths of the Wright–Fisher diffusion. Bioinformatics , 39(1):btad017. Sant, J., Jenkins, P. A., Koskela, J., and Spano, D. (2025). Bayesian inference from time series of allele frequency data using exact simulation techniques. arXiv preprint arXiv:2502.12279 .S¨ arkk¨ a, S. (2013). Bayesian Filtering and Smoothing . Cambridge University Press, Cambridge. Schraiber, J. G., Evans, S. N., and Slatkin, M. (2016). Bayesian inference of natural selection from allele frequency time series. Genetics , 203(1):493–511. Schweinsberg, J. (2000). A necessary and sufficient condition for λ-coalescents to come down from infinity. Electron. Commun. Probab. , 5:1–11. Steinr¨ ucken, M., Bhaskar, A., and Song, Y. S. (2014). A novel spectral method for inferring general diploid selection from time series genetic data. Annals of Applied Statistics , 8(4):2203. Tavar´ e, S. (1984). Line-of-descent and genealogical processes, and their applications in population genetics models. Theoretical Population Biology , 26(2):119–164. Toscani, G. (2006). Kinetic models of opinion formation. Communications in Mathematical Sci-ences , 4(3):481 – 496. van der Vaart, A. W. (1998). Asymptotic Statistics . Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge University Press, Cambridge. Wutke, S., Benecke, N., Sandoval-Castellanos, E., D¨ ohle, H.-J., Friederich, S., Gonzalez, J., Halls-son, J. H., Hofreiter, M., L˜ ougas, L., Magnell, O., et al. (2016). Spotted phenotypes in horses lost attractiveness in the Middle Ages. Scientific Reports , 6:38548. Zucchini, W. and MacDonald, I. L. (2009). Hidden Markov models for time series: an introduction using R . Chapman and Hall/CRC. 19 Supplementary Material A Proofs and auxiliary results 
+
+A.1 Proof of Proposition 3.1 
+
+Proof of Proposition 3.1. Let Nt denote the number of blocks of the n-coalescent at time t. Simi-larly, let TM denote the first time at which exactly M blocks remain. Then 
+
+X
+
+> k>M
+
+pn,k (t) = P(Nt > M | N0 = n) = P(TM > t ) ,
+
+where 
+
+TM =
+
+> n
+
+X 
+
+> i=M+1
+
+τi, τi ind .
+
+∼ Exp 
+
+ i(i + θ − 1) 2
+
+
+
+.
+
+Let s > 0. By Markov’s inequality, 
+
+X
+
+> k>M
+
+pn,k (t) = P
+
+
+
+ePni=M +1 sτ i > e st 
+
+≤ e−st nY 
+
+> i=M+1
+
+E [esτ i ] . (SM.20) If s < (M + 1)( M + θ)/2, then 
+
+E [esτ i ] = 11 − 2si(i+θ−1) 
+
+for every i > M, 
+
+which implies 
+
+X
+
+> k>M
+
+pn,k (t) ≤ e−st − nP  
+
+> i=M+1
+> log
+> 
+> 1−2si(i+θ−1)
+> 
+
+.
+
+Choose now s = M 2/3. Then 
+
+−
+
+> n
+
+X 
+
+> i=M+1
+
+log 
+
+
+
+1 − 2si(i + θ − 1) 
+
+
+
+≤ 23
+
+> n
+
+X 
+
+> i=M+1
+
+M 2
+
+i(i + θ − 1) 
+
+
+
+1 − 23
+
+M 2
+
+i(i + θ − 1) 
+
+−1
+
+≤ rM 2
+
+> n
+
+X 
+
+> i=M+1
+
+1
+
+i(i + θ − 1) ,
+
+for some constant r > 0 independent of M . Bounding the sum by the corresponding integral gives 
+
+rM 2
+
+> n
+
+X 
+
+> i=M+1
+
+1
+
+i(i + θ − 1) ≤ rM 2
+
+Z ∞ 
+
+> M+1
+
+1
+
+x(x + θ − 1) dx ≤ r′M, 
+
+20 with another constant r′ > 0. Therefore 
+
+X
+
+> k>M
+
+pn,k (t) ≤ e−M 2t/ 2+ r′M .
+
+Since −M 2t/ 2 + r′M ≤ − cM 2t for a suitable constant c > 0 depending only on t, the result follows. 
+
+A.2 Proofs of Theorem 3.2 and Corollary 3.4 
+
+We first need two preliminary lemmas. 
+
+Lemma SM.A.1. For every t > 0 there exists a finite constant 
+
+Lt := 
+
+> ∞
+
+X
+
+> k=0
+
+k p k(t) < ∞
+
+such that 
+
+dT V (pt(x, ·), p t(y, ·)) ≤ Lt∥x − y∥1, x, y ∈ ∆d.
+
+Proof. First of all notice that Lt is well-defined and finite. Indeed Proposition 3.1 implies pk(t) ≤
+
+e−ctk 2
+
+for a suitable constant ct > 0, and therefore P
+
+> k
+
+k p k(t) < ∞.For k ≥ 0 and x ∈ ∆d, let 
+
+M xk (k) := 
+
+k
+
+k
+
+
+
+xk, k ∈ Zd
+
+> +
+
+, |k| = k, 
+
+be the probability mass function of a multinomial distribution with size k and probability vector 
+
+x. Then 
+
+pt(x, ·) = 
+
+> ∞
+
+X
+
+> k=0
+
+pk(t) X
+
+> |k|=k
+
+M xk (k) πα+k(·),
+
+and similarly for pt(y, ·). Let A ⊆ ∆d be measurable. Since 0 ≤ πα+k(A) ≤ 1, we have that 
+
+pt(x, A ) − pt(y, A ) =
+
+> ∞
+
+X
+
+> k=0
+
+pk(t) X
+
+> |k|=k
+
+ M xk (k) − M yk (k)πα+k(A)
+
+≤
+
+> ∞
+
+X
+
+> k=0
+
+pk(t) X
+
+> |k|=k
+
+M xk (k) − M yk (k)
+
+= 2 
+
+> ∞
+
+X
+
+> k=0
+
+pk(t) dT V 
+
+ M xk , M yk
+
+ ,
+
+21 and therefore 
+
+dT V (pt(x, ·), p t(y, ·)) ≤ 2
+
+> ∞
+
+X
+
+> k=0
+
+pk(t) dT V 
+
+ M xk , M yk
+
+ . (SM.21) Now let U1, . . . , U k be i.i.d. with law Cat( x) and V1, . . . , V k be i.i.d. with law Cat( y). If T (u1, . . . , u k)denotes the vector of category counts, then 
+
+T (U1, . . . , U k) ∼ M xk , T (V1, . . . , V k) ∼ M yk ,
+
+which by the data processing inequality and the tensorization bound implies 
+
+dT V 
+
+ M xk , M yk
+
+ ≤ dT V 
+
+
+
+Cat( x)⊗k, Cat( y)⊗k
+
+≤ k d T V (Cat( x), Cat( y)) = k
+
+2 ∥x − y∥1.
+
+Substituting this into (SM.21) gives the result. 
+
+Lemma SM.A.2. Let X ∼ πβ with parameter vector β = ( β1, . . . , β d) ∈ (0 , ∞)d and total mass 
+
+β0 = dP
+
+> j=1
+
+βj . Let 
+
+m = E [X] = ββ0
+
+.
+
+Then 
+
+E [∥X − m∥1] ≤
+
+s
+
+dβ0 + 1 .
+
+Proof. By Jensen’s inequality we have that 
+
+E [∥X − m∥1] ≤
+
+q
+
+d E ∥X − m∥22
+
+.
+
+Moreover for the Dirichlet distribution it holds that Var( Xj ) = mj (1 − mj )
+
+β0 + 1 , j = 1 , . . . , d. 
+
+Therefore 
+
+E ∥X − m∥22
+
+ =
+
+> d
+
+X
+
+> j=1
+
+Var( Xj ) = 1 − dP
+
+> j=1
+
+m2
+
+> j
+
+β0 + 1 ≤ 1
+
+β0 + 1 ,
+
+and the claim follows. We can now prove the main theorem of this section. 22 Theorem SM.A.3. For every i = 2 , . . . , k and x ∈ ∆d we have that 
+
+dT V 
+
+
+
+qi|i−1(· | Y (n) 
+
+> i−1
+
+), p i|i−1(· | x)
+
+
+
+≤ Lhi ∥ˆxi−1 − x∥1 + 2θn + θ +
+
+r dn + θ + 1 
+
+!
+
+almost surely under μ(n)
+
+> i−1
+
+, where hi = ti − ti−1 and Lhi is the constant from Lemma SM.A.1. Consequently, for every r > 0,
+
+μ(n) 
+
+> i−1
+
+dT V 
+
+
+
+qi|i−1(· | Y (n) 
+
+> i−1
+
+), p i|i−1(· | x∗
+
+> i−1
+
+)
+
+
+
+> L hi r + 2θn + θ +
+
+r dn + θ + 1 
+
+!! 
+
+≤ 2d exp 
+
+
+
+− 2nr 2
+
+d2
+
+
+
+.
+
+Proof. By Bayes’ formula at time i − 1 and the Markov property of the latent signal, 
+
+qi|i−1(· | Y (n) 
+
+> i−1
+
+) = 
+
+Z
+
+> ∆d
+
+phi (x′, ·) πα+ni−1 (d x′).
+
+Therefore 
+
+dT V 
+
+
+
+qi|i−1(· | Y (n) 
+
+> i−1
+
+), p i|i−1(· | x)
+
+
+
+≤
+
+Z
+
+> ∆d
+
+dT V 
+
+ phi (x′, ·), p hi (x, ·) πα+ni−1 (d x′)
+
+≤ Lhi
+
+Z
+
+> ∆d
+
+∥x′ − x∥1 πα+ni−1 (d x′),
+
+by Lemma SM.A.1. Let now 
+
+mi−1 := α + ni−1
+
+θ + n
+
+be the mean of πα+ni−1 . Then 
+
+Z
+
+> ∆d
+
+∥x′ − x∥1 πα+ni−1 (d x′) ≤ E [∥X − mi−1∥1] + ∥mi−1 − x∥1, X ∼ πα+ni−1 .
+
+By Lemma SM.A.2, 
+
+E [∥X − mi−1∥1] ≤
+
+r dn + θ + 1 .
+
+Moreover, 
+
+∥mi−1 − ˆxi−1∥1 =
+
+> d
+
+X
+
+> j=1
+
+αj + ni−1,j 
+
+n + θ − ni−1,j 
+
+n
+
+=
+
+> d
+
+X
+
+> j=1
+
+|nα j − θn i−1,j |
+
+n(n + θ) ≤
+
+nθ + θ dP
+
+> j=1
+
+ni−1,j 
+
+n(n + θ) = 2θn + θ .
+
+(SM.22) 23 Hence 
+
+∥mi−1 − x∥1 ≤ ∥ ˆxi−1 − x∥1 + 2θn + θ .
+
+Combining the previous displays proves the first bound. As regards the second part of the statement, note that 
+
+∥ˆxi−1 − x∗
+
+> i−1
+
+∥1 > r =⇒ max  
+
+> 1≤j≤d
+
+|ˆxi−1,j − x∗ 
+
+> i−1,j
+
+| > rd .
+
+Thus, by a union bound, 
+
+μ(n)
+
+> i−1
+
+ ∥ˆxi−1 − x∗
+
+> i−1
+
+∥1 > r  ≤
+
+> d
+
+X
+
+> j=1
+
+μ(n)
+
+> i−1
+
+
+
+|ˆxi−1,j − x∗ 
+
+> i−1,j
+
+| > rd
+
+
+
+.
+
+For each fixed j, the coordinate ˆ xi−1,j is the empirical mean of n i.i.d. Bernoulli variables with mean x∗ 
+
+> i−1,j
+
+. Hence Hoeffding’s inequality gives 
+
+μ(n)
+
+> i−1
+
+
+
+|ˆxi−1,j − x∗ 
+
+> i−1,j
+
+| > rd
+
+
+
+≤ 2 exp 
+
+
+
+−2n r2
+
+d2
+
+
+
+,
+
+and summing over j = 1 , . . . , d yields 
+
+μ(n)
+
+> i−1
+
+ ∥ˆxi−1 − x∗
+
+> i−1
+
+∥1 > r  ≤ 2d exp 
+
+
+
+−2n r2
+
+d2
+
+
+
+.
+
+The result now follows from the first part of the statement. 
+
+Proofs of Theorem 3.2 and Corollary 3.4. Both results follow by the first part of Theorem SM.A.3 with x = ˆ xi−1, since ˆ xi−1 → x∗ 
+
+> i−1
+
+almost surely by assumption. 
+
+A.3 Proof of Proposition 3.5 
+
+Denote 
+
+Ck,k′ =Γ( θ + |k|)Γ( θ + |k′|) dQ
+
+> j=1
+
+Γ( αj + kj + k′ 
+
+> j
+
+)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + kj ) dQ
+
+> j=1
+
+Γ( αj + k′ 
+
+> j
+
+)Γ( θ + |k| + |k′|).
+
+(SM.23) Then recall from (7) that the local smoother can be written as 
+
+qi|i−1,i +1 (x | Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) = X 
+
+> k≤ni−1,k′≤ni+1
+
+wni−1,ni+1  
+
+> k,k′
+
+(hi, h i+1 ) πα+k+k′ (x),
+
+with 
+
+wni−1,ni+1  
+
+> k,k′
+
+(hi, h i+1 ) ∝ Ck,k′ pni−1,k(hi) pni+1 ,k′ (hi+1 ).
+
+24 Similarly from (2) the law of the bridge is given by 
+
+bi|i−1,i +1 (z | x, x ′) = X
+
+> k∈Zd
+> +
+
+X
+
+> k′∈Zd
+> +
+
+wk,k′ (hi, h i+1 ) πα+k+k′ (z),
+
+where 
+
+wk,k′ (hi, h i+1 ) ∝ Ck,k′ px
+
+> k
+
+(hi) px′ 
+
+> k′
+
+(hi+1 ).
+
+We first need two technical results. 
+
+Lemma SM.A.4. Let k ∈ Zd with |k| = k. Then we have that 
+
+nk
+
+−1nk
+
+
+
+→
+
+k
+
+k
+
+
+
+(x∗)k
+
+(x∗)∞-a.s. as n → ∞ .
+
+Proof. The statement is the well-known convergence of the multivariate hypergeometric distribution to the multinomial distribution, so we omit the proof. 
+
+Lemma SM.A.5. Let Ck,k′ as in (SM.23) . Then there exists b > 0 such that 
+
+Ck,k′ ≤ ebk log( k)+ bk ′ log( k′),
+
+for every k, k′ ∈ Zd such that |k| = k and |k′| = k′.Proof. The results follows by noticing that 
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + kj + k′ 
+
+> j
+
+)Γ( θ + |k| + |k′|) ≤ 1,
+
+and by choosing b > 0 such that Γ( θ + k) ≤ kbk for every k.We also need to recall the well-known fact that, for each fixed t > 0 and k ∈ N, pk(t) = p∞,k (t) := lim  
+
+> n→∞
+
+pn,k (t). We state this formally (without proof) for later reference. 
+
+Lemma SM.A.6. For any t ∈ R+ and for any k ∈ Z+, as n → ∞ , it holds that pn,k (t) → pk(t).Proof of Proposition 3.5. Let n, n′ be the vector of multiplicities associated to Y (n) 
+
+> i−1
+
+and Y (n) 
+
+> i+1
+
+. First of all we rewrite qi|i−1,i +1 (·| Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+) and bi|i−1,i +1 (·| x∗
+
+> i−1
+
+, x ∗
+
+> i+1
+
+) as 
+
+qi|i−1,i +1 (z|Y (n) 
+
+> i−1
+
+, Y (n) 
+
+> i+1
+
+)25 =
+
+nP
+
+k=0 
+
+nP
+
+k′=0 
+
+pn,k (hi)pn,k ′ (hi+1 ) P
+
+|k|=k
+
+ nk
+
+−1 nk
+
+ P
+
+|k′|=k′
+
+ nk′
+
+−1 n′
+
+k′
+
+Ck,k′ πα+k+k′ (z)
+
+nP
+
+k=0 
+
+nP
+
+k′=0 
+
+pn,k (hi)pn,k ′ (hi+1 ) P
+
+|k|=k
+
+ nk
+
+−1 nk
+
+ P
+
+|k′|=k′
+
+ nk′
+
+−1 n′
+
+k′
+
+Ck,k′
+
+and 
+
+bi|i−1,i +1 (z|x∗
+
+i−1, x ∗
+
+i+1 )=
+
+∞P
+
+k=0 
+
+∞P
+
+k′=0 
+
+pk(hi)pk′ (hi+1 ) P
+
+|k|=k
+
+ k
+
+k
+
+(x∗
+
+i−1)k P
+
+|k′|=k′
+
+ k′
+
+k′
+
+(x∗
+
+i+1 )k′
+
+Ck,k′ πα+k+k′ (z)
+
+∞P
+
+k=0 
+
+∞P
+
+k′=0 
+
+pk(hi)pk′ (hi+1 ) P
+
+|k|=k
+
+ k
+
+k
+
+(x∗
+
+i−1)k P
+
+|k′|=k′
+
+ k′
+
+k′
+
+(x∗
+
+i+1 )k′ Ck,k′
+
+.
+
+Let now A ⊂ ∆d and define 
+
+Dn(A) := 
+
+nX
+
+k=0 
+
+nX
+
+k′=0 
+
+pn,k (hi)pn,k ′ (hi+1 ) X
+
+|k|=k
+
+nk
+
+−1nk
+
+ X
+
+|k′|=k′
+
+ nk′
+
+−1n′
+
+k′
+
+
+
+Ck,k′ πα+k+k′ (A)and 
+
+D(A) = 
+
+∞X
+
+k=0 
+
+∞X
+
+k′=0 
+
+pk(hi)pk′ (hi+1 ) X
+
+|k|=k
+
+k
+
+k
+
+
+
+(x∗
+
+i−1)k X
+
+|k′|=k′
+
+k′
+
+k′
+
+
+
+(x∗
+
+i+1 )k′
+
+Ck,k′ πα+k+k′ (A).
+
+Then in order to prove the result it suffices to show that Dn(A) → D(A) μ(∞)
+
+i−1,i +1 -almost surely as 
+
+n → ∞ uniformly over A.Fix ε > 0. By Proposition 3.1 and Lemma SM.A.5 we have that 
+
+pn,k (hi)pn,k ′ (hi+1 ) X
+
+|k|=k
+
+nk
+
+−1nk
+
+ X
+
+|k′|=k′
+
+ nk′
+
+−1n′
+
+k′
+
+
+
+Ck,k′
+
+≤ ebk log( k)−ck 2
+
+ebk ′ log( k′)−c(k′)2
+
+and 
+
+pk(hi)pk′ (hi+1 ) X
+
+|k|=k
+
+k
+
+k
+
+
+
+(x∗
+
+i−1)k X
+
+|k′|=k′
+
+k′
+
+k′
+
+
+
+(x∗
+
+i+1 )k′
+
+Ck,k′
+
+≤ ebk log( k)−ck 2
+
+ebk ′ log( k′)−c(k′)2
+
+,
+
+for some constant c > 0, which imply that there exists M > 0 such that 
+
+nX
+
+k=M +1 
+
+nX
+
+k′=0 
+
+pn,k (hi)pn,k ′ (hi+1 ) X
+
+|k|=k
+
+nk
+
+−1nk
+
+ X
+
+|k′|=k′
+
+ nk′
+
+−1n′
+
+k′
+
+
+
+Ck,k′ ≤ ε
+
+26 and nX 
+
+> k′=M+1
+> n
+
+X
+
+> k=0
+
+pn,k (hi)pn,k ′ (hi+1 ) X
+
+> |k|=k
+
+nk
+
+−1nk
+
+ X
+
+> |k′|=k′
+
+ nk′
+
+−1n′
+
+k′
+
+
+
+Ck,k′ ≤ ε, 
+
+as well as X
+
+> k>M
+> ∞
+
+X
+
+> k′=0
+
+pk(hi)pk′ (hi+1 ) X
+
+> |k|=k
+
+k
+
+k
+
+
+
+(x∗
+
+> i−1
+
+)k X
+
+> |k′|=k′
+
+k′
+
+k′
+
+
+
+(x∗
+
+> i+1
+
+)k′
+
+Ck,k′ ≤ ε
+
+and X
+
+> k′>M
+> ∞
+
+X
+
+> k=0
+
+pk(hi)pk′ (hi+1 ) X
+
+> |k|=k
+
+k
+
+k
+
+
+
+(x∗
+
+> i−1
+
+)k X
+
+> |k′|=k′
+
+k′
+
+k′
+
+
+
+(x∗
+
+> i+1
+
+)k′
+
+Ck,k′ ≤ ε. 
+
+Then in order to prove Dn(A) → D(A) μ(∞)
+
+> i−1,i +1
+
+-almost surely as n → ∞ uniformly over A, it suffices to show that 
+
+pn,k (hi)pn,k ′ (hi+1 )
+
+nk
+
+−1nk
+
+ nk′
+
+−1n′
+
+k′
+
+
+
+→ pk(hi)pk′ (hi+1 )
+
+k
+
+k
+
+
+
+(x∗
+
+> i−1
+
+)k
+
+k′
+
+k′
+
+
+
+(x∗
+
+> i+1
+
+)k′
+
+,μ(∞)
+
+> i−1,i +1
+
+-almost surely as n → ∞ for every k, k′ ∈ Zd such that k = |k| ≤ M and k′ = |k′| ≤ M .This follows by combining Lemmas SM.A.4 and SM.A.6. 
+
+A.4 Proof of Theorem 3.6 
+
+Fix 1 < i < k , and let ˜ qi|i−1,i +1 
+
+ z|x, x ′, Y (n) denote the density of Xi conditional on Xi−1 = x,
+
+Xi+1 = x′, and data Y (n) at time i with multiplicities n ∈ Zd. By (2) and Bayes’s theorem, ˜qi|i−1,i +1 
+
+
+
+z|x, x ′, Y (n)
+
+= X
+
+> k∈Zd
+> +
+
+X
+
+> k′∈Zd
+> +
+
+˜wn,k,k′ (hi, h i+1 )πα+n+k+k′ (z), (SM.24) where ˜wn,k,k′ (h, h ′) ∝ rn,k,k′ (h, h ′) := Cn,k,k′ px
+
+> k
+
+(h)px′ 
+
+> k′
+
+(h′) (SM.25) and 
+
+Cn,k,k′ = Γ( θ + |k|)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + kj )Γ( θ + |k′|)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + k′ 
+
+> j
+
+)Γ( θ + |n|)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + nj )
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + nj + kj + k′ 
+
+> j
+
+)Γ( θ + |n| + |k| + |k′|) . (SM.26) We analogously define ˜ qi|i−1
+
+ z|x, Y (n) and ˜ qi|i+1 
+
+ z|x′, Y (n) when conditioning only on the past or future latent state. We need several technical lemmas. 27 Lemma SM.A.7. Let Cn,k,k′ as in (SM.26) . Then there exists b > 0 such that 
+
+Cn,k,k′ ≤ ebk log( k)+ bk ′ log( k′),
+
+for every n, k, k′ ∈ Zd such that |k| = k and |k′| = k′.Proof. Notice that Γ( θ + |n|)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + nj )
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj + nj + kj + k′ 
+
+> j
+
+)Γ( θ + |n| + |k| + |k′|) =
+
+R 
+
+> ∆d
+
+xn+k+k′
+
+πα(x) d x
+
+R 
+
+> ∆d
+
+xnπα(x) d x ≤ 1,
+
+so that the result follows by reasoning as in Lemma SM.A.5. 
+
+Lemma SM.A.8. Let ˜wn,k,k′ be as in (SM.25) . Then for every h and h′ positive constants there exist Bh,h ′ > 0 and Ch,h ′ > 0 such that for every M > 1 we have that 
+
+X
+
+> |k|>M
+
+X
+
+> |k′|≥ 0
+
+˜wn,k,k′ (h, h ′) + X
+
+> |k′|>M
+
+X
+
+> |k|≥ 0
+
+˜wn,k,k′ (h, h ′) < C h,h ′ e−Bh,h ′ M 2
+
+, (SM.27) 
+
+for every n ∈ Zd and (x, x ′) ∈ ∆2
+
+> d
+
+.Proof. By (SM.25) we have that, for rn,k,k′ as in (SM.25), 
+
+X
+
+> k∈Zd
+> +
+
+X
+
+> k′∈Zd
+> +
+
+rn,k,k′ (h, h ′) ≥ p0(h)p0(h′)
+
+
+
+Γ( θ)
+
+> d
+
+Q
+
+> j=1
+
+Γ( αj )
+
+
+
+> 2
+
+=: r > 0, (SM.28) which implies that the normalizing constant of {rn,k,k′ (h, h ′)}k,k′ is uniformly bounded away from zero. Moreover, by Proposition 3.1 and Lemma SM.A.7 we have that 
+
+Cn,k,k′ pk(h)pk′ (h′) ≤ e−ck 2h+bk log( k)e−c(k′)2h′+bk ′ log( k′) ≤ Ke −sk 2−s(k′)2
+
+,
+
+for suitable constants K > 0 and s > 0 depending on h and h′. Since 
+
+> ∞
+
+X
+
+> k=0
+
+e−sk 2
+
+< ∞,
+
+we have that 
+
+X
+
+> |k|>M
+
+X
+
+> |k′|≥ 0
+
+˜wn,k,k′ (h, h ′) ≤ Kr
+
+> ∞
+
+X
+
+> k′=0
+
+e−s(k′)2
+
+! X
+
+> k>M
+
+e−sk 2
+
+≤ Kr
+
+> ∞
+
+X
+
+> k′=0
+
+e−s(k′)2
+
+! X
+
+> k>M
+
+e−sk 2+sM 2
+
+!
+
+e−sM 2
+
+,
+
+28 so that the result holds with Bh,h ′ = s and 
+
+Ch,h ′ = Kr
+
+> ∞
+
+X
+
+> k′=0
+
+e−s(k′)2
+
+!2
+
+.
+
+Lemma SM.A.9. Let β ∈ (0 , ∞)d and Z ∼ πβ . Let m = β/β 0, where β0 = P
+
+> j
+
+βj . If ∥m − x∥2 ≤
+
+δ/ 2, then 
+
+P(∥Z − x∥2 ≥ δ) ≤ 4(β0 + 1) δ2 .
+
+Proof. If ∥m − x∥2 ≤ δ/ 2, then 
+
+{∥ Z − x∥2 ≥ δ} ⊆ {∥ Z − m∥2 ≥ δ/ 2}.
+
+Hence, by Markov’s inequality, 
+
+P(∥Z − x∗ 
+
+> i
+
+∥2 ≥ δ) ≤ P(∥Z − m∥2 ≥ δ/ 2) ≤ 4
+
+δ2
+
+> d
+
+X
+
+> j=1
+
+Var( Zj ).
+
+Now 
+
+E ∥Z − m∥22
+
+ =
+
+> d
+
+X
+
+> j=1
+
+E (Zj − mj )2 =
+
+> d
+
+X
+
+> j=1
+
+Var( Zj ).
+
+The result follows from the fact that Var( Zj ) ≤ (β0 + 1) −1.We now state the main result of this section in the next corollary. 
+
+Corollary SM.A.10. Fix r > 0. Then there exists a constant Ahi,h i+1 such that 
+
+sup 
+
+> (x,x ′)∈∆2
+> d
+
+Z
+
+> {z∈∆d:∥z−ˆxi∥2≥r/ √n}
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) d z ≤ Ahi,h i+1 
+
+n + 16 
+
+r2 ,
+
+for every n > N , with N := N (θ, r ).Proof. Fix ( x, x ′) ∈ ∆2
+
+> d
+
+. By (SM.24) and Lemma SM.A.8 we have that 
+
+Z
+
+> {z:∥z−ˆxi∥2≥r/ √n}
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) d z
+
+≤ X
+
+> |k|≤ M
+
+X
+
+> |k′|≤ M
+
+˜wn,k,k′ (hi, h i+1 )
+
+Z
+
+> {z:∥z−ˆxi∥2≥r/ √n}
+
+πα+n+k+k′ (z) d z + Ch,h ′ e−Bh,h ′ M 2
+
+,
+
+29 for every M > 1. For fixed k, k′ with |k|, |k′| ≤ M , let 
+
+β = α + n + k + k′, β0 = n + θ + |k| + |k′|, m = ββ0
+
+.
+
+Reasoning as in (SM.22) we obtain that 
+
+∥m − ˆxi∥1 ≤ 2( θ + |k| + |k′|)
+
+n + θ + |k| + |k′| ≤ 2( θ + 2 M )
+
+n + θ .
+
+Choose now M = ⌈√log n/ pBh,h ′ + 1 ⌉. Therefore by the above calculations we get that 
+
+∥m − ˆxi∥2 ≤ r
+
+2√n ,
+
+for n bigger than some N depending only on θ and r. Then 
+
+
+
+z : ∥z − ˆxi∥2 ≥ r
+
+√n
+
+
+
+⊆
+
+
+
+z : ∥z − m∥2 ≥ r
+
+2√n
+
+
+
+.
+
+Applying Lemma SM.A.9 with x replaced by ˆ xi gives 
+
+Z
+
+> {z:∥z−ˆxi∥2≥r/ √n}
+
+πα+n+k+k′ (z) d z ≤ 16 n
+
+(n + θ + 1) r2 .
+
+The result then follows with Ah,h ′ = Ch,h ′ .
+
+Proof of Theorem 3.6. By the HMM structure and the Markov property, 
+
+qi|1: k(z | Y (n)1: k ) = 
+
+Z
+
+> ∆d
+
+Z
+
+> ∆d
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) qi−1,i +1 |1: k(x, x ′ | Y (n)1: k ) d x dx′,
+
+where qi−1,i +1 |1: k(x, x ′|Y (n)1: k ) is the joint density of the signal at times ti−1 and ti+1 conditional on 
+
+Y (n)1: k . Therefore, for the set 
+
+Br := 
+
+
+
+z ∈ ∆d : ∥z − ˆxi∥2 ≥ r
+
+√n
+
+
+
+,
+
+we have 
+
+qi|1: k(Br | Y (n)1: k ) = 
+
+Z
+
+> ∆d
+
+Z
+
+> ∆d
+
+Z 
+
+> Br
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) d z
+
+
+
+qi−1,i +1 |1: k(x, x ′ | Y (n)1: k ) d x dx′
+
+≤ sup 
+
+> (x,x ′)∈∆2
+> d
+
+Z
+
+> Br
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) d z. 
+
+The result then follows by Corollary SM.A.10. 30 A.5 Proof of Theorem 3.8 
+
+For δ > 0 and x∗ ∈ ∆d, let 
+
+Aδ,x ∗ := {x ∈ ∆d : ∥x − x∗∥2 ≥ δ} , (SM.29) where ∥ · ∥ 2 denotes the Euclidean norm on Rd. We first need a technical result. 
+
+Proposition SM.A.11. Let δ > 0. Then 
+
+sup 
+
+> (x,x ′)∈∆2
+> d
+
+Z
+
+> Aδ,x ∗
+> i
+
+˜qi|i−1,i +1 
+
+
+
+z|x, x ′, Y (n)
+
+dz → 0, (SM.30) 
+
+as well as 
+
+sup 
+
+> x∈∆d
+
+Z
+
+> Aδ,x ∗
+> i
+
+˜qi|i−1
+
+
+
+z|x′, Y (n)
+
+dz → 0,
+
+and 
+
+sup 
+
+> x′∈∆d
+
+Z
+
+> Aδ,x ∗
+> i
+
+˜qi|i+1 
+
+
+
+z|x′, Y (n)
+
+dz → 0
+
+μ∞ 
+
+> i
+
+-a.s. as n → ∞ .Proof. We prove (SM.30); the other two limits are analogous. Fix ε > 0. By Lemma SM.A.8 there exists M > 0, independent of x and x′, such that sup 
+
+> (x,x ′)∈∆2
+> d
+
+Z
+
+> Aδ,x ∗
+> i
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n)) d z
+
+≤ X
+
+> |k|≤ M
+
+X
+
+> |k′|≤ M
+
+Z
+
+> Aδ,x ∗
+> i
+
+πα+n+k+k′ (z) d z + ε
+
+2 .
+
+It is clear that for every ( k, k′) such that |k| ≤ M and |k′| ≤ M we have that 
+
+Z
+
+> Aδ,x ∗
+> i
+
+πα+n+k+k′ (z) d z → 0
+
+μ∞ 
+
+> i
+
+-almost surely as n → ∞ . The result follows by arbitrariness of ε.We now prove the first part of Theorem 3.8. 
+
+Proof of (17) in Theorem 3.8. Let ( Z(n)1 , . . . , Z (n) 
+
+> k
+
+) be a random vector with probability density 
+
+q1: k|1: k(·| Y (n)1: k ). Then we prove the stronger statement that Z(n) 
+
+> i
+
+→ x∗ 
+
+> i
+
+in probability μ(∞)1: k -a.s. as 
+
+n → ∞ , for every i = 1 , . . . , k .Fix 1 < i < k , δ > 0 and let qi|1: k(·| Y (n)1: k ) be the density of Z(n) 
+
+> i
+
+. Then we have to show that 
+
+Z
+
+> Aδ,x ∗
+> i
+
+qi|1: k(z|Y (n)1: k ) d z → 0,
+
+31 μ(∞)1: k -a.s. as n → ∞ . By the Markov property and the HMM structure, we can write 
+
+qi|1: k(z|Y (n)1: k ) = 
+
+Z
+
+> ∆d
+
+Z
+
+> ∆d
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+)qi−1,i +1 |1: k(x, x ′|Y (n)1: k ) d xdx′,
+
+with ˜ qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) as in (SM.24) and where qi−1,i +1 |1: k(x, x ′|Y (n)1: k ) is the joint density of the signal at times ti−1 and ti+1 conditional on Y (n)1: k . By Proposition SM.A.11 we have that 
+
+Z
+
+> Aδ,x ∗
+> i
+
+qi|1: k(z|Y (n)1: k ) d z ≤ sup 
+
+> (x,x ′)∈∆2
+> d
+
+Z
+
+> Aδ,x ∗
+> i
+
+˜qi|i−1,i +1 (z|x, x ′, Y (n) 
+
+> i
+
+) d z → 0,μ∞ 
+
+> i
+
+-a.s. as n → ∞ . If now i = 1 or i = k, the result follows analogously by replacing ˜ qi|i−1,i +1 (z|x, x ′, Y (n))with ˜ qi|i+1 (z|x′, Y (n) 
+
+> i
+
+) or ˜ qi|i−1(z|x, Y (n) 
+
+> i
+
+) respectively. The proof of the second part of Theorem 3.8 hinges on the asymptotic behaviour of the Dirichlet components appearing in the local conditional mixture representations. Under an interior condition, this is provided by the standard Bernstein–von Mises theorem for the Dirichlet–Multinomial model. The next lemma extends that approximation to boundary configurations. It shows that positive-frequency coordinates retain the usual Gaussian n−1/2-fluctuations, while coordinates with zero true frequencies fluctuate on the smaller n−1 scale and converge to Gamma limits. These two components are asymptotically independent. 
+
+Lemma SM.A.12. For some 1 ≤ r ≤ d, let x∗ = ( x∗
+
+> 1
+
+, . . . , x ∗ 
+
+> r
+
+, 0, . . . , 0) ∈ ∆d, with x∗ 
+
+> j
+
+> 0 for 
+
+j = 1 , . . . , r . Let n = ( n1, . . . , n r, 0, . . . , 0) ∼ MN( n, x ∗). Fix η ∈ Zd 
+
+> +
+
+and consider the (conditionally on n) Dirichlet-distributed random vector X(n) ∼ πα+n+η. Write X(n) = ( X(n),+, X (n),0), with ‘active’ and ‘inactive’ blocks defined by the first r and last d − r coordinates of X(n), and write 
+
+ˆx = ( n1/n, . . . , n d/n ). Define Σ+ = diag( x∗+) − x∗+x∗+⊤. Then, as n → ∞ ,
+
+L √n(X(n),+ − ˆx+) ⇒ N (·; 0 , Σ+)
+
+in probability, and 
+
+L(nX (n),0) ⇒
+
+> d
+
+O
+
+> j=r+1
+
+Γ( αj + ηj , 1) ,
+
+in probability. If r = d, the above product is interpreted as a point mass at the empty vector. In this case, the Gaussian limit also holds in total variation. The above convergences hold jointly, with limiting law equal to the product of the individual limiting laws. Proof. We use the gamma representation of the Dirichlet distribution. In particular, we have 
+
+X(n)
+
+> jd
+
+= G(n)
+
+> j
+
+G(n)0
+
+, j = 1 , . . . , d, 
+
+32 for independent gamma random variables G(n) 
+
+> j
+
+∼ Γ( αj + nj + ηj , 1) , j = 1 , . . . , d, and where 
+
+G(n)0 = dP
+
+> ℓ=1
+
+G(n) 
+
+> ℓ
+
+∼ Γ n + dP
+
+> j=1
+
+αj + |η|, 1
+
+!
+
+. It holds that G(n)0 /n → 1 in probability, and since, for 
+
+j > r , we have nj = 0, it follows 
+
+nX (n),0 = nG(n)0
+
+(G(n)
+
+> r+1
+
+, . . . , G (n) 
+
+> d
+
+) ⇒ (Gr+1 , . . . , G d),
+
+by Slutsky’s theorem, where Gj ∼ Γ( αj + ηj , 1) are independent. This proves the gamma limit for the inactive block. We now consider the active coordinates. Define 
+
+H(n) 
+
+> j
+
+= G(n) 
+
+> j
+
+− nˆxj
+
+√n , j = 1 , . . . , r. 
+
+Since nˆxj = nj , nj /n → x∗ 
+
+> j
+
+, and αj + ηj is fixed, we obtain from the central limit theorem that 
+
+H(n) = ( H(n)1 , . . . , H (n) 
+
+> r
+
+) ⇒ H ∼ N  0, diag( x∗+) in probability. Next, we note 
+
+√n(X(n) 
+
+> j
+
+− ˆxj ) = nG(n)0
+
+(
+
+H(n) 
+
+> j
+
+− ˆxj
+
+G(n)0 − n
+
+√n
+
+)
+
+.
+
+with 
+
+G(n)0 − n
+
+√n =
+
+> r
+
+X
+
+> ℓ=1
+
+H(n) 
+
+> ℓ
+
++
+
+> d
+
+P
+
+> ℓ=r+1
+
+G(n)
+
+> ℓ
+
+√n .
+
+The second term on the right-hand side vanishes in probability since G(n) 
+
+> ℓ
+
+∼ Γ( αℓ + ηℓ, 1) for 
+
+ℓ = r + 1 , . . . , d . Hence, since, as observed above, n/G (n)0 → 1, ˆxj → x∗ 
+
+> j
+
+in probability, 
+
+√n(X(n) 
+
+> j
+
+− ˆxj ) = H(n) 
+
+> j
+
+− x∗
+
+> jr
+
+X
+
+> ℓ=1
+
+H(n) 
+
+> ℓ
+
++ oP(1) , j = 1 , . . . , r, 
+
+and by the continuous mapping theorem, √n(X(n),+ − ˆx+) ⇒ N (·; 0 , Σ+), where Σ + = diag( x∗+) −
+
+x∗+x∗+⊤. The limiting covariance is obtained through the linear map H 7 → H − x∗+(1 ⊤H) applied to H ∼ N (0 , diag( x∗+)). For the joint limit, note that by independence and the above considerations, (H(n)1 , . . . , H (n) 
+
+> r
+
+, G (n)
+
+> r+1
+
+, . . . , G (n) 
+
+> d
+
+) ⇒ N (0 , diag( x∗+)) ⊗
+
+> d
+
+O
+
+> j=r+1
+
+Γ( αj + ηj , 1) .
+
+Moreover, as shown above, 
+
+√n(X(n),+ − ˆx+) = H(n) − x∗+ 1⊤H(n) + oP(1) , nX (n),0 = ( G(n)
+
+> r+1
+
+, . . . , G (n) 
+
+> d
+
+) + oP(1) .
+
+33 Another application of Slutsky’s theorem and the continuous mapping theorem then proves the claim. Finally, if r = d, there is no inactive block. In that case, the usual finite-dimensional Bernstein– von Mises theorem for regular statistical models, e.g., Theorem 10 .1 in van der Vaart (1998), gives the Gaussian convergence in total variation. 
+
+Lemma SM.A.13. Let {μn}n and {νn}n be two sequences of probability measures on X = X1 ×· · · × X k which can be decomposed as 
+
+μn(d x1: k) = μn, 1(d x1)
+
+> k
+
+Y
+
+> i=2
+
+μn,i (d xi|x1: i−1), νn(d x1: k) = νn, 1(d x1)
+
+> k
+
+Y
+
+> i=2
+
+νn,i (d xi|x1: i−1),
+
+where μn, 1(d x1) and νn, 1(d x1) are probability measures on X , while μn,i (d xi|x1: i−1) and νn,i (d xi|x1: i−1)
+
+are transition probability kernels on Xi. Let d(·, ·) be either the total variation, dTV , or the bounded-Lipschitz, dBL , distance between probability measures. Assume that 
+
+d(μn, 1(d x1), ν n, 1(d x1)) → 0, sup 
+
+> x1: i−1
+
+d(μn,i (d xi|x1: i−1), ν n,i (d xi|x1: i−1) → 0,
+
+as n → ∞ for every i = 2 , . . . , k . Then d(μn, ν n) → 0, as n → ∞ .Proof. We prove the result for k = 2, as the general case follows by induction. Let {ρn}n be a sequence of probability measures on X defined as 
+
+ρn(d x) = μn, 1(d x1)νn, 2(d x2|x1).
+
+By the triangular inequality we have that 
+
+d(μn, ν n) ≤ d(μn, ρ n) + d(ρn, ν n). (SM.31) If d = dTV , let F(A) be the class of all measurable functions f : A → [0 , 1], while if d = dBL , let it denote the class of bounded Lipschitz function with Lipschitz constant smaller than 1. Then we can write 
+
+d(ρn, ν n)= sup   
+
+> f∈F (X)
+
+Z
+
+> X
+
+f (x)ρn(d x) −
+
+Z
+
+> X
+
+f (x)νn(d x)
+
+= sup   
+
+> f∈F (X)
+
+Z
+
+> X1
+
+Z
+
+> X2
+
+f (x)νn, 2(d x2|x1)μn, 1(d x) −
+
+Z
+
+> X1
+
+Z
+
+> X2
+
+f (x)νn, 2(d x2|x1)νn, 1(d x)
+
+≤ sup 
+
+> g∈F (X1)
+
+Z
+
+> X1
+
+g(x1)μn, 1(d x1) −
+
+Z
+
+> X1
+
+g(x1)νn, 1(d x1)
+
+= d(μn, 1(d x1), ν n, 1(d x1)) → 0,
+
+34 as n → ∞ by assumption. Similarly we have 
+
+d(μn, ρ n) = sup   
+
+> f∈F (X)
+
+Z
+
+> X
+
+f (x)μn(d x) −
+
+Z
+
+> X
+
+f (x)ρn(d x)
+
+≤
+
+Z
+
+> X1
+
+"
+
+sup 
+
+> g∈F (X2)
+
+Z
+
+> X2
+
+g(x2)μn, 2(d x2|x1) −
+
+Z
+
+> X2
+
+g(x2)νn, 2(d x2|x1)
+
+#
+
+μn, 1(d x1)
+
+≤ sup 
+
+> x1
+
+d(μn, 2(d x2|x1), ν n, 2(d x2|x1)) → 0,
+
+as n → ∞ . The result then follows by (SM.31). We can now prove the remaining claims of Theorem 3.8. 
+
+Proof of (18) and (19) in Theorem 3.8. For each i = 1 , . . . , k , define 
+
+Ti,n (xi) =  √n(x+ 
+
+> i
+
+− ˆx+ 
+
+> i
+
+), nx 0
+
+> i
+
+,
+
+and let Λi = N (·; 0 , Σ+ 
+
+> i
+
+) ⊗
+
+> d
+
+O
+
+> j=ri+1
+
+Γ( αj , 1) ,
+
+with the convention that the second factor is a point mass at the empty vector when ri = d. By Lemma SM.A.13 and the Markov property, it suffices to prove that 
+
+dBL 
+
+
+
+Lq1|1: k (·| Y (n)1: k )
+
+ T1,n (X1), Λ1
+
+
+
+→ 0and, for every i = 2 , . . . , k ,sup 
+
+> xi−1∈∆d
+
+dBL 
+
+
+
+L˜qi|1: k (·| xi−1,Y (n)1: k )
+
+ Ti,n (Xi), Λi
+
+
+
+→ 0in μ(∞)1: k -probability, where dBL denotes the bounded-Lipschitz metric between probability distribu-tions. We prove the second display; the argument for i = 1 is simpler. Fix i = 2 , . . . , k . By the HMM structure, ˜qi|1: k(d xi | xi−1, Y (n)1: k ) = 
+
+Z
+
+> ∆d
+
+˜qi|i−1,i +1 (d xi | xi−1, x ′, Y (n) 
+
+> i
+
+)ri+1 |1: k(x′ | xi−1, Y (n)1: k ) d x′.
+
+Therefore, by convexity of dBL ,sup 
+
+> xi−1∈∆d
+
+dBL 
+
+
+
+L˜qi|1: k (·| xi−1,Y (n)1: k )
+
+ Ti,n (Xi), Λi
+
+
+
+≤ sup 
+
+> (xi−1,x i+1 )∈∆2
+> d
+
+dBL 
+
+
+
+L˜qi|i−1,i +1 (·| xi−1,x i+1 ,Y (n) 
+
+> i)
+
+ Ti,n (Xi), Λi
+
+
+
+.
+
+35 Hence it suffices to prove that the right-hand side converges to zero in μ(∞)1: k -probability. Fix ε > 0. By Lemma SM.A.8, there exists M > 0, independent of xi−1 and xi+1 , such that 
+
+X
+
+> |k|>M
+
+X
+
+> |k′|≥ 0
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti) + X
+
+> |k′|>M
+
+X
+
+> |k|≥ 0
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti) ≤ ε
+
+6 .
+
+Therefore, by convexity of dBL , and since dBL is bounded by 2, sup 
+
+> (xi−1,x i+1 )∈∆2
+> d
+
+dBL 
+
+
+
+L˜qi|i−1,i +1 (·| xi−1,x i+1 ,Y (n) 
+
+> i)
+
+ Ti,n (Xi), Λi
+
+
+
+≤ sup 
+
+> (xi−1,x i+1 )∈∆2
+> d
+
+X
+
+> k,k′∈Zd
+> +
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti)dBL 
+
+
+
+Lπα+ni+k+k′
+
+ Ti,n (Xi), Λi
+
+
+
+≤ sup 
+
+> (xi−1,x i+1 )∈∆2
+> d
+
+X
+
+> |k|≤ M
+
+X
+
+> |k′|≤ M
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti)dBL 
+
+
+
+Lπα+ni+k+k′
+
+ Ti,n (Xi), Λi
+
+
+
++ ε
+
+3 ,
+
+We proceed separating the terms with no inactive shift (that is, for which we have kj = k′ 
+
+> j
+
+= 0 for all j = ri + 1 , . . . , d ) from the others. For the former group, an application of Lemma SM.A.12, applied with η = k + k′, gives 
+
+Lπα+ni+k+k′
+
+ Ti,n (Xi) ⇒ N (·; 0 , Σ+ 
+
+> i
+
+) ⊗
+
+> d
+
+O
+
+> j=ri+1
+
+Γ( αj , 1) = Λ i.
+
+The restriction of the sum in the second to last display over such k and k′ is then seen to be smaller than ε/ 3 whenever n is sufficiently large. We conclude considering 
+
+X    
+
+> |k|≤ M, |k′|≤ Mkj+k′
+> j>0 for some j>r i
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti)dBL 
+
+
+
+Lπα+ni+k+k′
+
+ Ti,n (Xi), Λi
+
+
+
+≤ 2 X    
+
+> |k|≤ M, |k′|≤ Mkj+k′
+> j>0 for some j>r i
+
+˜wni,k,k′ (ti − ti−1, t i+1 − ti)(SM.32) For all |k| ≤ M, |k′| ≤ M satisfying kj + k′ 
+
+> j
+
+> 0 for some j = ri + 1 , . . . , d , set 
+
+mi(k, k′) = 
+
+> d
+
+X
+
+> j=ri+1
+
+(kj + k′ 
+
+> j
+
+) > 0.
+
+From (SM.26), for fixed k, k′, we see that the Dirichlet–multinomial factor Cni,k,k′ in ˜ wni,k,k′ (ti −
+
+ti−1, t i+1 − ti) depends on n only through Γ( θ + n)Γ( θ + n + |k| + |k′|)
+
+> d
+
+Y
+
+> j=1
+
+Γ( αj + ni,j + kj + k′ 
+
+> j
+
+)Γ( αj + ni,j ) .
+
+36 By the standard gamma-ratio asymptotics, Γ( θ + n)Γ( θ + n + |k| + |k′|) = O
+
+
+
+n−| k|−| k′|
+
+.
+
+Also, for all j ≤ ri, since ni,j /n → x∗ 
+
+> i,j
+
+> 0, Γ( αj + ni,j + kj + k′ 
+
+> j
+
+)Γ( αj + ni,j ) = O
+
+
+
+nkj +k′
+
+> j
+
+
+
+.
+
+For inactive coordinates j > r i, we have ni,j = 0, and the above gamma ratios are O(1). It follows that 
+
+Cni,k,k′ = O
+
+
+
+n−| k|−| k′|n  
+
+> riP
+> j=1
+> (kj+k′
+> j)
+
+
+
+= O
+
+
+
+n−mi(k,k′)
+
+
+
+= o(1) ,
+
+since mi(k, k′) > 0. Consequently, the unnormalised weights rn,k,k′ in (SM.26) also vanish asymp-totically. Upon noting that the normalising constants in the definition of ˜ wni,k,k′ (ti − ti−1, t i+1 − ti)are bounded below by rni,0,0, which is strictly positive and independent of n, we conclude that also ˜wni,k,k′ (ti − ti−1, t i+1 − ti) vanishes asymptotically for all |k| ≤ M, |k′| ≤ M satisfying kj + k′ 
+
+> j
+
+> 0for some j = ri + 1 , . . . , d . Thus, the finite sum (SM.32) is smaller than ε/ 3 when n is large enough. Combined with the previously obtained bounds, this proves sup 
+
+> (xi−1,x i+1 )∈∆2
+> d
+
+dBL 
+
+
+
+L˜qi|i−1,i +1 (·| xi−1,x i+1 ,Y (n) 
+
+> i)
+
+ Ti,n (Xi), Λi
+
+
+
+→ 0in μ(∞)1: k -probability. The case i = 1 is analogous but uses the one-sided filtering mixture rather than the two-sided bridge mixture. Thus, 
+
+L
+
+
+
+(Ti,n (Xi)) ki=1 | Y (n)1: k
+
+
+
+⇒
+
+> k
+
+O
+
+> i=1
+
+Λi
+
+in μ(∞)1: k -probability. Recalling the definition of Ti,n and Λ i, this is exactly the joint version of (18) and (19). The two marginal convergences follow immediately. Finally, if ri = d for all i = 1 , . . . , k , the inactive blocks are empty, and the stronger conclusion in total variation is implied by the interior part of Lemma SM.A.12 (via the total variation part of Lemma SM.A.13). 
+
+A.6 Proof of Proposition 3.7 
+
+We first need a preliminary lemma. 37 Lemma SM.A.14. Let ps(x, x ′) and bs|t,u (z | x, x ′) be as in (1) and (2) . Then the mappings 
+
+x 7 → ps(x, ·), (x, x ′) 7 → bs|t,u (· | x, x ′)
+
+are continuous in total variation distance for every s, t, u .Proof. Fix ε > 0. By Proposition 3.1, there exists M > 0 such that 
+
+X
+
+> |k|>M
+
+px
+
+> k
+
+(s) = X
+
+> m>M
+
+pm(s) < ε 
+
+uniformly in x ∈ ∆d. Hence, for any x, x ′ ∈ ∆d,
+
+dTV 
+
+ ps(x, ·), p s(x′, ·) ≤ X
+
+> |k|≤ M
+
+px
+
+> k
+
+(s) − px′ 
+
+> k
+
+(s) + 4 ε. 
+
+Moreover 
+
+px
+
+> k
+
+(s) = p|k|(s)
+
+|k|
+
+k
+
+
+
+xk
+
+is continuous in x for every fixed k. Therefore x 7 → ps(x, ·) is continuous. As regards bs|t,u (· | x, x ′), by Lemma SM.A.8 there exists M > 0 such that 
+
+X
+
+> |k|>M
+
+X
+
+> |k′|≥ 0
+
+wk,k′ (s − t, u − s) + X
+
+> |k′|>M
+
+X
+
+> |k|≥ 0
+
+wk,k′ (s − t, u − s) < ε, 
+
+and continuity follows by a similar argument. 
+
+Proof of Proposition 3.7. We first prove (15). Fix ε > 0 and notice that by the Markov property we can write 
+
+qi|1: i−1(d z | Y (n)1: i−1) = 
+
+Z
+
+> ∆d
+
+pi|i−1(d z | x) qi−1|1: i−1(d x | Y (n)1: i−1).
+
+By Lemma SM.A.14 there exists δ > 0 such that 
+
+dTV 
+
+ pi|i−1(· | x), p i|i−1(· | x∗
+
+> i−1
+
+) < ε, 
+
+whenever ∥x − x∗
+
+> i−1
+
+∥2 < δ , which implies 
+
+dTV 
+
+ qi|1: i−1(· | Y (n)1: i−1), p i|i−1(· | x∗
+
+> i−1
+
+) ≤
+
+Z
+
+> ∆d
+
+dTV 
+
+ pi|i−1(· | x), p i|i−1(· | x∗
+
+> i−1
+
+)qi−1|1: i−1(d x | Y (n)1: i−1)
+
+≤ ε +
+
+Z
+
+> Aδ,x ∗
+> i−1
+
+qi−1|1: i−1(d x | Y (n)1: i−1),
+
+with Aδ,x as in (SM.29), and the last term on the right hand side vanishes as n → ∞ by Theorem 3.8. The result follows by arbitrariness of ε.38 For (16), write Π(n) 
+
+> i
+
+(d x, dx′) := qi−1,i +1 |1: i−1,i +1: k(d x, dx′ | Y (n)1: i−1, Y (n)
+
+> i+1: k
+
+).
+
+As regards (16), the result follows analogously by writing 
+
+qi|1: i−1,i +1: k(d z | Y (n)1: i−1, Y (n)
+
+> i+1: k
+
+) = 
+
+Z
+
+> ∆d
+
+Z
+
+> ∆d
+
+bi|i−1,i +1 (d z | x, x ′) qi−1,i +1 |1: k(d x, dx′|Y (n)1: k ),
+
+where qi−1,i +1 |1: k(x, x ′|Y (n)1: k ) is the joint density of the signal at times ti−1 and ti+1 conditional on 
+
+Y (n)1: k .
+
+# B Additional numerical illustrations 
+
+This section collects the numerical material not included in the main paper. We first record additional law-level displays: a more moderate two-type predictive regime, the remaining predictive rate comparisons across inspection gaps, an inspection-time Gaussian comparison, and a three-type boundary regime. We then close with two tables, one summarizing sensitivity to α and ∆ and one checking the finite-start approximation used for the surrogate transition law. 
+
+B.1 Two-type baseline regime 
+
+For comparison with the near-boundary regime shown in the main paper, consider a two-type model with α = (2 , 2), x∗ = 0 .15, and inspection gap ∆ = 0 .05. Figure 4 compares the exact predictive law with the transition law started at the empirical composition ˆ x, and Figure 5 gives the corresponding push-forward under Simpson diversity. The discrepancy is visibly smaller than in the near-boundary regime shown in the main paper. 
+
+B.2 Rate behavior across gaps 
+
+Figure 6 complements the main-text rate comparison by displaying the same experiment at the shorter gap ∆ = 0 .05 and the longer gap ∆ = 0 .50, still with α = (2 , 2), x∗ ∈ { 0.01 , 0.15 , 0.50 },
+
+n ∈ { 20 , 50 , 100 , 200 , 400 }, and 10 repeated datasets per n.
+
+B.3 Gaussian approximation at an inspection time 
+
+We also record the inspection-time Gaussian comparison used as a qualitative illustration of the joint-smoothing Bernstein–von Mises regime. The setting is the two-type model with α = (2 , 2), inspection gap ∆ = 0 .05, and latent path (0 .15 , 0.20 , 0.17) at three observation times. 39 20 50 200 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0123402401234Xi Density Empirical−start transition Exact predictive Figure 4: Baseline two-type predictive comparison with α = (2 , 2), x∗ = 0 .15, ∆ = 0 .05, and 
+
+n ∈ { 20 , 50 , 200 }. From left to right, the panels correspond to n = 20 , 50 , 200 and compare the exact predictive density qi|i−1(· | Y (n)
+
+i−1 ) with the Wright–Fisher transition density pi|i−1(· | ˆxi−1) started at the empirical composition. 20 50 200 0.0 0.1 0.2 0.3 0.4 0.5 0.0 0.1 0.2 0.3 0.4 0.5 0.0 0.1 0.2 0.3 0.4 0.5 0123012302461 − Xi2 − ( 1 − Xi )2Density Empirical−start transition Exact predictive 
+
+Figure 5: Baseline two-type predictive law of Simpson diversity with α = (2 , 2), x∗ = 0 .15, ∆ = 0.05, and n ∈ { 20 , 50 , 200 }. From left to right, the panels correspond to n = 20 , 50 , 200 and show the push-forwards of the exact predictive law and of the surrogate transition law under the Simpson-diversity functional. 40 Predictive total−variation discrepancy Simpson−diversity mean gap 20 50 100 200 400 20 50 100 200 400 0.001 0.010 0.100 0.003 0.010 0.030 0.100 0.300 n (log scale) Log scale n−dependent bound term x* = 0.01 x* = 0.15 x* = 0.50 Predictive total−variation discrepancy Simpson−diversity mean gap 20 50 100 200 400 20 50 100 200 400 1e−04 1e−02 1e+00 0.001 0.010 0.100 n (log scale) Log scale n−dependent bound term x* = 0.01 x* = 0.15 x* = 0.50 Figure 6: Exact two-type predictive rate comparison across the true compositions x∗ ∈{0.01 , 0.15 , 0.50 }, with α = (2 , 2), for the shorter gap ∆ = 0 .05 (top) and the longer gap ∆ = 0 .50 (bottom). In each panel, the left plot shows the empirical maximum pre-dictive total-variation discrepancy and the n-dependent factor in the theorem, while the right plot shows the average Simpson-diversity mean gap and the same reference term. 41 20 50 200 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0.00 0.25 0.50 0.75 1.00 0510 0.0 2.5 5.0 7.5 10.0 0246Xi Density Exact smoother Gaussian approximation Figure 7: Inspection-time Gaussian comparison in the two-type model with α = (2 , 2), inspection gap ∆ = 0 .05, latent path (0 .15 , 0.20 , 0.17), and n ∈ { 20 , 50 , 200 }. From left to right, the panels correspond to n = 20 , 50 , 200 and compare the exact marginal smoother 
+
+q2|1:3 (· | Y (n)1:3 ) with the Gaussian law N (·; ˆ x2, Σ2) at the middle inspection time. 
+
+B.4 Multi-type case 
+
+To complement the boundary-aware inspection-time asymptotics in Theorem 3.8 in the main paper, the next displays use a three-type model with α = (2 , 2, 2), true frequency vector x∗ = (0 .60 , 0.40 , 0), and inspection gap ∆ = 0 .05. Thus one coordinate lies exactly on the boundary at the conditioning time, and the observed empirical composition has zero third component as well. Figure 8 compares the exact predictive posterior with the empirical-start transition law directly on the simplex, while Figure 9 compares their push-forwards under Simpson diversity. 
+
+B.5 Sensitivity to mutation and gap 
+
+Table 1 records a compact sensitivity check at n = 50 and x∗ 
+
+> 1
+
+= 0 .15, comparing the symmetric mutation choices α = (0 .5, 0.5), (2 , 2), and (10 , 10) across three inspection gaps. It reports the average and maximum predictive total-variation discrepancy together with the average Simpson-diversity gap. The qualitative dependence on ∆ is clear: larger gaps lead to smaller empirical discrepancies. The dependence on α is less uniform, especially in the short-gap regime. 
+
+B.6 Surrogate transition approximation 
+
+The surrogate transition law is evaluated through a finite-dimensional approximation, namely a coalescent block-counting chain started from a large finite level Nlarge = 500. Table 2 shows that recomputing the surrogate transition from a stricter finite start changes the law only slightly in representative two-type regimes. This is enough for the present purpose, which is only to visualize 42 Mass diff 
+
+> −0.008 −0.004 0.000
+
+Figure 8: Three-type predictive comparison in a boundary regime with α = (2 , 2, 2), x∗ =(0 .60 , 0.40 , 0), ∆ = 0 .05, and n = 50, shown on the simplex in barycentric coordinates. From left to right, the panels show the exact predictive posterior qi|i−1(· | Y (n)
+
+i−1 ), the empirical-start transition law pi|i−1(· | ˆxi−1), and their binned mass difference (exact minus empirical-start transition). 20 50 200 0.2 0.3 0.4 0.5 0.6 0.2 0.3 0.4 0.5 0.6 0.2 0.3 0.4 0.5 0.6 0.0 2.5 5.0 7.5 10.0 03690.0 2.5 5.0 7.5 10.0 12.5 1 − Xi1 2 − Xi2 2 − Xi3 2Density Empirical−start transition Exact predictive 
+
+Figure 9: Push-forward, under Simpson diversity, of the exact predictive posterior qi|i−1(· | Y (n)
+
+i−1 )and of the empirical-start transition law pi|i−1(· | ˆxi−1) in the same three-type boundary regime with α = (2 , 2, 2), x∗ = (0 .60 , 0.40 , 0), ∆ = 0 .05, and n ∈ { 20 , 50 , 200 }. From left to right, the panels correspond to n = 20 , 50 , 200. 43 α ∆ Average TV / Max TV Average diversity gap (0 .5, 0.5) 0.02 0.121 / 0.121 0.038 (2 , 2) 0.02 0.165 / 0.265 0.069 (10 , 10) 0.02 0.465 / 0.636 0.044 (0 .5, 0.5) 0.05 0.062 / 0.063 0.019 (2 , 2) 0.05 0.097 / 0.149 0.040 (10 , 10) 0.05 0.263 / 0.386 0.004 (0 .5, 0.5) 0.20 0.018 / 0.031 0.008 (2 , 2) 0.20 0.042 / 0.063 0.019 (10 , 10) 0.20 0.044 / 0.056 0.000 
+
+Table 1: Sensitivity grid at n = 50 and x∗ = 0 .15 over 50 repeated datasets. “Average TV / Max TV” refers to the predictive total-variation discrepancy. “Average diversity gap” refers to the average absolute gap in the Simpson-diversity event probability under the exact predictive law and the empirical-start transition law. 
+
+x∗ ∆ TV distance 0.15 0.05 0.0040 0.25 0.10 0.0019 0.35 0.20 0.0008 Table 2: Finite-start stability of the surrogate transition law. The reported values are total-variation distances between surrogate transition laws computed from two different finite coalescent starts in the representative regimes listed. the trend of the asymptotic approximation rather than to benchmark a numerical solver. 44
