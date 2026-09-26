@@ -1,0 +1,127 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-26T21:27:32.406353+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.23366v1",
+      "source": "arxiv",
+      "title": "What Can a Recurrent State Safely Forget?",
+      "abstract": "Recurrent models must preserve information that changes future behavior while suppressing hidden-state error. These objectives conflict: contraction improves stability, but contraction along a future-distinguishing direction destroys memory. We formalize this boundary through the predictive quotient of a recurrent state space. Two hidden states are equivalent when they induce the same conditional future; their equivalence classes form predictive fibers. Every exact semantics-preserving corrector acts as the identity on this quotient. At a regular point with hidden dimension d and predictive dimension k, it can eliminate at most d - k independent directions. This establishes a discrete-continuous boundary: finite predictive states admit positive-radius exact correction basins, whereas an uncountable continuum of future-distinguishable states cannot be decoded after arbitrary positive-radius perturbations in finite-dimensional Euclidean space.   To operationalize this principle, we develop an auditable finite-future framework. A compact deployment bank W is evaluated against an independent audit bank A (W subseteq A) on a declared correction domain. Under generative probe access and audit-metric coverage, finite stochastic rollouts furnish a high-probability certificate for the separation margin Omega_{W|A}(delta). Preserving learned W-predictions within this certified margin guarantees bounded audit-semantic distortion. For intrinsic audit dimension k, the required probe outcomes scale as O(M * Omega^{-(k+2)}), where M = |A|; a matching minimax lower bound proves this exponent is optimal. Extending guarantees to continuous futures is achieved via an explicit completeness modulus. Controlled experiments validate the certified margins, scaling laws, and automated probe refinement under a safety-first evaluation paradigm.",
+      "authors": [
+        "Linzhe Zhang",
+        "Changming Xu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-20T05:21:16+00:00",
+      "link": "https://arxiv.org/pdf/2609.23366v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical analysis of predictive quotient and what a recurrent state can predict",
+      "llm_evidence_cn": "递归状态预测商的理论分析，界定可预测性边界",
+      "llm_evidence": "递归状态预测商的理论分析，界定可预测性边界",
+      "canonical_evidence": "递归状态预测商的理论分析，界定可预测性边界",
+      "llm_tldr_en": "This work formalizes the predictive quotient of a recurrent state space, characterizing which hidden-state directions are required for prediction and bounding what can be safely forgotten, a theoretical analysis of predictability.",
+      "llm_tldr_cn": "递归模型须保留影响未来行为的信息，同时抑制隐藏状态误差，二者相互冲突：收缩提升稳定性，但沿区分未来方向收缩会破坏记忆。作者用递归状态空间的预测商刻画这一边界，将诱导相同条件未来的隐藏状态视为等价类即预测纤维，并证明在隐维d、预测维k的正则点处，保持语义的精确校正器最多消除d减k个独立方向。该结果揭示了有限预测状态与连续状态间的边界。其贡献在于为递归模型的可预测性与记忆保持提供理论刻画。",
+      "llm_tldr": "递归模型须保留影响未来行为的信息，同时抑制隐藏状态误差，二者相互冲突：收缩提升稳定性，但沿区分未来方向收缩会破坏记忆。作者用递归状态空间的预测商刻画这一边界，将诱导相同条件未来的隐藏状态视为等价类即预测纤维，并证明在隐维d、预测维k的正则点处，保持语义的精确校正器最多消除d减k个独立方向。该结果揭示了有限预测状态与连续状态间的边界。其贡献在于为递归模型的可预测性与记忆保持提供理论刻画。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.23378v2",
+      "source": "arxiv",
+      "title": "Leaky-integrator reconstruction: taming error accumulation in recursive differenced time-series forecasting",
+      "abstract": "Recursive differenced forecasting, the standard remedy for non-stationarity, predicts one-step changes and integrates them by cumulative summation. We show that this reconstruction is a discrete integrator with a pole on the unit circle, so the biased increment errors of a learned nonlinear model are summed without bound and the rollout diverges: at 336 steps its normalised MAE reaches 1.6-3.8 for every neural architecture tested, against 0.80 for a stable linear recursion. We then introduce leaky-integrator reconstruction, a training-free fix that moves the pole inside the unit circle with H(z) = 1/(1 - gamma z^-1), gamma < 1, bounding the accumulation of the model's own increment errors. Applied post hoc with a single fixed gamma=0.9 (no retraining, a two-line change to any deployed one-step or foundation-model forecaster), it beats the traditional recursive integrator at every horizon, with the mean gain over seven diverging architectures and twenty datasets growing from ~3% at H=24 to 23% at H=96, 37% at H=192 and 51% at H=336 (43-75% across those architectures; 78% with an oracle pole), bringing all of them to 0.87-0.97. Based on these extensive empirical experiments, adding a leaky integrator thus improves recursive differenced time-series forecasting.",
+      "authors": [
+        "Zijiang Yang"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "q-fin.CP"
+      ],
+      "published": "2026-09-20T05:59:33+00:00",
+      "link": "https://arxiv.org/pdf/2609.23378v2",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical analysis of error accumulation bounds in recursive time-series forecasting",
+      "llm_evidence_cn": "递归时间序列预测误差累积界的理论分析",
+      "llm_evidence": "递归时间序列预测误差累积界的理论分析",
+      "canonical_evidence": "递归时间序列预测误差累积界的理论分析",
+      "llm_tldr_en": "Shows recursive differenced forecasting is a discrete integrator with a pole on the unit circle causing unbounded error accumulation and divergence, and proposes a training-free leaky-integrator reconstruction moving the pole inside the unit circle.",
+      "llm_tldr_cn": "递归差分预测是非平稳时间序列的常用方法，但本文证明其重建过程是单位圆上带极点的离散积分器，学习模型的偏差增量误差会被无界累加，导致多步展开发散。作者提出泄漏积分器重建，将极点移入单位圆内以有界化误差累积，且无需训练即可事后应用。实验显示该方法显著降低长程预测误差，为递归预测的稳定性提供了理论解释与实用修正。",
+      "llm_tldr": "递归差分预测是非平稳时间序列的常用方法，但本文证明其重建过程是单位圆上带极点的离散积分器，学习模型的偏差增量误差会被无界累加，导致多步展开发散。作者提出泄漏积分器重建，将极点移入单位圆内以有界化误差累积，且无需训练即可事后应用。实验显示该方法显著降低长程预测误差，为递归预测的稳定性提供了理论解释与实用修正。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.24153v2",
+      "source": "arxiv",
+      "title": "Quantifying Long-Range Dependence in Object-Valued Time Series",
+      "abstract": "Object-valued time series, including distributions, covariance matrices, networks, and compositions, lack the linear structure required by conventional autocovariance-based definitions of long memory. We develop an intrinsic framework for defining and estimating long memory in metric spaces of negative type. An isometric embedding yields a centered Hilbert-valued process, and the trace of its lag-covariance operator provides a signed, additive measure of temporal dependence. Crucially, this trace equals the difference between the marginal mean pairwise distance and expected lagged distance, so the framework and its estimators use only distances between the original objects. We define the memory parameter through the nonsummable decay of this trace and show that it coincides with the usual parameter in Hilbert-valued settings. Estimation uses Bartlett aggregates of distance-based lag measures. Estimating the common marginal distance from the same dependent sample induces a common-centering bias in these aggregates. We derive its finite-sample form and propose iterated block-difference corrections, log-ratio and multi-bandwidth log-slope estimators, and a localized self-consistency refinement. We establish consistency, document substantial bias reduction in simulations, and find long-memory evidence in foreign-exchange return distributions and U.S. electricity-generation compositions.",
+      "authors": [
+        "Won-Ki Seo",
+        "Jiazhen Xu",
+        "Han Lin Shang"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME",
+        "math.ST"
+      ],
+      "published": "2026-09-21T06:14:15+00:00",
+      "link": "https://arxiv.org/pdf/2609.24153v2",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "quantifying temporal dependence and memory in time series",
+      "llm_evidence_cn": "量化时间序列中的时间依赖与记忆",
+      "llm_evidence": "量化时间序列中的时间依赖与记忆",
+      "canonical_evidence": "量化时间序列中的时间依赖与记忆",
+      "llm_tldr_en": "Introduces an intrinsic framework to define and estimate long memory in object-valued time series via distance-based lag-covariance trace, enabling predictability quantification without linear structure.",
+      "llm_tldr_cn": "针对分布、协方差矩阵、网络等对象值时间序列缺乏线性结构、传统基于自协方差的长期记忆定义不再适用的问题，本文在负类型度量空间中构建内在框架，通过等距嵌入得到希尔伯特值过程，并用滞后协方差算子的迹来度量时间依赖。该迹等于边际平均成对距离与期望滞后距离之差，因此估计仅依赖原始对象间距离。框架给出了记忆参数定义与估计，为对象值时间序列的可预测性量化提供了新工具。",
+      "llm_tldr": "针对分布、协方差矩阵、网络等对象值时间序列缺乏线性结构、传统基于自协方差的长期记忆定义不再适用的问题，本文在负类型度量空间中构建内在框架，通过等距嵌入得到希尔伯特值过程，并用滞后协方差算子的迹来度量时间依赖。该迹等于边际平均成对距离与期望滞后距离之差，因此估计仅依赖原始对象间距离。框架给出了记忆参数定义与估计，为对象值时间序列的可预测性量化提供了新工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "quantifying predictability in time series forecasting",
+      "matched_requirement_id": "req-10",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

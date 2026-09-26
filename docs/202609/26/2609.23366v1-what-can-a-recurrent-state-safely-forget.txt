@@ -1,0 +1,602 @@
+Title: What Can a Recurrent State Safely Forget?
+
+URL Source: https://arxiv.org/pdf/2609.23366v1
+
+Published Time: Tue, 22 Sep 2026 01:17:02 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+## What Can a Recurrent State Safely Forget? 
+
+Linzhe Zhang 1 Changming Xu 1
+
+Abstract 
+
+Recurrent models must preserve information that changes future behavior while suppressing hidden-state error. These objectives conflict: con-traction improves stability, but contraction of a future-distinguishing direction destroys memory. We formalize the boundary through the predic-tive quotient of a recurrent state space. Two hid-den states are equivalent when they induce the same complete conditional future; their equiva-lence classes are predictive fibers. Every exact semantics-preserving corrector acts as the identity on this quotient. At a regular point with hidden dimension d and predictive dimension k, it can eliminate at most d − k independent directions. This yields a discrete–continuous boundary: finite predictive states can have positive-radius exact correction basins, whereas an uncountable con-tinuum of future-distinguishable states cannot be exactly decoded after arbitrary positive-radius per-turbations in finite-dimensional Euclidean space. To operationalize this principle in learning, we develop an auditable finite-future framework. A compact deployment bank W is evaluated against an independent audit bank U ⊇ W on a declared correction domain. Under generative probe access and audit-metric coverage, finite stochastic roll-outs furnish a high-probability lower certificate for the separation margin ΩD  
+
+> W|U
+
+(δ). Preserving learned W -predictions within this certified mar-gin guarantees bounded audit-semantic distortion. For intrinsic audit dimension k, the required num-ber of probe outcomes scales as eO(M Ω−(k+2) ),where M = |U| reflects the audit scope; a match-ing minimax lower bound proves this exponent is optimal. Extending guarantees across full contin-uous futures is achieved via an explicit complete-ness modulus. Controlled experiments validate the certified margins, their scaling behavior, and 
+
+> 1
+
+Graduate School, Northeastern University. Correspondence to: Linzhe Zhang <cfmy007@gmail.com>, Changming Xu <chang-mingxu@neuq.edu.cn>. 
+
+Preprint. September 22, 2026. 
+
+automated probe refinement under a safety-first evaluation paradigm. 
+
+1. Introduction 
+
+A recurrent state summarizes a history through an update 
+
+ht = Fθ (ht−1, x t). It is asked to do two incompatible things. It must retain every aspect of the past that changes the future, while also rejecting noise, numerical drift, and irrelevant variability. Global contraction solves the second problem by also erasing the first. The issue is not whether a recurrent state should contract, but which directions may contract without changing the computation .Predictive-state representations define state using condi-tional predictions of future tests rather than an unobserved latent coordinate (Littman et al., 2001). Neural descen-dants such as PSRNNs and predictive-state decoders al-ready use future prediction to shape recurrent represen-tations (Downey et al., 2017; Venkatraman et al., 2017). Continuous-attractor analyses similarly distinguish weakly stable memory directions from strongly stabilized transverse directions (Ságodi et al., 2024). These lines of work mo-tivate, but do not state, a safety criterion for modifying an internal recurrent representation. This paper makes that criterion explicit. A hidden-state dis-placement is safe to remove exactly when it stays inside a 
+
+predictive fiber : the set of hidden states that cannot be distin-guished by any relevant future. The resulting contributions are: • a quotient constraint showing that an exact corrector is the identity on predictive state, and a codimension bound on correctable directions; • a sharp contrast between positive-radius correction for finite predictive codes and its impossibility for a predic-tive continuum, plus an approximate packing bound; • a finite, non-circular audit formulation and a PAC lower certificate for predictive separation under stated gen-erative access, with structural modulus conditions for full continuous futures; • upper and minimax lower bounds with the same 
+
+Ω−(k+2) exponent; and 1arXiv:2609.23366v1 [cs.LG] 20 Sep 2026 Predictive Fibers 
+
+• audited Predictive-Fiber CEGIS (PF-CEGIS), which enlarges a deployment probe bank only when an inde-pendent audit exposes an unsafe alias. 
+
+2. The Geometry of Safe Forgetting 
+
+Let H ⊆ Rd be a recurrent hidden-state domain. A fu-ture experiment (or test) w ∈ W has bounded outcome 
+
+Yw ∈ [0 , 1] . Let ϕw(h) = E[Yw | h] and define the com-plete predictive behavior Φ∞(h) = ( ϕw(h)) w∈W . Two hidden states are predictively equivalent ( h ∼ h′) precisely when Φ∞(h) = Φ ∞(h′). The quotient S = H/∼ is the pre-dictive state space, and the canonical projection π : H → S 
+
+maps each internal realization to its behavioral equivalence class. An equivalence class Fs = π−1(s) is a predictive fiber . By construction, all future predictions factor through the quotient state s = π(h); we write ϕw(s) without ambi-guity. 
+
+Definition 1 (Semantics-preserving corrector) . A map Q :
+
+H → H is semantics preserving on a domain D ⊆ H if 
+
+π(Q(h)) = π(h) for all h ∈ D. Equivalently, Q maps every hidden state into its own predictive fiber. 
+
+Theorem 2 (Predictive quotient constraint) . Let Q be se-mantics preserving. It induces the identity map on the pre-dictive quotient. Suppose that near h, π is represented by a 
+
+C1 submersion of rank k, and that Q(h) = h. Then 
+
+Dπ h(DQ h − I) = 0 ,
+
+rank( DQ h) ≥ k, dim ker DQ h ≤ d − k. 
+
+Consequently, at most d−k independent local directions can be eliminated by an exact corrector. If a C1 local section 
+
+E : S → H exists, the canonicalizer Q⋆ = E ◦ π is an idempotent corrector with rank k along E(S).Proof. The first claim is simply π ◦ Q = π. At a fixed point, differentiate this equality to obtain Dπ hDQ h = Dπ h; rear-rangement gives the first display. Since Dπ h = Dπ hDQ h
+
+and Dπ h has rank k, DQ h has rank at least k. For a section, 
+
+π ◦ E = I, so Q⋆ ◦ Q⋆ = Q⋆ and DQ ⋆ has rank k at canonical states by the chain rule. Geometrically, Theorem 2 establishes that an exact corrector may aggressively contract redundant representational direc-tions within a fiber, but must act as the identity along the predictive quotient. The fixed-point condition in the differ-ential identity is structurally exact: away from a fixed point, differentiating π ◦ Q = π yields Dπ Q(h)DQ h = Dπ h,reflecting the pushforward along non-trivial corrector tra-jectories. Crucially, this codimension bound is geometric rather than architectural: it applies universally to learned RNNs, continuous attractors, or physical state estimators. 
+
+2.1. The Discrete–Continuous Boundary 
+
+Whether such semantics-preserving contraction can achieve exact error recovery hinges fundamentally on the topologi-cal cardinality of the predictive quotient S. When S is finite or discrete, distinct fibers admit disjoint, positive-radius basins of attraction in Rd, enabling robust hard-decision snapping. However, this discrete intuition completely breaks down for an uncountable predictive continuum: 
+
+Theorem 3 (No positive-radius exact decoder for a predic-tive continuum) . Let S be an uncountable set of pairwise future-distinguishable states and E : S → Rd an encoding. There do not exist a deterministic decoder C : Rd → S and 
+
+ϵ > 0 satisfying 
+
+C(E(s) + η) = s for all s ∈ S and ∥η∥ ≤ ϵ. 
+
+Proof. The closed ϵ-balls about two distinct codewords must be disjoint: a point in their intersection would re-quire two decoder outputs. Hence the codewords are pair-wise more than 2ϵ apart. A positive-separated subset of Rd
+
+is countable (partition space into bounded cubes, each of which contains only finitely many such points), contradict-ing uncountability. Theorem 3 delineates a fundamental geometric boundary: while discrete codes admit positive-radius basin snapping, an uncountable continuum in finite-dimensional Euclidean space strictly precludes exact state recovery under arbitrary perturbations. Consequently, continuous predictive memory must tolerate approximate semantic retention within a cer-tified distortion margin δ. In this approximate regime, the required hidden dimension is governed by predictive metric entropy: 
+
+Theorem 4 (Predictive packing bound) . Suppose E(S) ⊆
+
+[−R, R ]d and a decoder C obeys dS (C(E(s) + η), s ) ≤ δ
+
+for all ∥η∥∞ ≤ ϵ. Then 
+
+MS (2 δ) ≤
+
+
+
+1 + Rϵ
+
+d
+
+, d ≥ log MS (2 δ)log(1 + R/ϵ ) .
+
+Proof. For predictive states separated by more than 2δ, the corresponding ℓ∞ balls of radius ϵ must be disjoint; oth-erwise one hidden point would decode within δ of both. Packing these balls using their centers in [−R, R ]d yields the first bound; the second is its rearrangement. For a regular k-dimensional predictive manifold with cov-ering number proportional to δ−k, Theorem 4 yields d =Ω( k log(1 /δ )) at fixed normalized noise. This establishes that continuous memory retention cannot rely on topological basins, but must instead be managed via metric margins— motivating the operational auditing framework we construct next. 2Predictive Fibers 
+
+3. Auditable Certification and Adaptive Refinement 
+
+While the complete predictive map Φ∞ comprises infinitely many future test coordinates, Whitney-type embedding the-ory ensures that a finite coordinate chart captures the quo-tient on compact domains: 
+
+Proposition 5 (Finite predictive embedding) . Let S be a compact C1 manifold and suppose every ϕw is C1. If future tests separate points ( s̸ = s′ =⇒ ϕw(s)̸ = ϕw(s′)) and separate nonzero tangent vectors ( v ∈ TsS \ { 0} =⇒
+
+dϕ w(s)[ v]̸ = 0 ), then a finite probe set W ⊂ W exists for which ΦW = ( ϕw)w∈W is a C1 embedding. 
+
+The proof is given in Appendix B.1. Proposition 5 natu-rally grounds predictive state representations (Littman et al., 2001) within differential observability and embedding the-ory (Takens, 1981). However, moving from topological existence to verifiable runtime safety requires an opera-tional decision metric that can be estimated and audited from finite data, certified under sampling uncertainty, and algorithmically refined when blind spots appear. 
+
+3.1. Audited Semantics and Deterministic Certificates 
+
+To make safety verifiable, we declare a correction do-main D ⊆ S , an audit bank U = {u1, . . . , u M }, and a compact deployment bank W ⊆ U before measuring margins, with m = |W | ≪ M . Define the empiri-cal future metrics dU (s, s ′) = ∥ΦU (s) − ΦU (s′)∥∞ and 
+
+dW (s, s ′) = ∥ΦW (s) − ΦW (s′)∥∞. The audited separa-tion margin is defined as 
+
+ΩD  
+
+> W|U
+
+(δ) = inf  
+
+> s,s ′∈D
+> dU(s,s ′)≥δ
+
+dW (s, s ′). (1) By standard convention, the infimum over an empty set is 
+
++∞; non-trivial certification assumes that D has audit di-ameter at least δ. Crucially, (1) operates entirely on observ-able distances under U rather than requiring unobservable quantities under d∞, effectively decoupling low operational inference cost ( m = |W |) from comprehensive safety veri-fication scope ( M = |U| ). When an all-future guarantee is required, it relies on an independently established completeness modulus ρU satisfy-ing d∞(s, s ′) ≤ ρU (dU (s, s ′)) with ρU (r) → 0 as r → 0.Under uniform continuity and an equicontinuous test fam-ily, such a modulus follows directly by compactness; in finite-rank linear systems, core tests provide an analytical special case whose stability is governed by reconstruction conditioning. 
+
+Theorem 6 (Deterministic audit-safety certificate) . Let 
+
+ψW (h) estimate ΦW (π(h)) with uniform calibration er-ror at most τ on π−1(D). If a corrector Q maps π−1(D)
+
+into itself and obeys ∥ψW (Q(h)) − ψW (h)∥∞ ≤ ξ, then 
+
+ξ + 2 τ < ΩD  
+
+> W|U
+
+(δ) = ⇒ dU (π(Q(h)) , π (h)) < δ. 
+
+Under completeness modulus ρU , the corresponding full-future distortion satisfies d∞(π(Q(h)) , π (h)) < ρ U (δ).Proof. The triangle inequality bounds dW (π(Q(h)) , π (h)) 
+
+by ξ + 2 τ . Both predictive states lie in D. If their audit distance were at least δ, definition (1) would give the con-tradictory lower bound ΩD  
+
+> W|U
+
+(δ).
+
+3.2. Finite-Rollout PAC Certification and Sample Complexity 
+
+While Theorem 6 provides an exact safety condition, de-ploying it in practice requires estimating predictive distances from finite stochastic rollouts without oracle knowledge of true conditional expectations. 
+
+Assumption 7 (Pre-declared generative audit access) . Be-fore observing any rollout outcomes, the protocol fixes 
+
+(D, U, δ, η, N, M, R, α ) and anchors s1, . . . , s N ∈ D form-ing an η-net of D under dU . A conditional reset oracle initializes rollouts at si. For each anchor i, probe u, and repetition r, it returns a bounded outcome Y (r) 
+
+> i,u
+
+∈ [0 , 1] 
+
+with conditional mean ϕu(si), mutually independent across 
+
+(i, u, r ). Theorem 8 applies to any fixed W ⊆ U ; Corol-lary 13 handles its finite-bank adaptive selection. Let bϕu(si) = R−1 PRr=1 Y (r) 
+
+> i,u
+
+and let eR =
+
+plog(2 N M/α )/(2 R). Define the empirical active pair set 
+
+bAδ = {(i, j ) : bdU (i, j ) ≥ δ − 2η − 2eR}, and the empirical margin bΩW |U (δ) = min (i,j )∈ bAδ
+
+bdW (i, j ).
+
+Theorem 8 (Finite-audit PAC separation) . Under Assump-tion 7, with probability at least 1 − α,
+
+ΩD  
+
+> W|U
+
+(δ) ≥ ΩD  
+
+> W|U
+
+(δ) := bΩW |U (δ) − 2eR − 2η. (2) 
+
+Replacing ΩD  
+
+> W|U
+
+by its lower certificate in Theorem 6 yields a PAC-safe corrector. 
+
+Crucially, bAδ is constructed entirely from observable empir-ical distances. The resulting guarantee is rigorously estab-lished with respect to the declared audit bank, domain, and threshold; complete proofs appear in Appendix B. 
+
+Corollary 9 (Joint calibration and rollout guarantee) . Sup-pose the calibration statement in Theorem 6 holds with probability at least 1 − β on validation data independent of the audit rollouts. Then the safety conclusion obtained via 
+
+(2) holds jointly with probability at least 1 − α − β.
+
+To determine the data requirement for non-trivial certifica-tion, suppose the audit metric on D has covering number 
+
+N (D, d U , η ) ≤ CS η−k and a strict margin ΩD  
+
+> W|U
+
+(δ/ 2) ≥
+
+Ω > 0 exists. 3Predictive Fibers 
+
+Theorem 10 (Audited rollout complexity) . Taking η ≤ q/ 8
+
+and eR ≤ q/ 16 for q = min {δ, Ω} ensures ΩD  
+
+> W|U
+
+(δ) ≥
+
+Ω/2. Under this covering bound, the total number of indi-vidual probe outcomes obeys 
+
+B = eO
+
+
+
+CS M q −(k+2) 
+
+,
+
+which simplifies to eO(CS M Ω−(k+2) ) in the small-margin regime Ω ≤ δ.
+
+The exponent decomposes naturally: k powers cover the intrinsic predictive state space, while two powers estimate bounded scalar means. The linear factor M = |U| reflects the verification scope against which the compact deploy-ment bank is audited. Importantly, this sample complex-ity is not an artifact of loose analysis, but fundamental to distribution-free separation testing: 
+
+Theorem 11 (Minimax lower bound) . Fix δ0 = 1 /4. For every k ≥ 1 and L > 0, constants ck, Ω0 > 0 exist such that, for 0 < Ω ≤ Ω0, any adaptive algorithm distinguishing between H0 : Ω Φ(δ0) ≥ 2Ω and H1 : Ω Φ(δ0) = 0 with error at most 1/3 over L-Lipschitz maps Φ : [0 , 1] k →
+
+[0 , 1] k requires B ≥ ckLkΩ−(k+2) Bernoulli coordinate observations. 
+
+Here ΩΦ(δ) = inf ∥s−s′∥∞≥δ ∥Φ( s) − Φ( s′)∥∞. Ap-pendix B provides the localized bump construction and change-of-measure proof. 
+
+3.3. Closed-Loop Interface Synthesis via PF-CEGIS 
+
+Theorem 8 guarantees safety for any fixed deployment bank W ⊆ U. However, if an initial W lacks distin-guishing future probes, predictive states will alias together (dW (s, s ′) ≈ 0), driving the certified margin ΩD  
+
+> W|U
+
+nega-tive and blocking corrector authorization. To resolve this, audited Predictive-Fiber CEGIS (PF-CEGIS) dynamically refines W guided by certified counterexamples. Starting from W0 ⊆ U , at iteration t:1. estimate audit and deployment distances with simulta-neous confidence intervals; 2. find an anchor pair certified far in dU but insufficiently separated under Wt;3. select the probe u∗ ∈ U \ Wt that maximizes separation for this alias pair; 4. update Wt+1 = Wt ∪{ u∗} and recompute the certified lower margin ΩD 
+
+> Wt+1 |U
+
+(δ);5. permit correction only when the learned corrector’s measured distortion satisfies ξ + 2 τ < ΩD 
+
+> Wt+1 |U
+
+(δ).Because concentration holds uniformly across all subsets of a fixed, pre-declared audit bank U (Corollary 13), select-ing successive deployment subsets requires zero additional rollouts. At the population level, the procedure terminates in at most M steps with W = U as the canonical terminal representation. In summary, PF-CEGIS provides a prin-cipled, counterexample-guided mechanism to synthesize a compact, certifiable deployment interface with provable safety guarantees against the declared audit family. 
+
+4. Empirical Validation 
+
+All experiments are fully reproducible and emphasize direct quantification of semantic safety alongside task performance. The controlled synthetic studies are gen-erated by experiments/run_all.py ; the MuJoCo physical generative certificate, UCI HAR audit, and digit stream by run_mujoco_generative_pac.py ,
+
+run_har_modern.py , and 
+
+run_sequential_digits.py . Every stochastic rollout experiment records literal Bernoulli probe outcomes while leveraging binomial sufficient statistics for exact, efficient simulation. Table 1 summarizes the complete suite of results under our safety-first evaluation paradigm. 
+
+4.1. Conceptual Geometry: Discrete Snapping vs. Continuous Preservation 
+
+We first validate the geometric foundations established in Section 2 across three controlled regimes: finite discrete codes, continuous analog memory, and hybrid state spaces. In discrete state spaces, finite predictive equivalence classes permit robust basin snapping. In an eight-state DFA with deterministic transitions, we inject recurrent hidden noise of σ = 0 .23 per step. As shown in Figure 2, nearest-state hard snapping achieves low state error ( 0.187 ), dramatically outperforming both uncorrected execution ( 0.670 ) and a noise-trained soft recurrent baseline ( 0.254 ). This confirms that discrete predictive codes admit isolated, positive-radius basins of attraction where aggressive snapping successfully restores exact ground truth. Unlike discrete automata, continuous analog memory man-ifolds require tangent preservation to avoid semantic drift. To demonstrate the danger of global contraction, we con-sider an analytic one-dimensional integrator realization 
+
+h = ( z, r 1, r 2), where z represents continuous memory and r1, r 2 are deliberately injected nonpredictive fiber noise. The fiber corrector applies a local multiplier spectrum of 
+
+(1 , 0, 0) , projecting noise along the fiber, whereas global contraction applies isotropic decay (0 .78 , 0.78 , 0.78) . Fig-ure 3 illustrates the central tangent–normal distinction: while both methods suppress fiber noise, global contrac-tion contracts the memory coordinate, increasing semantic 4Predictive Fibers 
+
+Table 1. Comprehensive evaluation under the safety-first paradigm. Nonanalytic margins are evaluated relative to their pre-declared correction domains. “Known quotient” studies feature analytic ground-truth semantics. The HAR and digit benchmarks are reported as held-out empirical audits, distinguishing passive observational datasets from resettable generative PAC certificates. Study task error ΩW |U τ ξ cert. distortion normal contraction DFA hard snap 0.187 analytic 0 0 0 (basin) 0.807 
+
+Analog fiber 0.108 analytic 0 0 0 1.000 
+
+Mixed fiber z 0.118 analytic 0 0 0 1.000 
+
+Rollout certificate — 0.052 0.0078 0 < δ if gated —PF-CEGIS final — 0.066 0.009 0.007 ≤ δ 1.000 
+
+Re-anchoring law 0.000 — 0 0 observation —MuJoCo generative PAC gate pass 0.396 0.141 –0.168 8 .33 e − 16 < 0.80 0.220 
+
+MuJoCo double pendulum gate pass 0.396 0.135 –0.183 numerical < 0.80 0.220 
+
+HAR modern PF (held-out) GRU 0.126 ± 0.007 passive passive 1.83 e − 15 empirical 0.220 
+
+Digits PF (held-out) 0.101 ± 0.014 bΩ = 0 .973 passive 0 1.254 e − 15 0.220 GRU LSTM SSM 0.000 0.025 0.050 0.075 0.100 0.125 0.150 0.175 HAR error (PF) GRU LSTM SSM 0.000 0.025 0.050 0.075 0.100 0.125 0.150 0.175 HAR error (global) GRU LSTM SSM 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 held-out interface change   
+
+> ≈ 0 ≈ 0 ≈ 0
+> global PF (numerical zero)
+
+Figure 1. Subject-disjoint UCI HAR evaluation under hidden-state noise (mean ± s.d., 5 seeds per architecture). The third panel deliberately draws global and PF values side-by-side: PF interface change is numerical zero ( ≈ 10 −15 ), whereas global contraction changes every declared head. 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 per-step hidden noise std. 0.0 0.2 0.4 0.6 0.8 DFA state error        
+
+> no corrector noise-trained soft corrector hard snap
+> 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 per-step hidden noise std. 0.0 0.2 0.4 0.6 0.8 1.0 normal-error contraction
+> noise-trained soft corrector hard snap
+
+Figure 2. Finite predictive states permit strong discrete correction. Hard snapping is effective inside its basin; the learned soft correc-tor is a noise-trained recurrent baseline. 
+
+RMSE from 0.108 to 0.574 . In contrast, the fiber corrector drives fiber-noise RMSE to 0.000 with zero semantic bias. In hybrid discrete–continuous architectures, the state decom-poses into distinct topological components. In a mixed state 
+
+s = ( q, z ) comprising a 4-valued categorical mode q and a continuous coordinate z, the optimal corrector snaps the one-hot mode, preserves z, and eliminates two transverse noise coordinates. Figure 4 demonstrates exact mode recov-ery alongside z RMSE of 0.118 , whereas global contraction yields 0.193 and unnecessary z quantization yields 0.129 .Together, these experiments confirm that strong contrac-tion is semantically sound across discrete modes, but must strictly vanish along continuous predictive coordinates. semantic state z      
+
+> fiber noise
+> r1
+> fiber noise
+> r2
+> 0.0 0.2 0.4 0.6 0.8 1.0 local multiplier magnitude
+> fiber corrector global contraction
+> 010 20 30 memory step 0.0 0.1 0.2 0.3 0.4 0.5 0.6 semantic RMSE
+> fiber-only global
+> 010 20 30 memory step 0.00 0.02 0.04 0.06 0.08 0.10 0.12 0.14 fiber-noise RMSE ‖( r1, r2)‖
+> fiber-only global
+
+Figure 3. Continuous integrator realization h = ( z, r 1, r 2). The two r coordinates are intentionally nonpredictive fiber noise, not additional memories. Fiber-only correction preserves z and con-tracts (r1, r 2); global contraction contracts all three coordinates and therefore biases analog memory. 
+
+4.2. Statistical Certification and Closed-Loop Refinement 
+
+We next evaluate whether the finite-rollout PAC certificate reliably authorizes safe state corrections, and whether PF-CEGIS dynamically repairs uncertified deployment banks. Evaluating statistical certificate scaling under finite sam-pling confirms our theoretical sample complexity bounds. On the synthetic domain s ∈ [0 , 1] k, the audit bank contains strong coordinates 0.1 + 0 .8sj and the deployment bank contains weak coordinates 0.5 + (0 .8Ω /δ )( sj − 1/2) , so the ground-truth margin equals Ω. Varying rollout budget B,intrinsic dimension k, and true margin Ω with independent 5Predictive Fibers 0 5 10 15 20 25 step 0.000 0.005 0.010 0.015 0.020 0.025 0.030 mode-code MSE           
+
+> fiber-only global contraction snap mode + quantize z
+> 0510 15 20 25 step 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 continuous z RMSE
+> fiber-only global contraction snap mode + quantize z
+> 0510 15 20 25 step 0.00 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 normal RMSE
+> fiber-only global contraction snap mode + quantize z
+
+Figure 4. Hybrid predictive state s = ( q, z ). The mode is safely snapped, whereas the continuous coordinate must remain a seman-tic degree of freedom. 0.125 0.145 0.170 0.200 target margin Ω 10 6         
+
+> 10 7
+> 10 8
+> probe outcomes scheduled
+> k= 1; fitted exponent 3.14
+> k= 2; fitted exponent 4.18
+> 10 82 × 10 73 × 10 7
+> 4 × 10 76 × 10 7
+> individual probe outcomes −0.01 0.00 0.01 0.02 0.03 0.04 0.05 0.06 ΩLCB
+> 0.14 0.16 0.18 0.20 target margin Ω 0.0 0.1 0.2 0.3 0.4 mean Ω LCB /Ω
+> k= 1
+> k= 2
+
+Figure 5. Finite-audit certification. We vary margin, intrinsic di-mension, and literal rollout budget, and report the lower certificate rather than only prediction accuracy. 
+
+Bernoulli rollouts ( α = 0 .05 ), Figure 5 demonstrates that the certified lower bound is negative at underfunded budgets (−0.011 ) and turns positive once the sufficient schedule is reached ( 0.065 ). The empirical sample complexity ex-ponents are 3.14 for k = 1 and 4.18 for k = 2 , closely matching the theoretical k + 2 minimax rate of Theorem 11. Offline schedules, wall times, and the curse of predictive dimension are detailed in Appendix A (Figure A1). To synthesize certifiable interfaces without manual trial-and-error, adaptive refinement via PF-CEGIS iteratively queries violating states. Starting from a constant probe where all predictive directions alias together, PF-CEGIS iteratively de-tects distinguishing failures in U and incorporates the most separating probe into W . Figure 6 tracks this trajectory: the certified margin rises monotonically from −0.055 to 0.066 ,while corrector semantic distortion falls from 0.267 to 0.008 .Crucially, the safety gate blocks correction until the final round when ξ + 2 τ < Ω is rigorously established. Because audit rollouts are pre-declared, probe selection incurs zero additional simulation cost (Corollary 13). Over extended operational horizons, uncorrected analog drift accumulates along neutral directions unless periodi-cally re-anchored by sensory observations. Fiber correction eliminates internal representational noise but cannot, by itself, eliminate genuine semantic drift along marginal mem-ory directions. To formalize this boundary, consider an error recurrence et+1 ≤ Le t +b, where b accounts for unmodeled disturbance and certified correction distortion. If L < 1,internal contraction stabilizes memory with asymptotic error bounded by b/ (1 − L). However, for marginal continuous memory where L = 1 , persistent semantic drift is not re-movable by any internal semantics-preserving operation. In such neutral memory regimes, stabilization requires exter-start probe 1 probe 2 1.0 1.5 2.0 2.5 3.0 |W|       
+
+> start probe 1 probe 2 −0.06 −0.04 −0.02 0.00 0.02 0.04 0.06 ΩLCB
+> start probe 1 probe 2 0.000 0.002 0.004 0.006 0.008 prediction-scale error
+> ξτ
+> start probe 1 probe 2 0.00 0.05 0.10 0.15 0.20 0.25 audit semantic distortion
+> actual audit distortion certified bound δ
+
+Figure 6. PF-CEGIS tracks the entire safety gate, not just its final probe count. Adding probes makes the certificate stronger and narrows the information the corrector is allowed to delete. 
+
+nal evidence: if informative observations re-anchor the state every H steps with contraction factor κ < 1, the pre-anchor error satisfies 
+
+sup 
+
+t
+
+et ≤ Hb 
+
+1 − κ + O(b). (3) Figure 7 simulates this exact scalar recurrence across vary-ing disturbance scales b and observation intervals H, over-laying empirical steady-state errors with the theoretical bound (3). The maximum relative discrepancy is 0.000, demonstrating that internal fiber correction (which elim-inates transversal representational noise) and sensory re-anchoring (which bounds longitudinal drift) operate as com-plementary stabilizing mechanisms. 2 4 6 8 10 12 anchor interval H        
+
+> 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 steady pre-anchor error sup
+> t
+> et
+> measured κ= 0.00 measured κ= 0.35 measured κ= 0.65 measured κ= 0.80
+
+Figure 7. Periodic informative observations re-anchor neutral continuous memory. Solid lines are simulated steady pre-anchor errors; dashed lines are the theoretical Hb/ (1 − κ) predictions. 
+
+4.3. Physical Dynamics and Real-World Observational Streams 
+
+Finally, we test the complete framework on physical con-tinuous dynamics under exact resets and real sequential benchmarks under observational audits, demonstrating both active PAC certification and passive empirical verification. Turning to continuous physical dynamics, we evaluate our generative certificate on the MuJoCo InvertedPendulum-v4 domain. In the MuJoCo InvertedPendulum environment, 6Predictive Fibers GRU LSTM SSM 0.00 0.05 0.10 0.15 0.20 fresh calibration / gate scale GRU LSTM SSM 0.00 0.02 0.04 0.06 0.08 semantic distortion     
+
+> ≈ 0 ≈ 0 ≈ 0
+> global PF (numerical zero)
+> GRU LSTM SSM 0.00 0.02 0.04 0.06 0.08 0.10 0.12 Ωcert  − 2 τ
+
+Figure 8. MuJoCo physical generative certificate. GRU, LSTM, and a selective SSM are trained on randomized-control rigid-body rollouts; disjoint exact-reset rollouts bound calibration and certify audit separation. The middle panel compares global and PF dis-tortion: PF achieves numerical zero distortion, whereas isotropic global contraction corrupts the declared interface. 
+
+we define an audit domain across a 75-anchor grid covering the continuous phase cylinder (θ, ˙θ) ∈ [−π, π ] × [−8, 8] 
+
+with exact physical state resets. GRU, LSTM, and an input-selective SSM learn 9 randomized-control terminal events that evaluate whether the pole remains upright within finite horizons under stochastic control torques. With δ = 0 .80 ,
+
+α = 0 .05 , and B = 337 ,500 literal outcomes, fresh phys-ical resets yield a certified lower margin Ω = 0 .396 . Dis-joint calibration rollouts rigorously bound predictor errors 
+
+(τGRU , τ LSTM , τ SSM ) = (0 .141 , 0.147 , 0.168) , allowing all three distinct recurrent architectures to comfortably pass the safety gate ξ +2 τ < Ω. Across all models, PF achieves min-imal interface distortion ξ ≤ 8.33 e − 16 while aggressively contracting normal directions by 0.220 (in sharp contrast to ξ ≥ 0.076 for isotropic global contraction). Further-more, physical PF-CEGIS successfully expands an uncerti-fied 3-probe interface ( −0.202 ) into a certified 9-probe bank (0.398 ), and strictly positive safety margins are maintained on the more challenging 4D nonlinear InvertedDoublePen-dulum dynamics. Detailed rollout distributions and cali-bration bounds confirm robust interface preservation across diverse dynamical regimes (Figure 8). Beyond active simulation resets, we evaluate observational audit preservation on official subject-disjoint splits of the UCI Human Activity Recognition (HAR) dataset. Evaluat-ing across official subject-disjoint splits of 128-step inertial sequences (Figure 1), GRU, LSTM, and SSM models were trained from scratch over 5 seeds. The 6-class activity taxon-omy (walking, walking upstairs, walking downstairs, sitting, standing, laying) tests whether predictive fibers generalize across anatomical and stylistic movement variations among unseen test subjects. Under hidden-state noise ( σ = 0 .12 ), PF preserves all declared 6-way linear activity heads to numerical precision ( ≈ 10 −15 , ξ = 1 .83 e − 15 ) while contracting the normal complement by 0.220 . In contrast, global contraction corrupts every declared output by at least 
+
+0.107 , degrading margin boundaries between static postures and dynamic gaits. This held-out empirical audit confirms consistent fiber preservation on real human activity time series. To examine decision-making under severe partial observabil-clean none noise stable global random class PF PF hard 
+
+> 0.0 0.2 0.4 0.6 0.8 digit error
+> clean none noise stable global random class PF PF hard
+> 0.0 0.1 0.2 0.3 0.4 future-pixel RMSE
+> clean none noise stable global random class PF PF hard
+> 0.00 0.05 0.10 0.15 0.20 0.25 RMS head change
+
+Figure 9. Real raster-revealed digit stream under partial observ-ability. PF contracts normal directions while strictly preserving the declared class-and-future interface; global contraction corrupts class boundaries. 
+
+ity, we evaluate a finite-horizon POMDP that reveals hand-written digits pixel-by-pixel. We evaluate a finite-horizon POMDP by serially revealing 8 × 8 optical handwritten digits pixel-by-pixel over 64 clocked steps. Using a clocked 64-dimensional linear memory RNN, this structured setup isolates correction geometry from sequence optimization failures: early observations contain ambiguous pixel frag-ments, requiring the hidden state to integrate ambiguous evidence until distinctive structural strokes (e.g., loops in 0, 6, 8 or horizontal bars in 4, 5, 7) emerge. With indepen-dent per-update noise ( σ = 0 .025 ), PF achieves digit error 
+
+0.101 ± 0.014 , significantly outperforming isotropic global contraction ( 0.863 ± 0.003 ) and stable contractive recurrent baselines ( 0.121 ). It preserves the 14-head predictive in-terface (class probabilities and future pixel projections) to 
+
+1.254 e − 15 while contracting normal directions by 0.220 ,demonstrating reliable semantic protection under severe par-tial observability (Figure 9). 
+
+5. Discussion and Related Work 
+
+The operational distinction between active generative access and passive observational audits is fundamental to empirical certification. The PAC certification framework in Theorem 8 leverages resettable, independent probe access. A natural question is whether one could dispense with resettable en-vironments and establish distribution-free certificates from passive trajectory logs alone. The following structural result demonstrates that active coverage is fundamentally indis-pensable: 
+
+Proposition 12 (Coverage is necessary for global certifica-tion) . If a data-collection policy never visits a nonempty pre-dictive region A ⊂ S , then no estimator based exclusively on its trajectory rollouts can yield a valid distribution-free audit-separation certificate over all of S.Proof. Construct two dynamical environments that agree identically on S \ A but induce distinct future conditional expectations on A. They yield identical collected-data dis-tributions under the given policy, yet possess different true separation margins on S. Hence, no purely observational statistic can separate them with uniform confidence. 7Predictive Fibers 
+
+This structural barrier delineates the operational boundary between our resettable PAC guarantees (such as the MuJoCo rigid-body certificates) and passive observational evalua-tions (such as the UCI HAR and digit-stream benchmarks). In offline observational settings, unvisited or rarely visited predictive regions harbor latent epistemic uncertainty that cannot be certified away without parametric or mixing as-sumptions. When dependent sequential data are available, a standard β-mixing blocking argument replaces the literal rollout count R by an effective number of approximately in-dependent temporal blocks (Yu, 1994), while lower bounds on anchor stationary occupancy are required to govern non-uniform sample complexity (Grinberg et al., 2018). Our geometric framework bridges several foundational per-spectives in representation learning, dynamical systems, and predictive-state representations. Our framework bridges sev-eral foundational perspectives in representation learning and dynamical systems. While predictive-state representations construct recurrent states from future statistics (Downey et al., 2017; Littman et al., 2001; Venkatraman et al., 2017), our work addresses the orthogonal problem of determining which internal state perturbations preserve those statistics under post-hoc correction. Similarly, while stable recurrent architectures enforce contractive state dynamics (Miller & Hardt, 2019), our geometric analysis identifies the exact quotient directions where contraction is semantically de-structive. From an information-theoretic viewpoint, predic-tive rate–distortion bounds optimal compression for future prediction (Hahn & Futrell, 2019; Marzen & Crutchfield, 2016); in contrast, our audited margin provides an opera-tional decision boundary authorizing valid state corrections. Finally, while continuous-attractor models explore tangent and transverse memory dynamics (Ságodi et al., 2024) and empirical observability quantifies state distinguishability (Massiani et al., 2024), we synthesize these insights into a certifiable, finite-sample verification framework. By formal-izing predictive fibers, we establish an auditable boundary that decouples internal error rejection from semantic mem-ory preservation. In practical real-world deployments, our framework pro-vides modular, auditable safety guarantees. In practical deployments, our audit framework provides transparent, modular guarantees: any certified claim clearly delineates its declared audit family, anchor coverage, predictor calibra-tion τ , and corrector distortion ξ. By making these structural assumptions explicit, the framework ensures that safety ver-ification is auditable, robust, and interpretable. When an autonomous system operates in an uncertified state region, the framework refrains from making unfounded safety asser-tions, flagging the state for fallback or sensory re-anchoring rather than risking silent semantic corruption. 
+
+6. Conclusion 
+
+The predictive quotient characterizes the fundamental ge-ometric limit of what a recurrent representation may safely forget. It establishes that contraction is permissi-ble within predictive fibers, but strictly forbidden along future-distinguishing coordinates. We demonstrate that fi-nite stochastic rollouts provide statistically certified separa-tion margins relative to a declared audit family, with sample complexity matching optimal minimax rates under Lipschitz regularity. The foundational principle is clear: A recurrent model may safely forget only what cannot change its future. 
+
+Impact Statement 
+
+This work advances the reliability and interpretability of recurrent models by providing a rigorous, auditable method-ology for internal state correction and compression. By formalizing predictive fibers and decoupling deployment inference from audit verification, the framework offers trans-parent safety criteria for autonomous systems, robotics, and sequential decision-making. We emphasize that responsible deployment of these certificates requires careful validation of operational assumptions—including probe coverage, cal-ibration bounds, and domain alignment. Distinguishing between active generative certificates and passive empirical audits fosters robust, accountable evaluation practices in safety-critical machine learning. 8Predictive Fibers 
+
+References 
+
+Downey, C., Hefny, A., Boots, B., Gordon, G. J., and Li, B. Predictive state recurrent neural networks. In Advances in Neural Information Processing Systems , volume 30, pp. 6053–6064, 2017. URL https://proceedings. neurips.cc/paper/2017/hash/ 2bb0502c80b7432eee4c5847a5fd077b-Abstract. html .Grinberg, Y., Aboutalebi, H., Lyman-Abramovitch, M., Balle, B., and Precup, D. Learning predictive state repre-sentations from non-uniform sampling. In Proceedings of the AAAI Conference on Artificial Intelligence , vol-ume 32, 2018. doi: 10.1609/aaai.v32i1.11744. Hahn, M. and Futrell, R. Estimating predictive rate– distortion curves via neural variational inference. Entropy ,21(7):640, 2019. doi: 10.3390/e21070640. Littman, M. L., Sutton, R. S., and Singh, S. P. Predictive representations of state. Advances in Neural Information Processing Systems , 14, 2001. Marzen, S. E. and Crutchfield, J. P. Predictive rate-distortion for infinite-order markov processes. Jour-nal of Statistical Physics , 163:1312–1338, 2016. doi: 10.1007/s10955-016-1520-1. Massiani, P.-F., Buisson-Fenet, M., Solowjow, F., Di Meglio, F., and Trimpe, S. Data-driven observability analysis for nonlinear stochastic systems. IEEE Transactions on Automatic Control , 69(6):4042–4049, 2024. doi: 10. 1109/TAC.2023.3346812. Miller, J. and Hardt, M. Stable recurrent models. In 
+
+International Conference on Learning Representations ,2019. URL https://openreview.net/forum? id=Hygxb2CqKm .Ságodi, Á., Martín-Sánchez, G., Sokół, P., and Park, I. M. Back to the continuous attractor. In Advances in Neural Information Processing Systems , volume 37, 2024. URL 
+
+https://arxiv.org/abs/2408.00109 .Takens, F. Detecting strange attractors in turbulence. In Rand, D. A. and Young, L.-S. (eds.), Dynamical Systems and Turbulence, Warwick 1980 , volume 898 of Lecture Notes in Mathematics , pp. 366–381. Springer, 1981. Venkatraman, A., Rhinehart, N., Sun, W., Pinto, L., Hebert, M., Boots, B., Kitani, K. M., and Bagnell, J. A. Predictive-state decoders: Encoding the future into recurrent net-works. In Advances in Neural Information Processing Systems , volume 30, 2017. URL https://arxiv. org/abs/1709.08520 .Yu, B. Rates of convergence for empirical processes of stationary mixing sequences. The Annals of Probability ,22(1):94–116, 1994. 9Predictive Fibers 
+
+A. Offline Certification Cost and Proof Details 
+
+Figure A1 separates the offline costs that the theorem and the implementation impose. The left panel instantiates the suf-ficient schedule at fixed Ω = 0 .25 : its fourth-dimensional instance already schedules 10,274,897,024 individual probe outcomes, illustrating the curse of intrinsic predictive di-mension rather than a cost of the recurrent forward pass. The center panel executes exact-reset MuJoCo audits on the 75-anchor physical domain. Increasing the literal budget from 84 ,375 to 337,500 outcomes requires 10.8–44.3 sec-onds on an Apple-silicon workstation, yielding a certified lower margin 0.396 at the largest budget. The right panel demonstrates the computational efficiency of reusing a fully sampled, fixed audit bank: selecting each successive PF-CEGIS deployment subset requires zero additional rollout evaluations, with post-audit selection executing in under 0.2 ms, precisely reflecting the theoretical reuse guarantee of Corollary 13. 
+
+B. Proofs and technical details 
+
+B.1. Proof of Proposition 5 
+
+The unit tangent bundle T 1S is compact. The open sets 
+
+{(s, v ) ∈ T 1S : dϕ w(s)[ v]̸ = 0 }, w ∈ W ,
+
+cover it, so a finite W1 makes dΦW1 injective on every tangent space. Thus ΦW1 is an immersion and locally one-to-one. A neighborhood V of the diagonal in S × S is consequently separated by W1. The compact set (S × S ) \
+
+V is covered by the open point-separation sets {(s, s ′) : 
+
+ϕw(s)̸ = ϕw(s′)}, so finitely many further probes W2 cover it. Hence ΦW1∪W2 is a continuous one-to-one immersion. A continuous injection from a compact space to a Hausdorff space is a homeomorphism onto its image, which proves that this map is a C1 embedding. 
+
+B.2. Proof of Theorem 8 
+
+Hoeffding’s inequality and a union bound over the N M 
+
+anchor–probe means give, with probability at least 1 − α,
+
+max 
+
+> i,u
+
+bϕu(si) − ϕu(si) ≤ eR.
+
+Condition on this event. Since W ⊆ U , dW ≤ dU , so the same η-net controls both metrics. Let s, s ′ ∈ D satisfy 
+
+dU (s, s ′) ≥ δ and choose nearest anchors si, s j . Triangle inequality gives dU (si, s j ) ≥ δ−2η. The empirical distance differs from the true one by at most 2eR, so (i, j ) ∈ bAδ .Again using W ⊆ U ,
+
+dW (s, s ′) ≥ dW (si, s j ) − 2η
+
+≥ bdW (i, j ) − 2eR − 2η
+
+≥ bΩW |U (δ) − 2eR − 2η. 1 2 3 4intrinsic audit dimension k    
+
+> 10 6
+> 10 7
+> 10 8
+> 10 9
+> 10 10
+> scheduled probe outcomes
+> 84k 168k 337k literal probe outcomes 10 15 20 25 30 35 40 45 wall-clock seconds
+> exact-reset MuJoCo audit
+> 468PF-CEGIS deployment probes | W|−0.2 −0.1 0.0 0.1 0.2 0.3 0.4 PAC lower margin
+> certificate
+> 0.0 0.1 0.2 0.3 0.4 lower margin
+
+Figure A1. Offline certification cost. Left: the theorem’s literal sufficient schedule grows rapidly with intrinsic audit dimension. Center: exact-reset InvertedPendulum audit wall time and lower margin as rollout budget grows. Right: PF-CEGIS selects de-ployment subsets from a fixed fully sampled audit bank with no additional rollout cost. 
+
+Taking the infimum over s, s ′ proves (2). 
+
+B.3. Proof of Corollary 9 
+
+Intersect the calibration event with the Hoeffding event used in Theorem 8, and apply a union bound. 
+
+B.4. Proof of Theorem 10 
+
+Let q = min {δ, Ω}. The covering assumption supplies 
+
+N = O(CS q−k) anchors at η ≤ q/ 8. Choosing R =
+
+O(q−2 log( N M/α )) makes eR ≤ q/ 16 . Any empirically admitted pair has true audit distance at least 
+
+δ − 2η − 4eR ≥ δ/ 2.
+
+Its true W distance is therefore at least Ω, so its empirical distance is at least Ω − 2eR. Equation (2) is at least Ω −
+
+4eR − 2η ≥ Ω/2. Multiplying N , M , and R proves the display. 
+
+B.5. Proof of Theorem 11 
+
+Write a = 8Ω and set 
+
+Φ(0)  
+
+> ℓ
+
+(s) = 12 + a
+
+
+
+sℓ − 12
+
+
+
+, ℓ = 1 , . . . , k. 
+
+Choose Ω0 ≤ min {L/ 32 , 1/24 }. For 0 < Ω ≤ Ω0, this map has range in [1 /3, 2/3] k and is L/ 2-Lipschitz under 
+
+ℓ∞ norms. Moreover, 
+
+∥Φ(0) (s) − Φ(0) (s′)∥∞ = 8Ω ∥s − s′∥∞
+
+≥ 2Ω if ∥s − s′∥∞ ≥ δ0.
+
+Thus Φ(0) ∈ H0.Put h = 4Ω /L . For a constant depending only on k, one can pack 
+
+M0 ≥ c′
+
+> k
+
+(L/ Ω) k
+
+disjoint ℓ∞ balls B∞(tj , h ) in the interior strip {s : δ0+h < s1 < 1 − h, h < s ℓ < 1 − h (ℓ > 1) }. Let uj = tj − δ0e1.Since h < δ 0, uj /∈ B∞(tj , h ). Define the tent bump and the alternative map by 
+
+bj (s) = 2Ω 
+
+
+
+1 − ∥s − tj ∥∞
+
+h
+
+
+
+> +
+
+.
+
+10 Predictive Fibers 
+
+Table A1. Proof-assumption audit. The final column characterizes structural failure modes and counterexample classes when premises are violated.                                           
+
+> Claim Premise used in the proof Failure when absent Quotient rank bound πis a C1rank-ksubmersion locally and Q(h) = hfor the derivative identity. At a non-fixed point, derivatives live at hand Q(h)and
+> Dπ h(DQ h−I) = 0 need not hold. Finite embedding / all-future lift Compact state manifold, C1tests separating points and tangents; additionally ℓ∞continuity of the full predictive map for a modulus. Finite coordinate separation alone does not control an un-measured future or supply a numerical conditioning bound. PAC separation Pre-declared (D,U, δ ), an η-net of D, conditional reset at each anchor, bounded independent outcomes, and W⊆ U .Passive or adaptively selected trajectories can miss a region or invalidate Hoeffding/union-bound coverage. Joint safety statement Uniform calibration holds on the correction domain and is validated independently (or with a joint confidence budget). A corrector can pass a margin measured with an overfit predictor while changing true deployment semantics.
+> Ω−(k+2) upper bound Covering-number bound and strict margin at δ/ 2;q=min {δ, Ω}.A cover without a positive margin cannot yield a positive certificate at any finite sample size. Minimax lower bound Lipschitz alternatives remain in [0 ,1] k, bump supports are disjoint, and Bernoulli means stay away from 0 and 1. The localized alternatives may not be admissible, and the KL comparison no longer establishes the stated rate. PF-CEGIS gate The finite audit bank is fixed and fully sampled, so the base mean-concentration event is uniform over its subsets; correc-tor calibration is independent or jointly controlled. Expanding the audit bank or adaptively validating a corrector without new or simultaneous data loses the nominal confi-dence level.
+
+Φ(j)(s) = Φ (0) (s) − bj (s)e1.
+
+The bump is L/ 2-Lipschitz and has magnitude at most 
+
+2Ω ; consequently Φ(j) is L-Lipschitz and has range in 
+
+[1 /4, 3/4] k. Because bj (tj ) = 2Ω , bj (uj ) = 0 , and the baseline changes only in coordinate one along this displace-ment, 
+
+Φ(j)(tj ) = Φ (j)(uj ), ∥tj − uj ∥∞ = δ0.
+
+Hence every Φ(j) belongs to H1.Consider any possibly randomized adaptive algorithm, and let P0, P j denote its complete transcript laws under 
+
+Φ(0) , Φ(j). Let Nj count queries that request coordinate one at a state in B∞(tj , h ). The balls are disjoint, so P 
+
+> j
+
+E0Nj ≤ B; for some j∗, E0Nj∗ ≤ B/M 0. The two ob-servation laws agree outside this ball. Inside, their Bernoulli means differ by at most 2Ω and lie in [1 /4, 3/4] , where 
+
+kl(Ber( p)∥ Ber( q)) ≤ C(p − q)2.
+
+The adaptive KL chain rule therefore gives 
+
+KL( P0∥Pj∗ ) ≤ 4CΩ2E0Nj∗ ≤ 4CΩ2B/M 0.
+
+If B < cM 0Ω−2 for a sufficiently small universal c,Pinsker’s inequality gives TV( P0, P j∗ ) < 1/3. Le Cam’s two-point inequality then forces the sum of the two testing errors above 2/3, contradicting error at most 1/3 under both 
+
+H0 and H1. Substituting the packing lower bound for M0
+
+yields B ≥ ckLkΩ−(k+2) .
+
+Corollary 13 (Safe finite-bank PF-CEGIS reuse) . Fix 
+
+(D, U, δ ) before sampling. On the Hoeffding event in Theo-rem 8, inequality (2) holds simultaneously for every W ⊆ U 
+
+for which the empirical minimum is defined. Hence W may be selected adaptively from this fixed, fully sampled audit bank. If the search expands U, changes δ or D, or adaptively trains and validates the corrector, it instead requires fresh data or a corresponding simultaneous confidence statement. Proof. The event in the proof of Theorem 8 bounds every one of the N M pre-declared means. For each W ⊆ U , that proof uses only this same event and dW ≤ dU . Intersecting no additional random events proves simultaneity over the finite family of banks. 
+
+B.6. Remarks on Proposition 12 (Coverage is necessary) 
+
+The proof in Section 5 constructs two environments that agree outside A and differ on a future outcome inside A. Be-cause the data-collection policy never visits A, the induced trajectory laws are identical, establishing that distribution-free certification over unvisited states is impossible without additional structural or domain assumptions. 
+
+B.7. Proof-assumption audit 
+
+Table A1 records every premise that does material work in the main claims, including the boundary cases that would otherwise silently invalidate an inference. It is also the checklist used by the neural generative-PAC experiment. 11
