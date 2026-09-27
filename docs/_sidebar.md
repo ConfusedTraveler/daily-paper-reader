@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-09-27 <!--dpr-date:20260927-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/27/2609.25942v1-destination-support-restoration-for-finite-set-multimodal-trajectory-prediction" data-sidebar-item="{&quot;title&quot;: &quot;Destination Support Restoration for Finite-Set Multimodal Trajectory Prediction&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.25942v1-destination-support-restoration-for-finite-set-multimodal-trajectory-prediction&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;多模态行人轨迹预测&quot;}">Destination Support Restoration for Finite-Set Multimodal Trajectory Prediction</a>
   * 2026-09-26 <!--dpr-date:20260926-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202609/26/2609.23366v1-what-can-a-recurrent-state-safely-forget" data-sidebar-item="{&quot;title&quot;: &quot;What Can a Recurrent State Safely Forget?&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.23366v1-what-can-a-recurrent-state-safely-forget&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;递归状态预测商的理论分析，界定可预测性边界&quot;}">What Can a Recurrent State Safely Forget?</a>

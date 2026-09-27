@@ -1,0 +1,24 @@
+{
+  "label": "2026-09-27",
+  "date": "2026-09-27",
+  "generated_at": "2026-09-27T22:22:25",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202609/27/2609.25942v1-destination-support-restoration-for-finite-set-multimodal-trajectory-prediction",
+      "section": "quick",
+      "title_en": "Destination Support Restoration for Finite-Set Multimodal Trajectory Prediction",
+      "authors": "Fengrui Liu, Jiajun Peng, Duo Peng, Feng Liu",
+      "date": "2026-09-22",
+      "pdf": "https://arxiv.org/pdf/2609.25942v1",
+      "score": "6.0",
+      "evidence": "多模态行人轨迹预测",
+      "tldr": "面向行人环境的机器人常基于有限多模态轨迹集决策，在线反复更新会使预测预算集中于主导目的地，导致合理备选目的地被削弱或缺失。本文提出目的地支持修复DSR，一种因果后选择算子：在不重训练宿主预测器、不增大集合规模的前提下，基于观测前缀构建按目的地分层的临时候选库，将证据转为整数目标计数，保护活跃模态代表，并把冗余假设重分配给不足模态。每次修复最多替换⌈ρN⌉个条目且保持N个假设，并在Edinburgh 3719轨迹协议上使MIF加权ADE/FDE降低约13.3%。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Robots operating around pedestrians often reason over a finite set of predicted human futures. Repeated online updates can concentrate this limited prediction budget on dominant destinations and leave plausible alternatives underrepresented or absent, removing those alternatives from the finite representation available to downstream decision making. We introduce Destination Support Restoration (DSR), a causal post-selection operator that repairs destination support without retraining the host predictor or increasing the maintained set size. At a repair step, DSR evaluates a temporary destination-stratified candidate bank from the observed prefix, converts candidate evidence into integer target counts, protects representatives of active modes, and reallocates redundant surplus hypotheses to deficient modes. The maintained and returned sets retain exactly $N$ hypotheses, and DSR replaces at most $\\lceilρN\\rceil$ entries. Protected representatives preserve current categorical support; lineage-aware particle filters also preserve surviving resampling ancestors. Each replacement reduces the allocation mismatch to the evidence-driven target by one. On the complete 3,719-trajectory Edinburgh protocol over three seeds, DSR reduces MIF weighted ADE and FDE by 13.36% and 13.30% at $N=64$. Paired integrations with CLiFF, PPT, causal GDTS, Social Informer, and PECNet improve both metrics in every evaluated pair. These results show that finite-set support allocation is a useful prediction-side control point when a fixed hypothesis set serves as the interface to downstream systems.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
