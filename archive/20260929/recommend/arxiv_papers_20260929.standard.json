@@ -1,0 +1,92 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-09-29T00:06:10.586017+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.31361v1",
+      "source": "arxiv",
+      "title": "Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition",
+      "abstract": "High-frequency industrial cyber-physical systems (CPS) stream continuous sensor telemetry at sub-10-second intervals. Multi-horizon forecasting over hours is required for predictive maintenance and operational control. However, deploying machine learning models over extended horizons (H = 2,160 steps at dt = 5 s) encounters the Dual-Timescale Forecasting Dilemma: the trade-off between short-horizon kinetic momentum and long-horizon diurnal thermodynamic equilibrium. Autoregressive rollouts suffer from compounding error drift, while direct multi-output projectors exhibit variance explosion and noise extrapolation. In this work, we prove that autoregressive mutual information decays exponentially toward zero over extended lead times, and that the optimal minimum-variance estimator converges asymptotically to the periodic diurnal baseline (Lemma 1 and Theorem 1). Guided by these bounds, we propose the Dynamic Asymptotic Decomposition (DAD) framework. The architecture couples a continuous sigmoidal authority transition schedule \\(α(h)\\) with monotonic L2 regularization scaling \\(λ(h)\\), transferring prediction authority from kinetic autoregression to diurnal equilibrium while enforcing physical non-negativity. Evaluated across a 30-day industrial telemetry stream (N = 518,400 steps) over 16 walk-forward test windows, DAD achieves an overall Mean Absolute Error (MAE) of 0.1764, representing a 78.3% error reduction over Deep LSTM (0.8143), 60.2% over PatchTST (0.4431), and 20.8% over DLinear (0.2227). Computational profiling demonstrates edge execution in 0.72 ms with 0.203 MFLOPs and 72k parameters on a single CPU core (over 3400x faster than Transformer baselines), validated by an automated dual-stage CI/CD quality assurance harness and physical fail-safe architecture.",
+      "authors": [
+        "Avik Kumar Das"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-09-25T14:56:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.31361v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proves autoregressive mutual information decay as a long-horizon forecasting limit",
+      "llm_evidence_cn": "证明自回归互信息随预测步长衰减的预测极限",
+      "llm_evidence": "证明自回归互信息随预测步长衰减的预测极限",
+      "canonical_evidence": "证明自回归互信息随预测步长衰减的预测极限",
+      "llm_tldr_en": "The paper tackles long-horizon forecasting in high-frequency CPS where autoregressive error drift and variance explosion conflict, proposing a physics-grounded dynamic asymptotic decomposition and proving that autoregressive mutual information decays with horizon.",
+      "llm_tldr_cn": "针对高频信息物理遥测中长时多步预测面临误差累积与方差爆炸的两难问题，作者提出物理驱动的动态渐近分解方法，并从理论上证明自回归互信息随预测步长衰减。实验表明该方法可在长预测视野下缓解误差漂移，为时间序列预测的可预测性极限提供了理论刻画与可操作框架。",
+      "llm_tldr": "针对高频信息物理遥测中长时多步预测面临误差累积与方差爆炸的两难问题，作者提出物理驱动的动态渐近分解方法，并从理论上证明自回归互信息随预测步长衰减。实验表明该方法可在长预测视野下缓解误差漂移，为时间序列预测的可预测性极限提供了理论刻画与可操作框架。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.25777v1",
+      "source": "arxiv",
+      "title": "Disentangling Heterogeneous Traffic Dynamics for Multi-Step Traffic Forecasting via Adaptive Spectral Decomposition",
+      "abstract": "Accurate multi-step traffic forecasting remains challenging because observed traffic signals contain heterogeneous temporal dynamics with different characteristics and levels of predictability. Existing approaches typically model these dynamics within a unified representation or rely on predefined decomposition rules, which may limit their ability to flexibly separate persistent patterns from rapidly varying fluctuations. To address this issue, we propose the Adaptive Decomposition Network (ADNet), a component-specific forecasting framework that adaptively disentangles traffic dynamics into dominant and residual components. ADNet introduces a learnable complementary spectral decomposition mechanism that determines the contribution of each frequency bin to the two components. Unlike hard frequency partitioning, every frequency bin can contribute to both components with different learned proportions, allowing the decomposition to be optimized jointly with the forecasting objective. The reconstructed components are then modeled by two dedicated spatiotemporal forecasting branches, and their predictions are integrated to generate the final multi-step forecast. Experiments on the Alameda and Orange regions of the TraffiDent dataset show that ADNet achieves the best performance in 20 of the 24 reported region-horizon-metric comparisons, with particularly clear gains at longer forecasting horizons. Capacity-controlled ablation experiments further show that the learnable decomposition substantially outperforms a fixed decomposition and provides additional improvements beyond the dual-branch architecture alone. These results demonstrate the effectiveness of adaptive decomposition and component-specific modeling for multi-step traffic forecasting.",
+      "authors": [
+        "Zijun Huang",
+        "Chenrui Fu",
+        "Wenhao Wang",
+        "Xiaochuan Gou",
+        "Chih-Chieh Hung",
+        "Guanyao Li"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-09-22T07:12:07+00:00",
+      "link": "https://arxiv.org/pdf/2609.25777v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Disentangles traffic dynamics with different levels of predictability for multi-step forecasting",
+      "llm_evidence_cn": "按不同可预测性水平解耦交通动力学以进行多步预测",
+      "llm_evidence": "按不同可预测性水平解耦交通动力学以进行多步预测",
+      "canonical_evidence": "按不同可预测性水平解耦交通动力学以进行多步预测",
+      "llm_tldr_en": "ADNet adaptively disentangles heterogeneous traffic dynamics into dominant and residual components via a learnable complementary spectral decomposition to improve multi-step traffic forecasting.",
+      "llm_tldr_cn": "多步交通预测因观测信号包含具有不同特征与可预测性水平的异构动力学而困难，统一建模或预定义分解难以灵活区分持续模式与快速波动。本文提出自适应分解网络ADNet，利用可学习的互补谱分解机制将交通动力学自适应拆分为主导与残差分量并分别建模。实验表明分量特异的解耦建模提升了多步预测精度。该工作显示按可预测性差异解耦动力学是提升预测的有效途径，与时间序列可预测性分析主题相关。",
+      "llm_tldr": "多步交通预测因观测信号包含具有不同特征与可预测性水平的异构动力学而困难，统一建模或预定义分解难以灵活区分持续模式与快速波动。本文提出自适应分解网络ADNet，利用可学习的互补谱分解机制将交通动力学自适应拆分为主导与残差分量并分别建模。实验表明分量特异的解耦建模提升了多步预测精度。该工作显示按可预测性差异解耦动力学是提升预测的有效途径，与时间序列可预测性分析主题相关。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

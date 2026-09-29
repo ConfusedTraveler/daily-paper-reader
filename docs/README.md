@@ -6,24 +6,27 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-27
-- 运行时间：2026-09-27 22:22:20 UTC
+- 最新运行日期：2026-09-29
+- 运行时间：2026-09-29 00:07:46 UTC
 - 运行状态：成功
-- 本次总论文数：1
+- 本次总论文数：2
 - 精读区：0
-- 速读区：1
+- 速读区：2
 
 ### 今日简报（AI）
-今日速读 1 篇论文，聚焦有限集多模态轨迹预测中的目标支撑集恢复问题。唯一入选的《Destination Support Restoration for Finite-Set Multimodal Trajectory Prediction》得 6.0 分，适合关注轨迹预测中目的地候选集建模的读者一读。普通读者可先看该文如何修复预测目标支撑集，再判断是否值得深入跟进。
-- 详情：[/202609/27/README](/202609/27/README)
+今日速读2篇时序预测论文，聚焦高频遥测与交通流中的多尺度分解难题。最值得关注的是用物理约束动态渐近分解解决双时间尺度预测冲突（7.0分），以及自适应谱分解分离异构交通动态（6.0分）。普通读者可优先了解“分解再预测”思路，遇到多尺度波动数据时先拆解快慢成分再建模。
+- 详情：[/202609/29/README](/202609/29/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Destination Support Restoration for Finite-Set Multimodal Trajectory Prediction](/202609/27/2609.25942v1-destination-support-restoration-for-finite-set-multimodal-trajectory-prediction)  
+1. [Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition](/202609/29/2609.31361v1-resolving-the-dual-timescale-forecasting-dilemma-in-high-frequency-cyber-physical-telemetry-via-physics-grounded-dynamic-asymptotic-decomposition)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：证明自回归互信息随预测步长衰减的预测极限
+2. [Disentangling Heterogeneous Traffic Dynamics for Multi-Step Traffic Forecasting via Adaptive Spectral Decomposition](/202609/29/2609.25777v1-disentangling-heterogeneous-traffic-dynamics-for-multi-step-traffic-forecasting-via-adaptive-spectral-decomposition)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：多模态行人轨迹预测
+   evidence：按不同可预测性水平解耦交通动力学以进行多步预测
 
 
 <div class="dpr-home-promo-card">
