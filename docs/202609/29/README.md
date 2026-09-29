@@ -1,19 +1,23 @@
 # 日报 · 2026-09-29
 
-- 生成时间：2026-09-29 00:07:46 UTC
-- 当次推荐总数：2
-- 精读区：0
+- 生成时间：2026-09-29 22:54:32 UTC
+- 当次推荐总数：4
+- 精读区：2
 - 速读区：2
 
 ## 今日简报（AI）
-今日速读2篇时序预测论文，聚焦高频物理遥测与交通流分解。最值得看的是用物理引导动态渐近分解解决高频遥测双时间尺度预测（7.0分），以及自适应谱分解分离异构交通动态做多步预测（6.0分）。若关注时序建模，可优先浏览第一篇的分解思路。
+- 今日共生成 4 篇推荐（精读 2 篇，速读 2 篇）
+- 精读：《Prediction Limits and Koopman Closure of Geometry-Induced Soft State Abstractions》（8.0/10）, 《Information-Theoretic Analysis of Next-Token Prediction under Markovian Data》（8.0/10）
+- 速读：《Conformal Coverage of Time Series: Validity and Inference》（7.0/10）, 《From HL to H+L-1 Parameters: A Hankel-Toeplitz Forecaster for Long-Term Time Series Forecasting》（6.0/10）
+- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
 
 ## 精读区
-- 本次无精读推荐。
+1. [Prediction Limits and Koopman Closure of Geometry-Induced Soft State Abstractions](/202609/29/2609.32652v1-prediction-limits-and-koopman-closure-of-geometry-induced-soft-state-abstractions) （8.0/10）
+2. [Information-Theoretic Analysis of Next-Token Prediction under Markovian Data](/202609/29/2609.34731v1-information-theoretic-analysis-of-next-token-prediction-under-markovian-data) （8.0/10）
 
 ## 速读区
-1. [Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition](/202609/29/2609.31361v1-resolving-the-dual-timescale-forecasting-dilemma-in-high-frequency-cyber-physical-telemetry-via-physics-grounded-dynamic-asymptotic-decomposition) （7.0/10）
-2. [Disentangling Heterogeneous Traffic Dynamics for Multi-Step Traffic Forecasting via Adaptive Spectral Decomposition](/202609/29/2609.25777v1-disentangling-heterogeneous-traffic-dynamics-for-multi-step-traffic-forecasting-via-adaptive-spectral-decomposition) （6.0/10）
+1. [Conformal Coverage of Time Series: Validity and Inference](/202609/29/2609.33868v1-conformal-coverage-of-time-series-validity-and-inference) （7.0/10）
+2. [From HL to H+L-1 Parameters: A Hankel-Toeplitz Forecaster for Long-Term Time Series Forecasting](/202609/29/2609.33984v1-from-hl-to-hl-1-parameters-a-hankel-toeplitz-forecaster-for-long-term-time-series-forecasting) （6.0/10）
 
 ---
 使用键盘方向键可在日报/论文之间快速切换。

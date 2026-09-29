@@ -7,26 +7,31 @@
 
 ## 每次日报
 - 最新运行日期：2026-09-29
-- 运行时间：2026-09-29 00:07:46 UTC
+- 运行时间：2026-09-29 22:54:32 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：0
+- 本次总论文数：4
+- 精读区：2
 - 速读区：2
 
 ### 今日简报（AI）
-今日速读2篇时序预测论文，聚焦高频遥测与交通流中的多尺度分解难题。最值得关注的是用物理约束动态渐近分解解决双时间尺度预测冲突（7.0分），以及自适应谱分解分离异构交通动态（6.0分）。普通读者可优先了解“分解再预测”思路，遇到多尺度波动数据时先拆解快慢成分再建模。
+今日精读2篇、速读2篇共4篇，聚焦几何诱导软状态抽象的预测极限与Koopman闭包，以及马尔可夫数据下次词预测的信息论分析。最值得看的是两篇8分工作：前者揭示几何结构如何限制软状态抽象的可预测性，后者用信息论刻画马尔可夫数据下next-token预测的极限。普通读者可先读这两篇精读，再按需浏览时间序列的Conformal覆盖与Hankel-Toeplitz长期预测速读。
 - 详情：[/202609/29/README](/202609/29/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [Prediction Limits and Koopman Closure of Geometry-Induced Soft State Abstractions](/202609/29/2609.32652v1-prediction-limits-and-koopman-closure-of-geometry-induced-soft-state-abstractions)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：最小预测误差下界
+2. [Information-Theoretic Analysis of Next-Token Prediction under Markovian Data](/202609/29/2609.34731v1-information-theoretic-analysis-of-next-token-prediction-under-markovian-data)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：下一词预测的信息论泛化界
 
 ### 速读区论文标签
-1. [Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition](/202609/29/2609.31361v1-resolving-the-dual-timescale-forecasting-dilemma-in-high-frequency-cyber-physical-telemetry-via-physics-grounded-dynamic-asymptotic-decomposition)  
+1. [Conformal Coverage of Time Series: Validity and Inference](/202609/29/2609.33868v1-conformal-coverage-of-time-series-validity-and-inference)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：证明自回归互信息随预测步长衰减的预测极限
-2. [Disentangling Heterogeneous Traffic Dynamics for Multi-Step Traffic Forecasting via Adaptive Spectral Decomposition](/202609/29/2609.25777v1-disentangling-heterogeneous-traffic-dynamics-for-multi-step-traffic-forecasting-via-adaptive-spectral-decomposition)  
+   evidence：时间序列预测边际覆盖误差的非渐近界
+2. [From HL to H+L-1 Parameters: A Hankel-Toeplitz Forecaster for Long-Term Time Series Forecasting](/202609/29/2609.33984v1-from-hl-to-hl-1-parameters-a-hankel-toeplitz-forecaster-for-long-term-time-series-forecasting)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：按不同可预测性水平解耦交通动力学以进行多步预测
+   evidence：经典平稳预测理论与最小MSE预测器
 
 
 <div class="dpr-home-promo-card">
