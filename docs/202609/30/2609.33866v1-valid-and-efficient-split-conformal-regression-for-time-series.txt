@@ -1,0 +1,3201 @@
+Title: Valid and Efficient Split Conformal Regression for Time Series
+
+URL Source: https://arxiv.org/pdf/2609.33866v1
+
+Published Time: Tue, 29 Sep 2026 02:30:07 GMT
+
+Number of Pages: 37
+
+Markdown Content:
+# VALID AND EFFICIENT SPLIT CONFORMAL 
+
+# REGRESSION FOR TIME SERIES 
+
+Percy S. Zhai 1, Maggie Cheng 2, Wei Biao Wu 1
+
+> 1
+
+University of Chicago 2Illinois Institute of Technology   
+
+> percy.zhai@chicagobooth.edu ,maggie.cheng@iit.edu ,wbwu@uchicago.edu
+
+## ABSTRACT 
+
+We study conformalized quantile regression and conformalized median regression that fit a model on one block of a time series and calibrate the conformal interval on the adjacent block. The existing theory of conformal prediction for time series rests largely on mixing conditions, which are hard to verify from a time-series model and fail for many standard processes, including simple ones with short memory. We replace this theoretical toolbox with the functional dependence mea-sure, which in principle accommodates long-memory observations. The accuracy of the conformal interval length for time series has been understudied. To the best of our knowledge, this paper is the first work that establishes non-asymptotic coverage guarantees and accuracy of interval length simultaneously for split con-formal regression on time series. Furthermore, for Gaussian linear processes with long memory, where both the estimation of the center and its calibration converge slowly, we establish a sharper rate for the length error. We show that the calibrated length converges faster than the estimated center itself, and provide a matching lower bound for the usual centers when the calibration block is sufficiently large relative to the training block. To our knowledge, this is the first theoretical analysis of conformal interval length dedicated to long memory. 
+
+## 1 INTRODUCTION 
+
+Split conformal prediction turns a fitted regression model into a prediction interval: the model is fitted on a training block, and the interval for a new observation is the fitted interval enlarged by an empirical quantile of scores computed on a separate calibration block (Papadopoulos et al., 2002; Vovk et al., 2005; Lei et al., 2018). For conformalized quantile regression (CQR; Romano et al., 2019) the model consists of two fitted conditional quantile functions, and for conformalized me-dian regression (CMR) of a single fitted center whose absolute residuals are calibrated. When the calibration and test observations are exchangeable, the interval covers the new response with prob-ability at least the nominal level whatever the fitted model is. For a time series the two blocks and the test point are adjacent segments of one trajectory, exchangeability fails, and two questions arise: whether the interval still covers at the nominal level, and whether its length approaches the length of the oracle interval formed by the true conditional quantiles. The second question is the question of efficiency, and the two questions together are the subject of this paper. For non-exchangeable data, the coverage gap of conformal prediction can be bounded through total variation distances (Barber et al., 2023); for a stationary series, the gap of split, block, jackknife and ensemble procedures has been quantified through mixing conditions (Chernozhukov et al., 2018; Xu & Xie, 2021; Oliveira et al., 2024; Barber & Pananjady, 2026; Jiang et al., 2026), the standard toolbox for learning from dependent data (Yu, 1994; Mohri & Rostamizadeh, 2010). This toolbox has two limitations: mixing coefficients are rarely computable from the model that generates a series (Wu, 2005b; 2011; Han & Wu, 2023), and mixing conditions fail for many simple time series (Andrews, 1984; Bradley, 2005). Long memory, the property that the autocorrelations of a series are not summable (Beran, 1994), is documented for asset returns and network traffic (Ding et al., 1993; Leland et al., 1994) and in language and music (Greaves-Tunnell & Harchaoui, 2019), and standard recurrent networks do not capture it (Zhao et al., 2020). The functional dependence measure of Wu (2005b) is computed from the model that generates the series and underlies a theory of quantiles and of high-dimensional time series (Wu, 2005a; 2011; Chen et al., 2013; Zhang & Wu, 2017); for a linear process it is determined by the coefficients of the process, and the empirical processes and 1arXiv:2609.33866v1 [math.ST] 27 Sep 2026 sample covariance matrices of linear processes are understood also under long memory (Wu, 2003; Chen & Wu, 2018; Zhai et al., 2026). The length of conformal intervals has been studied for exchangeable data: split conformal and CQR intervals approach the oracle length when the fitted model is consistent (Lei et al., 2018; Sesia & Cand` es, 2020), and Yao et al. (2026) give non-asymptotic rates for the length error of CQR and CMR. For dependent data, the bound of Xu & Xie (2023, Theorem 3) on the discrepancy between their ensemble interval and the oracle interval is proved for i.i.d. errors; the efficiency analysis of adaptive conformal inference (Gibbs & Cand` es, 2021) by Zaffran et al. (2022) is asymptotic and assumes a known quantile function of the scores; and distributional conformal prediction, a different construction, attains an optimal interval only asymptotically (Chernozhukov et al., 2021). None of these compares the calibrated length with the oracle length at a non-asymptotic rate under temporal dependence. Zheng & Proutiere (2024) bound the effect of Markov dependence on the size of the split conformal set, but only for Markov chains with a finite uniform mixing time, and show that the set converges to the oracle set without a rate. Sesia & Romano (2021), Kiyani et al. (2024) and Le Bars & Humbert (2025) study efficiency and length optimization for other oracle targets; we compare with the marginal equal-tailed ora-cle. Halkiewicz (2026) analyzes the coverage of rolling-origin conformal prediction under strong mixing and, in an extension, under a summability condition on the physical dependence measure; neither condition allows Gaussian long memory. Our contributions can be summarized as follows. 1. The mixing conditions on which the existing guarantees largely rest fail for many standard processes, including simple ones with short memory. We replace this theoretical toolbox with the functional dependence measure, under which our guarantees hold for such pro-cesses and, in principle, allow for long memory. 2. For CQR and CMR with adjacent training and calibration blocks, we bound the coverage error of the calibrated interval and the deviation of its length from that of the oracle interval (Theorems 1–3). To our knowledge, these are the first non-asymptotic results that establish coverage and accuracy of interval length simultaneously for split conformal regression on time series. 3. For Gaussian linear processes with long memory, we establish a sharper rate for the length error of CMR (Theorem 4): with blocks of comparable size, the calibrated length converges faster than the estimated center itself. A matching lower bound shows that this rate is exact when the calibration block is large relative to the training block (Proposition 5). To our knowledge, Theorem 4 and Proposition 5 give the first theoretical analysis of conformal in-terval length dedicated to long memory and the first exact rate for the length of a conformal interval under dependence. Section 2 states the two procedures and introduces the functional dependence measure, Section 3 states the three conditions, the coverage and length theorems and the examples, Section 4 contains the results on estimated centers under Gaussian long memory, Section 5 presents the numerical studies, and Section 6 discusses the scope of the results; all proofs are deferred to the appendices. 
+
+## 2 PROBLEM SETUP AND PREREQUISITES 
+
+Let Zt = ( Xt, Y t) = G(. . . , ε t−1, ε t) be a strictly stationary process driven by i.i.d. innovations εt
+
+through a measurable map G, and let Ft = σ(εs : s ≤ t) be the information available at time t.Causal linear processes and many nonlinear time series models have this form (Wu, 2005b). The level α ∈ (0 , 1) is fixed. The predictor is trained on Z1, . . . , Z n, calibrated on Zn+1 , . . . , Z n+m,and used to predict Yn+m+1 from Xn+m+1 ; no observations are discarded between the blocks, and the training algorithm may use independent randomness. 2.1 CONFORMALIZED QUANTILE REGRESSION 
+
+Let ℓα(x) and uα(x) be the α/ 2- and (1 − α/ 2) -quantiles of the conditional law of Yt given Xt = x
+
+under the stationary distribution, assumed continuous at these two quantiles, so that the oracle inter-2val CQα (x) = [ ℓα(x), u α(x)] has conditional coverage 1 − α. This oracle conditions on the covari-ate, which may include lagged responses, and not on the whole past of the series. On the training block, any algorithm produces two functions bℓ and bu that estimate ℓα and uα; on the calibration block, each observation receives the nonconformity score bSQt = max {bℓ(Xt) − Yt, Y t − bu(Xt)},
+
+t = n + 1 , . . . , n + m. The calibrated correction is the k-th smallest score bSQ 
+
+> (k)
+
+with k =
+
+⌈(m + 1)(1 − α)⌉, which is at most m when m ≥ (1 − α)/α , as assumed throughout, and the prediction interval for Yn+m+1 is bCQα (x) = [ bℓ(x) − bSQ
+
+> (k)
+
+, bu(x) + bSQ
+
+> (k)
+
+] at x = Xn+m+1 , an inverted interval being empty. The same steps with the true quantiles produce the oracle scores 
+
+SQt = max {ℓα(Xt) − Yt, Y t − uα(Xt)}, whose distribution function F Q satisfies F Q(0) = 1 − α,and the k-th smallest oracle score SQ 
+
+> (k)
+
+of the calibration block, an empirical (1 − α)-quantile of m
+
+dependent scores that estimates zero. The training step enters the results only through the uniform error of the fitted endpoints, EQn = max {∥ bℓ − ℓα∥∞, ∥bu − uα∥∞}, the norms being taken over a fixed domain that contains every realized covariate almost surely. For CQR we ask whether the marginal coverage P{Yn+m+1 ∈ bCQα (Xn+m+1 )} is close to 1 − α,and whether the length of bCQα (x) is close to the length of the oracle interval CQα (x), uniformly in x.On every realization, 
+
+| bSQ 
+
+> (k)
+
+− SQ
+
+> (k)
+
+| ≤ EQn , sup 
+
+> x
+
+| len bCQα (x) − len CQα (x)| ≤ 4EQn + 2 |SQ
+
+> (k)
+
+|. (1) Inequality (1), proved in Appendix A.1, uses no independence between the blocks and no gap be-tween them, and it reduces both questions to a training question, whether EQn is small, and a cali-bration question, whether the empirical (1 − α)-quantile of m dependent oracle scores is close to the population quantile. 2.2 CONFORMALIZED MEDIAN REGRESSION 
+
+For CMR, the training block produces one function bμ that estimates the conditional median μ(x)
+
+of Yt given Xt = x, the calibration scores are the absolute residuals bSMt = |Yt − bμ(Xt)|, the calibrated radius is bSM
+
+> (k)
+
+, and the prediction interval is bCMα (x) = [ bμ(x) − bSM
+
+> (k)
+
+, bμ(x) + bSM
+
+> (k)
+
+]. Its oracle counterpart is CMα (x) = [ μ(x) − qα, μ (x) + qα], where qα is the (1 − α)-quantile of the oracle score SMt = |Yt −μ(Xt)| under the stationary law, and the training error is EMn = ∥bμ−μ∥∞.The two oracles differ: CQα (x) has coverage 1 − α at every x, whereas CMα (x) uses one radius for all x and has coverage 1 − α on average over x.The oracle calibration error is now the distance of SM 
+
+> (k)
+
+from qα in place of the distance of SQ 
+
+> (k)
+
+from zero, and a proof similar to that of (1) gives, on every realization, 
+
+| bSM 
+
+> (k)
+
+− SM
+
+> (k)
+
+| ≤ EMn , sup 
+
+> x
+
+| len bCMα (x) − len CMα (x)| = 2 | bSM 
+
+> (k)
+
+− qα| ≤ 2EMn + 2 |SM 
+
+> (k)
+
+− qα|. (2) 2.3 FUNCTIONAL DEPENDENCE MEASURE 
+
+The calibration question requires a measure of the dependence of the series, and we use the functional dependence measure of Wu (2005b). Let ε′ 
+
+> 0
+
+be an independent copy of ε0, and let 
+
+Z∗ 
+
+> t
+
+= G(. . . , ε −1, ε ′
+
+> 0
+
+, ε 1, . . . , ε t) be the trajectory obtained by replacing the single innovation at time 0 by its copy, all other innovations being retained; SQ∗ 
+
+> t
+
+and SM ∗ 
+
+> t
+
+denote the oracle scores com-puted from Z∗ 
+
+> t
+
+= ( X∗ 
+
+> t
+
+, Y ∗ 
+
+> t
+
+) with the oracle endpoints evaluated at X∗ 
+
+> t
+
+. The functional dependence measures of the observations and of the two oracle scores at lag j are 
+
+δZq (j) = ∥Zj − Z∗ 
+
+> j
+
+∥q , δQq (j) = ∥SQj − SQ∗ 
+
+> j
+
+∥q , δMq (j) = ∥SMj − SM ∗ 
+
+> j
+
+∥q , q ≥ 1,
+
+where ∥V ∥q = ( E|V |q )1/q with | · | the Euclidean norm: the Lq distance by which the series, or its score, j steps ahead responds to one innovation. For a linear process Yt = P 
+
+> j≥0
+
+aj εt−j the measure equals |aj | ∥ ε0 −ε′
+
+> 0
+
+∥q , for a recursion Zt = H(Zt−1, ε t) that contracts in Lq it decays geometrically (Wu & Shao, 2004), and when aj ≍ j−β with 1/2 < β < 1, so that the autocorrelation at lag h
+
+decays like h1−2β and the series has long memory, it decays like j−β : the exponent of its polynomial decay is the memory exponent of the series. 3The oracle calibration error is controlled through the events {SQt ≤ s} for thresholds s near the population quantile, and the relevant quantity is therefore the response of the conditional probability of such an event to one innovation, after the intervening innovations have been averaged out: 
+
+ωQ(j) = sup 
+
+> s∈R
+
+P(SQj ≤ s | F 0) − P(SQ∗ 
+
+> j
+
+≤ s | F ∗ 
+
+> 0
+
+) 2, j ≥ 0, (3) where F∗ 
+
+> 0
+
+= σ(ε′
+
+> 0
+
+, ε s : s ≤ − 1) , and ωM (j) is defined in the same way with SMj and SM ∗ 
+
+> j
+
+. The second probability is the first one computed from the coupled innovations, so ωQ(j) is the supremum over s of the functional dependence measure, in L2, of the conditional probability P(SQj ≤ s | F 0),which is the predictive dependence measure of the indicator of {SQj ≤ s} in the sense of Wu (2005b). 
+
+## 3 MAIN RESULTS 
+
+This section provides the marginal coverage and the interval length guarantees of the two procedures simultaneously, for the same calibrated interval. Our theoretical guarantee relies on three assump-tions. The first assumption concerns the training step and is the only requirement on the learner. Throughout, the training error En denotes EQn for CQR and EMn for CMR. 
+
+Assumption 1 (Consistent endpoints) . There are deterministic sequences en → 0 and ξn → 0 such that the training error satisfies P(En > e n) ≤ ξn for every n.
+
+Assumption 1 is equivalent to En → 0 in probability, with en and ξn recording its rate. It is stated for a general learner on purpose and is easy to check: by ergodicity, linear quantile regression satisfies it under mild conditions on every stationary series of the form of Section 2 whose conditional quantiles are linear in bounded covariates, whatever its dependence (Appendix B.1), and in the Gaussian model of Section 4 the sample mean and the empirical quantiles of the training block satisfy it with an explicit rate. The second assumption requires that the oracle score have probability mass on both sides of its 
+
+(1 − α)-quantile at a rate bounded above and below. Let F denote the distribution function of the oracle score centered at that quantile, so that F (0) = 1 − α: F = F Q for CQR, and F = F M for CMR, where F M (s) = P(SMt − qα ≤ s).
+
+Assumption 2 (Regular oracle score distribution) . There are constants r > 0 and 0 < f α ≤ Lα <
+
+∞ such that F is continuous on [−r, r ] and, for 0 ≤ t ≤ r,(a) F (t) − (1 − α) ≥ fαt and (1 − α) − F (−t) ≥ fαt;(b) F (t) − (1 − α) ≤ Lαt and (1 − α) − F (−t) ≤ Lαt.
+
+For CQR, Assumption 2 holds when the conditional density of Yt given Xt is bounded above and away from zero near the two oracle endpoints (Appendix B.3), a condition of the kind used for efficiency under exchangeability (Lei et al., 2018; Yao et al., 2026). The length results need only part (a); the coverage results need both parts. The third assumption is the dependence condition. Consider the predictive dependence measure 
+
+ω(j) of the thresholded oracle scores defined in (3), which is ωQ(j) for CQR and ωM (j) for CMR. The following assumption controls the contribution of the oracle calibration error to the coverage and length errors. 
+
+Assumption 3 (Functional dependence of the oracle scores) . There are constants A > 0 and γ > 
+
+1/2 such that ω(j) ≤ A(1 ∨ j)−γ for all j ≥ 0.
+
+Assumption 3 requires no mixing, can be verified from the model through the functional dependence measure of the scores, and in principle allows for long memory (Appendix B.4). It holds for the autoregression Wt = Wt−1/2 + Bt with Bernoulli innovations and for Gaussian long memory, which violate the mixing conditions of the coverage literature, and for long memory in the scale of a volatility model and contractive nonlinear recursions (Appendices B.5 and B.6). For the Bernoulli autoregression, the coverage bounds of Oliveira et al. (2024) and Barber & Pananjady (2026) are vacuous, because its β-mixing coefficients, on which the first bound rests, and its switch coefficients, on which the second rests, equal one at every lag (Appendix B.6). 4Under Assumption 3, the empirical distribution function of the oracle scores concentrates near the threshold at the rate ρm = m−1/2 if γ > 1, ρm = m−1/2 log( m + 1) if γ = 1 and ρm = m1/2−γ
+
+if 1/2 < γ < 1, with a constant Cσ depending only on A and γ (Lemma 8 in Appendix A.2); apart from the training error, this is the only way in which the dependence of the series enters the results. For brevity, we first state the marginal coverage result and the interval length guarantee for CQR. 
+
+Theorem 1 (CQR marginal coverage) . Suppose that Assumptions 1–3 hold. There exist m0 ≤ m1,depending only on α, γ, fα, Lα, r and Cσ , such that for all n with en ≤ r/ 4 and all m ≥ m1,
+
+P{Yn+m+1 ∈ bCQα (Xn+m+1 )} − (1 − α) ≤ 2Lαen + ξn + C1ρ2/3 
+
+> m
+
+, (4) 
+
+where C1 depends only on Lα, fα and Cσ . If in addition the conditional law of SQn+m+1 given 
+
+Fn+m has a density at most Lpred almost surely and E(SQ 
+
+> 0
+
+)2 < ∞, then for all n and all m ≥ m0,
+
+P{Yn+m+1 ∈ bCQα (Xn+m+1 )} − (1 − α) ≤ Lpred {2EEQn + C2ρm/2}, (5) 
+
+where C2 depends only on α, fα, r, E(SQ 
+
+> 0
+
+)2 and Cσ .
+
+Theorem 1 requires no mixing condition and, in principle, allows for long memory. Bound (4) holds without a density for the score at the test time; under the additional density condition, bound (5) replaces ρ2/3 
+
+> m
+
+by ρm (Appendix A.4). 
+
+Theorem 2 (CQR accuracy of interval length) . Suppose that Assumptions 2(a) and 3 hold. For every e ≥ 0 and every t with 4/(mf α) ≤ t ≤ r, a range that is nonempty when m ≥ 4/(fαr),
+
+P
+
+n
+
+sup 
+
+> x
+
+| len bCQα (x) − len CQα (x)| > 4e + 2 t
+
+o
+
+≤ P(EQn > e ) + 8C2 
+
+> σ
+
+ρ2
+
+> m
+
+f 2
+
+> α
+
+t2 . (6) 
+
+If E(SQ 
+
+> 0
+
+)2 < ∞, then for all m ≥ m0,
+
+E sup 
+
+> x
+
+| len bCQα (x) − len CQα (x)| ≤ 4EEQn + C2ρm, (7) 
+
+with the constant C2 of Theorem 1. 
+
+The proofs of Theorems 1 and 2 are given in Appendix A.4. To our knowledge, Theorem 2 is the first non-asymptotic comparison of the calibrated length with the oracle length under temporal dependence. Together, the two theorems show that under Assumptions 1–3, as n → ∞ and m → ∞ 
+
+in any manner, the same calibrated interval is both asymptotically valid and asymptotically as short as the oracle interval. The CMR versions are as follows. 
+
+Theorem 3 (CMR marginal coverage and accuracy of interval length) . Suppose that Assumptions 1– 3 hold for CMR, that is, for EMn , F M and ωM , and let m0, m1, C1 and C2 be as in Theorems 1–2, with E(SM 
+
+> 0
+
+− qα)2 in place of E(SQ 
+
+> 0
+
+)2. For all n with en ≤ r/ 4 and all m ≥ m1,
+
+P{Yn+m+1 ∈ bCMα (Xn+m+1 )} − (1 − α) ≤ 2Lαen + ξn + C1ρ2/3 
+
+> m
+
+, (8) 
+
+and if the conditional law of SMn+m+1 given Fn+m has a density at most Lpred almost surely and 
+
+E(SM 
+
+> 0
+
+)2 < ∞, then for all n and all m ≥ m0,
+
+P{Yn+m+1 ∈ bCMα (Xn+m+1 )} − (1 − α) ≤ Lpred {2EEMn + C2ρm/2}. (9) 
+
+For every e ≥ 0 and every t with 4/(mf α) ≤ t ≤ r,
+
+P
+
+n
+
+sup 
+
+> x
+
+| len bCMα (x) − len CMα (x)| > 2e + 2 t
+
+o
+
+≤ P(EMn > e ) + 8C2 
+
+> σ
+
+ρ2
+
+> m
+
+f 2
+
+> α
+
+t2 , (10) 
+
+and if E(SM 
+
+> 0
+
+)2 < ∞, then for all m ≥ m0,
+
+E sup 
+
+> x
+
+| len bCMα (x) − len CMα (x)| = 2 E| bSM 
+
+> (k)
+
+− qα| ≤ 2EEMn + C2ρm. (11) Theorem 3, proved in Appendix A.4, gives the same guarantees for CMR, so the CMR interval is also asymptotically valid and asymptotically as short as its oracle; for Gaussian long memory, Section 4 sharpens its length bound. 54 ESTIMATED CENTERS UNDER GAUSSIAN LONG MEMORY 
+
+A common difficulty with long-memory processes is that estimation converges slowly: the sample median, for instance, converges much more slowly than under short memory (Dehling & Taqqu, 1989). The length bound of Theorem 3 inherits this slowness through both of its terms, the training error and the calibration error. In this section, devoted to long-memory processes, we show that the calibrated length can nevertheless converge faster than the estimated center. We study the Gaussian linear process. It is more convenient to analyze and is nevertheless representative: by the Wold decomposition, every stationary Gaussian process without a deterministic component can be written as a Gaussian linear process (Brockwell & Davis, 1991, Section 5.7). Specifically, we consider 
+
+Gt = X
+
+> j≥0
+
+aj εt−j , εt
+
+> i.i.d.
+
+∼ N (0 , 1) , X
+
+> j≥0
+
+a2 
+
+> j
+
+= 1 , a0̸ = 0 , |aj | ≤ A(1 + j)−β , (12) with 1/2 < β < 1, the long-memory range of Section 2.3. Gaussian innovations are assumed for convenience; since the improvement rests on the symmetry of their law, we expect it to extend to symmetric non-Gaussian innovations. We observe Yt = μ + Gt with an unknown location μ and a constant covariate. The oracle intervals of CQR and CMR then coincide, since the law of Gt is symmetric: CQα = CMα = [ μ − zα, μ + zα],where zα = Φ −1(1 − α/ 2) is the radius qα of Section 2.2. The two procedures also coincide: for any fitted endpoints, the CQR score is max {bℓ − y, y − bu} = |y − bc| − (bu − bℓ)/2 with the midpoint 
+
+bc = ( bℓ + bu)/2; because the covariate is constant, the half-width (bu − bℓ)/2 is common to all scores and cancels, and the CQR interval is the CMR interval [bc − bSM
+
+> (k)
+
+, bc + bSM
+
+> (k)
+
+] with center bc. In this section we therefore provide the theory for CMR, with a center fitted on the training block, and it applies to CQR with the midpoint of the fitted endpoints as the center. For the sample mean, the two terms of Theorem 3 are of order n1/2−β and m1/2−β (Appendix B.5), and in this model both can be improved. Because the centered oracle score |Gt| − zα is an even function of Gt, the calibration rate improves from m1/2−β to the following rate (Appendix C.1): 
+
+rm(β) = 
+
+
+
+m−(2 β−1) , 1/2 < β < 3/4,
+
+{log( m + 1) /m }1/2, β = 3 /4,m−1/2, 3/4 < β < 1.
+
+(13) Because the law of Gt is symmetric, an error in the center changes the population radius of the calibration residuals only at second order (Appendix C.2). The difficulty is to retain this second-order effect with a finite calibration block that is adjacent to the training block, so that the center is correlated with the calibration residuals. 
+
+Theorem 4 (CMR length under Gaussian long memory) . Assume (12) , and let bμ be a measurable function of Y1, . . . , Y n and of randomness independent of the series. There are constants m0, de-pending only on α, and C, depending only on α, β, A and a0, such that for all n and all m ≥ m0,
+
+E| len bCMα − 2zα| ≤ CE(bμ − μ)2 + rm(β) . (14) 
+
+For the sample mean, the empirical median, and the midpoint of the empirical α/ 2- and (1 −
+
+α/ 2) -quantiles of the training block, E(bμ − μ)2 ≤ Cn −(2 β−1) , and therefore E| len bCMα − 2zα| ≤ 
+
+C{n−(2 β−1) + rm(β)}.
+
+Theorem 4 is proved in Appendix C.5. Under this model, the center enters the length through its mean squared error, instead of its absolute error as in Section 3, and with the midpoint as center the theorem covers CQR with the empirical training quantiles as fitted endpoints. With blocks of comparable size, n ≍ m, the length error is at most of the order rm(β), which Theorem 4 gives for a known center, although the center converges only at the rate n1/2−β when aj ≍ j−β ; for β > 3/4,the rate m−1/2 of independent scores survives both the long memory and the estimated center. To our knowledge, this is the first theoretical analysis of conformal interval length dedicated to long memory. The coverage error of the interval is at most of the same order as the right-hand side of (14) (Appendix C.7), so the interval also attains the nominal level at this rate. 6128 256 512 1024 2048 4096                 
+
+> training = calibration size ( n=m)
+> 0.88 0.89 0.90 0.91 0.92
+> marginal coverage
+> (a) coverage
+> 128 256 512 1024 2048 4096
+> training = calibration size ( n=m)
+> 10 −1
+> expected sup-norm length error
+> (b) length error
+> i.i.d. AR(1), ϕ= . 9 Bernoulli long-memory linear process, β= . 8
+
+Figure 1: Study 1, CQR with quadratic quantile regression, n = m ∈ { 128 , . . . , 4096 }. (a) Marginal coverage; the dashed line is the nominal level. (b) Expected sup-norm length error, on a logarithmic scale. Pointwise 95% Monte Carlo intervals. 
+
+Proposition 5 (Lower bound) . Assume (12) , and let bμ be as in Theorem 4. For all n and all m ≥ m0,with m0 as in Theorem 4, 
+
+E| len bCMα − 2zα| ≥ c1E min {(bμ − μ)2, 1} − Crm(β) + {m−(2 β−1) E(bμ − μ)2}1/2, (15) 
+
+where c1 > 0 depends only on α and C only on α, β, A and a0. If, in addition, aj ≥ c(1 + j)−β
+
+for all j ≥ j0, with c > 0, and bμ = T (Y1, . . . , Y n), where T is nondecreasing in each coordinate, satisfies T (y1 + h, . . . , y n + h) = T (y1, . . . , y n) + h for every real h, and has E(bμ − μ)2 ≤
+
+Cg n−(2 β−1) , then for all n ≥ n0 and m ≥ Kn max(1 ,4β−2) log( n + 1) ,
+
+E| len bCMα − 2zα| ≥ c3
+
+n−(2 β−1) + rm(β) , (16) 
+
+where n0, K and c3 > 0 depend only on α, β, A, a0, c, j0 and Cg .
+
+Proposition 5 is proved in Appendix C.6. The sample mean, the empirical median and the midpoint satisfy its conditions on the center, so Theorem 4 and Proposition 5 together show that n−(2 β−1) +
+
+rm(β) is the exact rate of their length error when the calibration block is large relative to the training block. By Proposition 5, no monotone and translation-equivariant center whose mean squared error is of the same order n−(2 β−1) does better. To our knowledge, Theorem 4 and Proposition 5 give the first exact rate for the length of a conformal interval under dependence. 
+
+## 5 NUMERICAL STUDIES 
+
+We examine the theory in three simulation studies whose oracle intervals are known: the coverage and the length in four dependence setups, two of which the mixing theory does not cover (Study 1), the sharper length rate under long memory (Study 2) and the lower bound of Proposition 5 (Study 3). Throughout, α = .1, the training and calibration blocks are adjacent, each configuration uses 1000 
+
+independent trajectories, which give Monte Carlo standard errors and pointwise 95% intervals, and each procedure is compared with its own oracle interval. Appendix D gives the designs and the complete results. 
+
+Study 1. This study illustrates that split conformal regression works well on processes beyond the existing theory. The observations are Yt = f (Xt)+ s(Xt)h(Ut) with f (x) = x+x2, s(x) = 1+ .3x2
+
+and h(u) = u + u2/2, where the covariates Xt are i.i.d. uniform on [−1, 1] and independent of (Ut).The temporal dependence is controlled by (Ut), and we consider four setups for it: independent vari-ables, an AR(1) process, the Bernoulli autoregression of Section 3 and a long-memory linear process of the form (12) with β = .8, each transformed to the uniform law on [0 , 1] . The exchangeable the-ory covers only the independent setup and the mixing theory also covers AR(1), but neither covers the Bernoulli setup or the long-memory linear process. Assumptions 1–3 hold in all four setups, so the theory of this paper covers all of them. The procedure is CQR with quadratic quantile regression 7128 256 512 1024 2048 4096                     
+
+> training size n
+> 10 −3
+> 10 −2
+> 10 −1
+> center MSE
+> (a) estimation
+> exact vn
+> n1 − 2 β
+> 128 256 512 1024 2048 4096
+> calibration size m
+> 10 −1
+> oracle calibration error
+> (b) calibration, known center
+> rm(β) (Thm. 4)
+> m1/2 − β(Thm. 3)
+> 128 256 512 1024 2048 4096
+> n=m
+> 10 −1
+> expected length error
+> (c) total, balanced blocks
+> rn(β) (Thm. 4)
+> n1/2 − β(Thm. 3)
+> β= 0.60 β= 0.75 β= 0.90
+
+Figure 2: Study 2, CMR with the sample-mean center, Gaussian linear process (12) with β ∈{.6, . 75 , . 9}. (a) Mean squared error of the center, with its exact value vn (dash-dotted) and n−(2 β−1) 
+
+(dashed). (b) Oracle calibration error E|SM 
+
+> (k)
+
+− zα|, with rm(β) (dashed) and m1/2−β (dotted). (c) Length error E| len bCMα − 2zα| with n = m, with rn(β) (dashed) and n1/2−β (dotted). The guides, matched to the curves at 256 , compare decay, not constants. Pointwise 95% Monte Carlo intervals. at the levels .05 and .95 , which is correctly specified. For n = m ∈ { 128 , . . . , 4096 }, we estimate the marginal coverage and the expected sup-norm length error E sup x | len bCQα (x) − len CQα (x)| of Theorem 2. Appendix D.2 gives the details and the paired CMR results. Figure 1 shows that the marginal coverage stays within .01 of the nominal level in all four setups, including the two that only the theory of this paper covers, and that the length error decreases toward zero in all four. For the long-memory linear process, the calibration rate ρm of Theorem 2 is m−.3,against m−1/2 in the other three setups, but over the tested sizes its length error decreases at about the same rate as theirs, with fitted decay exponents between .51 and .53 in all four setups, whereas for this process the length error of the paired CMR interval decreases like m−.3 (Appendix D.2). The same contrast appears in the oracle calibration step: in this setup, Ut = Φ( Gt) with Gt of the form (12), and the CQR oracle interval contains Yt exactly when |Gt| ≤ zα, an event that is symmetric in Gt, whereas the corresponding event for the CMR oracle interval is not, because h is not linear. This agrees with the motivation of Section 4: long-memory linear processes require a separate analysis to obtain a sharper rate. 
+
+Study 2. This study examines the model of Section 4 for two purposes: to measure how slowly the center converges under long memory, and to check whether the length error nevertheless attains the rate of Theorem 4. The observations are Yt = μ + Gt, where Gt is a Gaussian linear process of the form (12) whose coefficients aj are asymptotically proportional to j−β , with β ∈ { .6, . 75 , . 9}, one value in each case of (13). Appendix D.1 gives the coefficients and the exact simulation of the paths. The procedure is CMR with the training sample mean as the center. For n = m ∈ { 128 , . . . , 4096 },we measure three quantities on the same trajectories: the mean squared error of the center, the oracle calibration error E|SM 
+
+> (k)
+
+− zα| and the interval length error E| len bCMα − 2zα|. Figure 2 compares them with the rates of Theorems 3 and 4. There are two findings. First, the center converges slowly: its mean squared error decreases like 
+
+n−(2 β−1) , much more slowly than under short memory, in agreement with its exact value. Second, the oracle calibration error and the length error follow the rates rm(β) and rn(β) of Theorem 4, and not the slower rates m1/2−β and n1/2−β of Theorem 3. We repeated the study with two non-Gaussian innovation laws, keeping the coefficients and taking the training median as the center. With Laplace innovations, which are symmetric, the findings are the same, as Section 4 expects. Centered exponential innovations are asymmetric by design, to test whether the improvement of Section 4 rests on symmetry: at β = .75 and .9, the length error then follows the rate of Theorem 3 more closely than that of Theorem 4. At β = .6 it still follows Theorem 4 over the tested sizes, because the stronger memory spreads each innovation over many lags and brings the law of the series closer to a Gaussian law (Appendix D.4). 8210 212 214 216 218 220 222                    
+
+> calibration size m
+> 10 −2
+> 10 −1
+> length error
+> (a) increasing calibration at fixed n
+> n= 64
+> n= 128
+> n= 256
+> n= 512
+> n= 1024 reference
+> 64 128 256 512 1024
+> training size n
+> 10 −2
+> 10 −1
+> length error
+> (b) increasing nat fixed K
+> reference
+> n−0.8
+> K= 1
+> K= 4
+> K= 16
+> K= 64
+
+Figure 3: Study 3, CMR with the sample-mean center, β = .9 and m ≈ Kn 1.6. (a) Length error against m for each training size n, with the reference of each n (dashed, same color). (b) The same errors against n for each K, with the reference (dashed) and the rate n−.8 matched to the reference at n = 64 (dotted). Pointwise 95% Monte Carlo intervals. 
+
+Study 3. This study examines the lower bound of Proposition 5. Calibration does not remove the contribution from center estimation, so however long the calibration block, the length error remains at least of the order n−(2 β−1) , which is the order of the mean squared error of the center. We keep the model of Study 2 with β = .9 and the sample-mean center, and for each training size 
+
+n ∈ { 64 , . . . , 1024 } we take the calibration sizes m ≈ Kn 1.6 with K ∈ { 1, 4, 16 , 64 }, which follow the threshold of Proposition 5 up to its logarithmic factor and reach thousands of times the training size. The reference is the length error of the interval calibrated on an infinitely long block, which depends only on the center and is close to zα times its mean squared error. Figure 3 shows that once the calibration block is long enough, the length error stops decreasing and stays within 8% of this reference at every training size: more calibration data only reduces the error due to calibration, which halves with each fourfold increase of m, while the reference, set by the center, does not move. The reference decreases at the rate n−.8 = n−(2 β−1) : from n = 64 to 1024 , the length error with the largest calibration blocks falls by a factor of 8.6, against 9.2 for n−.8. Studies 2 and 3 thus illustrate both halves of the exact rate of Section 4: the length error attains the rate of Theorem 4, and the contribution of the center, which enters at second order, remains however much calibration data is added. Appendix D.5 gives the design, the computation of the reference and the complete results. 
+
+Real Data Analysis. We also apply CQR and CMR to day-ahead forecast errors of electricity load, which have long memory, and check both the coverage and the interval length. Both procedures cover close to the nominal level, and the mean length of CMR is within 2% of a proxy for its oracle length computed in hindsight (Appendix E). 
+
+## 6 DISCUSSION 
+
+The functional dependence measure replaces mixing as the theoretical toolbox for split conformal regression on time series: it is computed from the model that generates the series, the guarantees hold for processes that are not mixing, and the same calibrated interval satisfies non-asymptotic coverage and length guarantees. Under Gaussian long memory, the length converges faster than the estimated center, at a rate that a matching lower bound shows to be exact for long calibration blocks. The theory has two limitations. First, the coverage guarantees are marginal and concern one split of a stationary series; they extend to any fixed forecast horizon, but rolling refits and nonstationary series are not covered. Second, the sharper rate of Section 4 is proved for Gaussian linear processes with a constant covariate and rests on the symmetry of their law; Study 2 supports symmetric non-Gaussian innovations numerically, and a proof for them would replace the Hermite expansions of Appendix C.1 by the expansions of the empirical process of linear processes (Wu, 2003). 9REFERENCES 
+
+Donald W. K. Andrews. Non-strong mixing autoregressive processes. Journal of Applied Probabil-ity , 21(4):930–934, 1984. Rina Foygel Barber and Ashwin Pananjady. Predictive inference for time series: why is split confor-mal effective despite temporal dependence? In Proceedings of the 37th International Conference on Algorithmic Learning Theory , volume 313 of Proceedings of Machine Learning Research , pp. 1–24, 2026. Rina Foygel Barber, Emmanuel J. Cand` es, Aaditya Ramdas, and Ryan J. Tibshirani. Conformal prediction beyond exchangeability. The Annals of Statistics , 51(2):816–845, 2023. doi: 10.1214/ 23-AOS2276. Jan Beran. Statistics for Long-Memory Processes . Chapman & Hall, 1994. Jan Beran and Sucharita Ghosh. Slowly decaying correlations, testing normality, nuisance pa-rameters. Journal of the American Statistical Association , 86(415):785–791, 1991. doi: 10.1080/01621459.1991.10475110. Richard C. Bradley. Basic properties of strong mixing conditions. A survey and some open ques-tions. Probability Surveys , 2:107–144, 2005. doi: 10.1214/154957805100000104. P´ eter Breuer and P´ eter Major. Central limit theorems for non-linear functionals of Gaussian fields. 
+
+Journal of Multivariate Analysis , 13(3):425–441, 1983. doi: 10.1016/0047-259X(83)90019-2. Peter J. Brockwell and Richard A. Davis. Time Series: Theory and Methods . Springer Series in Statistics. Springer, New York, second edition, 1991. doi: 10.1007/978-1-4419-0320-4. Ngai Hang Chan and Shiqing Ling. Residual empirical processes for long and short memory time series. The Annals of Statistics , 36(5):2453–2470, 2008. doi: 10.1214/07-AOS543. Likai Chen and Wei Biao Wu. Concentration inequalities for empirical processes of linear time series. Journal of Machine Learning Research , 18(231):1–46, 2018. Wei-Kuo Chen, Nikos Dafnis, and Grigoris Paouris. Improved H¨ older and reverse H¨ older in-equalities for Gaussian random vectors. Advances in Mathematics , 280:643–689, 2015. doi: 10.1016/j.aim.2014.09.029. Xiaohui Chen, Mengyu Xu, and Wei Biao Wu. Covariance and precision matrix estimation for high-dimensional time series. The Annals of Statistics , 41(6):2994–3021, 2013. doi: 10.1214/ 13-AOS1182. Victor Chernozhukov, Kaspar W¨ uthrich, and Yinchu Zhu. Exact and robust conformal inference methods for predictive machine learning with dependent data. In Proceedings of the 31st Confer-ence on Learning Theory , volume 75 of Proceedings of Machine Learning Research , pp. 732–749, 2018. Victor Chernozhukov, Kaspar W¨ uthrich, and Yinchu Zhu. Distributional conformal prediction. Pro-ceedings of the National Academy of Sciences , 118(48):e2107794118, 2021. doi: 10.1073/pnas. 2107794118. I. P. Cornfeld, S. V. Fomin, and Ya. G. Sinai. Ergodic Theory , volume 245 of Grundlehren der mathematischen Wissenschaften . Springer, New York, 1982. doi: 10.1007/978-1-4615-6927-5. Herold Dehling and Murad S. Taqqu. The empirical process of some long-range dependent se-quences with an application to U-statistics. The Annals of Statistics , 17(4):1767–1783, 1989. doi: 10.1214/aos/1176347394. Zhuanxin Ding, Clive W. J. Granger, and Robert F. Engle. A long memory property of stock market returns and a new model. Journal of Empirical Finance , 1(1):83–106, 1993. Isaac Gibbs and Emmanuel J. Cand` es. Adaptive conformal inference under distribution shift. In 
+
+Advances in Neural Information Processing Systems , volume 34, pp. 1660–1672, 2021. 10 Alexander Greaves-Tunnell and Zaid Harchaoui. A statistical investigation of long memory in lan-guage and music. In Proceedings of the 36th International Conference on Machine Learning ,volume 97 of Proceedings of Machine Learning Research , pp. 2394–2403, 2019. Stanisław M. S. Halkiewicz. Rolling-origin conformal prediction under local stationarity and weak dependence, 2026. arXiv:2605.08422. Fang Han and Wei Biao Wu. Probability inequalities for high-dimensional time series under a triangular array framework. In Hoang Pham (ed.), Springer Handbook of Engineering Statistics ,pp. 849–863. Springer, London, 2nd edition, 2023. doi: 10.1007/978-1-4471-7503-2 41. Tao Hong and Shu Fan. Probabilistic electric load forecasting: A tutorial review. International Journal of Forecasting , 32(3):914–938, 2016. doi: 10.1016/j.ijforecast.2015.11.011. Hanyang Jiang, Rina Foygel Barber, Ashwin Pananjady, and Yao Xie. Leave a window out: Modi-fying the jackknife for predictive inference in time series, 2026. arXiv:2605.30292. Shayan Kiyani, George Pappas, and Hamed Hassani. Length optimization in conformal prediction. In Advances in Neural Information Processing Systems , volume 37, 2024. Hira L. Koul and Donatas Surgailis. Goodness-of-fit testing under long memory. Journal of Statis-tical Planning and Inference , 140(12):3742–3753, 2010. doi: 10.1016/j.jspi.2010.04.039. Batiste Le Bars and Pierre Humbert. On volume minimization in conformal regression. In Proceed-ings of the 42nd International Conference on Machine Learning , volume 267 of Proceedings of Machine Learning Research , pp. 3030–3053, 2025. Jing Lei, Max G’Sell, Alessandro Rinaldo, Ryan J. Tibshirani, and Larry Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association , 113 (523):1094–1111, 2018. doi: 10.1080/01621459.2017.1307116. Will E. Leland, Murad S. Taqqu, Walter Willinger, and Daniel V. Wilson. On the self-similar nature of Ethernet traffic (extended version). IEEE/ACM Transactions on Networking , 2(1):1–15, 1994. Paweł Lorek and Rafał Kulik. Empirical process of residuals for regression models with long mem-ory errors. Statistics & Probability Letters , 86:7–16, 2014. doi: 10.1016/j.spl.2013.11.018. Mehryar Mohri and Afshin Rostamizadeh. Stability bounds for stationary φ-mixing and β-mixing processes. Journal of Machine Learning Research , 11(26):789–814, 2010. New York Independent System Operator. Integrated Real-Time Actual Load. NYISO Market Infor-mation System, data set P-58C, 2026a. Retrieved 25 September 2026. New York Independent System Operator. ISO Load Forecast. NYISO Market Information System, data set P-7, 2026b. Retrieved 25 September 2026. Roberto I. Oliveira, Paulo Orenstein, Thiago Ramos, and Jo˜ ao Vitor Romano. Split conformal prediction and non-exchangeable data. Journal of Machine Learning Research , 25(225):1–38, 2024. Harris Papadopoulos, Kostas Proedrou, Volodya Vovk, and Alex Gammerman. Inductive confidence machines for regression. In Machine Learning: ECML 2002 , volume 2430 of Lecture Notes in Computer Science , pp. 345–356. Springer, 2002. doi: 10.1007/3-540-36755-1 29. C.-K. Peng, S. V. Buldyrev, S. Havlin, M. Simons, H. E. Stanley, and A. L. Goldberger. Mosaic organization of DNA nucleotides. Physical Review E , 49(2):1685–1689, 1994. doi: 10.1103/ PhysRevE.49.1685. Yaniv Romano, Evan Patterson, and Emmanuel J. Cand` es. Conformalized quantile regression. In 
+
+Advances in Neural Information Processing Systems , volume 32, pp. 3543–3553, 2019. Donald Sarason. Functions of vanishing mean oscillation. Transactions of the American Mathemat-ical Society , 207:391–405, 1975. doi: 10.1090/S0002-9947-1975-0377518-3. 11 Matteo Sesia and Emmanuel J. Cand` es. A comparison of some conformal quantile regression meth-ods. Stat , 9(1):e261, 2020. doi: 10.1002/sta4.261. Matteo Sesia and Yaniv Romano. Conformal prediction using conditional histograms. In Advances in Neural Information Processing Systems , volume 34, pp. 6304–6315, 2021. Vladimir Vovk, Alexander Gammerman, and Glenn Shafer. Algorithmic Learning in a Random World . Springer, New York, 2005. doi: 10.1007/b106715. Wei Biao Wu. Empirical processes of long-memory sequences. Bernoulli , 9(5):809–831, 2003. doi: 10.3150/bj/1066418879. Wei Biao Wu. On the Bahadur representation of sample quantiles for dependent sequences. The Annals of Statistics , 33(4):1934–1963, 2005a. doi: 10.1214/009053605000000291. Wei Biao Wu. Nonlinear system theory: Another look at dependence. Proceedings of the National Academy of Sciences , 102(40):14150–14154, 2005b. doi: 10.1073/pnas.0506715102. Wei Biao Wu. Asymptotic theory for stationary processes. Statistics and Its Interface , 4(2):207–226, 2011. Wei Biao Wu and Xiaofeng Shao. Limit theorems for iterated random functions. Journal of Applied Probability , 41(2):425–436, 2004. doi: 10.1239/jap/1082999076. Chen Xu and Yao Xie. Conformal prediction interval for dynamic time-series. In Proceedings of the 38th International Conference on Machine Learning , volume 139 of Proceedings of Machine Learning Research , pp. 11559–11569, 2021. Chen Xu and Yao Xie. Conformal prediction for time series. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(10):11575–11587, 2023. doi: 10.1109/TPAMI.2023.3272339. Yunzhen Yao, Lie He, and Michael Gastpar. Non-asymptotic analysis of efficiency in conformalized regression. In International Conference on Learning Representations , 2026. Bin Yu. Rates of convergence for empirical processes of stationary mixing sequences. The Annals of Probability , 22(1):94–116, 1994. doi: 10.1214/aop/1176988849. Margaux Zaffran, Olivier F´ eron, Yannig Goude, Julie Josse, and Aymeric Dieuleveut. Adaptive conformal predictions for time series. In Proceedings of the 39th International Conference on Machine Learning , volume 162 of Proceedings of Machine Learning Research , pp. 25834–25866, 2022. Percy S. Zhai, Mladen Kolar, and Wei Biao Wu. Simultaneous inference for covariance and precision matrices of long-range dependent time series. IEEE Transactions on Information Theory , 72(6): 4246–4296, 2026. doi: 10.1109/TIT.2026.3685246. Danna Zhang and Wei Biao Wu. Gaussian approximation for high dimensional time series. The Annals of Statistics , 45(5):1895–1919, 2017. doi: 10.1214/16-AOS1512. Jingyu Zhao, Feiqing Huang, Jia Lv, Yanjie Duan, Zhen Qin, Guodong Li, and Guangjian Tian. Do RNN and LSTM have long memory? In Proceedings of the 37th International Conference on Machine Learning , volume 119 of Proceedings of Machine Learning Research , pp. 11365–11375, 2020. Fr´ ed´ eric Zheng and Alexandre Proutiere. Conformal predictions under Markovian data. In Proceed-ings of the 41st International Conference on Machine Learning , volume 235 of Proceedings of Machine Learning Research , pp. 61470–61497, 2024. 12 A PROOFS FOR SECTIONS 2 AND 3
+
+This appendix proves the pathwise comparison (1)–(2), the bound on the calibration variance stated before Theorem 1, and Theorems 1–3 together with the convergence statements after Theorem 2. Appendix B verifies the three assumptions for the learners and models of the paper. The analysis of the calibration step combines known tools. The variance bound for the empirical distribution function of the oracle scores (Lemma 8) uses the method of Wu (2005b), who bounds partial sums of a causal process, its empirical distribution function included, through their pro-jections onto individual innovations and the predictive dependence measure; when this measure is summable, the method gives ρm = m−1/2, and Proposition 7 extends the bound to polynomial decay, which gives the two slower regimes of ρm. The pathwise comparison (1)–(2) is the determin-istic comparison also used by Yao et al. (2026) for independent observations, and the two-threshold bound of Appendix A.3 is the Chebyshev bound for an empirical quantile. What is new is the for-mulation through the predictive dependence measure of the thresholded scores, with the transfer conditions of Proposition 12; the non-asymptotic combination of the two steps, including the win-dow argument of Appendix A.4, which gives coverage without a density for the score at the test time; and the length statements. A.1 PROOF OF EQUATIONS (1) AND (2) 
+
+Proof of (1) . For any four real numbers, | max( a, b )−max( c, d )| ≤ max( |a−c|, |b−d|). Applying this inequality to the two endpoint residuals gives | bSQt − SQt | ≤ EQn at every calibration time and at the test time. The k-th smallest values then differ by at most EQn , also when ties occur: at least 
+
+k of the oracle scores SQn+1 , . . . , S Qn+m are at most SQ
+
+> (k)
+
+, the corresponding fitted scores are at most 
+
+SQ 
+
+> (k)
+
++ EQn , and therefore bSQ 
+
+> (k)
+
+≤ SQ 
+
+> (k)
+
++ EQn ; interchanging the fitted and the oracle scores gives the reverse inequality, so | bSQ 
+
+> (k)
+
+− SQ
+
+> (k)
+
+| ≤ EQn .For each x, write w(x) = uα(x) − ℓα(x) ≥ 0 and bw(x) = bu(x) − bℓ(x). Then len CQα (x) = w(x)
+
+and len bCQα (x) = [ bw(x) + 2 bSQ
+
+> (k)
+
+]+. Since the positive-part map is 1-Lipschitz, 
+
+|[ bw(x) + 2 bSQ
+
+> (k)
+
+]+ − w(x)| ≤ | bw(x) − w(x)| + 2 | bSQ
+
+> (k)
+
+|≤ 2EQn + 2 | bSQ 
+
+> (k)
+
+− SQ
+
+> (k)
+
+| + 2 |SQ
+
+> (k)
+
+| ≤ 4EQn + 2 |SQ
+
+> (k)
+
+|.
+
+Taking the supremum over x proves the length bound in (1), including the cases of quantile crossing and empty fitted intervals. Since the bound holds simultaneously for all x in the stated domain, it applies to an adjacent, dependent test covariate without any train–test decoupling argument. 
+
+Proof of (2) . The proof follows that of (1): | bSMt − SMt | ≤ | bμ(Xt) − μ(Xt)| ≤ EMn at every time, so the order-statistic step gives | bSM 
+
+> (k)
+
+− SM
+
+> (k)
+
+| ≤ EMn ; moreover len bCMα (x) = 2 bSM 
+
+> (k)
+
+and 
+
+len CMα (x) = 2 qα for every x, and the triangle inequality completes the proof. A.2 THE CALIBRATION VARIANCE UNDER FUNCTIONAL DEPENDENCE 
+
+This subsection fixes the notation of the remaining proofs and bounds the variance of the empirical distribution function of the oracle scores near the threshold under Assumption 3. In the remaining appendices, St denotes the centered oracle score of the procedure under study, SQt
+
+for CQR and SMt − qα for CMR; bSt denotes the corresponding fitted score, bSQt or bSMt − qα; S(k)
+
+and bS(k) are their k-th smallest values over the calibration block; F is the distribution function of 
+
+St, so that F (0) = 1 − α in both cases; and En is the training error, EQn or EMn . For CMR the centering cancels in the algorithm, whose radius is bSM 
+
+> (k)
+
+= qα + bS(k), and S(k) = SM 
+
+> (k)
+
+− qα is the calibration error of the oracle radius; the predictive dependence measure ω(j) of (3) is unchanged by the centering. With this notation, the proofs of (1) and (2) give, for both procedures, 
+
+| bSt − St| ≤ En (n < t ≤ n + m + 1) , | bS(k) − S(k)| ≤ En, (17) 13 and the length error is at most 4En + 2 |S(k)| for CQR and equal to 2| bS(k)| ≤ 2En + 2 |S(k)| for CMR. The coverage argument of Appendix A.4 involves 2En + |S(k)| for both procedures, because both the fitted test score and the fitted calibration threshold are perturbed. Let 
+
+bFm(s) = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+1{Sn+i ≤ s}, σ2 
+
+> m
+
+= sup 
+
+> |s|≤ r
+
+Var bFm(s),
+
+be the empirical distribution function of the oracle scores on the calibration block and its largest variance near the threshold; stationarity gives E bFm(s) = F (s). The bound to be proved is σm ≤
+
+Cσ ρm (Lemma 8). Let Pj W = E(W | F j ) − E(W | F j−1) denote the projection onto the innovation at time j, and let 
+
+πj (s) = ∥P 01{Sj ≤ s}∥ 2, j ≥ 0,
+
+be the projection norm of the thresholded score, which measures how much the innovation ε0
+
+predicts about the event {Sj ≤ s}. Let Jj (s) = 1{Sj ≤ s} and J∗ 
+
+> j
+
+(s) = 1{S∗ 
+
+> j
+
+≤ s}, the latter computed from the coupled trajectory of Section 2.3, and let Wj (s) = P(Sj ≤ s | F 0)
+
+and W ∗ 
+
+> j
+
+(s) = P(S∗ 
+
+> j
+
+≤ s | F ∗ 
+
+> 0
+
+) be the two conditional probabilities compared in (3), so that 
+
+ω(j) = sup s ∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2. Independence of the replaced innovation, of its copy and of the future innovations gives Wj (s) = E{Jj (s) | F 0, ε ′
+
+> 0
+
+}, W ∗ 
+
+> j
+
+(s) = E{J∗ 
+
+> j
+
+(s) | F 0, ε ′
+
+> 0
+
+} and 
+
+E{W ∗ 
+
+> j
+
+(s) | F 0} = E{Wj (s) | F −1}, and therefore 
+
+P0Jj = E(Wj − W ∗ 
+
+> j
+
+| F 0) = E(Jj − J∗ 
+
+> j
+
+| F 0), πj (s) = 2 −1/2∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2; (18) the second identity holds because Wj (s) and W ∗ 
+
+> j
+
+(s) are the same function of F−1 and of ε0 or ε′
+
+> 0
+
+,respectively, and are therefore independent and identically distributed given F−1. Assumption 3 thus gives sup s πj (s) ≤ 2−1/2A(1 ∨ j)−γ .
+
+Proposition 6 (Projection envelope) . For every s,
+
+Var 
+
+ mX
+
+> i=1
+
+1{Sn+i ≤ s}
+
+
+
+≤
+
+> m
+
+X
+
+> j=−∞
+
+ mX
+
+> i=max(1 ,j )
+
+πi−j (s)
+
+2
+
+≤ m
+
+ X 
+
+> j≥0
+
+πj (s)
+
+2
+
+. (19) 
+
+If the marginal density of St is at most L, then 
+
+∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2 ≤ min 
+
+n
+
+{2 min( F (s), 1 − F (s)) }1/2, √3 Lq/ [2( q+1)] δq (j)q/ [2( q+1)] o
+
+, (20) 
+
+where δq (j) = ∥Sj − S∗ 
+
+> j
+
+∥q is the functional dependence measure of the score. Proof. Fix s and set It = 1{St ≤ s} − F (s). As a square-integrable causal function of i.i.d. innovations, It has the orthogonal decomposition It = Ptj=−∞ Pj It in L2; the backward limit of the conditional expectations is zero by triviality of the tail sigma-field of the i.i.d. past. Summing over t = 1 , . . . , m and using orthogonality across j gives 
+
+> m
+
+X
+
+> t=1
+
+It
+
+> 22
+
+=
+
+> m
+
+X
+
+> j=−∞
+> m
+
+X
+
+> t=max(1 ,j )
+
+Pj It
+
+> 22
+
+≤
+
+> m
+
+X
+
+> j=−∞
+
+ mX
+
+> t=max(1 ,j )
+
+πt−j (s)
+
+2
+
+,
+
+which is the first inequality in (19) after a shift of the time index by stationarity. Regrouping the projections by lag and applying Minkowski’s inequality, 
+
+> m
+
+X
+
+> t=1
+
+It 2
+
+≤ X
+
+> k≥0
+> m
+
+X
+
+> t=1
+
+Pt−kIt 2
+
+= √m X
+
+> k≥0
+
+πk(s),
+
+where the equality uses orthogonality over the distinct projection times t − k; this is the second inequality. For (20), the representation Wj (s) − W ∗ 
+
+> j
+
+(s) = E{Jj (s) − J∗ 
+
+> j
+
+(s) | F 0, ε ′
+
+> 0
+
+} and Jensen’s inequality give ∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2 ≤ ∥ Jj − J∗ 
+
+> j
+
+∥2. The two indicators have identical marginal laws, so their 14 disagreement probability is at most both 2F (s) and 2(1 − F (s)) . For every bandwidth h > 0,disagreement also implies either |Sj − s| ≤ h or |Sj − S∗ 
+
+> j
+
+| > h , hence 
+
+∥Jj − J∗ 
+
+> j
+
+∥22 ≤ 2Lh + δq (j)q /h q .
+
+For δq (j) > 0, the choice h = {δq (j)q /L }1/(q+1) makes the right-hand side 3Lq/ (q+1) δq (j)q/ (q+1) ;if the dependence coefficient is zero, let h ↓ 0. Taking square roots and combining the two bounds proves (20). 
+
+Proposition 7. If sup s πj (s) ≤ B(1 ∨ j)−γ for all j ≥ 0 and some γ > 1/2, then σm ≤ Cγ Bρ m
+
+with 
+
+ρm =
+
+
+
+m−1/2, γ > 1,m−1/2 log( m + 1) , γ = 1 ,m1/2−γ , 1/2 < γ < 1,
+
+(21) 
+
+and Cγ depending only on γ.Proof. Since (1 ∨ j)−γ ≤ 2γ (j + 1) −γ , the envelope is at most 2γ B(j + 1) −γ . For projection indices −m < j ≤ m, each inner sum in (19) is at most 2γ B P2mk=0 (k + 1) −γ , and there are at most 
+
+2m such indices; their total contribution is bounded by CB 2m, CB 2m log 2(m + 1) , or CB 2m3−2γ
+
+in the three regimes γ > 1, γ = 1 and 1/2 < γ < 1. For j ≤ − m, put v = −j ≥ m and bound the inner sum by 2γ Bm (v + 1) −γ ; this contributes at most 4γ B2m2 P
+
+> v≥m
+
+(v + 1) −2γ ≤ Cγ B2m3−2γ ,which is at most a constant times m for γ > 1 and is absorbed by m log 2(m+1) for γ = 1 . Dividing by m2 and taking the square root gives the claim. 
+
+Lemma 8. Under Assumption 3, σm ≤ Cσ ρm with ρm as in (21) and Cσ = Cγ A, where Cγ is the constant of Proposition 7. Proof. By (18), Assumption 3 gives sup s πj (s) ≤ 2−1/2A(1 ∨ j)−γ ≤ A(1 ∨ j)−γ for all j ≥ 0,and Proposition 7 applies with B = A.A.3 THE EMPIRICAL QUANTILE OF THE ORACLE SCORES 
+
+This subsection turns the variance bound of Appendix A.2 into bounds on the tail and the mean of the oracle calibration error S(k) (Proposition 9), and fixes the thresholds m0 and m1 and the constants C1 and C2 of Theorems 1–3. We write dm = k/m − (1 − α) for the offset of the rank k = ⌈(m + 1)(1 − α)⌉ from its target, so that 0 ≤ dm < 2/m , and we use the thresholds 
+
+m0 = max 
+
+n 4
+
+fαr , 2(1 − α)
+
+α
+
+o
+
+, (22) for which m ≥ m0 implies dm/f α ≤ r/ 2 and min( k, m − k + 1) ≥ m min(1 − α, α/ 2) , and 
+
+m1 = min 
+
+n
+
+m′ ≥ m0 : sup 
+
+> m≥m′
+
+tm ≤ r
+
+2
+
+o
+
+, tm = max 
+
+n 4
+
+mf α
+
+,
+
+ 16 C2 
+
+> σ
+
+ρ2
+
+> m
+
+Lαf 2
+
+> α
+
+1/3o
+
+, (23) which is finite because ρm → 0 under Assumption 3. Indeed k ≥ (m + 1)(1 − α) ≥ m(1 − α) and 
+
+m − k + 1 ≥ αm − (1 − α) ≥ αm/ 2 when m ≥ 2(1 − α)/α . The constants of Theorems 1–3 are 
+
+C1 = 32
+
+ 4LαCσ
+
+fα
+
+2/3
+
++ 4Lα
+
+fα
+
+, (24) 
+
+C2 = 4
+
+fα
+
++ 4√2 Cσ
+
+fα
+
+
+
+1 + Mr
+
+
+
+, M =
+
+n E(S0)2
+
+min(1 − α, α/ 2) 
+
+o1/2
+
+, (25) where E(S0)2 is E(SQ 
+
+> 0
+
+)2 for CQR and E(SM 
+
+> 0
+
+− qα)2 for CMR. Write vm(s) = Var( Pmi=1 1{Sn+i ≤ s}) = m2Var { bFm(s)}, so that σ2 
+
+> m
+
+= sup |s|≤ r vm(s)/m 2,and put F+(t) = F (t)−(1 −α) and F−(t) = (1 −α)−F (−t). If F+(t) > d m and F−(t)+ dm > 0,then 
+
+P(|S(k)| > t ) ≤ min 
+
+
+
+1, vm(t)
+
+m2{F+(t) − dm}2 + vm(−t)
+
+m2{F−(t) + dm}2
+
+
+
+. (26) 15 Indeed, S(k) > t implies bFm(t) < k/m , hence F (t)− bFm(t) > F +(t)−dm; and S(k) < −t implies 
+
+bFm(−t) ≥ k/m , hence bFm(−t) − F (−t) ≥ F−(t) + dm. Applying Chebyshev’s inequality to each event and adding the two bounds proves (26). 
+
+Proposition 9 (Quantile form) . Under Assumption 2(a), put am = dm/f α and bm = √2σm/f α.For am < t ≤ r,
+
+P(|S(k)| > t ) ≤ min {1, b 2
+
+> m
+
+/(t − am)2}. (27) 
+
+If in addition Mm ≥ ∥ S(k)∥2 is a deterministic number and am < r , then 
+
+E|S(k)| ≤ am + 2 bm + Mm min {1, b m/(r − am)}, (28) 
+
+and a valid choice is 
+
+Mm =
+
+ m E(S0)2
+
+min( k, m − k + 1) 
+
+1/2
+
+. (29) 
+
+Proof. For am < t ≤ r, Assumption 2(a) gives F+(t) − dm ≥ fα(t − am) and F−(t) + dm ≥
+
+fα(t−am), and each numerator in (26) is at most m2σ2
+
+> m
+
+. This proves (27). For (28), the tail-integral identity gives 
+
+E min( |S(k)|, r ) = 
+
+Z r
+
+> 0
+
+P(|S(k)| > t ) dt ≤ am +
+
+Z ram
+
+min {1, b 2
+
+> m
+
+/(t − am)2} dt 
+
+≤ am +
+
+Z ∞
+
+> 0
+
+min {1, b 2
+
+> m
+
+/u 2} du = am + 2 bm,
+
+with the integral interpreted as zero when bm = 0 , and the Cauchy–Schwarz inequality bounds 
+
+E(|S(k)| − r)+ ≤ E[|S(k)|1{| S(k)| > r }] by MmP(|S(k)| > r )1/2 ≤ Mm min {1, b m/(r − am)}.For (29), if S(k) ≥ 0, then at least m − k + 1 scores have squares at least (S(k))2; if S(k) < 0, then at least k scores do; hence min( k, m − k + 1)( S(k))2 ≤ Pmi=1 (Sn+i)2, and taking expectations proves the claim. At fixed α and m ≥ m0, (29) gives Mm ≤ M with the constant M of (25), a bound that does not depend on m; the constants are not uniform as α ↓ 0.A.4 PROOFS OF THEOREMS 1–3 
+
+Proof of Theorem 2. For 4/(mf α) ≤ t ≤ r we have dm < 2/m ≤ fαt/ 2, so t − am ≥ t/ 2 and (27) gives P(|S(k)| > t ) ≤ 4b2
+
+> m
+
+/t 2 = 8 σ2
+
+> m
+
+/(fαt)2 ≤ 8C2 
+
+> σ
+
+ρ2
+
+> m
+
+/(fαt)2, by Lemma 8. On the event 
+
+{En ≤ e, |S(k)| ≤ t}, (1) bounds the length error by 4e + 2 t, and a union bound proves (6). For the expectation, m ≥ m0 gives am ≤ r/ 2, so that min {1, b m/(r − am)} ≤ 2bm/r , and (28) with (29) and Mm ≤ M gives 
+
+E|S(k)| ≤ 2
+
+mf α
+
++ 2√2 σm
+
+fα
+
+
+
+1 + Mr
+
+
+
+≤ C2
+
+2 ρm, (30) where the second inequality uses σm ≤ Cσ ρm and 1/m ≤ ρm, which holds because ρm ≥ m−1/2
+
+for m ≥ 2 and m0 ≥ 4. Taking expectations in (1) proves (7). 
+
+Proof of Theorem 1. Fix e ≥ 0 and t with 4/(mf α) ≤ t and 2e+t ≤ r, and put η = 8 C2 
+
+> σ
+
+ρ2
+
+> m
+
+/(fαt)2,so that P(|S(k)| > t ) ≤ η by the first step of the proof of Theorem 2. On the event {En ≤ e, |S(k)| ≤ 
+
+t}, the inequalities (17) imply 
+
+{Sn+m+1 ≤ − 2e − t} ⊆ { bSn+m+1 ≤ bS(k)} ⊆ { Sn+m+1 ≤ 2e + t}.
+
+For example, if Sn+m+1 ≤ − 2e−t, then bSn+m+1 ≤ − e−t ≤ bS(k), since bS(k) ≥ S(k) −e ≥ − t−e;the other inclusion follows from Sn+m+1 ≤ bSn+m+1 + e ≤ bS(k) + e ≤ t + 2 e. Removing the exceptional event at a cost of at most P(En > e ) + η gives 
+
+F (−2e − t) − P(En > e ) − η ≤ P{Yn+m+1 ∈ bCQα (Xn+m+1 )} ≤ F (2 e + t) + P(En > e ) + η, 
+
+16 and the upper bounds of Assumption 2(b), valid because 2e + t ≤ r, give 
+
+P{Yn+m+1 ∈ bCQα (Xn+m+1 )} − (1 − α) ≤ Lα(2 e + t) + P(En > e ) + 8C2 
+
+> σ
+
+ρ2
+
+> m
+
+f 2
+
+> α
+
+t2 .
+
+Now take e = en ≤ r/ 4 and t = tm as in (23); for m ≥ m1 we have tm ≤ r/ 2, so that 2en+tm ≤ r,and tm ≥ 4/(mf α) by construction. Writing t∗ for the second term in the maximum defining tm,
+
+8C2 
+
+> σ
+
+ρ2
+
+> m
+
+/(f 2
+
+> α
+
+t∗2) = Lαt∗/2, and since tm ≥ t∗,
+
+Lαtm + 8C2 
+
+> σ
+
+ρ2
+
+> m
+
+f 2
+
+> α
+
+t2
+
+> m
+
+≤ Lαt∗ + 4Lα
+
+mf α
+
++ Lαt∗
+
+2 = 32
+
+ 4LαCσ ρm
+
+fα
+
+2/3
+
++ 4Lα
+
+mf α
+
+.
+
+With 1/m ≤ ρ2/3 
+
+> m
+
+, valid for m ≥ 2, this proves (4) with the constant C1 of (24). The exponent 2/3
+
+comes from the window: the coverage error is at most Lαt on a window of half-width t around the threshold, plus the probability of order ρ2
+
+> m
+
+/t 2 that the calibrated threshold leaves the window, and 
+
+t ≍ ρ2/3 
+
+> m
+
+balances the two terms; when the score at the test time has a bounded density given the past, no window is needed and (5) retains the full rate. For (5), let D = 2 En + |S(k)|, a nonnegative random variable measurable with respect to Fn+m and the training randomness, which is independent of the series, so that the conditional law of Sn+m+1 
+
+given both has the same density bound Lpred . The same pathwise inclusions hold with D in place of 2e + t on every realization. Denote A = { bSn+m+1 ≤ bS(k)} and B = {Sn+m+1 ≤ 0}. Then 
+
+A \ B ⊆ { 0 < S n+m+1 ≤ D} and B \ A ⊆ {− D < S n+m+1 ≤ 0}, and the conditional density bound gives probability at most Lpred ED for each. Since |P(A)−P(B)| = |P(A\B)−P(B \A)| is at most the larger of the two nonnegative terms, it is at most Lpred ED, and P(B) = F (0) = 1 − α.The bound (30) completes the proof. The predictive-density condition of (5) holds, for example, when Xn+m+1 is Fn+m-measurable and 
+
+Yn+m+1 = a + σϵ , where a and σ ≥ σ0 > 0 are Fn+m-measurable and ϵ is independent of the past with density at most Mϵ: conditional on the past, both oracle CQR endpoints are fixed and the score density is at most 2Mϵ/σ 0, so one can take Lpred = 2 Mϵ/σ 0. The condition concerns the predictive law and is stronger than a density bound for the stationary marginal law; a process with a positive probability of repeating its preceding value does not satisfy it, and for such a process only (4) applies. 
+
+Proof of Theorem 3. With the centered scores of Appendix A.2, (17) gives | bS(k) − S(k)| ≤ En and 
+
+| bSM 
+
+> (k)
+
+− qα| = | bS(k)| ≤ En + |S(k)|, and Assumptions 2 and 3 for CMR are the assumptions used above for the centered score St = SMt − qα. The proofs of Theorems 1 and 2 then apply verbatim: the coverage argument with the event {Yn+m+1 ∈ bCMα (Xn+m+1 )} = { bSn+m+1 ≤ bS(k)} and 
+
+D = 2 En + |S(k)| as before, which proves (8) and (9), and the length argument with 2En + 2 |S(k)|
+
+in place of 4En + 2 |S(k)|, which proves (10) and (11) with (30). The proofs use the test observation only through its oracle score: through the marginal distribution function F , which by stationarity is the same at every time, and, for (5) and (9), through the density bound of its conditional law given Fn+m. For a fixed horizon h ≥ 1, the conditional law of Sn+m+h
+
+given Fn+m has the density E{pn+m+h(·) | F n+m}, where pn+m+h is the conditional density of 
+
+Sn+m+h given Fn+m+h−1 and is at most Lpred by stationarity. The coverage bounds of Theorems 1 and 3 therefore hold, with the same constants, for Yn+m+h and the interval evaluated at Xn+m+h.The convergence statements after Theorem 2 are the following: under Assumptions 1–3, as n → ∞ 
+
+and m → ∞ in any manner, 
+
+P{Yn+m+1 ∈ bCQα (Xn+m+1 )} → 1 − α and sup 
+
+> x
+
+| len bCQα (x) − len CQα (x)| p
+
+→ 0, (31) and for CMR the coverage tends to 1 − α and sup x | len bCMα (x) − len CMα (x)| = 2 | bSM 
+
+> (k)
+
+− qα| → 0
+
+in probability. For (31), since γ > 1/2, ρm → 0, and en → 0, so that en ≤ r/ 4 and m ≥ m1
+
+for all large n and m, and the right-hand side of (4) tends to zero; for the length, (6) with e = en
+
+and any fixed t ∈ (0 , r ] has a right-hand side that tends to zero and a threshold 4en + 2 t → 2t,and t is arbitrary. The same argument applied to (8) and (10) gives the statements for CMR. Neither statement relates the growth of n to that of m.17 B THE ASSUMPTIONS : V ERIFICATION AND EXAMPLES 
+
+This appendix verifies Assumption 1 for linear quantile regression and extends Theorems 1–3 to learners whose fitted endpoints converge to a limit other than the oracle endpoints, verifies Assump-tion 2 from a density condition on the response and Assumption 3 from the functional dependence measure of the scores, then verifies the four examples of Section 3 and compares the resulting guar-antees with those formulated through mixing. B.1 ASSUMPTION 1 AND THE LEARNER 
+
+Assumption 1 concerns the learner only. We verify it for the parametric quantile-regression es-timator computed from all n training observations, without any rate of decay of the dependence: the only property of the series that is used is ergodicity, which a stationary causal functional 
+
+Zt = G(. . . , ε t−1, ε t) of i.i.d. innovations always has, because the shift on the innovation sequence is a Bernoulli shift, hence ergodic, and the process is a factor of it (Cornfeld et al., 1982). Let ϱτ (v) = v(τ − 1{v < 0}) be the pinball loss at level τ ∈ (0 , 1) , let Rτ (θ) = Eϱτ (Yt − X⊤ 
+
+> t
+
+θ)
+
+be the population risk, and let bRn,τ (θ) = n−1 Pnt=1 ϱτ (Yt − X⊤ 
+
+> t
+
+θ) be the training risk. 
+
+Lemma 10 (Consistency of quantile regression on an ergodic series) . Suppose that ∥Xt∥ ≤ Bx
+
+almost surely, E|Yt| < ∞, and that for τ ∈ { α/ 2, 1 − α/ 2} the conditional τ -quantile of Yt given 
+
+Xt = x is x⊤θ∗ 
+
+> τ
+
+on the covariate domain, where θ∗ 
+
+> τ
+
+is the unique minimizer of Rτ over a compact set Θ ⊂ Rp. Let bθτ ∈ Θ satisfy bRn,τ (bθτ ) ≤ inf θ∈Θ bRn,τ (θ) + on with on → 0 in probability. Then bθτ → θ∗ 
+
+> τ
+
+in probability, and the fitted endpoints bℓ(x) = x⊤ bθα/ 2 and bu(x) = x⊤ bθ1−α/ 2 satisfy 
+
+EQn ≤ Bx max τ ∥bθτ − θ∗ 
+
+> τ
+
+∥ → 0 in probability, so that Assumption 1 holds. Proof. Fix τ . Since |ϱτ (v) − ϱτ (v′)| ≤ | v − v′|, the map θ 7 → ϱτ (Yt − X⊤ 
+
+> t
+
+θ) is Bx-Lipschitz on Θ for every realization, so Rτ and bRn,τ are Bx-Lipschitz, and Rτ is finite because E|Yt| < ∞
+
+and Θ is bounded. For each fixed θ, the ergodic theorem gives bRn,τ (θ) → Rτ (θ) almost surely. Given ϵ > 0, let θ1, . . . , θ J be a finite ϵ/ (3 Bx)-net of Θ; on the almost sure event on which the convergence holds at every θj , the Lipschitz property gives sup θ∈Θ | bRn,τ (θ) − Rτ (θ)| ≤ ϵ for all large n. Hence sup Θ | bRn,τ − Rτ | → 0 almost surely. Now Rτ (bθτ ) ≤ bRn,τ (bθτ ) + sup Θ | bRn,τ − Rτ | ≤ bRn,τ (θ∗ 
+
+> τ
+
+) + on + sup Θ | bRn,τ − Rτ | ≤ Rτ (θ∗ 
+
+> τ
+
+) + 
+
+on + 2 sup Θ | bRn,τ − Rτ |, so Rτ (bθτ ) − Rτ (θ∗ 
+
+> τ
+
+) → 0 in probability. Since Rτ is continuous on the compact set Θ and θ∗ 
+
+> τ
+
+is its unique minimizer, for every η > 0 the number inf {Rτ (θ) − Rτ (θ∗ 
+
+> τ
+
+) : 
+
+θ ∈ Θ, ∥θ − θ∗ 
+
+> τ
+
+∥ ≥ η} is positive, and therefore P(∥bθτ − θ∗ 
+
+> τ
+
+∥ ≥ η) → 0. Finally, on the covariate domain, |x⊤ bθτ − x⊤θ∗ 
+
+> τ
+
+| ≤ Bx∥bθτ − θ∗ 
+
+> τ
+
+∥, which gives the bound on EQn ; the sequences en and ξn
+
+of Assumption 1 can be taken as en = ηn and ξn = P(Bx max τ ∥bθτ − θ∗ 
+
+> τ
+
+∥ > η n) for any ηn ↓ 0
+
+slowly enough that ξn → 0.Uniqueness of the minimizer holds, for example, when the conditional density of Yt given Xt is positive at x⊤θ∗ 
+
+> τ
+
+and EXtX⊤ 
+
+> t
+
+is positive definite. B.2 MISSPECIFIED LEARNERS 
+
+This subsection extends Theorems 1–3 to a learner whose fitted endpoints converge to a limit other than the oracle endpoints, as those of linear quantile regression do when the conditional quantiles are not linear in the covariates. The calibrated interval then keeps its coverage and approaches the limit interval adjusted to marginal coverage 1 − α, whereas the fitted interval itself misses the nominal level unless its limit already has marginal coverage 1 − α.Let ℓ∞ and u∞ be measurable functions on the covariate domain, let s∞(x, y ) = max {ℓ∞(x) −
+
+y, y − u∞(x)}, let q∞ be the (1 − α)-quantile of s∞(Xt, Y t) under the stationary law, and put 
+
+C∞(x) = [ ℓ∞(x) − q∞, u ∞(x) + q∞], E∞ 
+
+> n
+
+= max {∥ bℓ − ℓ∞∥∞, ∥bu − u∞∥∞}.
+
+18 Since Yt lies in [ℓ∞(Xt) − c, u ∞(Xt) + c] exactly when s∞(Xt, Y t) ≤ c, the interval C∞(x) is the shortest interval of this form with marginal coverage at least 1 − α; for the oracle endpoints, q∞ = 0 
+
+and C∞ = CQα .
+
+Proposition 11 (Misspecified learners) . Suppose that u∞(x) − ℓ∞(x) + 2 q∞ ≥ 0 for every x in the covariate domain, that Assumption 1 holds with E∞ 
+
+> n
+
+in place of En, and that Assumptions 2 and 3 hold for the centered limit score St = s∞(Xt, Y t) − q∞. Then Theorems 1 and 2 hold with St, E∞
+
+> n
+
+and C∞ in place of SQt , EQn and CQα . Moreover, if q∞̸ = 0 , then for all n with en ≤ min( |q∞|, r )/2
+
+the coverage of the fitted interval satisfies 
+
+P{bℓ(Xn+m+1 ) ≤ Yn+m+1 ≤ bu(Xn+m+1 )} − (1 − α) ≥ fα min( |q∞|, r )2 − ξn.
+
+Proof. Put bSt = bSQt − q∞. The inequality for maxima in the proof of (1) gives | bSt − St| ≤ E∞
+
+> n
+
+for n < t ≤ n + m + 1 , so that (17) holds with E∞ 
+
+> n
+
+in place of En. The distribution function 
+
+F of St satisfies F (0) = 1 − α, by the definition of q∞ and the continuity of F at 0 required by Assumption 2. The coverage event is { bSn+m+1 ≤ bS(k)}, as before, because subtracting q∞
+
+from every fitted score does not change the calibrated interval. The proof of Theorem 1 uses the oracle endpoints only through these three facts, and it applies verbatim. For the length, put bw(x) = 
+
+bu(x) − bℓ(x) and w∞(x) = u∞(x) − ℓ∞(x), so that len bCQα (x) = [ bw(x) + 2 q∞ + 2 bS(k)]+ and 
+
+len C∞(x) = w∞(x) + 2 q∞ ≥ 0. Since the positive-part map is 1-Lipschitz, 
+
+| len bCQα (x) − len C∞(x)| ≤ | bw(x) − w∞(x)| + 2 | bS(k)| ≤ 2E∞ 
+
+> n
+
++ 2  E∞ 
+
+> n
+
++ |S(k)|,
+
+which is the length bound of (1) with E∞ 
+
+> n
+
+and C∞ in the roles of EQn and CQα , and the proof of Theorem 2 applies verbatim. For the fitted interval, Yn+m+1 lies between bℓ(Xn+m+1 ) and bu(Xn+m+1 ) exactly when bSQn+m+1 ≤
+
+0, that is, when bSn+m+1 ≤ − q∞. Put δ = min( |q∞|, r )/2, so that en ≤ δ. If q∞ > 0, this event and {E∞ 
+
+> n
+
+≤ en} imply Sn+m+1 ≤ − q∞ + en ≤ − δ, so that the coverage is at most F (−δ) + ξn ≤
+
+1−α−fαδ+ξn by Assumption 2(a). If q∞ < 0, the events {Sn+m+1 ≤ | q∞|− en} and {E∞ 
+
+> n
+
+≤ en}
+
+together imply it, and |q∞|− en ≥ δ, so that the coverage is at least F (δ)−ξn ≥ 1−α+fαδ−ξn.The same argument applies to CMR: for a limit center μ∞, the (1 −α)-quantile q∞ of |Yt −μ∞(Xt)|
+
+and E∞ 
+
+> n
+
+= ∥bμ − μ∞∥∞, Theorem 3 holds with [μ∞(x) − q∞, μ ∞(x) + q∞] in place of CMα (x),provided that Assumption 1 holds for E∞ 
+
+> n
+
+and Assumptions 2 and 3 hold for the centered score 
+
+|Yt − μ∞(Xt)| − q∞.For linear quantile regression, the proof of Lemma 10 uses correct specification only in its last step: without it, and with θ∗ 
+
+> τ
+
+the unique minimizer of Rτ over Θ as before, bθτ → θ∗ 
+
+> τ
+
+in probability, and 
+
+E∞ 
+
+> n
+
+≤ Bx max τ ∥bθτ − θ∗ 
+
+> τ
+
+∥ → 0 in probability for the limit pair ℓ∞(x) = x⊤θ∗ 
+
+> α/ 2
+
+and u∞(x) = 
+
+x⊤θ∗
+
+> 1−α/ 2
+
+. Assumption 1 therefore holds for E∞ 
+
+> n
+
+whether or not the conditional quantiles are linear in the covariates, and Assumptions 2 and 3 for the limit score are verified as in Appendices B.3 and B.4, with the endpoints of C∞(x) in place of the oracle endpoints. The length of the calibrated interval thus approaches that of C∞. When the covariates include a constant and θ∗ 
+
+> τ
+
+is an interior point of Θ, the first-order condition for the intercept gives P(Yt ≤ X⊤ 
+
+> t
+
+θ∗ 
+
+> τ
+
+) = τ for continuous conditional laws, so that q∞ = 0 if ℓ∞ ≤ u∞: the fitted interval then attains the nominal level in the limit, and calibration adds the non-asymptotic coverage bound of Theorem 1. When q∞̸ = 0 , as can happen without a constant, calibration restores the nominal level that the fitted interval misses. B.3 ASSUMPTION 2 FROM THE RESPONSE DENSITY 
+
+This subsection derives Assumption 2 for CQR from bounds on the conditional density of the re-sponse near the oracle endpoints. Assume uα(x) − ℓα(x) ≥ 2r. For |s| ≤ r,
+
+F Q(s) = EFY |X (uα(X) + s | X) − FY |X (ℓα(X) − s | X).
+
+If the conditional density lies between f0 and L0 on the two radius-r endpoint neighborhoods, then for 0 ≤ t ≤ r,
+
+F Q(t) − F Q(0) = E
+
+ Z uα(X)+ tuα(X)
+
+fY |X (v | X) dv +
+
+Z ℓα(X)
+
+> ℓα(X)−t
+
+fY |X (v | X) dv 
+
+
+
+,
+
+19 and each integral lies between f0t and L0t. The same reasoning applies to F Q(0) − F Q(−t).Hence Assumption 2 holds with fα = 2 f0 and Lα = 2 L0. If the conditional density is at most L0
+
+everywhere, then F Q(s) is, for every s, the expectation of the positive part of FY |X (uα(X) + s |
+
+X) − FY |X (ℓα(X) − s | X), a nondecreasing function of s with derivative at most 2L0, so that the marginal density of SQt is at most L = 2 L0, the density bound of Proposition 12(a). B.4 ASSUMPTION 3 FROM THE FUNCTIONAL DEPENDENCE MEASURE 
+
+This subsection gives two sufficient conditions for Assumption 3 in terms of the functional depen-dence measure of the scores (Proposition 12) and bounds this measure through the dependence of the observations. In the notation of Appendix A.2, ω(j) = sup s ∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2 with 
+
+Wj (s) − W ∗ 
+
+> j
+
+(s) = E{Jj (s) − J∗ 
+
+> j
+
+(s) | F 0, ε ′
+
+> 0
+
+}, and δq (j) = ∥Sj − S∗ 
+
+> j
+
+∥q is the functional de-pendence measure of the score. 
+
+Proposition 12 (Sufficient conditions) . Let A′ > 0 and γ′ > 0.(a) If the marginal density of St is at most L and δq (j) ≤ A′(1 ∨ j)−γ′
+
+for all j ≥ 0 and some 
+
+q ≥ 1, then ω(j) ≤ √3( LA ′)q/ (2 q+2) (1 ∨j)−γ′q/ (2 q+2) for all j ≥ 0, so that Assumption 3 holds with γ = γ′q/ (2 q + 2) whenever γ′q > q + 1 .(b) Suppose St = H(Vt, ε t), where Vt is Ft−1-measurable, and that Ks(v) = P{H(v, ε t) ≤
+
+s} is LH -Lipschitz in v for every s. Then ∥Wj (s) − W ∗ 
+
+> j
+
+(s)∥2 ≤ LH ∥Vj − V ∗ 
+
+> j
+
+∥2 for every 
+
+j ≥ 1 and every s. Consequently, if ∥Vj −V ∗ 
+
+> j
+
+∥2 ≤ A′(1 ∨j)−γ′
+
+for all j ≥ 1 and γ′ > 1/2,then Assumption 3 holds with γ = γ′ and A = max(2 −1/2, L H A′).Proof. Part (a) is (20). For part (b), fix j ≥ 1 and s. Conditional on Fj−1 and ε′
+
+> 0
+
+, the common current innovation εj is fresh, so that E{Jj (s) | F j−1, ε ′
+
+> 0
+
+} = Ks(Vj ) and E{J∗ 
+
+> j
+
+(s) | F j−1, ε ′
+
+> 0
+
+} =
+
+Ks(V ∗ 
+
+> j
+
+). Since j ≥ 1, the tower property gives 
+
+Wj (s) − W ∗ 
+
+> j
+
+(s) = E{Ks(Vj ) − Ks(V ∗ 
+
+> j
+
+) | F 0, ε ′
+
+> 0
+
+},
+
+and conditional Jensen’s inequality together with the Lipschitz assumption gives ∥Wj (s) −
+
+W ∗ 
+
+> j
+
+(s)∥2 ≤ LH ∥Vj −V ∗ 
+
+> j
+
+∥2. The requirement j ≥ 1 ensures that the innovation being integrated out is not the innovation being replaced; at j = 0 , W0(s) = J0(s) and W ∗ 
+
+> 0
+
+(s) = J∗ 
+
+> 0
+
+(s) are independent and identically distributed given F−1, so that ∥W0(s) − W ∗ 
+
+> 0
+
+(s)∥22 = 2 E{p(1 − p)} ≤ 1/2 with 
+
+p = P(S0 ≤ s | F −1), which is the reason for the constant A = max(2 −1/2, L H A′).Part (a) requires only a bounded marginal density of the score, at the price of the power q/ (2 q + 2) ;since γ = γ′q/ (2 q + 2) > 1/2 forces γ′ > 1 + 1 /q , it does not admit long memory, and it is the route for series whose conditional next-step law has atoms, such as the Bernoulli autoregression of Appendix B.5. Part (b) applies when the conditional distribution function of the score given the past, Ks(Vt), is a Lipschitz function of the part Vt that the past determines; the decay exponent of ∥Vj − V ∗ 
+
+> j
+
+∥2 then transfers to ω(j) without loss. This is the structure of a location model Yt =
+
+mt + a0εt and of a scale model Yt = σtεt with past-determined mt or σt (Appendix B.5), for which 
+
+∥Vj − V ∗ 
+
+> j
+
+∥2 is bounded by the functional dependence measure of mt or σt plus a Lipschitz constant times that of Xt; for a linear process the exponent is the memory exponent β, so part (b) admits long memory. When the oracle endpoints are Lipschitz, the dependence measure of the scores is controlled by that of the observations. For the CQR score, the inequality for maxima used in the proof of (1) gives 
+
+|SQt − SQ∗ 
+
+> t
+
+| ≤ | Yt − Y ∗ 
+
+> t
+
+| + max {| ℓα(Xt) − ℓα(X∗ 
+
+> t
+
+)|, |uα(Xt) − uα(X∗ 
+
+> t
+
+)|} ,
+
+and Minkowski’s inequality proves δQq (j) ≤ ∥ Yj − Y ∗ 
+
+> j
+
+∥q + K0∥Xj − X∗ 
+
+> j
+
+∥q for K0-Lipschitz endpoints; for CMR the corresponding constant is the Lipschitz constant of μ. For a stationary recursion Zt = H(Zt−1, ε t), a sufficient contraction condition is ∥H(z, ε t)−H(z′, ε t)∥q ≤ λH ∥z−
+
+z′∥ for deterministic z, z ′ and some 0 < λ H < 1, with the norm inside the expectation interpreted in the state space. If a stationary Lq solution exists, iterating the coupled recursion gives δZq (j) ≤
+
+λjH δZq (0) for the observations; this is the geometric moment-contraction route of Wu & Shao (2004), and the contraction has to be checked for the particular recursion. 20 B.5 VERIFICATION OF THE EXAMPLES OF SECTION 3This subsection verifies the assumptions for the four examples of Section 3. 
+
+A linear process with discrete innovations. Let Bt be i.i.d. Bernoulli (1 /2) and Wt =P 
+
+> j≥0
+
+2−j Bt−j = Wt−1/2 + Bt, which is uniform on [0 , 2) by the binary expansion of Wt/2.Changing B0 changes Wj by exactly 2−j (B0 − B′
+
+> 0
+
+), so ∥Wj − W ∗ 
+
+> j
+
+∥q = 2 −j ∥B0 − B′
+
+> 0
+
+∥q ≤ 2−j . To verify the failure of strong mixing directly, let αmix (h) be the supremum of |P(A∩D)−P(A)P(D)|
+
+over A ∈ σ(Ws : s ≤ 0) and D ∈ σ(Ws : s ≥ h). The recursion gives 2hWh =2 Phj=1 2j−1Bj + W0, so W0 is the remainder of 2hWh modulo 2 and is a measurable function of Wh; taking A = {W0 ≤ 1} and D the same event expressed through Wh gives αmix (h) ≥ 1/4
+
+for every h, which is the argument of Andrews (1984). In the location model Yt = μ + Wt with a constant covariate, the conditional median is μ+1 , the oracle CMR score SMt = |Wt −1| is uniform on [0 , 1] with qα = 1 − α, so the centered distribution function F M has slope one on [−r, r ], and Assumption 2 holds with fα = Lα = 1 and r = min( α, 1 − α); the oracle CQR endpoints are 
+
+μ + α and μ + 2 − α, so that the CQR score SQt = |Wt − 1| − (1 − α) coincides with the centered CMR score, and what follows applies to CQR as well. The score has marginal density one, and 
+
+δMq (j) ≤ ∥ Wj − W ∗ 
+
+> j
+
+∥q ≤ 2−j because the absolute value is 1-Lipschitz, so Proposition 12(a) gives 
+
+ωM (j) ≤ √3 2 −jq/ (2 q+2) , and Assumption 3 holds with every γ > 1/2, so that ρm = m−1/2. The empirical median, and for CQR the empirical α/ 2- and (1 − α/ 2) -quantiles, of the training block are consistent by ergodicity (Lemma 10 with a constant covariate), so Assumption 1 holds for these learners. 
+
+Gaussian long memory. Under (12), the oracle CMR score in Yt = μ + Gt is SMt = |Gt|, with 
+
+qα = zα; the centered score St = |Gt| − zα has distribution function F M (s) = 2Φ( zα + s) − 1 and density 2ϕ(zα +s), and on |s| ≤ r = zα/2 the density lies between 2ϕ(3 zα/2) and 2ϕ(zα/2) , which gives Assumption 2. Write St = H(Vt, ε t) with Vt = P 
+
+> j≥1
+
+aj εt−j and H(v, ε ) = |v + a0ε| − zα.Then Ks(v) = Φ {(zα + s − v)/|a0|} − Φ{(−zα − s − v)/|a0|} is Lipschitz in v with constant 
+
+2ϕ(0) /|a0|, and ∥Vj − V ∗ 
+
+> j
+
+∥2 = |aj | ∥ ε0 − ε′
+
+> 0
+
+∥2 = √2|aj | ≤ √2A(1 + j)−β , where A is the coefficient bound of (12), so Proposition 12(b) gives Assumption 3 with γ = β > 1/2 and the constant max {2−1/2, 2√2ϕ(0) A/ |a0|} in the role of the constant of Assumption 3. The same holds for the CQR score with the constant oracle endpoints μ∓zα, which coincides with the centered CMR score. The functional dependence of the observations themselves is ∥Gj − G∗ 
+
+> j
+
+∥q = |aj | ∥ ε0 − ε′
+
+> 0
+
+∥q
+
+for every finite q, and the failure of strong mixing is proved in Appendix B.6. For the sample mean, EMn = | ¯Gn| with ¯Gn = n−1 P 
+
+> t≤n
+
+Gt and E| ¯Gn| = (2 vn/π )1/2 ≤ Cn 1/2−β , where 
+
+vn = Var( ¯Gn), by (33) and (34), and Markov’s inequality gives Assumption 1 with, for example, 
+
+en = n(1 /2−β)/2 and ξn = Cn (1 /2−β)/2.
+
+Long memory in the scale. Let Yt = σtεt with i.i.d. innovations εt whose law is symmetric with 
+
+Eε2 
+
+> t
+
+= 1 and with a bounded, continuous and positive density fε satisfying sup x≥0 xf ε(x) < ∞,as for the normal law, and let the volatility be σt = g(ht) with ht = P 
+
+> j≥1
+
+aj εt−j a linear process of the past innovations whose coefficients satisfy |aj | ≤ A(1 + j)−β for some 1/2 < β < 1, and 
+
+g an Lg -Lipschitz function with values in [σmin , σ max ], σmin > 0. With a constant covariate the conditional median of Yt is 0, and the oracle CMR score is SMt = σt|εt|; its marginal density at s
+
+is E{f|ε|(s/σ t)/σ t}, which, for |s − qα| ≤ r with some r < q α, lies between σ−1max and σ−1min times the infimum and the supremum of f|ε| over the compact set of arguments s/σ with |s − qα| ≤ r
+
+and σ ∈ [σmin , σ max ], so that Assumption 2 holds. The score has the form H(Vt, ε t) = Vt|εt|
+
+of Proposition 12(b) with Vt = σt, and Ks(v) = F|ε|(s/v ) has |∂v Ks(v)| = ( s/v 2)f|ε|(s/v ) ≤
+
+σ−1min sup x≥0 xf |ε|(x) = LH uniformly in s for v ≥ σmin , while ∥Vj − V ∗ 
+
+> j
+
+∥2 ≤ Lg ∥hj − h∗ 
+
+> j
+
+∥2 =
+
+√2Lg |aj | ≤ √2Lg A(1+ j)−β . Hence Assumption 3 holds with γ = β, the score has a finite second moment since σt ≤ σmax , and the theorems apply with ρm = m1/2−β : the current innovation smooths the score through the scale exactly as it does through the location in the previous example. The empirical median and the empirical quantiles of the training block satisfy Assumption 1 by ergodicity (Lemma 10 with a constant covariate). Since the law of Yt is symmetric, the CQR score 21 with the constant oracle endpoints ∓qα coincides with the centered CMR score, as in the previous example. 
+
+Nonlinear recursions. Under the contraction condition of Appendix B.4, the observations satisfy 
+
+δZq (j) ≤ λjH δZq (0) , and the scores inherit geometric decay when the oracle endpoints are Lipschitz. Proposition 12(a) then gives Assumption 3 with every γ > 1/2 whenever the score has a bounded marginal density, and part (b) applies when the recursion has the additive form Yt = h(Zt−1) + εt
+
+with an innovation density bounded by Mε.B.6 MIXING VERSUS FUNCTIONAL DEPENDENCE 
+
+This subsection compares mixing with the functional dependence measure on two examples of Sec-tion 3: Gaussian long memory is not strongly mixing, and for the Bernoulli autoregression both the β-mixing and the switch coefficients equal one, so that the coverage bounds formulated through them are vacuous. 
+
+Long memory is not strongly mixing. A stationary Gaussian sequence is strongly mixing if and only if its spectral density has the form |P |2 exp( u + ˜ v) with P a trigonometric polynomial, u
+
+and v continuous and ˜v the conjugate function of v (Bradley, 2005, Theorem 7.1); equivalently, 
+
+log f − log |P |2 has vanishing mean oscillation for some P , since the functions of vanishing mean oscillation are exactly the sums u + ˜ v with u and v continuous (Sarason, 1975). Suppose f (λ) = 
+
+|λ|2β−2L(λ) with 1/2 < β < 1 and L continuous and positive at the origin, as for the linear process with the coefficients of Appendix D.1, whose spectral density is proportional to |2 sin( λ/ 2) |2β−2.Then log f − log |P |2 = −(2 − 2β + 2 m) log |λ| + ψ(λ) near the origin, where m ≥ 0 is the multiplicity of the zero of P at the origin and ψ is continuous, hence of vanishing mean oscillation; but log |λ| is not, because its mean oscillation over [−h, h ] is the same positive number for every 
+
+h > 0, and 2 − 2β + 2 m > 0. Hence no such representation exists, and the sequence is not strongly mixing, in particular not β-mixing. 
+
+The switch coefficient of the Bernoulli autoregression. The coverage guarantees for split con-formal prediction on a stationary series are formulated through β-mixing coefficients (Oliveira et al., 2024) or through the switch coefficient of Barber & Pananjady (2026). For a sequence 
+
+V = ( V1, . . . , V N ) of scores, a gap τ ≥ 0 and 1 ≤ k ≤ N − 1 − τ , the switch coefficient Ψk,τ (V ) is the total variation distance between the law of (V1, . . . , V N −τ −k, V N −k+1 , . . . , V N ) and the law of 
+
+(Vτ +k+1 , . . . , V N , V 1, . . . , V k), that is, between the laws of two blocks of lengths N − τ − k and k
+
+separated by the gap τ in their two temporal orders; for the remaining values of k the two laws coin-cide by stationarity. The coverage bound of Barber & Pananjady (2026, Theorem 4) subtracts from 
+
+1 − α a gap term, which is at least τ divided by the number of scores, and the average of Ψk,τ (V )
+
+over k, minimized over the gap; for stationary β-mixing sequences, the switch coefficient satisfies 
+
+Ψk,τ (V ) ≤ 2β(τ ) (Barber & Pananjady, 2026, Proposition 1). The switch coefficient cannot be bounded through the functional dependence measure in general, and the two routes separate on the first example of Appendix B.5. Let Wt = Wt−1/2 + Bt be that process, for which δZq (j) ≤ 2−j .Its β-mixing coefficient equals one at every lag, because the conditional law of Wτ given F0 is supported on 2τ points while the marginal law is continuous. Its switch coefficients also equal one. Put L = N − τ − k. Under the first law above, the coordinates at positions L and L + 1 are WL and 
+
+WL+τ +1 , and the recursion gives 2τ +1 WL+τ +1 − WL = 2 Pτ +1  
+
+> j=1
+
+2j−1BL+j ∈ 2Z almost surely. Under the second law, the same coordinates are WN and W1, and WN = 2 −(N −1) W1 + DN with 
+
+DN a function of B2, . . . , B N , so that 2τ +1 W1 − WN ∈ 2Z requires W1 to lie in a countable set determined by (B2, . . . , B N ); since W1 is a function of (Bs)s≤1, independent of (B2, . . . , B N ),with a continuous law, this event has probability zero. The event {2τ +1 vL+1 − vL ∈ 2Z} therefore has probability one under the first law and zero under the second, and Ψk,τ (W ) = 1 for every τ and every 1 ≤ k ≤ N − 1 − τ . The same holds for the CMR score Vt = |Wt − 1| of that example, with the event that 2τ +1 w′ − w ∈ 2Z for some w ∈ { 1 ± vL} and w′ ∈ { 1 ± vL+1 }, since each of the four sign combinations leads to a relation of the same kind with a nonzero coefficient of W1. Con-sequently the average switch coefficient is at least 1 − (τ + 1) /N , the coverage bound of Barber & Pananjady (2026) is vacuous for every gap once N > 1/α , and so is the β-mixing bound of Oliveira et al. (2024), whereas Theorem 3 with the true center, for which En = 0 , gives the coverage error 
+
+C1m−1/3 with no gap. 22 C PROOFS FOR SECTION 4
+
+This appendix proves Theorem 4 and Proposition 5 and bounds the coverage error of the interval. Write g = bμ − μ for the error of the center, a function of the training block and of randomness independent of the series, and let a(g) be the (1 − α)-quantile of |Z − g| for Z ∼ N (0 , 1) , the radius that an infinitely long calibration block would return for a center that is off by g, so that a(0) = zα.The length of the CMR interval is 2 bSM
+
+> (k)
+
+, where bSM 
+
+> (k)
+
+is the k-th smallest of the calibration residuals 
+
+|Yn+i − bμ| = |Gn+i − g|. Since a(g) ≥ zα by Lemma 15(i), the reverse triangle inequality gives 
+
+| bSM 
+
+> (k)
+
+− zα| − { a(g) − zα} ≤ | bSM 
+
+> (k)
+
+− a(g)|. (32) The term a(g) − zα is the effect of the center on the population radius, and Appendix C.2 shows that it is of second order in g. The right-hand side is the error of a finite calibration block that is adjacent to the training block and therefore dependent on the center, and Appendix C.3 bounds it. The proof of Theorem 4 uses (32) as an upper bound on | bSM 
+
+> (k)
+
+− zα|, and the proof of Proposition 5 uses it as a lower bound (Appendices C.5 and C.6). Appendix C.1 collects the Hermite expansions used in Appendix C.3 and for the calibration rate rm(β) of Section 4, and Appendix C.4 bounds the mean squared error of empirical quantiles of the training block, which gives the rates of Theorem 4 for the empirical median and the midpoint. Appendix C.7 uses the bound of Appendix C.3 on | bSM 
+
+> (k)
+
+− a(g)|
+
+to show that the coverage error has the order of the length bound of Theorem 4. Throughout this appendix, (12) is in force, C denotes a constant depending only on α, β, A and 
+
+a0 whose value may change from line to line, and constants that depend on fewer quantities are named. Two elementary consequences of (12) are used repeatedly. First, the autocorrelation ρ(h) = Cov( Gt, G t+h) = P 
+
+> j≥0
+
+aj aj+h of the series satisfies, splitting the sum at j = h,
+
+|ρ(h)| ≤ X
+
+> j≥0
+
+|aj aj+h| ≤ Cρ(1 + h)1−2β , (33) where Cρ = A2/(1 − β) + A2/(2 β − 1) ; note that Cρ ≥ 1, because 1 = P 
+
+> j
+
+a2 
+
+> j
+
+≤
+
+A2 P 
+
+> j
+
+(1 + j)−2β ≤ A2{1 + 1 /(2 β − 1) } ≤ Cρ. Moreover, the same bound holds for 
+
+Cov( P 
+
+> j<i
+
+aj εt−j , P 
+
+> j<i ′
+
+aj εt′−j ), a covariance of two truncated sums at times t and t′, in terms of h = |t − t′|. Second, for s ≥ 1,
+
+> s−1
+
+X
+
+> h=0
+
+(1+ h)1−2β ≤ s2−2β
+
+2 − 2β , 1
+
+s
+
+> s−1
+
+X
+
+> h=0
+
+(1+ h)2−4β ≤ Cβ rs(β)2, X
+
+> j≥i
+
+(1+ j)−2β ≤ i1−2β
+
+2β − 1 (i ≥ 1) ,
+
+(34) where Cβ equals 1/(3 − 4β), 2 and 1 + 1 /(4 β − 3) in the respective regimes β < 3/4, β = 3 /4
+
+and β > 3/4, and where rs(β) is the rate (13) with s in place of m. We also use s1−2β ≤ rs(β) and 
+
+1/s ≤ rs(β) for every s ≥ 2; the thresholds m0 and n0 below are at least 2.C.1 HERMITE EXPANSIONS AND THE CALIBRATION RATE OF THE SYMMETRIC SCORE 
+
+This subsection bounds covariances of functions of a Gaussian series through their Hermite ex-pansions. An even function has no odd Hermite coefficients, so its covariances decay like the squared autocorrelations of the series; this gives the calibration rate rm(β) of the symmetric score (Lemma 14), and the same expansion bounds the conditional variance in Appendix C.3. The re-duction of even functionals of a Gaussian series to Hermite rank two goes back to Breuer & Major (1983) and Dehling & Taqqu (1989). Let Hk denote the probabilists’ Hermite polynomials, normal-ized by EHj (ξ)Hk(ξ) = j!1{j = k} for ξ ∼ N (0 , 1) . For a standard bivariate Gaussian pair (ξ, ξ ′)
+
+with correlation ϱ, comparing coefficients in 
+
+E euξ −u2/2evξ ′−v2/2 = eϱuv (35) gives EHj (ξ)Hk(ξ′) = j!ϱj 1{j = k}, and therefore, for square-integrable ψ, ψ ′ with Hermite coefficients ηk = Eψ(ξ)Hk(ξ) and η′ 
+
+> k
+
+= Eψ′(ξ)Hk(ξ),
+
+Cov( ψ(ξ), ψ ′(ξ′)) = X
+
+> k≥1
+
+ηkη′
+
+> k
+
+k! ϱk, Var( ψ(ξ)) = X
+
+> k≥1
+
+η2
+
+> k
+
+k! . (36) 23 Lemma 13. Let (ξ, ξ ′) be a standard bivariate Gaussian pair with correlation ϱ, and let ψ and ψ′
+
+be even and square-integrable. Then |Cov( ψ(ξ), ψ ′(ξ′)) | ≤ ϱ2{Var( ψ(ξ))Var( ψ′(ξ′)) }1/2.Proof. The odd Hermite coefficients of an even function vanish, so (36) runs over even k ≥ 2, where 
+
+|ϱk| ≤ ϱ2; the Cauchy–Schwarz inequality and the Parseval identity in (36) give the bound. For indicators of symmetric intervals, whose variances are at most 1/4, the covariance is at most 
+
+ϱ2/4, including when the two intervals differ. 
+
+Lemma 14 (Calibration rate of the symmetric score) . Let St = |Gt| − zα and r = zα/2, as in Appendix B.5. Then σm ≤ CρC1/2 
+
+> β
+
+rm(β). If ρ(h) ≥ cρ(1 + h)1−2β for all h ≥ h0, with cρ > 0,then for every real a the standard deviation of m−1 Pmi=1 1{Gn+i ≤ a}, the corresponding quantity for a one-sided indicator, is of exact order m1/2−β .Proof. For |s| ≤ r and a = zα + s > 0, the indicator 1{St ≤ s} = 1{| Gt| ≤ a} is an even function of Gt, so Lemma 13 bounds each covariance Cov( 1{| Gn+i| ≤ a}, 1{| Gn+j | ≤ a}) by ρ(i − j)2/4,and (33) and (34) give 
+
+Var { bFm(s)} ≤ 14m2
+
+X
+
+> i,j ≤m
+
+ρ(i − j)2 ≤ C2
+
+> ρ
+
+2m
+
+X
+
+> h<m
+
+(1 + h)2−4β ,
+
+which is at most C2 
+
+> ρ
+
+Cβ rm(β)2/2. For the one-sided indicator, the first Hermite coefficient of x 7 →
+
+1{x ≤ a} is −ϕ(a)̸ = 0 , and by (36) and the Cauchy–Schwarz inequality the remaining terms contribute at most ρ(h)2/4, so the covariance at lag h is ϕ(a)2ρ(h) + O(ρ(h)2), of exact order ρ(h)
+
+for all large h; the variance of the partial sum is therefore of order m3−2β , which gives the scale 
+
+m1/2−β .C.2 THE SHIFTED POPULATION RADIUS 
+
+This subsection deals with the term a(g) − zα in (32), the effect of the center on the population radius. Because the law of Z is symmetric, a(g) is an even function of g, so it has no first-order term, and a(g) − zα is of order g2 instead of |g|. Lemma 15 makes this precise: part (iii) gives the two-sided bounds, of order min( g2, 1) and g2, that enter the proofs of Proposition 5 and Theorem 4, and part (iv) gives the exact second-order constant; parts (i) and (ii), the position of a(g) relative to 
+
+|g| and a lower bound on the density of |Z − g| near a(g), are used in Appendix C.3. For g ∈ R and w ≥ 0, let Hg (w) = P(|Z − g| ≤ w) = Φ( w − g) + Φ( w + g) − 1 with Z ∼ N (0 , 1) .For each g the map w 7 → Hg (w) is continuous and strictly increasing from 0 to 1, with derivative 
+
+H′ 
+
+> g
+
+(w) = ϕ(w − g) + ϕ(w + g) ≤ 2ϕ(0) < 1, so the (1 − α)-quantile a(g) of |Z − g| is the unique solution of Hg (a(g)) = 1 − α, and a(0) = zα. Put 
+
+w∗ = zα
+
+2 , f∗ = min {ϕ(u) : Φ −1(1 − α) − w∗ ≤ u ≤ zα + w∗},κα = inf 
+
+> 0<u ≤1
+
+ϕ(zα − u) − ϕ(zα + u)
+
+u , f1 = min {ϕ(u) : |u| ≤ max( zα, 1) }.
+
+(37) The constant κα is positive because the ratio is continuous and positive on (0 , 1] with limit 2zαϕ(zα)
+
+at zero, and the ratio is at most 2 sup |ϕ′| = 2 ϕ(1) by the mean value theorem. 
+
+Lemma 15 (Shifted radius) . (i) a is even and nondecreasing in |g|, and Φ−1(1 −α) ≤ a(g)−|g| ≤ zα for every g.(ii) H′ 
+
+> g
+
+(w) ≥ f∗ for every g and every w with |w − a(g)| ≤ w∗.(iii) 12 κα min( g2, 1) ≤ a(g) − zα ≤ Cαg2 for every g, with Cα = max {ϕ(1) /f 1, 1}.(iv) a(g) = zα + 12 zαg2 + O(g4) as g → 0.Proof. (i) Hg (w) is even in g, and ∂g Hg (w) = ϕ(w + g) − ϕ(w − g) ≤ 0 for g, w ≥ 0, so Hg (w) is nonincreasing in |g| and a(g) is nondecreasing in |g|; this is Anderson’s inequality for the intervals 24 [g − w, g + w]. For g ≥ 0, 1 − α = Hg (a(g)) ≤ Φ( a(g) − g) gives the lower bound on a(g) − g,and Hg (g + zα) = Φ( zα) + Φ(2 g + zα) − 1 ≥ 2Φ( zα) − 1 = 1 − α gives a(g) ≤ g + zα; evenness covers g < 0.(ii) For g ≥ 0 and w ≥ 0, |w − g| ≤ w + g, so H′ 
+
+> g
+
+(w) ≥ ϕ(w − g) = ϕ(w − | g|), and the same holds for g < 0 by evenness. If |w − a(g)| ≤ w∗, then by (i) w − | g| ∈ [Φ −1(1 − α) − w∗, z α + w∗],on which ϕ ≥ f∗.(iii) For 0 ≤ g ≤ 1,
+
+H0(zα) − Hg (zα) = 
+
+Z g
+
+> 0
+
+{ϕ(zα − u) − ϕ(zα + u)} du ∈ καg2/2, ϕ (1) g2.
+
+Since a(g) ≥ zα and H′ 
+
+> g
+
+< 1, 1 − α = Hg (a(g)) ≤ Hg (zα) + a(g) − zα, and 1 − α = H0(zα), so 
+
+a(g)−zα ≥ H0(zα)−Hg (zα) ≥ καg2/2; for |g| ≥ 1, monotonicity gives a(g)−zα ≥ a(1) −zα ≥
+
+κα/2. For the upper bound with |g| ≤ 1, every u ∈ [zα, a (g)] satisfies u − | g| ∈ [zα − 1, z α] by (i), so H′ 
+
+> g
+
+(u) ≥ ϕ(u − | g|) ≥ f1 there, and Hg (a(g)) − Hg (zα) = H0(zα) − Hg (zα) ≤ ϕ(1) g2 gives 
+
+a(g) − zα ≤ ϕ(1) g2/f 1; for |g| > 1, (i) gives a(g) − zα ≤ | g| ≤ g2.(iv) The function (g, w ) 7 → Hg (w) is smooth with ∂wHg (w) > 0, so a is smooth by the implicit function theorem, and even, so a′(0) = 0 . Differentiating Hg (a(g)) = 1 − α twice at g = 0 gives 
+
+∂2 
+
+> g
+
+H0(zα) + ∂wH0(zα)a′′ (0) = 0 with ∂2 
+
+> g
+
+H0(zα) = 2 ϕ′(zα) = −2zαϕ(zα) and ∂wH0(zα) = 2ϕ(zα), whence a′′ (0) = zα, and the odd derivatives vanish. The second-order behavior of residual empirical processes on the estimation sample under long memory is classical (Beran & Ghosh, 1991; Koul & Surgailis, 2010; Chan & Ling, 2008; Lorek & Kulik, 2014); there it arises from the exact cancellation of the first-order term of the error process by the estimated location, which uses the same observations, whereas here the residuals are out of sample, the object is the expected error of an order statistic at finite n and m, and the mechanism is the evenness of the population radius. The mechanism rests on the symmetry of the error law and not on the absolute-value form of the score: for a skewed error the radius a(g) is no longer even, its derivative at g = 0 is proportional to the difference of the error density at the two oracle endpoints, and the center error re-enters the length at first order. For symmetric innovations that are not Gaussian, Lemma 15(i)–(iii) remain valid with the marginal density of the series in place of ϕ, provided that it is positive, continuously differentiable, nonin-creasing on [0 , ∞) and has a negative derivative at the radius, with the constants redefined accord-ingly; the rates, however, use Gaussianity throughout, in the Hermite expansions of Lemmas 13 and 14, in the Gaussian conditioning of Lemmas 16–18, and in the Gaussian H¨ older inequality of Lemma 19. C.3 CALIBRATION RESIDUALS CONDITIONAL ON THE TRAINING INNOVATIONS 
+
+This subsection deals with the right-hand side of (32), the error of a finite calibration block. The difficulty is that the calibration block is adjacent to the training block, so that the center and the calibration residuals are dependent. We condition on the innovations up to time n: each calibration observation splits into a part that is determined by these innovations and a Gaussian part that is in-dependent of them, so that, conditionally, the center is fixed and each residual is Gaussian, shifted by the error of the center and by the memory of the training period, which decays with the dis-tance from the training block. Lemmas 16 and 17 bound the conditional mean and variance of the empirical distribution function of the residuals, and Lemma 18 turns these bounds into a bound on 
+
+E| bSM 
+
+> (k)
+
+− a(g)| of order rm(β), up to a term that couples the error of the center with the memory of the training period. Let Fn denote the sigma-field generated by the innovations up to time n and by the randomness of the training algorithm, so that g = bμ − μ is Fn-measurable. For 1 ≤ i ≤ m + 1 decompose the future observation into its predictable and its innovative parts, 
+
+Gn+i = Π i + Ui, Πi = X
+
+> j≥i
+
+aj εn+i−j , Ui =
+
+> i−1
+
+X
+
+> j=0
+
+aj εn+i−j , (38) 25 so that Πi is Fn-measurable and (U1, . . . , U m+1 ) is a centered Gaussian vector independent of Fn,with s2 
+
+> i
+
+= Var( Ui) = P 
+
+> j<i
+
+a2 
+
+> j
+
+∈ [a20, 1] and τi = EΠ2 
+
+> i
+
+= P 
+
+> j≥i
+
+a2 
+
+> j
+
+= 1 − s2 
+
+> i
+
+≤ A2i1−2β /(2 β − 1) 
+
+by (34). Put 
+
+T1 = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+|Πi|, Π2 = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+Π2 
+
+> i
+
+, ¯τ = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+τi ≤ Cτ m1−2β , Cτ = A2
+
+(2 β − 1)(2 − 2β) ,
+
+(39) where the bound on ¯τ follows from (34); note that EΠ2 = ¯ τ and ET 21 ≤ ¯τ by Jensen’s inequality. By (33) applied to the truncated sums, |Cov( Ui, U j )| ≤ Cρ(1 + |i − j|)1−2β , so the correlations 
+
+Rij = Cov( Ui, U j )/(sisj ) satisfy |Rij | ≤ Cρa−20 (1 + |i − j|)1−2β , and by (34) 
+
+max 
+
+> i≤mm
+
+X
+
+> j=1
+
+|Rij | ≤ Cρ
+
+a20
+
+m2−2β
+
+1 − β , 1
+
+m2
+
+> m
+
+X
+
+> i,j =1
+
+R2 
+
+> ij
+
+≤ 2C2 
+
+> ρ
+
+Cβ
+
+a40
+
+rm(β)2. (40) Finally, for w ≥ 0, b ∈ R and s ∈ [|a0|, 1] , let πw(b, s ) = P(|sξ + b| ≤ w) = Φ {(w − b)/s } − 
+
+Φ{(−w − b)/s } for ξ ∼ N (0 , 1) ; then πw(−g, 1) = Hg (w), and 
+
+∂bπw(0 , s ) = 0 , |∂2 
+
+> b
+
+πw(b, s )| ≤ 2ϕ(1) 
+
+a20
+
+, |∂sπw(b, s )| ≤ 2ϕ(1) 
+
+|a0| , (41) because ∂bπw(b, s ) = s−1[ϕ{(w + b)/s } − ϕ{(w − b)/s }], |ϕ′| ≤ ϕ(1) and |xϕ (x)| ≤ ϕ(1) .
+
+Lemma 16 (Conditional mean) . Let bHm(w) = m−1 Pmi=1 1{| Gn+i − g| ≤ w} for w ≥ 0, with g
+
+Fn-measurable. Then, for every Fn-measurable w ≥ 0,
+
+E{ bHm(w) | F n} − Hg (w) ≤ B, B = K1
+
+ |g|T1 + Π 2 + ¯ τ , K1 = 2ϕ(1) min( a20, |a0|) ,
+
+and EB ≤ K1{(¯ τ Eg2)1/2 + 2¯ τ }.Proof. Conditionally on Fn, |Gn+i − g| = |Ui + Π i − g| with Ui ∼ N (0 , s 2 
+
+> i
+
+), so E{1{| Gn+i − g| ≤ 
+
+w} | F n} = πw(Π i − g, s i). A Taylor expansion in the first argument about −g and (41) give 
+
+|πw(Π i − g, s i) − πw(−g, s i)| ≤ | ∂bπw(−g, s i)|| Πi| + ϕ(1)Π 2 
+
+> i
+
+/a 20 ≤ 2ϕ(1) a−20 (|g|| Πi| + Π 2 
+
+> i
+
+/2) ,since ∂bπw(·, s ) vanishes at zero and is 2ϕ(1) a−20 -Lipschitz. The mean value theorem in the second argument gives |πw(−g, s i)−πw(−g, 1) | ≤ 2ϕ(1) |a0|−1(1 −si) ≤ 2ϕ(1) |a0|−1τi, because 1−si ≤
+
+1 − s2 
+
+> i
+
+= τi. Averaging over i proves the first claim, and the Cauchy–Schwarz inequality with 
+
+ET 21 ≤ ¯τ and EΠ2 = ¯ τ proves the second. 
+
+Lemma 17 (Conditional variance) . In the setting of Lemma 16, for every Fn-measurable w ≥ 0,
+
+Var { bHm(w) | F n} ≤ W, W = K2
+
+rm(β)2 + m1−2β (Π 2 + g2) ,
+
+where K2 = max {8ϕ(1) 2Cρ/(a40(1 − β)) , C 2 
+
+> ρ
+
+Cβ /(2 a40)}.Proof. Write ξi = Ui/s i and bi = Π i−g, so that, conditionally on Fn, the summand 1{| Gn+i−g| ≤ 
+
+w} = ψi(ξi) with ψi(x) = 1{| six + bi| ≤ w} and (ξi) a standard Gaussian vector with correlations 
+
+Rij . The first Hermite coefficient of ψi is ηi, 1 = E[ξ1{(−w − bi)/s i ≤ ξ ≤ (w − bi)/s i}] = 
+
+ϕ{(−w − bi)/s i} − ϕ{(w − bi)/s i}, which vanishes at bi = 0 and is 2ϕ(1) |a0|−1-Lipschitz in bi, so 
+
+|ηi, 1| ≤ 2ϕ(1) |a0|−1|bi|. By (36), the Cauchy–Schwarz inequality over k ≥ 2 and Var( ψi(ξi)) ≤
+
+1/4,
+
+|Cov( ψi(ξi), ψ j (ξj ) | F n)| ≤ 4ϕ(1) 2
+
+a20
+
+|bibj || Rij | + R2
+
+> ij
+
+4 ,
+
+also on the diagonal. Since P 
+
+> i,j
+
+|bibj || Rij | ≤ (max i
+
+P 
+
+> j
+
+|Rij |) P 
+
+> i
+
+b2 
+
+> i
+
+for a symmetric matrix with nonnegative entries, and P 
+
+> i
+
+b2 
+
+> i
+
+≤ 2m(Π 2 + g2), the bounds (40) give 
+
+Var { bHm(w) | F n} ≤ 4ϕ(1) 2
+
+a20
+
+· Cρm2−2β
+
+a20(1 − β) · 2m(Π 2 + g2)
+
+m2 + C2 
+
+> ρ
+
+Cβ
+
+2a40
+
+rm(β)2,
+
+which is the claim. 26 Lemma 18 (Finite-calibration comparison) . Let g be Fn-measurable with Eg2 < ∞, and let bSM
+
+> (k)
+
+be the k-th smallest of |Gn+i − g|, 1 ≤ i ≤ m. There are m0, depending only on α, and K3,depending only on α, β, A and a0, such that for m ≥ m0,
+
+E| bSM 
+
+> (k)
+
+− a(g)| ≤ K3
+
+rm(β) + m1−2β + ( m1−2β Eg2)1/2 .
+
+Proof. Let m0 = max {8/(f∗w∗), 2(1 − α)/α }, so that dm = k/m − (1 − α) < 2/m ≤ f∗w∗/4
+
+and min( k, m − k + 1) ≥ m min(1 − α, α/ 2) for m ≥ m0, by the argument given for (22). 
+
+Step 1: a conditional tail bound. Let 0 < t ≤ w∗ with f∗t > B + dm. The event bSM 
+
+> (k)
+
+>a(g) + t implies bHm(a(g) + t) < k/m ≤ 1 − α + dm, whereas Lemma 16 and Lemma 15(ii) give 
+
+E{ bHm(a(g) + t) | F n} ≥ Hg (a(g) + t) − B ≥ 1 − α + f∗t − B; the event therefore requires a downward deviation of bHm(a(g) + t) from its conditional mean by more than f∗t − B − dm > 0.The event bSM 
+
+> (k)
+
+< a (g) − t implies bHm(a(g) − t) ≥ k/m ≥ 1 − α, whereas the conditional mean is at most 1 − α − f∗t + B, so it requires an upward deviation of at least f∗t − B ≥ f∗t − B − dm.Chebyshev’s inequality conditionally on Fn and Lemma 17 give 
+
+P{| bSM 
+
+> (k)
+
+− a(g)| > t | F n} ≤ min 
+
+n
+
+1, 2W
+
+(f∗t − B − dm)2
+
+o
+
+. (42) 
+
+Step 2: a conditional second moment. By Lemma 15(i), |g| − a(g) ∈ [−zα, −Φ−1(1 − α)] , so 
+
+|x − g| − a(g) ≤ | x| + Cz for every real x, with Cz = zα + |Φ−1(1 − α)|. The quantity 
+
+bSM 
+
+> (k)
+
+− a(g) is the k-th order statistic of Ti = |Gn+i − g| − a(g), and for any real numbers, T 2(k) ≤
+
+P 
+
+> i
+
+T 2 
+
+> i
+
+/ min( k, m − k + 1) , because at least m − k + 1 of the Ti are at least T(k) when T(k) ≥ 0
+
+and at least k of them are at most T(k) when T(k) < 0. Since E(G2 
+
+> n+i
+
+| F n) = s2 
+
+> i
+
++ Π 2 
+
+> i
+
+≤ 1 + Π 2 
+
+> i
+
+,
+
+M 2 := E{( bSM 
+
+> (k)
+
+− a(g)) 2 | F n} ≤ 2 P
+
+> i≤m
+
+(1 + Π 2 
+
+> i
+
++ C2 
+
+> z
+
+)
+
+m min(1 − α, α/ 2) ≤ CM (1 + Π 2), (43) with CM = (2 + 2 C2 
+
+> z
+
+)/ min(1 − α, α/ 2) .
+
+Step 3: the conditional expectation. Put a′ = ( B + dm)/f ∗ and b′ = (2 W )1/2/f ∗, so that the right-hand side of (42) is min {1, b ′2/(t − a′)2}. If a′ < w ∗, integrating (42) over 0 < t ≤ w∗ as in the proof of Proposition 9 gives E{min( | bSM 
+
+> (k)
+
+− a(g)|, w ∗) | F n} ≤ a′ + 2 b′, and the conditional Cauchy–Schwarz inequality gives E{(| bSM 
+
+> (k)
+
+− a(g)| − w∗)+ | F n} ≤ M min {1, b ′/(w∗ − a′)}. Let 
+
+b∗ = f∗w∗/4. On the event {B ≤ b∗} we have a′ ≤ w∗/2, hence 
+
+E{| bSM 
+
+> (k)
+
+− a(g)| | F n} ≤ a′ + 2 b′ + 2M b ′
+
+w∗
+
+on {B ≤ b∗}. (44) 
+
+Step 4: the unconditional expectation. Taking expectations in (44) and using Eb′ ≤ (2 EW )1/2/f ∗
+
+and E(M b ′) ≤ (EM 2 Eb′2)1/2,
+
+E| bSM 
+
+> (k)
+
+− a(g)|1{B ≤ b∗} ≤ EB + dm
+
+f∗
+
++ 2(2 EW )1/2
+
+f∗
+
+n
+
+1 + (EM 2)1/2
+
+w∗
+
+o
+
+.
+
+On the complementary event, E{| bSM 
+
+> (k)
+
+− a(g)| | F n} ≤ M ≤ C1/2 
+
+> M
+
+(1 + Π 1/22 ) by (43), so that, by Markov’s inequality and the Cauchy–Schwarz inequality, 
+
+E| bSM 
+
+> (k)
+
+− a(g)|1{B > b ∗} ≤ C1/2
+
+> M
+
+P(B > b ∗) + (¯ τ P(B > b ∗)) 1/2 ≤ C1/2
+
+> M
+
+n 3EB
+
+2b∗
+
++ ¯τ
+
+2
+
+o
+
+.
+
+Now EM 2 ≤ 2CM because ¯τ ≤ 1, EW ≤ K2{rm(β)2 + m1−2β (¯ τ + Eg2)} by Lemma 17, EB ≤
+
+K1{(¯ τ Eg2)1/2 + 2¯ τ } by Lemma 16, ¯τ ≤ Cτ m1−2β , dm ≤ 2/m ≤ 2rm(β), and (m1−2β ¯τ )1/2 ≤
+
+C1/2 
+
+> τ
+
+m1−2β . Collecting the terms proves the lemma. 27 C.4 EMPIRICAL QUANTILES OF A LONG -M EMORY GAUSSIAN SAMPLE 
+
+The bound of Theorem 4 involves the center only through its mean squared error. For the sample mean this is the variance of ¯Gn, which is bounded directly in Appendix C.5; for the empirical median and for the midpoint of two empirical quantiles it requires the mean squared error of an empirical quantile of the training block, which this subsection bounds by a multiple of n1−2β for every n. The same bound gives the explicit rate for Assumption 1 mentioned after that assumption. 
+
+Lemma 19. Let τ ∈ (0 , 1) , ζτ = Φ −1(τ ) and jn = ⌈nτ ⌉. Under (12) , E(G(jn) − ζτ )2 ≤ Cq n1−2β
+
+for all n ≥ 1, where G(jn) is the jn-th smallest of G1, . . . , G n and Cq depends only on τ , β and A.Proof. Let Γn be the correlation matrix of (G1, . . . , G n) and λn its largest eigenvalue, so that 1 ≤
+
+λn ≤ max i
+
+P 
+
+> j
+
+|ρ(i − j)| ≤ 1 + 2 Cρn2−2β /(2 − 2β) ≤ Cλn2−2β by (33)–(34), with Cλ =1 + Cρ/(1 − β). Fix u ∈ R and t > 0, and let fi(x) = exp[ t{1{x ≤ u} − Φ( u)}]. The Gaussian H¨ older inequality of Chen et al. (2015, Theorem 1) states that for a centered Gaussian vector with covariance matrix T , nonnegative measurable functions fi and exponents pi > 0 such that T ⪯ diag( p1T11 , . . . , p nTnn ), one has E Q 
+
+> i
+
+fi(Xi) ≤ Q
+
+> i
+
+{Efi(Xi)pi }1/p i ; for two standard Gaussian variables with correlation ϱ and p1 = p2 = p the condition reads (p − 1) 2 ≥ ϱ2, which is Nelson’s hypercontractivity condition. Since Γn has unit diagonal and Γn ⪯ λnI, the condition holds with all exponents equal to λn, and the inequality gives 
+
+E
+
+> n
+
+Y
+
+> i=1
+
+fi(Gi) ≤
+
+> n
+
+Y
+
+> i=1
+
+Efi(Gi)λn 1/λ n
+
+≤ exp 
+
+ nλ nt2
+
+8
+
+
+
+,
+
+where the last step is Hoeffding’s lemma for the centered variable 1{Gi ≤ u} − Φ( u), whose range has length one. With Fn(u) = n−1 P 
+
+> i≤n
+
+1{Gi ≤ u}, the Chernoff bound with t = 4 x/λ n, applied also to −{ 1{x ≤ u} − Φ( u)}, yields 
+
+P{| Fn(u) − Φ( u)| ≥ x} ≤ 2 exp( −2nx 2/λ n), x > 0. (45) Let fτ = min {ϕ(v) : |v − ζτ | ≤ 1}, so that Φ( ζτ + t) − τ ≥ fτ t and τ − Φ( ζτ − t) ≥ fτ t for 
+
+0 ≤ t ≤ 1, and note that τ ≤ jn/n ≤ τ + 1 /n . For 2/(nf τ ) ≤ t ≤ 1, the event G(jn) > ζ τ + t
+
+implies Fn(ζτ + t) < j n/n , hence Fn(ζτ + t) − Φ( ζτ + t) < 1/n − fτ t ≤ − fτ t/ 2, and the event 
+
+G(jn) < ζ τ − t implies Fn(ζτ − t) ≥ τ , hence Fn(ζτ − t) − Φ( ζτ − t) ≥ fτ t; by (45), 
+
+P(|G(jn) − ζτ | > t ) ≤ 4 exp 
+
+
+
+− nf 2 
+
+> τ
+
+t2
+
+2λn
+
+
+
+, 2
+
+nf τ
+
+≤ t ≤ 1.
+
+Integrating 2t times the tail probability, the interval t < 2/(nf τ ) contributes at most 4/(nf τ )2,the interval up to t = 1 contributes at most R ∞ 
+
+> 0
+
+8t exp {− nf 2 
+
+> τ
+
+t2/(2 λn)} dt = 8 λn/(nf 2 
+
+> τ
+
+), and the remainder is E[( G(jn) − ζτ )21{| G(jn) − ζτ | > 1}] ≤ { E(G(jn) − ζτ )4}1/2 2 exp {− nf 2 
+
+> τ
+
+/(4 λn)}.The rank inequality of Step 2 in the proof of Lemma 18, applied to fourth powers, gives G4(jn) ≤
+
+P 
+
+> i
+
+G4 
+
+> i
+
+/ min( jn, n − jn + 1) ≤ P 
+
+> i
+
+G4 
+
+> i
+
+/{n min( τ, 1 − τ )}, so E(G(jn) − ζτ )4 ≤ 8{3/ min( τ, 1 −
+
+τ ) + ζ4 
+
+> τ
+
+}. Since λn/n ≤ Cλn1−2β , 1/n 2 ≤ n1−2β and exp( −cn 2β−1) ≤ n1−2β /(ce ) for c > 0,all three contributions are at most a constant multiple of n1−2β ; for the finitely many n < 2/f τ the bound follows from the fourth-moment bound by enlarging the constant. C.5 PROOF OF THEOREM 4
+
+Proof of Theorem 4. Step 1: any center. Write g = bμ − μ, which is Fn-measurable, and assume 
+
+Eg2 < ∞, since otherwise there is nothing to prove. The calibrated radius bSM 
+
+> (k)
+
+is the k-th smallest of 
+
+|Yn+i − bμ| = |Gn+i −g|, so Lemma 18 applies, and since m1−2β ≤ rm(β) it gives E| bSM 
+
+> (k)
+
+−a(g)| ≤ 
+
+2K3{rm(β) + ( m1−2β Eg2)1/2}. Lemma 15(iii) gives 0 ≤ a(g) − zα ≤ Cαg2, and (32) gives 
+
+E| len bCMα − 2zα| = 2 E| bSM 
+
+> (k)
+
+− zα| ≤ 2E| bSM 
+
+> (k)
+
+− a(g)| + 2 E{a(g) − zα}≤ 4K3
+
+rm(β) + ( m1−2β Eg2)1/2 + 2 CαEg2.
+
+Finally (m1−2β Eg2)1/2 ≤ { m1−2β + Eg2}/2 ≤ { rm(β) + Eg2}/2, which proves (14). The center enters the concentration of bSM 
+
+> (k)
+
+around a(g) only through m1−2β Eg2: a shift g breaks the evenness 28 of the indicator 1{| Gn+i −g| ≤ w}, whose first Hermite coefficient is of order g and carries the long-memory variance m1−2β (Lemma 17). The center is never treated as independent of the calibration block: the argument conditions on the training innovations and retains the conditional means Πi − g
+
+of the calibration residuals, whose interaction with the center appears in the term (m1−2β Eg2)1/2.
+
+Step 2: the three centers. The sample mean is a function of Y1, . . . , Y n with bμ − μ = ¯Gn, and 
+
+vn = Var( ¯Gn) = 1
+
+n2
+
+> n
+
+X
+
+> s,t =1
+
+ρ(s − t) ≤ 1
+
+n
+
+n
+
+1 + 2 
+
+> n−1
+
+X
+
+> h=1
+
+|ρ(h)|
+
+o
+
+≤ 2Cρ
+
+nn2−2β
+
+2 − 2β = Cρ
+
+1 − β n1−2β
+
+by (33)–(34) and Cρ ≥ 1. The empirical median is the ⌈n/ 2⌉-th smallest of Y1, . . . , Y n, so that 
+
+bμ − μ = G(⌈n/ 2⌉), and Lemma 19 with τ = 1 /2 gives E(bμ − μ)2 ≤ Cq n1−2β . For the midpoint 
+
+bc = ( bℓ + bu)/2 of bℓ = Y(⌈nα/ 2⌉) = μ + G(⌈nα/ 2⌉) and bu = Y(⌈n(1 −α/ 2) ⌉) = μ + G(⌈n(1 −α/ 2) ⌉),since ζα/ 2 + ζ1−α/ 2 = 0 for the normal quantiles ζτ = Φ −1(τ ),
+
+bc − μ = 12
+
+  G(⌈nα/ 2⌉) − ζα/ 2
+
+ +  G(⌈n(1 −α/ 2) ⌉) − ζ1−α/ 2
+
+ ,
+
+and Lemma 19 at the two levels gives E(bc−μ)2 ≤ Cq n1−2β , with Cq the larger of the two constants. Step 1 with these three bounds proves the second claim. By the identity of Section 4, which holds for any real endpoints, also when bℓ > bu, the CQR interval with the empirical quantiles as fitted endpoints is the CMR interval with center bc. The same lemma gives E(EQn )2 ≤ 2Cq n1−2β for the training error EQn = max {| bℓ−ℓα|, |bu−uα|} of these endpoints, which is the explicit rate mentioned after Assumption 1. The identity used in Step 2 relies on the constant covariate, and the improvement concerns an error of location. With a covariate, a width error that varies with the covariate enters the length at first order: for CQR with μ = 0 , fitted endpoints bℓ(x) = −(zα + ex ) and bu(x) = zα + ex at a covariate 
+
+Xt = ±1 independent of Gt, the common correction is of order e2 and the length error at each covariate value is 2e + O(e2); a width error common to all covariates cancels in the calibration, by the same identity. C.6 PROOF OF PROPOSITION 5
+
+Proof of Proposition 5. Step 1: any center. Write g = bμ − μ and assume Eg2 < ∞, since otherwise the right-hand side of (15) is −∞ . By (32), Lemma 15(iii) and Lemma 18, 
+
+E| len bCMα − 2zα| = 2 E| bSM 
+
+> (k)
+
+− zα| ≥ 2E{a(g) − zα} − 2E| bSM 
+
+> (k)
+
+− a(g)|≥ καE min( g2, 1) − 2K3
+
+rm(β) + m1−2β + ( m1−2β Eg2)1/2 ,
+
+which is (15) with c1 = κα and C = 4 K3, since m1−2β ≤ rm(β).
+
+Step 2: a common Gaussian component of the center. Let V = n−1/2 P−ns=−2n+1 εs ∼
+
+N (0 , 1) , a function of the innovations preceding the training block, and let bt = Cov( Gt, V ) = 
+
+n−1/2 P−ns=−2n+1 at−s for 1 ≤ t ≤ n. The indices t−s range over [t+n, t +2 n−1] ⊂ [n+1 , 3n−1] ,so for n ≥ j0 the lower bound on the coefficients gives 
+
+bt ≥ n−1/2 · n · c (3 n)−β = hn, hn = c 3−β n1/2−β .
+
+Write Wt = Gt − btV . The vector (W1, . . . , W n) is jointly Gaussian with V and uncorrelated with it, hence independent of V . Since T is translation equivariant, g = T (Y1, . . . , Y n) − μ =
+
+T (G1, . . . , G n) = T (W + bV ), where b = ( b1, . . . , b n)⊤. For fixed W , put fW (v) = T (W + bv );for h ≥ 0, every coordinate of W +b(v+h) exceeds the corresponding coordinate of W +bv +hnh1,so monotonicity and equivariance give fW (v + h) ≥ fW (v) + hnh. If fW (0) ≥ 0, then g ≥ hn on the event {V ≥ 1}; if fW (0) < 0, then g ≤ fW (0) − hn|V | ≤ − hn on the event {V ≤ − 1}. Since 
+
+V is independent of W and P(V ≥ 1) = P(V ≤ − 1) = Φ( −1) ,
+
+P(|g| ≥ hn) ≥ Φ( −1) , E min( g2, 1) ≥ Φ( −1) min( h2
+
+> n
+
+, 1) = Φ( −1) c23−2β n1−2β
+
+for n ≥ n0, where n0 ≥ max( j0, 2) is such that hn ≤ 1. No Gaussianity or unbiasedness of g is used. 29 Step 3: a calibration block large relative to the training block. Let ν = 2 β − 1 ∈ (0 , 1) and 
+
+c2 = Φ( −1) c23−2β . By Steps 1 and 2 and Eg2 ≤ Cg n−ν , for n ≥ n0 and m ≥ m0,
+
+E| len bCMα − 2zα| ≥ c1c2n−ν − Crm(β) + C1/2 
+
+> g
+
+(nm )−ν/ 2 .
+
+Let m ≥ Kn max(1 ,2ν) log( n + 1) with K ≥ m0, and recall that n ≥ 2, so that log( n + 1) ≥ 1.If ν < 1/2, then m ≥ Kn , so rm(β) = m−ν ≤ K−ν n−ν and (nm )−ν/ 2 ≤ K−ν/ 2n−ν . If 
+
+ν = 1 /2, then, since log( m + 1) /m is decreasing in m and Kn log( n + 1) + 1 ≤ K(n + 1) 2,
+
+rm(β)2 ≤ { log K + 2 log( n + 1) }/{Kn log( n + 1) } ≤ (log K + 2) /(Kn ), and (nm )−1/4 ≤
+
+K−1/4n−1/2. If ν > 1/2, then m ≥ Kn 2ν , so rm(β) = m−1/2 ≤ K−1/2n−ν and (nm )−ν/ 2 ≤
+
+K−ν/ 2n−ν(1+2 ν)/2 ≤ K−ν/ 2n−ν , since 2ν > 1. In each regime rm(β)+ C1/2 
+
+> g
+
+(nm )−ν/ 2 ≤ ϵK n−ν
+
+with ϵK → 0 as K → ∞ , so for K large the right-hand side of the last display is at least c1c2n−ν /2
+
+and rm(β) ≤ n−ν , which gives (16) with c3 = c1c2/4.The sample mean, the empirical median and the midpoint of the empirical α/ 2- and (1 − α/ 2) -quantiles are nondecreasing in each coordinate and translation equivariant, and Step 2 of the proof of Theorem 4 bounds their mean squared error by a multiple of n1−2β , so they satisfy the conditions of Proposition 5 on the center. C.7 COVERAGE UNDER GAUSSIAN LONG MEMORY 
+
+This subsection bounds the coverage error of the interval of Theorem 4. The bound has the order of the length bound (14), so the interval attains the nominal level at the rate of its length, although its center converges at the slower rate n1/2−β .
+
+Corollary 20 (Coverage) . Assume (12) , and let bμ be as in Theorem 4, with E(bμ − μ)2 < ∞. For all n and all m ≥ m0, with m0 as in Theorem 4, 
+
+P{Yn+m+1 ∈ bCMα } − (1 − α) ≤ Crm(β) + {m1−2β E(bμ − μ)2}1/2 + m1−2β 
+
+≤ CE(bμ − μ)2 + rm(β) . (46) 
+
+For the sample mean, the empirical median and the midpoint of Theorem 4, the coverage error is therefore at most C{n−(2 β−1) + rm(β)}.
+
+The middle term of (46) is the interaction between the error of the center and the part of the test observation that the training innovations predict, to which a shifted center is sensitive at first order. 
+
+Proof of Corollary 20. Write g = bμ−μ. The calibrated radius bSM 
+
+> (k)
+
+is the k-th smallest of |Gn+i−g|,
+
+1 ≤ i ≤ m, and Yn+m+1 ∈ bCMα exactly when |Gn+m+1 − g| ≤ bSM
+
+> (k)
+
+. Let Fn+m denote the sigma-field generated by the innovations up to time n + m and by the randomness of the training algorithm. Conditionally on Fn+m, Gn+m+1 = a0εn+m+1 + Π ′ with Π′ = P 
+
+> j≥1
+
+aj εn+m+1 −j
+
+measurable with respect to Fn+m, so Gn+m+1 is Gaussian with variance a20, whereas g, a(g) and 
+
+bSM 
+
+> (k)
+
+are Fn+m-measurable. Hence the conditional probability P(|Gn+m+1 − g| ≤ q | F n+m) = Φ{(q + g − Π′)/|a0|} − Φ{(−q + g − Π′)/|a0|} is Lipschitz in q with constant 2ϕ(0) /|a0|, and 
+
+P{| Gn+m+1 − g| ≤ bSM
+
+> (k)
+
+} − P{| Gn+m+1 − g| ≤ a(g)} ≤ 2ϕ(0) 
+
+|a0| E| bSM 
+
+> (k)
+
+− a(g)|.
+
+For the second probability, condition on Fn and use the decomposition (38) at i = m + 1 :
+
+P{| Gn+m+1 − g| ≤ a(g) | F n} = πa(g)(Π m+1 − g, s m+1 ), whereas πa(g)(−g, 1) = Hg (a(g)) = 1 − α by the definition of a(g). The bound on a single summand in the proof of Lemma 16, at 
+
+i = m + 1 , and the Cauchy–Schwarz inequality give 
+
+P{| Gn+m+1 − g| ≤ a(g)} − (1 − α) ≤ K1E |gΠm+1 | + Π 2 
+
+> m+1
+
++ τm+1 
+
+
+
+≤ K1
+
+(τm+1 Eg2)1/2 + 2 τm+1 ,
+
+and τm+1 ≤ A2m1−2β /(2 β − 1) by (34). Combining the two displays with Lemma 18 proves the first inequality in (46); the second follows from m1−2β ≤ rm(β) and 2( xy )1/2 ≤ x + y. For the three centers, Step 2 of the proof of Theorem 4 gives Eg2 ≤ Cn 1−2β .30 D EXPERIMENTAL DESIGN AND COMPLETE RESULTS 
+
+This appendix specifies the studies of Section 5 and reports their complete results. Appendix D.1 gives the conventions shared by all studies and the Gaussian linear process, Appendices D.2 and D.3 give Studies 1 and 2, Appendix D.4 extends Study 2 to non-Gaussian innovations, and Appendix D.5 gives Study 3. D.1 CONVENTIONS AND SIMULATION 
+
+This subsection fixes the conventions of all studies and the simulation of the Gaussian linear process. All studies use α = .1 and the rank k = ⌈(m + 1)(1 − α)⌉, without interpolation. Each trajec-tory is one stationary path, whose first n observations form the training block and whose next m
+
+observations form the calibration block. A cell, that is, a model with fixed block sizes, consists of 1000 independent trajectories, each generated from its own random stream, a PCG64 generator seeded through NumPy’s SeedSequence with a fixed base seed and the identifiers of the cell and the trajectory. A reported value is the average over the 1000 trajectories, and its Monte Carlo standard error is the sample standard deviation divided by 1000 1/2. The studies were run in Python 3.12.3 with NumPy 2.5.3 and SciPy 1.18.1. The Gaussian linear process of Studies 1–3 is (12) with the coefficients a0 = c and aj = aj−1(1 −
+
+β/j ) for j ≥ 1, where the constant c > 0 makes P 
+
+> j
+
+a2 
+
+> j
+
+= 1 . These coefficients are positive and asymptotically proportional to j−β , so that (12) holds, and so does the coefficient lower bound of Proposition 5. The autocorrelation ρ(h) = P 
+
+> j≥0
+
+aj aj+h satisfies ρ(0) = 1 and ρ(h) = ρ(h −
+
+1)( h − β)/(h − 1 + β) for h ≥ 1, and it is asymptotically proportional to h1−2β ; the variance of the mean of n consecutive observations, vn = n−2{n + 2 Pn−1 
+
+> j=1
+
+(n − j)ρ(j)}, is computed exactly. A path of length N is generated exactly by circulant embedding of its covariance matrix, with an embedding whose size is the smallest power of two that is at least 2( N − 1) , so that the path has the stationary law, without truncation of (12) and without burn-in. D.2 STUDY 1: F OUR DEPENDENCE SETUPS 
+
+This subsection specifies Study 1 and reports its complete results for CQR and CMR. For every integer t, let At, ξt and Bt be independent, with At uniform on [−1, 1] , ξt standard normal and Bt Bernoulli (1 /2) , and i.i.d. over t. The covariate is Xt = At and the response is 
+
+Yt = f (Xt) + s(Xt)h(Ut), with f , s and h as in Section 5, where Ut is uniform on [0 , 1] in each of the four setups: (1) independent: Ut = Φ( ξt); (2) AR(1): Ut = Φ( Ht), Ht = .9Ht−1 + .19 1/2ξt;
+
+(3) Bernoulli: Ut = ( Ut−1 + Bt)/2; (4) long-memory linear process: Ut = Φ( Gt),
+
+where Gt = P 
+
+> j≥0
+
+aj ξt−j in (4), with the coefficients of Appendix D.1 and β = .8. The process in (3) is Wt/2 for the Bernoulli autoregression Wt of Section 3 and is simulated exactly on a 128 -bit binary state; (2) and (3) start from their stationary laws. Setups (3) and (4) are not strongly mixing (Appendices B.5 and B.6), and neither is (Xt, Y t), of which Ut is a function. The learner is linear quantile regression on the basis (1 , x, x 2) over the coefficient box [−5, 5] 3,solved exactly as a linear program, at the levels .05 and .95 for CQR and .5 for CMR. Since h
+
+is increasing, the conditional τ -quantile of Yt given Xt = x is f (x) + s(x)h(τ ), so the learner is correctly specified; the oracle CQR interval has the endpoints f (x) + s(x)h(.05) and f (x) + 
+
+s(x)h(.95) , and the oracle CMR interval is μ(x)±qα, with μ(x) = f (x)+ s(x)h(.5) and qα = .752 
+
+the (1 − α)-quantile of |Yt − μ(Xt)|. Assumptions 1–3 hold in all four setups: Assumption 1 by Lemma 10, since every setup is ergodic and the learner is correctly specified; Assumption 2 because the conditional density of Yt given Xt lies between 1/2.6 and 1 on its support (Appendix B.3); and Assumption 3 by Proposition 12, through part (a) with every γ > 1/2 in setups (1)–(3), whose scores have geometrically decaying functional dependence, and through part (b) with γ = β = .8 in setup (4). Hence ρm = m−1/2 in setups (1)–(3) and ρm = m−.3 in setup (4). The marginal coverage is estimated by averaging over the trajectories the conditional coverage prob-ability of the calibrated interval given the observed past, computed from the known conditional law 31 128 256 512 1024 2048 4096                 
+
+> training = calibration size ( n=m)
+> 0.88 0.89 0.90 0.91 0.92
+> marginal coverage
+> (a) coverage
+> 128 256 512 1024 2048 4096
+> training = calibration size ( n=m)
+> 10 −1
+> expected length error
+> (b) length error
+> i.i.d. AR(1), ϕ= . 9 Bernoulli long-memory linear process, β= . 8
+
+Figure 4: Study 1, CMR with quadratic median regression, on the trajectories of Figure 1. (a) Marginal coverage; the dashed line is the nominal level. (b) Length error 2E| bSM 
+
+> (k)
+
+− qα|, on a logarithmic scale. Both panels show pointwise 95% Monte Carlo intervals. of Un+m+1 ; this has a smaller Monte Carlo variance than averaging coverage indicators. The length error is E sup x | len bCQα (x) − len CQα (x)| for CQR and 2E| bSM 
+
+> (k)
+
+− qα| for CMR, and the cells are 
+
+n = m ∈ { 128 , . . . , 4096 } for each setup. Figure 1 shows the CQR results and Figure 4 the CMR results. The coverage of both procedures lies between .888 and .912 in all cells; in setup (1), where the scores are exchangeable, it agrees with the exact value k/ (m + 1) , for example 117 /129 = .907 at m = 128 . The length errors decrease in all four setups. Least-squares fits of the logarithm of the length error on log n over the four largest sizes give the decay exponents .53 , .53 , .51 and .51 for CQR and .50 , .48 , .50 and .29 for CMR, in the order of the setups. In setup (4), over the tested sizes, the length error of CMR decreases like 
+
+m−.3, the rate ρm of Theorem 3, whereas that of CQR decreases like m−1/2, as in the other setups. The oracle calibration errors show the same contrast. On the calibration blocks of setup (4), these errors, E|SQ
+
+> (k)
+
+| and E|SM 
+
+> (k)
+
+− qα|, which use the oracle scores and involve no training, decrease with the exponents .50 and .30 . At its population threshold, the CQR oracle indicator 1{SQt ≤
+
+0} = 1{| Gt| ≤ zα} is an even function of Gt, like the indicators of Section 4, so its first Hermite coefficient vanishes and its covariances decay like ρ(h)2 (Lemma 13), which leads to the rate m−1/2
+
+at β = .8. The CMR indicator is not even in Gt, because h is not linear, and its nonzero first Hermite coefficient leads to the rate m1/2−β = m−.3. This explains the oracle calibration rates; the fitted CQR length can also retain a first-order training-error term, so the observed slope does not establish its asymptotic rate. D.3 STUDY 2: T HE SHARPER LENGTH RATE 
+
+This subsection specifies Study 2 and the three numbers of Table 1. The observations are Yt = μ + Gt, with μ = 0 , which is no loss of generality because the pro-cedure is translation equivariant, and with Gt the Gaussian linear process of Appendix D.1 for 
+
+β ∈ { .6, . 75 , . 9}. On each path of length n + m, the center is the training sample mean bμ = ¯Yn,the calibrated radius bSM 
+
+> (k)
+
+is the k-th smallest of |Yn+i − bμ|, and the known-center radius SM 
+
+> (k)
+
+is the 
+
+k-th smallest of |Yn+i − μ|. The cells are n = m ∈ { 128 , . . . , 4096 }. Figure 2 shows the three quantities of the study: the mean squared error E(bμ − μ)2 of the center, which equals vn; the oracle calibration error E|SM 
+
+> (k)
+
+− zα|; and the length error E| len bCMα − 2zα| = 2 E| bSM 
+
+> (k)
+
+− zα|.The three numbers of Table 1 summarize the rates of these quantities, each computed over the five largest sizes n = m ∈ { 256 , . . . , 4096 }. The estimation error exponent checks the rate of the center: it is minus the least-squares slope, with an intercept, of the logarithm of the mean squared error on log n, to be compared with 2β − 1. The oracle calibration error ratio checks whether 32 Table 1: Study 2 and its extension, rates over n = m ∈ { 256 , . . . , 4096 }, with Monte Carlo standard errors in parentheses; the reference is 2β − 1 for the estimation error exponent and one for the two ratios. The center is the training mean for Gaussian innovations and the training median for the non-Gaussian innovations of Appendix D.4.                                            
+
+> Innovations β2β−1
+> Estimation error exponent Oracle calibration error ratio Total length error ratio Gaussian .60 .20 .211 (.021) 1.029 (.055) .986 (.046)
+> .75 .50 .544 (.019) 1.118 (.028) 1.110 (.028)
+> .90 .80 .806 (.021) 1.056 (.022) 1.080 (.022) Laplace .60 .20 .202 (.021) .905 (.055) 1.043 (.045)
+> .75 .50 .459 (.020) 1.095 (.026) 1.106 (.027)
+> .90 .80 .829 (.020) 1.054 (.022) 1.057 (.023) centered exponential .60 .20 .206 (.019) .973 (.056) 1.026 (.044)
+> .75 .50 .487 (.021) .720 (.026) .686 (.026)
+> .90 .80 .802 (.020) .891 (.022) .876 (.022)
+
+the oracle calibration error decreases at the rate rm(β) of (13): it is the least-squares slope of the logarithm of this error on log rm(β), which equals the ratio of the decay exponent of the error to that of rm(β) when both are powers of m; the value one means that the error decreases at the rate 
+
+rm(β), and a larger value that it decreases faster. The total length error ratio is the same number for the length error, on log rn(β), and checks whether the length error decreases at the rate of Theorem 4. The Monte Carlo standard error of each number is its standard deviation over 2000 
+
+bootstrap replications that resample the 1000 trajectories of each cell with replacement, keeping the quantities of a trajectory together. The Gaussian rows of Table 1 report the three numbers. The estimated mean squared errors agree with the exact vn within 1.7 Monte Carlo standard errors in all 18 cells, and the estimation error exponents .211 , .544 and .806 are close to 2β − 1: the center converges slowly. The two ratios are close to one. At β = .6, they correspond to decay exponents of about .21 and .20 , against .1 for the rate m1/2−β of Theorem 3, and at β = .9 to about .53 and .54 , against .5 for rm(β) and .4 for 
+
+m1/2−β . At β = .75 the ratios 1.118 and 1.110 exceed one: over this range the errors decrease faster than {log( m + 1) /m }1/2. The oracle calibration error and the length error therefore follow the rates of Theorem 4 and decrease faster than the center converges. D.4 EXTENSION OF STUDY 2: N ON -G AUSSIAN INNOVATIONS 
+
+Section 4 proves the sharper rate for Gaussian innovations and attributes it to the symmetry of their law. This subsection repeats Study 2 with two non-Gaussian innovation laws and the same coeffi-cients. The Laplace law is symmetric, and tests whether the improvement extends beyond Gaussian innovations, as Section 4 expects. The centered exponential law is asymmetric by design, and tests whether the improvement rests on symmetry, in which case the length error should approach the rate of Theorem 3. The observations are Yt = Gt = P 
+
+> j≥0
+
+aj εt−j , with the coefficients of Appendix D.1, β ∈{.6, . 75 , . 9} and i.i.d. innovations with mean zero and variance one: Laplace with scale 2−1/2,or Exp(1) − 1, which has skewness 2. The center is the empirical median of the training block, which estimates the center c of the CMR oracle interval c ± q, the median of Gt; the radius q is the 
+
+(1 − α)-quantile of |Gt − c|, computed by numerical inversion of the characteristic function of Gt
+
+with an error below 2 × 10 −6. The cells are n = m ∈ { 128 , . . . , 4096 }, and the quantities and the three numbers are those of Study 2, with the known center c in the oracle calibration error. Paths with non-Gaussian innovations cannot be generated by circulant embedding. For a path of length 
+
+N and L the smallest power of two that is at least max(2 20 , 64 N ), we compute Gt = Ht + Rt for 
+
+1 ≤ t ≤ N , where Ht = Pts=1 −L at−sεs is obtained exactly from L + N simulated innovations by a fast Fourier convolution, and the remote part Rt = P 
+
+> s≤− L
+
+at−sεs is replaced by a Gaussian vector with its exact covariance. This keeps the covariance of the path and changes only the higher 33 128 256 512 1024 2048 4096                   
+
+> n=m
+> 10 −1
+> expected length error
+> (a) Laplace
+> 128 256 512 1024 2048 4096
+> n=m
+> 10 −1
+> 2 × 10 −1
+> 3 × 10 −1
+> 4 × 10 −1
+> 6 × 10 −1
+> (b) centered exponential
+> β= 0.60 β= 0.75 β= 0.90 rn(β) (Thm. 4) n1/2 − β(Thm. 3)
+
+Figure 5: Extension of Study 2, CMR with the empirical median as center, for (a) Laplace and (b) centered exponential innovations and β ∈ { .6, . 75 , . 9}: length error with n = m, with the rate rn(β)
+
+of Theorem 4 (dashed) and the rate n1/2−β of Theorem 3 (dotted), matched to the empirical curves at 256 . Pointwise 95% Monte Carlo intervals. cumulants of Rt, a weighted sum of infinitely many innovations with small weights. With Gaussian innovations, the same algorithm reproduces Study 2 within Monte Carlo error. Figure 5 shows the length error, and Table 1 gives the three numbers. With Laplace innovations, the findings of Study 2 hold: the estimation error exponents are close to 2β − 1, and the oracle calibration and total length error ratios are close to one, between .905 and 1.106 . With centered exponential innovations, the total length error ratios at β = .75 and .9 are .686 and .876 , well below one, whereas the same ratios computed with the rate n1/2−β of Theorem 3 in place of rn(β) are 
+
+1.171 and 1.095 , close to one: the length error follows the rate of Theorem 3 more closely than that of Theorem 4. At β = .6, however, the total length error ratio is 1.026 , and 2.051 with the rate of Theorem 3. The exception at β = .6 has a simple source: long memory makes the law of Gt more symmetric. Under the centered exponential law, the skewness of Gt is 2 P 
+
+> j≥0
+
+a3 
+
+> j
+
+, which equals .76 , 1.60 and 
+
+1.95 at β = .6, .75 and .9, since a0 = .70 , .92 and .99 : the stronger the memory, the more the coefficients spread each innovation over many lags, and the closer the law of Gt is to a Gaussian law. The asymmetry enters the length through the first-order term of the population radius. Let f be the density of Gt, c its median and q the oracle radius, and let a(g) now denote the (1 − α)-quantile of |Gt − c − g|, so that a(0) = q; implicit differentiation gives 
+
+a′(0) = f (c − q) − f (c + q)
+
+f (c − q) + f (c + q) ,
+
+which vanishes for a symmetric law, as in Appendix C.2. The densities f (c − q) and f (c + q) at the oracle endpoints are .078 and .106 , .005 and .108 , and below 10 −4 and .101 at β = .6, .75 and .9, so that |a′(0) | = .15 , .91 and 1.00 . By the reduction principle for the empirical process of long-memory linear processes (Wu, 2003), the empirical distribution function of the calibration block differs from the distribution function of Gt at x, to first order, by −f (x) ¯Gm, where ¯Gm = m−1 Pmi=1 Gn+i. The known-center radius, the k-th smallest of |Gn+i − c|, therefore has the first-order error −a′(0) ¯Gm,whose expected absolute value is about |a′(0) |(2 vm/π )1/2.At m = 4096 , this first-order part is about .05 , .09 and .03 at β = .6, .75 and .9, against observed oracle calibration errors of .16 , .10 and .05 . At β = .75 and .9 it is the larger part of the error, which then decreases at about the rate m1/2−β . At β = .6 the error is dominated by the part that Gaussian innovations also produce, about .14 at m = 4096 , which decreases like rm(β) = m−.2, whereas the first-order part decreases only like m−.1 and would dominate only for m of the order of 10 8.Accordingly, the total length error ratios computed with the rate of Theorem 3, 2.05 , 1.17 and 1.09 
+
+at β = .6, .75 and .9, decrease as the skewness grows. Hence the more symmetric the law of the 34 series, the closer the length error is to the rate of Theorem 4, and the more skewed, the closer it is to the rate of Theorem 3. The extension thus supports both the expectation of Section 4 for symmetric innovations and its dependence on symmetry. D.5 STUDY 3: T HE LOWER BOUND 
+
+This subsection specifies Study 3 and reports its complete results. The study illustrates the training term of the lower bound (16) of Proposition 5: for a fixed training block, the length error remains at least of the order of the mean squared error of the center, however long the calibration block. The model is that of Study 2 with β = .9 and the sample mean as center. Proposition 5 gives the lower bound when m ≥ Kn max(1 ,4β−2) log( n + 1) , which is m ≥ Kn 1.6 log( n + 1) 
+
+at β = .9, for a constant K that the proposition does not specify. The cells are therefore 
+
+n ∈ { 64 , 128 , 256 , 512 , 1024 } and m = 2 ⌈log 2(Kn 1.6)⌉ for K ∈ { 1, 4, 16 , 64 }, from 1024 to 
+
+4,194 ,304 . The grid omits the factor log( n + 1) , which varies only by a factor 1.66 over the tested 
+
+n, less than the factor 4 between consecutive values of K.The quantity of interest is the length error E| len bCMα − 2zα| = 2 E| bSM 
+
+> (k)
+
+− zα|. To separate the contribution of the center from that of the calibration, let g = ¯Gn be the error of the training mean and a(g) the radius of Appendix C, the (1 − α)-quantile of |Z − g| for Z ∼ N (0 , 1) . Taking expectations in (32) gives 
+
+2E| bSM 
+
+> (k)
+
+− zα| − 2E{a(g) − zα} ≤ 2E| bSM 
+
+> (k)
+
+− a(g)|.
+
+The term 2E{a(g) − zα}, which we call the reference, is the length error of the interval calibrated on an infinitely long block, and it depends only on the center. The right-hand side, which we call the calibration error, is the error of calibrating on a block of length m. The display thus states that the length error differs from the reference by at most the calibration error. Since g ∼ N (0 , v n) exactly, the reference equals 4 R ∞ 
+
+> 0
+
+{a(v1/2 
+
+> n
+
+u)−zα}ϕ(u) du and is computed by quadrature; by Lemma 15(iv) it is asymptotically zαvn, and its values .054 , .031 , .018 , .010 and .006 for n = 64 , . . . , 1024 are within 2.2% of zαvn. The calibration error is estimated on each trajectory, with a(g) solved for the realized g.Figure 3 reports all 20 cells. As K grows, the calibration error halves from each value of K to the next, as the calibration rate m−1/2 predicts, for example from .078 at K = 1 to .040 , .020 and .010 
+
+at n = 64 , and the length error approaches the reference at every training size. With K = 64 , the calibration error is at most .20 times the reference, so that the length error lies within about 20% of the reference; it is in fact between .997 and 1.080 times the reference, and from K = 16 to K = 64 
+
+it changes by less than 1.96 standard errors of the change at every size. With K = 64 , the length error decreases from .056 at n = 64 to .0065 at n = 1024 , a factor of 8.57 , against the factor 9.19 
+
+of n−.8 over the same range. Once the calibration is accurate, the length error therefore stays at the level zαvn set by the center, which decreases only as the training block grows, at the rate n−(2 β−1) 
+
+of the mean squared error of the center. 
+
+## E APPLICATION : D AY -A HEAD LOAD FORECAST ERRORS 
+
+Every morning, the New York Independent System Operator (NYISO) publishes a forecast of the hourly electricity load of the New York control area (NYCA) for the following day (New York Independent System Operator, 2026b), and it later publishes the load that was actually served (New York Independent System Operator, 2026a). A prediction interval around the forecast states how far the actual load may fall from it, and such probabilistic load forecasts have become important to the planning and operation of energy systems (Hong & Fan, 2016). We construct the intervals by split conformal calibration of the percentage forecast error Y = 100( A − F )/F , where A is the actual load and F the forecast, with one daily series for each hour of the day. The errors are persistent and, as we show below, have long memory, so exchangeability fails, whereas the theory of Section 3 in principle allows for long memory. We use data from 2005 on, because the median error shifts by about 2.5 percentage points in January 2005. The years 2005–2013 served to choose and fix the design, which was then applied once to the 111 ,010 hourly targets from 1 January 2014 to 31 August 2026, to measure how often the 90% intervals contain the actual load and how wide they are. 35 0.5 0.6 0.7 0.8 0.9 1.0 Hurst exponent (DFA) 010 20 30 40 Series (of 264) 
+
+> (a)
+> H = .5 median = .749
+> NYCA CAPITL CENTRL DUNWOD GENESE HUD VL MHK VL MILLWD NORTH WEST NYC+LI
+> 0.5 0.6 0.7 0.8 0.9 Hurst exponent (DFA)
+> (b)
+
+Figure 6: Application, Hurst exponents: (a) histogram; (b) box plots of the estimates by area. For the target day D, the calibration block consists of the m days ending on D−2, all of whose hours have ended before the forecast for D is posted, and the training block of the n days immediately before it, with n = m ∈ { 365 , 730 , 1461 }. The target is thus two days after the calibration block, the fixed horizon h = 2 of Appendix A.4. The origin rolls daily, and every fit is recomputed at every origin. Missing days are skipped, and k = ⌈(m′ + 1)(1 − α)⌉ with α = .1 and m′ the number of available calibration days. • CMR uses a constant covariate. The center bμ is the training median of Y , the radius bSM 
+
+> (k)
+
+is the k-th smallest value of |Yt − bμ| over the calibration block, and the interval for the load is [F {1 + ( bμ − bSM
+
+> (k)
+
+)/100 }, F {1 + ( bμ + bSM
+
+> (k)
+
+)/100 }].• CQR fits linear quantile regressions of Y at the levels .05 and .95 on the forecast, stan-dardized on the training block, and on two annual harmonics of the day of the year d,
+
+cos(2 πjd/ 365 .25) and sin(2 πjd/ 365 .25) for j = 1 , 2, and calibrates them with the score of Section 2.1. Each fit is a linear program, accepted only if a feasible dual solution certifies its objective to within 10 −6; no fit failed. • The width of the hindsight interval, defined after the evaluation, is a proxy for the oracle width. With a constant covariate, the oracle CMR interval of Section 2.2 is μ ± qα, with μ
+
+the median of Y under the stationary law and qα the (1 − α)-quantile of |Y − μ|, and its width is 2qα. CMR estimates μ from the n training errors and qα from the m calibration errors. The hindsight interval ˜μ ± ˜q of an hour estimates both from all N errors of that hour in the evaluation period ( N ≥ 4613 ): ˜μ is their median and ˜q the ⌈(N +1)(1 −α)⌉-th small-est value of |Y − ˜μ|. Under the model of Section 2, the errors are ergodic (Appendix B.1), so ˜μ and ˜q converge to μ and qα as N grows when μ is unique and Assumption 2 holds; for finite N , the hindsight width 2˜ q is an estimate of 2qα with an error of its own. The hindsight interval uses the targets themselves, so it cannot be used for prediction, and it covers .900 of them by construction. Hurst exponents are estimated by detrended fluctuation analysis (Peng et al., 1994) for the 264 
+
+hourly error series of NYCA and its ten zone areas (the eleven NYISO load zones, with New York City and Long Island combined) over the evaluation period. Figure 6 shows their histogram, with the 24 NYCA series marked below the axis, and their box plots by area, 24 hourly series each: all 
+
+264 estimates exceed .5, with median .749 , so the errors have long memory. Figure 7 shows the results. At n = m = 730 , CMR and CQR both cover .895 of the 111 ,010 targets, 
+
+.005 below the nominal level, and with n = m = 365 and 1461 their coverage lies between .886 and 
+
+.899 . Coverage varies over the years, from .833 in 2016 to .934 in 2019 for CMR. The mean width of CMR is 5.86% , 5.81% and 5.90% of the forecast for n = m = 365 , 730 and 1461 , or 1017 MW at 730 , and that of CQR 6.01% , 5.86% and 5.96% . The mean width of the hindsight interval is 
+
+5.91% , or 1036 MW (Figure 7(c)), and 5.82% and 5.79% when it is computed from 2014–2019 36 Jan Mar May Jul Sep Nov 15 20 25 30 NYCA load, hour 16 (GW)       
+
+> (a)
+> CMR interval CQR interval Day-ahead forecast Actual load CMR miss (44) CQR miss (41)
+> 2014 2018 2022 2026 Year of target day 0.825 0.850 0.875 0.900 0.925 Coverage
+> (b)
+> CMR CQR
+> 2014 2018 2022 2026 Year of target day 5.0 5.5 6.0 6.5 7.0 Mean CMR width (% of forecast)
+> (c)
+> n = m = 365 n = m = 730 n = m = 1461 hindsight
+
+Figure 7: Application, NYCA, evaluation period 2014–2026. (a) Hour beginning 16:00, target days in 2025, n = m = 730 : actual load, forecast, CMR interval (band) and CQR interval (lines), in GW, with the misses of each method marked. (b) Coverage by year of CMR and CQR, n = m = 730 ,over all 24 hours; the dashed line is the nominal level; 2026 covers January to August. (c) Mean width of CMR by year, in percent of the forecast, for n = m = 365 , 730 and 1461 ; the dashed line is the mean width of the hindsight interval. and from 2020–2026 only. On average, and relative to the mean hindsight width, the CMR width at a single origin with n = m = 730 differs from the hindsight width of its hour by 9% , and the hindsight widths of an hour computed from 2014–2019 and from 2020–2026 differ by 13% .The results make two points. First, although the errors have long memory, both procedures cover close to the nominal level of 90% over more than twelve years of targets that were not used to design them. Second, and more important, the mean width of CMR is within 2% of the hindsight width at every block size: to the accuracy of this proxy, the calibrated interval is on average as wide as the oracle interval. Since the hindsight width is itself an estimate, the comparison concerns average widths, not the width at a single origin. 37

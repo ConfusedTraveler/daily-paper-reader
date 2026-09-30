@@ -6,32 +6,38 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-29
-- 运行时间：2026-09-29 22:54:32 UTC
+- 最新运行日期：2026-09-30
+- 运行时间：2026-09-30 23:36:31 UTC
 - 运行状态：成功
-- 本次总论文数：4
-- 精读区：2
-- 速读区：2
+- 本次总论文数：5
+- 精读区：0
+- 速读区：5
 
 ### 今日简报（AI）
-今日精读2篇、速读2篇共4篇，聚焦几何诱导软状态抽象的预测极限与Koopman闭包，以及马尔可夫数据下次词预测的信息论分析。最值得看的是两篇8分工作：前者揭示几何结构如何限制软状态抽象的可预测性，后者用信息论刻画马尔可夫数据下next-token预测的极限。普通读者可先读这两篇精读，再按需浏览时间序列的Conformal覆盖与Hankel-Toeplitz长期预测速读。
-- 详情：[/202609/29/README](/202609/29/README)
+- 今日共生成 5 篇推荐（精读 0 篇，速读 5 篇）
+- 速读：《Model-Agnostic Online Certificate-Driven Calibration for Time Series Forecasting Under Distribution Shift》（7.0/10）, 《Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory》（7.0/10）, 《Agnostic Smoothed Online Regression with Adversarial Responses》（6.0/10）
+- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
+- 详情：[/202609/30/README](/202609/30/README)
 
 ### 精读区论文标签
-1. [Prediction Limits and Koopman Closure of Geometry-Induced Soft State Abstractions](/202609/29/2609.32652v1-prediction-limits-and-koopman-closure-of-geometry-induced-soft-state-abstractions)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：最小预测误差下界
-2. [Information-Theoretic Analysis of Next-Token Prediction under Markovian Data](/202609/29/2609.34731v1-information-theoretic-analysis-of-next-token-prediction-under-markovian-data)  
-   标签：评分：8.0/10、query:pred-limit
-   evidence：下一词预测的信息论泛化界
+- 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Conformal Coverage of Time Series: Validity and Inference](/202609/29/2609.33868v1-conformal-coverage-of-time-series-validity-and-inference)  
+1. [Model-Agnostic Online Certificate-Driven Calibration for Time Series Forecasting Under Distribution Shift](/202609/30/2609.31960v1-model-agnostic-online-certificate-driven-calibration-for-time-series-forecasting-under-distribution-shift)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：时间序列预测边际覆盖误差的非渐近界
-2. [From HL to H+L-1 Parameters: A Hankel-Toeplitz Forecaster for Long-Term Time Series Forecasting](/202609/29/2609.33984v1-from-hl-to-hl-1-parameters-a-hankel-toeplitz-forecaster-for-long-term-time-series-forecasting)  
+   evidence：为分布偏移下的时间序列预测提供有限样本证书和理论界限
+2. [Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory](/202609/30/2609.32713v1-concentration-of-empirical-entropy-and-transfer-entropy-for-non-regular-chains-with-unbounded-memory)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：熵率界限关联可预测性
+3. [Agnostic Smoothed Online Regression with Adversarial Responses](/202609/30/2609.32478v1-agnostic-smoothed-online-regression-with-adversarial-responses)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：经典平稳预测理论与最小MSE预测器
+   evidence：在线预测精度的理论遗憾界
+4. [Valid and Efficient Split Conformal Regression for Time Series](/202609/30/2609.33866v1-valid-and-efficient-split-conformal-regression-for-time-series)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：时间序列预测的非渐近覆盖与区间长度保证
+5. [Diffusion-Based Rollouts as a Stabilization Mechanism for Long-Horizon Environmental Forecasting](/202609/30/2609.33930v1-diffusion-based-rollouts-as-a-stabilization-mechanism-for-long-horizon-environmental-forecasting)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：预测误差增长与时效极限
 
 
 <div class="dpr-home-promo-card">

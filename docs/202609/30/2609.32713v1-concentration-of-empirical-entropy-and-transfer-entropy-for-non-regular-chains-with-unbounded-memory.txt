@@ -1,0 +1,5834 @@
+Title: Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory
+
+URL Source: https://arxiv.org/pdf/2609.32713v1
+
+Published Time: Tue, 29 Sep 2026 01:37:25 GMT
+
+Number of Pages: 49
+
+Markdown Content:
+# Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory 
+
+José O. Santana a, Ricardo F. Ferreira b
+
+> aDepartment of Mathematics, Federal University of Reconcavo da Bahia, Amargosa, 45300-000, BA, Brazil
+> bDepartment of Statistics, Federal University of São Carlos, São Carlos, 13565-905, SP, Brazil
+
+Abstract 
+
+We study plug-in estimators of the entropy rate and the transfer entropy rate for station-ary finite-alphabet chains with unbounded memory. Under a coalescent coupling-from-the-past assumption, we establish non-asymptotic concentration inequalities around the expectations of the estimators. Under additional uniform non-nullness and exponential 
+
+β-mixing assumptions, we control the corresponding biases and obtain concentration around the entropy and transfer entropy rates, together with almost-sure consistency. The results apply to chains governed by g-functions that need not be globally continuous. 
+
+Keywords: entropy rate, transfer entropy rate, plug-in estimator, stochastic chains with unbounded memory, non-regular g-functions, concentration inequalities 
+
+1. Introduction 
+
+Transfer entropy is an information-theoretic measure of directed dependence between two stochastic processes. More precisely, it quantifies how much knowledge of the past of one process reduces the uncertainty about the next state of another process, beyond what is already explained by the latter’s own past. Introduced by Schreiber (2000) and, independently, by Paluš et al. (2001), transfer entropy has since found applications in several areas, including neuroscience (Vicente et al., 2011; Izzi et al., 2024) and finance (Marschinski and Kantz, 2002; Dimpfl and Peter, 2013). In this paper, random information sources are modeled as discrete-time, time ho-mogeneous stochastic processes taking values in finite alphabets. Our main object of interest is the transfer entropy rate , which describes the asymptotic directed predictive dependence between two stochastic processes. Unlike symmetric information-theoretic quantities, transfer entropy distinguishes the direction of dependence and is therefore of-ten interpreted as an operational notion of causality in a predictive sense. In this respect, it provides a complementary viewpoint to the classical Granger framework (Granger, 
+
+> ⋆In honor of Antonio Galves, whose mathematical insight lives on through generations of mathemati-cians. arXiv:2609.32713v1 [math.PR] 26 Sep 2026
+
+1969), whose standard formulation is based on linear predictive models, while transfer entropy is not restricted to linear dependence. A natural statistical question is whether the entropy rate and the transfer entropy rate can be consistently estimated and, beyond consistency, how the corresponding es-timators fluctuate in finite samples. As we shall see, these two quantities are closely re-lated, and so are their plug-in estimators. The main goal of this paper is to characterize the non-asymptotic stochastic behavior of these estimators. More precisely, we establish concentration inequalities around their expectations under the coupling-from-the-past assumption, and, under the additional uniform non-nullness and exponential β-mixing assumptions, concentration inequalities around the corresponding entropy and transfer entropy rates (Theorems 1, 2, 3 and 4). Our results apply to chains with unbounded memory governed by g-functions that are not necessarily continuous. The probabilistic framework underlying these results is that of g-functions. A g-function specifies a one-step transition distribution as a function of the entire past. This framework includes finite-order Markov chains but, more importantly for the present work, also allows for stochastic chains with unbounded memory, classically studied under the name chains with complete connections . Systematic investigations of such processes date back to Onicescu and Mihoc (1935) and Doeblin and Fortet (1937). The terminology 
+
+g-function was introduced by Keane (1972) and has since become standard, particularly in the ergodic-theory literature (Ledrappier, 1974; Walters, 1975; Hulse, 1991; Johansson and Öberg, 2008). The information-theoretic rates considered above are well defined under the station-arity of the underlying process. A stationary probability measure compatible with a 
+
+g-function is commonly referred to as a g-measure . Thus, in order to study the estima-tion of the entropy rate and the transfer entropy rate, one must work with a stationary probability measure compatible with the underlying g-function. Uniqueness is not re-quired for the definition of these rates for a fixed stationary chain, but it ensures that the g-function determines a unique stationary law. Classical sufficient conditions for the existence and uniqueness of g-measures are typically formulated in terms of the conti-nuity properties of the g-function (Harris, 1955; Keane, 1972). More recently, several works (De Santis and Piccioni, 2012; Gallo and Garcia, 2013; Gallo and Paccaut, 2013; Oliveira, 2015; Ferreira et al., 2020; Gallesco et al., 2026) have investigated stationary compatible measures in settings where the underlying g-functions may be discontinuous. The framework considered in this paper belongs to this latter setting, i.e., we do not assume global continuity of the g-function. The estimation of entropy rates from empirical block frequencies has a long history. For chains with infinite memory, Gabrielli et al. (2003) studied the fluctuations of empir-ical entropies based on blocks of logarithmically increasing length, establishing a central limit theorem for the conditional empirical entropy under exponential loss of memory. Subsequently, Chazottes and Gabrielli (2005) established large-deviation principles for conditional and non-conditional empirical entropies of g-measures. For one-dimensional Gibbs measures, Chazottes and Maldonado (2011) derived concentration inequalities for empirical-frequency entropy estimators, including concentration of the conditional em-2pirical entropy around the entropy rate. More recently, Chazottes et al. (2023) obtained Gaussian concentration bounds for plug-in entropy estimators of stochastic chains with unbounded memory under summability conditions on the variations or oscillations of the transition kernel. The results obtained here concern a different regime: the under-lying g-function need not be globally continuous, and concentration is instead obtained from a coalescent coupling-from-the-past construction, with uniform non-nullness and exponential β-mixing used to control the bias when concentration around the entropy rate is considered (see Theorems 1 and 2). Related exponential inequalities in the sta-tistical analysis of variable-length Markov chains were obtained by Galves et al. (2008), who derived finite-sample bounds for empirical context-tree estimation and established almost-sure consistency of the Context algorithm. Several approaches have been proposed for estimating transfer entropy from observed time series. These include symbolic methods (Staniek and Lehnertz, 2008), nonpara-metric procedures based on discretization, kernel-density estimation, and adaptive par-titioning (Verdes, 2005; Lee et al., 2012), bias-compensated estimators designed for finite and high-dimensional samples (Faes et al., 2013), and multiscale approaches (Lungarella et al., 2007). For the transfer entropy rate specifically, Restrepo et al. (2020) proposed an estimator based on Lempel–Ziv complexity. These works provide a variety of com-putational approaches to transfer-entropy estimation, but comparatively less is known about the rigorous finite-sample fluctuations of the corresponding estimators. From a theoretical perspective, the estimation of directed information provides a closely related precedent. Kontoyiannis and Skoularidou (2016) studied the plug-in estimator of the directed information rate for finite-order Markov processes, establishing its asymptotic distribution and its connection with likelihood-ratio testing for causal influence. Build-ing on this statistical framework, Izzi et al. (2024) considered the plug-in estimator of the transfer entropy rate for variable-length Markov chains with bounded memory, derived its asymptotic distribution under the null hypothesis of vanishing transfer en-tropy, and applied the resulting methodology to the identification of effective connec-tivity in stochastic neuronal networks. Moving from asymptotic distribution theory to non-asymptotic concentration, Ferreira (2021) established concentration bounds for the plug-in estimator of directed information for chains with unbounded memory under con-tinuity and exponential loss-of-memory conditions. In the present work, we study instead the plug-in estimator of the transfer entropy rate for stationary finite-alphabet chains with unbounded memory without requiring the underlying g-function to be globally continuous. We derive non-asymptotic concentration inequalities around its expectation under a coalescent coupling-from-the-past assumption, and, under additional uniform non-nullness and exponential β-mixing assumptions, obtain concentration around the transfer entropy rate itself (see Theorems 3 and 4). The remainder of the paper is organized as follows. In Section 2, we introduce the notation and preliminary notions used throughout the paper, with particular emphasis on chains with unbounded memory, entropy rates, transfer entropy rates, and their plug-in estimators. Section 3 presents our main concentration results. In Section 4, we illustrate these results through numerical simulations for the non-Markovian models 3introduced in Section 2. The proofs of the main results are given in Section 5. Finally, Section 6 contains some concluding remarks. 
+
+2. Notations, definitions and preliminary notions 
+
+We begin by establishing the notation and basic concepts that will be used throughout the article. 
+
+2.1. Notations 
+
+In this work, we consider a finite set Z endowed with the discrete topology, which we refer to as the alphabet . We denote by Z := {. . . , −1, 0, 1, . . . } the set of integers and take 
+
+N := {0, 1, 2, . . . } as the set of natural numbers. We denote by z := ( . . . , z −1, z 0, z 1, . . . ) ageneric element of ZZ, endowed with the product topology; thus, z ∈ Z Z is a bi-infinite sequence of symbols from Z. Given integers j ≤ k, we write [[ j, k ]] := Z ∩ [j, k ] and denote by zkj := ( zj , z j+1 , . . . , z k) ∈ Z [[ j,k ]] the corresponding finite block, whose length is 
+
+|zkj | := k − j + 1 . By convention, if j > k , then zkj denotes the empty block and |zkj | = 0 .Given zkj ∈ Z [[ j,k ]] , we denote by [zkj ] the associated cylinder set, namely 
+
+[zkj ] := w ∈ Z Z : wi = zi for all i ∈ [[ j, k ]] .
+
+When j = 1 , we write Z[[1 ,k ]] simply as Zk. In particular, a block z−1 
+
+> −k
+
+of length k is naturally regarded as an element of Zk. We denote by 
+
+Z∗ := [
+
+> m∈N
+
+Zm, Z0 := {∅},
+
+the set of all finite blocks over Z, including the empty block. For every k ∈ Z, we denote by Z≤k the set of left-infinite pasts zk 
+
+> −∞
+
+:= ( . . . , z k−1, z k), and by Z≥k the set of right-infinite futures z+∞ 
+
+> k
+
+:= ( zk, z k+1 , . . . ).
+
+Given two finite blocks zkj and wts, with j ≤ k and s ≤ t, their concatenation is denoted by zkj wts := ( zj , . . . , z k, w s, . . . , w t), and concatenation extends to semi-infinite sequences in the obvious way. We denote random variables by uppercase letters, stochastic chains by bold uppercase letters, and their realizations by lowercase letters. In particular, Z := {Zt : t ∈ Z}
+
+denotes a stochastic chain, and subscripts indicate time/position in a sequence. We denote by F := B ZZ the Borel σ-algebra of ZZ, which, under the product topology, is equivalently the σ-algebra generated by the cylinder sets. Let πj : ZZ → Z ,
+
+πj (z) := zj , denote the j-th coordinate projection. For each k ∈ Z, we set F≤k := σ(πj :
+
+j ≤ k) and F≥k := σ(πj : j ≥ k). Thus, F≤k contains the events determined by the coordinates up to time k, whereas F≥k contains those determined by the coordinates from time k onward. We set N∗ := N \ { 0}, N := N ∪ { +∞} and N∗ = N∗ ∪ { +∞} . Finally, 1{·} stands for the indicator function. 42.2. Chains with unbounded memory 
+
+Chains with unbounded memory represent a natural generalization of finite-order Markov chains. In this setting, the probability of the next symbol may depend on the entire past of the process, in contrast to Markov chains in which the dependence is restricted to a fixed number of previous states. The dynamics of such a process are described by a g-function , that is, a family of transition probabilities specifying the law of the next symbol as a function of the infinite past. Formally, a g-function is a measurable function g : Z≤− 1 × Z −→ [0 , 1] such that 
+
+∀ z−1 
+
+> −∞
+
+∈ Z ≤− 1, X
+
+> z0∈Z
+
+g(z0 | z−1
+
+> −∞
+
+) = 1 .
+
+In other words, a g-function specifies a one-step transition distribution given the entire past, thus playing the role of a transition rule for chains with unbounded memory. Since we are interested in time-homogeneous chains, we shall use the same g-function at every time index. With a slight abuse of notation, for each i ∈ Z and any z ∈ Z Z, we write 
+
+g(zi | zi−1
+
+> −∞
+
+) := g  zi | (T iz)−1
+
+> −∞
+
+ ,
+
+where T : ZZ → Z Z denotes the left-shift operator , that is, 
+
+(T z )t = zt+1 , t ∈ Z.
+
+More generally, for every i, t ∈ Z,
+
+(T iz)t = zt+i.
+
+In this way, the same transition rule is used at every time index, which reflects the homogeneity of the dynamics. A stochastic chain Z := {Zt : t ∈ Z} defined on a probability space (Ω , Σ, P), whose variables take values in the alphabet Z, is said to be compatible with a given g-function 
+
+g if, for every i ∈ Z and every a ∈ Z ,
+
+P (Zi = a | σ(Zj : j ≤ i − 1)) = g  a | Zi−1
+
+> −∞
+
+ P-a.s. Thus, the same conditional rule, prescribed by g, applies at every time index, which expresses the time homogeneity of the transition mechanism. Hence, chains compatible with a given g-function are governed by the transition probabilities prescribed by g.When these transition probabilities genuinely depend on arbitrarily remote coordinates of the past, the corresponding chain is said to have unbounded memory . More precisely, the transition mechanism specified by g is said to be of finite order if there exists some 
+
+k ∈ N∗ such that, for every a ∈ Z and every z−1
+
+> −∞
+
+, w −1 
+
+> −∞
+
+∈ Z ≤− 1,
+
+z−1 
+
+> −k
+
+= w−1 
+
+> −k
+
+=⇒ g(a | z−1
+
+> −∞
+
+) = g(a | w−1
+
+> −∞
+
+).
+
+In this case, the transition probabilities depend only on the last k symbols of the past. If no such finite k exists, we say that the transition mechanism has unbounded memory .5In other words, under unbounded memory, the portion of the past needed to determine the transition probabilities is not uniformly bounded over all pasts. Depending on the past, it may be finite but arbitrarily long, or it may be genuinely infinite. Let μ denote the law of Z on (ZZ, F). Then, for every a ∈ Z ,
+
+Eμ
+
+1[a] F≤− 1 (z) = g  a | z−1
+
+> −∞
+
+ μ-a.s. Although the law μ of a given chain is uniquely determined by the chain, a given g-function may admit more than one compatible probability measure. A probability measure μ on (ZZ, F) is said to be shift-invariant if 
+
+μ(B) = μ(T −1B), ∀ B ∈ F .
+
+A shift-invariant probability measure μ that is compatible with the g-function g is called a g-measure . Equivalently, under a g-measure, the canonical stochastic chain is station-ary and its transition probabilities are prescribed by g. The existence of a g-measure, however, is not automatic for a general g-function. Classical examples help illustrate how g-functions extend familiar models. In the i.i.d. case, the transition rule is independent of the past and is given by 
+
+g(z0 | z−1
+
+> −∞
+
+) = P(Z0 = z0), z0 ∈ Z .
+
+More generally, for a homogeneous Markov chain of order k ∈ N∗, the next symbol depends only on the last k symbols of the past, and hence 
+
+g(z | z−1
+
+> −∞
+
+) = Q(z−1 
+
+> −k
+
+, z ), z ∈ Z ,
+
+where Q is the corresponding transition kernel. Thus, i.i.d. sequences and finite-order Markov chains arise as particular cases of chains described by g-functions. These examples also illustrate that, in classical settings, the associated g-measure is well understood. In the i.i.d. case, it exists and is unique. For a homogeneous Markov chain of order k on a finite alphabet, a stationary measure exists, and it is unique under the usual irreducibility assumption when the chain is viewed on the state space Zk. For general g-functions with unbounded memory, however, existence and uniqueness can no longer be deduced directly from the finite-state Markov-chain framework and may require additional assumptions. This point is illustrated in the following example. 
+
+Example 1 (A non-Markovian g-function) Let the alphabet be Z = {0, 1} and let 
+
+(qn)n∈N∗ be a sequence of real numbers in [0 , 1] . We define the g-function g : {0, 1}≤− 1 ×{0, 1} → [0 , 1] by 
+
+g(1 | z−1
+
+> −∞
+
+) := qℓ(z−1
+
+> −∞ )
+
+, g(0 | z−1
+
+> −∞
+
+) := 1 − qℓ(z−1
+
+> −∞ )
+
+,
+
+where, for any z−1 
+
+> −∞
+
+∈ Z ≤− 1,
+
+ℓ(z−1
+
+> −∞
+
+) := inf {k ≥ 1 : z−k = 1 },
+
+6with the convention that ℓ(z−1
+
+> −∞
+
+) = + ∞ whenever z−k = 0 for all k ≥ 1.In this case, the value of g(1 | z−1
+
+> −∞
+
+) depends on the distance to the most recent occurrence of the symbol 1 in the past sequence z−1
+
+> −∞
+
+. Thus, if Z is a chain compatible with g, its transition probabilities depend on a past whose length varies according to the location of the most recent occurrence of 1. In particular, 
+
+g(1 | 0−1
+
+> −∞
+
+) = q∞,
+
+corresponding to a past in which no 1 is observed. If no k ∈ N∗ exists such that 
+
+qk+1 = qk+2 = · · · = q∞,
+
+then the transition rule is not determined by any fixed finite portion of the past, and hence the model has unbounded memory. Notice that, except for the past 0−1
+
+> −∞
+
+, the relevant portion of the past is finite, but its length is not uniformly bounded. Such processes are called chains of variable-length memory (Galves and Löcherbach, 2008; Gallo, 2011). For this model, existence and uniqueness of a stationary probability measure depend on the parameters (qn)n∈N∗ . Assume first that q∞ > 0. By Cénac et al. (2012), a stationary probability measure compatible with g exists if and only if 
+
+X
+
+> n≥0
+
+cn < ∞, c0 := 1 , cn := 
+
+> n
+
+Y
+
+> i=1
+
+(1 − qi), n ≥ 1.
+
+Equivalently, 
+
+1 + X
+
+> n≥1
+> n
+
+Y
+
+> i=1
+
+(1 − qi) < ∞.
+
+Whenever it exists, this stationary probability measure is unique. On the other hand, if q∞ = 0 , the probability measure concentrated on the all-zero sequence is always stationary. Moreover, Cénac et al. (2012) show that if 
+
+X
+
+> n≥0
+
+cn = ∞,
+
+this is the unique stationary probability measure, whereas if 
+
+X
+
+> n≥0
+
+cn < ∞,
+
+the model admits a one-parameter family of stationary probability measures. 
+
+The existence of a g-measure is essential in our framework, since the information-theoretic rates considered in this work are well defined under stationarity and are pre-cisely the population quantities we aim to estimate. Moreover, together with the addi-tional probabilistic assumptions adopted throughout this work, it provides the setting 7in which our plug-in estimator converges to the population parameter of interest. No-tice, however, that uniqueness is not necessary for defining these information-theoretic quantities for a fixed stationary chain; rather, uniqueness ensures that the g-function determines a unique stationary probability law. For general g-functions, however, the existence and uniqueness of a compatible g-measure are not automatic. Classical sufficient conditions are often formulated in terms of continuity properties of the g-function and the rate at which its dependence on the remote past vanishes (Doeblin and Fortet, 1937; Harris, 1955; Keane, 1972; Johansson and Öberg, 2003). For a past z−1 
+
+> −∞
+
+∈ Z ≤− 1 and k ∈ N∗, define the local variation of g at 
+
+z−1 
+
+> −∞
+
+by 
+
+var k
+
+ g; z−1
+
+> −∞
+
+ := sup  
+
+> w−1
+> −∞ ∈Z ≤− 1
+> w−1
+> −k=z−1
+> −k
+
+X
+
+> a∈Z
+
+g(a | w−1
+
+> −∞
+
+) − g(a | z−1
+
+> −∞
+
+) .
+
+We say that g is continuous at z−1 
+
+> −∞
+
+if 
+
+lim  
+
+> k→∞
+
+var k
+
+ g; z−1
+
+> −∞
+
+ = 0 .
+
+The g-function is said to be continuous if it is continuous at every z−1 
+
+> −∞
+
+∈ Z ≤− 1.We also define the global variation of order k by 
+
+var k(g) := sup  
+
+> z−1
+> −∞ , w −1
+> −∞ ∈Z ≤− 1
+> z−1
+> −k=w−1
+> −k
+
+X
+
+> a∈Z
+
+g(a | z−1
+
+> −∞
+
+) − g(a | w−1
+
+> −∞
+
+) , k ∈ N∗.
+
+Since Z is finite and Z≤− 1 is compact under the product topology, continuity of g is equivalent to 
+
+lim  
+
+> k→∞
+
+var k(g) = 0 .
+
+The sequence {var k(g)}k≥1 describes how rapidly the influence of the remote past van-ishes and is commonly referred to as the variation rate (or continuity rate ) of g.When there exists more than one stationary probability measure compatible with g,we say that a phase transition occurs; when there exists only one, we speak of uniqueness .The decay of the variations of g plays an important role in classical uniqueness criteria for g-measures. More recently, existence and uniqueness results have also been established beyond the classical continuity regime, allowing the g-function to be discontinuous under suit-able structural assumptions on its set of discontinuity points (Gallo and Paccaut, 2013; Ferreira et al., 2020). The framework adopted in this paper belongs to this line of work. In particular, we do not assume global continuity of g. Instead, the standing assumptions introduced below combine structural and probabilistic conditions, ensuring that the sta-tionary regime under consideration is well-defined and suitable for the concentration analysis developed later. 8Assumption (I) . We assume that the g-function g is uniformly non-null , namely, there exists ϵ0 > 0 such that 
+
+g(a | z−1
+
+> −∞
+
+) ≥ ϵ0, ∀ z−1 
+
+> ∞
+
+∈ Z ≤− 1, ∀ a ∈ Z .
+
+In other words, uniform non-nullness ensures that the transition probability of every symbol is bounded away from zero, uniformly over all pasts. Following the usual terminology, a g-function is called regular if it is continuous and uniformly non-null. Otherwise, it is called non-regular . Thus, under Assumption (I) ,non-regularity in our framework arises from the possible discontinuity of the g-function. 
+
+Assumption (II) . We assume that the g-function g admits a coalescent coupling-from-the-past (CFTP) construction with an integrable backward coalescence time. The coupling-from-the-past method was introduced by Propp and Wilson (1996). Perfect simulation constructions were subsequently developed for stochastic chains with infinite memory by Comets et al. (2002), and later extended to broader classes of infinite-memory kernels; see, among others, De Santis and Piccioni (2012), Gallo (2011), and Gallo and Garcia (2013). More precisely, following the random mapping representation used in perfect sim-ulation constructions for chains with infinite memory (Comets et al., 2002; Gallo and Garcia, 2013), we assume that there exists an i.i.d. driving sequence 
+
+U := {Ut : t ∈ Z}, Ut ∼ Uniform[0 , 1] ,
+
+and a measurable update function 
+
+F : [0 , 1] × Z ≤− 1 −→ Z 
+
+representing the transition kernel g, in the sense that 
+
+λ   u ∈ [0 , 1] : F (u, z −1
+
+> −∞
+
+) = a  = g(a | z−1
+
+> −∞
+
+),
+
+for every a ∈ Z and every z−1 
+
+> −∞
+
+∈ Z ≤− 1, where λ denotes Lebesgue measure on [0 , 1] .Starting from an arbitrary remote past and recursively applying the update function using the driving variables, let the backward coalescence time θ denote the amount of time one has to go backward until the value produced at time 0 is the same for all possible remote initial pasts. This backward-coalescence formulation is standard in perfect simulation for chains with infinite memory; see, in particular, De Santis and Piccioni (2012). We assume that 
+
+P(θ < ∞) = 1 and E[θ] < ∞.
+
+Thus, once the construction is started sufficiently far in the past, the value produced at time 0 no longer depends on the remote initial condition. Equivalently, the present state can be determined exactly from an almost surely finite random portion of the i.i.d. driving sequence. Such coalescent constructions provide perfect simulation and, under 9the conditions ensuring almost sure termination, yield existence and uniqueness of the stationary probability measure compatible with the kernel; see, for instance, Gallo (2011) and Gallo and Garcia (2013) for infinite-memory settings, including classes beyond global continuity. For regular attractive kernels, Gallo and Takahashi (2014) further establish a close connection between uniqueness of the stationary compatible chain and the existence of a coupling-from-the-past perfect simulation scheme. We emphasize that, in the present work, Assumption (II) is imposed directly and does not require global continuity of the 
+
+g-function. The stronger integrability condition 
+
+E[θ] < ∞
+
+will be used quantitatively in the concentration bounds derived below. 
+
+Assumption (III) . We also assume that the stationary process Z compatible with the 
+
+g-function g is absolutely regular (equivalently, β-mixing ) with an exponential rate of decay. For each k ∈ Z, we define 
+
+F≤k 
+
+> Z
+
+:= σ(Zj : j ≤ k) and F≥k 
+
+> Z
+
+:= σ(Zj : j ≥ k).
+
+Thus, for n ≥ 1, F≤k 
+
+> Z
+
+contains the information carried by the process up to time k,whereas F≥k+n 
+
+> Z
+
+contains the information carried by the process from time k + n onward. The β-mixing coefficients of Z are defined by 
+
+β(n) := sup 
+
+> k∈Z
+
+β
+
+
+
+F≤k 
+
+> Z
+
+, F≥k+n
+
+> Z
+
+
+
+, n ≥ 1,
+
+where 
+
+β
+
+
+
+F≤k 
+
+> Z
+
+, F≥k+n
+
+> Z
+
+
+
+:= sup 
+
+(
+
+12
+
+> I
+
+X
+
+> i=1
+> J
+
+X
+
+> j=1
+
+|P(Ai ∩ Bj ) − P(Ai)P(Bj )|
+
+)
+
+,
+
+with the supremum being taken over all finite partitions {A1, . . . , A I } and {B1, . . . , B J }
+
+of Ω such that Ai ∈ F ≤k 
+
+> Z
+
+, i = 1 , . . . , I, and Bj ∈ F ≥k+n 
+
+> Z
+
+, j = 1 , . . . , J. 
+
+We say that Z is absolutely regular if 
+
+β(n) −→ 0, as n → ∞ .
+
+In addition, we assume that there exist positive constants δ and γ such that 
+
+β(n) ≤ γe −δn , n ≥ 1.
+
+Intuitively, this condition means that the dependence between the distant past and the distant future decreases exponentially fast as the gap between them increases. A non-Markovian g-function satisfying the Assumptions (I) - (III) is given by the following example. This example will also be used throughout the paper to illustrate the assumptions and the quantitative results obtained below. 10 Example 2 Consider the g-function defined in Example 1. Let 
+
+q2n−1 = 25, q2n = 13, n ≥ 1,
+
+and set 
+
+q∞ = 13.
+
+Thus, 
+
+g(1 | z−1
+
+> −∞
+
+) := qℓ(z−1
+
+> −∞ )
+
+, g(0 | z−1
+
+> −∞
+
+) := 1 − g(1 | z−1
+
+> −∞
+
+).
+
+Note that g is not Markov of any finite order. Indeed, for every m ≥ 1, one can choose two pasts having the same last m symbols, all equal to 0, but such that the most recent occurrence of 1 is at distance m + 1 in one past and at distance m + 2 in the other. Since 
+
+m + 1 and m + 2 have different parity, one of the corresponding transition probabilities is 2/5 and the other is 1/3. Hence no fixed finite portion of the past determines the transition rule. Moreover, g is discontinuous at the all-zero past 0−1
+
+> −∞
+
+. Indeed, for each k ≥ 0,consider w(k) ∈ Z ≤− 1 defined by 
+
+w(k) 
+
+> i
+
+=
+
+(
+
+1, i = −(k + 1) ,
+
+0, i̸ = −(k + 1) , i ≤ − 1.
+
+Then 
+
+w(k) k→+∞
+
+−→ 0−1
+
+> −∞
+
+in the product topology. Consequently, since ℓ w(k) = k + 1 , we have 
+
+g 1 | w(k) = qk+1 .
+
+The sequence (qk+1 )k≥0 oscillates between 2/5 and 1/3 and therefore does not converge to 
+
+g(1 | 0−1
+
+> −∞
+
+) = q∞ = 13.
+
+Hence, g is discontinuous at 0−1
+
+> −∞
+
+.Despite this discontinuity, the g-function admits a unique compatible stationary prob-ability measure. Indeed, since 
+
+q∞ = 13 > 0,
+
+the existence and uniqueness criterion for the infinite comb given by Cénac et al. (2012) applies. Recall that, in the notation of Example 1, one sets 
+
+c0 := 1 , cn := 
+
+> n
+
+Y
+
+> i=1
+
+(1 − qi), n ≥ 1.
+
+11 For the present choice of the sequence (qn), we have 1 − q2j−1 = 35 and 1 − q2j = 23 , and therefore 
+
+c2m =
+
+25
+
+m
+
+and c2m+1 = 35
+
+25
+
+m
+
+,
+
+for every m ≥ 0. Consequently, 
+
+X
+
+> n≥0
+
+cn = X
+
+> m≥0
+
+25
+
+m
+
++ 35
+
+X
+
+> m≥0
+
+25
+
+m
+
+= 83 < ∞.
+
+Hence, by Cénac et al. (2012), there exists a unique stationary probability measure μ
+
+compatible with g. In particular, μ is the unique g-measure associated with this transition kernel. Moreover, Assumption (I) holds with ϵ0 = 13 . Indeed, 
+
+g(a | z−1
+
+> −∞
+
+) ≥ 13, ∀ z−1 
+
+> −∞
+
+∈ { 0, 1}≤− 1, ∀ a ∈ { 0, 1}.
+
+We next verify Assumption (II) . Let U = {Ut : t ∈ Z} be an i.i.d. sequence of 
+
+Uniform[0 , 1] random variables and consider the update rule 
+
+Zt = 1
+
+n
+
+Ut ≤ qℓ(Zt−1
+
+> −∞ )
+
+o
+
+.
+
+Since qℓ(z−1 
+
+> −∞ )
+
+≥ 13 for every past, whenever Ut ≤ 1/3 we necessarily have Zt = 1 ,independently of the remote past. The occurrence of such a forced 1 regenerates the chain, since from that time onward the distance to the most recent occurrence of 1 is completely determined. This is precisely the type of regenerative CFTP mechanism described for 
+
+ϵ-regular symbols in Gallo (2011). Let 
+
+τ := inf 
+
+
+
+m ∈ N : U−m ≤ 13
+
+
+
+.
+
+Then the backward coalescence time θ is stochastically bounded by τ . Since τ has a geometric tail with parameter 1/3,
+
+P(θ ≥ m) ≤ P(τ ≥ m) = 
+
+23
+
+m
+
+, m ≥ 0.
+
+Consequently, 
+
+P(θ < ∞) = 1 and E[θ] < ∞,
+
+and Assumption (II) is satisfied. Finally, we verify Assumption (III) . Fix k ∈ Z and n ≥ 1, and write F≤k 
+
+> Z
+
+:= σ(Zj :
+
+j ≤ k) and F≥k+n 
+
+> Z
+
+:= σ(Zj : j ≥ k + n). Since Z≥k+n is a standard Borel space, the conditional-probability representation of the coefficient of absolute regularity (Bradley, 2007, Proposition 3.22) yields 
+
+β
+
+
+
+F≤k 
+
+> Z
+
+, F≥k+n
+
+> Z
+
+
+
+= E
+
+h
+
+L
+
+
+
+Z∞ 
+
+> k+n
+
+F≤k
+
+> Z
+
+
+
+− L  Z∞
+
+> k+n
+
+
+
+> TV
+
+i
+
+,
+
+12 where L(X) denotes the law of a random element X, L(X | G ) denotes a regular condi-tional law of X given a σ-algebra G, and ∥ · ∥ TV denotes the total variation distance. To bound this quantity, consider a second copy Z′ of the chain whose past up to time 
+
+k has the stationary distribution and is independent of F≤k 
+
+> Z
+
+. From time k + 1 onward, construct Z and Z′ using the same driving variables Uk+1 , U k+2 , . . . . Conditionally on 
+
+F≤k 
+
+> Z
+
+, Z′ ∞  
+
+> k+n
+
+has the same distribution as Z∞ 
+
+> k+n
+
+under its stationary law. Hence, by the coupling inequality (Lindvall, 2002, Chapter I, Section 2), 
+
+L
+
+
+
+Z∞ 
+
+> k+n
+
+F≤k
+
+> Z
+
+
+
+− L  Z∞
+
+> k+n
+
+
+
+> TV
+
+≤ P
+
+
+
+Z∞
+
+> k+n
+
+̸ = Z′ ∞  
+
+> k+n
+
+F≤k
+
+> Z
+
+
+
+a.s. 
+
+If Uk+r ≤ 1/3 for some r ∈ { 1, . . . , n }, then Zk+r = Z′ 
+
+> k+r
+
+= 1 regardless of the two pasts. Since the transition rule depends only on the distance to the most recent occurrence of 1,and both chains use the same driving variables thereafter, they coincide at all subsequent times. Consequently, 
+
+Z∞
+
+> k+n
+
+̸ = Z′ ∞  
+
+> k+n
+
+⊆
+
+> n
+
+\
+
+> r=1
+
+
+
+Uk+r > 13
+
+
+
+.
+
+Since the driving variables are i.i.d. and independent of F≤k 
+
+> Z
+
+,
+
+β
+
+
+
+F≤k 
+
+> Z
+
+, F≥k+n
+
+> Z
+
+
+
+≤ E
+
+h
+
+P
+
+
+
+Z∞
+
+> k+n
+
+̸ = Z′ ∞  
+
+> k+n
+
+F≤k
+
+> Z
+
+i 
+
+≤
+
+23
+
+n
+
+= e−n log(3 /2) .
+
+Hence, Assumption (III) holds, for instance, with 
+
+γ = 1 , δ = log 
+
+32
+
+
+
+.
+
+Therefore, Assumptions (I) , (II) , and (III) are all satisfied. 
+
+Remark 1 The particular values 2/5 and 1/3 in Example 2 are chosen only for con-creteness. Indeed, the same construction can be carried out for any 0 < b < a < 1 by setting 
+
+q2n−1 = a, q2n = b, n ≥ 1,
+
+and q∞ = b. 
+
+The resulting g-function is of infinite order and is discontinuous at the all-zero past 
+
+0−1
+
+> −∞
+
+. The stationary regime is also well defined throughout this family. Indeed, 
+
+X
+
+> n≥0
+
+cn = 2 − a
+
+1 − (1 − a)(1 − b) < ∞.
+
+Since q∞ = b > 0, the criterion of Cénac et al. (2012) implies that there exists a unique stationary probability measure compatible with g.Moreover, Assumption (I) holds with ϵ0 = min {b, 1 − a} > 0. Since g(1 | z−1
+
+> −∞
+
+) ≥ b
+
+for every past, the event {Ut ≤ b} forces Zt = 1 independently of the remote past. 
+
+13 Consequently, the same regenerative CFTP argument yields a backward coalescence time with geometric tail, 
+
+P(θ ≥ m) ≤ (1 − b)m, m ≥ 0,
+
+and hence Assumption (II) is satisfied. The corresponding coupling argument also gives 
+
+β(n) ≤ (1 − b)n = e−n[− log(1 −b)] , n ≥ 1,
+
+so that Assumption (III) holds, for instance, with 
+
+γ = 1 and δ = − log(1 − b).
+
+Thus, Example 2 is a particular member of a two-parameter family of discontinuous chains with unbounded memory satisfying Assumptions (I) –(III) .2.3. Entropy-based quantities 
+
+In this section, we introduce the basic entropy quantities associated with the sta-tionary process under study, namely joint entropy, conditional entropy, and the entropy rate. These notions are defined with respect to a stationary probability measure μ com-patible with the g-function g. These quantities will serve as the building blocks for the information-theoretic functionals considered later in the paper. From this point on, we let Z be a stationary stochastic chain taking values in a finite alphabet Z, with law μ compatible with the g-function g. Under this setting, we now introduce the basic entropy quantities associated with Z.Fix a positive integer k. The joint entropy of the random vector Z0
+
+> −k+1
+
+, also called the k-block entropy of Z, is defined by 
+
+H(Z0
+
+> −k+1
+
+) := − X
+
+> z0
+> −k+1 ∈Z k
+
+μ([ z0
+
+> −k+1
+
+]) log μ([ z0
+
+> −k+1
+
+]) ,
+
+where, throughout the paper, log denotes the natural logarithm. We adopt the usual convention 0 log 0 := 0 . Thus, the entropy of a random vector quantifies the average degree of uncertainty associated with its possible outcomes. Next, for k ≥ 2, the entropy of Z0 conditioned on the (k − 1) -block Z−1
+
+> −k+1
+
+, also called the conditional k-block entropy of Z, is defined as 
+
+H Z0 | Z−1
+
+> −k+1
+
+ := − X
+
+> z0
+> −k+1 ∈Z k
+
+μ [z0
+
+> −k+1
+
+] log μ [z0
+
+> −k+1
+
+]
+
+μ [z−1
+
+> −k+1
+
+]!
+
+.
+
+Since [z0
+
+> −k+1
+
+] ⊆ [z−1
+
+> −k+1
+
+], the denominator in the ratio above can vanish only when the numerator also vanishes. We therefore adopt the usual information-theoretic convention 
+
+0 log 0 
+
+> q
+
+:= 0 , q ≥ 0, which, in particular, gives 0 log(0 /0) := 0 ; see, e.g., (Cover and Thomas, 1991). For k = 1 , we use the convention H(Z0 | Z−1
+
+> −k+1
+
+) = H(Z0), that is, conditioning on the empty past leaves the entropy unchanged. Equivalently, 
+
+H Z0 | Z−1
+
+> −k+1
+
+ = H Z0
+
+> −k+1
+
+ − H Z−1
+
+> −k+1
+
+ .
+
+14 Therefore, conditional entropy quantifies the average uncertainty that remains about the present symbol Z0 after the recent past Z−1 
+
+> −k+1
+
+has been observed. The conditional entropy given the whole past is understood as the μ-average of the entropy of the conditional distribution of Z0 given Z−1
+
+> −∞
+
+, namely 
+
+H Z0 | Z−1
+
+> −∞
+
+ := −
+
+Z
+
+> ZZ
+
+X
+
+> z0∈Z
+
+Eμ
+
+1[z0] | F ≤− 1 (z) log Eμ
+
+1[z0] | F ≤− 1 (z) dμ (z).
+
+Since μ is compatible with the g-function g,
+
+Eμ
+
+1[z0] | F ≤− 1 (z) = g z0 | z−1
+
+> −∞
+
+ μ-a.s. Therefore, 
+
+H Z0 | Z−1
+
+> −∞
+
+ = −
+
+Z
+
+> ZZ
+
+X
+
+> z0∈Z
+
+g z0 | z−1
+
+> −∞
+
+ log g z0 | z−1
+
+> −∞
+
+ dμ (z).
+
+Since conditioning on additional information cannot increase entropy, the sequence 
+
+{H(Z0 | Z−1
+
+> −k+1
+
+)}k≥1 is non-increasing and bounded below by zero. Therefore, it con-verges, and we define 
+
+h(Z) := lim  
+
+> k→∞
+
+H Z0 | Z−1
+
+> −k+1
+
+ .
+
+Moreover, for k ≥ 2, let F−1 
+
+> −k+1
+
+:= σ(πj : −k + 1 ≤ j ≤ − 1) . Since F−1 
+
+> −k+1
+
+↑F≤− 1 as k → ∞ , Lévy’s upward theorem for conditional expectations (Williams, 1991, Section 14.2) implies that, for every z0 ∈ Z ,
+
+Eμ
+
+1[z0] | F −1
+
+> −k+1
+
+ k→+∞
+
+−→ Eμ
+
+1[z0] | F ≤− 1 μ-a.s. Since Z is finite, entropy is continuous as a function of the underlying probability dis-tribution on the probability simplex and takes values in [0 , log |Z| ]. Hence, by the dominated convergence theorem (Williams, 1991, Section 5.9), 
+
+lim  
+
+> k→∞
+
+H Z0 | Z−1
+
+> −k+1
+
+ = H Z0 | Z−1
+
+> −∞
+
+ .
+
+Therefore, 
+
+h(Z) = H Z0 | Z−1
+
+> −∞
+
+ .
+
+Finally, by the chain rule for joint entropy (Cover and Thomas, 1991, Theorem 2.5.1) and stationarity, 
+
+H Z0
+
+> −k+1
+
+ =
+
+> k
+
+X
+
+> j=1
+
+H Z0 | Z−1
+
+> −j+1
+
+ .
+
+Hence, 1 
+
+> k
+
+H Z0
+
+> −k+1
+
+ = 1
+
+> k
+
+Pkj=1 H Z0 | Z−1
+
+> −j+1
+
+. By Cesàro’s theorem (Cover and Thomas, 1991, Theorem 4.2.3), it follows that 
+
+h(Z) = lim  
+
+> k→∞
+
+H Z0 | Z−1
+
+> −k+1
+
+ = lim 
+
+> k→∞
+
+1
+
+k H Z0
+
+> −k+1
+
+ .
+
+15 We call h(Z) the entropy rate of the chain Z (Cover and Thomas, 1991, Section 4.2). Intuitively, the entropy rate measures the average amount of new uncertainty produced by the process per time step, once the entire past is taken into account. As simple illustrations, if Z is an i.i.d. chain, then 
+
+h(Z) = lim 
+
+> k→∞
+
+1
+
+k H(Z0
+
+> −k+1
+
+) = lim 
+
+> k→∞
+
+k H (Z0)
+
+k = H(Z0).
+
+On the other hand, if Z is an m-th order Markov chain, then for every k ≥ m + 1 ,
+
+H(Z0 | Z−1
+
+> −k+1
+
+) = H(Z0 | Z−1
+
+> −m
+
+),
+
+and therefore 
+
+h(Z) = H(Z0 | Z−1
+
+> −m
+
+).
+
+Thus, in the i.i.d. case, the entropy rate coincides with the entropy of a single symbol, whereas in the Markov case it is the average uncertainty about the present symbol after conditioning on the last m symbols of the past. 
+
+Example 3 (Entropy rate of a non-Markovian chain) Consider a stationary chain compatible with the variable-length memory g-function of Example 1, in the unbounded-memory regime. Since 
+
+h(Z) = H(Z0 | Z−1
+
+> −∞
+
+),
+
+the representation obtained above and the compatibility of μ with the g-function g yield 
+
+h(Z) = −
+
+Z
+
+> ZZ
+
+X
+
+> z0∈{ 0,1}
+
+g(z0 | z−1
+
+> −∞
+
+) log g(z0 | z−1
+
+> −∞
+
+) dμ (z).
+
+Hence, 
+
+h(Z) = −
+
+Z
+
+> ZZ
+
+h
+
+qℓ(z−1 
+
+> −∞ )
+
+log qℓ(z−1 
+
+> −∞ )
+
++  1 − qℓ(z−1
+
+> −∞ )
+
+ log  1 − qℓ(z−1 
+
+> −∞
+
+)i
+
+dμ (z).
+
+Therefore, in this variable-length memory case, the entropy rate is obtained by averaging the binary entropy associated with qℓ(z−1 
+
+> −∞ )
+
+over the stationary distribution of the infinite past. In particular, consider the non-Markovian chain of Example 2, for which 
+
+q2n−1 = 25, q2n = 13, n ≥ 1, and q∞ = 13.
+
+Recall from Example 2 that 
+
+c2m =
+
+25
+
+m
+
+, c2m+1 = 35
+
+25
+
+m
+
+,
+
+> ∞
+
+X
+
+> n=0
+
+cn = 83.
+
+To determine the stationary distribution of the memory length, define 
+
+Ar := z ∈ Z Z : ℓ(z−1
+
+> −∞
+
+) = r , νr := μ(Ar), r ≥ 1.
+
+16 For every r ≥ 1,
+
+T −1Ar+1 = Ar ∩ [0] .
+
+Indeed, in order that the most recent 1 be at distance r + 1 one time step later, it must currently be at distance r and the present symbol must be 0. Hence, by stationarity, 
+
+νr+1 = μ(Ar+1 ) = μ(T −1Ar+1 ) = μ(Ar ∩ [0]) .
+
+Since Ar ∈ F ≤− 1 and μ is compatible with g,
+
+μ(Ar ∩ [0]) = 
+
+Z
+
+> Ar
+
+g(0 | z−1
+
+> −∞
+
+) dμ (z) = (1 − qr)νr.
+
+Therefore, for every r ≥ 1, we have νr+1 = (1 − qr)νr. It follows recursively that 
+
+νr = ν1cr−1.Let A∞ := z ∈ Z Z : ℓ(z−1
+
+> −∞
+
+) = ∞ . Since q∞ = 1 /3 > 0 and T −1A∞ = A∞ ∩ [0] ,stationarity and compatibility give 
+
+μ(A∞) = (1 − q∞)μ(A∞),
+
+and hence μ(A∞) = 0 . Since the sets Ar, r ≥ 1, together with A∞ form a partition of 
+
+ZZ, we have 
+
+1 = 
+
+> ∞
+
+X
+
+> r=1
+
+νr = ν1
+
+> ∞
+
+X
+
+> n=0
+
+cn =⇒ ν1 =
+
+> ∞
+
+X
+
+> n=0
+
+cn
+
+!−1
+
+,
+
+and thus 
+
+νr = cr−1
+
+> ∞
+
+X
+
+> n=0
+
+cn
+
+, r ≥ 1.
+
+Define the events 
+
+O := 
+
+> ∞
+
+[
+
+> m=0
+
+A2m+1 , E := 
+
+> ∞
+
+[
+
+> m=0
+
+A2m+2 ,
+
+corresponding, respectively, to an odd and an even finite memory length. Since the sets 
+
+Ar, r ≥ 1, are pairwise disjoint, we have 
+
+μ(O) = 
+
+> ∞
+
+X
+
+> m=0
+
+ν2m+1 =
+
+> ∞
+
+X
+
+> m=0
+
+c2m
+
+> ∞
+
+X
+
+> n=0
+
+cn
+
+= 58,μ(E) = 
+
+> ∞
+
+X
+
+> m=0
+
+ν2m+2 =
+
+> ∞
+
+X
+
+> m=0
+
+c2m+1 
+
+> ∞
+
+X
+
+> n=0
+
+cn
+
+= 38.
+
+17 Since qℓ(z−1 
+
+> −∞ )
+
+= 25 on O, q ℓ(z−1 
+
+> −∞ )
+
+= 13 on E, and μ(A∞) = 0 , it follows that 
+
+h(Z) = μ(O) hb
+
+25
+
+
+
++ μ(E) hb
+
+13
+
+
+
+= 58 hb
+
+25
+
+
+
++ 38 hb
+
+13
+
+
+
+,
+
+where hb(x) := −x log x − (1 − x) log(1 − x), x ∈ (0 , 1) , denotes the binary entropy function. 
+
+Remark 2 The computation in Example 3 extends directly to the two-parameter family considered in Remark 1, namely 
+
+q2n−1 = a, q2n = b, n ≥ 1, and q∞ = b, 
+
+with 0 < b < a < 1. Using the same notation O and E as in the previous example, the same argument gives 
+
+μ(O) = 12 − a, μ(E) = 1 − a
+
+2 − a.
+
+Therefore, 
+
+h(Z) = 12 − a hb(a) + 1 − a
+
+2 − a hb(b).
+
+In particular, taking a = 2 /5 and b = 1 /3 recovers the entropy rate computed in Exam-ple 3. 2.4. Transfer entropy 
+
+In this section, we introduce transfer entropy, the main information-theoretic quan-tity considered in this work. Roughly speaking, transfer entropy measures the directed flow of information from one stochastic process to another by quantifying the reduction in uncertainty about the present state of a process due to the past of another process, beyond the information already contained in the latter’s own past. As such, it provides a natural measure of directional dependence between stochastic processes and will play a central role in our framework. Let Z = {(Xt, Y t) : t ∈ Z} be a stationary bivariate chain taking values in the finite alphabet Z = X × Y , with law μ. For a given positive integer k, the transfer entropy 
+
+from X := {Xt : t ∈ Z} to Y := {Yt : t ∈ Z}, based on blocks of length k, is defined by 
+
+T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+) := H(Y0 | Y −1
+
+> −k+1
+
+) − H(Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+).
+
+By the empty-block convention introduced above, T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+) = 0 when k = 1 .For k ≥ 2, let F−1 
+
+> −k+1
+
+:= σ πXj , π Yj : −k + 1 ≤ j ≤ − 1 and G−1 
+
+> −k+1
+
+:= 
+
+σ πYj : −k + 1 ≤ j ≤ − 1 , where πXj (x, y ) := xj and πYj (x, y ) := yj . Thus, F−1 
+
+> −k+1
+
+repre-sents the information contained in the joint past blocks (X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+), whereas G−1
+
+> −k+1
+
+represents the information contained only in the past block Y −1
+
+> −k+1
+
+. For b ∈ Y , define 
+
+Cb := z = ( x, y ) ∈ Z Z : y0 = b ,
+
+18 i.e., Cb is the event that the present symbol of the process Y is equal to b. Then the transfer entropy can equivalently be written as 
+
+T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+) = 
+
+Z
+
+> ZZ
+
+X
+
+> b∈Y
+
+Eμ
+
+1Cb F−1
+
+> −k+1
+
+ (z) log Eμ
+
+1Cb F−1
+
+> −k+1
+
+ (z)
+
+Eμ
+
+1Cb G−1
+
+> −k+1
+
+ (z) dμ (z).
+
+Since conditioning on additional information cannot increase entropy (Cover and Thomas, 1991, Theorem 2.6.5), T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+) ≥ 0. Moreover, T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+) = 0 if and only if, for every b ∈ Y ,
+
+Eμ
+
+1Cb F−1
+
+> −k+1
+
+ (z) = Eμ
+
+1Cb G−1
+
+> −k+1
+
+ (z), μ-a.s. In other words, the conditional distribution of Y0 given the joint past (X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+)
+
+coincides with its conditional distribution given only Y −1
+
+> −k+1
+
+. Thus, the past of X provides no additional predictive information about Y0 beyond that already contained in the past of Y . In this sense, transfer entropy quantifies the directed predictive contribution of 
+
+X to Y at block length k.We next consider conditioning on the whole past. Recall that F≤− 1 = σ(πXj , π Yj :
+
+j ≤ − 1) represents the information contained in the joint infinite past (X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+). We also define G≤− 1 := σ(πYj : j ≤ − 1) , which represents the information contained only in the infinite past Y −1
+
+> −∞
+
+.Since Y is finite, there exists a measurable one-step kernel gY such that, for every 
+
+b ∈ Y ,
+
+Eμ
+
+1Cb G≤− 1 (z) = gY (b | y−1
+
+> −∞
+
+), μ-a.s. see, e.g., (Kallenberg, 2002, Theorem 6.3). Thus, gY describes the conditional distribu-tion of Y0 given the infinite past of Y .If μ is compatible with the bivariate g-function g, define 
+
+gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+ := X
+
+> a∈X
+
+g (a, b ) | (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+).
+
+Then, by the compatibility of μ with g established in Section 2.2, 
+
+Eμ
+
+1Cb F≤− 1 (z) = gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+, μ-a.s. Since G≤− 1 ⊆ F ≤− 1, the tower property (Williams, 1991, Section 9.7(i)) yields 
+
+gY (b | Y −1
+
+> −∞
+
+) = Eμ
+
+gY |X
+
+ b | X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+ G≤− 1 , μ-a.s. Consequently, the kernel gY is, in general, not obtained by simply summing the bivari-ate kernel g over the present X -coordinate. Such a summation gives the conditional distribution of Y0 given the joint infinite past, whereas the conditional distribution of Y0
+
+given only Y −1 
+
+> −∞
+
+also requires averaging over the conditional distribution of the hidden past X−1 
+
+> −∞
+
+given Y −1
+
+> −∞
+
+.19 The transfer entropy rate from X to Y is defined by 
+
+T (X → Y ) := h(Y ) − h(Y | X),
+
+where h(Y ) denotes the entropy rate of Y , and 
+
+h(Y | X) := lim  
+
+> k→∞
+
+H(Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+).
+
+Since conditioning on additional information cannot increase entropy, the sequence H(Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+) k≥1 is non-increasing and bounded below by zero, and hence the limit exists. We refer to h(Y | X) as the conditional entropy rate of Y given the past of X.Moreover, since F−1 
+
+> −k+1
+
+↑ F ≤− 1 as k → ∞ , the same argument based on Lévy’s upward theorem and the dominated convergence theorem used in Section 2.3 yields 
+
+h(Y | X) = H(Y0 | X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+).
+
+Using the kernel gY |X , the latter can be written as 
+
+H(Y0 | X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+) = −
+
+Z
+
+> ZZ
+
+X
+
+> b∈Y
+
+gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+ log gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+ dμ (z).
+
+Since h(Y ) = lim k→∞ H(Y0 | Y −1
+
+> −k+1
+
+), it follows that 
+
+T (X → Y ) = lim  
+
+> k→∞
+
+T (X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+).
+
+Thus, the transfer entropy rate is the limiting directed predictive contribution of the past of X to Y0, beyond the information already contained in the past of Y . Equivalently, using the kernels gY and gY |X introduced above, 
+
+T (X → Y ) = 
+
+Z
+
+> ZZ
+
+X
+
+> b∈Y
+
+gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+ log gY |X
+
+ b | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+
+
+gY (b | y−1
+
+> −∞
+
+) dμ (z).
+
+Two particular cases help illustrate this definition. If the bivariate process Z =(X, Y ) is i.i.d., then Y0 is independent of the joint past (X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+), and therefore 
+
+T (X → Y ) = 0 . On the other hand, if the bivariate process Z = ( X, Y ) is a stationary Markov chain of order m, and if Y is also Markov of order m, then H(Y0 | X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+) = 
+
+H(Y0 | X−1
+
+> −m
+
+, Y −1
+
+> −m
+
+) and H(Y0 | Y −1
+
+> −∞
+
+) = H(Y0 | Y −1
+
+> −m
+
+). Consequently, 
+
+T (X → Y ) = H(Y0 | Y −1
+
+> −m
+
+) − H(Y0 | X−1
+
+> −m
+
+, Y −1
+
+> −m
+
+),
+
+showing that, in this finite-order Markov setting, the transfer entropy rate can be ex-pressed in terms of finite-dimensional conditional distributions. We now introduce a motivating example, to which we will return in Section 4 to illustrate our main results. 20 Example 4 (Transfer entropy rate of a non-Markovian chain) We now construct a bivariate non-Markovian chain Z = ( X, Y ) for which the marginal process Y is gov-erned by the g-function of Example 2. Let Z := X × Y := {0, 1}2 and recall that 
+
+q2n−1 = 25, q2n = 13, n ≥ 1, and q∞ = 13.
+
+Fix η ∈ (0 , 1/3) . The transition mechanism of the bivariate process Z = ( X, Y ) is specified by the g-function g : Z≤− 1 × Z −→ [0 , 1] . For a past (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+) ∈ Z ≤− 1,define 
+
+g (x0, y 0) | (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+) := 12 pη
+
+ y0 | x−1, y −1
+
+> −∞
+
+,
+
+where 
+
+pη
+
+ 1 | x−1, y −1
+
+> −∞
+
+ := qℓ(y−1 
+
+> −∞ )
+
++ η(2 x−1 − 1) .
+
+Since η < 1/3, these quantities belong to (0 , 1) for every past, and hence g defines a probability kernel on Z.Using the notation introduced above, the conditional kernel of Y0 given the joint infinite past is 
+
+gY |X
+
+ 1 | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+ = X
+
+> x0∈{ 0,1}
+
+g (x0, 1) | (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+)
+
+= qℓ(y−1 
+
+> −∞ )
+
++ η(2 x−1 − 1) .
+
+As in Example 2, the dependence on ℓ(y−1
+
+> −∞
+
+) cannot be determined from any fixed fi-nite suffix of the joint past. Hence, the bivariate transition mechanism has unbounded memory. Let μ be a stationary probability measure compatible with g; its existence and unique-ness follow from the regenerative construction described at the end of the example. For every x0 ∈ { 0, 1}, X
+
+> y0∈{ 0,1}
+
+g (x0, y 0) | (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+) = 12.
+
+Hence, X is an i.i.d. Bernoulli (1 /2) process. Moreover, since 
+
+g (x0, y 0) | (x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+) = 12 gY |X
+
+ y0 | x−1
+
+> −∞
+
+, y −1
+
+> −∞
+
+,X0 is conditionally independent of Y0 given the joint infinite past. Since X0 is also independent of this past, it follows that X0 is independent of Y 0
+
+> −∞
+
+. By stationarity, X−1
+
+is therefore independent of Y −1
+
+> −∞
+
+. Consequently, using the tower property, 
+
+gY (1 | Y −1
+
+> −∞
+
+) = Eμ
+
+gY |X
+
+ 1 | X−1
+
+> −∞
+
+, Y −1
+
+> −∞
+
+ G≤− 1 , μ-a.s. Since X−1 is Bernoulli (1 /2) and independent of Y −1
+
+> −∞
+
+, for μ-almost every past y−1
+
+> −∞
+
+,
+
+gY (1 | y−1
+
+> −∞
+
+) = 12
+
+
+
+qℓ(y−1 
+
+> −∞ )
+
++ η
+
+
+
++ 12
+
+
+
+qℓ(y−1 
+
+> −∞ )
+
+− η
+
+
+
+= qℓ(y−1
+
+> −∞ )
+
+.
+
+21 Thus, the marginal process Y is governed by exactly the same g-function as the chain in Example 2. In particular, Y is non-Markovian and, by Example 3, 
+
+h(Y ) = 58 hb
+
+25
+
+
+
++ 38 hb
+
+13
+
+
+
+.
+
+Since the marginal process Y is governed by the same g-function as in Example 2, Example 3 shows that, 
+
+qℓ(Y −1 
+
+> −∞ )
+
+= 25 with probability 58, qℓ(Y −1 
+
+> −∞ )
+
+= 13 with probability 38.
+
+Using the expression for gY |X obtained above, we obtain                   
+
+> h(Y|X) = 58
+> 12hb
+> 25 +η
+> 
+> + 12hb
+> 25−η
+> 
+> + 38
+> 12hb
+> 13 +η
+> 
+> + 12hb
+> 13−η
+> 
+> .
+
+Therefore, 
+
+T (X → Y ) = 58
+
+
+
+hb
+
+25
+
+
+
+− 12 hb
+
+25 + η
+
+
+
+− 12 hb
+
+25 − η
+
+ 
+
++ 38
+
+
+
+hb
+
+13
+
+
+
+− 12 hb
+
+13 + η
+
+
+
+− 12 hb
+
+13 − η
+
+ 
+
+.
+
+Since hb is strictly concave on (0 , 1) , and since 25 ±η, and 13 ±η belong to (0 , 1) , both terms in brackets above are strictly positive whenever η > 0, and therefore T (X → Y ) > 0.
+
+Finally, this example also lies within the probabilistic framework of the paper. Indeed, the kernel is uniformly non-null, with ϵ0 = 12 (13 − η) > 0, and the same regenerative mechanism used in Example 2 applies here, i.e., whenever the auxiliary uniform variable used to generate Yt falls below 13 − η, the value Yt = 1 is forced independently of the remote past. Hence, the coupling-from-the-past construction has a geometrically decaying coalescence time, with P(θ ≥ m) ≤ (23 + η)m, and the same coupling argument yields exponential β-mixing. Consequently, the bivariate chain satisfies Assumptions (I)–(III). 2.5. Plug-in estimators for entropy and transfer entropy rates 
+
+We now introduce the plug-in estimators for the entropy rate and the transfer entropy rate considered in this work. Consider positive integers k and n such that k ≤ n, and let Y = {Yt : t ∈ Z} be the canonical stationary and ergodic chain on YZ, with law 
+
+μY , taking values in the finite alphabet Y. Let y−1 
+
+> −n
+
+∈ Y n be an observed sample of Y .Let ey denote the bi-infinite periodic extension of the sample y−1
+
+> −n
+
+, with period n, that is, 
+
+eyj+qn = yj , for every j ∈ {− n, . . . , −1} and q ∈ Z.For every b0 
+
+> −k+1
+
+∈ Y k, we define the empirical frequency of the block b0 
+
+> −k+1
+
+by 
+
+bμn,k 
+
+ b0
+
+> −k+1
+
+; y−1
+
+> −n
+
+ := 1
+
+n
+
+> −1
+
+X
+
+> i=−n
+
+1 ey i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+22 In other words, bμn,k (b0
+
+> −k+1
+
+; y−1
+
+> −n
+
+) is obtained by sliding the block b0 
+
+> −k+1
+
+over the peri-odic extension of the observed sample and computing its relative frequency. Notice that bμn,k (·; y−1
+
+> −n
+
+) is a probability measure on Yk. The semicolon in the above definition emphasizes that y−1 
+
+> −n
+
+is the observed sample from which the empirical distribution is con-structed. When there is no risk of ambiguity, we write bμn,k (b0
+
+> −k+1
+
+) for bμn,k (b0
+
+> −k+1
+
+; y−1
+
+> −n
+
+).The plug-in estimator of the k-block entropy is then defined by 
+
+bHn(Y 0
+
+> −k+1
+
+) := − X
+
+> b0
+> −k+1 ∈Y k
+
+bμn,k (b0
+
+> −k+1
+
+) log bμn,k (b0
+
+> −k+1
+
+).
+
+Accordingly, for k ≥ 2, we define the plug-in estimator of the conditional entropy by 
+
+bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ := − X
+
+> b0
+> −k+1 ∈Y k
+
+bμn,k (b0
+
+> −k+1
+
+) log bμn,k (b0
+
+> −k+1
+
+)
+
+bμn,k −1(b−1
+
+> −k+1
+
+). (2.1) As before, we use the convention 0 log(0 /q ) = 0 for q ≥ 0. For k = 1 , the empty-block convention gives bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ = bHn(Y0). Equivalently, bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ =
+
+bHn(Y 0
+
+> −k+1
+
+) − bHn(Y −1
+
+> −k+1
+
+).
+
+We next record the consistency of this estimator when the block length k is fixed. For b0 
+
+> −k+1
+
+∈ Y k, define 
+
+μn,k (b0
+
+> −k+1
+
+) := 1
+
+n
+
+> −1
+
+X
+
+> i=−n
+
+1 Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+. (2.2) Notice that μn,k (b0
+
+> −k+1
+
+) is an auxiliary random quantity defined from the underlying process Y , rather than solely from the observed sample. Indeed, for the last k − 1
+
+starting positions, the blocks Y i+k−1 
+
+> i
+
+involve coordinates after time −1, which are not contained in the observed sample. This quantity is introduced because it is an ordinary ergodic average, to which Birkhoff’s ergodic theorem applies directly. In this context, since Y is stationary and ergodic, Birkhoff’s ergodic theorem (Shields, 1996, Section I.3) implies that, for every fixed k ≥ 1 and every b0 
+
+> −k+1
+
+∈ Y k,
+
+μn,k (b0
+
+> −k+1
+
+) n→+∞
+
+−→ μY ([ b0
+
+> −k+1
+
+]) , μY -a.s. The empirical frequencies based on the periodic extension can differ from μn,k only for the last k − 1 starting positions. Therefore, 
+
+bμn,k (b0
+
+> −k+1
+
+ − μn,k (b0
+
+> −k+1
+
+) ≤ k − 1
+
+n .
+
+Hence, for every fixed k ≥ 1,
+
+bμn,k 
+
+ b0
+
+> −k+1
+
+; Y −1
+
+> −n
+
+ n→+∞
+
+−→ μY ([ b0
+
+> −k+1
+
+]) , μY -a.s. 23 Since the alphabet is finite and entropy is a continuous function of the underlying prob-ability distribution, it follows that, for every fixed k,
+
+bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ n→+∞
+
+−→ H Y0 | Y −1
+
+> −k+1
+
+, μY -a.s. Consequently, by the characterization of the entropy rate obtained in Section 2.3, 
+
+lim  
+
+> k→∞
+
+lim 
+
+> n→∞
+
+bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ = h(Y ), μY -a.s. We next define the plug-in estimator of transfer entropy. Let Z = ( X, Y ) be a stationary and ergodic bivariate chain taking values in Z = X × Y , with law μ, and let (x−1
+
+> −n
+
+, y −1
+
+> −n
+
+) ∈ X n × Y n be a finite sample. Let (ex, ey) denote its bi-infinite periodic extension. For every (a0
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+) ∈ X k × Y k, define 
+
+bμn;k,k 
+
+ a0
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+; x−1
+
+> −n
+
+, y −1
+
+> −n
+
+ := 1
+
+n
+
+> −1
+
+X
+
+> i=−n
+
+1 ex i+k−1 
+
+> i
+
+= a0
+
+> −k+1
+
+, ey i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+Thus, bμn;k,k (·, ·; x−1
+
+> −n
+
+, y −1
+
+> −n
+
+) is the empirical joint distribution of the length-k blocks of 
+
+X and Y , obtained by sliding the two blocks synchronously over the periodic ex-tension of the observed sample. Throughout the paper, whenever the observed sam-ple is clear from the context, we use the shorthand notation bμn;k,k (a0
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+) := 
+
+bμn;k,k 
+
+ a0
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+; x−1
+
+> −n
+
+, y −1
+
+> −n
+
+.For 0 ≤ r, s ≤ k, we denote by bμn;r,s the corresponding empirical marginal distribu-tion, namely 
+
+bμn;r,s 
+
+ a−k+r
+
+> −k+1
+
+, b −k+s
+
+> −k+1
+
+; x−1
+
+> −n
+
+, y −1
+
+> −n
+
+ := X 
+
+> a0
+> −k+r+1 ∈X k−r
+> b0
+> −k+s+1 ∈Y k−s
+
+bμn;k,k 
+
+ a0
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+; x−1
+
+> −n
+
+, y −1
+
+> −n
+
+.
+
+with the usual empty-block convention when r = 0 or s = 0 . We use the same shorthand convention for these empirical marginals. In particular, the empirical conditional entropy of Y0 given only its (k − 1) -past defined in Equation (2.1) may be written as 
+
+bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ = − X
+
+> b0
+> −k+1 ∈Y k
+
+bμn;0 ,k (b0
+
+> −k+1
+
+) log bμn;0 ,k (b0
+
+> −k+1
+
+)
+
+bμn;0 ,k −1(b−1
+
+> −k+1
+
+).
+
+Similarly, the plug-in estimator of the entropy of Y0 given the joint (k − 1) -past may be defined as 
+
+bHn
+
+ Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ := − X 
+
+> a−1
+> −k+1 ∈X k−1
+> b0
+> −k+1 ∈Y k
+
+bμn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ log bμn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+bμn;k−1,k −1
+
+ a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ .
+
+We then define the plug-in estimator of the transfer entropy at block length k by 
+
+bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+ := bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ − bHn
+
+ Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+.
+
+24 By the empty-block convention, bT 1 
+
+> n
+
+(X0 → Y0) = 0 .For every fixed k, the same argument used above, now applied to the indicator functions of joint cylinder events, shows that all the empirical frequencies appearing in the definition of bT kn converge μ-almost surely to their corresponding stationary block probabilities. Indeed, the periodic and non-periodic empirical frequencies can differ only at the last k − 1 starting positions, and hence their difference is bounded in absolute value by (k − 1) /n . Therefore, since the alphabets are finite, 
+
+bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+ n→+∞
+
+−→ T  X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+, μ-a.s. Combining this with the characterization of the transfer entropy rate obtained above, we obtain 
+
+lim  
+
+> k→∞
+
+lim 
+
+> n→∞
+
+bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+ = T (X → Y ), μ-a.s. In order to estimate the corresponding rates, we shall allow the block length to increase with the sample size. Thus, we consider a sequence of positive integers {k(n)}n≥1
+
+such that k(n) → ∞ and, for all sufficiently large n, k(n) ≤ C log n, for some constant 
+
+C > 0. The precise range of C required for the concentration results depends on the estimator under consideration and will be specified in Section 3. 
+
+3. Main results 
+
+We first consider the plug-in estimator of the entropy rate. Our first result provides a non-asymptotic concentration inequality around its expectation under Assumption (II) alone (Theorem 1). We then specialize this bound to logarithmically growing block lengths and, under the additional Assumptions (I) and (III), control the bias (Remark 3) in order to obtain concentration around the entropy rate itself (Theorem 2). 
+
+Theorem 1 Let Y = {Yt : t ∈ Z} be a stationary stochastic chain on a finite alphabet 
+
+Y, with law μY , compatible with a g-function satisfying Assumption (II) . Then, for every 
+
+n ≥ 2, every integer k such that 2 ≤ k ≤ n, and every ξ > 0,
+
+μY
+
+ bHkn − EμY
+
+h bHkn
+
+i
+
+> ξ 
+
+
+
+≤ 4 exp 
+
+
+
+− 2ξ2n
+
+9(1 + E[θ]) 2(2 k − 1) 2(log n + 1) 2
+
+
+
+,
+
+where, for shorthand notation, we write bHkn := bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+.
+
+Remark 3 Theorem 1 is non-asymptotic and does not require the block length to diverge with n. In particular, let {k(n)}n≥1 be any sequence of positive integers such that, for all sufficiently large n, 2 ≤ k(n) ≤ C log n, for some constant C > 0. Then, for every 
+
+ξ > 0 and all sufficiently large n,
+
+μY
+
+ bHk(n) 
+
+> n
+
+− EμY
+
+h bHk(n)
+
+> n
+
+i
+
+> ξ 
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+72 C2(1 + E[θ]) 2 log 4 n
+
+
+
+,
+
+where, for shorthand notation, we write bHk(n) 
+
+> n
+
+:= bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+.
+
+25 Theorem 2 Let Y = {Yt : t ∈ Z} be a stationary stochastic chain on a finite alphabet 
+
+Y, with |Y| ≥ 2, and law μY , compatible with a g-function satisfying Assumptions (I) –
+
+(III) . Let {k(n)}n≥1 be a any sequence of positive integers satisfying k(n) → ∞ and, for all sufficiently large n, k(n) ≤ C log n, 0 < C < 1log |Y| . Then there exists a deterministic sequence (rn)n≥1, with rn → 0, such that, for every ξ > 0 and all sufficiently large n,
+
+μY
+
+ bHk(n) 
+
+> n
+
+− h(Y ) > ξ + rn
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+72 C2(1 + E[θ]) 2 log 4 n
+
+
+
+,
+
+where, for shorthand notation, we write bHk(n) 
+
+> n
+
+:= bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+.
+
+Corollary 1 Under the assumptions of Theorem 2, 
+
+bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+−→ h(Y ) μY -almost surely .
+
+We now turn to the plug-in estimator of the transfer entropy rate. The results follow the same structure as in the entropy case: we first establish a non-asymptotic concentration inequality around the expectation (Theorem 3) and then, after controlling the corresponding bias under Assumptions (I)–(III) (Remark 4), derive concentration around the transfer entropy rate (Theorem 4). 
+
+Theorem 3 Let Z = {(Xt, Y t) : t ∈ Z} be a stationary bivariate stochastic chain on a finite alphabet Z = X × Y , with law μ, compatible with a g-function satisfying Assumption (II) . Then, for every n ≥ 2, every integer k such that 2 ≤ k ≤ n, and every 
+
+ξ > 0,
+
+μ bT kn − Eμ
+
+h bT kn
+
+i
+
+> ξ 
+
+!
+
+≤ 4 exp 
+
+
+
+− 2ξ2n
+
+9(1 + E[θ]) 2(4 k − 2) 2(log n + 1) 2
+
+
+
+,
+
+where, for shorthand notation, we write bT kn := T kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+ .
+
+Remark 4 Theorem 3 is non-asymptotic and does not require the block length to diverge with n. In particular, let {k(n)}n≥1 be any sequence of positive integers such that, for all sufficiently large n, 2 ≤ k(n) ≤ C log n, for some constant C > 0. Then, for every 
+
+ξ > 0 and all sufficiently large n,
+
+μ bT k(n) 
+
+> n
+
+− Eμ
+
+h bT k(n)
+
+> n
+
+i
+
+> ξ 
+
+!
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+288 C2(1 + E[θ]) 2 log 4 n
+
+
+
+,
+
+where, for shorthand notation, we write bT k(n) 
+
+> n
+
+:= bT k(n)
+
+> n
+
+
+
+X0 
+
+> −k(n)+1
+
+→ Y 0
+
+> −k(n)+1
+
+
+
+.
+
+Theorem 4 Let Z = {(Xt, Y t) : t ∈ Z} be a stationary bivariate stochastic chain on the finite alphabet Z = X × Y , with |Z| ≥ 2, and law μ, compatible with a g-function 
+
+26 satisfying Assumptions (I) –(III) . Let {k(n)}n≥1 be any sequence of positive integers sat-isfying k(n) → ∞ and, for all sufficiently large n, k(n) ≤ C log n, and 0 < C < 1log |Z| .
+
+Then there exists a deterministic sequence (rn)n≥1, with rn → 0, such that, for every 
+
+ξ > 0 and all sufficiently large n,
+
+μ
+
+ bT k(n) 
+
+> n
+
+− T (X → Y ) > ξ + rn
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+288 C2(1 + E[θ]) 2 log 4 n
+
+
+
+,
+
+where, for shorthand notation, we write bT k(n) 
+
+> n
+
+:= bT k(n)
+
+> n
+
+
+
+X0 
+
+> −k(n)+1
+
+→ Y 0
+
+> −k(n)+1
+
+
+
+.
+
+Corollary 2 Under the assumptions of Theorem 4, 
+
+bT k(n)
+
+> n
+
+ X0 
+
+> −k(n)+1
+
+→ Y 0
+
+> −k(n)+1
+
+ −→ T (X → Y ) μ-almost surely .
+
+4. Simulation 
+
+In this section, we illustrate the finite-sample behavior of the plug-in estimators considered in the previous sections. We first study the entropy-rate estimator for the non-Markovian chain of Example 2, thereby illustrating Theorem 2 and Corollary 1. We then consider the plug-in estimator of the transfer entropy rate for the non-Markovian chain of Example 4, illustrating Theorem 4 and Corollary 2. 
+
+4.1. Entropy-rate estimation 
+
+We consider the binary chain of Example 2, for which 
+
+h(Y ) = 58hb
+
+25
+
+
+
++ 38hb
+
+13
+
+
+
+≈ 0.659325 .
+
+The Monte Carlo experiment consists of R = 500 independent stationary trajec-tories, each of length 50 000 . For each trajectory, we consider the sample lengths 
+
+n ∈ { 5000 , 10000 , . . . , 50000 } and compute the plug-in estimator using the periodic empirical block distribution introduced in Section 2.5. The block length is chosen as 
+
+k(n) = 
+
+j log n
+
+> 2 log 2
+
+k
+
+. Hence k(n) → ∞ and k(n) ≤ C log n, C = 12 log 2 < 1log 2 , so that the growth condition of Theorem 2 is satisfied. Figure 1 shows the Monte Carlo median of bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+, together with the empirical 5% –95% quantile band (grey region). The dashed horizontal line represents the exact value of h(Y ). As the sample size increases, the empirical distribution be-comes more concentrated and the median approaches the entropy rate. This behavior is consistent with the almost-sure convergence established in Corollary 1. 27 Figure 1: Convergence of the plug-in entropy-rate estimator for the chain of Example 2. 
+
+To examine concentration more directly, Figure 2 displays the empirical exceedance probabilities 
+
+bPn(ε) := 1
+
+R
+
+> R
+
+X
+
+> r=1
+
+1
+
+n bH(r) 
+
+> n
+
+− h(Y ) > ε 
+
+o
+
+,
+
+for ε ∈ { 0.001 , 0.002 , 0.003 }. For each fixed deviation level, the probabilities exhibit an overall decreasing trend as n increases, with a faster decrease for larger values of ε.This provides a finite-sample illustration of the concentration phenomenon underlying Theorem 2. 
+
+> Figure 2: Empirical exceedance probabilities of the entropy-rate estimator for the chain of Example 2.
+
+28 Finally, Theorem 2 gives an exponential upper bound whose relevant scale is e−c n  
+
+> log 4n.
+
+Motivated by this rate, Figure 3 plots − log bPn(ε) against n  
+
+> log 4n
+
+. The increasing, approx-imately linear trend is consistent with an exponential-type decay on the scale n/ log 4 n
+
+predicted by Theorem 2. 
+
+> Figure 3: Exponential-type concentration scale for the chain of Example 2.
+
+4.2. Transfer-entropy-rate estimation 
+
+We now consider the bivariate non-Markovian chain of Example 4, taking η = 15 . For this choice of parameter, the transfer entropy rate computed in Example 4 is 
+
+T (X → Y ) = 58
+
+
+
+hb
+
+25
+
+
+
+− 12hb
+
+35
+
+
+
+− 12hb
+
+15
+
+ 
+
++ 38
+
+
+
+hb
+
+13
+
+
+
+− 12hb
+
+ 815 
+
+
+
+− 12hb
+
+ 215 
+
+ 
+
+≈ 0.089459 .
+
+As in the entropy-rate experiment, the Monte Carlo simulation consists of R =500 independent stationary trajectories, each of length 50 , 000 . For each trajectory, we consider the sample lengths n ∈ { 5000 , 10000 , . . . , 50000 } and compute the plug-in transfer entropy estimator introduced in Section 2.5. Since the joint alphabet is 
+
+Z = X × Y = {0, 1}2, we choose k(n) = 
+
+j log n
+
+> 2 log 4
+
+k
+
+. Hence k(n) → ∞ and k(n) ≤ C log n,with C = 12 log 4 < 1log 4 , so that the growth condition of Theorem 4 is satisfied. Figure 4 shows the Monte Carlo median of bT k(n)
+
+> n
+
+
+
+X0 
+
+> −k(n)+1
+
+→ Y 0
+
+> −k(n)+1
+
+
+
+, together with the empirical 5% –95% quantile band. The dashed horizontal line represents the exact value of T (X → Y ). As the sample size increases, the empirical distribution becomes increasingly concentrated around the target value, while the median remains 29 close to the transfer entropy rate. This behavior is consistent with the almost-sure convergence established in Corollary 2. 
+
+> Figure 4: Convergence of the plug-in transfer-entropy-rate estimator for the bivariate chain of Exam-ple 4.
+
+To examine concentration more directly, Figure 5 displays the empirical exceedance probabilities 
+
+bP Tn (ε) := 1
+
+R
+
+> R
+
+X
+
+> r=1
+
+1
+
+n bT (r),k (n) 
+
+> n
+
+− T (X → Y ) > ε 
+
+o
+
+,
+
+for ε ∈ { 0.002 , 0.003 , 0.004 }. For each fixed deviation level, the empirical exceedance probabilities show a clear overall decrease as n increases. Moreover, larger values of 
+
+ε lead to smaller exceedance probabilities, as expected. This provides a finite-sample illustration of the concentration phenomenon described by Theorem 4. Finally, Theorem 4 gives an exponential upper bound whose relevant scale is e−c n  
+
+> log 4n.
+
+.Motivated by this rate, Figure 6 plots − log bPn(ε) against n/ log 4 n. The curves exhibit an increasing and approximately linear trend over the range considered, particularly for the larger deviation levels. This behavior is consistent with an exponential-type decay on the scale n/ log 4 n predicted by Theorem 4. 30 Figure 5: Empirical exceedance probabilities of the transfer-entropy-rate estimator for the bivariate chain of Example 4. 
+
+Figure 6: Exponential-type concentration scale for the transfer-entropy-rate estimator of the bivariate chain of Example 4. 
+
+31 5. Proofs 
+
+5.1. Proof of Theorem 1 
+
+Let y−1
+
+> −n
+
+, z −1 
+
+> −n
+
+∈ Y n differ at only one coordinate. Changing one coordinate affects at most k empirical k-blocks and at most k − 1 empirical (k − 1) -blocks. Since replacing one observation in an empirical distribution based on n observations changes its entropy by at most (log n + 1) /n , we have 
+
+bHn,k (y−1
+
+> −n
+
+) − bHn,k (z−1
+
+> −n
+
+) ≤ k(log n + 1) 
+
+n ,
+
+and 
+
+bHn,k −1(y−1
+
+> −n
+
+) − bHn,k −1(z−1
+
+> −n
+
+) ≤ (k − 1)(log n + 1) 
+
+n .
+
+Define 
+
+Fn,k (Y −1 
+
+> −n
+
+) := bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ .
+
+For i = −n, . . . , −1, define the coordinate oscillation of Fn,k by 
+
+δi(Fn,k ) := sup  Fn,k (y−1
+
+> −n
+
+) − Fn,k (z−1
+
+> −n
+
+) : yj = zj for all j̸ = i .
+
+Therefore, since Fn,k = bHn,k − bHn,k −1, the coordinate oscillations of Fn,k satisfy 
+
+δi(Fn,k ) ≤ (2 k − 1)(log n + 1) 
+
+n , i = −n, . . . , −1.
+
+Hence, 
+
+∥δF n,k ∥2 
+
+> ℓ2
+
+:= 
+
+> −1
+
+X
+
+> i=−n
+
+δi(Fn,k )2 ≤ (2 k − 1) 2(log n + 1) 2
+
+n . (5.1) By the concentration inequality for coupling-from-the-past processes (Gallo and Taka-hashi, 2014, Corollary 1), Assumption (II) and (5.1) imply that, for every ξ > 0,
+
+μY (|Fn,k − EμY [Fn,k ]| > ξ ) ≤ 4 exp 
+
+
+
+− 2ξ2n
+
+9(1 + E[θ]) 2(2 k − 1) 2(log n + 1) 2
+
+
+
+. (5.2) 
+
+□
+
+5.2. Proof of Remark 3 
+
+Now take k = k(n) and assume that, for all sufficiently large n, k(n) ≤ C log n, for some constant C > 0. Then, for all sufficiently large n,
+
+(2 k(n) − 1) 2(log n + 1) 2 ≤ 16 C2 log 4 n. 
+
+Hence, by (5.2), for every ξ > 0 and all sufficiently large n,
+
+μY
+
+ bHk(n) 
+
+> n
+
+− EμY
+
+h bHk(n)
+
+> n
+
+i
+
+> ξ 
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+72 C2(1 + E[θ]) 2 log 4 n
+
+
+
+,
+
+where, for shorthand notation, we write bHk(n) 
+
+> n
+
+:= Hn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+.
+
+□
+
+32 5.3. Proof of Theorem 2 
+
+We first derive an upper bound for the bias EμY
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+− h(Y ) . Fix in-tegers k and n such that 2 ≤ k ≤ n. For b0 
+
+> −k+1
+
+∈ Y k, write μk(b0
+
+> −k+1
+
+) := μY ([ b0
+
+> −k+1
+
+]) ,and recall the shorthand notation bμn,k (b0
+
+> −k+1
+
+) for the empirical k-block distribution in-troduced in Section 2.5. We also define the finite-past transition kernel gk : Yk−1 × Y → [0 , 1] such that 
+
+gk
+
+ b0 | b−1
+
+> −k+1
+
+ := μY ([ b0
+
+> −k+1
+
+]) 
+
+μY ([ b−1
+
+> −k+1
+
+]) .
+
+By Assumption (I) and compatibility of μY with g,
+
+μY ([ b0
+
+> −k+1
+
+]) = 
+
+Z
+
+> YZ
+
+1[b−1
+
+> −k+1 ]
+
+(y)1[b0](y) dμ Y (y)=
+
+Z
+
+> [b−1
+> −k+1 ]
+
+EμY
+
+1[b0] F≤− 1 (y) dμ Y (y)=
+
+Z
+
+> [b−1
+> −k+1 ]
+
+g b0 | y−1
+
+> −∞
+
+ dμ Y (y)
+
+≥ ϵ0 μY ([ b−1
+
+> −k+1
+
+]) .
+
+Iterating this inequality shows that every finite cylinder has a positive probability. In particular, 
+
+gk
+
+ b0 | b−1
+
+> −k+1
+
+ = μY ([ b0
+
+> −k+1
+
+]) 
+
+μY ([ b−1
+
+> −k+1
+
+]) ≥ ϵ0.
+
+Let 
+
+D(ν∥ρ) := X
+
+> i
+
+ν(i) log ν(i)
+
+ρ(i)
+
+denote the relative entropy of ν with respect to ρ. An important consequence of the peri-odic construction is that the empirical block distributions are consistent under marginal-ization. Indeed, for every b−1 
+
+> −k+1
+
+∈ Y k−1,
+
+X
+
+> b0∈Y
+
+bμn,k (b0
+
+> −k+1
+
+) = bμn,k −1(b−1
+
+> −k+1
+
+).
+
+Therefore, 
+
+bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ = − X
+
+> b0
+> −k+1 ∈Y k
+
+bμn,k (b0
+
+> −k+1
+
+) log bμn,k (b0
+
+> −k+1
+
+)
+
+bμn,k −1(b−1
+
+> −k+1
+
+)= − X
+
+> b0
+> −k+1 ∈Y k
+
+bμn,k (b0
+
+> −k+1
+
+) log gk
+
+ b0 | b−1
+
+> −k+1
+
+ + ∆ bDn,k , (5.3) 33 where 
+
+∆ bDn,k := −D(bμn,k ∥μk) + D(bμn,k −1∥μk−1) .
+
+We now take expectation in (5.3). Because bμn,k is defined from the periodic extension of the observed sample, its expectation is not, in general, exactly equal to μk. To isolate this boundary effect, define 
+
+Rn,k := − X
+
+> b0
+> −k+1 ∈Y k
+
+ EμY
+
+bμn,k (b0
+
+> −k+1
+
+) − μk(b0
+
+> −k+1
+
+) log gk
+
+ b0 | b−1
+
+> −k+1
+
+ .
+
+It follows that 
+
+EμY
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+= H Y0 | Y −1
+
+> −k+1
+
+ + Rn,k + EμY
+
+h
+
+∆ bDn,k 
+
+i
+
+. (5.4) We next control the term Rn,k . Recall from Section 2.5 the auxiliary empirical distribution defined in (2.2), i.e., 
+
+μn,k (b0
+
+> −k+1
+
+) := 1
+
+n
+
+> −1
+
+X
+
+> i=−n
+
+1 Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+By stationarity, 
+
+EμY
+
+μn,k (b0
+
+> −k+1
+
+) = μk(b0
+
+> −k+1
+
+).
+
+Moreover, bμn,k and μn,k may differ only at the last k − 1 starting positions. Hence, for every realization, 
+
+X
+
+> b0
+> −k+1 ∈Y k
+
+bμn,k (b0
+
+> −k+1
+
+) − μn,k (b0
+
+> −k+1
+
+) ≤ 2( k − 1) 
+
+n .
+
+Consequently, 
+
+∥EμY [bμn,k ] − μk∥TV = 12
+
+X
+
+> b0
+> −k+1 ∈Y k
+
+EμY
+
+bμn,k (b0
+
+> −k+1
+
+) − μk(b0
+
+> −k+1
+
+) ≤ k − 1
+
+n . (5.5) By Assumption (I), 
+
+0 ≤ − log gk
+
+ b0 | b−1
+
+> −k+1
+
+ ≤ log 1
+
+ϵ0
+
+.
+
+Since both EμY [bμn,k ] and μk are probability distributions, their difference has total mass zero. Combining these facts with (5.5) gives 
+
+|Rn,k | ≤ k − 1
+
+n log 1
+
+ϵ0
+
+. (5.6) It remains to identify the error produced by replacing the infinite past by a finite past. We define 
+
+γk(g) := H Y0 | Y −1
+
+> −k+1
+
+ − h(Y ). (5.7) 34 By Section 2.3, we know that γk(g) ≥ 0 and γk(g) −→ 0 as k → ∞ . So, subtracting 
+
+h(Y ) from (5.4) and using (5.7), we obtain 
+
+EμY
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+− h(Y ) = γk(g) + Rn,k + EμY
+
+h
+
+∆ bDn,k 
+
+i
+
+.
+
+Therefore, by (5.6), 
+
+EμY
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+− h(Y ) ≤ γk(g) + k − 1
+
+n log 1
+
+ϵ0
+
++ EμY
+
+h
+
+∆ bDn,k 
+
+i
+
+. (5.8) We next control the relative-entropy term appearing in (5.8). Recall that 
+
+∆ bDn,k = −D(bμn,k ∥μk) + D(bμn,k −1∥μk−1) .
+
+Since bμn,k −1 and μk−1 are, respectively, the (k − 1) -block marginals of bμn,k and μk, the data-processing inequality for relative entropy (Csiszár, 1967) yields 
+
+D(bμn,k −1∥μk−1) ≤ D(bμn,k ∥μk) ,
+
+which implies that ∆ bDn,k ≤ 0, and therefore 
+
+EμY
+
+h
+
+∆ bDn,k 
+
+i
+
+≤ EμY [D(bμn,k ∥μk)] . (5.9) The empirical distribution bμn,k is defined through the periodic extension of the sam-ple. Since the mixing assumption applies to the original process rather than to this periodic extension, we separate the blocks entirely contained in the observed sample from those affected by periodicization. For b0 
+
+> −k+1
+
+∈ Y k, define 
+
+bνn,k (b0
+
+> −k+1
+
+) := 1
+
+n − k + 1 
+
+> −k
+
+X
+
+> i=−n
+
+1 Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+Thus, ˆνn,k is the empirical distribution of the n − k + 1 blocks with length k entirely contained in Y −1 
+
+> −n
+
+. The remaining k − 1 blocks are those completed using the periodic extension, whose empirical distribution ˆρn,k is such that 
+
+bμn,k = n − k + 1 
+
+n ˆνn,k + k − 1
+
+n ˆρn,k . (5.10) By convexity of relative entropy, 
+
+D(bμn,k ∥μk) ≤ n − k + 1 
+
+n D(ˆ νn,k ∥μk) + k − 1
+
+n D(ˆ ρn,k ∥μk) . (5.11) Consequently, for any probability distribution ρ on Yk,
+
+D(ρ∥μk) = X
+
+> b0
+> −k+1 ∈Y k
+
+ρ(b0
+
+> −k+1
+
+) log ρ(b0
+
+> −k+1
+
+)
+
+μk(b0
+
+> −k+1
+
+) ≤ − X
+
+> b0
+> −k+1 ∈Y k
+
+ρ(b0
+
+> −k+1
+
+) log μk(b0
+
+> −k+1
+
+) ≤ k log 1
+
+ϵ0
+
+,
+
+35 where the last inequality follows from Assumption (I). Applying this inequality to ˆρn,k 
+
+in (5.11) gives 
+
+EμY [D(bμn,k ∥μk)] ≤ n − k + 1 
+
+n EμY [D(ˆ νn,k ∥μk)] + k(k − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.12) Relative entropy is bounded above by the chi-square divergence (Tsybakov, 2009, Lemma 2.7), so that 
+
+D(ˆ νn,k ∥μk) ≤ X
+
+> b0
+> −k+1 ∈Y k
+
+ ˆνn,k (b0
+
+> −k+1
+
+) − μk(b0
+
+> −k+1
+
+)2
+
+μk(b0
+
+> −k+1
+
+) .
+
+Taking expectations and using stationarity, we have 
+
+EμY [D(ˆ νn,k ∥μk)] ≤ X
+
+> b0
+> −k+1 ∈Y k
+
+Var μY
+
+ ˆνn,k (b0
+
+> −k+1
+
+)
+
+μk(b0
+
+> −k+1
+
+) . (5.13) To bound these variances, fix b0 
+
+> −k+1
+
+∈ Y k and set Ib0 
+
+> −k+1
+> i
+
+:= 1 Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+. By stationarity, 
+
+Var μY
+
+ ˆνn,k (b0
+
+> −k+1
+
+) ≤ μk(b0
+
+> −k+1
+
+)
+
+n − k + 1 + 2(n − k + 1) 2
+
+> n−k
+
+X
+
+> r=1
+
+(n − k + 1 − r) Cov μY
+
+
+
+Ib0 
+
+> −k+1
+> 0
+
+, I b0
+
+> −k+1
+> r
+
+
+
+.
+
+For 1 ≤ r < k , the two blocks overlap, and 
+
+Cov μY
+
+
+
+Ib0 
+
+> −k+1
+> 0
+
+, I b0
+
+> −k+1
+> r
+
+
+
+≤ μk(b0
+
+> −k+1
+
+).
+
+If r ≥ k, then Ib0 
+
+> −k+1
+> 0
+
+and Ib0 
+
+> −k+1
+> r
+
+are measurable with respect to sigma-fields separated by a lag r − k + 1 . Hence, by Assumption (III), 
+
+Cov μY
+
+
+
+Ib0 
+
+> −k+1
+> 0
+
+, I b0
+
+> −k+1
+> r
+
+
+
+≤ β(r − k + 1) ≤ γe −δ(r−k+1) .
+
+Therefore, 
+
+Cov μY
+
+
+
+Ib0 
+
+> −k+1
+> 0
+
+, I b0
+
+> −k+1
+> r
+
+
+
+≤ min μk(b0
+
+> −k+1
+
+), γe −δ(r−k+1) , r ≥ k. 
+
+It follows that 
+
+Var μY
+
+ ˆνn,k (b0
+
+> −k+1
+
+) ≤ μk(b0
+
+> −k+1
+
+)
+
+n − k + 1 
+
+"
+
+2k − 1 + 2 
+
+> ∞
+
+X
+
+> s=1
+
+min 
+
+
+
+1, γe −δs 
+
+μk(b0
+
+> −k+1
+
+)
+
+ #
+
+. (5.14) 36 Define 
+
+Ak := 
+
+> ∞
+
+X
+
+> s=1
+
+min 1, γϵ −k 
+
+> 0
+
+e−δs .
+
+By (5.14) and since μk(b0
+
+> −k+1
+
+) ≥ ϵk 
+
+> 0
+
+, we have 
+
+Var μY
+
+ ˆνn,k (b0
+
+> −k+1
+
+)
+
+μk(b0
+
+> −k+1
+
+) ≤ 2k − 1 + 2 Ak
+
+n − k + 1 . (5.15) Splitting the geometric series at the index where γϵ −k 
+
+> 0
+
+e−δs becomes smaller than one gives 
+
+Ak ≤ 1 + log +(γϵ −k 
+
+> 0
+
+)
+
+δ + 1
+
+eδ − 1, (5.16) where log +(x) := max {log x, 0}. In particular, 
+
+Ak ≤ 1 + log + γδ + kδ log 1
+
+ϵ0
+
++ 1
+
+eδ − 1.
+
+Thus, setting 
+
+c1 := 2 + 2
+
+δ log 1
+
+ϵ0
+
+and c0 := 1 + 2 log + γδ + 2
+
+eδ − 1,
+
+we have 
+
+2k − 1 + 2 Ak ≤ c1k + c0.
+
+Combining this inequality with (5.13) and (5.15), and summing over b0 
+
+> −k+1
+
+∈ Y k, we obtain 
+
+EμY [D(ˆ νn,k ∥μk)] ≤ |Y| k
+
+n − k + 1 (c1k + c0). (5.17) Substituting (5.17) into (5.12), and then using (5.9), yields 
+
+EμY
+
+h
+
+∆ bDn,k 
+
+i
+
+≤ |Y| k
+
+n (c1k + c0) + k(k − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.18) Finally, inserting (5.18) into (5.8), we conclude that 
+
+EμY
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+− h(Y ) ≤ γk(g) + |Y| k
+
+n (c1k + c0) + k2 − 1
+
+n log 1
+
+ϵ0
+
+. (5.19) We now take k = k(n) and define 
+
+rn := γk(n)(g) + |Y| k(n)
+
+n
+
+ c1k(n) + c0
+
+ + k(n)2 − 1
+
+n log 1
+
+ϵ0
+
+.
+
+By (5.19), 
+
+EμY
+
+h bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+i 
+
+− h(Y ) ≤ rn.
+
+37 Since k(n) → ∞ , k(n) ≤ C log n, and 0 < C < 1/ log |Y| , we have rn → 0.By the triangle inequality, 
+
+n bHk(n) 
+
+> n
+
+− h(Y ) > ξ + rn
+
+o
+
+⊆
+
+n bHk(n) 
+
+> n
+
+− EμY
+
+h bHk(n)
+
+> n
+
+i
+
+> ξ 
+
+o
+
+.
+
+Therefore, by Remark 3, for every ξ > 0 and all sufficiently large n,
+
+μY bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+− h(Y ) > ξ + rn
+
+!
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+72 C2(1 + E[θ]) 2 log 4 n
+
+
+
+.
+
+□
+
+5.4. Proof of Corollary 1 
+
+Since rn → 0 and X
+
+> n≥2
+
+exp 
+
+
+
+−c n
+
+log 4 n
+
+
+
+< ∞,
+
+with c > 0, Theorem 2 and the Borel–Cantelli lemma (Durrett, 2019, Theorem 2.3.1) imply 
+
+bHn
+
+
+
+Y0 | Y −1
+
+> −k(n)+1
+
+
+
+−→ h(Y ) μY -a.s. 
+
+□
+
+5.5. Proof of Theorem 3 
+
+Fix integers k and n such that 2 ≤ k ≤ n. By the definition of the plug-in transfer entropy, 
+
+bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+ = bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+ − bHn
+
+ Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+
+
+= bHn
+
+ Y 0
+
+> −k+1
+
+ − bHn
+
+ Y −1
+
+> −k+1
+
+ − bHn
+
+ X−1
+
+> −k+1
+
+, Y 0
+
+> −k+1
+
+ + bHn
+
+ X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ .
+
+Let (x−1
+
+> −n
+
+, y −1
+
+> −n
+
+) and (x′ − 1 
+
+> −n
+
+, y ′ − 1 
+
+> −n
+
+) be two samples that differ only at coordinate i ∈{− n, . . . , −1}. Changing the pair (xi, y i) affects at most k empirical blocks associated with bHn
+
+ Y 0
+
+> −k+1
+
+ and bHn
+
+ X−1
+
+> −k+1
+
+, Y 0
+
+> −k+1
+
+, and at most k − 1 empirical blocks associated with bHn
+
+ Y −1
+
+> −k+1
+
+ and bHn
+
+ X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ . Since replacing one observation in an empir-ical distribution based on n observations changes its entropy by at most (log n + 1) /n ,applying this bound successively to the affected empirical blocks shows that the abso-lute differences between the corresponding empirical entropies computed from the two samples are bounded by k(log n+1)  
+
+> n
+
+and (k−1)(log n+1)  
+
+> n
+
+, respectively. For shorthand notation, write bT kn := bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+. For each i ∈ {− n, . . . , −1},define the coordinate oscillation of the plug-in transfer entropy estimator by 
+
+δi
+
+ bT kn
+
+
+
+:= sup 
+
+(bT kn − bT ′ kn : ( xj , y j ) = ( x′ 
+
+> j
+
+, y ′ 
+
+> j
+
+) for all j̸ = i
+
+)
+
+,
+
+38 where bT kn and bT ′ kn are empirical transfer entropies computed from (x−1
+
+> −n
+
+, y −1
+
+> −n
+
+) and (x′ − 1 
+
+> −n
+
+, y ′ − 1 
+
+> −n
+
+),respectively. Therefore, for each i ∈ {− n, . . . , −1}, the triangle inequality gives 
+
+δi
+
+ bT kn
+
+
+
+≤ 2k(log n + 1) 
+
+n + 2( k − 1)(log n + 1) 
+
+n ,
+
+and hence 
+
+δi
+
+ bT kn
+
+
+
+≤ (4 k − 2)(log n + 1) 
+
+n .
+
+Consequently, 
+
+δ bT kn
+
+> 2
+> ℓ2
+
+:= 
+
+> −1
+
+X
+
+> i=−n
+
+δi
+
+ bT kn
+
+2
+
+≤ (4 k − 2) 2(log n + 1) 2
+
+n . (5.20) By the concentration inequality for coupling-from-the-past processes (Gallo and Taka-hashi, 2014, Corollary 1), Assumption (II) and (5.20) imply that, for every ξ > 0,
+
+μ
+
+ bT kn − Eμ
+
+h bT kn
+
+i
+
+> ξ 
+
+
+
+≤ 4 exp 
+
+
+
+− 2ξ2n
+
+9(1 + E[θ]) 2(4 k − 2) 2(log n + 1) 2
+
+
+
+. (5.21) 
+
+□
+
+5.6. Proof of Remark 4 
+
+Now take k = k(n) and assume that, for all sufficiently large n, k(n) ≤ C log n, for some constant C > 0. Then, for all sufficiently large n,
+
+(4 k(n) − 2) 2(log n + 1) 2 ≤ 64 C2 log 4 n. 
+
+Hence, by (5.21), for every ξ > 0 and all sufficiently large n,
+
+μ
+
+ bT k(n) 
+
+> n
+
+− Eμ
+
+h bT k(n)
+
+> n
+
+i
+
+> ξ 
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+288 C2(1 + E[θ]) 2 log 4 n
+
+
+
+.
+
+□
+
+5.7. Proof of Theorem 4 
+
+Fix integers k and n such that 2 ≤ k ≤ n. We first derive an upper bound for the bias Eμ
+
+h bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+i
+
+− T (X → Y ) . By shorthand notation, write bT kn := 
+
+bT kn
+
+ X0 
+
+> −k+1
+
+→ Y 0
+
+> −k+1
+
+. By the definitions of the plug-in transfer entropy and the transfer entropy rate, 
+
+Eμ
+
+h bT kn
+
+i
+
+− T (X → Y ) ≤ γYk + γY |Xk + BYn,k + BY |Xn,k . (5.22) 39 where 
+
+γYk := H  Y0 | Y −1
+
+> −k+1
+
+ − h(Y ),γY |Xk := H  Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ − h(Y | X),BYn,k := Eμ
+
+h bHn
+
+ Y0 | Y −1
+
+> −k+1
+
+i
+
+− H Y0 | Y −1
+
+> −k+1
+
+ ,BY |Xn,k := Eμ
+
+h bHn
+
+ Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+i
+
+− H Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ .
+
+We first control BYn,k . Since Y is a marginal of Z, the β-mixing coefficients of Y and 
+
+Z, denoted by βY and βZ , respectively, satisfy, for every r ≥ 1,
+
+βY (r) ≤ βZ (r) ≤ γe −δr ,
+
+for some positive constants δ and γ. Moreover, by Assumption (I), for every b0 ∈ Y and every (a−1
+
+> −∞
+
+, b −1
+
+> −∞
+
+) ∈ X ≤− 1 × Y ≤− 1,
+
+gY |X
+
+ b0 | a−1
+
+> −∞
+
+, b −1
+
+> −∞
+
+ = X
+
+> a0∈X
+
+g  (a0, b 0) | (a−1
+
+> −∞
+
+, b −1
+
+> −∞
+
+) ≥ |X | ϵ0 ≥ ϵ0.
+
+Hence, by the tower property, gY
+
+ b0 | b−1
+
+> −∞
+
+ ≥ ϵ0, μY -a.s. Therefore, the same argument used in the proof of Theorem 2, in particular the bounds leading to (5.6) and (5.18), gives 
+
+BYn,k ≤ |Y| k
+
+n (c1k + c0) + k2 − 1
+
+n log 1
+
+ϵ0
+
+, (5.23) where c1 and c0 are the constants introduced in the proof of Theorem 2 (see Section 5.3). We next control BY |Xn,k . Let μk,k denote the stationary joint k-block distribution of 
+
+Z, and let μk−1,k and μk−1,k −1 denote its corresponding marginals, in analogy with the empirical distributions introduced in Section 2.5. We define the finite-past conditional kernel by 
+
+gY |Xk
+
+ b0 | a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ := μk−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+
+
+μk−1,k −1
+
+ a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+.
+
+By Assumption (I) and the tower property, gY |Xk
+
+ b0 | a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ ≥ ϵ0. Moreover, by the consistency of the periodic empirical distributions under marginalization, 
+
+bHY |Xn = − X 
+
+> a−1
+> −k+1 ∈X k−1
+> b0
+> −k+1 ∈Y k
+
+bμn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ log gY |Xk
+
+ b0 | a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ + ∆ bDY |Xn,k , (5.24) 
+
+where bHY |Xn := bHn
+
+ Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ and 
+
+∆ bDY |Xn,k := −D (bμn;k−1,k ∥μk−1,k ) + D (bμn;k−1,k −1∥μk−1,k −1) .
+
+Taking expectation in (5.24), we have 
+
+Eμ
+
+h bHY |Xn
+
+i
+
+= H  Y0 | X−1
+
+> −k+1
+
+, Y −1
+
+> −k+1
+
+ + RY |Xn,k + Eμ
+
+h
+
+∆ bDY |Xn,k 
+
+i
+
+, (5.25) 40 where 
+
+RY |Xn,k := − X 
+
+> a−1
+> −k+1 ∈X k−1
+> b0
+> −k+1 ∈Y k
+
+ Eμ
+
+bμn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ − μk−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ log gY |Xk
+
+ b0 | a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ .
+
+Then, by (5.25), 
+
+BY |Xn,k ≤ RY |Xn,k + Eμ
+
+h
+
+∆ bDY |Xn,k 
+
+i
+
+. (5.26) To control RY |Xn,k , define 
+
+μn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ := 1
+
+n
+
+> −1
+
+X
+
+> i=−n
+
+1 Xi+k−2 
+
+> i
+
+= a−1
+
+> −k+1
+
+, Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+By stationarity, 
+
+Eμ
+
+μn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ = μk−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ .
+
+Moreover, bμn;k−1,k and μn;k−1,k may differ only at the last k − 1 starting positions. Therefore, 
+
+∥Eμ[bμn;k−1,k ] − μk−1,k ∥TV ≤ k − 1
+
+n . (5.27) Since, by Assumption (I), 0 ≤ − log gY |Xk
+
+ b0 | a−1
+
+> −k+1
+
+, b −1
+
+> −k+1
+
+ ≤ log 1 
+
+> ϵ0
+
+, it follows from (5.27) that 
+
+RY |Xn,k ≤ k − 1
+
+n log 1
+
+ϵ0
+
+. (5.28) Consequently, combining (5.26) and (5.28), 
+
+BY |Xn,k ≤ k − 1
+
+n log 1
+
+ϵ0
+
++ Eμ
+
+h
+
+∆ bDY |Xn,k 
+
+i
+
+. (5.29) Since bμn;k−1,k −1 and μk−1,k −1 are, respectively, the marginals of bμn;k−1,k and μk−1,k 
+
+obtained by summing over b0 ∈ Y , the data-processing inequality for relative entropy yields D (bμn;k−1,k −1∥μk−1,k −1) ≤ D (bμn;k−1,k ∥μk−1,k ) (Csiszár, 1967). Thus, ∆ bDY |Xn,k ≤ 0,and therefore 
+
+Eμ
+
+h
+
+∆ bDY |Xn,k 
+
+i
+
+≤ Eμ[D (bμn;k−1,k ∥μk−1,k )] . (5.30) We now separate the blocks entirely contained in the observed sample from those completed using the periodic extension. Define 
+
+bνn;k−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ := 1
+
+n − k + 1 
+
+> −k
+
+X
+
+> i=−n
+
+1 Xi+k−2 
+
+> i
+
+= a−1
+
+> −k+1
+
+, Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+. (5.31) Let bρn;k−1,k denote the empirical distribution of the remaining k − 1 blocks completed using the periodic extension. Then 
+
+bμn;k−1,k = n − k + 1 
+
+n bνn;k−1,k + k − 1
+
+n bρn;k−1,k . (5.32) 41 Using (5.32) and the convexity of relative entropy, 
+
+D (bμn;k−1,k ∥μk−1,k ) ≤ n − k + 1 
+
+n D (bνn;k−1,k ∥μk−1,k ) + k − 1
+
+n D (bρn;k−1,k ∥μk−1,k ) .
+
+By Assumption (I), every joint k-block has probability at least ϵk 
+
+> 0
+
+. Since μk−1,k 
+
+is a marginal of μk,k , it follows that μk−1,k 
+
+ a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ ≥ ϵk 
+
+> 0
+
+. Consequently, for any probability distribution ρ on X k−1 × Y k,
+
+D (ρ∥μk−1,k ) ≤ k log 1
+
+ϵ0
+
+.
+
+Hence, 
+
+Eμ[D (bμn;k−1,k ∥μk−1,k )] ≤ n − k + 1 
+
+n Eμ[D (bνn;k−1,k ∥μk−1,k )] + k(k − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.33) It remains to control the first term on the right-hand side of (5.33). For u = a−1
+
+> −k+1
+
+, b 0
+
+> −k+1
+
+ ∈ X k−1 × Y k, define 
+
+Iui := 1 Xi+k−2 
+
+> i
+
+= a−1
+
+> −k+1
+
+, Y i+k−1 
+
+> i
+
+= b0 
+
+> −k+1
+
+.
+
+Then, we can rewrite (5.31) as 
+
+bνn;k−1,k (u) = 1
+
+n − k + 1 
+
+> −k
+
+X
+
+> i=−n
+
+Iui ,
+
+and, by stationarity, 
+
+Eμ [bνn;k−1,k (u)] = μk−1,k (u).
+
+Using the standard bound of relative entropy by the χ2-divergence (Tsybakov, 2009, Lemma 2.7), 
+
+D (bνn;k−1,k ∥μk−1,k ) ≤ X 
+
+> u∈X k−1×Y k
+
+(bνn;k−1,k (u) − μk−1,k (u)) 2
+
+μk−1,k (u) .
+
+Hence, 
+
+Eμ [D (bνn;k−1,k ∥μk−1,k )] ≤ X 
+
+> u∈X k−1×Y k
+
+Var μ (bνn;k−1,k (u)) 
+
+μk−1,k (u) .
+
+For each u, the variable Iui is measurable with respect to σ(Zi, . . . , Z i+k−1). Therefore, exactly as in the proof of Theorem 2, for r ≥ k,
+
+|Cov μ(Iu 
+
+> 0
+
+, I ur )| ≤ min {μk−1,k (u), β Z (r − k + 1) } .
+
+For 1 ≤ r < k , we simply use 
+
+|Cov μ(Iu 
+
+> 0
+
+, I ur )| ≤ μk−1,k (u).
+
+42 Consequently, 
+
+Var μ (bνn;k−1,k (u)) ≤ μk−1,k (u)
+
+n − k + 1 
+
+"
+
+2k − 1 + 2 
+
+> ∞
+
+X
+
+> s=1
+
+min 
+
+
+
+1, βZ (s)
+
+μk−1,k (u)
+
+#
+
+.
+
+By Assumption (III), βZ (s) ≤ γe −δs , and the same estimate used in the proof of Theorem 2 gives 
+
+> ∞
+
+X
+
+> s=1
+
+min 
+
+
+
+1, βZ (s)
+
+μk−1,k (u)
+
+
+
+≤ log + (γ/μ k−1,k (u)) 
+
+δ + 1 + 1
+
+eδ − 1.
+
+Moreover, Assumption (I) implies μk−1,k (u) ≥ ϵk 
+
+> 0
+
+. Thus, 
+
+log +
+
+ γμk−1,k (u)
+
+
+
+≤ log + γ + k log 1
+
+ϵ0
+
+.
+
+Recalling c1 = 2 + 2 
+
+> δ
+
+log 1 
+
+> ϵ0
+
+and c0 = 1 + 2 log + γδ + 2  
+
+> eδ−1
+
+, we conclude that 
+
+Var μ (bνn;k−1,k (u)) ≤ μk−1,k (u)
+
+n − k + 1 (c1k + c0).
+
+Since there are |X | k−1|Y| k possible values of u, it follows that 
+
+Eμ [D (bνn;k−1,k ∥μk−1,k )] ≤ |X | k−1|Y| k
+
+n − k + 1 (c1k + c0). (5.34) Combining (5.34) with (5.33), we obtain 
+
+Eμ [D (bμn;k−1,k ∥μk−1,k )] ≤ |X | k−1|Y| k
+
+n (c1k + c0) + k(k − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.35) It follows from (5.30) and (5.35) that 
+
+Eμ
+
+h
+
+∆ bDY |Xn,k 
+
+i
+
+≤ |X | k−1|Y| k
+
+n (c1k + c0) + k(k − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.36) Finally, substituting (5.36) into (5.29) yields 
+
+BY |Xn,k ≤ |X | k−1|Y| k
+
+n (c1k + c0) + k2 − 1
+
+n log 1
+
+ϵ0
+
+. (5.37) Combining (5.22), (5.23), and (5.37), we obtain 
+
+Eμ
+
+h bT kn
+
+i
+
+− T (X → Y ) ≤ γYk + γY |Xk
+
++ |Y| k + |X | k−1|Y| k
+
+n (c1k + c0) + 2( k2 − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.38) 43 Since Z = X × Y , |Y| k ≤ |Z| k and |X | k−1|Y| k ≤ |Z| k. Thus, (5.38) yields 
+
+Eμ
+
+h bT kn
+
+i
+
+− T (X → Y ) ≤ γYk + γY |Xk + 2|Z| k
+
+n (c1k + c0) + 2( k2 − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.39) We now take k = k(n) and define 
+
+rn := γYk(n) + γY |Xk(n) + 2|Z| k(n)
+
+n
+
+ c1k(n) + c0
+
+ + 2( k(n)2 − 1) 
+
+n log 1
+
+ϵ0
+
+. (5.40) By (5.39) and (5.40), 
+
+Eμ
+
+h bT k(n)
+
+> n
+
+i
+
+− T (X → Y ) ≤ rn. (5.41) Since k(n) n→∞ 
+
+−→ ∞ , the definitions of the entropy rate and the conditional entropy rate imply 
+
+γYk(n)
+
+> n→∞
+
+−→ 0 and γY |Xk(n)
+
+> n→∞
+
+−→ 0.
+
+Moreover, assume that, for all sufficiently large n, k(n) ≤ C log n, 0 < C < 1log |Z| , then by (5.40), rnn→∞ 
+
+−→ 0. By the triangle inequality and (5.41), 
+
+bT k(n) 
+
+> n
+
+− T (X → Y ) ≤ bT k(n) 
+
+> n
+
+− Eμ
+
+h bT k(n)
+
+> n
+
+i
+
++ rn.
+
+Therefore, for every ξ > 0,
+
+μ
+
+ bT k(n) 
+
+> n
+
+− T (X → Y ) > ξ + rn
+
+
+
+≤ μ
+
+ bT k(n) 
+
+> n
+
+− Eμ
+
+h bT k(n)
+
+> n
+
+i
+
+> ξ 
+
+
+
+. (5.42) By Theorem 3, the right-hand side of (5.42) is bounded by 
+
+4 exp 
+
+
+
+− 2ξ2n
+
+9(1 + E[θ]) 2(4 k(n) − 2) 2(log n + 1) 2
+
+
+
+.
+
+Since, for all sufficiently large n, k(n) ≤ C log n, we have 
+
+μ
+
+ bT k(n) 
+
+> n
+
+− T (X → Y ) > ξ + rn
+
+
+
+≤ 4 exp 
+
+
+
+− ξ2n
+
+288 C2(1 + E[θ]) 2 log 4 n
+
+
+
+, (5.43) which completes the proof. 
+
+□
+
+5.8. Proof of Corollary 2 
+
+Since rn → 0 and X
+
+> n≥2
+
+exp 
+
+
+
+−c n
+
+log 4 n
+
+
+
+< ∞,
+
+with c > 0, Theorem 4 and the Borel–Cantelli lemma (Durrett, 2019, Theorem 2.3.1) imply bT k(n)
+
+> n
+
+ X0 
+
+> −k(n)+1
+
+→ Y 0
+
+> −k(n)+1
+
+ −→ T (X → Y ) μ-a.s. 
+
+□
+
+44 6. Final remarks 
+
+We established non-asymptotic concentration inequalities for plug-in estimators of the entropy rate and the transfer entropy rate for stationary finite-alphabet chains with unbounded memory governed by g-functions that need not be globally continuous. The coupling-from-the-past assumption controls the fluctuations of the estimators around their expectations, while uniform non-nullness and exponential β-mixing provide the additional control needed to obtain concentration around the corresponding rates and almost-sure consistency. Natural directions for further work include weakening the mix-ing and non-nullness assumptions, as well as establishing central limit theorems and large deviation results under the same non-regular framework. 
+
+Acknowledgements 
+
+R.F.F. was partially supported by the São Paulo Research Foundation (FAPESP), Brazil, Process Number #2025/13627-9. 
+
+References 
+
+Bradley, R.C., 2007. Introduction to Strong Mixing Conditions. volume 1. Kendrick Press, Heber City, Utah. Cénac, P., Chauvin, B., Paccaut, F., Pouyanne, N., 2012. Context trees, variable length markov chains and dynamical sources, in: Donati-Martin, C., Lejay, A., Rouault, A. (Eds.), Séminaire de Probabilités XLIV. Springer, Berlin, Heidelberg. volume 2046 of 
+
+Lecture Notes in Mathematics , pp. 1–39. doi: 10.1007/978-3-642-27461-9_1 .Chazottes, J.R., Gabrielli, D., 2005. Large deviations for empirical entropies of g-measures. Nonlinearity 18, 2545–2563. doi: 10.1088/0951-7715/18/6/007 .Chazottes, J.R., Gallo, S., Takahashi, D.Y., 2023. Gaussian concentration bounds for stochastic chains of unbounded memory. The Annals of Applied Probability 33, 3321– 3350. doi: 10.1214/22-AAP1893 .Chazottes, J.R., Maldonado, C., 2011. Concentration bounds for entropy estima-tion of one-dimensional Gibbs measures. Nonlinearity 24, 2371–2381. doi: 10.1088/ 0951-7715/24/8/011 .Comets, F., Fernández, R., Ferrari, P.A., 2002. Processes with long memory: Regen-erative construction and perfect simulation. The Annals of Applied Probability 12, 921–943. doi: 10.1214/aoap/1031863175 .Cover, T.M., Thomas, J.A., 1991. Elements of Information Theory. John Wiley & Sons, New York. doi: 10.1002/0471200611 .Csiszár, I., 1967. Information-type measures of difference of probability distributions and indirect observations. Studia Scientiarum Mathematicarum Hungarica 2, 299–318. 45 De Santis, E., Piccioni, M., 2012. Backward coalescence times for perfect simulation of chains with infinite memory. Journal of Applied Probability 49, 319–337. doi: 10. 1239/jap/1339878789 .Dimpfl, T., Peter, F.J., 2013. Using transfer entropy to measure information flows between financial markets. Studies in Nonlinear Dynamics & Econometrics 17, 85– 102. doi: 10.1515/snde-2012-0044 .Doeblin, W., Fortet, R., 1937. Sur des chaînes à liaisons complètes. Bulletin de la Société Mathématique de France 65, 132–148. doi: 10.24033/bsmf.1270 .Durrett, R., 2019. Probability: Theory and Examples. 5 ed., Cambridge University Press, Cambridge. doi: 10.1017/9781108591034 .Faes, L., Nollo, G., Porta, A., 2013. Compensated transfer entropy as a tool for reliably estimating information transfer in physiological time series. Entropy 15, 198–219. doi: 10.3390/e15010198 .Ferreira, R.F., 2021. Concentration bounds for plug-in estimator of directed information. IEEE Transactions on Information Theory 67, 4939–4947. doi: 10.1109/TIT.2021. 3075612 .Ferreira, R.F., Gallo, S., Paccaut, F., 2020. Non-regular g-measures and variable length memory chains. Nonlinearity 33, 6026–6052. doi: 10.1088/1361-6544/aba0c5 .Gabrielli, D., Galves, A., Guiol, D., 2003. Fluctuations of the empirical entropies of a chain of infinite order. Mathematical Physics Electronic Journal 9, Paper 5, 17 pp. 
+
+arXiv:cond-mat/0308508 .Gallesco, C., Gallo, S., Takahashi, D.Y., 2026. Uniqueness of stationary compatible probability measures for chains of infinite order with forbidden transitions. Stochastic Processes and their Applications 199, 104994. doi: 10.1016/j.spa.2026.104994 .Gallo, S., 2011. Chains with unbounded variable length memory: perfect simulation and a visible regeneration scheme. Advances in Applied Probability 43, 735–759. doi: 10.1239/aap/1316792668 .Gallo, S., Garcia, N.L., 2013. Perfect simulation for locally continuous chains of infinite order. Stochastic Processes and their Applications 123, 3877–3902. doi: 10.1016/j. spa.2013.05.010 .Gallo, S., Paccaut, F., 2013. On non-regular g-measures. Nonlinearity 26, 763–776. doi: 10.1088/0951-7715/26/3/763 .Gallo, S., Takahashi, D.Y., 2014. Attractive regular stochastic chains: perfect simulation and phase transition. Ergodic Theory and Dynamical Systems 34, 1567–1586. doi: 10. 1017/etds.2013.7 .46 Galves, A., Löcherbach, E., 2008. Stochastic chains with memory of variable length, in: Grünwald, P., Myllymäki, P., Tabus, I., Weinberger, M.J., Yu, B. (Eds.), Festschrift in Honor of Jorma Rissanen on the Occasion of His 75th Birthday. Tampere University of Technology, Tampere, Finland. volume 38 of TICSP Series , pp. 117–133. Galves, A., Maume-Deschamps, V., Schmitt, B., 2008. Exponential inequalities for VLMC empirical trees. ESAIM: Probability and Statistics 12, 219–229. doi: 10.1051/ ps:2007035 .Granger, C.W.J., 1969. Investigating causal relations by econometric models and cross-spectral methods. Econometrica 37, 424–438. doi: 10.2307/1912791 .Harris, T.E., 1955. On chains of infinite order. Pacific Journal of Mathematics 5, 707– 724. doi: 10.2140/pjm.1955.5.707 .Hulse, P., 1991. Uniqueness and ergodic properties of attractive g-measures. Ergodic Theory and Dynamical Systems 11, 65–77. doi: 10.1017/S0143385700006015 .Izzi, J.V.R., Ferreira, R.F., Girardi, V.A., Pena, R.F.O., 2024. Identifying effective connectivity between stochastic neurons with variable-length memory using a transfer entropy rate estimator. Brain Sciences 14, 442. doi: 10.3390/brainsci14050442 .Johansson, A., Öberg, A., 2003. Square summability of variations of g-functions and uniqueness of g-measures. Mathematical Research Letters 10, 587–601. doi: 10.4310/ MRL.2003.v10.n5.a3 .Johansson, A., Öberg, A., 2008. Square summability of variations and convergence of the transfer operator. Ergodic Theory and Dynamical Systems 28, 1145–1151. doi: 10.1017/S0143385707000788 .Kallenberg, O., 2002. Foundations of Modern Probability. Probability and Its Applica-tions. 2 ed., Springer, New York. doi: 10.1007/978-1-4757-4015-8 .Keane, M., 1972. Strongly mixing g-measures. Inventiones Mathematicae 16, 309–324. doi: 10.1007/BF01425715 .Kontoyiannis, I., Skoularidou, M., 2016. Estimating the directed information and testing for causality. IEEE Transactions on Information Theory 62, 6053–6067. doi: 10.1109/ TIT.2016.2604842 .Ledrappier, F., 1974. Principe variationnel et systèmes dynamiques symboliques. Zeitschrift für Wahrscheinlichkeitstheorie und Verwandte Gebiete 30, 185–202. doi: 10. 1007/BF00533471 .Lee, J., Nemati, S., Silva, I., Edwards, B.A., Butler, J.P., Malhotra, A., 2012. Transfer entropy estimation and directional coupling change detection in biomedical time series. BioMedical Engineering OnLine 11, 19. doi: 10.1186/1475-925X-11-19 .47 Lindvall, T., 2002. Lectures on the Coupling Method. Dover Publications, Mineola, New York. Lungarella, M., Pitti, A., Kuniyoshi, Y., 2007. Information transfer at multiple scales. Physical Review E 76, 056117. doi: 10.1103/PhysRevE.76.056117 .Marschinski, R., Kantz, H., 2002. Analysing the information flow between financial time series: An improved estimator for transfer entropy. The European Physical Journal B 30, 275–281. doi: 10.1140/epjb/e2002-00379-2 .Oliveira, R.I., 2015. Stochastic processes with random contexts: a characterization and adaptive estimators for the transition probabilities. IEEE Transactions on Information Theory 61, 6910–6925. doi: 10.1109/TIT.2015.2496200 .Onicescu, O., Mihoc, G., 1935. Sur les chaînes de variables statistiques. Bulletin des Sciences Mathématiques 59, 174–192. Paluš, M., Komárek, V., Hrnčíř, Z., Štěrbová, K., 2001. Synchronization as adjustment of information rates: Detection from bivariate time series. Physical Review E 63, 046211. doi: 10.1103/PhysRevE.63.046211 .Propp, J.G., Wilson, D.B., 1996. Exact sampling with coupled markov chains and applications to statistical mechanics. Random Structures & Algorithms 9, 223–252. doi: 10.1002/(SICI)1098-2418(199608/09)9:1/2<223::AID-RSA14>3.0.CO;2-O .Restrepo, J.F., Mateos, D.M., Schlotthauer, G., 2020. Transfer entropy rate through Lempel–Ziv complexity. Physical Review E 101, 052117. doi: 10.1103/PhysRevE.101. 052117 .Schreiber, T., 2000. Measuring information transfer. Physical Review Letters 85, 461– 464. doi: 10.1103/PhysRevLett.85.461 .Shields, P.C., 1996. The Ergodic Theory of Discrete Sample Paths. volume 13 of Grad-uate Studies in Mathematics . American Mathematical Society, Providence, Rhode Island. doi: 10.1090/gsm/013 .Staniek, M., Lehnertz, K., 2008. Symbolic transfer entropy. Physical Review Letters 100, 158101. doi: 10.1103/PhysRevLett.100.158101 .Tsybakov, A.B., 2009. Introduction to Nonparametric Estimation. Springer Series in Statistics, Springer, New York. doi: 10.1007/b13794 .Verdes, P.F., 2005. Assessing causality from multivariate time series. Physical Review E 72, 026222. doi: 10.1103/PhysRevE.72.026222 .Vicente, R., Wibral, M., Lindner, M., Pipa, G., 2011. Transfer entropy—a model-free measure of effective connectivity for the neurosciences. Journal of Computational Neuroscience 30, 45–67. doi: 10.1007/s10827-010-0262-3 .48 Walters, P., 1975. Ruelle’s operator theorem and g-measures. Transactions of the Ameri-can Mathematical Society 214, 375–387. doi: 10.1090/S0002-9947-1975-0412389-8 .Williams, D., 1991. Probability with Martingales. Cambridge University Press, Cam-bridge. doi: 10.1017/CBO9780511813658 .49
