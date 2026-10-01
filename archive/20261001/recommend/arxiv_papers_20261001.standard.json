@@ -1,0 +1,89 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-10-01T22:56:23.659233+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2609.31361v1",
+      "source": "arxiv",
+      "title": "Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition",
+      "abstract": "High-frequency industrial cyber-physical systems (CPS) stream continuous sensor telemetry at sub-10-second intervals. Multi-horizon forecasting over hours is required for predictive maintenance and operational control. However, deploying machine learning models over extended horizons (H = 2,160 steps at dt = 5 s) encounters the Dual-Timescale Forecasting Dilemma: the trade-off between short-horizon kinetic momentum and long-horizon diurnal thermodynamic equilibrium. Autoregressive rollouts suffer from compounding error drift, while direct multi-output projectors exhibit variance explosion and noise extrapolation. In this work, we prove that autoregressive mutual information decays exponentially toward zero over extended lead times, and that the optimal minimum-variance estimator converges asymptotically to the periodic diurnal baseline (Lemma 1 and Theorem 1). Guided by these bounds, we propose the Dynamic Asymptotic Decomposition (DAD) framework. The architecture couples a continuous sigmoidal authority transition schedule \\(α(h)\\) with monotonic L2 regularization scaling \\(λ(h)\\), transferring prediction authority from kinetic autoregression to diurnal equilibrium while enforcing physical non-negativity. Evaluated across a 30-day industrial telemetry stream (N = 518,400 steps) over 16 walk-forward test windows, DAD achieves an overall Mean Absolute Error (MAE) of 0.1764, representing a 78.3% error reduction over Deep LSTM (0.8143), 60.2% over PatchTST (0.4431), and 20.8% over DLinear (0.2227). Computational profiling demonstrates edge execution in 0.72 ms with 0.203 MFLOPs and 72k parameters on a single CPU core (over 3400x faster than Transformer baselines), validated by an automated dual-stage CI/CD quality assurance harness and physical fail-safe architecture.",
+      "authors": [
+        "Avik Kumar Das"
+      ],
+      "primary_category": "eess.SP",
+      "categories": [
+        "eess.SP"
+      ],
+      "published": "2026-09-25T14:56:52+00:00",
+      "link": "https://arxiv.org/pdf/2609.31361v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "proves autoregressive mutual information decay limiting multi-horizon forecast predictability",
+      "llm_evidence_cn": "证明自回归互信息衰减限制多步预测可预测性",
+      "llm_evidence": "证明自回归互信息衰减限制多步预测可预测性",
+      "canonical_evidence": "证明自回归互信息衰减限制多步预测可预测性",
+      "llm_tldr_en": "High-frequency CPS telemetry needs long-horizon forecasting, but autoregressive rollouts drift and direct projectors explode. The authors prove autoregressive mutual information decay and propose physics-grounded dynamic asymptotic decomposition to resolve the dual-timescale trade-off.",
+      "llm_tldr_cn": "高频工业信息物理系统需要在小时级多步预测中进行预测性维护，但自回归展开存在误差累积漂移，直接多输出投影又出现方差爆炸与噪声外推，构成双时间尺度预测困境。作者从理论上证明自回归互信息随步长衰减，并提出基于物理的动态渐近分解方法，将短时动力学与长时日周期平衡解耦。实验表明该分解能缓解复合误差并提升长时程预测稳定性，为长程时间序列可预测性极限提供了理论与方法依据。",
+      "llm_tldr": "高频工业信息物理系统需要在小时级多步预测中进行预测性维护，但自回归展开存在误差累积漂移，直接多输出投影又出现方差爆炸与噪声外推，构成双时间尺度预测困境。作者从理论上证明自回归互信息随步长衰减，并提出基于物理的动态渐近分解方法，将短时动力学与长时日周期平衡解耦。实验表明该分解能缓解复合误差并提升长时程预测稳定性，为长程时间序列可预测性极限提供了理论与方法依据。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "limits of predictability in time series",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2609.35021v1",
+      "source": "arxiv",
+      "title": "Addressing Spatial Indistinguishability in Spatiotemporal Prediction via Optimal Transport-Guided Masking",
+      "abstract": "Spatiotemporal prediction aims to learn discriminative representations from correlated temporal signals over spatial structures for accurate future inference. A central challenge is \\emph{spatial indistinguishability}: different nodes may share similar historical patterns yet evolve toward divergent futures, severely degrading forecasting performance in real-world sensor networks. Existing embedding-based and graph neural network (GNN)-based approaches can partially detect such ambiguous nodes but rely on historical similarity, struggling to capture \\emph{future behavioral divergence}. We propose \\textbf{STOT} (\\textbf{S}patio\\textbf{T}emporal \\textbf{O}ptimal \\textbf{T}ransport), a self-supervised framework that resolves spatiotemporal ambiguity via structured masking guided by optimal transport. Our key idea treats indistinguishability as a \\emph{disambiguation} problem: future states are inferred by exploiting concurrent spatial correlations and their time-varying similarity. We design a similarity-aware metric for dynamic inter-node relationships and an optimal transport-based masking strategy to emphasize ambiguous positions during pre-training. A batch consistency constraint preserves semantic coherence, while a random-walk masking mechanism promotes structured context exploration. Experiments on six real-world datasets show that STOT performs competitively with state-of-the-art baselines on the evaluated benchmarks and improved interpretability through transport-plan visualizations.",
+      "authors": [
+        "Guangyu Wang",
+        "Jiawei Tong"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-09-28T12:21:28+00:00",
+      "link": "https://arxiv.org/pdf/2609.35021v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "forecasting degradation from spatial indistinguishability, limits on spatiotemporal predictability",
+      "llm_evidence_cn": "空间不可区分性导致的时空预测退化与可预测性限制",
+      "llm_evidence": "空间不可区分性导致的时空预测退化与可预测性限制",
+      "canonical_evidence": "空间不可区分性导致的时空预测退化与可预测性限制",
+      "llm_tldr_en": "STOT, a self-supervised optimal-transport-guided masking framework, tackles spatial indistinguishability in spatiotemporal prediction where similar histories diverge into different futures, mitigating forecasting degradation.",
+      "llm_tldr_cn": "时空预测中不同节点可能具有相似历史却走向不同未来，这种空间不可区分性严重削弱预测性能。现有嵌入与图神经网络方法依赖历史相似性，难以捕捉未来行为的分化。本文提出STOT自监督框架，利用最优传输引导的掩码学习可区分表征。实验表明该方法能缓解不可区分节点带来的预测退化，为时空预测的可预测性瓶颈提供了方法层面的应对。",
+      "llm_tldr": "时空预测中不同节点可能具有相似历史却走向不同未来，这种空间不可区分性严重削弱预测性能。现有嵌入与图神经网络方法依赖历史相似性，难以捕捉未来行为的分化。本文提出STOT自监督框架，利用最优传输引导的掩码学习可区分表征。实验表明该方法能缓解不可区分节点带来的预测退化，为时空预测的可预测性瓶颈提供了方法层面的应对。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

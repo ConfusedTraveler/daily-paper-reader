@@ -6,38 +6,27 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-09-30
-- 运行时间：2026-09-30 23:36:31 UTC
+- 最新运行日期：2026-10-01
+- 运行时间：2026-10-01 22:57:51 UTC
 - 运行状态：成功
-- 本次总论文数：5
+- 本次总论文数：2
 - 精读区：0
-- 速读区：5
+- 速读区：2
 
 ### 今日简报（AI）
-- 今日共生成 5 篇推荐（精读 0 篇，速读 5 篇）
-- 速读：《Model-Agnostic Online Certificate-Driven Calibration for Time Series Forecasting Under Distribution Shift》（7.0/10）, 《Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory》（7.0/10）, 《Agnostic Smoothed Online Regression with Adversarial Responses》（6.0/10）
-- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
-- 详情：[/202609/30/README](/202609/30/README)
+今日速读2篇论文，聚焦高频遥测预测与时空预测两大难题，精读0篇。最值得关注的是7.0分的物理动态渐近分解法，用于破解高频信息物理遥测的双时间尺度预测困境；6.0分的最优传输引导掩码法解决时空预测中的空间不可区分问题。普通读者可优先了解前者，看物理约束如何帮助高频数据预测更准。
+- 详情：[/202610/01/README](/202610/01/README)
 
 ### 精读区论文标签
 - 本次无精读推荐。
 
 ### 速读区论文标签
-1. [Model-Agnostic Online Certificate-Driven Calibration for Time Series Forecasting Under Distribution Shift](/202609/30/2609.31960v1-model-agnostic-online-certificate-driven-calibration-for-time-series-forecasting-under-distribution-shift)  
+1. [Resolving the Dual-Timescale Forecasting Dilemma in High-Frequency Cyber-Physical Telemetry via Physics-Grounded Dynamic Asymptotic Decomposition](/202610/01/2609.31361v1-resolving-the-dual-timescale-forecasting-dilemma-in-high-frequency-cyber-physical-telemetry-via-physics-grounded-dynamic-asymptotic-decomposition)  
    标签：评分：7.0/10、query:pred-limit
-   evidence：为分布偏移下的时间序列预测提供有限样本证书和理论界限
-2. [Concentration of empirical entropy and transfer entropy for non-regular chains with unbounded memory](/202609/30/2609.32713v1-concentration-of-empirical-entropy-and-transfer-entropy-for-non-regular-chains-with-unbounded-memory)  
-   标签：评分：7.0/10、query:pred-limit
-   evidence：熵率界限关联可预测性
-3. [Agnostic Smoothed Online Regression with Adversarial Responses](/202609/30/2609.32478v1-agnostic-smoothed-online-regression-with-adversarial-responses)  
+   evidence：证明自回归互信息衰减限制多步预测可预测性
+2. [Addressing Spatial Indistinguishability in Spatiotemporal Prediction via Optimal Transport-Guided Masking](/202610/01/2609.35021v1-addressing-spatial-indistinguishability-in-spatiotemporal-prediction-via-optimal-transport-guided-masking)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：在线预测精度的理论遗憾界
-4. [Valid and Efficient Split Conformal Regression for Time Series](/202609/30/2609.33866v1-valid-and-efficient-split-conformal-regression-for-time-series)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：时间序列预测的非渐近覆盖与区间长度保证
-5. [Diffusion-Based Rollouts as a Stabilization Mechanism for Long-Horizon Environmental Forecasting](/202609/30/2609.33930v1-diffusion-based-rollouts-as-a-stabilization-mechanism-for-long-horizon-environmental-forecasting)  
-   标签：评分：6.0/10、query:pred-limit
-   evidence：预测误差增长与时效极限
+   evidence：空间不可区分性导致的时空预测退化与可预测性限制
 
 
 <div class="dpr-home-promo-card">
