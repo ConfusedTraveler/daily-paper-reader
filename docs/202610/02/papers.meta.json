@@ -1,0 +1,69 @@
+{
+  "label": "2026-10-02",
+  "date": "2026-10-02",
+  "generated_at": "2026-10-02T22:48:41",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202610/02/2609.38524v1-generative-sequence-modeling-for-infinite-memory-processes-via-predictive-states",
+      "section": "quick",
+      "title_en": "Generative sequence modeling for infinite memory processes via predictive states",
+      "authors": "Michael Wieck-Sosa, Cosma Rohilla Shalizi",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.38524v1",
+      "score": "7.0",
+      "evidence": "一步预测条件分布估计与快速收敛率",
+      "tldr": "针对多变量随机过程的一步预测，现有方法常依赖有限记忆、稀疏或可加性假设，难以处理长程非线性交互。本文提出基于预测状态的生成式序列建模估计方法，允许无限记忆，并将历史压缩为低维充分统计量。理论上证明收敛速度由预测状态空间的内在维度决定，而非原始历史维度。进一步给出深度神经网络估计器的统计保证，并用实验验证。",
+      "tags": "query:pred-limit",
+      "abstract_en": "We consider estimating the one-step-ahead conditional distribution of a multivariate stochastic process. Many existing approaches rely on assumptions such as finite-range memory, sparsity, or additivity, which can be poorly suited to processes with long-range nonlinear interactions. However, without such structural assumptions, nonparametric estimation is challenging due to the curse of dimensionality. To address this challenge, we introduce a new estimation approach based on the predictive states of a process, possibly with infinite-range memory. We show that our estimator achieves fast convergence rates when the past history can be compressed into a low-dimensional statistic that is sufficient for predicting the future. Specifically, we show that the statistical complexity of the estimation problem is determined by the intrinsic dimension of the predictive state space. We establish guarantees for an instantiation of our method based on deep neural network estimators, and we support these theoretical results with experiments.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/02/2609.39379v1-butterfly-effect-confirmed-in-global-ai-weather-models-evidence-from-tropical-cyclone-forecasting",
+      "section": "quick",
+      "title_en": "Butterfly Effect Confirmed in Global AI Weather Models: Evidence from Tropical Cyclone Forecasting",
+      "authors": "Jeremy Cheuk-Hin Leung, Daosheng Xu, Weiye Yu, Shaojing Zhang, Xiaodong Zeng, Gaozhen Nie, Jie Feng, Jingchen Pu, Yi Li, Kaijun Ren, Qingcun Zeng, Banglin Zhang",
+      "date": "2026-09-30",
+      "pdf": "https://arxiv.org/pdf/2609.39379v1",
+      "score": "7.0",
+      "evidence": "AI天气模型中的蝴蝶效应与可预测性极限",
+      "tldr": "针对“AI气象模型无法模拟大气蝴蝶效应”的争议，本研究以超强台风卡努为反例，检验AI全球天气模型的混沌行为。通过在两区域引入微小初始扰动，发现AI预测受双吸引子约束并发生局地吸引子切换，导致第7天风暴位置相差1006公里。该现象与数值天气预报一致，近5年约12%热带气旋可见，证实AI能捕捉大气混沌，为AI集合预报提供物理依据。",
+      "tags": "query:pred-limit",
+      "abstract_en": "A paradox recently emerged in artificial intelligence (AI) weather prediction research. While some claim AI weather models cannot simulate atmospheric butterfly effect, this conflicts with AI models' limited predictability and advances in AI ensemble forecasting. This study demonstrates via counterexamples that the butterfly effect does exist in AI weather predictions. For Super Typhoon Khanun, AI predictions are constrained by a double-attractor system. Minor initial perturbations confined to two regions trigger state transitions between two local attractors, causing a 1006-km difference in the predicted storm position on Day 7. This behavior is consistent with numerical weather prediction models and observed in ~12% of tropical cyclones in the past 5 years. These findings verify AI's ability to capture atmospheric chaos and provide the physical basis for AI ensemble forecasting.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/02/2609.36852v1-socialality-anchors-towards-group-bounded-trajectory-prediction",
+      "section": "quick",
+      "title_en": "Socialality Anchors: Towards Group-bounded Trajectory Prediction",
+      "authors": "Ziqian Zou, Conghao Wong, Qinmu Peng, Xinge You",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.36852v1",
+      "score": "6.0",
+      "evidence": "动态场景中的群体约束人类轨迹预测",
+      "tldr": "轨迹预测需理解动态场景中的人类行为，群体交互因共享意图与协调运动成为重要社会先验。现有分组方法多依赖固定阈值和观测窗内相对位置，难以适应个体差异、时序一致与上下文变化。本文提出Socialality框架，用可解释的Socialality锚点与扩展分组窗口，通过双标量控制的分组核融合历史观测和短期未来轨迹预览，学习智能体特定分组规则，并以群体感知机制建模组内与组外交互。在标准基准上取得性能提升，锚点分布分析验证了可解释性与稳定性。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Trajectory prediction is a key component for understanding human behavior patterns in dynamic scenes. Researchers have devoted substantial efforts to modeling social interactions, especially group-wise interactions, since group membership often reflects shared intention, coordinated motion, and stable mutual adaptation, thus providing a persistent and semantically meaningful social prior for forecasting. However, existing group modeling methods may rely on a fixed threshold and infer groups mainly from agents' relative positions within the observation window, overlooking the fact that grouping rules should be agent-specific, temporally coherent, and context-adaptive across diverse personalities, culturalities, and evolving interaction contexts. Inspired by human social perception that alternates between interpersonal distance in boundary-sensitive situations and relative speed consistency in dynamic interactions, we propose Socialality, a human-inspired trajectory prediction framework with interpretable Socialality anchors and an extended grouping window for stable, context-aware grouping inference. Concretely, Socialality introduces a duo-scalar-controlled grouping kernel Socialality that jointly leverages historical observations and short-term future trajectory previews to learn agent-specific grouping rules, and employs a group-wise perception mechanism to model in-group and out-of-group interactions in an intuitive and explainable manner. Furthermore, we conduct extensive experiments on standard benchmarks to demonstrate the performance gains of Socialality, and provide qualitative analyses and statistical studies of anchor distributions to verify the interpretability and stability of the proposed Socialality anchors.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202610/02/2609.37789v1-predictive-self-supervised-learning-provably-identifies-stochastic-signals-under-nuisance",
+      "section": "quick",
+      "title_en": "Predictive Self-Supervised Learning Provably Identifies Stochastic Signals under Nuisance",
+      "authors": "Fabian A. Mikulasch, Friedemann Zenke",
+      "date": "2026-09-29",
+      "pdf": "https://arxiv.org/pdf/2609.37789v1",
+      "score": "6.0",
+      "evidence": "理论证明可预测信号与干扰的区分",
+      "tldr": "自监督学习通过潜空间预测学习抽象表征，但其成功常被归因于丢弃无关噪声；问题在于，预测相关信号的随机变化与真实噪声都会使观测部分不可预测，二者难以区分。论文证明常见预测式SSL方法能隐式构造含随机动态与观测私有噪声的潜变量模型，从而识别随机信号。其机制是预测互信息最大化保留预测所需信息，潜分布匹配约束编码方式，使信号可辨识。高斯模拟验证可恢复到仿射变换意义下的真实信号，即使环境动态且充满噪声。",
+      "tags": "query:pred-limit",
+      "abstract_en": "Self-supervised learning (SSL) by predicting in latent space, without generating the input data itself, learns highly abstract, useful representations. Intuitively, this success is often attributed to its ability to discard nuisance information that is irrelevant to prediction. However, this poses a conundrum: both stochastic variation in a prediction-relevant latent signal and true nuisance make observations partly unpredictable; how could they be distinguished? Surprisingly, we prove that common SSL methods can achieve exactly this, by implicitly instantiating a latent-variable model with stochastic dynamics and observation-private nuisance. We trace their ability to recover the stochastic signal to two complementary principles: Predictive mutual information maximization ensures that representations retain the information needed for prediction, while latent distribution matching constrains how this information is encoded, thereby making the retained signal identifiable. We confirm this identifiability result in simulations for Gaussian predictors, which recover the true signal up to an affine transformation even in dynamic, nuisance-laden environments.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

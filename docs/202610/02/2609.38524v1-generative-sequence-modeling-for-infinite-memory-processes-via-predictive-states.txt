@@ -1,0 +1,5765 @@
+Title: Generative sequence modeling for infinite memory processes via predictive states
+
+URL Source: https://arxiv.org/pdf/2609.38524v1
+
+Published Time: Thu, 01 Oct 2026 00:23:05 GMT
+
+Number of Pages: 43
+
+Markdown Content:
+Preprint 
+
+# GENERATIVE SEQUENCE MODELING FOR INFINITE 
+
+# MEMORY PROCESSES VIA PREDICTIVE STATES 
+
+Michael Wieck-Sosa & Cosma Rohilla Shalizi 
+
+Department of Statistics & Data Science Carnegie Mellon University 
+
+## ABSTRACT 
+
+We consider estimating the one-step-ahead conditional distribution of a multivari-ate stochastic process. Many existing approaches rely on assumptions such as finite-range memory, sparsity, or additivity, which can be poorly suited to pro-cesses with long-range nonlinear interactions. However, without such structural assumptions, nonparametric estimation is challenging due to the curse of dimen-sionality. To address this challenge, we introduce a new estimation approach based on the predictive states of a process, possibly with infinite-range memory. We show that our estimator achieves fast convergence rates when the past history can be compressed into a low-dimensional statistic that is sufficient for predicting the future. Specifically, we show that the statistical complexity of the estimation problem is determined by the intrinsic dimension of the predictive state space. We establish guarantees for an instantiation of our method based on deep neural network estimators, and we support these theoretical results with experiments. 
+
+## 1 INTRODUCTION 
+
+Let Xt, t ∈ Z, be a stationary process. We aim to learn the one-step-ahead conditional distribution 
+
+L(Xt+1 | F t), Ft = σ(Xt, X t−1, . . . ), t ∈ Z. (1) This is a fundamental problem in multi-step forecasting, optimization, and control, because, as we explain below, success at this task lets us learn the predictive distribution for the whole future, 
+
+L(Xt+1: ∞ | F t), t ∈ Z.
+
+We consider the class of stochastic processes that admit finite-dimensional predictive states , which formalize the notion that the information up to time t, Ft, can be compressed into a finite-dimensional statistic, St, that is sufficient for predicting the future values of a process. In this sense, finite-dimensional predictive states can be viewed as a dynamic version of sufficient dimen-sion reduction (Li, 1991; Cook, 2007) for stochastic processes. Our main goal is to develop a recursive estimator of the one-step-ahead conditional distribution that can achieve fast convergence rates when the predictive state space is low-dimensional. This property of a “low-dimensional predictive state space” offers an alternative to other conditions used to mit-igate the curse of dimensionality, such as additivity (Stone, 1985), sparsity (Tibshirani, 1996), low intrinsic dimensionality (Bickel & Li, 2007), and hierarchical compositionality (Schmidt-Hieber, 2020). For a discussion of how our work relates to prior work on predictive states, see Appendix A. 1.1 OUR CONTRIBUTIONS 
+
+The contributions of this paper are: 1. In Theorem 1, we show that predictive states St satisfy Xt+1: ∞ ⊥⊥ X−∞ :t | St for all t ∈ Z.Also, in Theorem 7 in the Appendix, we show that any predictor Rt which is one-step-ahead predictively sufficient, Xt+1 ⊥⊥ X−∞ :t | Rt, and which can be updated recursively, 
+
+Rt+1 = τ (Rt, X t+1 ) for some (measurable) function τ , is predictively sufficient for the whole future. This generalizes Corollary 2 of Theorem 1 in Shalizi & Crutchfield (2001) from discrete measurable spaces to standard Borel spaces. 1arXiv:2609.38524v1 [stat.ML] 29 Sep 2026 Preprint 2. In Theorem 2, we show that p-dimensional predictive states St can be identified from the conditional expectations of 2p + 1 random Fourier features (Rahimi & Recht, 2007) of a finite block of future observations. In Theorem 3, we show that these conditional expecta-tions also identify the one-step-ahead conditional distribution of the process. 3. In Theorems 4 and 5, we derive the convergence rate of our estimator in the context of a recurrent neural network (RNN) and mixture density network (MDN). We prove that it can achieve fast convergence rates when the predictive state space is low-dimensional. Addi-tionally, we present results from synthetic experiments to support our theoretical findings. 4. In Theorem 6 in the Appendix, we extend the guarantees of the MDN estimator of Bishop (1994); Zhou et al. (2023) to covariates with possibly low intrinsic dimensionality in the setting of β-mixing processes, which can be of independent interest. 
+
+## 2 METHODS AND MAIN IDEAS 
+
+2.1 PROBABILISTIC SEQUENCE MODEL 
+
+We observe an X -valued sequence Xt, t = 1 , . . . , n , for some sample size n ∈ N, where the unknown observation space X is a Borel subset of Rd for some fixed d ∈ N. We consider the model 
+
+Xt+1 = G(εt+1 , S t), St = τ (St−1, X t) = R(X−∞ :t), t ∈ Z, (2) where εt, t ∈ Z, is an iid sequence of latent noise inputs satisfying εt+1 ⊥⊥ F t for all t ∈ Z, St,
+
+t ∈ Z, is an S-valued sequence of latent predictive states, where the unknown predictive state space 
+
+S is a Borel subset of Rr for some ambient dimension r ∈ N. G is a generation function, τ is a transition function, and R is a reduction function, all of which are unknown and Borel measurable. 
+
+Remark 1. The model from equation 2 includes many nonlinear processes with infinite-range mem-ory, as well as finite-order Markov processes. It is straightforward to extend this model to include exogenous covariates, but we leave this extension for future work. 
+
+The conditional distribution of Xt+1 given St is given by 
+
+L(Xt+1 | St) = L(Xt+1 | F t), t ∈ Z, (3) almost surely, because St = R(X−∞ :t) is Ft-measurable and because εt+1 ⊥⊥ F t. By Doob’s conditional independence property (Theorem 8.9 in Kallenberg (2021)), equation 3 is equivalent to the one-step-ahead predictive sufficiency property, 
+
+Xt+1 ⊥⊥ X−∞ :t | St, t ∈ Z. (4) In fact, St has the strongest possible form of predictive sufficiency, as shown by Theorem 1. We give a more general result in Theorem 7 in the Appendix, where X , S can be standard Borel spaces. 
+
+Theorem 1. The predictive states from equation 2 have the strong predictive sufficiency property, 
+
+Xt+1: ∞ ⊥⊥ X−∞ :t | St, t ∈ Z. (5) The prediction process (Knight, 1975; Aldous, 1981; L¨ ohr, 2010), 
+
+Πt = L(Xt+1: ∞ | F t), t ∈ Z, (6) characterizes the future values of a stochastic process given its past. By Theorem 1 and the afore-mentioned Doob’s conditional independence property, 
+
+Πt = L(Xt+1: ∞ | St), t ∈ Z, (7) almost surely, so by the chain rule, predictive sufficiency, and the recursive update in equation 2, 
+
+Πt,L = L(Xt+1: t+L | F t) = L(Xt+1: t+L | St) = 
+
+> L
+
+Y
+
+> j=1
+
+L(Xt+j | St+j−1), t ∈ Z, (8) almost surely, for arbitrary horizon L ∈ N, where the product denotes iterated composition of conditional probability kernels. Hence, for multi-step generative sequence modeling, it suffices to characterize the one-step-ahead conditional distributions L(Xt+1 | St); see Section 2.3. Unfortunately, we do not observe St. We therefore aim to find an estimable, injective map Φ that sends the predictive state values s ∈ S to elements in some feature space Φ( s) ∈ Φ( S). As we will show, this estimate of Φ( St) can be used to estimate the conditional distribution of Xt+1 given St.2Preprint 2.2 DYNAMIC EMBEDDINGS OF PREDICTIVE STATES 
+
+For some m ∈ N0, denote the conditional joint distribution of the next m + 1 observations by 
+
+PSt = L(Xt+1: t+m+1 | F t) = L(Xt+1: t+m+1 | St), t ∈ Z. (9) The family of distributions {Ps : s ∈ S} must satisfy some identifiability conditions, so that every value s ∈ S corresponds to a unique distribution Ps. Specifically, we need m to be large enough that every predictive state leads to a distinct (m + 1) -step-ahead distribution. We now present the ingredients used to injectively map S into [−1, 1] k for some k ≥ 2p + 1 . We randomly draw k ≥ 2p + 1 real-valued test functions φ1, . . . , φ k independently of the data from a distribution over a function class. Let x1, . . . , x m+1 ∈ X and define x = ( x1, . . . , x m+1 )⊤ ∈X m+1 . In particular, we use random Fourier features (Rahimi & Recht, 2007) of the form 
+
+φi(x) = cos 
+
+
+
+> m+1
+
+X
+
+> j=1
+
+Ωi,j · xj + αi
+
+ , (10) where Ωi,j 
+
+> iid
+
+∼ N (0 , I d) and αi
+
+> iid
+
+∼ U (−π, π ) for i = 1 , . . . , k and j = 1 , . . . , m + 1 . Denote 
+
+φ = ( φ1, . . . , φ k) : X m+1 −→ [−1, 1] k and let 
+
+Yt+1 = φ(Xt+1: t+m+1 ), t ∈ Z. (11) Consider the mapping Φ : S − → [−1, 1] k defined as 
+
+Φ( s) = 
+
+Z 
+
+> Xm+1
+
+φ(x)dP s(x). (12) For each t ∈ Z, the predictive states St are mapped into feature space Φ( St) via the quantity 
+
+Zt = Φ( St) = 
+
+Z 
+
+> Xm+1
+
+φ(x)dL(Xt+1: t+m+1 | F t)( x) = E[Yt+1 | F t], (13) where the first and third equalities are by definition, and the second is by equation 12 and Theorem 1. To guarantee that the mapping Φ is (almost surely) one-to-one, we must limit the geometric com-plexity of the predictive state space S. In the simplest case, we can take S to be a Cartesian product of closed, bounded intervals S = Qrj=1 [aj , b j ] ⊂ Rr for real numbers aj < b j , j = 1 , . . . , r ≡ p.More generally, we only need to be able to characterize S by a finite number of polynomial equali-ties and inequalities. A more precise statement uses the notion of a “semialgebraic set”; we simplify the definition from Bochnak et al. (1998) to Euclidean spaces. 
+
+Definition 1 (Definition 2.1.4 in Bochnak et al. (1998)) . Let r, a, b 1, . . . , b a ∈ N. A semial-gebraic subset of Rr is a subset of the form Sai=1 
+
+Tbi 
+
+> j=1
+
+{x ∈ Rr | fi,j (x) ∗i,j 0}, where fi,j ∈
+
+R[x1, . . . , x r ], ∗i,j is either < or =, for i = 1 , . . . , a and j = 1 , . . . , b i, and R[x1, . . . , x r ] is the ring of polynomials in the variables x1, . . . , x r with coefficients in R.
+
+We now have the materials needed to state our first assumption. Denote by ψs(ω) the characteristic function of Ps evaluated at ω ∈ R(m+1) ×d. The second condition is that m ∈ N0 from equation 9 is large enough to identify each s ∈ S , so for two different predictive state values s̸ = s′ we have 
+
+Ps̸ = Ps′ . Note that we require the sample size to satisfy n > 2m + 1 .
+
+Assumption 1. The following conditions hold: 1. S is a compact, semialgebraic subset of Rr with Hausdorff dimension dim H (S) = p.2. The map s 7 → Ps is one-to-one. 3. The map (s, ω ) 7 → ψs(ω) admits a jointly real analytic extension to O × R(m+1) ×d, where 
+
+O ⊂ Rr is an open neighborhood of S.
+
+The following result establishes that Φ is one-to-one almost surely. The key ingredient is the finite witness theorem from Amir et al. (2023). Note that k ≥ 2p + 1 , not necessarily k = 2 p + 1 .3Preprint 
+
+Theorem 2. Suppose Assumption 1 holds. Then, with probability one over the draw of k ≥ 2p + 1 
+
+random Fourier features φ = ( φ1, . . . , φ k), the mapping s 7 → Φ( s) is one-to-one. 
+
+Going forward, we condition on a fixed realization of the random Fourier features. We make the following weak assumption, which holds with probability one by Theorem 2. 
+
+Assumption 2. Assume that the mapping s 7 → Φ( s) is one-to-one. 
+
+The following result establishes the equality of the conditional distributions given St and Zt.
+
+Theorem 3. Suppose Assumptions 1 and 2 hold. Then, almost surely, 
+
+QZt = L(Xt+1 | Zt) = L(Xt+1 | St), t ∈ Z.
+
+If (Zt)t from equation 13 can be estimated well, then we can estimate Qz = L(Xt+1 | Zt = z)
+
+from Theorem 3 with a conditional distribution estimator using the estimates ( ˆZt)t of (Zt)t.2.3 GENERATIVE SEQUENCE MODELING 
+
+Algorithm 1 presents our two-stage estimation method. In practice, the predictive state space’s dimension dim H (S) = p is unknown, so we treat the number k of random Fourier features φ as a hyperparameter to be selected from some candidate set K ⊂ N, min( K) ≥ 3. The value of k ∈ K ,
+
+m ∈ N0, and the estimator hyperparameters are selected jointly by optimizing a criterion. We are, here, agnostic about which criterion, though a form of cross-validated log-likelihood suggests itself. 
+
+Algorithm 1 Learning the one-step-ahead conditional distribution via predictive states  
+
+> 1:
+
+Input: Observations (Xt)nt=1 , random Fourier feature generator, candidate set K, conditional expectation estimator, and conditional distribution estimator  
+
+> 2:
+
+Select value of k ∈ K , m ∈ N0, and estimator hyperparameters by optimizing a criterion  
+
+> 3:
+
+( ˆZt)t ← Fit and apply conditional expectation estimator of (Zt)t from equation 13  
+
+> 4:
+
+ˆQz ← Fit and apply conditional distribution estimator of Qz from Theorem 3 using ( ˆZt, X t+1 )t 
+
+> 5:
+
+Output: Fitted estimators and estimates ˆQz , ( ˆZt)t
+
+In Appendix A, we give an algorithm for estimating functionals of the conditional distribution from equation 8 for arbitrary horizons, e.g., conditional quantiles in multi-step forecasting, con-ditional risk functionals in optimization, and conditional utilities of action sequences in control. 
+
+## 3 THEORY 
+
+In this section, we establish the rates of convergence for an instantiation of our method based on the recurrent neural network (RNN) from Chen et al. (2026) and the mixture density network (MDN) from Zhou et al. (2023). We consider an RNN and MDN for the sake of concreteness, and because they enable very fast sequential sampling. In general, other estimators can be used with our method. 3.1 RECURRENT NEURAL NETWORK ESTIMATOR 
+
+Define τ (m+1) as the recursive application of τ from equation 2 a total of (m + 1) times, so that 
+
+St+m+1 = τ (m+1) (St, X t+1: t+m+1 ) = τ (· · · τ (τ (St, X t+1 ), X t+2 ) · · · , X t+m+1 ). (14) The following result is used to establish the convergence rate guarantees of the RNN estimator. 
+
+Lemma 1. Suppose Assumptions 1 and 2 hold, and that the predictive states St, t ∈ Z, satisfy the recursive update rule from equation 2. Then, Yt+1 from equation 11 admits the representation 
+
+Yt+1 = g∗(Yt−m, ξ t−m, X t−m:t) + ξt+1 , t ∈ Z,
+
+where the noise process ξt+1 is from equation 16 and the function g∗(·) : D − → Φ( S) with domain 
+
+D = {(y, e, x ) ∈ [−1, 1] k × [−2, 2] k × X m+1 : y − e ∈ Φ( S), τ (m+1) (Φ −1(y − e), x ) ∈ S} ,
+
+4Preprint 
+
+where τ (m+1) is from equation 14, is defined as 
+
+g∗(y, e, x ) = Φ( τ (m+1) (Φ −1(y − e), x )) . (15) We require the following compactness condition on the unknown set X from equation 2. 
+
+Assumption 3. Assume Xt ∈ X almost surely for every t ∈ Z for some compact set X ⊂ Rd.
+
+Let Xj be the j-th dimension of X for each j ∈ [d], and denote X = X1: d. For the noise process 
+
+ξt+1 = Yt+1 − Zt, t ∈ Z, (16) which satisfies E[ξt+1 | F t] = 0 , the features Yt+1 from equation 11 can be written as 
+
+Yt+1 = Zt + ξt+1 , t ∈ Z. (17) Note that Yt ∈ [−1, 1] k and Zt ∈ Z = Φ( S) ⊂ [−1, 1] k, so ξt ∈ [−2, 2] k by equation 16. Next, we need a smoothness condition for g∗(·) from equation 15 analogous to Assumption 2 in Chen et al. (2026), which involves the definition of a H¨ older ball of functions. 
+
+Definition 2. Let η, c > 0 and let A be a subset of some Euclidean space. Define Hη (A, c ) as 
+
+f : A → R max  
+
+> α:∥α∥1≤˜η
+
+sup 
+
+> x∈A
+
+|Dαf (x)| + max  
+
+> α:∥α∥1=˜ η
+
+sup 
+
+> x,x ′∈Ax̸=x′
+
+|Dαf (x) − Dαf (x′)|∥x − x′∥η−˜η
+
+> 2
+
+≤ c
+
+ ,
+
+where ˜η is the largest integer less than η. For a vector-valued function f = ( f1, . . . , f k)⊤ : A →
+
+Rk, we write f ∈ (Hη (A, c )) k if fj ∈ H η (A, c ) for every j = 1 , . . . , k .
+
+Assumption 4. Assume that there exist constants bbnd ≥ 4 and cH¨ ol > 0 such that 
+
+X ⊆ [−bbnd , b bnd ]d and g∗(·) from equation 15 admits an extension ˜g∗(·) to the domain 
+
+[−bbnd , b bnd ]2k+d(m+1) that is η-H¨ older smooth. That is, there exists some η ∈ N, such that 
+
+˜g∗(·) ∈
+
+
+
+Hη 
+
+[−bbnd , b bnd ]2k+d(m+1) , c H¨ ol 
+
+ k
+
+.
+
+The following invertibility assumption, analogous to Assumption 4 in Chen et al. (2026), is required. 
+
+Assumption 5. For all i, j ∈ [k], let ˜g∗ 
+
+> i
+
+(·) be the i-th component of ˜g∗(·) and let 
+
+∆i,j = ess sup 
+
+> (y,e,x )∈[−bbnd ,b bnd ]2k+d(m+1)
+
+∂˜g∗ 
+
+> i
+
+(y, e, x )
+
+∂e j
+
+,
+
+and assume that max i∈[k]
+
+Pkj=1 ∆i,j < 1.
+
+Next, we introduce the deep neural network (DNN) function class used in the RNN. Let σb(x) = [max( xi − bi, 0)] i be the shifted ReLU activation. For a, b, ℓ, w ∈ N and cbnd ,1, c bnd ,2 > 0, let 
+
+MDNN  
+
+> n,a,b
+
+(ℓ, w, c bnd ,1, c bnd ,2) denote the class of ReLU DNNs f : Ra → Rb of the form 
+
+f (x) = Aℓσbℓ Aℓ−1σbℓ−1 · · · A1σb1 A0x, (18) where the network has ℓ hidden layers, each hidden layer has width at most w, and 
+
+max 
+
+
+
+max  
+
+> 0≤j≤ℓ
+
+∥Aj ∥∞ , max  
+
+> 1≤j≤ℓ
+
+∥bj ∥∞
+
+
+
+≤ cbnd ,1, ∥f ∥∞ ≤ cbnd ,2. (19) We now introduce the RNN function class. As in Chen et al. (2026), we use a single recurrent layer. 
+
+Assumption 6. Assume there exists ϵRNN ∈ (0 , 1) such that, for every n ∈ N, the RNN class is 
+
+MRNN  
+
+> n
+
+=
+
+
+
+(ρ(·), W h, v h, λ (·)) : ρ(·) ∈ M DNN  
+
+> n,d (m+1)+ k,w h,n
+
+(ℓn, w n, c RNN ,1, c RNN ,2),λ(·) ∈ M DNN 
+
+> n,w h,n ,k
+
+(ℓn, w n, c RNN ,1, 1) , Wh ∈ Rwh,n ×wh,n is upper triangular ,
+
+∥Wh∥∞ ≤ cRNN ,1, ∥diag( Wh)∥∞ ≤ 1 − ϵRNN , ∥vh∥∞ ≤ cRNN ,1,
+
+ ,
+
+where cRNN ,1 = cRNN ,2 = n5η+5 with η from Assumption 4. 
+
+5Preprint We obtain the RNN parameter estimates by minimizing the sum of squared prediction errors, 
+
+(ˆ ρ(·), ˆWh, ˆvh, ˆλ(·)) ∈ arg min 
+
+> (ρ(·),W h,v h,λ (·)) ∈M RNN
+> n
+> n−m−1
+
+X
+
+> t=m+1
+
+∥Yt+1 − λ(Ht+1 )∥22 ,
+
+subject to Ht+1 = σvh (WhHt + ρ(It+1 )) and Hm+1 = 0 ,
+
+(20) where It+1 = ( Xt−m:t, Y t−m) and MRNN  
+
+> n
+
+is from Assumption 6. See Appendix A for discussion. 3.2 MIXTURE DENSITY NETWORK ESTIMATOR 
+
+Recall Qz = L(Xt+1 | Zt = z), z ∈ Z = Φ( S) from Theorem 3. We assume, for all z ∈ Z , Qz is absolutely continuous w.r.t. Lebesgue measure, and a jointly measurable version of its density exists 
+
+fXt+1 |Zt (x|z), z ∈ Z . (21) The following notation will be useful. For each j = 1 , . . . , d , define ˜Zj = Z × X 1: j−1 and let 
+
+˜Zt,j = ( Z⊤ 
+
+> t
+
+, X t+1 ,1, . . . , X t+1 ,j −1)⊤, ˜zj = ( z⊤, x 1, . . . , x j−1)⊤ ∈ ˜Zj , (22) where we define ˜Zt, 1 = Zt and ˜z1 = z ∈ Z . Denote the factorization of fXt+1 |Zt (x|z) by 
+
+fXt+1 |Zt (x|z) = 
+
+> d
+
+Y
+
+> j=1
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj ), (23) where we assume there exist jointly measurable versions of fXt+1 ,j | ˜Zt,j (xj | ˜zj ), j = 1 , . . . , d . Note that, for any Borel set B ∈ B (X ), we have, almost surely, that 
+
+QZt (B) = L(Xt+1 | St)( B) = L(Xt+1 | Zt)( B) = 
+
+Z
+
+> B
+
+fXt+1 |Zt (x|Zt)dx. (24) To simplify the notation below, all suprema and infima are taken over the supports of the corre-sponding random variables, and the mixture weights satisfy PMj 
+
+> g=1
+
+αg,j (˜ zj ) = 1 and αg,j (˜ zj ) ≥ 0.The next assumption is analogous to Assumption 2 from Zhou et al. (2023). The first condition is that each conditional density function from equation 23 can be approximated by a conditional Gaussian mixture model. The remaining conditions are standard boundedness and smoothness conditions. 
+
+Assumption 7. Assume that: 1. There exist constants ω1, c gmix > 0, such that, for every j ∈ [d] and every Mj ∈ N, there exist functions αg,j = α(Mj ) 
+
+> g,j
+
+, μg,j = μ(Mj ) 
+
+> g,j
+
+, and σg,j = σ(Mj ) 
+
+> g,j
+
+satisfying 
+
+sup  
+
+> xj,˜zj
+
+fXt+1 ,j | ˜Zt,j (xj |˜zj ) −
+
+> Mj
+
+X
+
+> g=1
+
+αg,j (˜ zj )
+
+√2πσ g,j (˜ zj ) exp − (xj − μg,j (˜ zj )) 2
+
+2σ2 
+
+> g,j
+
+(˜ zj )
+
+!
+
+≤ cgmix M −ω1 
+
+> j
+
+.
+
+2. There exists a constant cμ > 0 such that for all j ∈ [d],
+
+max   
+
+> g∈[Mj]
+
+sup 
+
+> ˜zj
+
+|μg,j (˜ zj )| ≤ cμ for every Mj ∈ N,
+
+and there exist constants c+ 
+
+> σ
+
+, c − 
+
+> σ
+
+> 0 and ω2 > 0 such that for all j ∈ [d],
+
+c− 
+
+> σ
+
+M −ω2 
+
+> j
+
+≤ min   
+
+> g∈[Mj]
+
+inf 
+
+> ˜zj
+
+σg,j (˜ zj ) ≤ max   
+
+> g∈[Mj]
+
+sup 
+
+> ˜zj
+
+σg,j (˜ zj ) ≤ c+ 
+
+> σ
+
+for every Mj ∈ N.
+
+3. There exist γ ∈ N, cSob > 0 and bX ≥ 1, such that X ⊆ [−bX , b X ]d and, for all j ∈
+
+[d], Mj ∈ N, and g ∈ [Mj ], the functions αg,j (·), μg,j (·), and σg,j (·) admit continuous extensions ˜αg,j (·), ˜μg,j (·), and ˜σg,j (·), respectively, to the domain Bj = [ −bX , b X ]k+j−1
+
+such that each extension lies in the Sobolev ball (
+
+h : max  
+
+> ν, ∥ν∥1≤γ
+
+ess sup  
+
+> ˜zj∈Bj
+
+|Dν h(˜ zj )| ≤ cSob 
+
+)
+
+,
+
+where the maximum is taken over all (k + j − 1) -dimensional N0-valued vectors ν whose entries sum to at most γ, and Dν h denotes the weak derivative (Gin´ e & Nickl, 2015). 
+
+6Preprint 
+
+4. There exists a constant c− 
+
+> f
+
+> 0 so that, for all j ∈ [d], inf xj ,˜zj fXt+1 ,j | ˜Zt,j (xj |˜zj ) ≥ c− 
+
+> f
+
+.
+
+Note that, by parts 1 and 2 of Assumption 7 with Mj = 1 , there exists a constant c+ 
+
+> f
+
+> 0 such that 
+
+sup  
+
+> xj,˜zj
+
+fXt+1 ,j | ˜Zt,j (xj |˜zj ) ≤ c+ 
+
+> f
+
+= cgmix + 1 /(√2πc − 
+
+> σ
+
+) < ∞.
+
+The next condition is analogous to Assumption 3 in Zhou et al. (2023). Note that we suppress the dependence of αg,j (·), μg,j (·), and σg,j (·) on the neural network parameters to simplify the notation. 
+
+Assumption 8. Assume that there exist constants cMDN > 0, κ ∈ (0 , 1] , and a sequence (Λ n)n∈N,
+
+Λn ≥ 1, such that, for every n ∈ N, j ∈ [d], the MDN function class is 
+
+MMDN  
+
+> n,j
+
+=
+
+
+
+fj (xj |˜zj ) = 
+
+> Mj
+
+X
+
+> g=1
+
+αg,j (˜ zj )
+
+√2πσ g,j (˜ zj ) exp − (xj − μg,j (˜ zj )) 2
+
+2σ2 
+
+> g,j
+
+(˜ zj )
+
+!
+
+:
+
+c−1MDN ≤ inf  
+
+> xj,˜zj
+
+fj (xj |˜zj ) ≤ sup  
+
+> xj,˜zj
+
+fj (xj |˜zj ) ≤ cMDN ,
+
+sup  
+
+> ˜zj,g
+
+|μg,j (˜ zj )| ≤ cMDN , c −1MDN M −ω2 
+
+> j
+
+≤ inf   
+
+> ˜zj,g
+
+σg,j (˜ zj ) ≤ sup  
+
+> ˜zj,g
+
+σg,j (˜ zj ) ≤ cMDN ,
+
+|log fj (xj | z, u j ) − log fj (xj | z′, u j )| ≤ Λn ∥z − z′∥κ
+
+> 2
+
+
+
+,
+
+where the last condition holds for every xj ∈ X j , uj ∈ X 1: j−1, and z, z ′ ∈ [−1, 1] k. The functions 
+
+μg,j (·) and σg,j (·) are parametrized by DNNs. Similarly, the mixture weights αg,j (·) are obtained by a DNN followed by a normalization αg,j = ag,j / PMj 
+
+> i=1
+
+ai,j to ensure PMj 
+
+> g=1
+
+αg,j (˜ zj ) = 1 , where the DNN outputs satisfy 0 ≤ ai,j (˜ zj ) ≤ ca and inf ˜zj
+
+PMj 
+
+> i=1
+
+ai,j (˜ zj ) ≥ cα for some ca, c α > 0.Recall γ from Assumption 7. Assume the number of parameters in the j-th MDN is proportional to 
+
+M (k+j−1+ γ)/γ j n(k+j−1) /(2 γ+k+j−1) log( Mj n),
+
+and that the DNNs for the coefficients use ReLU activations where the number of hidden lay-ers is O
+
+
+
+log( Mj 
+
+> ϵn,j
+
+) + 1 
+
+
+
+and the numbers of weight parameters and hidden units are each 
+
+O
+
+
+
+M (k+j−1) /γ j ϵ−(k+j−1) /γ n,j (log( Mj 
+
+> ϵn,j
+
+) + 1) 
+
+
+
+, where ϵn,j = n−γ/ (2 γ+k+j−1) .
+
+The next condition controls the average probability the Gaussian MDN assigns outside of the support 
+
+Xj . This is required because of the compactness from Assumption 3 and part (4) of Assumption 7. 
+
+Assumption 9. Recall ω1 from Assumption 7. Assume there exists a constant ctail > 0, such that, for all j ∈ [d] and Mj ∈ N, the functions αg,j = α(Mj ) 
+
+> g,j
+
+, μg,j = μ(Mj ) 
+
+> g,j
+
+, and σg,j = σ(Mj ) 
+
+> g,j
+
+satisfy 
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+> Mj
+
+X
+
+> g=1
+
+αg,j (˜ zj )
+
+√2πσ g,j (˜ zj ) exp − (xj − μg,j (˜ zj )) 2
+
+2σ2 
+
+> g,j
+
+(˜ zj )
+
+!
+
+dx j dP ˜Zt,j (˜ zj ) ≤ ctail M −2ω1 
+
+> j
+
+.
+
+Denote the learned predictive state representations, i.e., the estimated counterpart of ˜Zt,j , by 
+
+ˆ˜Zt,j = ( ˆZ⊤ 
+
+> t
+
+, X t+1 ,1, . . . , X t+1 ,j −1)⊤, j = 1 , . . . , d, (25) with ˆ˜Zt, 1 = ˆZt = ˆλ( ˆHt+1 ), where ˆHt+1 is the hidden state estimate and ˆλ(·) is the output map from equation 20. The MDN estimator is obtained by maximizing the conditional log-likelihood 
+
+ˆf (x|z) = 
+
+> d
+
+Y
+
+> j=1
+
+ˆfj (xj | ˜zj ), ˆfj ∈ arg max  
+
+> fj∈M MDN
+> n,j
+> n−m−1
+
+X
+
+> t=m+1
+
+log fj (Xt+1 ,j | ˆ˜Zt,j ), j = 1 , . . . , d, (26) where the argmax is taken over the MDN function class MMDN  
+
+> n,j
+
+from Assumption 8. In practice, an optimization procedure is used. In Theorem 6 in the Appendix, we derive the convergence rate. The following high-level condition is used to establish the consistency of our two-stage estimator. 7Preprint 
+
+Assumption 10. Assume that there exists a constant caprx > 0, such that, for every j ∈ [d], there exists an MDN gn,j ∈ M MDN  
+
+> n,j
+
+that satisfies 
+
+sup  
+
+> xj,˜zj
+
+gn,j (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) ≤ caprx an,j , (27) 
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+gn,j (xj | ˜zj )dx j dP ˜Zt,j (˜ zj ) ≤ caprx a2 
+
+> n,j
+
+, (28) 
+
+where an,j = M −ω1 
+
+> j
+
++ M 4ω2 
+
+> j
+
+ϵn,j and ϵn,j = n−γ/ (2 γ+k+j−1) .
+
+3.3 STATIONARITY AND TEMPORAL DEPENDENCE 
+
+The definition of a β-mixing process is required. 
+
+Definition 3. Let (Ω , A, P) be a probability space, and let B, C be sub-σ-algebras of A. Define 
+
+β(B, C) = E
+
+
+
+sup 
+
+> C∈C
+
+|P(C) − P(C | B )|
+
+
+
+.
+
+For some process Vt, t ∈ Z, let Ft1:t2 = σ(Vt : t1 ≤ t ≤ t2). Define the β-mixing coefficient by 
+
+β(j) = sup 
+
+> t∈Z
+
+β(F−∞ :t, Ft+j:∞), j ≥ 1.
+
+The process Vt, t ∈ Z, is said to be β-mixing (or absolutely regular) if β(j) → 0 as j → ∞ .
+
+The mixing condition below is used to establish the consistency of the RNN and MDN estimators. 
+
+Assumption 11. Assume that the process (Xt, Y t, Z t, ξ t), t ∈ Z, is stationary and exponentially 
+
+β-mixing, i.e., for some c1mix , c 2mix > 0, we have β(j) ≤ c1mix exp( −c2mix j), j ≥ 1.
+
+Remark 2. Sufficient conditions for the existence of a stationary distribution for the model from equation 2 have been studied by Doukhan et al. (2023) with a coupling approach, and by Chen & Wu (2016) using the physical dependence measure of Wu (2005). 
+
+3.4 MAIN THEORETICAL RESULT 
+
+We now present the main results for the estimator ˆf from equation 26. 
+
+Theorem 4. Suppose Assumptions 1–11 hold and the number of random Fourier features satisfies 
+
+k ≥ 2p + 1 . Suppose the number of mixture components Mj = M for every j ∈ [d]. In the RNN estimator from equation 20, take the maximum width of the hidden layers in ρ(·) and λ(·) to satisfy 
+
+wn ≍ nmax ( 2k+d(m+1) 4(2 k+d(m+1))+2 η , 2k+d(m+1) 5(2 k+d(m+1))+3 ),
+
+the recurrent width wh,n = dim( Ht) to satisfy wh,n ≍ wn log n, and the feedforward depth to satisfy 2 ≤ ℓn ≤ C log n for a constant C > 0. Then, the estimator ˆf from equation 26 satisfies 
+
+ˆf − fXt+1 |Zt L2 =
+
+Z 
+
+> Z
+
+Z
+
+> X
+
+ˆf (x | z) − fXt+1 |Zt (x | z) 2
+
+dxdP Zt (z)
+
+1/2
+
+= OP
+
+M −ω1 + M γ+k+d−12γ +4 ω2 n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM )+ Λ 1/2 
+
+> n
+
+n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+!
+
+.
+
+(29) If Λn from Assumption 8 is O(1) , and the number of mixture components is an integer that satisfies 
+
+M ≍ n 2γ2(2 γ+k+d−1)((2 ω1+1+8 ω2)γ+k+d−1) ,
+
+then the estimator ˆf from equation 26 has the convergence rate 
+
+ˆf − fXt+1 |Zt L2
+
+= OP
+
+n− 2γ2ω1(2 γ+k+d−1)((2 ω1+1+8 ω2)γ+k+d−1) log 3 n
+
++ n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+!
+
+.
+
+8Preprint 
+
+Remark 3. Theorem 4 is a statement about ˆf evaluated at the true predictive state embedding, while in practice ˆf is evaluated at the learned predictive state representation. 
+
+In view of Remark 3, we make a high-level RNN assumption to bound the out-of-sample error. 
+
+Theorem 5. Suppose the network choices and assumptions from Theorem 4 hold, and that the rate from equation 29 tends to zero. Fit the RNN and MDN estimators as in equation 20 and equation 26, respectively, using X1: n. For any fixed horizon L ∈ N, let the prediction ˆZn+L−1 = ˆλ( ˆHn+L) be obtained by continuing the fitted recurrence with observed inputs through step n + L − 1, without refitting the RNN. Suppose, for some C > 0 and all sufficiently large n, that the RNN satisfies 
+
+E ˆZn+L−1 − Zn+L−1
+
+> 22
+
+≤ Cn − min ( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 . (30) 
+
+Then, as the training sample size n → ∞ ,
+
+Z 
+
+> X
+
+ˆf (x | ˆZn+L−1) − fXn+L|Zn+L−1 (x | Zn+L−1) 2
+
+dx 
+
+1/2
+
+= OP Λ k
+
+> 2κ+k
+> n
+
+M −ω1 + M γ+k+d−12γ +4 ω2 n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM )+ Λ 1/2 
+
+> n
+
+n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+ 
+
+> 2κ
+> 2κ+k
+
+!
+
+.
+
+(31) 
+
+In particular, this error converges to zero in probability if Λn from Assumption 8 is O(1) .
+
+Remark 4. We suspect equation 30 can be proven by extending Lemma 11 in the supplement of Chen et al. (2026) under more assumptions, but due to space limitations this is left for future work. 
+
+## 4 EXPERIMENTS 
+
+We implement Algorithm 1 in PyTorch. As a baseline, we compare with an MDN whose lag window is a hyperparameter, where the largest possible lag grows with n. This is commonly done to accom-modate processes with infinite-range memory. We consider the data generating processes (DGPs) below. The matrices AS 
+
+> 1
+
+, A S 
+
+> 2
+
+∈ Rr×r, AX 
+
+> 1
+
+, A X 
+
+> 2
+
+∈ Rr×d are chosen so each process has a unique sta-tionary distribution. We use truncated normal conditional distributions with Btrunc = [ −2.5, 2.5] d.The dimensions are r = p = d = 3 , and tanh( ·), cos( ·) are applied coordinate-wise. 
+
+DGP 1: Xt+1 ∼ TN( St, I d; Btrunc ), St = tanh( AS 
+
+> 1
+
+St−1 + AX 
+
+> 1
+
+Xt).
+
+DGP 2: Xt+1 ∼ TN( St, I d; Btrunc ), St = cos( AS 
+
+> 2
+
+St−1 + AX 
+
+> 2
+
+Xt).250 500 1000 2000 Sample size n      
+
+> 0.00 0.01 0.02 0.03 0.04 0.05 Conditional density  L2 distance
+> DGP 1
+> MDN Ours (PS-RNN-MDN) 250 500 1000 2000 Sample size n
+> 0.00 0.01 0.02 0.03 0.04 0.05 0.06 Conditional density  L2 distance
+> DGP 2
+> MDN Ours (PS-RNN-MDN)
+
+Figure 1: L2 distance by sample size n. We fit each estimator on the first n samples, we calculate 
+
+(L−1eval 
+
+Pn+Leval −1
+
+> t=n
+
+R 
+
+> Btrunc
+
+( ˆft(x) − ft(x)) 2dx )1/2, where Leval = 500 , ft is the true conditional density, and ˆft ∈ { ˆf Ours  
+
+> t
+
+, ˆf MDN  
+
+> t
+
+} is the fitted conditional density, then we average this distance over 100 replications. Our method performs comparably to the MDN with a growing lag window. 
+
+## 5 CONCLUSION AND FUTURE WORK 
+
+We introduce a generative sequence modeling framework based on predictive states. We derive our estimator’s convergence rate, and show that fast rates are achievable when the predictive states are low-dimensional. For future work, it would be interesting to apply our ideas to language modeling. 9Preprint AI USE STATEMENT 
+
+Starting from core ideas of the authors, we acknowledge that generative AI was used to: identify and search for relevant literature, brainstorm ideas involving the conceptual frameworks, suggest edits to the paper to improve prose, suggest edits to the proofs to check correctness, shorten length, and improve readability, suggest edits to software code for the method, experiments, and figures, suggest experimental parameters for experiments, identify possible gaps in the paper, provide feedback on the experiments, and generate the TikZ code for Figure 2. Generative AI was not used to: draft parts of the paper, format references, formulate the presented mathematical claims, provide the critical ingredients for proving mathematical claims, suggest a structure for the paper, assist with translation, interpret results, generate synthetic data sets, or pro-pose a title or keywords for the paper. Research subtasks not applicable to this work: propose or refine hypotheses, clean and reformat dataset, support qualitative and thematic data analysis, formulate questions for surveys or interviews, create artifacts, transcribe recordings of research material. The authors have reviewed all content suggested by generative AI and produced with the aid of generative AI. For example, the authors have reviewed all literature found by generative AI and checked the correctness of any suggestions made by generative AI. We take responsibility for the final content of this work, including text, claims or artifacts produced with the aid of generative AI. ETHICS STATEMENT 
+
+All authors of this paper have read and adhere to the ICLR Code of Ethics. This work focuses on generative sequence modeling, which is used in a wide range of tasks, such as multi-step forecast-ing, optimization, and control. Our research does not involve human subjects or the collection of sensitive data. The authors declare that there are no conflicts of interest. REPRODUCIBILITY STATEMENT 
+
+Proofs of the results from the main text are in the Appendix. Additional results and their proofs are also in the Appendix. The code will be made publicly available upon acceptance to facilitate reproducibility and will be made available to reviewers during the review process. 
+
+## REFERENCES 
+
+David J. Aldous. Weak convergence and the general theory of processes. Unpublished draft of monograph; Department of Statistics, University of California, Berkeley, CA 94720, 1981. URL 
+
+https://www.stat.berkeley.edu/˜aldous/Papers/weak-gtp.pdf .Tal Amir, Steven Gortler, Ilai Avni, Ravina Ravina, and Nadav Dym. Neural injective functions for multisets, measures and graphs via a finite witness theorem. Advances in Neural Information Processing Systems , 36:42516–42551, 2023. Martin Anthony and Peter L. Bartlett. Neural Network Learning: Theoretical Foundations . Cam-bridge University Press, 1999. Peter L. Bartlett, Olivier Bousquet, and Shahar Mendelson. Local Rademacher complexities. The Annals of Statistics , 33(4):1497 – 1537, 2005. Peter L. Bartlett, Nick Harvey, Christopher Liaw, and Abbas Mehrabian. Nearly-tight vc-dimension and pseudodimension bounds for piecewise linear neural networks. Journal of Machine Learning Research , 20(63):1–17, 2019. Henry C.P. Berbee. Random walks with stationary increments and renewal theory. Mathematical Centre Tracts , 1979. Peter J. Bickel and Bo Li. Complex Datasets and Inverse Problems , chapter Local polynomial regression on unknown manifolds, pp. 177—-186. Institute of Mathematical Statistics, 2007. 10 Preprint Martin Bilodeau and David Brenner. Theory of Multivariate Statistics . Springer New York, New York, NY, 1999. Christopher M. Bishop. Mixture density networks. Technical Report, 1994. Jacek Bochnak, Michel Coste, and Marie-Franc ¸oise Roy. Real Algebraic Geometry . Springer-Verlag, Berlin, 1998. Byron Boots, Geoffrey Gordon, and Arthur Gretton. Hilbert space embeddings of predictive state representations, 2013. URL https://arxiv.org/abs/1309.6819 .Fabio Boschetti. Mapping the complexity of ecological models. Ecological Complexity , 5(1):37–47, 2008. Richard C. Bradley. Basic properties of strong mixing conditions. A survey and some open ques-tions. Probability Surveys , 2:107 – 144, 2005. Likai Chen and Wei Biao Wu. Stability and asymptotics for autoregressive processes. Electronic Journal of Statistics , 10(2):3723–3751, 2016. Xiao Chen, Yu Chen, Zhouyu Shen, and Dacheng Xiu. Recurrent neural networks for nonlinear time series. Chicago Booth Research Paper, 2026. Richard W. Clarke, Mervyn P. Freeman, and Nicholas W. Watkins. Application of computational mechanics to the analysis of natural data: An example in geomagnetism. Physical Review E , 67, 2003. R. Dennis Cook. Fisher lecture: Dimension reduction in regression. Statistical Science , 22(1):1–26, 2007. James P. Crutchfield and Karl Young. Inferring statistical complexity. Physical Review Letters , 63: 105–108, 1989. Paul Doukhan, Michael H. Neumann, and Lionel Truquet. Stationarity and ergodic properties for some observation-driven models in random environments. Annals of Applied Probability , 33(6B): 5145–5170, 2023. Carlton Downey, Ahmed Hefny, Byron Boots, Geoffrey J. Gordon, and Boyue Li. Predictive state recurrent neural networks. Advances in Neural Information Processing Systems , 30, 2017. Max H. Farrell, Tengyuan Liang, and Sanjog Misra. Deep neural networks for estimation and inference. Econometrica , 89(1):181–213, 2021. Evarist Gin´ e and Richard Nickl. Mathematical Foundations of Infinite-Dimensional Statistical Mod-els . Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge University Press, 2015. Peter Grassberger. Toward a quantitative theory of self-generated complexity. International Journal of Theoretical Physics , 25(9):907–938, 1986. Robert Haslinger, Kristina Lisa Klinkner, and Cosma Rohilla Shalizi. The computational structure of spike trains. Neural Computation , 22:121–157, 2010. Ahmed Hefny, Carlton Downey, and Geoffrey J. Gordon. Supervised learning for dynamical system learning. Advances in Neural Information Processing Systems , 28, 2015. Herbert Jaeger. Observable operator models for discrete stochastic time series. Neural Computation ,12(6):1371–1398, 2000. Olav Kallenberg. Foundations of Modern Probability . Springer Nature, Switzerland, third edition, 2021. Frank B. Knight. A predictive view of continuous time processes. The Annals of Probability , 3(4): 573—-596, 1975. 11 Preprint Frank B. Knight. Essays on the Prediction Process , volume 1 of Institute of Mathematical Statistics Lecture Notes Series . Institute of Mathematical Statistics, Hayward, California, 1981. URL 
+
+http://projecteuclid.org/euclid.lnms/1215464503 .Frank B. Knight. Foundations of the Prediction Process . Clarendon Press, Oxford, 1992. John Langford, Ruslan Salakhutdinov, and Tong Zhang. Learning nonlinear dynamic models. Pro-ceedings of the 26th Annual International Conference on Machine Learning , pp. 593–600, 2009. Ker-Chau Li. Sliced inverse regression for dimension reduction. Journal of the American Statistical Association , 86(414):316–327, 1991. Michael Littman, Richard S. Sutton, and Satinder Singh. Predictive representations of state. Ad-vances in neural information processing systems , 14, 2001. Wolfgang L¨ ohr. Models of discrete-time stochastic processes and associated complexity measures .PhD thesis, Universit¨ at Leipzig, Leipzig, Germany, 2010. Shahar Mendelson. A few notes on statistical learning theory. Advanced Lectures on Machine Learning , pp. 1–40, 2003. Roberto N. Mu˜ noz, Angus Leung, Aidan Zecevik, Felix A. Pollock, Dror Cohen, Bruno van Swinderen, Naotsugu Tsuchiya, and Kavan Modi. General anesthesia reduces complexity and temporal asymmetry of the informational structures derived from neural recordings in Drosophila. 
+
+Physical Review Research , 2, 2020. Chrystopher L. Nehaniv and Elena Antonova. Simulating and reconstructing neurodynamics with epsilon-automata applied to electroencephalography (eeg) microstate sequences. In 2017 IEEE Symposium Series on Computational Intelligence (SSCI) , pp. 1–9, 2017. Dmitry Nerukh, George Karvounis, and Robert C. Glen. Complexity of classical dynamics of molec-ular systems. I. Methodology. The Journal of Chemical Physics , 117(21):9611–9617, 2002. A.J. Palmer, C.W. Fairall, and W.A. Brewer. Complexity in the atmosphere. IEEE Transactions on Geoscience and Remote Sensing , 38(4):2056–2063, 2000. Joongwoo Brian Park, Jeong Won Lee, Jae-Suk Yang, Hang-Hyun Jo, and Hie-Tae Moon. Com-plexity analysis of the stock market. Physica A: Statistical Mechanics and its Applications , 379 (1):179–187, 2007. Judea Pearl. Causality . Cambridge University Press, 2009. Ali Rahimi and Benjamin Recht. Random features for large-scale kernel machines. Advances in Neural Information Processing Systems , 20, 2007. Walter Rudin. Principles of Mathematical Analysis . McGraw-Hill, 2021. Wesley C. Salmon. Statistical Explanation and Statistical Relevance . University of Pittsburgh Press, Pittsburgh, 1971. With contributions by Richard C. Jeffrey and James G. Greeno. Wesley C. Salmon. Scientific Explanation and the Causal Structure of the World . Princeton Univer-sity Press, Princeton, 1984. Johannes Schmidt-Hieber. Nonparametric regression using deep neural networks with ReLU acti-vation function. The Annals of Statistics , 48(4):1875–1897, 2020. Cosma Rohilla Shalizi and James P. Crutchfield. Computational mechanics: Pattern and prediction, structure and simplicity. Journal of Statistical Physics , 104(3):817–879, 2001. Cosma Rohilla Shalizi and Cristopher Moore. What is a macrostate? from subjective measurements to objective dynamics. Foundations of Physics , 55, 2025. Peter Spirtes, Clark Glymour, and Richard Scheines. Causation, Prediction, and Search . The MIT Press, 2001. 12 Preprint Charles J. Stone. Additive regression and other nonparametric models. The Annals of Statistics , 13 (2):689–705, 1985. Robert Tibshirani. Regression shrinkage and selection via the lasso. Journal of the Royal Statistical Society: Series B (Methodological) , 58(1):267–288, 1996. Guillaume Valette. On subanalytic geometry, 2025. URL https://arxiv.org/abs/2507. 23622 .Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in Neural Infor-mation Processing Systems , volume 30, 2017. Arun Venkatraman, Nicholas Rhinehart, Wen Sun, Lerrel Pinto, Martial Hebert, Byron Boots, Kris Kitani, and J. Bagnell. Predictive-state decoders: Encoding the future into recurrent networks. 
+
+Advances in Neural Information Processing Systems , 30, 2017. Michael Wieck-Sosa and Cosma Rohilla Shalizi. Estimating dynamic models by matching random features, 2026a. URL https://arxiv.org/abs/2607.21916 .Michael Wieck-Sosa and Cosma Rohilla Shalizi. Dynamic models with p parameters are identified by 2p + 1 random features, 2026b. URL https://arxiv.org/abs/2607.16035 .Wei Biao Wu. Nonlinear system theory: another look at dependence. Proceedings of the National Academy of Sciences , 102(40):14150–14154, 2005. Yunzhe Zhou, Chengchun Shi, Lexin Li, and Qiwei Yao. Testing for the markov property in time series via deep conditional generative learning. Journal of the Royal Statistical Society Series B: Statistical Methodology , 85(4):1204–1222, 2023. 
+
+## A ADDITIONAL DISCUSSIONS 
+
+A.1 RELATED WORK 
+
+Predictive states have a long history, with many independent reinventions of (essentially) the same ideas in different formalisms and different jargons (Salmon, 1971; 1984; Knight, 1975; 1981; 1992; Aldous, 1981; Crutchfield & Young, 1989; Shalizi & Crutchfield, 2001; Grassberger, 1986; Jaeger, 2000; Littman et al., 2001; Langford et al., 2009). In computational mechanics (Crutchfield & Young, 1989; Shalizi & Crutchfield, 2001), methods for reconstructing (a version of) predictive states have been used in various fields, such as ecology (Boschetti, 2008), chemistry (Nerukh et al., 2002), neuroscience (Haslinger et al., 2010; Nehaniv & Antonova, 2017; Mu˜ noz et al., 2020), fi-nance (Park et al., 2007), and the Earth Sciences (Palmer et al., 2000; Clarke et al., 2003) Our focus is related to, but distinct from, computational mechanics (Crutchfield & Young, 1989; Shalizi & Crutchfield, 2001). Originally, Crutchfield & Young (1989) focused on equivalence classes of histories that induce the same conditional distribution over future events, referred to as the “causal” states. We instead focus on the S-valued process, St, t ∈ Z, which we refer to as the predictive states, to avoid overloading terms and conflating predictive states with causality in the sense of Pearl (2009); Spirtes et al. (2001) (though see Shalizi & Moore (2025)). Function-learning approaches for predictive state estimation have also been proposed (Langford et al., 2009). Building on these ideas, Boots et al. (2013) and Hefny et al. (2015) proposed learning predictive states by regressing “sufficient features” of future observations on the past observations. For example, the sufficient features for a Gaussian conditional distribution are based on the first two conditional moments. More recently, Downey et al. (2017) and Venkatraman et al. (2017) considered using the hidden states of recurrent neural networks (RNNs) to encode the predictive states. We adapt predictive states for the purposes of generative sequence modeling, which plays a central role in modern machine learning largely due to the success of the transformer (Vaswani et al., 2017). Ideally, we would like to characterize each L(Xt+1 | F t) by identifying “sufficient features”, as in the aforementioned literature. Unfortunately, outside of simple cases, it is challenging to determine 13 Preprint what these sufficient features should be. As a result, this approach of hand-crafting sufficient features does not readily extend to richer families of distributions with nonstandard behavior. We show that user-chosen “sufficient features” can be replaced by a small number of random features (Rahimi & Recht, 2007). We emphasize that our use of random features is fundamentally different from their conventional use for approximating kernel methods. In contrast, we use a small number of random features as low-dimensional witness functions (or probes), as we will discuss. A.2 CONDITIONAL FUNCTIONAL ESTIMATION 
+
+Algorithm 2 explains how to estimate functionals of the conditional distribution from equation 8. Due to space limitations, we will report the theory and experiments in a separate manuscript. 
+
+Algorithm 2 Conditional functional estimation via predictive states 
+
+1: Input: Inputs of Algorithm 1, number of simulations N sim , horizon L, and functional Γ( ·)
+
+2: Fitted estimators and estimates ˆQz , ( ˆZt)t ← Run Algorithm 1 
+
+3: for j = 1 , . . . , N sim do 
+
+4: Sample ˆX(j) 
+
+> n+1
+
+∼ ˆQ ˆZn
+
+5: for ℓ = 1 , . . . , L − 1 do 
+
+6: Predict ˆZ(j) 
+
+> n+ℓ
+
+based on (X1: n, ˆX(j)
+
+> n+1: n+ℓ
+
+) and sample ˆX(j) 
+
+> n+ℓ+1
+
+∼ ˆQ ˆZ(j)
+
+> n+ℓ
+
+7: end for 
+
+8: end for 
+
+9: Obtain estimate of conditional functional Γ( ˆΠn,L ), where ˆΠn,L = 1 
+
+> Nsim
+
+PN sim  
+
+> j=1
+
+δ ˆX(j)
+
+> n+1: n+L
+
+10: Output: Estimate of conditional functional Γ( ˆΠn,L )
+
+A.3 DISCUSSION OF RECURRENT NEURAL NETWORK ARCHITECTURE 
+
+We provide an explanation of how the RNN architecture works. At each step t, the input It+1 =(Xt−m:t, Y t−m) is transformed by a deep neural network (DNN) ρ(·). This transformed input is then linearly combined with the linearly transformed current hidden state WhHt, which is passed through a shifted ReLU activation, σvh , defined as σvh (x) = [max( xi − vh,i , 0)] 1≤i≤dim( Ht), to produce the next hidden state Ht+1 . A second DNN, λ(·), maps Ht+1 to the output Ot+1 . Figure 2 (based on Figure 1 in Chen et al. (2026)) illustrates the RNN architecture from Section 3.1.              
+
+> Ht−1HtHt+1
+> It−1ItIt+1
+> Ot−1OtOt+1
+> · · · · · ·
+> WhWhWh
+> ρ(·)ρ(·)ρ(·)
+> λ(·)λ(·)λ(·)
+
+Figure 2: Illustration of the RNN architecture. 
+
+## B PRELIMINARIES 
+
+We state several definitions and results from the literature. We mostly retain the notation from those papers, and we refer to them for proofs. First, we present the definitions of σ-subanalytic sets and σ-subanalytic functions. These definitions require the definitions of globally subanalytic sets, globally semianalytic sets, and semianalytic sets. Figure 3 (Figure 3 in Amir et al. (2023)) summarizes the relationships among the different classes of sets and functions; see the appendix of Amir et al. (2023) for more discussion. 14 Preprint globally subanalytic functions 
+
+# 𝜎𝜎 − subanalytic functions 
+
+# semialgebraic functions 
+
+# semialgebraic sets 
+
+# globally subanalytic sets 
+
+# 𝜎𝜎 − subanalytic sets 
+
+Figure 3: Relationships among classes of sets and functions (Figure 3 in Amir et al. (2023)). 
+
+Definition 4 (Definition 1.1.1 in Valette (2025)) . A subset E ⊆ Rn is called semianalytic if it is locally defined by finitely many real analytic equalities and inequalities. Namely, for each a ∈ Rn,there is a neighborhood U of a, and real analytic functions fij , g ij on U , where i = 1 , . . . , r and 
+
+j = 1 , . . . s i, such that 
+
+E ∩ U =
+
+> r
+
+[
+
+> i=1
+> si
+
+\
+
+> j=1
+
+{z ∈ U |gij (z) > 0 and fij (z) = 0 }. (32) 
+
+Definition 5 (Definition 1.1.3 in Valette (2025)) . A subset Z ⊆ Rn is globally semianalytic if Vn(Z)
+
+is a semianalytic subset of Rn, where Vn : Rn −→ (−1, 1) n is the homeomorphism defined by 
+
+Vn (z = ( z1, . . . , z n)) = z1
+
+p1 + |z|2 , . . . , zn
+
+p1 + |z|2
+
+!
+
+.
+
+Definition 6 (Definition 1.1.6 in Valette (2025)) . A subset E ⊆ Rn is globally subanalytic if it can be presented as a linear projection of a globally semianalytic set; more precisely, if there exists a globally semianalytic set Z ⊆ Rn+p such that E = π(Z), with π : Rn+p → Rn being the projection operator that omits the last p coordinates while leaving the remaining coordinates unchanged. 
+
+Definition 7 (Definition A.10 in Amir et al. (2023)) . We say that a subset A ⊆ RD is σ-subanalytic if it is a countable union of globally subanalytic subsets of RD .
+
+Definition 8 (Definition A.13 in Amir et al. (2023)) . Let M ⊆ RD be a σ-subanalytic set. We say that f : M −→ RL is a σ-subanalytic function if its graph is a σ-subanalytic subset of RD+L.
+
+Second, we state basic properties of σ-subanalytic sets. 
+
+Lemma 2 (Proposition A.11 in Amir et al. (2023)) . Assume that A, B ⊆ RD and C ⊆ RM are 
+
+σ-subanalytic sets. Then: 1. A ∪ B is σ-subanalytic. More generally, any countable union of σ-subanalytic sets is 
+
+σ-subanalytic. 2. A ∩ B is σ-subanalytic. 3. A × C is σ-subanalytic. 4. If π : RD → RL is a linear projection, then π(A) is a σ-subanalytic set. 5. A is a countable union of C∞ manifolds. 
+
+Third, we present a corollary of the finite witness theorem (Theorem A.2) from Amir et al. (2023). The notion of dimension that is used is the Hausdorff dimension. The result holds for almost every 
+
+(ϑ1, . . . , ϑ 2D+1 ) with respect to the Lebesgue measure when W = Rq or is an open subset of Rq .15 Preprint 
+
+Lemma 3 (Corollary A.20 in Amir et al. (2023)) . Let M ⊆ Rr , W ⊆ Rq be σ-subanalytic sets of dimension D and Dϑ respectively. Let F : M × W → R be a σ-subanalytic function. Define the set 
+
+N = {(x, y) ∈ M × M | F (x; ϑ) = F (y; ϑ), ∀ϑ ∈ W}.
+
+Suppose that for all (x, y) ∈ M × M \ N 
+
+dim {ϑ ∈ W | F (x; ϑ) = F (y; ϑ)} ≤ Dϑ − 1. (33) 
+
+Then for generic (ϑ1, . . . , ϑ 2D+1 ) ∈ W2D+1 ,
+
+N = {(x, y) ∈ M × M | F (x; ϑi) = F (y; ϑi), ∀i = 1 , . . . 2D + 1 }. (34) 
+
+Moreover, if W is an open and connected subset of Rq , and F (x; ϑ) is analytic as a function of ϑ
+
+for all fixed x ∈ M, then equation 33 is not required, as it is automatically satisfied. 
+
+The next result is the uniqueness theorem for characteristic functions. 
+
+Lemma 4 (Proposition 2.9 in Bilodeau & Brenner (1999)) . The characteristic function c : Rn → C
+
+of x, defined by c(t) = cx(t) = E(eit′x), is unique: 
+
+x d
+
+= y ⇐⇒ cx(t) = cy(t), ∀t ∈ Rn.
+
+The following elementary result is stated as Theorem 4.17 in Rudin (2021). 
+
+Lemma 5. Suppose f is a continuous 1-1 mapping of a compact metric space X onto a metric space Y . Then the inverse mapping f −1 defined on Y by 
+
+f −1(f (x)) = x, x ∈ X, 
+
+is a continuous mapping of Y onto X.
+
+The following result is an approximation bound for deep neural networks (DNNs) stated as Lemma 2 in Zhou et al. (2023). For the following result, let W γ, ∞([ −1, 1] d) denote the Sobolev space of functions whose weak derivatives up to order γ are bounded, as in Assumption 7. 
+
+Lemma 6. There exists a DNN class MDNN with the ReLU activation, such that, for any 0 < ϵ ≤ 1,1. MDNN approximates W γ, ∞([ −1, 1] d), in the sense that, for any g∗ ∈ W γ, ∞([ −1, 1] d),there exists a gϵ ∈ M DNN and c1 > 0, such that ∥gϵ − g∗∥∞ ≤ ϵ.2. H(ϵ) ≤ c1(log( 1 
+
+> ϵ
+
+) + 1) and W (ϵ), U (ϵ) ≤ c1 · ϵ− dγ (log( 1 
+
+> ϵ
+
+) + 1) , where H denotes the number of layers, W the number of weights, and U the total number of hidden units. 
+
+The next result is Lemma 3 in Zhou et al. (2023), which establishes the approximation error bound for the MDN. Note that our Assumptions 7 and 8 are analogous to Assumptions 2 and 3 from Zhou et al. (2023). In the following result, f ∗ is the true density. 
+
+Lemma 7. Suppose Assumptions 2 and 3 from Zhou et al. (2023) hold. Then for any 0 < ϵ ≤ 1 and integer G ≥ 1, there exists a set of DNN functions {(gg1, g g2, g g3)Gg=1 } whose network architectures depend on ϵ such that 1. ∥f ∗ − fT ∥∞ ≤ C′
+
+> 2
+
+G4ω2 ϵ + O(G−ω1 ) where fT = PGg=1 gg1(x) 1√2πg g3(x) e− (y−gg2(x)) 22g2 
+
+> g3(x)
+
+,
+
+for some constant C′ 
+
+> 2
+
+> 0 that is independent of ϵ;2. the number of hidden layers Hgj , the number of parameters Wgj , and the total number of hidden units Ugj satisfy (a) Hgj ≤ c1{log( G/ϵ ) + 1 }
+
+(b) Wgj ≤ c1G dγ ϵ− dγ {log( G/ϵ ) + 1 }
+
+(c) Ugj ≤ c1G dγ ϵ− dγ {log( G/ϵ ) + 1 }
+
+The next result is Lemma 4 from Zhou et al. (2023), which connects the metric entropy between the MDN function class and DNN function class. 16 Preprint 
+
+Lemma 8. Suppose Assumptions 2 and 3 from Zhou et al. (2023) hold. Then there exists a constant 
+
+c3 > 0, such that 
+
+log T (δ, M, ∥ · ∥ n) ≤ G log T
+
+ δc3G3/2+3 ω2
+
+, MDNN , ∥ · ∥ n
+
+
+
+,
+
+where G is the number of mixture components. 
+
+The following result is based on Lemma 6 in Farrell et al. (2021) (Theorem 6 in Bartlett et al. (2019) in the ReLU case) which is used to bound the complexity of the function class of DNNs. Note that 
+
+Pdim denotes the pseudo VC dimension of the function class. 
+
+Lemma 9. Consider a ReLU network architecture M = MDNN (W, L, U ), then the pseudo VC dimension satisfies 
+
+Pdim( M) ≤ C · W L log W, 
+
+for some universal constant C > 0.
+
+The next result is Lemma 5 in Zhou et al. (2023). 
+
+Lemma 10. Suppose there is a sequence of stationary time series, U = ( X1, X 2, . . . , X T ), with a common marginal distribution, and each Xt ∈ Rd, t = 1 , . . . , T . Suppose the β-mixing coefficient of the sequence satisfies that β(p) ≤ c1e−c2p for some c1, c 2. Then there exists a sequence, U 0 
+
+> i
+
+=(X0
+
+> ip +1
+
+, X 0
+
+> ip +2
+
+, . . . , X 0
+
+> ip +p
+
+), for i ≥ 0, such that 1. U 0 
+
+> i
+
+has the same distribution as Ui = ( Xip +1 , X ip +2 , . . . , X ip +p).2. The sequence {U 02i}i≥0 is i.i.d., and so is {U 02i+1 }i≥0.3. For any i ≥ 0, P(Ui̸ = U 0 
+
+> i
+
+) ≤ β(p)
+
+4. P(|GT (U ) − GT (U 0)|̸ = 0) ≤ p−1T β (p), where GT (U ) =
+
+√T
+
+n 1
+
+> T
+
+PTt=1 f (Xt+1 |Xt) − Ef
+
+o
+
+, and GT (U 0) = √T
+
+n 1
+
+> T
+
+PTt=1 f (X0
+
+> t+1
+
+|X0 
+
+> t
+
+) − Ef
+
+o
+
+.
+
+## C ADDITIONAL RESULTS 
+
+C.1 MIXTURE DENSITY NETWORK 
+
+The following result extends the guarantees for the mixture density network (MDN) estimator from Zhou et al. (2023) to the setting of covariates with lower-dimensional support. We must consider this extension because the predictive state embeddings Zt take values in Φ( S) ⊂ Rk but the predictive state space S ⊂ Rr has Hausdorff dimension p, where k ≥ 2p + 1 . In particular, we do not assume 
+
+P ˜Zt,j is absolutely continuous with respect to the Lebesgue measure. Originally, Zhou et al. (2023) only needed to consider estimating the conditional distributions of Xt+1 given Xt and Xt−1 given 
+
+Xt, and they did not need to consider covariates with lower-dimensional support. Recall the notation from Section 3.2. Also, for the following result, denote the supports of ˜Zt,j 
+
+and Xt+1 ,j by ˜Zj and Xj , respectively, the Lebesgue measure restricted to Xj by λXj , and the distribution of ˜Zt,j by P ˜Zt,j . Note that we use the superscript “oracle” to distinguish the estimators, 
+
+ˆf oracle  
+
+> j
+
+, j ∈ [d], in Theorem 6 which use the true covariates ˜Zt,j , j ∈ [d], from the feasible estimators 
+
+ˆfj , j ∈ [d], in Section 3.2 which use the estimated covariates ˆ˜Zt,j , j ∈ [d]. When the covariates do not need to be estimated, the “oracle” in the superscript can be ignored. For the following result, denote the smallest and largest number of mixture components, respectively, by 
+
+M− = min 
+
+> j∈[d]
+
+(Mj ), M+ = max 
+
+> j∈[d]
+
+(Mj ).
+
+Theorem 6. Suppose Assumptions 3, 7, 9, 11 hold. Then, there exist MDN function classes MMDN  
+
+> n,j
+
+,
+
+j ∈ [d], satisfying Assumption 8, such that the oracle conditional joint density estimator 
+
+ˆf oracle =
+
+> d
+
+Y
+
+> j=1
+
+ˆf oracle  
+
+> j
+
+, ˆf oracle  
+
+> j
+
+∈ arg max  
+
+> fj∈M MDN
+> n,j
+> n−m−1
+
+X
+
+> t=m+1
+
+log fj
+
+
+
+Xt+1 ,j | ˜Zt,j 
+
+
+
+, j = 1 , . . . , d, (35) 17 Preprint 
+
+satisfies 
+
+ˆf oracle − fXt+1 |Zt L2
+
+=
+
+Z 
+
+> Z
+
+Z
+
+> X
+
+ˆf oracle (x | z) − fXt+1 |Zt (x | z) 2
+
+dxdP Zt (z)
+
+1/2
+
+≤ c
+
+
+
+M −ω1 
+
+> −
+
++ M  
+
+> γ+k+d−12γ+4 ω2
+> +
+
+n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM +)
+
+
+
+,
+
+(36) 
+
+for some constant c > 0, with probability at least 1 − O(n−1).
+
+C.2 PREDICTIVE STATES 
+
+The next result generalizes Corollary 2 of Theorem 1 in Shalizi & Crutchfield (2001) from discrete measurable spaces to standard Borel spaces. First, we introduce the general setting. Let (X , X) and (S, S) be standard Borel spaces. Consider the model 
+
+Xt+1 = G(εt+1 , S t), St = τ (St−1, X t) = R(X−∞ :t), t ∈ Z, (37) where Xt is an (X , X)-valued sequence, εt, t ∈ Z, is an iid sequence of random elements satisfying 
+
+εt+1 ⊥⊥ F t for all t ∈ Z, St, t ∈ Z, is an (S, S)-valued sequence, and the functions G, τ , and R are each Borel measurable. The conditional distribution of Xt+1 given St is given by 
+
+L(Xt+1 | St) = L(Xt+1 | F t), t ∈ Z, (38) because St = R(X−∞ :t) is Ft-measurable and because εt+1 ⊥⊥ F t. By Doob’s conditional inde-pendence property (Theorem 8.9 in Kallenberg (2021)), equation 38 is equivalent to one-step-ahead predictive sufficiency, 
+
+Xt+1 ⊥⊥ X−∞ :t | St, t ∈ Z. (39) 
+
+Theorem 7. The predictive states from equation 37 have the strong predictive sufficiency property, 
+
+Xt+1: ∞ ⊥⊥ X−∞ :t | St, t ∈ Z. (40) 
+
+## D PROOFS OF ADDITIONAL RESULTS 
+
+D.1 PROOF OF THEOREM 6The proof is broken into three main steps, as in the proof of Theorem 3 in Zhou et al. (2023). To begin, we introduce some notation. Recall that 
+
+˜Zt,j = ( Z⊤ 
+
+> t
+
+, X t+1 ,1, . . . , X t+1 ,j −1)⊤, j ∈ [d].
+
+Denote the sample size by 
+
+N = n − 2m − 1,
+
+where n is the number of observations of Xt, t = 1 , . . . , n , and m is from the random Fourier features from equation 10. For every measurable function h = h(Xt+1 ,j , ˜Zt,j ), define 
+
+Pj h = E[h(Xt+1 ,j , ˜Zt,j )] , Pn,j h = 1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+h(Xt+1 ,j , ˜Zt,j ), (41) and let 
+
+∥h∥2 
+
+> L2,j
+
+=
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+|h(xj , ˜zj )|2 dx j dP ˜Zt,j (˜ zj ), ∥h∥2 
+
+> n,j
+
+= 1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+h(Xt+1 ,j , ˜Zt,j ) 2
+
+.
+
+Similarly, denote 
+
+fj = fj (Xt+1 ,j | ˜Zt,j ),
+
+for some conditional density fj (· | · ), so that we may concisely write 
+
+Pj fj = E[fj (Xt+1 ,j | ˜Zt,j )] ,
+
+and similarly Pj log fj = E[log fj (Xt+1 ,j | ˜Zt,j )] .18 Preprint 
+
+Step 1. This step corresponds to Step 1 in the proof of Theorem 3 in Zhou et al. (2023), which itself uses ideas from Farrell et al. (2021). In this step, the observations are temporarily regarded as independent, and the extension to dependent observations is in Step 2. 
+
+Step 1.1. This step corresponds to Step 1.1 in the proof of Theorem 3 in Zhou et al. (2023), which starts in the iid setting. We derive upper and lower bounds for the quantity Kj ( ˆf oracle  
+
+> j
+
+), where for any measurable function 
+
+h that is Pj -almost surely positive and for which the following expectation is finite, we define 
+
+Kj (h) = Pj
+
+
+
+log fXt+1 ,j | ˜Zt,j − log h
+
+
+
+(42) 
+
+=
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+h
+
+log fXt+1 ,j | ˜Zt,j (xj | ˜zj ) − log h(xj | ˜zj )
+
+i
+
+dx j dP ˜Zt,j (˜ zj ).
+
+For a ∈ [0 , 1] , define 
+
+fj,a (xj | ˜zj ) = (1 − a)fXt+1 ,j | ˜Zt,j (xj | ˜zj ) + af j (xj | ˜zj ).
+
+Note that fj, 1(xj | ˜zj ) = fj (xj | ˜zj ) and fj, 0(xj | ˜zj ) = fXt+1 ,j | ˜Zt,j (xj | ˜zj ), and that fj,a need not belong to the function class MMDN  
+
+> n,j
+
+.By Taylor’s theorem (with the integral form of the remainder) applied to a 7 → Kj (fj,a ) about a = 0 
+
+then evaluating at a = 1 , we have 
+
+Kj (fj ) = Kj (fj, 1) = Kj (fj, 0) + dda Kj (fj,a ) a=0 
+
++
+
+Z 10
+
+(1 − a) d2
+
+da 2 Kj (fj,a )da, (43) where Kj (fj, 0) = 0 by equation 42. Explicitly, we have 
+
+Kj (fj )= −
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+fj, 0(xj | ˜zj )
+
+h
+
+fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+i
+
+dx j dP ˜Zt,j (˜ zj )+
+
+Z 10
+
+(1 − a)
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+f 2
+
+> j,a
+
+(xj | ˜zj ) fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) 2
+
+dx j dP ˜Zt,j (˜ zj )da 
+
+= −
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+h
+
+fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+i
+
+dx j dP ˜Zt,j (˜ zj )+ 
+
+Z 10
+
+(1 − a)
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+f 2
+
+> j,a
+
+(xj | ˜zj ) fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) 2
+
+dx j dP ˜Zt,j (˜ zj )da 
+
+=
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+fj (xj | ˜zj )dx j dP ˜Zt,j (˜ zj )+ 
+
+Z 10
+
+(1 − a)
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+f 2
+
+> j,a
+
+(xj | ˜zj ) fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) 2
+
+dx j dP ˜Zt,j (˜ zj )da, 
+
+where the first equality is by differentiating equation 42 along the path fj,a and applying equation 43, the second equality is by cancellation because fj, 0(xj | ˜zj ) = fXt+1 ,j | ˜Zt,j (xj | ˜zj ) as noted above, 19 Preprint and the third equality is because 
+
+−
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+h
+
+fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+i
+
+dx j dP ˜Zt,j (˜ zj )=
+
+Z
+
+> ˜Zj
+
+"Z
+
+> Xj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )dx j −
+
+Z
+
+> Xj
+
+fj (xj | ˜zj )dx j
+
+#
+
+dP ˜Zt,j (˜ zj )=
+
+Z
+
+> ˜Zj
+
+"
+
+1 −
+
+Z
+
+> Xj
+
+fj (xj | ˜zj )dx j
+
+#
+
+dP ˜Zt,j (˜ zj )=
+
+Z
+
+> ˜Zj
+
+" Z
+
+> Xj
+
+fj (xj | ˜zj )dx j +
+
+Z
+
+> R\X j
+
+fj (xj | ˜zj )dx j
+
+!
+
+−
+
+Z
+
+> Xj
+
+fj (xj | ˜zj )dx j
+
+#
+
+dP ˜Zt,j (˜ zj )=
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+fj (xj | ˜zj )dx j dP ˜Zt,j (˜ zj ),
+
+where the first equality follows by linearity, the second because fXt+1 ,j | ˜Zt,j (· | ˜zj ) integrates to one over the support Xj , and the third because fj (· | ˜zj ) integrates to one over R, and the final equality follows by canceling terms. Denote c− = min( c− 
+
+> f
+
+, c −1MDN ) and c+ = max( c+ 
+
+> f
+
+, c MDN ), where the constants c− 
+
+> f
+
+, c + 
+
+> f
+
+, c MDN are from Assumptions 7 and 8. Note that fj,a ∈ [c−, c +], so we may upper and lower bound Kj (fj ) by 
+
+Kj (fj ) ≤
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+fj (xj | ˜zj )dx j dP ˜Zt,j (˜ zj ) + c+
+
+> f
+
+2c2
+
+> −
+
+fj − fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+, (44) 
+
+Kj (fj ) ≥
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+fj (xj | ˜zj )dx j dP ˜Zt,j (˜ zj ) + c−
+
+> f
+
+2c2+
+
+fj − fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+. (45) Therefore, for ˆf oracle  
+
+> j
+
+from the theorem statement and for any DNN approximation in the MDN function class, f DNN  
+
+> j
+
+∈ M MDN  
+
+> n,j
+
+, we can upper and lower bound Kj ( ˆf oracle  
+
+> j
+
+) by 
+
+Kj ( ˆf oracle  
+
+> j
+
+) ≤ (Pj − Pn,j )
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log ˆf oracle 
+
+> j
+
+i
+
++ Pn,j 
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log f DNN 
+
+> j
+
+i
+
+,Kj ( ˆf oracle  
+
+> j
+
+) ≥ c−
+
+> f
+
+2c2+
+
+ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+,
+
+where the lower bound follows by dropping the nonnegative first term from equation 45, and the upper bound follows by adding and subtracting the same term Pn,j [log fXt+1 ,j | ˜Zt,j − log ˆf oracle  
+
+> j
+
+]
+
+to equation 42, where Pn,j is from equation 41, linearity, the triangle inequality, and noting that 
+
+ˆf oracle  
+
+> j
+
+from equation 35 is the argmax so we may upper bound by any f DNN  
+
+> j
+
+∈ M MDN  
+
+> n,j
+
+.
+
+Step 1.2. This step corresponds to Step 1.2 in the proof of Theorem 3 in Zhou et al. (2023). We apply the approximation result from Lemma 3 in Zhou et al. (2023). Fix the dimension j ∈ [d], number of mixture components Mj ∈ N, and the approximation level 
+
+ϵ ∈ (0 , 1/4] . By Assumption 7, the conditional density fXt+1 ,j | ˜Zt,j is approximated by the mixture 
+
+sup  
+
+> xj,˜zj
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj ) −
+
+> Mj
+
+X
+
+> g=1
+
+αg,j (˜ zj )
+
+√2πσ g,j (˜ zj ) exp − (xj − μg,j (˜ zj )) 2
+
+2σ2 
+
+> g,j
+
+(˜ zj )
+
+!
+
+≤ cgmix M −ω1 
+
+> j
+
+. (46) 
+
+Step 1.2.1. Next, we verify that the DNN approximation result used in Lemma 3 of Zhou et al. (2023) applies to the functions in equation 46. By Assumption 7, for each g ∈ [Mj ], the functions 
+
+αg,j (·), μg,j (·), and σg,j (·) admit γ-Sobolev-smooth extensions to the domain 
+
+Bj = [ −bX , b X ]k+j−1.
+
+20 Preprint We may map Bj onto [−1, 1] k+j−1, i.e., by normalizing Bj /b X = [ −1, 1] k+j−1, so that the Sobolev norms of the functions will remain bounded by a constant that depends on bX , γ, and cSob . Hence, Lemma 6 (Lemma 2 in Zhou et al. (2023)) applies with input dimension given by k + j − 1.Let ℓ = 1 , 2, 3 correspond to αg,j , μg,j , σg,j , respectively. For each g ∈ [Mj ] and ℓ ∈ { 1, 2, 3}, let 
+
+Hg,j,ℓ (ϵ), Wg,j,ℓ (ϵ), Ug,j,ℓ (ϵ),
+
+denote the number of hidden layers, the number of weights, and the total number of hidden units in the deep neural network (DNN) used to approximate the gth mixture coefficient function. Lemma 6 (Lemma 2 in Zhou et al. (2023)) with approximation level ϵ/M j yields the approximation 
+
+αDNN  
+
+> g,j
+
+− αg,j ∞ ≤ ϵMj
+
+, μDNN  
+
+> g,j
+
+− μg,j ∞ ≤ ϵMj
+
+, σDNN  
+
+> g,j
+
+− σg,j ∞ ≤ ϵMj
+
+. (47) Note that the true mean and scale satisfy the bounds from Assumption 7, so we may clip the DNN ap-proximations to the ranges from Assumption 8 without increasing the approximation errors in equa-tion 47. For a (k + j − 1) -dimensional γ-Sobolev-smooth function approximated with accuracy δ, Lemma 6 (Lemma 2 in Zhou et al. (2023)) yields the following bounds on the number of hidden layers, weights, and hidden units, 
+
+H(δ) ≤ C(log(1 /δ ) + 1) , W (δ), U (δ) ≤ Cδ −(k+j−1) /γ (log(1 /δ ) + 1) .
+
+Letting δ = ϵ/M j yields 
+
+δ−(k+j−1) /γ = M (k+j−1) /γ j ϵ−(k+j−1) /γ ,
+
+so there exists a constant C > 0, independent of j, Mj , and ϵ, such that, for all ℓ ∈ { 1, 2, 3},
+
+Hg,j,ℓ (ϵ) ≤ C(log 
+
+ Mj
+
+ϵ
+
+
+
++ 1) ,Wg,j,ℓ (ϵ) ≤ CM (k+j−1) /γ j ϵ−(k+j−1) /γ (log 
+
+ Mj
+
+ϵ
+
+
+
++ 1) ,Ug,j,ℓ (ϵ) ≤ CM (k+j−1) /γ j ϵ−(k+j−1) /γ (log 
+
+ Mj
+
+ϵ
+
+
+
++ 1) .
+
+(48) Note that Lemma 7 (Lemma 3 in Zhou et al. (2023)) applies because Assumption 7 gives the same uniform bounds on the functions in the Gaussian mixture, and Assumption 3 implies 
+
+sup xj ∈X j |xj | < ∞. Also, note that an inspection of the proof of Lemma 7 shows that replacing the bound |xj | ≤ 1 by |xj | ≤ bX only changes the constants. Next, we introduce the approximating MDN, f app  
+
+> j,ϵ
+
+, which is obtained by replacing the (infeasible) functions αg,j (·), μg,j (·), and σg,j (·) from Assumption 7 by the DNN approximations. Specifically, 
+
+f app  
+
+> j,ϵ
+
+(xj | ˜zj ) = 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) 1
+
+√2πσ DNN  
+
+> g,j
+
+(˜ zj ) exp −
+
+ xj − μDNN  
+
+> g,j
+
+(˜ zj )2
+
+2  σDNN  
+
+> g,j
+
+(˜ zj )2
+
+!
+
+, (49) where αapp  
+
+> g,j
+
+(·) are the normalized DNN approximations of the mixture weights defined as 
+
+αapp  
+
+> g,j
+
+= aclip 
+
+> g,j
+
+PMj 
+
+> h=1
+
+aclip 
+
+> h,j
+
+, aclip  
+
+> g,j
+
+= max( αDNN  
+
+> g,j
+
+− ϵMj
+
+, 0) . (50) By equation 47, we have 
+
+0 ≤ aclip  
+
+> g,j
+
+≤ αg,j , αg,j − aclip  
+
+> g,j
+
+≤ 2ϵMj
+
+. (51) Since the mixture weights sum to one, we have, by equation 51, summing over the mixture compo-nents, and subtraction, that 
+
+1 − 2ϵ ≤
+
+> Mj
+
+X
+
+> g=1
+
+aclip  
+
+> g,j
+
+≤ 1. (52) 21 Preprint Next, we will bound the quantity 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) . (53) By the triangle inequality, we have 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) ≤
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − aclip  
+
+> g,j
+
+(˜ zj ) +
+
+> Mj
+
+X
+
+> g=1
+
+aclip  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) , (54) so we will consider each term separately. 
+
+Step 1.2.1.1. For the first term in equation 54, since 
+
+αapp  
+
+> g,j
+
+(˜ zj ) = aclip  
+
+> g,j
+
+(˜ zj )
+
+PMj 
+
+> h=1
+
+aclip  
+
+> h,j
+
+(˜ zj ) ,
+
+and Mj
+
+X
+
+> h=1
+
+aclip  
+
+> h,j
+
+(˜ zj ) ≤ 1,
+
+we have 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − aclip  
+
+> g,j
+
+(˜ zj ) ≤ 2ϵ, (55) because, by distributing terms and rearranging the terms from equation 52, we have 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − aclip  
+
+> g,j
+
+(˜ zj ) =
+
+> Mj
+
+X
+
+> g=1
+
+aclip  
+
+> g,j
+
+(˜ zj ) 1
+
+PMj 
+
+> h=1
+
+aclip  
+
+> h,j
+
+(˜ zj ) − 1
+
+!
+
+= 1 −
+
+> Mj
+
+X
+
+> h=1
+
+aclip  
+
+> h,j
+
+(˜ zj ) ≤ 2ϵ. 
+
+Step 1.2.1.2. For the second term in equation 54, we must consider two cases. First, if αDNN  
+
+> g,j
+
+(˜ zj ) ≥ ϵ/M j , then 
+
+aclip  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) = ϵMj
+
+,
+
+since aclip  
+
+> g,j
+
+(˜ zj ) = max 
+
+
+
+αDNN  
+
+> g,j
+
+(˜ zj ) − ϵMj , 0
+
+
+
+.Second, if αDNN  
+
+> g,j
+
+(˜ zj ) < ϵ/M j , then 
+
+aclip  
+
+> g,j
+
+(˜ zj ) = 0 . (56) Since αg,j (˜ zj ) ≥ 0 and, by equation 47, we have 
+
+αDNN  
+
+> g,j
+
+(˜ zj ) − αg,j (˜ zj ) ≤ ϵMj
+
+,
+
+then we must have 
+
+αDNN  
+
+> g,j
+
+(˜ zj ) ≥ − ϵMj
+
+. (57) Therefore, by equation 56 and equation 57, we have 
+
+aclip  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) ≤ 0 + ϵMj
+
+= ϵMj
+
+.
+
+Hence, in both cases, we have 
+
+aclip  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) ≤ ϵMj
+
+,
+
+22 Preprint so summing over the mixture components yields 
+
+> Mj
+
+X
+
+> g=1
+
+aclip  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) ≤ ϵ. (58) Combining equation 54, equation 55, and equation 58, we obtain 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − αDNN  
+
+> g,j
+
+(˜ zj ) ≤ 3ϵ. (59) 
+
+Step 1.2.1.3. By equation 47, we have the DNN approximation 
+
+> Mj
+
+X
+
+> g=1
+
+αDNN  
+
+> g,j
+
+(˜ zj ) − αg,j (˜ zj ) ≤ Mj
+
+ϵMj
+
+= ϵ. (60) Therefore, by the triangle inequality, equation 59, and equation 60, we have 
+
+> Mj
+
+X
+
+> g=1
+
+αapp  
+
+> g,j
+
+(˜ zj ) − αg,j (˜ zj ) ≤ 3ϵ + ϵ = 4 ϵ. 
+
+Note that the quantity below is bounded, 
+
+sup   
+
+> xj,˜zj,g
+
+1
+
+√2πσ DNN  
+
+> g,j
+
+(˜ zj ) exp − (xj − μDNN  
+
+> g,j
+
+(˜ zj )) 2
+
+2( σDNN  
+
+> g,j
+
+(˜ zj )) 2
+
+!
+
+≤ CM ω2 
+
+> j
+
+.
+
+By equation 59 and the previous bound on the components of the Gaussian mixture, replacing the DNN mixture weights αDNN  
+
+> g,j
+
+by the normalized weights αapp  
+
+> g,j
+
+introduces an additional error of at most 
+
+CM ω2 
+
+> j
+
+ϵ, (61) for some constant C > 0.Therefore, by the triangle inequality, Lemma 7 (with input dimension k + j − 1), and the approxi-mation bound from equation 61, there exists an MDN f app  
+
+> j,ϵ
+
+from equation 49 satisfying 
+
+sup     
+
+> xj∈X j,˜zj∈˜Zj
+
+f app  
+
+> j,ϵ
+
+(xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) ≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+). (62) Note that, for sufficiently small ϵ and sufficiently large cMDN , the construction of f app  
+
+> j,ϵ
+
+from equa-tion 49 belongs to the function class MMDN  
+
+> n,j
+
+from Assumption 8. 
+
+Step 1.2.2. Next, we check that the architecture above yields the parameter count in Assumption 8. There are 3Mj networks in the jth MDN, i.e., one network for each of αg,j , μg,j , and σg,j , g ∈ [Mj ].Therefore, denoting the total number of parameters in the jth MDN by N par  
+
+> j,ϵ
+
+, we have 
+
+N par  
+
+> j,ϵ
+
+≤ CM j max  
+
+> g∈[Mj]
+> ℓ∈{ 1,2,3}
+
+(Wg,j,ℓ (ϵ) + Ug,j,ℓ (ϵ)) (63) 
+
+≤ CM (k+j−1+ γ)/γ j ϵ−(k+j−1) /γ (log 
+
+ Mj
+
+ϵ
+
+
+
++ 1) . (64) Letting 
+
+ϵ = n−γ/ (2 γ+k+j−1) ,
+
+so that 
+
+ϵ−(k+j−1) /γ = n(k+j−1) /(2 γ+k+j−1) , log( Mj /ϵ ) ≤ C log( nM j ),
+
+we have 
+
+N par  
+
+> j,ϵ
+
+≤ CM (k+j−1+ γ)/γ j n(k+j−1) /(2 γ+k+j−1) log( nM j ), (65) as required by Assumption 8. 23 Preprint 
+
+Step 1.2.3. Next, we derive two upper bounds that will be used later. First, we upper bound the quantity 
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+f app  
+
+> j,ϵ
+
+(xj | ˜zj )dx j dP ˜Zt,j (˜ zj ),
+
+where the approximating MDN f app  
+
+> j,ϵ
+
+is from equation 49. For each g ∈ [Mj ] and ˜zj ∈ ˜Zj , let 
+
+Pg,j, ˜zj = N  μg,j (˜ zj ), σ 2 
+
+> g,j
+
+(˜ zj ) ,
+
+denote the Gaussian distribution corresponding to the mixture from Assumption 7, and let 
+
+P app  
+
+> g,j, ˜zj
+
+= N  μDNN  
+
+> g,j
+
+(˜ zj ), (σDNN  
+
+> g,j
+
+)2(˜ zj ) ,
+
+denote the corresponding Gaussian distribution obtained by replacing μg,j and σg,j with their DNN approximations from equation 47. Denote the squared Hellinger distance between two distributions P and Q, with densities p and q,by 
+
+H2(P, Q ) = 
+
+Z
+
+> R
+
+p p(x) − pq(x)
+
+2
+
+dx. 
+
+By the reverse triangle inequality, we have 
+
+q
+
+P app  
+
+> g,j, ˜zj
+
+(R \ X j ) ≤
+
+q
+
+Pg,j, ˜zj (R \ X j ) + H(P app  
+
+> g,j, ˜zj
+
+, P g,j, ˜zj ).
+
+Squaring the previous inequality and using the inequality (a + b)2 ≤ 2a2 + 2 b2 yields 
+
+P app  
+
+> g,j, ˜zj
+
+(R \ X j ) ≤ 2Pg,j, ˜zj (R \ X j ) + 2 H2 
+
+P app  
+
+> g,j, ˜zj
+
+, P g,j, ˜zj
+
+
+
+.
+
+The squared Hellinger distance between Gaussians (which is known in closed form), and the lower bounds 
+
+σg,j (˜ zj ) ≥ c− 
+
+> σ
+
+M −ω2 
+
+> j
+
+, σDNN  
+
+> g,j
+
+(˜ zj ) ≥ c−1MDN M −ω2 
+
+> j
+
+,
+
+from Assumptions 7 and 8, and equation 47 yield 
+
+H2(P app  
+
+> g,j, ˜zj
+
+, P g,j, ˜zj ) ≤ CM 2ω2
+
+> j
+
+ ϵMj
+
+2
+
+.
+
+By equation 50 and equation 52, we have 
+
+αapp  
+
+> g,j
+
+= aclip 
+
+> g,j
+
+PMj 
+
+> h=1
+
+aclip 
+
+> h,j
+
+≤ aclip 
+
+> g,j
+
+1 − 2ϵ ≤ αg,j 
+
+1 − 2ϵ .
+
+Using the corresponding DNN approximation of the mixture weights, which satisfy 
+
+αapp  
+
+> g,j
+
+≤ 2αg,j , (66) because 1/(1 − 2ϵ) ∈ (1 , 2] since ϵ ∈ (0 , 1/4] , summing over g ∈ [Mj ], integrating over ˜zj , and applying the upper bounds from Assumption 9 yields 
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+f app  
+
+> j,ϵ
+
+(xj | ˜zj )dx j dP ˜Zt,j (˜ zj ) ≤ CM −2ω1 
+
+> j
+
++ CM 2ω2−2 
+
+> j
+
+ϵ2,
+
+where f app  
+
+> j,ϵ
+
+is from equation 49. Since Mj ≥ 1 and ω2 > 0, we have 
+
+M 2ω2−2 
+
+> j
+
+ϵ2 ≤ M 8ω2 
+
+> j
+
+ϵ2.
+
+Therefore, we have the desired upper bound 
+
+Z
+
+> ˜Zj
+
+Z
+
+> R\X j
+
+f app  
+
+> j,ϵ
+
+(xj | ˜zj )dx j dP ˜Zt,j (˜ zj ) ≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)2. (67) 24 Preprint Second, we upper bound the quantity from equation 44 in Step 1.1. By equation 62 and the com-pactness of Xj , we have 
+
+f app  
+
+> j,ϵ
+
+− fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)2, (68) where f app  
+
+> j,ϵ
+
+is from equation 49. By equation 67 and equation 68, the quantity from equation 44 in Step 1.1 can be bounded by 
+
+Kj (f app  
+
+> j,ϵ
+
+) ≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)2. (69) 
+
+Step 1.2.4. Next, we obtain the final approximation bound as in Step 1.2 of Zhou et al. (2023). By Assumptions 7 and 8, both densities are uniformly bounded away from zero on Xj × ˜Zj , so the mean value theorem applied to the logarithm and equation 62 imply that 
+
+| log fXt+1 ,j | ˜Zt,j (Xt+1 ,j | ˜Zt,j ) − log f app  
+
+> j,ϵ
+
+(Xt+1 ,j | ˜Zt,j )| ≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+),
+
+almost surely, and that 
+
+Var(log fXt+1 ,j | ˜Zt,j (Xt+1 ,j | ˜Zt,j ) − log f app  
+
+> j,ϵ
+
+(Xt+1 ,j | ˜Zt,j )) ≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)2.
+
+Recall Pn,j from equation 41. Under the setting of independent observations from Step 1, Bern-stein’s inequality gives, for every ˜r > 0, with probability at least 1 − exp( −˜r),
+
+Pn,j 
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log f app 
+
+> j,ϵ
+
+i
+
+≤ C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)2 + C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+)
+
+r ˜rN + C(M 4ω2 
+
+> j
+
+ϵ + M −ω1 
+
+> j
+
+) ˜rN . (70) 
+
+Step 1.3. This step corresponds to Step 1.3 in the proof of Theorem 3 in Zhou et al. (2023). We bound the quantity 
+
+(Pj − Pn,j )
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log ˆf oracle 
+
+> j
+
+i
+
+,
+
+from Step 1.1 using arguments analogous to those from Zhou et al. (2023) who themselves use the ideas from Farrell et al. (2021). 
+
+Step 1.3.1. For a constant r0,j > 0, define 
+
+MMDN  
+
+> n,j
+
+(r0,j ) = 
+
+
+
+fj ∈ M MDN  
+
+> n,j
+
+: fj − fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ r0,j M ω2
+
+> j
+
+
+
+.
+
+Note that, since Xj is compact and both densities are uniformly bounded by c+, we can select 
+
+r0,j > 0 sufficiently large so that 
+
+fj − fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ r0,j M ω2 
+
+> j
+
+,
+
+for every fj ∈ M MDN  
+
+> n,j
+
+, since M ω2 
+
+> j
+
+≥ 1. Define the corresponding classes of differences by 
+
+Hj (r0,j ) = 
+
+n
+
+fj − fXt+1 ,j | ˜Zt,j : fj ∈ M MDN  
+
+> n,j
+
+(r0,j )
+
+o
+
+∪ { 0},
+
+Gj (r0,j ) = 
+
+n
+
+log fXt+1 ,j | ˜Zt,j − log fj : fj ∈ M MDN  
+
+> n,j
+
+(r0,j )
+
+o
+
+∪ { 0}.
+
+Recall c− and c+ from Step 1.1. By Assumption 7, we have 
+
+c− 
+
+> f
+
+∥h∥2 
+
+> L2,j
+
+≤ Pj h2 ≤ c+ 
+
+> f
+
+∥h∥2 
+
+> L2,j
+
+, (71) for any measurable function h, because 
+
+Pj h2 =
+
+Z
+
+> ˜Zj
+
+Z
+
+> Xj
+
+|h(xj , ˜zj )|2fXt+1 ,j | ˜Zt,j (xj | ˜zj )dx j dP ˜Zt,j (˜ zj ),
+
+Thus, by the mean value theorem for the logarithm, we have 
+
+log fXt+1 ,j | ˜Zt,j (xj | ˜zj ) − log fj (xj | ˜zj ) ≤ c−1 
+
+> −
+
+fj (xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj ) ,
+
+so 
+
+sup    
+
+> gj∈G j(r0,j )
+
+Pj g2 
+
+> j
+
+≤ c+
+
+> f
+
+c2
+
+> −
+
+r20,j M 2ω2 
+
+> j
+
+, sup    
+
+> gj∈G j(r0,j )
+
+∥gj ∥∞ ≤ log( c+/c −).
+
+25 Preprint 
+
+Step 1.3.2. First, we upper bound the quantity 
+
+sup    
+
+> gj∈G j(r0,j )
+
+|(Pj − Pn,j )gj |.
+
+For some function class A and iid Rademacher random variables ζt, independent of the data, denote 
+
+Eζ Rn,j A = Eζ
+
+"
+
+sup 
+
+> h∈A
+
+1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ζth(Xt+1 ,j , ˜Zt,j )
+
+#
+
+.
+
+By Theorem 2.1 of Bartlett et al. (2005), for every ˜r > 0, with probability at least 1 − 2e−˜r , we have 
+
+sup    
+
+> gj∈G j(r0,j )
+
+|(Pj − Pn,j )gj | ≤ C Eζ Rn,j Gj (r0,j ) + r0,j M ω2
+
+> j
+
+r ˜rN + M ω2
+
+> j
+
+˜rN
+
+!
+
+, (72) for some constant C > 0.
+
+Step 1.3.3. We split this step into two parts. 
+
+Step 1.3.3.1. Let MDNN  
+
+> n,j
+
+be the ReLU DNN function class with the architecture from equation 48. Let log T (u, A, ∥ · ∥ n) denote the metric entropy, and let Pdim( MDNN  
+
+> n,j
+
+) denote the pseudo VC dimension of the function class. Observe that, for u ∈ (0 , 2c+], we have 
+
+log T (u, MMDN  
+
+> n,j
+
+, ∥ · ∥ n,j ) ≤ 3Mj log T uCM 3/2+3 ω2
+
+> j
+
+, MDNN  
+
+> n,j
+
+, ∥ · ∥ n,j 
+
+!
+
+≤ CM j Pdim( MDNN  
+
+> n,j
+
+) log CnM 3/2+3 ω2
+
+> j
+
+u
+
+!
+
+,
+
+(73) where the first inequality holds by Lemma 8 (Lemma 4 of Zhou et al. (2023)), and the second inequality follows by Theorems 12.2 and 14.1 in Anthony & Bartlett (1999). Note that the normal-ization in Assumption 8 is chosen so that the normalization map is Lipschitz, so the same arguments in the proof of Lemma 8 apply with a change in constants. By Lemma 9, applied to the number of parameters Wg,j,ℓ (ϵ) + Ug,j,ℓ (ϵ) and the number of hidden layers Hg,j,ℓ (ϵ) from equation 48, the pseudo VC dimension of the DNN function class is upper bounded by 
+
+Pdim( MDNN  
+
+> n,j
+
+) ≤ CM (k+j−1) /γ j ϵ−(k+j−1) /γ (log( Mj /ϵ ) + 1) 3. (74) 
+
+Step 1.3.3.2. We justify the comparison of the population norm and empirical norm (which we use in Step 1.3.4) by following the arguments from Appendix A.2.1 of Farrell et al. (2021). For every 
+
+r0,j > 0 and ˜r > 0 satisfying 
+
+r0,j M ω2 
+
+> j
+
+≥ cloc 
+
+s
+
+max  1, M j Pdim( MDNN  
+
+> n,j
+
+) log( nM j ) + ˜ rN , (75) where cloc > 0 is a sufficiently large constant, there exists a constant ccmp > 0, independent of 
+
+n, M j , r 0,j , ˜r, such that, with probability at least 1 − 2e−˜r, we have 
+
+Hj (r0,j ) ⊆
+
+n
+
+h : ∥h∥n,j ≤ ccmp r0,j M ω2
+
+> j
+
+o
+
+. (76) This class inclusion holds for the following reasons. By equation 71, sup h Pj h2 ≤ c+ 
+
+> f
+
+(r0,j M ω2 
+
+> j
+
+)2;also ∥h∥∞ ≤ 2c+ by the density bounds from Step 1.1. The empirical-Rademacher version of Theorem 2.1 of Bartlett et al. (2005), applied to the class of squared functions, and contraction give, with probability at least 1 − 2e−˜r,
+
+sup   
+
+> h∈H j(r0,j )
+
+Pn,j h2 ≤ c+ 
+
+> f
+
+(r0,j M ω2 
+
+> j
+
+)2 + C Eζ Rn,j Hj (r0,j ) + ( r0,j M ω2 
+
+> j
+
+)
+
+r ˜rN + ˜rN
+
+!
+
+.
+
+26 Preprint Also Var( h2) ≤ 4c2+Pj h2 and the square function is 4c+-Lipschitz on [−2c+, 2c+]. Dudley’s inequality and equation 73 yield 
+
+Eζ Rn,j Hj (r0,j ) ≤ CN + C
+
+r
+
+sup   
+
+> h∈H j(r0,j )
+
+Pn,j h2
+
+s
+
+max  1, M j Pdim( MDNN  
+
+> n,j
+
+) log( nM j )
+
+N .
+
+Combining the previous inequalities and using the inequality ab ≤ δa 2 + b2/(4 δ) yields 
+
+sup   
+
+> h∈H j(r0,j )
+
+Pn,j h2 ≤ C(r0,j M ω2 
+
+> j
+
+)2 + C max  1, M j Pdim( MDNN  
+
+> n,j
+
+) log( nM j ) + ˜ rN ,
+
+so equation 75 implies equation 76. 
+
+Step 1.3.4. Suppose equation 75 holds. If equation 76 holds, which it does with probability at least 
+
+1 − 2e−˜r , the contraction and Dudley chaining arguments from Step 1.3 of Zhou et al. (2023) give the following inequalities: 
+
+Eζ Rn,j Gj (r0,j )= Eζ
+
+h
+
+Rn,j 
+
+n
+
+gj : gj = log fXt+1 ,j | ˜Zt,j − log fj ,fj ∈ M MDN  
+
+> n,j
+
+, fj − fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ r0,j M ω2
+
+> j
+
+ 
+
+≤ 2
+
+c−
+
+Eζ
+
+h
+
+Rn,j 
+
+n
+
+fj − fXt+1 ,j | ˜Zt,j : fj ∈ M MDN  
+
+> n,j
+
+,
+
+fj − fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ r0,j M ω2
+
+> j
+
+ 
+
+≤ 2
+
+c−
+
+Eζ Rn,j 
+
+n
+
+fj − fXt+1 ,j | ˜Zt,j : fj ∈ M MDN  
+
+> n,j
+
+,
+
+fj − fXt+1 ,j | ˜Zt,j n,j ≤ ccmp r0,j M ω2
+
+> j
+
+
+
+≤ 2
+
+c−
+
+inf   
+
+> 0<α<c cmp r0,j Mω2
+> j
+
+4α + 12 
+
+√N
+
+Z ccmp r0,j M ω2
+
+> j
+> α
+
+q
+
+1 + log T  δ, MMDN  
+
+> n,j
+
+, ∥ · ∥ n,j 
+
+dδ 
+
+!
+
+≤ 2
+
+c−
+
+inf   
+
+> 0<α<c cmp r0,j Mω2
+> j
+
+4α + 12 
+
+√N
+
+Z ccmp r0,j M ω2
+
+> j
+> α
+
+vuut1 + 3 Mj log T δCM 3/2+3 ω2
+
+> j
+
+, MDNN  
+
+> n,j
+
+, ∥ · ∥ n,j 
+
+!
+
+dδ 
+
+ ,
+
+where the first inequality follows by contraction since the logarithm is c−1 
+
+> −
+
+-Lipschitz, the second is by the localization argument used in Step 1.3 of Zhou et al. (2023) (following Appendix A.2 of Farrell et al. (2021)), i.e., the class inclusion from equation 76, the third is from Dudley’s chaining (Mendelson, 2003), and the fourth is from equation 73. Applying Theorems 12.2 and 14.1 of Anthony & Bartlett (1999) as in Zhou et al. (2023) yields 
+
+Eζ Rn,j Gj (r0,j )
+
+≤ 2
+
+c−
+
+inf   
+
+> 0<α<c cmp r0,j Mω2
+> j
+
+4α + C
+
+√N
+
+Z ccmp r0,j M ω2
+
+> j
+> α
+
+vuutMj Pdim( MDNN  
+
+> n,j
+
+) log CnM 3/2+3 ω2
+
+> j
+
+δ
+
+!
+
+dδ 
+
+ .
+
+Similar to Zhou et al. (2023), let 
+
+α = ccmp r0,j M ω2 
+
+> j
+
+min 
+
+ 12 ,
+
+s
+
+Mj Pdim( MDNN  
+
+> n,j
+
+)
+
+N
+
+ ,
+
+27 Preprint so that, whenever equation 75 holds, there exists a constant C4 > 0, such that, with probability at least 1 − 2e−˜r ,
+
+Eζ Rn,j Gj (r0,j ) ≤ C4r0,j M ω2
+
+> j
+
+s
+
+Mj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j ). (77) Plugging equation 77 into equation 72, we obtain, with probability at least 1 − 6e−˜r,
+
+sup    
+
+> fj∈M MDN
+> n,j (r0,j )
+
+(Pj − Pn,j )
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log fj
+
+i
+
+≤ C
+
+r0,j M ω2
+
+> j
+
+s
+
+Mj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j ) + r0,j M ω2
+
+> j
+
+r ˜rN + M ω2
+
+> j
+
+˜rN
+
+ ,
+
+(78) for some constant C > 0.
+
+Step 2. This step corresponds to Step 2 in the proof of Theorem 3 in Zhou et al. (2023). 
+
+Step 2.1. We establish that, for each j ∈ [d], the process 
+
+( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤, t ∈ Z,
+
+is stationary and β-mixing. Denote the stationary process from Assumption 11 by 
+
+Vt = ( X⊤ 
+
+> t
+
+, Y ⊤ 
+
+> t
+
+, Z ⊤ 
+
+> t
+
+, ξ ⊤ 
+
+> t
+
+)⊤, t ∈ Z. (79) Each process ( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤, t ∈ Z, is stationary because there exists a Borel map Ψj such that 
+
+( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤ = Ψ j (Vt, V t+1 ).
+
+For each j ∈ [d], denote the β-mixing coefficient of ( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤, t ∈ Z, by βj (i), and that of 
+
+Vt, t ∈ Z, by βV (i), with a slight abuse of notation. Note that, for every t′ ∈ Z and i > 1,
+
+σ(( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤ : t ≤ t′) ⊆ σ(Vt : t ≤ t′ + 1) ,
+
+and 
+
+σ(( ˜Z⊤ 
+
+> t,j
+
+, X t+1 ,j )⊤ : t ≥ t′ + i) ⊆ σ(Vt : t ≥ t′ + i),
+
+hence 
+
+βj (i) ≤ βV (i − 1) ≤ c1mix exp( −c2mix (i − 1)) , i ≥ 2,
+
+by the definition of the β-mixing coefficient from Definition 3 because the σ-algebras are nested, where c1mix and c2mix are from Assumption 11. Therefore, there exist constants c1′
+
+> mix
+
+, c 2′ 
+
+> mix
+
+> 0, such that 
+
+max  
+
+> j∈[d]
+
+βj (i) ≤ c1′ 
+
+> mix
+
+exp( −c2′
+
+> mix
+
+i), i ≥ 1.
+
+Step 2.2. We use Berbee (1979) coupling following Step 2 in the proof of Theorem 3 from Zhou et al. (2023). For some block length bn ∈ N, partition the process into blocks of the form 
+
+Ui,j =
+
+
+
+( ˜Z⊤ 
+
+> m+t,j
+
+, X m+t+1 ,j )⊤(i+1) bn
+
+> t=ib n+1
+
+, i ≥ 0.
+
+By the decoupling lemma, i.e., Lemma 10 (Lemma 5 in Zhou et al. (2023)), there exist copies 
+
+U 0 
+
+> i,j
+
+=
+
+
+
+(( ˜Z0 
+
+> m+t,j
+
+)⊤, X 0 
+
+> m+t+1 ,j
+
+)⊤(i+1) bn
+
+> t=ib n+1
+
+,
+
+such that each U 0 
+
+> i,j
+
+has the same distribution as Ui,j , the sequences (U 02i,j )i≥0 and (U 02i+1 ,j )i≥0 are each iid, and 
+
+P(U 0
+
+> i,j
+
+̸ = Ui,j ) ≤ βj (bn). (80) 28 Preprint Using a union bound over the (at most) ⌈N/b n⌉ blocks that intersect with the first N observations, all of these blocks satisfy U 0 
+
+> i,j
+
+= Ui,j simultaneously with probability at least 
+
+1 −
+
+ Nbn
+
+
+
+βj (bn). (81) For the couplings (X0 
+
+> t+1 ,j
+
+, ˜Z0 
+
+> t,j
+
+)t introduced previously, define 
+
+P 0 
+
+> n,j
+
+h = 1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+h(X0 
+
+> t+1 ,j
+
+, ˜Z0 
+
+> t,j
+
+).
+
+As in equations (27) and (30) of Zhou et al. (2023), with probability at least that of equation 81, 
+
+Pn,j 
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log f app 
+
+> j,ϵ
+
+i
+
+= P 0
+
+> n,j
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log f app 
+
+> j,ϵ
+
+i
+
+, (82) 
+
+(Pj − Pn,j )
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log ˆf oracle 
+
+> j
+
+i
+
+= ( Pj − P 0 
+
+> n,j
+
+)
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log ˆf oracle 
+
+> j
+
+i
+
+. (83) Next, as in equation (28) of Zhou et al. (2023), we separate the even and odd blocks. For notational simplicity, suppose that 2bn divides N . Then 
+
+P 0 
+
+> n,j
+
+h = 122bn
+
+N
+
+> N/ (2 bn)−1
+
+X
+
+> i=0
+
+1
+
+bnbnX
+
+> ℓ=1
+
+h
+
+
+
+X0 
+
+> m+2 ib n+ℓ+1 ,j
+
+, ˜Z0
+
+> m+2 ib n+ℓ,j
+
+
+
++ 122bn
+
+N
+
+> N/ (2 bn)−1
+
+X
+
+> i=0
+
+1
+
+bnbnX
+
+> ℓ=1
+
+h
+
+
+
+X0 
+
+> m+(2 i+1) bn+ℓ+1 ,j
+
+, ˜Z0
+
+> m+(2 i+1) bn+ℓ,j
+
+
+
+.
+
+Note that, for a fixed measurable function h, each quantity 
+
+1
+
+bnbnX
+
+> ℓ=1
+
+h
+
+
+
+X0 
+
+> m+2 ib n+ℓ+1 ,j
+
+, ˜Z0
+
+> m+2 ib n+ℓ,j
+
+
+
+, 1
+
+bnbnX
+
+> ℓ=1
+
+h
+
+
+
+X0 
+
+> m+(2 i+1) bn+ℓ+1 ,j
+
+, ˜Z0
+
+> m+(2 i+1) bn+ℓ,j
+
+
+
+,
+
+is an iid block average with expectation Pj h, so the average consists of two quantities involving iid block averages, each with N/ (2 bn) blocks. When 2bn does not divide N , the remaining observations are fewer than 2bn, so they contribute O(bn/n ) = O(log n/n ) to the average and thus they do not affect the final rate. Finally, choose 
+
+bn =
+
+ 2
+
+c2′
+
+> mix
+
+log n
+
+
+
+,
+
+so that  Nbn
+
+
+
+βj (bn) ≤ c1′
+
+> mix
+
+ Nbn
+
+
+
+n−2 ≤ c1′
+
+> mix
+
+n−1.
+
+Therefore, with probability at least 1 − O(n−1), every block that intersects with the first N observa-tions is equal to its coupled copy. Hence, the coupling identities equation 82 and equation 83 hold simultaneously. Moreover, since bn ≍ log n, the even-indexed block subsequence, (U 02i,j )i≥0, and the odd-indexed block subsequence, (U 02i+1 ,j )i≥0, each contain N/ (2 bn) ≍ n/ log( n) complete blocks in the first N observations. 
+
+Step 2.3. Next, as in Zhou et al. (2023), we use the iid sequences of blocks from Step 2.2 to extend the bounds from Steps 1.2.4 and 1.3.4 to the setting of dependent sequences. In each of the even-indexed and odd-indexed block subsequences, there are N/ (2 bn) iid blocks. Therefore, the iid concentration and empirical process arguments may be applied to the even-indexed or odd-indexed block subsequence with sample size N/ (2 bn). Also, by Jensen’s inequality averag-ing over observations within each block does not increase the bounds from Step 1, so the covering number bounds remain valid for the corresponding block averages. 29 Preprint For the comparison of the population norm and empirical norm, we apply Step 1.3.3.2 to the iid coupled blocks. By Jensen’s inequality, the block averages of h2 have mean Pj h2 and variance bounded by 4c2+Pj h2, so the covering and Dudley bounds continue to hold for the block averages. Since the number of iid blocks is proportional to N/b n, the corresponding condition is 
+
+r0,j M ω2 
+
+> j
+
+≥ cloc 
+
+r bn
+
+N
+
+ max  1, M j Pdim( MDNN  
+
+> n,j
+
+) log( nM j ) + ˜ r. (84) The following inequalities are analogous to equations (29) and (31) in Zhou et al. (2023). Applying the argument from Step 1.2.4 to the even-indexed and odd-indexed iid sequences of blocks and combining the two bounds yields, for every ˜r > 0, with probability at least 1 − Ke −˜r for some constant K > 0,
+
+P 0
+
+> n,j
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log f app 
+
+> j,ϵ
+
+i
+
+≤ C  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+2
+
++ C  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+ r bn ˜rN + C  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+ bn ˜rN .
+
+(85) Similarly, applying the argument from Step 1.3 to each iid block subsequence, provided equation 84 holds, yields, with probability at least 1 − K′e−˜r for some constant K′ > 0,
+
+sup    
+
+> fj∈M MDN
+> n,j (r0,j )
+
+(Pj − P 0 
+
+> n,j
+
+)
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log fj
+
+i
+
+≤ C r0,j M ω2
+
+> j
+
+s
+
+bnMj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j ) + r0,j M ω2
+
+> j
+
+r bn ˜rN + M ω2
+
+> j
+
+bn ˜rN
+
+!
+
+.
+
+(86) 
+
+Step 2.4. Next, we obtain the convergence rate for each conditional density estimator by combin-ing the previous bounds. Using the bounds on Kj ( ˆf oracle  
+
+> j
+
+) from Step 1.1, taking f DNN  
+
+> j
+
+= f app  
+
+> j,ϵ
+
+,the coupling identities from Step 2.2, equation 85 and equation 86, we have that, for every ˜r > 0
+
+satisfying equation 84, with probability at least 1 − K′′ e−˜r − O(n−1) for some constant K′′ > 0,
+
+ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+≤ C r0,j M ω2
+
+> j
+
+s
+
+bnMj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j )+ r0,j M ω2
+
+> j
+
+r bn ˜rN + M ω2
+
+> j
+
+bn ˜rN
+
++  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+2 +  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+ r bn ˜rN
+
++  M 4ω2 
+
+> j
+
+ϵ + M −ω1
+
+> j
+
+ bn ˜rN
+
+!
+
+,
+
+for some constant C > 0.As in Step 2 of Zhou et al. (2023), we apply the arguments from Appendices A.2.1–A.2.4 of Farrell et al. (2021) to recursively improve the upper bound r0,j . Since bn ≍ log n, this yields, for every 
+
+˜r > 0, with probability at least 1 − K′′′ e−˜r − O(n−1) for some constant K′′′ > 0,
+
+ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ C M 4ω2
+
+> j
+
+"s
+
+Mj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j )+ log n
+
+r log log n + ˜ rN + ϵ log n
+
+#
+
++ M −ω1
+
+> j
+
+!
+
+.
+
+By equation 74, 
+
+Pdim( MDNN  
+
+> n,j
+
+) ≤ CM (k+j−1) /γ j ϵ−(k+j−1) /γ (log( Mj /ϵ ) + 1) 3 .
+
+30 Preprint Recall from Step 1.2.2 that 
+
+ϵ = n−γ/ (2 γ+k+j−1) .
+
+Therefore, we have 
+
+s
+
+Mj Pdim( MDNN  
+
+> n,j
+
+)
+
+N log( nM j ) ≤ CM  
+
+> γ+k+j−12γ
+> j
+
+n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM j ).
+
+Also, setting ˜r = log n, we have 
+
+log n
+
+r log log n + ˜ rN ≤ Cn −1/2 log 3/2 n, ϵ log n = n− γ 
+
+> 2γ+k+j−1
+
+log n. 
+
+Since Mj ≥ 1 and γ/ (2 γ + k + j − 1) < 1/2, both terms are bounded by 
+
+CM  
+
+> γ+k+j−12γ
+> j
+
+n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM j ).
+
+Putting it all together, for each j ∈ [d], with probability at least 1 − O(n−1), we have 
+
+ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j L2,j 
+
+≤ C
+
+
+
+M −ω1 
+
+> j
+
++ M  
+
+> γ+k+j−12γ+4 ω2
+> j
+
+n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM j )
+
+
+
+, (87) for some constant C > 0.
+
+Step 3. Lastly, we combine the conditional density bounds for each j ∈ [d] from Step 2.4 to obtain the bound for the conditional joint density. By the factorization of fXt+1 |Zt from equation 23, the definition of ˆf oracle in equation 35, and a telescoping identity for the difference of two products, 
+
+ˆf oracle (x | z) − fXt+1 |Zt (x | z)=
+
+> d
+
+Y
+
+> j=1
+
+ˆf oracle  
+
+> j
+
+(xj | ˜zj ) −
+
+> d
+
+Y
+
+> j=1
+
+fXt+1 ,j | ˜Zt,j (xj | ˜zj )=
+
+> d
+
+X
+
+> j=1
+> j−1
+
+Y
+
+> i=1
+
+fXt+1 ,i | ˜Zt,i (xi | ˜zi)
+
+!  ˆf oracle  
+
+> j
+
+(xj | ˜zj ) − fXt+1 ,j | ˜Zt,j (xj | ˜zj )
+
+
+
+> d
+
+Y
+
+> i=j+1
+
+ˆf oracle  
+
+> i
+
+(xi | ˜zi)
+
+ .
+
+For every j ∈ [d],
+
+> j−1
+
+Y
+
+> i=1
+
+fXt+1 ,i | ˜Zt,i 
+
+!  ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j 
+
+ 
+
+> d
+
+Y
+
+> i=j+1
+
+ˆf oracle 
+
+> i
+
+
+
+> 2
+> L2
+
+≤ (c+ 
+
+> f
+
+)j−1c2( d−j)MDN 
+
+
+
+> d
+
+Y
+
+> i=j+1
+
+λXi (Xi)
+
+ ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+≤ C ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+,
+
+for some constant C > 0, where the first inequality holds because the true conditional density factors are upper bounded by c+ 
+
+> f
+
+and the estimated MDN factors are upper bounded by cMDN by Assumptions 7 and 8, and the second inequality follows because d is fixed and X is compact by Assumption 3. Hence, by the triangle inequality, we have 
+
+ˆf oracle − fXt+1 |Zt L2 ≤ C
+
+> d
+
+X
+
+> j=1
+
+ˆf oracle  
+
+> j
+
+− fXt+1 ,j | ˜Zt,j L2,j 
+
+. (88) 31 Preprint Since d is fixed, a union bound over equation 87 implies that, with probability at least 1 − O(n−1),the bounds hold simultaneously for each j ∈ [d].Recall M− = min j∈[d](Mj ) and M+ = max j∈[d](Mj ). Observe that M −ω1 
+
+> j
+
+≤ M −ω1 
+
+> −
+
+, and 1 ≤
+
+Mj ≤ M+, so we have 
+
+M  
+
+> γ+k+j−12γ+4 ω2
+> j
+
+n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM j ) ≤ M  
+
+> γ+k+d−12γ+4 ω2
+> +
+
+n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM +).
+
+Combining these inequalities with equation 88 yields, with probability at least 1 − O(n−1),
+
+ˆf oracle − fXt+1 |Zt L2
+
+≤ c
+
+
+
+M −ω1 
+
+> −
+
++ M  
+
+> γ+k+d−12γ+4 ω2
+> +
+
+n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM +)
+
+
+
+,
+
+for some constant c > 0, which proves equation 36. D.2 PROOF OF THEOREM 7The proof is broken into two main steps. 
+
+Step 1. First, we prove via induction that, for every L ∈ N, we have 
+
+Xt+1: t+L ⊥⊥ X−∞ :t | St.
+
+Step 1.1. The base case L = 1 , that 
+
+Xt+1 ⊥⊥ X−∞ :t | St, (89) holds by the one-step-ahead predictive sufficiency property from equation 39. 
+
+Step 1.2. Suppose that, for some L ∈ N, we have 
+
+Xt+1: t+L ⊥⊥ X−∞ :t | St. (90) Equivalently, by Doob’s conditional independence property (Theorem 8.9 in Kallenberg (2021)), 
+
+L(Xt+1: t+L | F t) = L(Xt+1: t+L | St), (91) almost surely. Observe that, for each L ∈ N, there exists a measurable function τ (L) that is defined as the recursive application of τ to St and Xt+1: t+L, such that 
+
+St+L = τ (L)(St, X t+1: t+L) = τ (· · · τ (τ (St, X t+1 ), X t+2 ) · · · , X t+L). (92) For example, for L = 1 and L = 2 , we have 
+
+St+1 = τ (1) (St, X t+1 ) = τ (St, X t+1 ),St+2 = τ (2) (St, X t+1: t+2 ) = τ (τ (St, X t+1 ), X t+2 ) = τ (St+1 , X t+2 ).
+
+For any sets A ∈ X⊗L and B ∈ X, where X⊗L is the product σ-algebra, we have, almost surely, 
+
+P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | F t) = E [1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | F t+L) | F t] ,
+
+by the tower property of conditional expectation, and 
+
+P (Xt+L+1 ∈ B | F t+L) = P (Xt+L+1 ∈ B | St+L) ,
+
+by the one-step-ahead predictive sufficiency property from equation 39. Therefore, we have 
+
+P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | F t) = E [1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | St+L) | F t] ,
+
+almost surely, by applying the previous equalities. By equation 92, the quantity 1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | St+L) is a measurable function of (St, X t+1: t+L), so by equation 91, we have 
+
+P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | F t) = E [1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | St+L) | St] ,
+
+32 Preprint almost surely. On the other hand, by the tower property of conditional expectation and the one-step-ahead predictive sufficiency property from equation 39, we have 
+
+P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | St) = E [1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | F t+L) | St]= E [1{Xt+1: t+L ∈ A}P (Xt+L+1 ∈ B | St+L) | St] ,
+
+almost surely. Therefore, we have, almost surely, that 
+
+P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | F t) = P (Xt+1: t+L ∈ A, X t+L+1 ∈ B | St) . (93) The Cartesian products A × B, with A ∈ X⊗L, B ∈ X, form a π-system, i.e., it is closed under finite intersections, that generates X⊗(L+1) . Moreover, the collection of sets C ∈ X⊗(L+1) for which the almost sure equality from equation 93 holds is a λ-system, i.e., it is closed under proper differences and increasing limits, and it contains X L+1 . Therefore, by the monotone class theorem (Theorem 1.1 in Kallenberg (2021)), the almost sure equality from equation 93 holds for every set C ∈ X⊗(L+1) . Since σ(St) ⊆ F t, Doob’s conditional independence property (Theorem 8.9 in Kallenberg (2021)) implies that 
+
+Xt+1: t+L+1 ⊥⊥ X−∞ :t | St.
+
+Hence, if the inductive hypothesis from equation 90 holds for L, then it holds for L + 1 .
+
+Step 1.3. By equation 39, the inductive hypothesis holds for L = 1 , so for every L ∈ N we have, 
+
+Xt+1: t+L ⊥⊥ X−∞ :t | St. (94) Since St = R(X−∞ :t) by equation 37, we have σ(St) ⊆ F t, so by Doob’s conditional independence property (Theorem 8.9 in Kallenberg (2021)), equation 94 is equivalent to 
+
+L(Xt+1: t+L | F t) = L(Xt+1: t+L | St), (95) almost surely. 
+
+Step 2. Second, we extend this statement to the infinite future, 
+
+Xt+1: ∞ ⊥⊥ X−∞ :t | St,
+
+via the monotone class theorem (Theorem 1.1 in Kallenberg (2021)). Define 
+
+D = {A ∈ σ(Xt+1: ∞) : P(A | F t) = P(A | St) almost surely }. (96) We claim that D is a λ-system, i.e., it is closed under proper differences and increasing limits, and it contains Ω. First, if A, B ∈ D with B ⊆ A, then by the linearity property of conditional expectation, 
+
+P(A \ B | F t) = P(A | F t) − P(B | F t) = P(A | St) − P(B | St) = P(A \ B | St),
+
+almost surely, so A \ B ∈ D . Second, if An ∈ D with An ↑ A, then, almost surely, 
+
+P(A | F t) = lim 
+
+> n
+
+−→∞P(An | F t) = lim 
+
+> n
+
+−→∞P(An | St) = P(A | St),
+
+by the monotone convergence property of conditional expectation. Third, observe that 
+
+P(Ω | F t) = P(Ω | St) = 1 ,
+
+almost surely, hence Ω ∈ D . Therefore, D is a λ-system. Next, we claim that the class 
+
+C = [
+
+> L∈N
+
+σ(Xt+1: t+L),
+
+is a π-system, i.e., it is closed under finite intersections. If A, B ∈ C then there must exist L1, L 2 ∈
+
+N such that A ∈ σ(Xt+1: t+L1 ) and B ∈ σ(Xt+1: t+L2 ), therefore A ∩ B ∈ σ(Xt+1: t+max( L1,L 2))
+
+because the sequence of σ-algebras σ(Xt+1: t+L), L ∈ N, is increasing. By equation 95, we have that 
+
+C ⊆ D .
+
+33 Preprint Thus, by the monotone class theorem (Theorem 1.1 in Kallenberg (2021)), we have that 
+
+σ(C) ⊆ D .
+
+Moreover, observe that 
+
+σ(C) = σ(Xt+1: ∞),
+
+so σ(Xt+1: ∞) ⊆ D . By the definition of D from equation 96, we have D ⊆ σ(Xt+1: ∞). Therefore, 
+
+D = σ(Xt+1: ∞).
+
+Hence, for every A ∈ σ(Xt+1: ∞), we have, almost surely, that 
+
+P(A | F t) = P(A | St). (97) Since St = R(X−∞ :t) by equation 37, we have σ(St) ⊆ F t. By Doob’s conditional independence property (Theorem 8.9 in Kallenberg (2021)), the equality from equation 97 is equivalent to 
+
+Xt+1: ∞ ⊥⊥ X−∞ :t | St,
+
+which is the desired result. D.3 PROOF OF LEMMA 1We may always decompose Yt+1 from equation 11 as 
+
+Yt+1 = Zt + ξt+1 , (98) where Zt = E[Yt+1 | F t] is from equation 13, and the noise process ξt+1 satisfies 
+
+E[ξt+1 | F t] = E[Yt+1 − Zt | F t] = E[Yt+1 | F t] − E[Yt+1 | F t] = 0 ,
+
+almost surely, where the first equality is by the definition of ξt+1 = Yt+1 − Zt by rearranging equa-tion 98, and the second equality is by the definition of Zt = E[Yt+1 | F t], the linearity property of conditional expectation, and because E[Yt+1 | F t] is Ft-measurable. Next, observe that 
+
+Yt+1 (1) 
+
+= Zt + ξt+1 (2) 
+
+= Φ( St) + ξt+1 (3) 
+
+= Φ( τ (m+1) (St−m−1, X t−m:t)) + ξt+1 (4) 
+
+= Φ( τ (m+1) (Φ −1(Zt−m−1), X t−m:t)) + ξt+1 (5) 
+
+= Φ( τ (m+1) (Φ −1(Yt−m − ξt−m), X t−m:t)) + ξt+1 (6) 
+
+= g∗(Yt−m, ξ t−m, X t−m:t) + ξt+1 ,
+
+(99) where (1) is from equation 98, (2) is by equation 13, (3) is by defining the function τ (m+1) as the recursive application of τ from equation 2 a total of m+1 times, (4) is because the inverse Φ−1 exists since Φ : S − → Φ( S) is bijective by the injectivity of Φ from Assumption 2, (5) is by equation 98 with t replaced by t − m − 1, and (6) is by the definition of g∗(·). Specifically, for domain 
+
+D = {(y, e, x ) ∈ [−1, 1] k × [−2, 2] k × X m+1 : y − e ∈ Φ( S), τ (m+1) (Φ −1(y − e), x ) ∈ S} ,
+
+where we define the function g∗ : D − → Φ( S) as 
+
+g∗(y, e, x ) = Φ( τ (m+1) (Φ −1(y − e), x )) .
+
+## E PROOFS OF MAIN RESULTS 
+
+E.1 PROOF OF THEOREM 1The result follows directly from Theorem 7 since X and S are Borel subsets of Euclidean spaces, each equipped with its Borel σ-algebra, hence they are standard Borel spaces. 34 Preprint E.2 PROOF OF THEOREM 2The proof is similar to that of Theorem 1 in Wieck-Sosa & Shalizi (2026a) and Theorem 2 in Wieck-Sosa & Shalizi (2026b). However, their motivations are very different from ours. They con-sider simulation-based parameter estimation for parametric models of time series, and they estimate 
+
+unconditional expectations of random features using time-averages of the observed random features in order to injectively map the parameter space into feature space. In contrast, we estimate condi-tional expectations of random features given the past observations using neural networks in order to injectively map the predictive states of a stochastic process into feature space. The key ingredient is the finite witness theorem (Lemma 3). Lemma 3 can be applied with any 
+
+k ≥ 2p + 1 , not necessarily k = 2 p + 1 ; see the proof of Proposition 3.6 in Amir et al. (2023). We begin by showing that the assumptions of Lemma 3 are satisfied. Denote the collection of parameters for the i-th random Fourier feature, φi, by 
+
+ϑi = (Ω ⊤
+
+> i, 1
+
+, . . . , Ω⊤
+
+> i,m +1
+
+, α i)⊤, (100) and let ϑ = ( ϑ1, . . . , ϑ k), which is an R(d(m+1)+1) ×k-valued random variable. Denote 
+
+W = Rd(m+1) × (−π, π ).
+
+By Assumption 1, the predictive state space S is a compact subset of Rr with Hausdorff dimension 
+
+dim H (S) = p. The predictive state space S is a semialgebraic subset of Rr by Assumption 1, hence it is σ-subanalytic; see Figure 3. By construction, the random parameters ϑi, i = 1 , . . . , k from equation 100 for the random Fourier features φi, i = 1 , . . . , k from equation 10 are each random variables taking values in W, which is semialgebraic, so, as explained in Figure 3, it is σ-subanalytic. By Assumption 1, the map (s, ω ) 7 → ψs(ω) admits a jointly real analytic extension to O×R(m+1) ×d,and hence each (s, ϑ i) 7 → R  
+
+> Xm+1
+
+φi(x)dP s(x), i = 1 , . . . , k admits a jointly real analytic extension to O × W by using the definition of the characteristic function and each random Fourier feature. Note that the graph of this extension is σ-subanalytic, and that S is a σ-subanalytic set as discussed previously. Therefore, since σ-subanalytic sets are closed under finite intersections and Cartesian products by Lemma 2, we have that the intersection of the graph of this extension with S × W × R
+
+is σ-subanalytic. 
+
+W is open and connected, and (s, ϑ i) 7 → R  
+
+> Xm+1
+
+φi(x)dP s(x) is analytic as a function of ϑi for all fixed values of the predictive state s ∈ S . Hence, the condition from equation 33 from the finite witness theorem (Lemma 3) is satisfied. Let x1, . . . , x m+1 be vectors in X , and define x = ( x1, . . . , x m+1 )⊤ ∈ X m+1 . Letting a =(a⊤ 
+
+> 1
+
+, . . . , a ⊤
+
+> m+1
+
+)⊤ ∈ Rd(m+1) , b ∈ (−π, π ), and c = ( a, b ) ∈ W, define 
+
+ϕc(x) = cos 
+
+
+
+> m+1
+
+X
+
+> j=1
+
+aj · xj + b
+
+ .
+
+Define 
+
+N = {(s1, s 2) ∈ S 2 |
+
+Z 
+
+> Xm+1
+
+ϕc(x)dP s1 (x) = 
+
+Z 
+
+> Xm+1
+
+ϕc(x)dP s2 (x), ∀c ∈ W},
+
+as the set of pairs of predictive state values that yield identical conditional expectations of the func-tions ϕc for all values of c ∈ W. By the finite witness theorem (Lemma 3), for generic parameters 
+
+(ϑ1, . . . , ϑ k) ∈ Wk of the random Fourier features (φ1, . . . , φ k), we have the set equality 
+
+N = {(s1, s 2) ∈ S 2 |
+
+Z 
+
+> Xm+1
+
+φi(x)dP s1 (x) = 
+
+Z 
+
+> Xm+1
+
+φi(x)dP s2 (x), ∀i = 1 , . . . , k }.
+
+By the discussion above Lemma 3, generic here means Π-almost every ϑ, where Π is the joint distribution from equation 100 which is absolutely continuous with respect to the Lebesgue measure. 35 Preprint Denoting the R(m+1) ×d-valued random matrix by Ωi = (Ω i, 1, . . . , Ωi,m +1 )⊤, we have 
+
+Z 
+
+> Xm+1
+
+φi(x)dP s(x)=
+
+Z 
+
+> Xm+1
+
+cos 
+
+
+
+> m+1
+
+X
+
+> j=1
+
+Ωi,j · xj + αi
+
+ dP s(x)= cos( αi)
+
+Z 
+
+> Xm+1
+
+cos 
+
+
+
+> m+1
+
+X
+
+> j=1
+
+Ωi,j · xj
+
+ dP s(x)
+
+− sin( αi)
+
+Z 
+
+> Xm+1
+
+sin 
+
+
+
+> m+1
+
+X
+
+> j=1
+
+Ωi,j · xj
+
+ dP s(x)= cos( αi) Re( ψs(Ω i)) − sin( αi) Im( ψs(Ω i)) = Mϑi (s),
+
+where ψs is the characteristic function. If the pair of predictive state values (s1, s 2) ∈ N , then 
+
+Mϑi (s1) = Mϑi (s2) for every possible value of ϑi = (Vec(Ω i), α i) ∈ W. In particular, the conditional expectation values of the random Fourier features correspond to the real and imaginary parts of the characteristic function by taking αi = 0 and αi = −π/ 2, respectively, so by the uniqueness theorem (Lemma 4) the corresponding conditional distributions must be equal, Ps1 =
+
+Ps2 , if (s1, s 2) ∈ N .However, by Assumption 1, the map from the predictive state value to the conditional distribution, 
+
+s 7 → Ps, is one-to-one, i.e., if s1̸ = s2 then Ps1̸ = Ps2 , so we must have 
+
+(s1, s 2) ∈ N =⇒ (s1, s 2) ∈ { (s1, s 2) ∈ S 2 : s1 = s2} = {(s, s ) : s ∈ S} ,
+
+so N ⊆ { (s, s ) : s ∈ S} . Conversely, we have {(s, s ) : s ∈ S} ⊆ N trivially. Therefore, 
+
+N = {(s, s ) : s ∈ S} . (101) Putting it all together, we have: for Π-almost any random parameters (ϑ1, . . . , ϑ k) for the random Fourier features (φ1, . . . , φ k), for every pair of predictive state values s1, s 2 ∈ S , if s1̸ = s2, then the conditional expectations of the random Fourier features are not equal, Φ( s1)̸ = Φ( s2). That is, the map s 7 → Φ( s) is one-to-one for generic choices of k ≥ 2p + 1 random Fourier features. E.3 PROOF OF THEOREM 3First, we show that σ(Zt) ⊆ σ(St) by showing that Zt can be written as a measurable function of 
+
+St. This holds because Zt = Φ( St) by definition from equation 13, and Φ is measurable by the joint real analyticity of the characteristic function from Assumption 1. Second, we show that σ(St) ⊆ σ(Zt) by showing that St can be written as a measurable function of 
+
+Zt. Observe that the inverse Φ−1 exists since Φ : S − → Φ( S) is bijective by the injectivity of Φ from Assumption 2. Also, observe that the inverse Φ−1 is measurable since it is continuous by Lemma 5, which applies because (1) Φ is one-to-one by Assumption 2, (2) Φ is continuous by the joint real analyticity of the characteristic function from Assumption 1, and (3) S is compact by Assumption 1. Therefore, St = Φ −1(Zt) and Φ−1 is measurable, hence σ(St) ⊆ σ(Zt).Putting it all together, we have the desired result that 
+
+QZt = L(Xt+1 | Zt) = L(Xt+1 | St),
+
+almost surely, where the first equality is by definition and the second is because σ(St) = σ(Zt).36 Preprint E.4 PROOF OF THEOREM 4In this proof, we derive the convergence rates for the estimator ˆf from equation 26 based on the learned predictive state representations. Denote the sample size by 
+
+N = n − 2m − 1,
+
+where n is the number of observations of Xt, t = 1 , . . . , n , and m is from the random Fourier features from equation 10. We break the proof into three steps. 
+
+Step 1. First, we obtain the average RNN estimation error. For each fixed choice of RNN parameters, the initialization and recurrence from equation 20 imply that the prediction ht = λ(Ht+1 ) is Ft-measurable, and that 
+
+Zt ∈ arg min 
+
+> h
+
+E ∥Yt+1 − h∥22 ,
+
+where the argmin is over all Ft-measurable random vectors. This follows by the definition of ξt+1 
+
+from equation 16 and expanding the square, 
+
+∥Yt+1 − ht∥22 = ∥Zt − ht + ξt+1 ∥22
+
+= ∥Zt − ht∥22 + ∥ξt+1 ∥22 + 2 ξ⊤
+
+> t+1
+
+(Zt − ht),
+
+so 
+
+E
+
+h
+
+∥Yt+1 − ht∥22 − ∥ ξt+1 ∥22
+
+i
+
+= E ∥Zt − ht∥22 + 2 E ξ⊤
+
+> t+1
+
+(Zt − ht) ,
+
+where the cross term is zero because 
+
+E ξ⊤
+
+> t+1
+
+(Zt − ht) = E E ξ⊤
+
+> t+1
+
+(Zt − ht) | F t
+
+ = E (Zt − ht)⊤E[ξt+1 | F t] = 0 . (102) Hence, we have 
+
+E ∥Yt+1 − ht∥22 = E ∥ξt+1 ∥22 + E ∥ht − Zt∥22 .
+
+The first term on the right is independent of ht, so Zt is the minimizer of E ∥Yt+1 − ht∥22 over all 
+
+Ft-measurable random vectors ht.The target Yt+1 = φ(Xt+1: t+m+1 ) need not be Ft+1 -measurable when m > 0. However, the RNN input It+1 = ( Xt−m:t, Y t−m) is Ft-measurable since Yt−m = φ(Xt−m:t) so the cross term from equation 102 is zero for every RNN predictor ht = λ(Ht+1 ), which establishes the conditional orthogonality condition used in the concentration arguments in the proofs of Theorems 1 and 2 in Chen et al. (2026). The concentration and covering arguments used in the proofs of Theorems 1 and 2 in Chen et al. (2026) require certain boundedness and mixing conditions. As we will show, these conditions are implied by our Assumptions 3 and 11, respectively. Next, we check that these boundedness and mixing conditions hold, so that the Bernstein inequality (Lemma 6 in Chen et al. (2026)) used in Lemma 8 in Chen et al. (2026) is applicable. First, we check that the boundedness conditions hold. For fixed network parameters and an integer 
+
+ℓ ≥ 0, let h(ℓ) 
+
+> t
+
+be the prediction obtained by replacing the hidden state immediately before the most recent ℓ + 1 recurrent updates by zero, as in Definition 3 in the supplementary material of Chen et al. (2026). Since h(ℓ) 
+
+> t
+
+is Ft-measurable, we have 
+
+E
+
+h
+
+ξ⊤
+
+> t+1
+
+(Zt − h(ℓ) 
+
+> t
+
+)
+
+i
+
+= 0 ,
+
+by the same arguments as equation 102. Also, observe that 
+
+E ξ⊤
+
+> t+1
+
+(Zt − h(ℓ) 
+
+> t
+
+) 2
+
+≤ 4kE Zt − h(ℓ)
+
+> t
+> 22
+
+,
+
+37 Preprint by Cauchy-Schwarz and since ∥ξt+1 ∥22 ≤ 4k, and that 
+
+ξ⊤
+
+> t+1
+
+(Zt − h(ℓ) 
+
+> t
+
+) ≤ ∥ ξt+1 ∥1 Zt − h(ℓ) 
+
+> t∞
+
+≤ 4k, 
+
+almost surely, by H¨ older’s inequality and since ∥ξt+1 ∥∞ ≤ 2 and Zt − h(ℓ) 
+
+> t∞
+
+≤ 2.Second, we check that the mixing condition holds. Recall Vt = ( X⊤ 
+
+> t
+
+, Y ⊤ 
+
+> t
+
+, Z ⊤ 
+
+> t
+
+, ξ ⊤ 
+
+> t
+
+)⊤ from equa-tion 79. The random variable ξ⊤
+
+> t+1
+
+(Zt − h(ℓ) 
+
+> t
+
+) is measurable with respect to σ (Vt−ℓ−m, . . . , V t+1 ),so the β-mixing coefficient at lag a > ℓ + m + 1 of the process (ξ⊤
+
+> t+1
+
+[Zt − h(ℓ) 
+
+> t
+
+]) t∈Z is upper bounded by βV (a − ℓ − m − 1) . Therefore, the argument involving the interlaced subsequences from Lemma 8 in the supplementary material of Chen et al. (2026) applies with spacing ℓ + m + 2 
+
+and truncation ℓ ≍ wh,n log 2 n. For the subsequences obtained by taking every (ℓ + m + 2) -th term, the mixing coefficient at lag a ≥ 1 is bounded by 
+
+βV (a(ℓ + m + 2) − ℓ − m − 1) = βV (( a − 1)( ℓ + m + 2) + 1) ≤ c1mix exp( −c2mix a).
+
+Note that we assume β-mixing, whereas Chen et al. (2026) only assume α-mixing. Since α-mixing coefficients are upper bounded by β-mixing coefficients (see, e.g., Bradley (2005)), the concentra-tion inequality used in Lemma 8 of the supplementary material of Chen et al. (2026) applies. Choose ℓ = ⌈C∗wh,n log 2 n⌉ for a sufficiently large constant C∗ > 0. Lemma 7 from the supple-mentary material of Chen et al. (2026) controls the difference between the truncated and full RNN predictions. The covering and union bounding arguments from Lemma 10 in Chen et al. (2026), yields a concentration bound that holds uniformly over the RNN class, so in particular it applies to the fitted RNN. Therefore, analogous arguments from the proof of Theorem 1 in Chen et al. (2026) apply with the RNN input It+1 = ( Xt−m:t, Y t−m) and the filtration Ft. Similarly, analogous RNN approximation arguments from the proof of Theorem 2 in Chen et al. (2026) apply to the representation 
+
+Zt = g∗(Yt−m, ξ t−m, X t−m:t),
+
+from Lemma 1, where the input dimension of g∗(·) is 2k + d(m + 1) . Since m from equation 10 is fixed, using these lags only changes constants in the proof of Theorem 2 in Chen et al. (2026) due to changes in the width of the recurrent layer. By equation 18 in the proof of Theorem 1 in Chen et al. (2026), Theorem 2 of Chen et al. (2026) with the widths and depths from the statement of Theorem 4, and Markov’s inequality, we have 
+
+1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ˆZt − Zt
+
+> 22
+
+= OP
+
+
+
+n− min ( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 
+
+. (103) 
+
+Step 2. Second, we obtain the MDN estimation error. Recall Pj , P n,j , K j , and ∥·∥ L2,j from the proof of Theorem 6. Since the estimator from equation 26 is an argmax, by Assumption 8 and Jensen’s inequality, we have 
+
+Pn,j [log gn,j − log ˆfj ] ≤ 2Λ n
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ˆZt − Zt
+
+> κ
+> 2
+
+≤ 2Λ n
+
+1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ˆZt − Zt
+
+> 22
+
+!κ/ 2
+
+,
+
+(104) where Pn,j is from equation 41 and gn,j is the approximation from Assumption 10. Note that the factor of 2 accounts for replacing the covariates in both gn,j and ˆfj . By equation 44, equation 27, and equation 28, we have 
+
+Kj (gn,j ) ≤ Ca 2 
+
+> n,j
+
+.
+
+Note that the mean value theorem applied to log and the density bounds give a log-likelihood ratio bounded by Ca n,j . Hence, the argument from equation 85, with ˜r = 3 log n and the coupling identities from equation 82 and equation 83, imply that, with probability at least 1 − O(n−1),
+
+Pn,j (log fXt+1 ,j | ˜Zt,j − log gn,j ) ≤ C(M −ω1 + M γ+k+j−12γ +4 ω2 n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM )) 2. (105) 38 Preprint Observe that 
+
+c−
+
+> f
+
+2c2+
+
+ˆfj − fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+≤ (Pj − Pn,j )
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log ˆfj
+
+i
+
++ Pn,j 
+
+h
+
+log fXt+1 ,j | ˜Zt,j − log gn,j 
+
+i
+
++ 2Λ n
+
+1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ˆZt − Zt
+
+> 22
+
+!κ/ 2
+
+,
+
+(106) by using the lower bound from equation 45, decomposing Kj ( ˆfj ) from equation 42 into 
+
+Kj ( ˆfj ) = ( Pj − Pn,j )[log fXt+1 ,j | ˜Zt,j − log ˆfj ]+ Pn,j [log fXt+1 ,j | ˜Zt,j − log gn,j ]+ Pn,j [log gn,j − log ˆfj ],
+
+and applying the inequality from equation 104 to the last term. Applying the inequality from equation 105 to the second term in equation 106, and applying equa-tion 86 and equation 74 to the first term in equation 106 and then applying the same recursive im-provement argument used in Step 2.4 of the proof of Theorem 6, yields, with probability 1−O(n−1),
+
+c−
+
+> f
+
+4c2+
+
+ˆfj − fXt+1 ,j | ˜Zt,j 
+
+> 2
+> L2,j
+
+≤ C
+
+
+
+M −ω1 + M γ+k+j−12γ +4 ω2 n− γ 
+
+> 2γ+k+j−1
+
+log 3(nM )
+
+2
+
++ 2Λ n
+
+1
+
+N
+
+> n−m−1
+
+X
+
+> t=m+1
+
+ˆZt − Zt
+
+> 22
+
+!κ/ 2
+
+.
+
+(107) 
+
+Step 3. Third, we obtain the convergence rate. The factorization from equation 23 and the argument from equation 88 give 
+
+ˆf − fXt+1 |Zt L2 ≤ C
+
+> d
+
+X
+
+> j=1
+
+ˆfj − fXt+1 ,j | ˜Zt,j L2,j 
+
+.
+
+Taking square roots in equation 107, using the inequality √a + b ≤ √a + √b, substituting the RNN estimation error from equation 103, and applying Markov’s inequality gives 
+
+ˆf − fXt+1 |Zt L2
+
+= OP
+
+M −ω1 + M γ+k+d−12γ +4 ω2 n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM )+ Λ 1/2 
+
+> n
+
+n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+!
+
+.
+
+Note that the MDN with j = d has the slowest convergence rate due to the greater number of covariates, so the upper bound is largest at j = d.E.5 PROOF OF THEOREM 5We break the proof into three steps. 
+
+Step 1. Choose gn,j from Assumption 10, and let 
+
+gn(x | z) = 
+
+> d
+
+Y
+
+> j=1
+
+gn,j (xj | ˜zj ). (108) For our estimator ˆf from equation 26 and gn from equation 108, define 
+
+qn(z) = ˆf (· | z) − gn(· | z) L2(X )
+
+. (109) 39 Preprint By equation 27, the factorization from equation 23, the density bounds in Assumptions 7 and 8, and the compactness from Assumption 3, we have 
+
+sup 
+
+> z∈Z
+
+gn(· | z) − fXt+1 |Zt (· | z) L2(X ) ≤ C
+
+> d
+
+X
+
+> j=1
+
+an,j ≤ C
+
+
+
+M −ω1 + M 4ω2 n− γ
+
+> 2γ+k+d−1
+
+
+
+, (110) where the last inequality uses the facts that Mj = M , j ≤ d, and d is fixed. By the triangle inequality, equation 110, and equation 29, we have 
+
+∥qn∥L2(PZt ) ≤ ˆf − fXt+1 |Zt L2
+
++ gn − fXt+1 |Zt L2
+
+= OP
+
+M −ω1 + M γ+k+d−12γ +4 ω2 n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM )+ Λ 1/2 
+
+> n
+
+n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+!
+
+.
+
+(111) For either f = ˆf or f = gn, the H¨ older condition in Assumption 8 implies that 
+
+sup 
+
+> x∈X
+
+| log f (x | z) − log f (x | z′)| ≤ Λnd ∥z − z′∥κ 
+
+> 2
+
+, z, z ′ ∈ [−1, 1] k. (112) Moreover, by the mean value theorem applied to exp( ·), i.e., |ea − eb| ≤ emax( a,b )|a − b|, for all 
+
+x ∈ X and z, z ′ ∈ Z , we have 
+
+|f (x | z) − f (x | z′)| = | exp(log f (x | z)) − exp(log f (x | z′)) |≤ exp(max(log f (x | z), log f (x | z′))) | log f (x | z) − log f (x | z′)|≤ exp( d log cMDN )| log f (x | z) − log f (x | z′)|≤ cd
+
+> MDN
+
+| log f (x | z) − log f (x | z′)|≤ cd
+
+> MDN
+
+Λnd ∥z − z′∥κ 
+
+> 2
+
+,
+
+because each of the d MDN factors is upper bounded by cMDN from Assumption 8. Define 
+
+C0 = max 1, 2dc d
+
+> MDN
+
+Z 
+
+> X
+
+1dx 
+
+1/2!
+
+, (113) which is finite due to the compactness of X from Assumption 3. For qn(·) from equation 109, for 
+
+z ∈ Z , the triangle inequality and Assumption 8 yield 
+
+qn(z) ≤
+
+Z 
+
+> X
+
+
+
+| ˆf (x | z)| + |gn(x | z)|
+
+2
+
+dx 
+
+1/2
+
+≤ 2cd
+
+> MDN
+
+Z 
+
+> X
+
+1dx 
+
+1/2
+
+≤ C0, (114) where the last inequality holds by equation 113 and because d ≥ 1. By the reverse triangle inequal-ity, the triangle inequality, and the inequalities above, for z, z ′ ∈ Z , we have 
+
+|qn(z) − qn(z′)| ≤ ˆf (· | z) − ˆf (· | z′) L2(X )
+
++ ∥gn(· | z) − gn(· | z′)∥L2(X )
+
+≤ 2dc d
+
+> MDN
+
+Z 
+
+> X
+
+1dx 
+
+1/2
+
+Λn ∥z − z′∥κ
+
+> 2
+
+≤ C0Λn ∥z − z′∥κ 
+
+> 2
+
+.
+
+(115) 
+
+Step 2. Second, we evaluate qn(·) from equation 109 at the true predictive state embedding. Let δ > 0 and 0 < v < C 0. Divide each of the k coordinate intervals [−1, 1] from [−1, 1] k into 
+
+&
+
+2√k
+
+ 2C0Λn
+
+v
+
+1/κ '
+
+, (116) consecutive intervals of equal length. To make the intervals disjoint, we take each interval to include its left endpoint but not its right endpoint, except for the final interval, which also includes 1.40 Preprint Denote the Cartesian products of these intervals across the k coordinates by B1, . . . , B J′ for some 
+
+J′ ∈ N, each of which is a subset of [−1, 1] k. Define 
+
+Ai = Z ∩ Bi,
+
+and denote the non-empty sets, i.e., such that Z ∩ Bi̸ = ∅, as A1, . . . , A J for some J ∈ N. Note that, by construction, the sets A1, . . . , A J are disjoint, measurable subsets of Z that satisfy 
+
+Z =
+
+> J
+
+[
+
+> i=1
+
+Ai.
+
+Moreover, since each coordinate interval has length at most k−1/2(v/ (2 C0Λn)) 1/κ , we have 
+
+diam( Ai) = sup 
+
+> a1,a 2∈Ai
+
+∥a1 − a2∥2 ≤
+
+ v
+
+2C0Λn
+
+1/κ 
+
+.
+
+By equation 116, the number of intervals in each of the k coordinates is at most a constant multiple of  Λn
+
+v
+
+1/κ 
+
+,
+
+so, since k is fixed, we have 
+
+J ≤ C
+
+ Λn
+
+v
+
+k/κ 
+
+, (117) for some constant C > 0. Therefore, by equation 115 and the construction above, for any z, z ′ ∈ Ai,
+
+|qn(z) − qn(z′)| ≤ C0Λndiam( Ai)κ ≤ v
+
+2 . (118) Suppose qn(Zn+L−1) > v and ∥qn∥L2(PZt ) ≤ δ. In this case, if Zn+L−1 ∈ Ai, then, 
+
+qn(z) ≥ qn(Zn+L−1) − v/ 2 > v/ 2,
+
+for every z ∈ Ai. Hence, we have 
+
+v2
+
+4 PZt (Ai) ≤
+
+Z
+
+> Ai
+
+qn(z)2dP Zt (z) ≤ δ2, (119) where the second inequality is because ∥qn∥L2(PZt ) ≤ δ, and the first inequality follows from equa-tion 118 because when qn(Zn+L−1) > v , if Zn+L−1 ∈ Ai, then, 
+
+qn(z) ≥ qn(Zn+L−1) − | qn(z) − qn(Zn+L−1)| > v − v
+
+2 = v
+
+2 ,
+
+for every z ∈ Ai. Multiplying equation 119 by 4/v 2 gives us 
+
+PZt (Ai) ≤ 4
+
+v2 δ2. (120) By Assumption 11, the process is stationary, so P(Zn+L−1 ∈ Ai) = PZt (Ai). Therefore, we have 
+
+P(qn(Zn+L−1) > v ) ≤ P
+
+
+
+qn(Zn+L−1) > v, ∥qn∥L2(PZt ) > δ 
+
+
+
++ P
+
+
+
+qn(Zn+L−1) > v, ∥qn∥L2(PZt ) ≤ δ
+
+
+
+≤ P
+
+
+
+∥qn∥L2(PZt ) > δ 
+
+
+
++ X 
+
+> i:PZt(Ai)≤4δ2/v 2
+
+PZt (Ai)
+
+≤ P
+
+
+
+∥qn∥L2(PZt ) > δ 
+
+
+
++ Cδ 2Λk/κ n v−2−k/κ ,
+
+(121) where the first inequality is by set inclusion, the last inequality is by equation 117 and equation 120, and the second inequality is by set inclusion and the following argument: if the event in the second 41 Preprint term, {qn(Zn+L−1) > v, ∥qn∥L2(PZt ) ≤ δ}, occurs, then for some i such that PZt (Ai) ≤ 4 
+
+> v2
+
+δ2 we have Zn+L−1 ∈ Ai by equation 120, so a union bound gives the inequality. Recall C0 from equation 113. For some K0 > 0, substituting v = K0Λk/ (2 κ+k) 
+
+> n
+
+δ2κ/ (2 κ+k)
+
+into equation 121 yields 
+
+P
+
+
+
+qn(Zn+L−1) > K 0Λ k 
+
+> 2κ+k
+> n
+
+δ 2κ
+
+> 2κ+k
+
+
+
+≤ P
+
+
+
+∥qn∥L2(PZt ) > δ 
+
+
+
++ CK −2−k/κ  
+
+> 0
+
+. (122) Note that, for v ≥ C0, P(qn(Zn+L−1) > v ) from equation 121 is zero by equation 114. For any given ϵ > 0, choose δ to be a sufficiently large constant multiple of the expression inside the 
+
+OP(·) from equation 111, which makes the first term on the right side of equation 122 at most ϵ/ 2
+
+for large n. Choosing the constant K0 so that CK −2−k/κ  
+
+> 0
+
+from equation 122 is less than or equal to 
+
+ϵ/ 2 implies that 
+
+qn(Zn+L−1)= OP Λ k
+
+> 2κ+k
+> n
+
+M −ω1 + M γ+k+d−12γ +4 ω2 n− γ 
+
+> 2γ+k+d−1
+
+log 3(nM )+ Λ 1/2 
+
+> n
+
+n− κ 
+
+> 4min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 4
+
+ 
+
+> 2κ
+> 2κ+k
+
+!
+
+. (123) 
+
+Step 3. Third, we substitute the estimated predictive state. By Assumption 6 and equation 19, we have 
+
+ˆZn+L−1 ∈ [−1, 1] k.
+
+Also, by equation 30 and Markov’s inequality, we have 
+
+Λnd ˆZn+L−1 − Zn+L−1
+
+> κ
+> 2
+
+= OP
+
+
+
+Λnn− κ 
+
+> 2min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 2
+
+= oP(1) ,
+
+(124) which tends to zero by the assumption in the theorem statement because this rate from equation 124 is the square of the last summand of the expression inside OP(·) from equation 29. For x ∈ X , we have 
+
+| ˆf (x | ˆZn+L−1) − ˆf (x | Zn+L−1)|
+
+= ˆf (x | Zn+L−1) exp 
+
+
+
+log ˆf (x | ˆZn+L−1) − log ˆf (x | Zn+L−1)
+
+
+
+− 1
+
+≤ ˆf (x | Zn+L−1)
+
+h
+
+exp 
+
+
+
+Λnd ˆZn+L−1 − Zn+L−1
+
+> κ
+> 2
+
+
+
+− 1
+
+i
+
+≤ cd
+
+> MDN
+
+h
+
+exp 
+
+
+
+Λnd ˆZn+L−1 − Zn+L−1
+
+> κ
+> 2
+
+
+
+− 1
+
+i
+
+,
+
+by properties of log( ·) and exp( ·), factoring out ˆf (x | Zn+L−1), equation 112, and Assumption 8. By equation 124, 
+
+Λnd ˆZn+L−1 − Zn+L−1
+
+> κ
+> 2
+
+= oP(1) ,
+
+which implies that this term can be upper bounded by one with probability tending to one. By the mean value theorem, with probability tending to one, we have 
+
+ˆf (· | ˆZn+L−1) − ˆf (· | Zn+L−1) L2(X )
+
+≤ 3cd
+
+> MDN
+
+Z 
+
+> X
+
+1dx 
+
+1/2
+
+Λnd ˆZn+L−1 − Zn+L−1
+
+> κ
+> 2
+
+.
+
+42 Preprint Since X is compact by Assumption 3, applying equation 124 yields 
+
+ˆf (· | ˆZn+L−1) − ˆf (· | Zn+L−1) L2(X )
+
+= OP
+
+
+
+Λnn− κ 
+
+> 2min
+
+( ηη+4 k+2 d(m+1) , 2k+d(m+1)+3 10 k+5 d(m+1)+3 )(log n)11 κ/ 2
+
+.
+
+(125) Since the process is stationary by Assumption 11, (Xn+L, Z n+L−1) has the same distribution as 
+
+(Xt+1 , Z t), so we can use the same (version of) the conditional density. Observe that 
+
+ˆf (· | ˆZn+L−1) − fXn+L|Zn+L−1 (· | Zn+L−1) L2(X )
+
+≤ ˆf (· | ˆZn+L−1) − ˆf (· | Zn+L−1) L2(X )
+
++ ˆf (· | Zn+L−1) − gn(· | Zn+L−1) L2(X )
+
++ gn(· | Zn+L−1) − fXt+1 |Zt (· | Zn+L−1) L2(X ) ,
+
+by adding and subtracting both ˆf (· | Zn+L−1) and gn(· | Zn+L−1), and by applying the triangle inequality. By the definition of qn(·) from equation 109, 
+
+qn(Zn+L−1) = ˆf (· | Zn+L−1) − gn(· | Zn+L−1) L2(X )
+
+.
+
+Also, since Zn+L−1 ∈ Z almost surely, equation 110 yields 
+
+gn(· | Zn+L−1) − fXt+1 |Zt (· | Zn+L−1) L2(X )
+
+≤ sup 
+
+> z∈Z
+
+gn(· | z) − fXt+1 |Zt (· | z) L2(X )
+
+≤ C
+
+
+
+M −ω1 + M 4ω2 n− γ
+
+> 2γ+k+d−1
+
+
+
+.
+
+Combining the above inequalities, we have 
+
+ˆf (· | ˆZn+L−1) − fXn+L|Zn+L−1 (· | Zn+L−1) L2(X )
+
+≤ ˆf (· | ˆZn+L−1) − ˆf (· | Zn+L−1) L2(X )
+
++ qn(Zn+L−1)+ C
+
+
+
+M −ω1 + M 4ω2 n− γ
+
+> 2γ+k+d−1
+
+
+
+.
+
+(126) The first term has the rate from equation 125, which is bounded by the square of the expression in the square brackets from equation 123. The second term has the rate from equation 123. The final term is bounded by a constant times the same expression in the square brackets from equation 123. Hence, each term in equation 126 is bounded by the rate in equation 31 because the expression in the square brackets from equation 123 tends to zero, because Λn ≥ 1 2 κ/ (2 κ + k) ∈ (0 , 1) , and because u2 ≤ u ≤ Λ k 
+
+> 2κ+k
+> n
+
+u 2κ 
+
+> 2κ+k
+
+for 0 < u ≤ 1. This establishes the desired rate from equation 31. 43
