@@ -1,0 +1,4563 @@
+Title: Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory
+
+URL Source: https://arxiv.org/pdf/2610.00637v1
+
+Published Time: Fri, 02 Oct 2026 00:40:49 GMT
+
+Number of Pages: 39
+
+Markdown Content:
+# Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory 
+
+Xiaomian Yang Department of Chemical Engineering Massachusetts Institute of Technology Cambridge, MA 02139 
+
+xiaomian@mit.edu 
+
+Sungho Shin Department of Chemical Engineering Massachusetts Institute of Technology Cambridge, MA 02139 
+
+sushin@mit.edu 
+
+> ∗
+
+October 2, 2026 
+
+Abstract 
+
+We establish non-asymptotic sample complexity bounds for the least-squares estimation of vector autoregressive models for exponentially stable systems with heavy-tailed noise based on a single observed trajectory. By assuming i.i.d. noise, bounded noise covariance, and persistent excitation, we show that the estimation error is eO(r1/2T −1/2+1 /p ) under bounded pth moment for p > 2, where T is the number of samples, r is the noise dimension, and eO(·) hides logarithmic terms. We also introduce a unifying approach to sample complexity analysis applicable to broad classes of noise distributions and showcase this by deriving error bounds for sub-exponential and sub-Gaussian noise distributions. Finally, we specialize our analysis to autoregressive models with exogenous inputs and show that the dimension factor of the error bound is independent of the model order. 
+
+# 1 Introduction 
+
+System identification has received renewed attention in recent years due to its central role in data-driven model-based control and decision-making algorithms (Dean et al., 2017; Simchowitz et al., 2018; Oymak and Ozay, 2019; Tsiamis et al., 2022; Ziemann et al., 2024; Faradonbeh et al., 2017; Bakshi et al., 2023; Kanakeri and Mitra, 2024; Sattar et al., 2025). In many applications—ranging from robotics (Rosolia et al., 2018) to process control (Qin and Badgwell, 1997)— one must learn a dynamical model from data in order to design controllers that are both sample-efficient and constraint-aware. In particular, model predictive control (MPC) relies explicitly on system models often learned via system identification to make predictions and optimize control actions (Rawlings et al., 2017; Qin and Badgwell, 1997). This paradigm contrasts with direct policy learning approaches  
+
+> ∗Corresponding Author: sushin@mit.edu
+
+1arXiv:2610.00637v1 [cs.LG] 30 Sep 2026 (Fazel et al., 2018; Hu et al., 2023; Sutton and Barto, 2018), where control policies are learned end-to-end without explicitly learning the underlying system dynamics. When data are limited and safety or operational constraints must be respected, model-based control—learning the system model with system identification and subsequently synthesizing a controller (e.g., robust control or MPC)—is often the only viable approach. Classical system identification theory has primarily focused on asymptotic properties of estimators, establishing consistency and convergence as the number of samples tends to infinity (Ljung, 1998). While these results establish basic properties of the estimator, they are insufficient for understanding performance in the finite-sample regime relevant to learning-based control. In order to analyze end-to-end performance and to compare different paradigms, non-asymptotic guarantees of estimation error for a finite number of samples are crucial, and a growing body of recent work has developed non-asymptotic sample complexity bounds for linear system identification (Dean et al., 2017; Simchowitz et al., 2018; Oymak and Ozay, 2019; Ziemann et al., 2024). Most existing non-asymptotic results on ordinary least-squares (OLS) rely on strong assumptions regarding the noise distribution . In particular, the majority of current analyses assume that the system noise is sub-Gaussian (Dean et al., 2017; Simchowitz et al., 2018; Oymak and Ozay, 2019; Ziemann et al., 2024) while few focus on the sub-Weibull class(Faradonbeh et al., 2017), which excludes distributions with polynomial tail bounds such as Pareto or Student’s t-distributions. Heavy-tailed disturbances arise naturally in applications involving outliers, intermittent shocks, or imperfect sensing and actuation, such as power grid blackout frequency that is often modeled by the Pareto distribution (Nair et al., 2022). The existing theoretical guarantees based on light-tailed noise distributions and exponentially decaying heavy-tailed distributions are inapplicable in such scenarios. This motivates the central question of this paper: Does model-based control remain statistically viable when system noise exhibits heavy tails? 
+
+We address this question by studying the non-asymptotic sample complexity of OLS estimators for linear dynamical systems under heavy-tailed noise distributions. Specifically, we focus on (i) OLS estimator, (ii) identification from single trajectory, (iii) exponentially stable system, and (iv) general heavy-tailed noise distributions for bounded pth moment with p > 2. Rationale for these settings is as follows: OLS is often employed in practice as the go-to method even when the noise covariance is unknown due to its computational tractability and is the basis for a variety of practical algorithms (Qin and Badgwell, 1997). Single trajectory is often the most realistic data collection scenario in practice, as one typically has access to only one realization of the system evolution. Most controllers designed by engineers are exponentially stable for reliability and performance guarantees, such as power system frequency and voltage control, process control, and robotics. Finally, relaxing light-tailed noise assumptions is crucial for understanding the robustness of model-based approaches in real-world settings where the system is subject to heavy-tailed noises. 
+
+Contributions This paper provides a non-asymptotic sample complexity analysis of OLS-based linear system identification on the vector autoregressive (VAR) model for exponentially stable system under heavy-tailed noise distributions with bounded pth moment with p > 2. We present a unifying approach for non-asymptotic sample complexity analysis that accommodates a broad class of noise distributions and yields explicit finite-sample error bounds expressed in terms of general system properties. Finally, we derive non-asymptotic estimation error upper bounds for heavy-tailed distributions with bounded pth moment for p > 2 and demonstrate its applicability to sub-exponential and sub-Gaussian distributions. To the best of our knowledge, this is the first work to provide comprehensive non-asymptotic sample complexity guarantees for (i) OLS estimators, (ii) 2from single trajectory, (iii) for exponentially stable systems, (iv) under general heavy-tailed noise distributions. By assuming exponential stability, persistent excitation, independently and identically distributed (i.i.d.) noise, and bounded propagation of disturbances, we show that the estimation error is bounded by eO(r1/2T −1/2+1 /p ) under bounded pth moment with p > 2, where T is the sample size and r is the noise dimension. Notably, our analysis decouples the noise and state dimensions to address certain classes of rank-deficient systems, where our bound is expressed entirely in r and can be smaller than the state dimension. Our analysis provides an explicit characterization not only of the error scale but also of the dependence of system-specific constants that characterize stability, persistent excitation, and covariance bound. This clearly reveals the effect of these properties on the parameter estimation error. Our analysis demonstrates that for p > 2 distributions, the estimation error can be controlled by increasing the number of samples, albeit at a slower rate than in the sub-Gaussian case. This suggests that model-based approaches remain statistically viable even in the presence of moderately heavy-tailed (bounded pth moment with p > 2) noise distributions .Our technique uses a fast mixing argument (via exponential stability) and a blocking strategy by introducing stacking of noise vectors, which improves upon previous works (Yu, 1994) by removing temporal correlation completely. The estimation error can then be expressed in terms of the empirical covariance tail bound of the augmented noise distribution, where standard concentration inequalities for independent random variables can be applied. Another contribution, also at a more technical level, is deriving a tighter sample complexity bound for autoregressive with exogenous input (ARX) model identification. We specialize our general analysis to ARX models and show that, under suitable excitation and stability conditions, the dimension factor of the sample complexity depends only on the combined state and input dimension and is independent of the autoregressive order. This result is an improvement over existing bounds that scale with the order of the ARX model (Ziemann et al., 2024), where the complexity scales with q1/2 and q is the order of the ARX model. 
+
+Related Work Previous works dedicated to non-asymptotic sample complexity analysis have primarily focused on sub-Gaussian noise and generalized results for exponentially stable systems to marginally stable systems. Dean et al. (2017) first explored convergence of finite samples with multi-trajectory inputs. This was extended to single trajectory by Oymak and Ozay (2019) for the Markov parameter of the state-space model. Tsiamis et al. (2022) relaxed the noise distribution to i.i.d. sub-Gaussian noise, and is generalized by Ziemann et al. (2024); Simchowitz et al. (2018) to non-explosive or marginally stable systems. In particular, Simchowitz et al. (2018) avoids the mixing time argument and shows that marginally stable systems can be easier to estimate due to better signal-to-noise ratio. In comparison, our work focuses on exponentially stable systems and heavy-tailed noise and does not address marginally stable systems. Theoretical guarantees for sample complexity of systems affected by heavy-tailed distributions are limited. Perhaps most similar to our work is Faradonbeh et al. (2017), which explored OLS with sub-Weibull noise on a stable system, and obtained eO(T −1/2d1/2). However, their analysis only addressed distributions with exponentially decaying tails and not polynomially decaying tails. Our work extends the scope of noise distributions, such as Pareto and Student’s t-distributions, which can be captured by bounded pth moment assumptions. Sattar et al. (2025) also conducted analysis for OLS and relaxed the noise distribution to only bounded covariance but made a restrictive bounded input assumption. Recent work by Bakshi et al. (2023) considered noise distributions with only bounded 4th moment and guaranteed an upper bound of eO(T −1/2). The estimator studied therein requires the solution of a constraint system that is only guaranteed to be feasible under non-trivial 3conditions, thus limiting its applicability. Kanakeri and Mitra (2024) established a similar bound with a robust linear least-squares algorithm, but only for multi-trajectory data. We summarize existing results and compare to our work below. Let N be the number of trajectories, 
+
+d the state dimension, r the noise dimension, T the number of samples, dy the output dimension, du
+
+the input dimension, q the order of the ARX model, and ∆ the estimation error. • Dean et al. (2017): coarse-ID; OLS estimator; multi-trajectory; Gaussian noise; ∆ = O(d1/2N −1/2).• Oymak and Ozay (2019): Markov parameter of state-space model; OLS estimator; single-trajectory; stable system; Gaussian noise; ∆ = eO(d1/2T −1/2).• Ziemann et al. (2024): ARX; OLS estimator; single-trajectory; marginally stable system; sub-Gaussian noise; ∆ = eO(( q(dy + du)) 1/2T −1/2).• Faradonbeh et al. (2017): VAR; OLS estimator; single-trajectory; stable system; sub-Weibull noise; 
+
+∆ = eO(d1/2T −1/2).• Bakshi et al. (2023): Markov parameter of state-space model; an estimator based on a cus-tom constraint system; single-trajectory; marginally stable system; bounded 4th moment; T =Ω(log 3(1 /∆) /∆2).• Kanakeri and Mitra (2024): VAR; robust OLS estimator; multi-trajectory; bounded 4th moment; 
+
+∆ = O(d3/2T −1/2).• This work : VAR and ARX; OLS estimator; single-trajectory; stable system; under bounded pth moment for p > 2; ∆ = eO(T −1/2+1 /p r1/2).
+
+Organization The rest of the paper is organized as follows: Section 2 introduces the problem setting. Section 3 presents a unifying lemma for non-asymptotic sample complexity analysis. Section 4 applies the unifying lemma to bounded pth moment distributions. Section 5 specializes the results to ARX models. Section 6 concludes the paper. All the proofs are deferred to Appendices A to F. Numerical results are shown in Appendix G. 
+
+Notation We denote the set of real numbers and integers by R and Z, respectively. The set of positive (nonnegative) real numbers and integers are denoted by R>0 (R≥0) and Z>0 (Z≥0), respectively. Vector or matrix p-norms are represented by ∥ · ∥ p, and we let ∥ · ∥ = ∥ · ∥ 2. λmin (A) is the minimum eigenvalue of matrix A while λmax (A) is the maximum eigenvalue. 1(·) is the indicator function. Sd−1 denotes the unit sphere in Rd. For vectors x1, x 2, · · · , x n, we denote the concatenation of these vectors as (x1, x 2, · · · , x n) = [ x⊤ 
+
+> 1
+
+x⊤ 
+
+> 2
+
+· · · x⊤ 
+
+> n
+
+]⊤. We denote log p(x) = (log( x)) p for p ∈ R.
+
+# 2 Problem Formulation 
+
+We consider the VAR model, a linear dynamical system of the following form: 
+
+z0 = Ψ ξ0
+
+zt = Θ zt−1 + Ψ ξt, t = 1 , 2, · · · , T, 
+
+(1) where d, r, T ∈ Z>0 are system dimension, noise dimension, and trajectory length, Θ ∈ Rd×d and 
+
+Ψ ∈ Rd×r are unknown system parameters, {zt}Tt=0 is the sequence of system states in Rd, and 
+
+{ξt}Tt=0 is a sequence of random noise vectors in Rr. In system identification and model-based control, estimating Θ is the first step towards identifying system dynamics and designing control policies. Thus, we focus on the problem of identifying unknown Θ from the observations {zt}Tt=0 using the 4OLS estimator of the following form: 
+
+bΘ ∈ arg min 
+
+> Θ
+> T
+
+X
+
+> t=1
+
+∥zt − Θzt−1∥2 . (2) We will derive an upper bound on the estimation error ∥ bΘ−Θ∥ under a finite trajectory length T that holds with probability at least 1 − δ for some user-specified failure probability δ ∈ (0 , 1) , expressed in terms of the trajectory length T , noise dimension r, failure probability δ, and system-specific constants. 
+
+Generality of the Formulation System identification is often studied under ARX model formu-lations, which include control (exogenous input) terms. In Section 5, we will show the results derived for the estimator in (2) can be directly applied to identification of ARX model with exogenous inputs sampled from i.i.d. zero-mean distributions. Another popular setting is the state-space model, where the system states are not directly measured. One can perform ARX model identification as an intermediate step to identify the Markov parameters and recover the state-space model from the identified ARX model using subspace identification methods, such as the Ho-Kalman method (Van Overschee and de Moor, 1994; Qin, 2006; Oymak and Ozay, 2019). We do not explicitly analyze the error bound for state-space models since it can be derived from the ARX model. 
+
+# 3 Unifying Lemma for Error Bounds 
+
+We present the unifying lemma for analyzing the finite-sample error bound of the least squares estimator in (2). We derive the error bound for the estimate based on a set of sufficient conditions discussed in Assumption 1, such as i.i.d. and zero-mean noise, exponential stability, bounded effect of noise, and persistent excitation. We also make an assumption on the empirical covariance tail bound of the augmented noise vector discussed in Assumption 2, which is applicable to various noise distributions. We do not assume specific noise distributions for ξt in this section and defer that to Section 4, where we will establish sufficient conditions for Assumption 2 under specific noise distributions. The following are the main assumptions regarding the properties of the system in (1). 
+
+Assumption 1. Consider the system in (1) with d, r, T ∈ Z>0, Θ ∈ Rd×d, Ψ ∈ Rd×r, and ξt ∈ Rr.There exist L, β, σ ∈ R>0, α ∈ (0 , 1) , and tc ∈ Z>0, such that the following conditions hold: (a) I.i.d., zero-mean, unit covariance :
+
+ξ0, ξ 1, · · · , ξ T are i.i.d. , E[ξt] = 0 , E[ξtξ⊤ 
+
+> t
+
+] = I, ∀t = 0 , 1, · · · , T, (3) 
+
+(b) Stability :
+
+∥Θt∥ ≤ Lα t, ∀t = 0 , 1, · · · (4) 
+
+(c) Bounded effect of noise :
+
+ΨΨ ⊤ ⪯ σ2I (5) 
+
+(d) Persistent excitation :
+
+h
+
+Ψ ΘΨ · · · Θtc−1Ψ
+
+i h 
+
+Ψ ΘΨ · · · Θtc−1Ψ
+
+i⊤
+
+⪰ β2I (6) 5In Assumption 1(a), the zero-mean assumption is without loss of generality, as any non-zero mean can be absorbed into the system dynamics by redefining the state variable appropriately if Θ is stable. Unit-covariance is assumed (almost) without loss of generality, as any positive definite covariance matrix can be absorbed into Ψ by redefining Ψ ← ΨΣ 1/2 where Σ is the covariance matrix of ξt. Assumption 1(b) guarantees the system exponentially converges to the origin in the absence of noise (Oymak and Ozay, 2019). This condition is satisfied when |λ| < 1, for all eigenvalues λ of Θ. A weaker form is the non-explosive system employed by Simchowitz et al. (2018); Ziemann et al. (2024); Bakshi et al. (2023), where |λ| ≤ 1. In this work, we assume the stronger condition of exponential stability, as it allows us to express the estimation error bound in the form of augmented noise vectors with bounded length (see Assumption 2) by using the mixing time of the system. Assumption 1(c) bounds the covariance of the effect of noise Ψξt; that is, 
+
+E Ψξt(Ψ ξt)⊤ = ΨΨ ⊤ ⪯ σ2I. Assumption 1(d) ensures persistent excitation (Van Overschee and De Moor, 1996), which requires that the controllability matrix of the system up to time tc is full rank with the minimum singular value lower bounded by β. This means that, by selecting excitation signals appropriately, the system can reach any state in Rd within tc time steps. The input signals can excite all modes of the system, so the system is informative enough to identify the system parameters. Our next assumption introduces the covariance tail bound for the augmented noise defined below. 
+
+Assumption 2 (Bounded Tail Probability ). Consider the sequence of random variables (RVs) 
+
+{ξt}Tt=0 in (1). There exist ϵ ∈ R>0, δ ∈ (0 , 1) , and k ∈ Z>0 such that the following holds: 
+
+P
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+≥ ϵ
+
+#
+
+≤ δ, (7) 
+
+where ξt:t−k+1 = ( ξt, ξ t−1, · · · , ξ t−k+1 ), and ξt = 0 if t < 0 or t > T .
+
+The order of augmentation k is a tunable variable, which serves as the mixing time of the system in Lemma 1. This assumption is a generalization of the common concentration inequalities for empirical covariance matrices (Wainwright, 2019, chapter 6). Assumption 2 ensures that the difference between the empirical covariance and the true covariance is bounded with high probability. In Section 4, we will derive ϵ explicitly for different classes of noise distributions by leveraging distribution-related properties and applying concentration inequalities. The bound ϵ depends on the failure probability 
+
+δ, sample size T , noise dimension r, and distribution-dependent variables for ξt (e.g., pth moment). We present the unifying lemma for the estimation error bound under Assumptions 1 and 2: 
+
+Lemma 1. Suppose that Assumptions 1 and 2 hold with: 
+
+T ≥ 2tc, (8a) 
+
+k = max 
+
+
+
+tc,
+
+
+
+log (1 /α )
+
+ 16 σ2L2
+
+β2(1 − α)2
+
+ 
+
+,
+
+l
+
+log (1 /α ) T
+
+m
+
++ 1 , (8b) 
+
+ϵ ≤ β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T. (8c) 
+
+Then, with probability at least 1 − δ, the estimator bΘ in (2) is unique and the following holds: 
+
+bΘ − Θ ≤ 8σ2L
+
+(1 − α)β2
+
+ ϵT + 1
+
+T 1/2
+
+
+
+, (9) 
+
+where r, T, Θ are defined in (1), L, α, β, σ, t c are defined in Assumption 1, and k, δ, ϵ are defined in Assumption 2. 
+
+6Lemma 1 suggests that the estimation error can be expressed in the form of O(ϵ/T + T −1/2), and it can be rationalized as follows. The constants in front are related to system stability, persistent excitation, and the bounded effects of noise. As the system becomes less stable with L → ∞ and 
+
+α → 1, the error bound becomes looser. We emphasize the dichotomy between persistent excitation and noise covariance. When the system is more excitable with increasing β and data becomes more informative, the error bound becomes tighter; but when the noise covariance upper bound 
+
+σ2 increases and data is obscured by white noise, the error becomes larger. Our result depends on the empirical covariance tail bound ϵ defined in Assumption 2, which can be derived from distribution-specific tail properties of the noise. Therefore, ϵ/T can be interpreted as the inverse of a signal-to-noise ratio, dictating the error of the parameter estimate. The sample complexity analysis reduces to finding the explicit form of ϵ in terms of T , r, k, δ, and distribution-dependent variables for different classes of noise distributions, which we will discuss in the next section. The proof of Lemma 1 is given in Appendix A. A sketch is provided here. The estimation error of the OLS estimator in (2) can be decomposed into two terms: 
+
+bΘ − Θ ≤ ΞZ⊤ (ZZ ⊤)−1 , (10) where Z = [ z0 z1 · · · zT −1] and Ξ = [Ψ ξ1 Ψξ2 · · · ΨξT ]. We analyze the upper bound on the norms of ΞZ⊤ and (ZZ ⊤)−1. For upper bounding (ZZ ⊤)−1, the key challenge is the temporal correlation of the states {zt}T −1 
+
+> t=0
+
+. However, the correlation becomes exponentially weak due to (exponential) stability in Assumption 1(b). In other words, the stochastic process {zt}T −1 
+
+> t=0
+
+mixes exponentially fast. We exploit this property to decompose ZZ ⊤ in terms of the order of augmentation k, which is bounded below by the persistent excitation condition in Assumption 1(d), and the magnitude of the empirical covariance tail decay is controlled by Assumption 2. Upper bounding the norm of ΞZ⊤
+
+follows similar strategies. The result in Lemma 1 is then obtained by combining the upper bounds for (ZZ ⊤)−1 and ΞZ⊤ in (10). 
+
+# 4 Sample Complexity Bounds for Distributions with Bounded pth Moments 
+
+We now discuss several distribution-specific sufficient conditions for Assumption 2. We first de-scribe the k blocking strategy that decouples temporal correlation of the augmented noise vectors 
+
+{ξt:t−k+1 }Tt=1 defined in Assumption 2. This decomposition allows the application of distribution-specific concentration inequalities to derive ϵ and δ explicitly and establish the sample complexity bound of heavy-tailed distributions with bounded pth moment for p > 2 in Theorem 1. We demon-strate our technique on sub-Gaussian distributions in Appendix B and sub-exponential distributions in Appendix C for completeness. Our estimation error bounds will depend polynomially on the system-specific constants introduced in Assumption 1: 
+
+S := {L, σ, 1/(1 − α), log −1(1 /α ), 1/β, t c}, (11) along with a few more distribution-dependent terms to be introduced later. 
+
+Sketch of deriving empirical covariance tail bound We first decompose the term in (7) to a more convenient form for applying the subsequent concentration results. Recall the augmented noise vectors {ξt:t−k+1 }Tt=1 defined in (7). The main technical challenge is the temporal correlation of the empirical covariance matrix of the augmented noise vectors, as they share overlapping noise terms. 7ξ1: −1 ξ2:0 ξ3:1 ξ4:2 ξ5:3 ξ6:4 ξT −2: T −4ξT −1: T −3 ξT :T −2
+
+ξ1 ξ2 ξ3 ξ4 ξ5 ξ6 · · · ξT −2 ξT −1 ξT
+
+ξ0 ξ1 ξ2 ξ3 ξ4 ξ5 · · · ξT −3 ξT −2 ξT −1
+
+0 ξ0 ξ1 ξ2 ξ3 ξ4 · · · ξT −4 ξT −3 ξT −2
+
+
+
+Ξk =
+
+Figure 1: Intuition behind empirical covariance decomposition using k blocking when k = 3 .We address this by dividing the augmented noise vectors ξ(k,i ) 
+
+> τ
+
+into k groups such that ξ(k,i ) 
+
+> τ
+
+in each group are independent. Figure 1 shows the intuition, where ξ(k,i ) 
+
+> τ
+
+of the same color are in one group. The first k augmented noise vectors are treated as a special case because some components are zero-padded vectors, so they do not satisfy the identical distribution condition. Writing algebraically, we can express (7) in the form of grouped summations as follows: 
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+(12) 
+
+=
+
+> k−1
+
+X
+
+> i=0
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+| {z }
+
+> ∆1,k
+
+| {z }
+
+> ∆1
+
++
+
+> k−1
+
+X
+
+> i=0
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i| {z }
+
+> ∆2,k
+
+| {z }
+
+> ∆2
+
+,
+
+where ξ(k,i ) 
+
+> τ
+
+= ξτ k +i+1: τ k +i+2 −k and T (k,i ) =  T −i−1
+
+> k
+
+.We note that in (12), ∆1 represents the majority of the T samples and contains k groups of summation, where ∆1,k is composed of the summation of independent RVs. ∆2 contains the “left-over” terms with summation of k terms, and each ∆2,k is a single random matrix. This decomposition allows us to apply the standard concentration inequalities for the empirical covariance of the i.i.d. augmented noise vectors ξ(k,i ) 
+
+> τ
+
+to bound ∆1 and that for a single vector ξ(k,i )0 to bound ∆2. Finally, we can combine these empirical covariance tail bounds to establish the bound in (7). This is the primary approach used for deriving ϵ of the noise distributions considered in the following result. 
+
+Main Result We establish the main result of this work, sample complexity bound for distributions with bounded pth moment for p > 2, which covers common heavy-tail distributions such as Student’s t, Pareto, and log-normal distributions. Our main result Theorem 1 shows that as the number of bounded moments becomes limited, the sample complexity upper bound degrades by T 1/p .
+
+Theorem 1 (Sample Complexity for Bounded pth Moment) . Suppose that Assumption 1 holds, and for all t = 0 , 1, · · · , T ,
+
+E[∥ξt∥p] ≤ κr p/ 2 (13) 
+
+with fixed p such that p > 2 and κ ∈ R>0. There exist p-dependent polynomials poly 1(·) and poly 2(·)
+
+such that for given δ ∈ (0 , 1) , if 
+
+T ≥ poly 1 (S ∪ { r, 1/δ, κ }) (14) 8then the following holds with probability at least 1 − δ:
+
+bΘ − Θ ≤ poly 2 (S ∪ { log( T ), log( r), 1/δ, κ }) r1/2T −1/2+1 /p , (15) 
+
+where r, T, Θ are defined in (1), bΘ is defined in (2), L, α, β, σ, t c are defined in Assumption 1, and S
+
+is defined in (11). 
+
+The proof is detailed in Appendix D. We first find an explicit form of ϵ using Lemma 4 by deriving the empirical covariance tail bound of the augmented noise vectors in (12) using the Markov inequality and bounded pth moment property in Proposition 2. For sufficiently large T , we can apply the general concentration inequality (Wainwright, 2019, Corollary 6.20) for bounded distributions using a truncation technique on the augmented noise vectors. Lastly, we apply Lemma 1 to find the final sample complexity bound. Our result shows that for fixed p, the estimation error is eO(r1/2T −1/2+1 /p ) with probability at least 
+
+1 − δ for sufficiently large T satisfying the conditions in (14). Our sample complexity bound retains the dimension scale r1/2 similar to the sub-Gaussian distributions in Theorem 3 and sub-exponential distributions in Theorem 4. Additionally, the bound is expressed in terms of the noise dimension r,not the system dimension d, whereas previous works have established the bound with respect to 
+
+d. Thus, our result can be more advantageous for certain rank-deficient systems where r < d . See Section 5 on the ARX model for more discussion. Different from the sample complexity bounds recovered for light-tailed distributions, the heavy-tailed result deteriorates by a factor of T 1/p , and the error depends on 1/δ rather than log(1 /δ ). More precisely, the error depends on (1 /δ )1/p log(1 /δ ), which converges to log(1 /δ ) when all moments are finite. The estimation error also increases polynomially with κ, the upper bound of the pth moment. When p → ∞ , the error bound matches with that of light-tailed distributions, which is expected as they have infinitely many bounded moments. As p → 2, the estimation deteriorates by T 1/p ,indicating slower convergence when the number of bounded moments is limited and the tail of the noise distribution becomes heavier. 
+
+Remark 1. Our sample complexity bounds only address exponentially stable systems and do not apply to marginally stable systems, which can be observed from the prefactors of poly 2(·): 1/(1 − α) that diverge as α → 1. Our approach relies on Lemma 1, which requires system stability to decouple the temporal noise correlation. Previous works from Simchowitz et al. (2018); Ziemann et al. (2024) have shown sample complexity bounds for marginally stable systems with sub-Gaussian noise. Specifically, Simchowitz et al. (2018) employs the small-ball method and Ziemann et al. (2024) uses a less stringent lower empirical covariance tail bound specific to sub-Gaussian distributions. Ziemann et al. (2024)’s result depends on 1/λ min (E[ztz⊤ 
+
+> t
+
+]) , where λmin (E[ztz⊤ 
+
+> t
+
+]) may grow linearly in T and makes the error bound O(T 0) in the worst case. But it provides a more granular sample complexity bound when the above-mentioned minimum eigenvalue grows slower than linearly in T .
+
+Remark 2. Numerical simulation results are provided in Appendix G to demonstrate the sample complexity bounds for heavy-tailed noise distributions with bounded pth moment using the ARX model. The simulations do not show that heavy-tailed distributions, such as the Student’s t and Pareto distributions, deviate from T −1/2 when p is close to 2, which suggests that the error bound is tighter than what our results state. Thus, investigating the optimality of the T 1/p dependence and a matching lower bound in the estimation error bound is an important future direction. 
+
+95 Special Case: ARX Model 
+
+We now consider the ARX model as a special case to our setting in Section 2 and describe the sufficient conditions such that Assumption 1 is satisfied for the ARX model. Consider the following ARX model with randomly sampled inputs: 
+
+yt =
+
+> q
+
+X
+
+> i=1
+
+(Aiyt−i + Biut−i) + F w t, ut = Gv t, (16) where ut ∈ Rdu is the input, yt ∈ Rdy is the output, vt is an RV taking values in Rdu , wt is the random noise taking values in Rdy , Ai ∈ Rdy ×dy , Bi ∈ Rdy ×du , F ∈ Rdy ×dy , and G ∈ Rdu×du are unknown system parameters. The random sequence {ut}Tt=−q+1 is injected as inputs shown in (16) for persistent excitation. We observe that (16) can be rewritten in the form of (1), recovering the structure of the VAR model. This is explicitly shown in (114) of Appendix E. The system parameters {Ai}qi=1 and {Bi}qi=1 are estimated from the input-output data {(ut, y t)}Tt=−q+1 ,where (ut, y t) are zero vectors for t < 0. The least-squares estimator can be defined as follows: 
+
+{ bAi, bBi}qi=1 ∈ arg min 
+
+> {Ai,B i}qi=1
+> T
+
+X
+
+> t=1
+
+yt −
+
+> q
+
+X
+
+> i=1
+
+(Aiyt−i + Biut−i)
+
+> 2
+
+. (17) Due to row-wise independence of the least-squares estimation, { bAi, bBi}qi=1 can be recovered from bΘ,which is estimated using OLS. Therefore, it suffices to analyze the performance of the estimator in (2) applied to the ARX model, where the sample complexity results established in Sections 3 and 4 can be directly used for ARX model identification (17). We now introduce such sufficient conditions. 
+
+Assumption 3. Consider the ARX model in (16), written explicitly in the augmented form in (114). (a) We assume ξt = ( wt, v t) satisfies the conditions in Assumption 1(a). (b) For given cA, c B , c C , c D ∈ R>0 and γ ∈ (0 , 1) , we assume the following: 
+
+∥At∥ ≤ cAγt, ∀t = 0 , 1, · · · , ∥B∥ ≤ cB , ∥C∥ ≤ cC , ∥D∥ ≤ cD,
+
+where 
+
+A =
+
+
+
+A1 · · · Aq−1 Aq
+
+I · · · 0 0
+
+... . . . ... ...
+
+0 · · · I 0
+
+
+
+C =
+
+
+
+I −A1 · · · − Aq−1
+
+0 . . . . . . ...... . . . . . . −A1
+
+0 · · · 0 I
+
+
+
+B =
+
+
+
+B1 · · · Bq−1 Bq
+
+0 · · · · · · 0
+
+... . . . . . . ...
+
+0 · · · · · · 0
+
+
+
+D =
+
+
+
+0 −B1 · · · − Bq−1
+
+0 . . . . . . ...... . . . . . . −B1
+
+0 · · · 0 0
+
+ .
+
+(18) 
+
+(c) F and G are square matrices, and the following holds for given σF , σ F , σ G, σ G > 0:
+
+σ2 
+
+> F
+
+I ⪯ F F ⊤ ⪯ σ2 
+
+> F
+
+I, σ2
+
+> G
+
+I ⪯ GG ⊤ ⪯ σ2
+
+> G
+
+I. 
+
+10 Assumption 3(a) restates Assumption 1(a) for the noise term ξt. Assumption 3(b) guarantees the stability of the submatrix A and the boundedness of B, which is sufficient to ensure the stability of the augmented system. The bounds on C and D are introduced to show the persistent excitation property of the covariates. Assumption 3(c) assumes the noise injection matrices F and G are bounded and thus invertible. The upper bound condition is related to the bounded effect of noise condition in Assumption 1(c), while the lower bound condition is related to the persistent excitation condition in Assumption 1(d). We are now ready to state the specialization of our main results on the ARX model. 
+
+Theorem 2. Under Assumption 3, the conditions in Assumption 1 are satisfied with 
+
+d = q(dy + du), r = dy + du, L =
+
+
+
+max( cA, γ −q) + cAcB γ−1 γ−q − 1
+
+γ−1 − 1
+
+
+
+, α = γ, β = min( σF , σ G)max(1 , c C ) + cD
+
+, σ = max( σF , σ G), tc = q, 
+
+(19) 
+
+where q, d y, d u are defined in (16), cA, c B , c C , c D, γ, σ F , σ F , σ G, σ G are defined in Assumption 3. Thus, Theorems 1, 3 and 4 hold with Assumption 1 replaced by Assumption 3 with d, r, L, α, β, σ, t c
+
+in (19). 
+
+The proof is detailed in Appendix F. Our result shows that the error bound is eO(( dy +du)1/2T −1/2+1 /p )
+
+for bounded pth moment noise with p > 2, and eO(( dy + du)1/2T −1/2) for sub-Gaussian and sub-exponential noise, with high probability and sufficiently large T .
+
+Remark 3. Compared to the existing error bounds for ARX model identification in the literature, our result in Theorem 2 has the following advantage: Theorem 2 does not explicitly depend on the order of the ARX model q. Thus, when the model order is large, our result enjoys a tighter sample complexity bound than the existing results that depend on q explicitly (Ziemann et al., 2024). This improvement was made by decoupling the system dimension d and the noise dimension r in (1), and by expressing the sample complexity in terms of r instead of d. For the ARX model in (16), the noise dimension r = dy + du is substantially smaller than the system dimension d = q(dy + du) when the model order q is large. Note that system-dependent coefficients can be dependent of q. Specifically, the q dependence appears in the stability coefficient L due to explicit bounding of A, which can be removed if expressed in terms of the system matrices. When T becomes large, specifically T ≥ α−tc ,the dependence on tc becomes negligible, as expressed in (8b). 
+
+# 6 Conclusion 
+
+This work analyzed non-asymptotic sample complexity of linear system identification concerning exponentially stable systems subjected to heavy-tailed noise distributions with bounded pth moment for p > 2. We provide a unifying lemma applicable to general noise distributions, and we further demonstrate our approach to sub-Gaussian and sub-exponential distributions, establishing compet-itive sample complexity bounds for each noise distribution class. Our results reveal that sample complexity depends on the controllability properties of the system and the tail behavior of the noise distribution. Specifically, we found that for systems affected by heavy-tailed distributions, the sample complexity deteriorates with decreasing number of bounded moments p. Lastly, we specialized our results to the ARX model, where the model dimension of the parameter error does not explicitly depend on the autoregressive order, thus demonstrating that our framework can improve upon existing results in literature. 11 There remain open questions from our work. Our technique relies on a mixing time argument due to exponential stability assumption, which can be avoided for OLS of light-tailed noise (Simchowitz et al., 2018; Ziemann et al., 2024). Can this also be avoided for heavy-tailed noise? Additionally, the 
+
+T 1/p dependence of heavy-tailed distribution suggested by our theoretical results is not corroborated by the numerical results. This suggests that our approach, applying a truncation technique on a Markov inequality, may be loose, and it is possible that a more refined analysis can yield a tighter bound. Future work includes deriving the lower sample complexity bound, extending our analysis to marginally stable systems, and addressing heavy-tailed noise distributions with bounded pth moment for p ≤ 2.
+
+# Acknowledgments 
+
+This material is based upon work supported by the U.S. Department of Energy, Office of Science, Office of Advanced Scientific Computing Research, Department of Energy Computational Science Graduate Fellowship under Award Number DE-SC0025528. Disclaimer: This report was prepared as an account of work sponsored by an agency of the United States Government. Neither the United States Government nor any agency thereof, nor any of their employees, makes any warranty, express or implied, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights. Reference herein to any specific commercial product, process, or service by trade name, trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, recommendation, or favoring by the United States Government or any agency thereof. The views and opinions of authors expressed herein do not necessarily state or reflect those of the United States Government or any agency thereof. 
+
+# References 
+
+Ainesh Bakshi, Allen Liu, Ankur Moitra, and Morris Yau. A new approach to learning linear dynamical systems. In Proceedings of the 55th Annual ACM Symposium on Theory of Computing ,pages 335–348, New York, NY, USA, 2 June 2023. ACM. doi: 10.1145/3564246.3585247. Sarah Dean, Horia Mania, Nikolai Matni, Benjamin Recht, and Stephen Tu. On the sample complexity of the linear quadratic regulator, 2017. URL https://arxiv.org/abs/1710.01688 .Mohamad Kazem Shirani Faradonbeh, Ambuj Tewari, and George Michailidis. Finite time identifi-cation in unstable linear systems. arXiv [cs.SY] , 4 October 2017. Maryam Fazel, Rong Ge, S Kakade, and M Mesbahi. Global convergence of policy gradient methods for the linear quadratic regulator. ICML , 80:1466–1475, 15 January 2018. Bin Hu, Kaiqing Zhang, Na Li, Mehran Mesbahi, Maryam Fazel, and Tamer Başar. Toward a theoretical foundation of policy optimization for learning control policies. Annual Review of Control, Robotics, and Autonomous Systems , 6(1):123–158, 2023. Vinay Kanakeri and Aritra Mitra. Outlier-robust linear system identification under heavy-tailed noise. arXiv [eess.SY] , 31 December 2024. 12 Lennart Ljung. System identification. In Signal analysis and prediction , pages 163–173. Springer, 1998. Jayakrishnan Nair, Adam Wierman, and Bert Zwart. The fundamentals of heavy tails: Properties, emergence, and estimation . Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge University Press, Cambridge, England, 9 June 2022. doi: 10.1017/9781009053730. Samet Oymak and Necmiye Ozay. Non-asymptotic Identification of LTI Systems from a Single Trajectory, 2019. URL http://arxiv.org/abs/1806.05722 .S Joe Qin. An overview of subspace identification. Comput. Chem. Eng. , 30(10-12):1502–1513, 12 September 2006. doi: 10.1016/j.compchemeng.2006.05.045. S Joe Qin and Thomas A Badgwell. An overview of industrial model predictive control technology. In AIche symposium series , volume 93, pages 232–256. New York, NY: American Institute of Chemical Engineers, 1971-c2002., 1997. James Blake Rawlings, David Q Mayne, and Moritz Diehl. Model predictive control: Theory, computation, and design . No ll Publishing, Madison, Wisconsin, 2 edition, 2017. Ugo Rosolia, Xiaojing Zhang, and Francesco Borrelli. Data-driven predictive control for autonomous systems. Annu. Rev. Control Robot. Auton. Syst. , 1(1):259–286, 28 May 2018. doi: 10.1146/ annurev-control-060117-105215. Yahya Sattar, Yassir Jedra, and Sarah Dean. Learning linear dynamics from bilinear observations. In 2025 American Control Conference (ACC) , pages 3109–3115. IEEE, 8 July 2025. doi: 10.23919/ acc63710.2025.11107791. Max Simchowitz, Horia Mania, Stephen Tu, Michael I Jordan, and Benjamin Recht. Learning without mixing: Towards a sharp analysis of linear system identification. arXiv [cs.LG] , 22 February 2018. Richard S Sutton and Andrew G Barto. Reinforcement Learning: An Introduction . Adaptive Com-putation and Machine Learning series. Bradford Books, Cambridge, MA, 2 edition, 13 November 2018. Anastasios Tsiamis, Ingvar Ziemann, Nikolai Matni, and George J Pappas. Statistical learning theory for control: A finite sample perspective. arXiv [eess.SY] , 12 September 2022. Peter Van Overschee and Bart de Moor. N4SID: subspace algorithms for the identification of combined deterministic- stochastic systems. No. I. pp. , 75:93, 1994. Peter Van Overschee and Bart De Moor. Subspace identification for linear systems . Springer US, Boston, MA, 1996. doi: 10.1007/978-1-4613-0465-4. Martin J. Wainwright. High-Dimensional Statistics: A Non-Asymptotic Viewpoint . Cambridge Series in Statistical and Probabilistic Mathematics. Cambridge University Press, Cambridge, 2019. ISBN 978-1-108-49802-9. doi: 10.1017/9781108627771. Bin Yu. Rates of convergence for empirical processes of stationary mixing sequences. Ann. Probab. ,22(1):94–116, 1 January 1994. doi: 10.1214/aop/1176988849. Ingvar Ziemann, Anastasios Tsiamis, Bruce Lee, Yassir Jedra, Nikolai Matni, and George J. Pappas. A Tutorial on the Non-Asymptotic Theory of System Identification, June 2024. 13 A Proof of Lemma 1 
+
+This section proves Lemma 1, which generalizes the upper bound of parameter estimation error as expressed in (10) for any noise distribution. We first find the analytical solution to the parameter error in Section A.1. We then decompose the empirical covariance and define our notation for the proof in Section A.2. Section A.3 finds the lower bound of ∥ZZ ⊤∥ and Section A.4 shows the upper bound of ∥ΞZ⊤∥. Lastly, the final bound is observed in Section A.5. 
+
+A.1 Decomposition of error terms 
+
+We first consider a decomposition of the estimation error. The least-squares formulation in (2) can be rewritten as follows: 
+
+min  
+
+> Θ
+
+Z − ΘZ 2 
+
+> F
+
+, (20) where Z = [ z0 z1 · · · zT −1] and Z = [ z1 z2 · · · zT ]. Temporarily assuming ZZ ⊤ ≻ 0 (it will be shown in Section A.3 that this condition holds under Assumptions 1 and 2), the solutions to (20) can be expressed as follows: 
+
+bΘ = ZZ ⊤(ZZ ⊤)−1. (21) Furthermore, one can observe that 
+
+Z = Θ Z + Ξ , (22) where Ξ = [Ψ ξ1 Ψξ2 · · · ΨξT ]. By right-multiplying Z⊤(ZZ ⊤)−1 to both sides of (22), we obtain: 
+
+bΘ − Θ = Ξ Z⊤(ZZ ⊤)−1. (23) The error decomposition in (10) follows from (23). 14 A.2 Empirical covariance decomposition 
+
+We first derive a decomposition of the empirical covariance matrix 
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+=
+
+
+
+ξ1 ξ2 · · · ξk−1 · · · ξT
+
+ξ0 ξ1 · · · ξk−2 · · · ξT −1
+
+0 ξ0 · · · ξk−3 · · · ξT −2
+
+... ... . . . ... . . . ...
+
+0 0 · · · ξ0 · · · ξT −k+1 
+
+
+
+ξ1 ξ2 · · · ξk−1 · · · ξT
+
+ξ0 ξ1 · · · ξk−2 · · · ξT −1
+
+0 ξ0 · · · ξk−3 · · · ξT −2
+
+... ... . . . ... . . . ...
+
+0 0 · · · ξ0 · · · ξT −k+1 
+
+
+
+> ⊤
+
+=
+
+
+
+Ξ−1
+
+Ξ0
+
+...
+
+Ξk−2
+
+
+
+Ξ−1
+
+Ξ0
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+=
+
+
+
+Ξ−1Ξ⊤−1 Ξ−1Ξ⊤ 
+
+> 0
+
+· · · Ξ−1Ξ⊤
+
+> k−2
+
+Ξ0Ξ⊤−1 Ξ0Ξ⊤ 
+
+> 0
+
+· · · Ξ0Ξ⊤
+
+> k−2
+
+... ... . . . ...
+
+Ξk−2Ξ⊤−1 Ξk−2Ξ⊤ 
+
+> 0
+
+· · · Ξk−2Ξ⊤
+
+> k−2
+
+
+
+=
+
+bQ−1,−1 bQ−1,0 · · · bQ−1,k −2
+
+bQ0,−1 bQ0,0 · · · bQ0,k −2
+
+... ... . . . ...
+
+bQk−2,−1 bQk−2,0 · · · bQk−2,k −2
+
+
+
+(24) where 
+
+Ξt := ξ−t ξ−t+1 · · · ξ−t+T −1
+
+ , Qt,t ′ := E[Ξ tΞ⊤ 
+
+> t′
+
+], bQt,t ′ := Ξ tΞ⊤ 
+
+> t′
+
+. (25) Similarly, 
+
+E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+=
+
+
+
+Q−1,−1 Q−1,0 · · · Q−1,k −2
+
+Q0,−1 Q0,0 · · · Q0,k −2
+
+... ... . . . ...
+
+Qk−2,−1 Qk−2,0 · · · Qk−2,k −2
+
+ . (26) 
+
+A.3 Lower bound of ZZ ⊤
+
+We express the matrix Z as follows: 
+
+Z = z0 z1 z2 · · · zT −1
+
+
+
+= Ψ ΘΨ Θ 2Ψ · · · ΘT −1Ψ
+
+ξ0 ξ1 · · · ξT −1
+
+0 ξ0 · · · ξT −2
+
+... ... . . . ...
+
+0 0 · · · ξ0
+
+
+
+= Ψ ΘΨ Θ 2Ψ · · · ΘT −1Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+ΞT −1
+
+ .
+
+15 We now decompose the matrix ZZ ⊤ as follows: 
+
+ZZ ⊤ = Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
++ Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
++ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+> ⊤
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ⊤
+
++ Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+> ⊤
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ⊤ .
+
+(27) We can further decompose the first term in (27) in the following way: 
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤ (28a) 
+
+> (24)
+
+= Ψ ΘΨ Θ 2Ψ · · · Θk−2ΨbQ0,0 · · · bQ0,k −2
+
+... ...
+
+bQk−2,0 · · · bQk−2,k −2
+
+ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤ (28b) 
+
+> (26)
+
+= Ψ ΘΨ Θ 2Ψ · · · Θk−2ΨbQ0,0 − Q0,0 · · · bQ0,k −2 − Q0,k −2
+
+... ...
+
+bQk−2,0 − Qk−2,0 · · · bQk−2,k −2 − Qk−2,k −2
+
+ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
+(28c) 
+
++ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Q0,0 · · · Q0,k −2
+
+... ...
+
+Qk−2,0 · · · Qk−2,k −2
+
+ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤ . (28d) 
+
+Lower bound of the first term in (27) Recall (25) and observe that 
+
+Qt,t ′ =
+
+
+
+0, t̸ = t′,
+
+(T − t)I, t = t′ ≥ 0,T I, t = t′ = −1,
+
+(29) 16 due to Assumption 1(a). Thus, we can lower bound the term in (28d) in the following way: 
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Q0,0 · · · Q0,k −2
+
+... ...
+
+Qk−2,0 · · · Qk−2,k −2
+
+ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
+= Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+T I 0 · · · 00 (T − 1) I · · · 0
+
+... ... . . . ...
+
+0 0 · · · (T − k + 2) I
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
+> (8 b)
+
+⪰ (T − tc + 1) 
+
+h
+
+Ψ ΘΨ Θ 2Ψ · · · Θtc−1Ψ
+
+i h 
+
+Ψ ΘΨ Θ 2Ψ · · · Θtc−1Ψ
+
+i⊤ 
+
+> Ass. 1( d)
+
+⪰ (T − tc + 1) β2I. 
+
+(30) By Assumption 2, the following holds with probability at least 1 − δ:
+
+bQ0,0 − Q0,0 · · · bQ0,k −2 − Q0,k −2
+
+... ...
+
+bQk−2,0 − Qk−2,0 · · · bQk−2,k −2 − Qk−2,k −2
+
+ ≤ ϵ; (31) Here, recall the definition of bQi,j and Qi,j in (25). We note that Assumption 2 provides an upper bound to the matrix in (31) appended by more rows and columns. Since adding rows or columns to a matrix will only increase its norm, (31) also holds with probability at least 1 − δ. By compiling (28), (30) and (31), we obtain the following with probability at least 1 − δ:
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
+⪰ − ϵ
+
+> k−2
+
+X 
+
+> τ=0
+
+Θτ ΨΨ ⊤Θτ ⊤ + ( T − tc + 1) β2I
+
+⪰
+
+
+
+(T − tc + 1) β2 − L2σ2
+
+1 − α2 ϵ
+
+
+
+I. 
+
+(32) The last inequality follows from the following observation, which derives from Assumption 1(b): 
+
+∥ΨΨ ⊤∥ + ∥ΘΨΨ ⊤Θ⊤∥ + · · · + ∥Θk−2ΨΨ ⊤Θ(k−2) ⊤∥ ≤ σ2 
+
+∥I∥ + ∥Θ∥∥ Θ⊤∥ + · · · 
+
+
+
+≤ σ2L2  1 + α2 + α4 + · · · 
+
+= σ2L2/(1 − α2).
+
+17 Upper bound of the first term in (27) For the upper bound, we use a similar logic as the proof of the inequality above. Specifically, the following is obtained from (28): 
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤ 
+
+> (29) ,Ass. 2
+
+⪯ (T + ϵ) Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ  Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤ 
+
+> Ass. 1( c)
+
+⪯ (T + ϵ)σ2 I Θ Θ 2 · · · Θk−2  I Θ Θ 2 · · · Θk−2⊤
+
+⪯ (T + ϵ)σ2(∥I∥ + ∥ΘΘ ⊤∥ + · · · + ∥Θk−2Θ(k−2) ⊤∥)I 
+
+> Ass. 1( b)
+
+⪯ σ2L2
+
+1 − α2 (T + ϵ)I. 
+
+Bound of the second term in (27) By the definition of bQt,t in (25), one can see that for all 
+
+t = 0 , 1, · · · , T − 1,
+
+∥Ξt∥ = ∥ bQt,t ∥1/2
+
+and 
+
+bQ0,0 ⪰ bQt,t .
+
+Therefore, 
+
+∥Ξt∥ = ∥ bQt,t ∥1/2
+
+≤ ∥ bQ0,0∥1/2
+
+≤ (∥ bQ0,0 − Q0,0∥ + ∥Q0,0∥)1/2
+
+By Assumption 2, ∥ bQ0,0 − Q0,0∥ ≤ ϵ, and by (29), 
+
+∥Q0,0∥ ≤ T. 
+
+Thus, we have for all t = 0 , 1, · · · , T − 1,
+
+∥Ξt∥ ≤ (ϵ + T )1/2. (33) This implies 
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+ ≤ ∥ Θk−1ΨΞ k−1∥ + · · · + ∥ΘT −1ΨΞ T −1∥
+
+> (33)
+
+≤ (ϵ + T )1/2∥Ψ∥(∥Θk−1∥ + · · · + ∥ΘT −1∥) 
+
+> Ass. 1( b)
+
+≤ (ϵ + T )1/2 σLα k−1
+
+1 − α .
+
+(34) 18 Furthermore, 
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+ ≤ ∥ Ξ0∥∥ Ψ∥ + ∥Ξ1∥∥ Θ∥∥ Ψ∥ + · · · + ∥Ξk−2∥∥ Θk−2∥∥ Ψ∥ 
+
+> (33) ,Ass. 1( c)
+
+≤ (ϵ + T )1/2σ(1 + ∥Θ∥ + · · · + ∥Θk−2∥) 
+
+> Ass. 1( b)
+
+≤ (ϵ + T )1/2 σL 
+
+1 − α .
+
+(35) Finally, we obtain the following upper bound from (34) and (35): 
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
+≤ (ϵ + T )1/2 σLα k−1
+
+1 − α (ϵ + T )1/2 σL 
+
+1 − α
+
+= ( ϵ + T ) σ2L2αk−1
+
+(1 − α)2 .
+
+(36) 
+
+Putting everything together From (36), we have 
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ⊤
+
++ Ψ ΘΨ Θ 2Ψ · · · Θk−2Ψ
+
+Ξ0
+
+Ξ1
+
+...
+
+Ξk−2
+
+
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+> ⊤
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ⊤
+
+⪰ − 2( ϵ + T ) σ2L2αk−1
+
+(1 − α)2 I. 
+
+(37) Additionally, we additionally observe that 
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+Ξk−1
+
+Ξk
+
+...
+
+ΞT −1
+
+
+
+> ⊤
+
+Θk−1Ψ Θ kΨ · · · ΘT −1Ψ⊤ ⪰ 0. (38) By compiling (27), (32), (37) and (38), we obtain 
+
+ZZ ⊤ ⪰
+
+
+
+(T − tc + 1) β2 − ϵ σ2L2
+
+1 − α2 − 2( ϵ + T ) σ2L2αk−1
+
+(1 − α)2
+
+
+
+I. (39) 19 By (8), we have that 
+
+T − tc + 1 ≥ T / 22σ2L2
+
+(1 − α)2 αk−1 ≤ β2
+
+8
+
+ϵ
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+
+
+≤ T β 2
+
+8 ,
+
+yielding 
+
+ZZ ⊤ ⪰ T β 2
+
+4 I. (40) 
+
+A.4 Upper bound of ΞZ⊤
+
+Recall the definition of Ξ in (22) and that of Ξt in (25), we have Ξ = ΨΞ −1, so 
+
+ΞZ⊤ = Ξ 
+
+
+
+Ξ0
+
+Ξ1
+
+...
+
+ΞT −1
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · ΘT −1Ψ⊤
+
+=
+
+
+
+Ξ0Ξ⊤−1Ψ⊤
+
+Ξ1Ξ⊤−1Ψ⊤
+
+...
+
+ΞT −1Ξ⊤−1Ψ⊤
+
+
+
+> ⊤
+
+Ψ ΘΨ Θ 2Ψ · · · ΘT −1Ψ⊤
+
+= 
+
+> T−1
+
+X
+
+> t=0
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤
+
+We can decompose ΞZ⊤ into the following, 
+
+ΞZ⊤ =
+
+> k−2
+
+X
+
+> t=0
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤ + 
+
+> T−1
+
+X
+
+> t=k−1
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤, (41) and we bound the two terms separately. 
+
+Upper bound of the first term in (41) 
+
+> k−2
+
+X
+
+> t=0
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤ ≤
+
+> k−2
+
+X
+
+> t=0
+
+Ψ( bQ−1,t − Q−1,t )Ψ ⊤(Θ t)⊤ +
+
+> k−2
+
+X
+
+> t=0
+
+ΨQ−1,t Ψ⊤(Θ t)⊤
+
+≤
+
+> k−2
+
+X
+
+> t=0
+
+∥( bQ−1,t − Q−1,t )∥∥ Θt∥∥ Ψ∥2 +
+
+> k−2
+
+X
+
+> t=0
+
+∥Q−1,t ∥∥ Θt∥∥ Ψ∥2,
+
+(42) 20 by triangle and sub-multiplicativity inequality. We then invoke Assumptions 1 and 2 to obtain 
+
+> k−2
+
+X
+
+> t=0
+
+∥( bQ−1,t − Q−1,t )∥∥ Θt∥∥ Ψ∥2 ≤ ϵ
+
+> k−2
+
+X
+
+> t=0
+
+Lα tσ2,
+
+≤ ϵ σ2L
+
+1 − α .
+
+(43) Additionally, since {ξt} is an independent sequence with zero mean (due to Assumption 1), we have 
+
+> k−2
+
+X
+
+> t=0
+
+∥Q−1,t ∥∥ Θt∥ = 0 . (44) Thus, combining (42) to (44), we obtain 
+
+> k−2
+
+X
+
+> t=0
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤ ≤ ϵ σ2L
+
+1 − α . (45) 
+
+Upper bound of the second term in (41) We can not invoke Assumption 2 for the second term of (41) due to t ≥ k − 1, so we bound Ξ−1 and Ξt separately. Similar to (33), we can upper bound 
+
+∥Ξ−1∥ ≤ (ϵ + T )1/2 (46) by Assumption 1(a) and Assumption 2. By triangle and sub-multiplicativity inequality,  
+
+> T−1
+
+X
+
+> t=k−1
+
+Ψ bQ−1,t Ψ⊤(Θ t)⊤ Ass. 1( c)
+
+≤ σ2 
+
+> T−1
+
+X
+
+> t=k−1
+
+∥Ξ−1∥∥ Ξt∥∥ Θt∥
+
+> (33) ,(46)
+
+≤ σ2(ϵ + T ) 
+
+> T−1
+
+X
+
+> t=k−1
+
+∥Θt∥≤ σ2(ϵ + T ) Lα k−1
+
+1 − α
+
+(47) 
+
+Putting everything together Combining (45) and (47), we obtain 
+
+ΞZ⊤ ≤ ϵ σ2L
+
+1 − α + ( ϵ + T ) σ2Lα k−1
+
+1 − α
+
+> (8)
+
+≤ ϵ(1 + αk−1) σ2L
+
+1 − α + σ2L
+
+1 − α T 1/2
+
+≤ σ2L
+
+1 − α (2 ϵ + T 1/2)
+
+(48) 
+
+A.5 Final bound 
+
+Finally, by combining (10), (40) and (48), we have that with probability at least 1 − δ, the estimator is unique (due to (40)) and obtain the bound in (9). 21 B Sample Complexity of sub-Gaussian Distribution 
+
+This section considers sub-Gaussian noise distributions. We provide this result to demonstrate the general applicability of Lemma 1 and to provide a baseline for comparison with other distribution classes. First, we provide the definition of sub-Gaussian distributions. 
+
+Definition 1. An r-dimensional, zero-mean RV X is called ρ-sub-Gaussian with ρ ∈ R>0 if 
+
+E
+
+h
+
+eλ⟨v,X ⟩i
+
+≤ eρ2λ2/2, ∀λ ∈ R, ∀v ∈ Sr−1.
+
+We are now ready to state the sample complexity result for sub-Gaussian noise. 
+
+Theorem 3 (Sample Complexity for sub-Gaussian Noise) . Suppose that Assumption 1 holds, and 
+
+ξt is ρ-sub-Gaussian with ρ ∈ R>0, for all t = 0 , 1, · · · , T . There exist universal polynomials poly 3(·), poly 4(·) such that for given δ ∈ (0 , 1) , if 
+
+T ≥ poly 3 (S ∪ { r, log(1 /δ ), ρ }) , (49) 
+
+the following holds with probability at least 1 − δ:
+
+bΘ − Θ ≤ poly 4 (S ∪ { log(1 /δ ), ρ, log( T )}) r1/2T −1/2 (50) 
+
+where r, T, Θ are defined in (1), bΘ is defined in (2), L, α, β, σ, t c are defined in Assumption 1, k is defined in (8b), and S is defined in (11). 
+
+One can observe that the estimation error is eO(r1/2T −1/2) with probability at least 1 − δ for sufficiently large T , where the constant factor depends polynomially on S ∪ { log(1 /δ ), ρ, log( T )}.Our result is similar to the result stated by Ziemann et al. (2024) for stable systems, except for an additional log( T ) depedence. This can be avoided with additional steps applying the exponentially stable property in Lemma 1 for sub-Gaussian distributions, but unavoidable for sub-exponential distributions or heavy-tailed distributions. Since we focus primarily on heavy-tailed noise, we do not pursue this idea further. Our proof involves finding the explicit form of ϵ in Lemma 2, which is obtained by applying the standard concentration bound for sub-Gaussian ensembles (Wainwright, 2019, theorem 6.5) to each term in (12). We then apply ϵ explicitly to Lemma 1 for deriving the final sample complexity bound. Specifically, T is defined to be sufficiently large when it satisfies (49), or more specifically (65), shown in the proof of Theorem 3 below. The first two terms ensures that there are enough samples to learn the system of noise dimension r with adequate k blocking. The next term guarantees the applicability of the tail bound using concentration inequality, and the last two term ensures the conditions in (8c) is satisfied to apply Lemma 1. We now discuss the formal proof. First, we introduce the following lemma on the concentration of the empirical covariance of the augmented noise vector in Assumption 2 when the individual noise vectors are sub-Gaussian. 
+
+Lemma 2 (sub-Gaussian Tail Bound for sub-Gaussian RVs) . Under Assumption 1(a) and δ ∈ (0 , 1) ,if ξt is ρ-sub-Gaussian for all t = 0 , 1, · · · , T , and 
+
+T ≥ max 
+
+
+
+4k, r, 2kc3
+
+log 
+
+ 2c2kδ
+
+ 
+
+(51) 22 the following holds with probability at least 1 − δ:
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+≤ ρ2k
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2,
+
+(52) 
+
+where k is defined in (8b), c1, c 2, c 3 ∈ R>0 are universal constants introduced in (Wainwright, 2019, theorem 6.5). Proof. We first observe a few properties of T (k,i ) defined in (12): 
+
+T /k − 2 ≤ T (k,i ) ≤ T /k. (53) Since T ≥ 4k from (51), we have the following simpler lower bound: 
+
+T (k,i ) ≥ T / 2k. (54) We individually bound ∆1 and ∆2 in (12). One can see that the time series {ξ(k,i ) 
+
+> τ
+
+}τ =1 ,2,··· is independent for each i = 0 , 1, · · · , k − 1, and their covariance is identity due to the bounded covariance condition in Assumption 1(a). That is, 
+
+E[ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤] Ass. 1( a)
+
+= I (55) .
+
+Upper Bound on ∆1,k Consider the following constant: 
+
+ϕ =
+
+ 1
+
+c3T (k,i ) log 
+
+ 2c2kδ
+
+ 1/2
+
+, (56) which satisfies the following property: 
+
+ϕ2(54) ,(51) 
+
+≤ 2kc3T log 
+
+ 2c2kδ
+
+
+
+> (51)
+
+≤ 1.
+
+(57) 23 By the concentration bound for ρ-sub-Gaussian ensembles (Wainwright, 2019, theorem 6.5) and the bounded covariance condition in (55), we obtain the following:  
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+
+
+≤ ρ2T (k,i ) c1
+
+r kr T (k,i ) + kr T (k,i )
+
+!
+
++ ϕ
+
+!
+
+> (56)
+
+≤ ρ2
+
+
+
+c1kr +
+
+
+
+c1k1/2r1/2 + c−1/23 log 1/2
+
+ 2c2kδ
+
+ 
+
+T (k,i )1/2
+
+> (53)
+
+≤ ρ2 c1kr +
+
+
+
+c1k1/2r1/2 + c−1/23 log 1/2
+
+ 2c2kδ
+
+  Tk
+
+1/2!
+
+> (51) ,r ≥1
+
+≤ ρ2 c1kr 1/2T 1/2 +
+
+
+
+c1k1/2r1/2 + c−1/23 r1/2 log 1/2
+
+ 2c2kδ
+
+  Tk
+
+1/2!
+
+> k≥1
+
+≤ ρ2
+
+
+
+2c1k + c−1/23 log 1/2
+
+ 2c2kδ
+
+ 
+
+r1/2T 1/2
+
+(58) with probability at least 
+
+1 − c2e−c3T (k,i ) min {ϕ,ϕ 2}(57) 
+
+= 1 − c2e−c3T (k,i )ϕ2
+
+> (56)
+
+= 1 − δ
+
+2k ,
+
+(59) where c1, c 2, c 3 ∈ R>0 are universal constants introduced in (Wainwright, 2019, theorem 6.5). 
+
+Bounds on ∆2,k Fix the constant 
+
+ϕ′ = max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+
+
+, (60) which satisfies 
+
+min( ϕ′, ϕ ′2) ≥ c−13 log 
+
+ 2c2kδ
+
+
+
+, (61) where we have ϕ′ ≥ 1 from (60), so min( ϕ′, ϕ ′2) = ϕ′, and the inequality follows. Similar to ∆1,k ,we bound the ∆2,k with the concentration bound for sub-Gaussian ensembles (Wainwright, 2019, theorem 6.5) and the unit covariance obtained from (55): 
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i
+
+≤ ρ2 
+
+c1
+
+n√kr + kr 
+
+o
+
++ ϕ′
+
+> (60)
+
+≤ ρ2
+
+
+
+c1kr + c1k1/2r1/2 + max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+> (51) ,r ≥1
+
+≤ ρ2
+
+
+
+c1k + c1k1/2 + max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2
+
+> k≥1
+
+≤ ρ2
+
+
+
+2c1k + max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2
+
+(62) 24 with probability at least 
+
+1 − c2e−c3 min {ϕ′,ϕ ′2}(60) ,(61) 
+
+≥ 1 − c2e− log  
+
+> 2c2kδ
+> 
+
+= 1 − δ
+
+2k ,
+
+(63) 
+
+Combining terms together Combining ∆1,k and ∆2,k and using the triangle inequality, we obtain 
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+> (58) ,(62)
+
+≤
+
+> k−1
+
+X
+
+> i=0
+
+ρ2
+
+
+
+2c1k + c−1/23 log 1/2
+
+ 2c2kδ
+
+ 
+
+r1/2T 1/2
+
++
+
+> k−1
+
+X
+
+> i=0
+
+ρ2
+
+
+
+2c1k + max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2
+
+≤ ρ2k
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2,
+
+(64) with probability at least 
+
+1 −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+2k −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+2k = 1 − δ
+
+due to (59) and (63). Based on Lemmas 1 and 2, we are now ready to prove Theorem 3. 
+
+Proof of Theorem 3. We choose k as defined in (8b), and suppose T is satisfies the following, 
+
+T ≥ max 
+
+(
+
+4k, r, 2kc3
+
+log 
+
+ 2c2kδ
+
+
+
+, 2tc,
+
+ 8kρ 2
+
+β2
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+
+
+r1/2
+
+2 )
+
+.
+
+(65) We seek to apply Lemma 2 since it provides an upper bound on ϵ. Assumptions of Lemma 2 are satisfied due to (65), so we have 
+
+ϵ ≤ ρ2k
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2 (66) with probability at least 1 − δ. We now provide the final bound using Lemma 1. We observe that 
+
+ρ2k
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
+r1/2T 1/2 ≤ β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T, 
+
+25 by (65). Therefore, Assumption 2 is satisfied with ϵ satisfying (8c). Finally, (8a) is satisfied due to (65), confirming that all conditions in (8) hold. Therefore, we may apply Lemma 1, which indicates that 
+
+bΘ − Θ ≤ 8σ2L
+
+(1 − α)β2
+
+
+
+kρ 2
+
+
+
+4c1k + 2 max 
+
+
+
+c−13 log 
+
+ 2c2kδ
+
+
+
+, 1
+
+ 
+
++ 1 
+
+
+
+r1/2T −1/2. (67) By inspecting (65) and (67), one can see that there exist universal polynomials poly 3(·), poly 4(·) such that (65) and (67) hold under (49) and (50). Specifically, the terms in poly 3(·) comes from breaking down the terms in (65) and replacing k with its polynomial equivalence from the definition (8b). We note that k depends polynomially on log( T ). Since log( T ) grows more slowly than any positive power of T , this dependence can be absorbed into a polynomial dependence on T for sufficiently large T . poly 4(·) in (50) can also be derived from (67) using the same approach, thus completing the proof. 
+
+# C Sub-exponential distributions 
+
+We establish the sample complexity bound for sub-exponential noise distributions in this section. We refer to (Wainwright, 2019, Definition 2.7) for the definition of sub-exponential distributions stated below: 
+
+Definition 2. An r-dimensional, zero-mean RV X is called (ν, ζ )-sub-exponential with ν, ζ ∈ R>0 if 
+
+E[eλ⟨X,u ⟩] ≤ eν2λ2/2, ∀u ∈ Sr−1, |λ| ≤ 1
+
+ζ .
+
+We now introduce our first theorem on sample complexity bound for sub-exponential noise. 
+
+Theorem 4 (Sample Complexity for Sub-Exponential Noise) . Suppose that Assumption 1 holds, and 
+
+ξt is (ν, ζ )-sub-exponential with ν, ζ ∈ R>0, for all t = 0 , 1, · · · , T . There exist universal polynomials poly 5(·) and poly 6(·) such that for given δ ∈ (0 , 1) , if 
+
+T ≥ poly 5
+
+
+
+S ∪ 
+
+n
+
+r, log(1 /δ ), e ν2/2ζ2
+
+, e 1/4ζ , ζ 
+
+o 
+
+, (68) 
+
+then the following holds with probability at least 1 − δ:
+
+bΘ − Θ ≤ poly 6 (S ∪ { log( T ), log( r), log(1 /δ ), ζ }) r1/2T −1/2, (69) 
+
+where r, T, Θ are defined in (1), bΘ is defined in (2), L, α, β, σ, t c are defined in Assumption 1, and S
+
+is defined in (11). 
+
+Our estimation error is bounded by eO(( r/T )1/2) with probability at least 1 − δ for sufficiently large 
+
+T . This result can be interpreted as the following. For sufficiently large T , when δ → 0, the estimate error becomes larger, which comes from log(1 /δ ) term in (69). This means that the failure probability is higher for OLS to produce a parameter estimate that has a better accuracy with respect to the true parameter. The estimation error also increases polynomially with ζ. By Definition 2, increasing 
+
+ζ implies the tail of sub-exponential distributions becomes increasingly heavier than the tail of a Gaussian distribution. Our result is similar to that of the sub-Gaussian distributions from Ziemann et al. (2024), albeit with an extra log( T ) factor. 26 The proof is detailed below, and we provide a sketch here. The derivation involves finding the explicit form of ϵ using Lemma 3 and applying this result to Lemma 1 for the final sample complexity bound. In Lemma 3, ϵ is obtained by applying the general concentration inequality (Wainwright, 2019, corollary 6.20) separately to ∆1 and ∆2 in (12). Since the corollary assumes bounded distributions and sub-exponential distributions generally do not satisfy this property, we first “clip” the covariance so that it can be decomposed into a bounded part and an unbounded tail part, where the tail has a small probability due to the sub-exponential property established in Proposition 1. 
+
+Remark 4. Our result on sub-exponential distribution is generalizable to sub-Weibull distributions addressed in Faradonbeh et al. (2017). Specifically, (Faradonbeh et al., 2017, proposition 3) indicates that the tail of sub-Weibull distributions is bounded exponentially. Adapting this bound in Theorem 4 will achieve eO(r1/2T −1/2), which they arrived at for exponentially stable systems. 
+
+We now discuss the formal proof. The structure will follow closely to Appendix B. First, we state a result that bounds the tail behavior of a sub-exponential distribution. 
+
+Proposition 1. An r-dimensional zero-mean (ν, ζ )-sub-exponential RV X with ν, ζ ∈ R>0 satisfies the following: 
+
+P[∥X∥ ≥ t] ≤ 2re − min    
+
+> nt
+> 2ζ√r,t22ν2r
+> o
+
+(70) 
+
+Proof. We observe that 
+
+∥X∥ ≥ t =⇒ | Xi| ≥ t
+
+√r for some i = 1 , . . . , r. 
+
+Therefore, 
+
+P[∥X∥ ≥ t] ≤ P
+
+" r[
+
+> i=1
+
+
+
+|Xi| ≥ t
+
+√r
+
+#
+
+≤
+
+> r
+
+X
+
+> i=1
+
+P
+
+
+
+|Xi| ≥ t
+
+√r
+
+
+
+.
+
+(71) Since X is (ν, ζ )-sub-exponential, it follows that the elements of X are also (ν, ζ )-sub-exponential. By (Wainwright, 2019, proposition 2.9), we have 
+
+P
+
+
+
+|Xi| ≥ t
+
+√r
+
+
+
+≤
+
+(2e−t2/2ν2r for 0 ≤ t ≤ ν2√r/ζ 
+
+2e−t/ 2ζ√r for t > ν 2√r/ζ. (72) By combining (71) and (72), we obtain 
+
+P[∥X∥ ≥ t] ≤
+
+(2re −t2/2ν2r, 0 ≤ t ≤ ν2√r/ζ 
+
+2re −t/ 2ζ√r, t > ν 2√r/ζ. (73) which is equivalent to (70). Now we are ready to derive the tail bound of sub-exponential distribution and find ϵ explicitly in Lemma 3. Our proof heavily relies on the concentration inequality for general matrices as stated in (Wainwright, 2019, corollary 6.20), which requires bounded noise vectors. This is where Prop. 1 comes in to bound the probability of large noise perturbation. 27 Lemma 3 (Tail Bound for Sub-Exponential RVs) . Under Assumption 1(a), k as defined in (8b), and δ ∈ (0 , 1) , if ξt is (ν, ζ )-sub-exponential for all t = 0 , 1, · · · , T , and 
+
+T ≥ max 
+
+(
+
+(6 + √2) 8, 4k, r, δe ν2/2ζ2
+
+4rk , δe 1/4ζ
+
+4rk , 1024 ζ4k4r2 log 6
+
+ 8rk 2
+
+δ
+
+)
+
+(74) 
+
+the following holds with probability at least 1 − δ:
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+≤ 4kζ log 
+
+ 4rkT δ
+
+
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2 + 16 k2ζ2 log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+r. 
+
+Proof. Our goal is to apply the concentration inequality provided by (Wainwright, 2019, corollary 6.20) which assumes that ξ(k,i ) 
+
+> τ
+
+is bounded. Our overarching idea of the proof is to differentiate between bounded augmented noise vectors and the ones that are not. For the bounded augmented noise vectors, we can directly apply the concentration inequality, and for the augmented noise vectors that are not bounded, we will show that the probability of this case is so small that it’s becomes negligible using Proposition 1. Formally, for given b > 0, we consider the following 
+
+ξt:t−k+1 = ξt:t−k+1 · 1
+
+n
+
+∥ξt:t−k+1 ∥ ≤ √b
+
+o
+
+,
+
+ξ(k,i ) 
+
+> τ
+
+= ξ(k,i ) 
+
+> τ
+
+· 1
+
+n
+
+∥ξ(k,i ) 
+
+> τ
+
+∥ ≤ √b
+
+o
+
+,
+
+ξt:t−k+1 = ξt:t−k+1 · 1
+
+n
+
+∥ξt:t−k+1 ∥ > √b
+
+o
+
+ξ(k,i ) 
+
+> τ
+
+= ξ(k,i ) 
+
+> τ
+
+· 1
+
+n
+
+∥ξ(k,i ) 
+
+> τ
+
+∥ > √b
+
+o
+
+.
+
+We now can write 
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+= ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
++ ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+,
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ = ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ + ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤.
+
+(75) The covariance of ξ(k,i ) 
+
+> τ
+
+is bounded by the identity matrix. That is, 
+
+E
+
+h
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤i
+
+⪯ E
+
+h
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤i Ass. 1( a)
+
+⪯ I (76) 
+
+Bounding the individual tail probability We now aim to bound the tail probability of ξt:t−k+1 .We fix 
+
+b = 4 ζ2rk log 2
+
+ 4rkT δ
+
+
+
+, (77) which satisfies 
+
+√b
+
+2ζ√rk 
+
+!
+
+/
+
+ b
+
+2ν2rk 
+
+(77) 
+
+= log 
+
+ 4rkT δ
+
+
+
+/
+
+ 4ζ2rk 
+
+2ν2rk log 2
+
+ 4rkT δ
+
+ 
+
+= ν2
+
+2ζ2 log −1
+
+ 4rkT δ
+
+
+
+> (74)
+
+≤ 1.
+
+(78) 28 From Proposition 1, we have 
+
+P
+
+h
+
+ξt:t−k+1 ≥ √b
+
+i
+
+≤ 2rke − min    
+
+> n√b
+> 2ζ√rk ,b
+> 2ν2rk
+> o
+> (78)
+
+≤ 2rke −
+
+> √b
+> 2ζ√rk
+> (77)
+
+≤ δ
+
+2T .
+
+(79) 
+
+Bounds on ∆1,k We fix constant 
+
+ϕ =
+
+ 4bT (k,i ) log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
+(80) and observe the following fact: 
+
+log( aT ) ≤ T 1/4 log( a) for all T ≥ (6 + √2) 8, a ≥ e. (81) Since 4rk/δ ≥ e by (8), and T ≥ (6 + √2) 8 by (74), 
+
+log 
+
+ 4rkT δ
+
+ (81) ,(74) ,(8) 
+
+≤ T 1/4 log 
+
+ 4rk δ
+
+
+
+. (82) Therefore, ϕ in (80) satisfies 
+
+ϕ2 (54) 
+
+≤ 8kb T log 
+
+ 8rk 2
+
+δ
+
+
+
+> (77)
+
+= 32 ζ2k2rT log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+> (82)
+
+≤ 32 ζ2k2rT 1/2 log 3
+
+ 8rk 2
+
+δ
+
+
+
+> (74)
+
+≤ 1.
+
+(83) Since ∥ξ(k,i ) 
+
+> τ
+
+∥ is upper bounded, one can apply (Wainwright, 2019, corollary 6.20) and bounded covariance property in (76) to obtain  
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+ ≤ ϕT (k,i )(80) ,(53) 
+
+≤
+
+ 4bT k log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
+,
+
+(84) which holds with probability at least 
+
+1 − 2rke − T (k,i )ϕ22b(1+ ϕ)
+
+> (83)
+
+≥ 1 − 2rke − T (k,i )ϕ24b
+
+> (80)
+
+≥ 1 − δ
+
+4k .
+
+(85) 29 Bounds on ∆2,k We fix 
+
+ϕ′ = 4 b log 
+
+ 8rk 2
+
+δ
+
+
+
+. (86) and observe that 
+
+ϕ′(77) 
+
+= 16 ζ2kr log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+> (74)
+
+≥ kr log 
+
+ 8rk 2
+
+δ
+
+
+
+≥ 1,
+
+(87) where the last inequality follows from k, r ≥ 1 and δ ∈ (0 , 1) . By applying (Wainwright, 2019, corollary 6.20) and bounded covariance property in (76), we obtain 
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i
+
+≤ ϕ′
+
+> (86)
+
+= 4 b log 
+
+ 8rk 2
+
+δ
+
+
+
+(88) with probability at least 
+
+1 − 2rke − ϕ′22b(1+ ϕ′)
+
+> (87)
+
+≥ 1 − 2rke − ϕ′
+
+> 4b
+> (86)
+
+≥ 1 − δ
+
+4k .
+
+(89) 
+
+Combining terms together Combining ∆1,k and ∆2,k and using the triangle inequality, we obtain 
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+> (75)
+
+≤
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
++
+
+> k−1
+
+X
+
+> i=0
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+
+
++
+
+> k−1
+
+X
+
+> i=0
+
+
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i 
+
+> (79) ,(84) ,(88)
+
+≤
+
+> k−1
+
+X
+
+> i=0
+
+ 4bT k log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
++
+
+> k−1
+
+X
+
+> i=0
+
+4b log 
+
+ 8rk 2
+
+δ
+
+
+
+> (77)
+
+≤ 4kζ log 
+
+ 4rkT δ
+
+
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2 + 16 k2ζ2 log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+r
+
+(90) with probability at least 
+
+1 −
+
+> T
+
+X
+
+> t=1
+
+δ
+
+2T −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+4k −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+4k = 1 − δ. 
+
+30 due to (79), (85) and (89). Here, δ/ 2T bounds the probability that ξt:t−k+1 exceeds the bound √b,which allows us to apply the concentration inequality, and δ/ 4k bounds the deviation of empirical covariance from the covariance. We are now ready to state the sample complexity bound of sub-exponential distribution by applying Lemma 1. 
+
+Proof of Theorem 4. Suppose that we choose k as in (8b) and that T satisfies 
+
+T ≥ max 
+
+(
+
+(6 + √2) 8, 4k, r, δe ν2/2ζ2
+
+4rk , δe 1/4ζ
+
+4rk , 1024 ζ4k4r2 log 6
+
+ 8rk 2
+
+δ
+
+
+
+, 2tc, (91) 
+
+224 ζ4k4
+
+β8 log 6
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+4
+
+r2, 216 ζ4k4
+
+β4 log 6
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+2
+
+r2
+
+)
+
+.
+
+To provide an upper bound on ∥ bΘ − Θ∥, we will apply ϵ from Lemma 3. Since the conditions of Lemma 3, specifically (74), are satisfied by (91), we just have to show that the proposed ϵ from Lemma 3 satisfies (8c): 
+
+4kζ log 
+
+ 4rkT δ
+
+
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2(82) 
+
+≤ 4ζk log 3/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 3/4
+
+≤ 12 · β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T, 
+
+(92) where the last inequality follows from 
+
+224 ζ4k4
+
+β8 log 6
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+4
+
+r2(91) 
+
+≤ T. 
+
+Furthermore, 
+
+16 k2ζ2 log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+r(82) 
+
+≤ 16 k2ζ2 log 3
+
+ 8rk 2
+
+δ
+
+
+
+rT 1/2
+
+≤ 12 · β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T, 
+
+(93) where the last inequality follows from 
+
+216 ζ4k4
+
+β4 log 6
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+2
+
+r2(91) 
+
+≤ T. 
+
+Lemma 3, (92), and (93) indicate that Assumption 2 is satisfied with ϵ satisfying (8c). Finally, (8a) is satisfied due to (91), confirming that all conditions in (8) are satisfied. Therefore, we may apply Lemma 1, which results in 
+
+bΘ − Θ ≤ 8σ2L
+
+(1 − α)β2T 4kζ log 
+
+ 4rkT δ
+
+
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2
+
++ 8σ2L
+
+(1 − α)β2T 16 k2ζ2 log 2
+
+ 4rkT δ
+
+
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+r + 8σ2L
+
+(1 − α)β2 T −1/2(91) 
+
+≤ 8σ2L
+
+(1 − α)β2
+
+
+
+1 + 4 kζ log 
+
+ 4rkT δ
+
+
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+ 2
+
++ 1 
+
+!
+
+r1/2T −1/2.
+
+(94) 31 By inspecting (91) and (94), one can see that there exist universal polynomials poly 5(·), poly 6(·) such that (91) and (94) hold under (68) and (69). Specifically, the terms in poly 5(·) comes from breaking down the terms in (91) and replacing k with its polynomial equivalence from the definition (8b). We note that k depends polynomially on log( T ). Since log( T ) grows more slowly than any positive power of T , this dependence can be absorbed into a polynomial dependence on T for sufficiently large T . poly 6(·) in (69) can also be derived from (94) using the same approach, thus completing the proof. 
+
+# D Proof of Theorem 1 
+
+The proof structure will follow closely to Appendix C. First, we state a result that bounds the tail decay of a noise vector with bounded pth moment. 
+
+Proposition 2. If ξt for all t = 0 , 1, · · · , T satisfies 
+
+E[∥ξt∥p] ≤ κr p/ 2, (95) 
+
+the following holds: 
+
+P[∥ξ(k,i ) 
+
+> τ
+
+∥ ≥ b1/2] ≤ κr p/ 2kp/ 2+1 b−p/ 2. (96) 
+
+Proof. To satisfy ∥ξ(k,i ) 
+
+> τ
+
+∥ ≥ b1/2 for b ≥ 0, there exists j ∈ [( τ − 1) k + i + 2 , τ k + i + 1] such that 
+
+∥ξj ∥ ≥ (b/k )1/2. Applying Markov Inequality to (13), we have 
+
+P[∥ξt∥ ≥ (b/k )1/2] ≤ κr p/ 2(b/k )−p/ 2
+
+for all t = 0 , 1, · · · , T . Therefore, 
+
+P
+
+h
+
+ξ(k,i ) 
+
+> τ
+
+≥ b1/2i
+
+≤ P
+
+
+
+> τ k +i+1
+
+[ 
+
+> j=( τ−1) k+i+2
+
+∥ξj ∥ ≥ (b/k )1/2
+
+
+
+≤
+
+> τ k +i+1
+
+X 
+
+> j=( τ−1) k+i+2
+
+P
+
+h
+
+∥ξj ∥ ≥ (b/k )1/2i
+
+≤ k
+
+
+
+κr p/ 2kp/ 2b−p/ 2
+
+,
+
+which completes the proof. We can then derive the tail bound of distributions with bounded pth moment using (Wainwright, 2019, corollary 6.20) and Proposition 2. 
+
+Lemma 4 (Tail Bound for RVs with Bounded pth Moment) . Under Assumption 1(a), k as defined in (8b), and δ ∈ (0 , 1) , if ξt is κ-bounded pth moment with p > 2 and 
+
+T ≥ max 
+
+(
+
+4k, 
+
+8k 2κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+> p/ (p−2)
+
+,
+
+4 2κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+ 
+
+> −p/ 2
+
+)
+
+,
+
+(97) 32 the following holds with probability at least 1 − δ:
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+≤
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2+1 /p +
+
+ 21+ pκk p+1 
+
+δ
+
+2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+rT 2/p .
+
+Proof. Similar to sub-exponential distributions, we aim to apply (Wainwright, 2019, corollary 6.20), so we use Proposition 2 to bound the tail probability of a distribution with bounded pth moment. Let 
+
+b = 2T κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+. (98) Due to Proposition 2, we have that 
+
+∥ξ(k,i ) 
+
+> τ
+
+∥ ≤ b1/2 (99) with probability at least 
+
+1 − κr p/ 2kp/ 2+1 
+
+bp/ 2 = 1 − δ
+
+2T . (100) 
+
+Bounding ∆1,k We fix 
+
+ϕ =
+
+ 4bT (k,i ) log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
+. (101) and observe that 
+
+ϕ2(98) 
+
+= 2T κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+4
+
+T (k,i ) log 
+
+ 8rk 2
+
+δ
+
+
+
+> (54)
+
+≤ 2T κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+8kT log 
+
+ 8rk 2
+
+δ
+
+
+
+> (97)
+
+≤ 1.
+
+(102) We now apply (Wainwright, 2019, corollary 6.20) and the bounded covariance condition (76) to obtain  
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+ ≤ ϕT (k,i )(101) ,(53) 
+
+≤
+
+ 4bT k log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
+(103) with probability at least 
+
+1 − 2rke − T (k,i )ϕ22b(1+ ϕ)
+
+> (102)
+
+≥ 1 − 2rke − T (k,i )ϕ24b
+
+> (101)
+
+= 1 − δ
+
+4k
+
+(104) 33 Bounding ∆2,k We fix 
+
+ϕ′ = 4 b log 
+
+ 8rk 2
+
+δ
+
+
+
+. (105) and observe 
+
+ϕ′(98) 
+
+= 4 2κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+T 2/p 
+
+> (97)
+
+≥ 1.
+
+(106) Similarly to ∆1,k , we have 
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i
+
+≤ ϕ′ = 4 b log 
+
+ 8rk 2
+
+δ
+
+
+
+(107) with probability at least 
+
+1 − 2rke − ϕ′22b(1+ ϕ′) ≥ 1 − 2rke − ϕ′ 
+
+> 4b
+
+≥ 1 − δ
+
+4k , (108) 
+
+Combining both terms Combining ∆1,k and ∆2,k and using the triangle inequality, we obtain 
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
+> (75)
+
+≤
+
+> T
+
+X
+
+> t=1
+
+ξt:t−k+1 ξ⊤ 
+
+> t:t−k+1
+
+− E
+
+" TX
+
+> t=1
+
+ξt:t−k+1 ξ⊤
+
+> t:t−k+1
+
+#
+
++
+
+> k−1
+
+X
+
+> i=0
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤ − E
+
+ 
+
+> T(k,i )
+
+X 
+
+> τ=1
+
+ξ(k,i ) 
+
+> τ
+
+(ξ(k,i ) 
+
+> τ
+
+)⊤
+
+
+
++
+
+> k−1
+
+X
+
+> i=0
+
+
+
+ξ(k,i )0 (ξ(k,i )0 )⊤ − E
+
+h
+
+ξ(k,i )0 (ξ(k,i )0 )⊤i 
+
+> (99) ,(103) ,(107)
+
+≤
+
+> k−1
+
+X
+
+> i=0
+
+ 4bT k log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
++
+
+> k−1
+
+X
+
+> i=0
+
+4b log 
+
+ 8rk 2
+
+δ
+
+
+
+≤
+
+
+
+4kbT log 
+
+ 8rk 2
+
+δ
+
+ 1/2
+
++ 4 kb log 
+
+ 8rk 2
+
+δ
+
+
+
+≤
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2+1 /p +
+
+ 21+ pκk p+1 
+
+δ
+
+2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+rT 2/p .
+
+(109) with probability at least 
+
+1 −
+
+> T
+
+X
+
+> t=1
+
+δ
+
+2T −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+4k −
+
+> k−1
+
+X
+
+> i=0
+
+δ
+
+4k = 1 − δ. 
+
+due to (100), (104) and (108). 34 Finally, we apply Lemma 1 by using the explicit form of ϵ derived in Lemma 4 to conclude the sample complexity bound on distributions with bounded pth moment. 
+
+Proof of Theorem 1. Suppose that we choose k as in (8b) and that the following inequality hold: 
+
+T ≥ max 
+
+(
+
+rp/ (p−2) , 4k, 
+
+8k 2κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+> p/ (p−2)
+
+,
+
+4 2κr p/ 2kp/ 2+1 
+
+δ
+
+!2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+> −p/ 2
+
+, 2tc,
+
+16 r1/2
+
+β2
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+!1/(1 /2−1/p )
+
+,
+
+16 rβ2
+
+ 21+ pκk p+1 
+
+δ
+
+2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+  σ2L2
+
+1 − α2 + β2
+
+8
+
+!1/(1 −2/p ) )
+
+.
+
+(110) To provide an upper bound on ∥ bΘ − Θ∥, we will apply the proposed ϵ derived in Lemma 4. Now we proceed to prove the theorem by assuming (110) holds. Since the conditions of Lemma 4 (which are (97)) are satisfied by (110), then to use Lemma 1, we have to show (8c) holds. We have: 
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2+1 /p 
+
+> (110)
+
+≤ 12 · β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T, (111) and  21+ pκk p+1 
+
+δ
+
+2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+rT 2/p 
+
+> (110)
+
+≤ 12 · β2
+
+8
+
+ σ2L2
+
+1 − α2 + β2
+
+8
+
+−1
+
+T. (112) Equations (111) and (112) indicate that ϵ from Lemma 4 satisfies (8c), so Assumption 2 holds. Finally, (8a) is satisfied due to (110), confirming that all conditions in (8) are satisfied. Therefore, we may apply Lemma 1, which indicates that 
+
+bΘ − Θ
+
+≤ 8σ2L
+
+(1 − α)β2T
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+
+
+r1/2T 1/2+1 /p +
+
+ 21+ pκk p+1 
+
+δ
+
+2/p 
+
+log 
+
+ 8rk 2
+
+δ
+
+
+
+rT 2/p 
+
+!
+
++ 8σ2L
+
+(1 − α)β2 T −1/2
+
+≤ 8σ2L
+
+(1 − α)β2 1 + 
+
+ 21+ pκk p+1 
+
+δ
+
+1/p 
+
+log 1/2
+
+ 8rk 2
+
+δ
+
+!2
+
+r1/2T −1/2+1 /p + 8σ2L
+
+(1 − α)β2 T −1/2,
+
+(113) where the last inequality follows from r1/2T 1/2+1 /p ≥ rT 2/p . By inspecting (110) and (113), one can see that there exist p-dependent polynomials poly 1(·), poly 2(·) such that (110) and (113) hold under (14) and (15). Specifically, the terms in poly 1(·) comes from breaking down the terms in (110) and replacing k with its polynomial equivalence from the definition (8b). We note that k
+
+depends polynomially on log( T ). Since log( T ) grows more slowly than any positive power of T , this dependence can be absorbed into a polynomial dependence on T for sufficiently large T . poly 2(·) in (15) can also be derived from (113) using the same approach, thus completing the proof. 35 E Rewriting ARX Model as VAR Model 
+
+Assume that the input sequence {vt} is a series of independent RVs such as vt ∼ N (0 , 1) . We now observe that (16) can be rewritten as follows for t = 1 , 2, · · · , T :
+
+
+
+yt
+
+yt−1
+
+...
+
+yt−q+1 
+
+ut
+
+ut−1
+
+...
+
+ut−q+1 
+
+| {z }
+
+> zt
+
+=
+
+
+
+A1 · · · Aq−1 Aq B1 · · · Bq−1 Bq
+
+I · · · 0 0 0 · · · 0 0
+
+... . . . ... ... ... . . . ... ...
+
+0 · · · I 0 0 · · · 0 00 · · · 0 0 0 · · · 0 00 · · · 0 0 I · · · 0 0
+
+... . . . ... ... ... . . . ... ...
+
+0 · · · 0 0 0 · · · I 0
+
+| {z }
+
+> Θ
+
+
+
+yt−1
+
+yt−2
+
+...
+
+yt−q
+
+ut−1
+
+ut−2
+
+...
+
+ut−q
+
+| {z }
+
+> zt−1
+
++
+
+
+
+F 00 0
+
+... ...
+
+0 00 G
+
+0 0
+
+... ...
+
+0 0
+
+| {z }
+
+> Ψ
+
+wt
+
+vt
+
+| {z } 
+
+> ξt
+
+. (114) 
+
+# F Proof of Theorem 2 
+
+F.1 Verifying Assumption 1(a) 
+
+Follows directly from Assumption 3(a). 
+
+F.2 Verifying Assumption 1(b) 
+
+From the explicit form of Θ (114), we observe that Θ can be partitioned as follows: 
+
+Θ(18) 
+
+=
+
+A B 
+
+0 E
+
+
+
+,
+
+where E is a nilpotent matrix with order q and ∥E∥ = 1 . We now observe that 
+
+Θt =
+
+At Pt−1 
+
+> i=0
+
+At−1−iBE i
+
+0 Et
+
+
+
+. (115) Furthermore, the stability assumption in Assumption 3(b) states 
+
+∥At∥ 
+
+> Ass. 3( b)
+
+≤ cAγt, ∀t = 0 , 1, · · · ; (116) By the nilpotent property of E, we have that 
+
+∥Et∥ ≤ 1{t < q }, ∀t = 0 , 1, · · · ; (117) Then by stability of A and nilpotent property of E,
+
+> t−1
+
+X
+
+> i=0
+
+At−1−iBE i Ass. 3( b)
+
+≤ cBt−1X
+
+> i=0
+
+At−1−i Ei
+
+> (116) ,(117)
+
+≤ cAcBq−1X
+
+> i=0
+
+γt−1−i
+
+≤ cAcB γt−1 γ−q − 1
+
+γ−1 − 1 .
+
+(118) 36 By the block stucture of Θ in (115), we have that: 
+
+∥Θt∥ ≤ max( ∥At∥, ∥Et∥) + 
+
+> t−1
+
+X
+
+> i=0
+
+At−1−iBE i
+
+> (116) ,(117) ,(118)
+
+≤ max( cAγt, 1{t < q }) + cAcB γt−1 γ−q − 1
+
+γ−1 − 1
+
+≤
+
+
+
+max( cA, γ −q) + cAcB γ−1 γ−q − 1
+
+γ−1 − 1
+
+
+
+γt,
+
+where the last inequality follows from γ ∈ (0 , 1) .
+
+F.3 Verifying Assumption 1(c) 
+
+Directly follows from the structure of Ψ.
+
+F.4 Verifying Assumption 1(d) 
+
+Let tc = q. Consider the linear map defined by the matrix Ψ ΘΨ · · · Θq−1Ψ in (6), which maps 
+
+(ξq, . . . , ξ 1) to the state zq reached at time q by the recursion in (114) started from the zero state: 
+
+
+
+yq
+
+...
+
+y1
+
+uq
+
+...
+
+u1
+
+
+
+> (114)
+
+= Ψ
+
+wq
+
+vq
+
+
+
++ ΘΨ 
+
+wq−1
+
+vq−1
+
+
+
++ · · · + Θ q−1Ψ
+
+w1
+
+v1
+
+
+
+, (119) where Θ, Ψ are also defined in (114). For any zq such that ∥zq∥ = 1 , we observe the following is a solution to (119): 
+
+wt = F −1 yt −
+
+> t−1
+
+X
+
+> i=1
+
+(Aiyt−i + Biut−i)
+
+!
+
+, vt = G−1ut, t = 1 , · · · , q (120) We note that F and G are invertible due to Assumption 3(c). Explicitly, we can write the solution to (119) as 
+
+
+
+wq
+
+...
+
+w1
+
+vq
+
+...
+
+v1
+
+
+
+=
+
+
+
+F −1
+
+. . .
+
+F −1
+
+G−1
+
+. . .
+
+G−1
+
+ C D 
+
+0 I
+
+| {z }
+
+> M
+
+
+
+yq
+
+...
+
+y1
+
+uq
+
+...
+
+u1
+
+
+
+(121) 37 where C, D are defined in (18). Since Ψ ΘΨ · · · Θq−1Ψ is an R(dy +du)q×(dy +du)q square matrix, 
+
+M is its inverse (up to permutation of rows and columns). Thus, 
+
+Ψ ΘΨ · · · Θq−1Ψ  Ψ ΘΨ · · · Θq−1Ψ⊤ ⪰ 1
+
+∥M ∥2 I
+
+> (121)
+
+⪰ 1max( ∥F −1∥, ∥G−1∥)2(max(1 , ∥C∥) + ∥D∥)2 I 
+
+> Ass. 3( b)
+
+⪰ min( σF , σ G)2
+
+(max(1 , c C ) + cD)2 I. 
+
+which concludes the proof. 
+
+# G Numerical Results 
+
+Simulation Design We performed numerical simulations of the ARX model to verify the sample complexity bounds we obtained theoretically for distributions with bounded pth moments in Theo-rem 1, sub-exponential distributions in Theorem 4, and sub-Gaussian distributions in Theorem 3. We explore an ARX model defined in (16) with autoregressive order q = 5 and dimensions dy = du = 10 .For all simulations, the input signal ut = vt follows a Gaussian distribution with unit standard deviation, and the following noise distributions for wt are considered: • sub-Gaussian distribution: Gaussian distribution, • sub-exponential distribution: Laplace distribution, • Bounded pth moment with p > 2: Student’s t distribution ( p = 2 .1, 4.1), Pareto distribution (p = 2 .1, 4.1), • No Bounded Moments: Cauchy distribution. We set all noise distributions with unit standard deviation except for distributions without finite covari-ance. For each noise distribution and sample sizes T = [100 , 200 , 500 , 10 3, 10 4, 4×10 4, 10 5, 10 6, 5×10 6],we ran 200 simulations generating random single-trajectory data. OLS is used to estimate the parameters {Ai}5 
+
+> i=1
+
+and {Bi}5 
+
+> i=1
+
+with (21). The error bound of the 99 th, 95 th, and 90 th percentiles of the relative error are approximated using numpy.percentile() with the “higher” method, and the slope is approximated using linear fitting or numpy.polyfit() . Figure 2 shows the loglog plot of the total relative error of the parameters for increasing sample size plotted against a reference line of slope −1/2.
+
+Discussion Our results are shown in Figure 2. Below 1000 samples, T is not sufficiently large to exceed the thresholds in our theoretical results, so the relative errors are much larger. To verify the theoretical sample complexity bounds when the failure probability δ is small, we plot error bounds for the 99 th, 95 th, 90 th percentiles of the relative error, where the deviation from the T −1/2 rate is not significant. For Gaussian and Laplace distributions, the sample complexity exhibits a clear 
+
+T −1/2 dependence compared with the reference line. As the number of moments decrease, Pareto and Student’s t distributions with p = 2 .1 at the 99 th percentile exhibit larger variance, where the fitted slope is −0.43 for Student’s t and −0.46 for Pareto distributions. While Theorem 1 predicts that the sample complexity upper bound should deteriorate by T 1/p , our numerical results do not clearly indicate whether these distributions actually have slower convergence. Finally, we explore the sample complexity scaling of distributions without finite covariance. The Cauchy distribution with no bounded moments exhibit no convergence, suggesting that the parameters are not estimated properly. 38 10 3 10 5      
+
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+> 10 310 5
+> 10 −2
+> 10 0
+> 10 2
+> 10 4
+
+Gaussian Laplace Pareto, p=2.1 Student-t, p=2.1 Pareto, p=4.1 Student-t, p=4.1 Cauchy 90th 95th 99th Sample Size Relative Error Figure 2: Log log plot of relative parameter estimate error for an ARX Model with OLS estimator of sample sizes T = [100 , 200 , 500 , 10 3, 10 4, 4 × 10 4, 10 5, 10 6, 5 × 10 6]. The fitted slope for the 99 th, 
+
+95 th, and 90 th percentiles are shown in dashed lines, and the reference gray line has slope −1/2.The numerical results indicate that when the covariance is unbounded, the empirical error bound can deviate substantially from the T −1/2 rate, such as the Cauchy distribution, which failed to converge. When the noise is heavy-tailed with bounded pth moments for p > 2, simulations do not provide clear evidence that the decay rate is slower than T −1/2. We observe a mild deviation from the T −1/2
+
+rate for the Student’s t distribution with p = 2 .1, but this behavior may be attributable to rare tail events that fall into the failure probability of our theoretical bounds. We also note that the error decay appears faster than T −1/2 for some distributions, but this could be attributed to sample sizes below the burn-in period. Thus, our numerical results do not clearly show that heavy-tailed distributions result in T 1/p deterioration of the error bound. 39

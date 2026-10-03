@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-10-03 <!--dpr-date:20261003-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/03/2610.00637v1-learning-linear-systems-under-heavy-tailed-noise-a-non-asymptotic-analysis-from-a-single-trajectory" data-sidebar-item="{&quot;title&quot;: &quot;Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2610.00637v1-learning-linear-systems-under-heavy-tailed-noise-a-non-asymptotic-analysis-from-a-single-trajectory&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;向量自回归估计的非渐近样本复杂度界&quot;}">Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory</a>
   * 2026-10-02 <!--dpr-date:20261002-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/02/2609.38524v1-generative-sequence-modeling-for-infinite-memory-processes-via-predictive-states" data-sidebar-item="{&quot;title&quot;: &quot;Generative sequence modeling for infinite memory processes via predictive states&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2609.38524v1-generative-sequence-modeling-for-infinite-memory-processes-via-predictive-states&quot;, &quot;score&quot;: &quot;7.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;一步预测条件分布估计与快速收敛率&quot;}">Generative sequence modeling for infinite memory processes via predictive states</a>
