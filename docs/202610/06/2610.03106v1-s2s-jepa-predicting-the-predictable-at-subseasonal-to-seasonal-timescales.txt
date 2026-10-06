@@ -1,0 +1,1313 @@
+S2S-JEPA: Predicting the Predictable at
+Subseasonal-to-Seasonal Timescales
+Chenyu Dong1* and Gianmarco Mengaldo1*
+1*Department of Mechanical Engineering, College of Design and Engineering,
+National University of Singapore, 9 Engineering Drive 1, 117575, Singapore.
+*Corresponding author(s). E-mail(s): chenyu.dong@u.nus.edu; mpegim@nus.edu.sg;
+Abstract
+The subseasonal-to-seasonal (S2S) timescale, roughly from two weeks to two months ahead, is a
+critical forecast window for sectors such as agriculture, energy, and water management. Yet, it
+is widely known as the ‘predictability desert’. Recent AI weather models excel up to two weeks
+ahead but deteriorate beyond, largely because they are trained to predict fine-scale details
+that are neither predictable nor essential at S2S timescales. We argue that a more physically
+grounded objective is to forecast only the slowly varying components that remain predictable.
+Computer vision reached the same conclusion with the Joint-Embedding Predictive Architecture
+(JEPA), which predicts in latent space, discarding unpredictable details. In this work, we
+introduce S2S-JEPA, which brings the JEPA paradigm to S2S forecasting. It is tailored to
+this task through design elements from state-of-the-art AI weather models. S2S-JEPA achieves
+comparable skill to the gold-standard ECMWF physics-based ensemble and surpasses it on
+multiple metrics at weeks 5 to 6.
+Keywords: AI weather model; S2S Prediction; JEPA
+1 Introduction
+Subseasonal-to-seasonal (S2S) prediction, which aims to forecast weather conditions from roughly
+two weeks to two months ahead, has long been a central challenge in atmospheric science. The
+S2S timescale is a critical forecast window for decision-making in weather- and climate-sensitive
+sectors, such as agriculture, energy, and water management [1]. It sits between medium-range
+weather forecasting (up to two weeks ahead) and seasonal prediction, and it is widely known as the
+‘predictability desert’ [2, 3]. S2S prediction is particularly challenging because it extends beyond
+the timescale over which atmospheric initial conditions guide forecasts, yet remains too short for
+slower components, such as sea surface temperature, soil moisture, and large-scale climate modes,
+to fully dominate the forecast signal [4].
+1
+arXiv:2610.03106v1  [physics.ao-ph]  2 Oct 2026
+
+
+Traditional physics-based numerical prediction systems, built on the numerical integration of
+the governing equations of atmospheric dynamics and their coupling with land, ocean, and sea-ice
+components, form the backbone of operational S2S prediction [5]. These forecasts are physically
+grounded, but integrating large coupled Earth-system models is computationally expensive. This is
+particularly limiting at S2S lead times, where ensemble prediction is essential for isolating weak
+but potentially predictable signals from internal atmospheric variability.
+Meanwhile, data-driven models have rapidly advanced medium-range weather forecasting, with
+many breakthroughs closely mirroring progress in artificial intelligence [6]. This architectural
+transfer has been facilitated by the fact that most recent AI weather models are trained on gridded
+reanalysis data, which casts forecasting as a dense spatiotemporal prediction task that resembles
+computer-vision problems such as video prediction. Neural operators in FourCastNet [7], hierarchical
+Transformers in Pangu-Weather and FuXi [8, 9], graph neural networks in GraphCast [10] and
+diffusion models in GenCast [11] have successively been adapted to global atmospheric prediction.
+More recently, foundation models such as ClimaX [12], Aurora [13] and Prithvi WxC [14] have
+been pretrained on large-scale reanalysis and other meteorological datasets and then adapted to
+downstream variables, resolutions, and lead times.
+Despite their strong performance at medium-range lead times, these AI weather models often
+struggle to extend their skill into the S2S range [15, 16]. A key limitation lies in their training
+objective. By requiring the model to reconstruct the full atmospheric state on the grid, these
+approaches devote capacity to details that become fundamentally unpredictable at longer lead times,
+which drives forecasts beyond two weeks toward smoothed fields with little skill over climatology.
+Data-driven approaches to S2S prediction have been explored from several directions [17–19].
+One line of work treats the problem as statistical correction, learning to post-process dynamical
+ensemble outputs or to predict targeted quantities from selected climate drivers [18, 20]. Other
+studies adapt the modeling paradigm of medium-range forecasting to subseasonal horizons, as in
+FuXi-S2S [19] and TianQuan-S2S [21], pretrain with masked reconstruction on reanalysis data, as
+in Baguan [22], or generate future state sequences in the latent space of a variational autoencoder,
+as in OmniCast [23]. In all of these models, however, the learning objective remains centered on
+reproducing grid-level details of the atmospheric state, either directly or through a latent space
+trained by reconstruction. We argue that an objective better aligned with the physics of the Earth
+system is to forecast the slowly varying components that remain predictable at S2S timescales,
+2
+
+
+such as tropical intraseasonal oscillations, stratospheric variability, and persistent land and oceanic
+anomalies, rather than fine-scale details that do not.
+Remarkably, computer vision, the field that has repeatedly driven architectural innovation in AI
+for weather research, reached the same conclusion from a different starting point. Masked prediction
+has become a dominant paradigm in self-supervised learning, with models reconstructing missing
+content from visible context [24, 25]. Joint-Embedding Predictive Architectures (JEPA) recast
+this idea in representation space, where the model infers the representations of hidden targets
+from context instead of reconstructing raw observations [26, 27]. The formulation has since been
+applied to masked image regions [27], spatiotemporal video blocks [28, 29], and world models that
+forecast future latent states for planning and control [30–32]. Imagine watching a tree swaying in
+the wind [26]: you neither track the motion of every leaf nor could you predict it; instead, what you
+perceive and anticipate is the higher-level structure of the scene—the tree continuing to sway with
+the wind. JEPA builds on this intuition. Rather than predicting the raw signal in all its unpredictable
+detail, it predicts a representation that captures what is predictable and sufficient for understanding
+what happens next. This philosophy aligns well with the physical character of S2S predictability,
+where skill resides in a few slow, large-scale modes rather than in the full atmospheric state.
+Motivated by this correspondence, we reformulate S2S forecasting as latent-space prediction,
+in which the model is tasked with forecasting the evolution of the Earth system’s predictable
+structure. In this work, we present S2S-JEPA, a fully data-driven S2S model built on the joint-
+embedding predictive principle. Recent work has begun to explore JEPA for regional atmospheric
+prediction [33]. However, to our knowledge, S2S-JEPA is the first to extend this principle to global
+subseasonal forecasting, learning a predictive representation of the Earth system weeks into the
+future. S2S-JEPA adapts the encoder-predictor architecture of V-JEPA [28, 29] from video to
+the Earth system, encoding daily snapshots of 79 atmospheric, land-surface and oceanic variables
+relevant to S2S predictability in place of frames of RGB pixels. The training formulation, in contrast,
+is tailored to the physics of S2S prediction. The model forecasts the future weekly latent states
+of the Earth system, so that S2S-timescale predictability itself supervises the encoder and the
+learned representation is forced to extract the slowly evolving signals that carry S2S predictability.
+S2S-JEPA also adopts design choices that have proven effective at the medium range [8, 12, 13, 34],
+as detailed in Section 2. It delivers forecast skill competitive with the ECMWF operational S2S
+ensemble [5], the gold standard of subseasonal prediction, at weeks 5 to 6 and at a fraction of the
+3
+
+
+computational cost. The model trains and runs on a single GPU, whereas operational S2S forecasts
+require ensemble integrations of a physics-based model on dedicated supercomputing infrastructure.
+2 Method
+2.1 Problem setup
+We focus on the operational S2S forecasting task adapted from the ECMWF AI Weather Quest [35].
+Given an initialization day t0, the task is to deliver probabilistic forecasts of weekly-mean 2-meter
+temperature (T2M), weekly accumulated precipitation (TP), and weekly-mean sea-level pressure
+(MSLP) for the following K = 6 weeks. We refer to these three weekly quantities as the forecast
+products. Temperature and precipitation are evaluated over land and sea-level pressure globally, in
+accordance with AI Weather Quest [35].
+Our models operate on V = 79 atmospheric, land-surface and oceanic variables from the ERA5
+reanalysis [36], regridded to 1.5◦(H × W = 120 × 240; see Tab. 4 for the full list). All variables are
+expressed as standardized anomalies with respect to a day-of-year climatology computed over 1979–
+2018 (see Appendix A for details). This formulation isolates the forecast problem from the known
+seasonal cycle, focusing the model on the departures from climatology that constitute predictability
+at S2S timescales.
+Let Xt ∈RV ×H×W denote daily-mean anomaly fields of day t. We group consecutive days into
+weeks of T = 7 days, indexed relative to the initialization day t0. Week k is defined as
+X(k) = (Xt0+7k−6, . . . , Xt0+7k) ∈RT ×V ×H×W ,
+k = 0, 1, . . . , K,
+(1)
+so that X(0) contains the seven days ending on t0, and X(k) with k ≥1 contains the k-th week after
+initialization. The model input is the context week X(0), and X(1), . . . , X(K) are the weeks to be
+forecast. The dependence of X(k) on t0 is omitted to lighten the notation. This input is longer than
+in prior S2S models, which condition on two to five daily states [19, 21]. A full week of input allows
+slowly evolving signals, such as the Madden–Julian Oscillation, to be represented with their tendency
+as well as their instantaneous state. It also has the same temporal extent as the target weeks, so that
+context and target weeks can be embedded by the same encoder. S2S-JEPA does not predict the
+forecast products directly. Its prediction target is the latent representation of each future week X(k),
+k = 1, . . . , K, which encodes all V variables. The three forecast products are obtained from these
+latent states by separate readout modules that do not influence the representation (Section 2.4).
+4
+
+
+We train on 1979–2018, validate on 2019–2021, and test on the 102 initializations from December
+2023 to November 2025, a period for which the 101-member ECMWF extended-range ensemble is
+available. The climatology defining the anomalies is computed on the training years alone, so no
+information from the evaluation period enters the problem definition, avoiding information leakage.
+Encoder 
+(EMA)
+Encoder
+EMA
+Static 
+variables
+...
+State variables
+Xt0
+Xt0−1
+Xt0−6
+State variables
+(a)    
+...
+Xt0+7
+Xt0+2
+Xt0+1
+Static 
+variables
+Predictor
+Predict the latent 
+state of next week
+ loss
+ℓ1
+Stop-grad
+Context week
+Target (next) week
+Stage 1: JEPA-style one-step training
+(b)    
+C(0)
+Context week 
+climatology
+Context week 
+latent
+Week 1 latent 
+(predicted)
+...
+Week 2 latent 
+(predicted)
+Week 6 latent 
+(predicted)
+...
+Week 1 
+...
+Frozen 
+Enc.
+Stage 2: multi-step rollout training
+...
+Week 2 
+...
+...
+Context week
+...
+Enc.
+...
+Week 6 
+...
+Predictor
+ℒ1
+ℒ2
+ℒ6
+...
+C(0)
+C(1)
+Frozen 
+Enc.
+Frozen 
+Enc.
+❄
+❄
+❄
+X(0)
+X(1)
+X(1)
+X(2)
+X(6)
+Predictor̂
+Z(1)̂
+Z(2)̂
+Z(6)
+¯Z(1)
+¯Z(2)
+¯Z(6)̂
+Z(0) = ¯Z(0)
+X(0)
+Fig. 1 Two-stage training of S2S-JEPA. (a) Stage 1: one-step latent prediction. The encoder embeds the context
+week X(0) (daily anomaly fields and static variables) into a latent state, and the predictor, conditioned on the
+context-week climatology C(0), predicts the latent state of the next week. The prediction is matched under an ℓ1
+loss to the embedding of the true next week under an EMA target encoder, which receives no gradient. (b) Stage 2:
+multi-step rollout training. Starting from the context-week latent, the predictor rolls out week-by-week predictions
+up to week 6, conditioned at each step on the climatology of the input week C(k−1), and each predicted latent is
+matched to the now-frozen target encoder’s embedding of the observed week (L1, . . . , L6). Gradients do not traverse
+the rollout chain; the context encoder is updated through the first step only.
+2.2 Joint-embedding predictive formulation and two-stage training
+Joint-embedding predictive architectures [26, 27] learn by predicting the representation of a hidden
+part of a signal from that of a visible part. A critical challenge in joint-embedding learning is
+representation collapse, where all inputs are mapped to the same or nearly identical embedding.
+The target representations are therefore produced by a slowly evolving teacher, an exponential
+moving average of the online encoder, which stabilizes training and helps prevent this trivial solution.
+S2S-JEPA treats the past week of the Earth system as the context and the unseen future week as
+the hidden target. Training proceeds in two stages, the first on one-step prediction of the following
+week, the second on autoregressive rollouts across the full forecast range (Figure 1). Separating the
+two stages allows the representation to be learned under a one-step objective before the predictor
+is trained on its own outputs. The separation also proved necessary in practice, since training on
+5
+
+
+rollouts from the start destabilized the representation and led to its rapid collapse in our early
+experiments.
+Stage 1: One-step latent prediction. In stage 1, an encoder Eθ maps the context week to a
+latent state Z(0) = Eθ(X(0)) ∈RN×d of N tokens, and a predictor Pϕ advances the latent state by
+exactly one week,
+ˆZ(1) = Pϕ
+ Z(0), C(0)
+,
+(2)
+where C(0) denotes the climatology of the context week. The climatology conditions the predictor
+rather than the encoder, so that the learned representation cannot shortcut the prediction task by
+encoding a seasonal prior shared with the EMA target. The regression target ¯Z(1) = E¯θ(X(1)) is
+produced by a target encoder E¯θ applied to the true future week. The parameters of the target
+encoder are an exponential moving average of those of the online encoder, ¯θ ←m ¯θ+(1−m) θ, where
+the momentum m increases linearly from 0.999 to 1 over the course of Stage 1. The encoder and the
+predictor are trained from scratch with the ℓ1 regression of ˆZ(1) to ¯Z(1), with tokens weighted by the
+cosine of latitude. The loss is computed entirely in latent space, and no reconstruction of physical
+fields contributes to the training of the encoder or the predictor. Collapse of the representation is
+monitored during training through the deterministic readout head attached to the latent states (see
+Section 2.4 for details).
+Stage 2: Multi-step rollout training. Stage 1 leaves a distribution mismatch, as the predictor
+is trained on encoder outputs but rolled out on its own. Stage 2 aims to close this gap by training
+the predictor on its own rollouts. The multi-step objective does more than that, for as the rollout
+lengthens only signals that genuinely propagate through the latent dynamics can still be predicted,
+so the predictor devotes its capacity to the predictable components. Concretely, starting from
+ˆZ(0) = Z(0), the predictor is rolled out for K = 6 steps, and each rolled-out state is matched to the
+target encoding of the true week at the same date,
+LStage2 = 1
+K
+K
+X
+k=1
+ℓ
+
+Pϕ
+ sg
+  ˆZ(k−1)
+, C(k−1)
+, ¯Z(k)
+,
+(3)
+where C(k−1) denotes the climatology of the week being advanced from and sg(·) is the stop-gradient
+operator (Figure 1b). The stop-gradient is omitted for k = 1, the one step whose input is the encoder
+output itself, leaving an open path through which the encoder adapts the context representation
+to its role as the starting point of a rollout (Figure 1b). Every predicted state is detached before
+it feeds the next step, so no gradient traverses the rollout chain. The predictor thus receives K
+6
+
+
+one-step gradients evaluated on its own rollout distribution, and the target encoder is kept frozen
+so that the regression targets remain fixed throughout this stage.
+Balancing one-step and multi-step objectives is known to be delicate for autoregressive weather
+models [8, 9, 19, 34]. We therefore sequence the two rather than balance them, borrowing the
+curriculum practice of medium-range models that train on short rollouts before long ones [9, 10].
+Within Stage 2, gradients are not propagated through the rollout chain, so that late targets cannot
+reshape the early states from which they were produced. Each step instead receives a one-step
+gradient evaluated on the rollout distribution, the ‘pushforward trick’ that Aurora adopts for its
+roll-out fine-tuning [13, 37].
+2.3 Model architecture
+The model components are drawn from the weather-modeling literature. Their description is
+therefore kept brief, and the details are given in Appendix B. In the encoder, a grouped weather
+embedding [12, 13] tokenizes the 79 variables into N = 4000 tokens on five latent levels, from the
+ocean-land boundary through the near-surface state to the stratosphere, and a Swin Transformer
+backbone [8, 38] processes them with windows spanning all levels. The predictor uses one learnable
+query for each output token, with global cross-attention to the encoded state to account for distant
+dependencies such as teleconnections, and windowed self-attention among the queries for local
+information exchange. It outputs a full latent state in the same token space as the encoder, so
+that prediction and target can be compared directly under the joint-embedding loss. Its only
+conditioning is seasonality, an input that prior S2S work has found effective [21]. The climatology
+and top-of-atmosphere insolation of the input week modulate every token through FiLM layers [39].
+2.4 Deterministic and probabilistic readout
+Since S2S-JEPA predicts latent states, the forecast products are obtained from them by two readout
+modules. The deterministic readout provides a single estimate of the weekly anomalies, and the
+probabilistic readout generates an ensemble of forecasts, from which the quintile probabilities
+required by the task are computed. In both cases, no gradient reaches the encoder or the predictor,
+so that the readouts do not influence the representation.
+The deterministic readout is a lightweight convolutional decoder that maps each latent state to
+the weekly-mean anomalies of all 79 variables. It is trained alongside the backbone on detached
+latent states, which also allows it to monitor training. Its output serves as the deterministic forecast
+in Sec. 3 and as the basis for model selection.
+7
+
+
+The probabilistic readout follows the approach of ArchesWeatherGen [40], which augments
+a deterministic forecasting model with a diffusion-based generative model trained to sample the
+residual distribution the deterministic forecast cannot express. One head per forecast product is
+trained in the EDM framework [11, 41] on the standardized residual, conditioned on the deterministic
+forecast, the predicted latent tokens through cross-attention, the lead time and the day of year
+(see Appendix B). This diffusion-based generative model is trained separately, with the backbone
+of S2S-JEPA frozen. At inference, 50 samples per target week form the ensemble, and quintile
+probabilities are the fractions of members falling into each category.
+2.5 Evaluation protocol
+We evaluate against the ECMWF extended-range ensemble from the S2S database [5], using its
+101-member real-time forecasts and the 11-member reforecasts of the preceding 20 years. The test
+set consists of the 102 Wednesday initializations between December 2023 and November 2025 for
+which both systems are available, and ERA5 weekly aggregates serve as ground truth for both.
+Deterministic skill is measured by the temporal correlation coefficient (TCC) of anomalies at each
+grid point, computed over all test initializations. We report TCC both as maps and as area-weighted
+averages, taken over land for temperature and precipitation and globally for sea-level pressure.
+Probabilistic skill is measured by the fair ranked probability skill score (fair RPSS) of quintile
+forecasts, the metric of the ECMWF AI Weather Quest [35]. Quintile boundaries are derived for
+each system from its own 20-year hindcast climate and for the observations from the ERA5 record
+over the same years, following FuXi-S2S [19]; this removes model bias and drift from the comparison.
+For 2-metre temperature, a linear trend fitted separately to the forecasts and to the observations is
+removed before the boundaries are computed, so that the warming trend does not count as skill.
+Unlike FuXi-S2S, we do not detrend mean sea-level pressure and precipitation in the main text, for
+which the long-term trends are relatively weak.
+3 Results
+3.1 Deterministic skill
+Following the evaluation protocol of Sec. 2.5, we compare S2S-JEPA against the operational ECMWF
+extended-range ensemble. Tab. 1 summarizes the deterministic skill (TCC) of both systems at weeks
+3–6, with ECMWF ahead at week 3 and S2S-JEPA matching or exceeding the ensemble mean from
+week 4 onward for temperature and from week 5 for pressure. ECMWF stays ahead on precipitation,
+8
+
+
+Table 1 Deterministic skill at sub-seasonal lead times (weeks 3–6) on the 102 common Wednesday initializations (13
+Dec 2023–19 Nov 2025): temporal correlation coefficient (TCC) of weekly-mean anomalies, area-weighted over land
+for T2M and TP and over the globe for MSLP. ECMWF is the 101-member ensemble mean; S2S-JEPA is a single
+deterministic forecast. Anomalies are computed relative to the 2004–2023 ERA5 daily climatology. Best values per
+column are shown in bold. An upward arrow marks where S2S-JEPA is significantly better than ECMWF, a downward
+arrow where it is significantly worse, based on a bootstrap significance test over initializations (Appendix D).
+Lead (week)
+Variable
+System
+3
+4
+5
+6
+T2M
+ECMWF (ens. mean)
+0.349
+0.244
+0.202
+0.181
+S2S-JEPA (ours)
+0.289↓
+0.251
+0.238↑
+0.230↑
+MSLP
+ECMWF (ens. mean)
+0.467
+0.338
+0.288
+0.260
+S2S-JEPA (ours)
+0.335↓
+0.304↓
+0.283
+0.277
+TP
+ECMWF (ens. mean)
+0.270
+0.204
+0.168
+0.161
+S2S-JEPA (ours)
+0.191↓
+0.168
+0.157
+0.150
+intrinsically the hardest of the three targets, across weeks 3–6, though the gap narrows as lead time
+increases. Together, these results show a clear lead-time dependence, where S2S-JEPA becomes
+increasingly competitive as lead time grows, and by weeks 5–6, it matches the operational ensemble
+across all three variables, while achieving significantly better performance for 2-meter temperature.
+To see where this skill resides, we further examine the spatial distribution of TCC at weeks
+5–6, computed at each grid point as in Tab. 1 using the two lead weeks jointly (Fig. 2). For 2-
+meter temperature, the two systems largely agree on the spatial distribution of predictability, but
+S2S-JEPA shows higher skill over South America, Africa, India, and the Indochina Peninsula. For
+sea-level pressure, the two area-averaged values are nearly identical, and the spatial patterns largely
+agree, with each system having regions where it performs better. Precipitation skill is more scattered
+for both models, with ECMWF retaining an overall advantage and exhibiting significant skill over
+a broader area.
+3.2 Probabilistic skill
+We next evaluate probabilistic skill using the fair ranked probability skill score (RPSS) for quintile
+forecasts. Tab. 2 compares the 50-member S2S-JEPA EDM ensemble against the operational
+ECMWF ensemble at weeks 3–6. As in the deterministic evaluation, ECMWF has a clear advantage
+at week 3 across all three variables, while S2S-JEPA becomes increasingly competitive at longer
+lead times.
+For 2-meter temperature, S2S-JEPA matches or exceeds ECMWF from week 4 onward and is
+significantly better at week 6. Notably, precipitation, for which S2S-JEPA has lower deterministic
+skill than ECMWF throughout weeks 3–6, shows strong probabilistic performance at longer lead
+times, matching ECMWF at week 4 and significantly outperforming it at weeks 5 and 6. Sea-level
+9
+
+
+(a)
+TCC = 0.212
+ECMWF (ensemble mean)
+(b)
+TCC = 0.256
+S2S-JEPA
+(c)
+TCC = 0.313
+(d)
+TCC = 0.311
+(e)
+TCC = 0.192
+(f)
+TCC = 0.164
+−0.8 −0.6 −0.4 −0.2
+0.0
+0.2
+0.4
+0.6
+0.8
+Temporal Correlation Coefficient (weeks 5-6)
+T2M
+MSLP
+TP
+Fig. 2 Spatial distribution of deterministic skill at weeks 5–6. Grid-point TCC of weekly-mean anomalies for the
+ECMWF ensemble mean (left) and S2S-JEPA (right), computed jointly over weeks 5 and 6 on the same initializations
+as Tab. 1. Numbers below each panel give the area-weighted average, over land for T2M and TP and over the globe
+for MSLP. Stippling marks grid points where the correlation is significant.
+pressure shows a different behavior, with ECMWF retaining higher fair RPSS throughout weeks
+3–6, although the difference is no longer significant at the two longest lead times. Overall, these
+results mirror the lead-time dependence observed for deterministic skill, while S2S-JEPA shows
+particularly strong long-range probabilistic performance for temperature and precipitation.
+The spatial distribution at weeks 5–6 further highlights these differences (Fig. 3). For 2-meter
+temperature, both systems show similar spatial patterns of predictability, with strong skill over
+tropical South America, Africa, and the Maritime Continent.
+S2S-JEPA additionally shows
+significant skill over regions including eastern Canada and the Arabian Peninsula, contributing to
+a higher area-averaged RPSS than ECMWF. For sea-level pressure, ECMWF retains the higher
+10
+
+
+Table 2 Probabilistic skill at weeks 3–6: fair RPSS of quintile probabilities relative to the uniform forecast under
+the FuXi-S2S protocol, with each system’s quintile edges taken from its own 2004–2023 reforecasts (11 members per
+initialization). S2S-JEPA + EDM has 50 members. T2M is scored after removing each system’s own linear trend and
+the observed trend; MSLP and TP are scored without detrending. TP grid points with a degenerate quintile range
+are masked.
+Lead (week)
+Variable
+System
+3
+4
+5
+6
+T2M (detrended)
+ECMWF
+0.092
+0.049
+0.040
+0.031
+S2S-JEPA + EDM
+0.079↓
+0.058
+0.049
+0.043↑
+MSLP
+ECMWF
+0.152
+0.075
+0.053
+0.041
+S2S-JEPA + EDM
+0.078↓
+0.052↓
+0.044
+0.035
+TP
+ECMWF
+0.048
+0.021
+0.008
+0.005
+S2S-JEPA + EDM
+0.030↓
+0.021
+0.018↑
+0.015↑
+-0.32
+-0.16
+0.00
+0.16
+0.32
+-0.24
+-0.12
+0.00
+0.12
+0.24
+-0.12
+-0.06
+0.00
+0.06
+0.12
+ECMWF IFS (101-member ensemble)
+(a)
+RPSS = 0.032
+S2S-JEPA (EDM ensemble)
+(b)
+RPSS = 0.044
+T2M (detrended)
+(c)
+RPSS = 0.046
+(d)
+RPSS = 0.034
+MSLP
+(e)
+RPSS = 0.006
+(f)
+RPSS = 0.017
+TP
+Ranked probability skill score (weeks 5-6)
+Fig. 3 As in Fig. 2, but for the RPSS of quintile forecasts relative to climatology. For TP, grid points where the
+climatological quintiles are degenerate due to near-zero precipitation are masked.
+global-average skill, with stronger positive RPSS over broad regions of the tropical and subtropical
+oceans. The largest relative improvement is found for precipitation. Despite substantial spatial
+heterogeneity in both systems, S2S-JEPA achieves an area-averaged RPSS of 0.017, compared with
+11
+
+
+0.006 for ECMWF, with coherent regions of improvement across the globe. We note that detrending
+is applied only to T2M (see Sec. 2.5), as predicted warming coinciding with the pronounced
+long-term trend could otherwise be misinterpreted as genuine forecast skill over climatology. For
+completeness, Appendix E reports MSLP and TP with the same detrending procedure. Detrending
+favors S2S-JEPA, which becomes comparable to ECMWF for MSLP and substantially better for TP
+at weeks 5–6, although the latter should be interpreted cautiously given the noisy trend estimates
+from the reforecasts.
+3.3 Sources of forecast skill
+We use controlled ablations to motivate the key design choices of S2S-JEPA, with all variants
+evaluated on the same test set under the protocol of Sec. 2.5 using TCC averaged across the
+three variables (Table 3). In particular, we examine the forecasting formulation, the role of latent
+prediction, and the training strategy for autoregressive rollouts.
+We first examine the choice of forecasting formulation for our S2S setting, as different formulations
+have been explored for S2S prediction in AI weather models, including autoregressive forecasting [19]
+and direct prediction at prescribed lead times [21]. In fact, we initially expected lead-conditioned
+forecasting to be better suited to the S2S timescale, given the potential accumulation of errors over
+repeated autoregressive steps and the strong performance demonstrated by TianQuan-S2S [21].
+For a controlled comparison, we consider two direct forecasting variants with the same backbone:
+a lead-conditioned model, with the target lead time (weeks 1–6) encoded and injected into each
+Transformer block through adaptive LayerNorm conditioning following Stormer [34], and per-lead
+experts trained separately for each target week [21]. Both variants use the same JEPA-style training
+objective, with the loss applied in latent space, isolating the forecasting formulation as the main
+difference. The results nevertheless favor autoregressive forecasting. The lead-conditioned model
+performs substantially worse across all lead times, while the per-lead experts achieve slightly higher
+skill at week 1 (0.620 versus 0.609) but fall behind from week 2 onward. We attribute these differences
+in part to the opposite trade-offs during pretraining: lead conditioning requires a single model to
+accommodate prediction tasks across widely different timescales, whereas per-lead experts restrict
+each model to samples from a single target lead time, reducing the diversity of its pretraining data.
+Autoregressive forecasting balances these two aspects by defining a consistent prediction task while
+retaining the diversity of training samples across lead times.
+The autoregressive formulation brings us to the central hypothesis behind S2S-JEPA, namely that
+predicting in latent space, rather than directly regressing the forecast fields, is key to maintaining
+12
+
+
+Table 3 Ablations of the key design choices in S2S-JEPA. Values report the mean TCC across T2M, MSLP, and
+TP at each lead time.
+Lead (week)
+Model
+1
+2
+3
+4
+5
+6
+S2S-JEPA (final)
+0.609
+0.335
+0.271
+0.241
+0.226
+0.219
+Forecasting formulation
+Lead-conditioned
+0.422
+0.265
+0.209
+0.175
+0.152
+0.141
+Per-lead experts
+0.620
+0.299
+0.232
+0.208
+0.198
+0.187
+Prediction objective
+S2S-JEPA (Stage 1 only)
+0.620
+0.295
+0.205
+0.176
+0.160
+0.155
+Supervised (Stage 1 only)
+0.647
+0.207
+0.121
+0.119
+0.116
+0.116
+Supervised (Stages 1 & 2)
+0.623
+0.318
+0.194
+0.159
+0.134
+0.120
+Rollout training
+Curriculum
+0.598
+0.313
+0.260
+0.222
+0.210
+0.207
+Mixed-horizon rollout
+0.586
+0.296
+0.251
+0.224
+0.218
+0.215
+skill at the S2S timescale. To test this directly, we train a supervised counterpart with the same
+encoder–predictor backbone, data, and training budget, replacing latent prediction with direct
+regression of the forecast fields. The supervised counterpart predicts the seven daily anomaly fields
+of the following week, so that each predicted week has the same form as the model input and is
+fed back directly as the input of the next rollout step. We first compare the two objectives after
+one-step training only (Stage 1 in Fig. 1), before either model is exposed to rollouts during training.
+Interestingly, the supervised model achieves higher skill at week 1 than S2S-JEPA (0.647 versus
+0.620), showing that direct supervised regression performs better when the task is limited to a
+single-week prediction. This suggests that, while learning in latent space does not improve one-step
+performance, it yields representations with substantially better properties for autoregressive rollout.
+The same pattern remains after rollout training (Stage 2). Both models improve from week 2 to
+week 6 at the cost of a slight decrease at week 1, and S2S-JEPA retains substantially better skill
+from week 2 onward, although the supervised model remains better at week 1. This indicates that
+rollout fine-tuning benefits both settings, but cannot compensate for the loss of rollout skill under
+direct supervised regression. We interpret this gap in rollout skill as evidence for the predict the
+predictable principle underlying S2S-JEPA. With direct supervised learning, the pointwise loss
+requires the model to account for the full target state, including variability that becomes increasingly
+unpredictable at longer timescales. In contrast, JEPA shifts the prediction target to latent space,
+encouraging representations that emphasize the more predictable components of the Earth system.
+We believe this is what allows skill learned from one-step prediction to persist naturally toward
+longer autoregressive leads.
+13
+
+
+We emphasize that this does not imply that direct field reconstruction is unsuitable for S2S
+prediction, as previous studies have demonstrated its effectiveness in S2S forecasting [19, 21]. Rather,
+the week-to-week setup considered here is particularly well aligned with the spirit of S2S-JEPA,
+as the long input and target windows emphasize slowly evolving and more predictable modes,
+while reconstructing the full target fields over the same interval makes direct supervised learning
+substantially more challenging.
+Finally, we examine the training strategy for the autoregressive model, comparing the rollout
+training strategies explored during model development. Here, we report representative comparisons
+among two-stage training, curriculum learning, and mixed-horizon rollout training. Two-stage
+training [7, 13], which first learns one-step prediction and then fine-tunes on rollouts, performs best
+at the S2S leads and is therefore adopted in the final S2S-JEPA (Stages 1–2 in Fig. 1). Curriculum
+learning [10, 19], which progressively increases the rollout depth, shifts skill toward the earlier weeks
+at the expense of longer leads. Mixed-horizon rollout training [34], which back-propagates through
+the rollout and jointly optimizes multiple forecast steps, performs slightly worse overall, although
+the gap becomes small at weeks 5–6. Overall, these results favor explicit one-step pretraining
+followed by rollout fine-tuning for optimizing skill across the S2S range, leading us to adopt this
+strategy in S2S-JEPA.
+4 Discussion
+In this work, we introduced S2S-JEPA, a latent-space forecasting framework for S2S prediction.
+The framework is motivated by a fundamental distinction between S2S and medium-range weather
+forecasting. As lead time increases, the precise evolution of individual weather systems becomes
+increasingly unpredictable, while slower and larger-scale components of the Earth system can retain
+useful predictability. S2S-JEPA therefore shifts the learning objective from reproducing every detail
+of the future atmospheric state toward predicting what remains predictable, the same principle that
+JEPA formalizes for world models by placing the prediction objective in a learned representation
+space [26]. We hypothesized that it could translate into improved forecast skill. This hypothesis
+follows a broader lesson from data-driven weather forecasting, where the successful adaptation
+of ideas from computer vision has often relied on integrating architectural innovations with the
+underlying physics as well as on transferring them [7, 8, 10, 13, 42].
+14
+
+
+In our formulation, S2S-JEPA first learns to predict the latent representation of the following
+week from the preceding week, and is then trained on autoregressive rollouts to extend predic-
+tion to six weeks. Probabilistic ensembles are generated by coupling the latent predictor with a
+diffusion-based generative model. We evaluate both deterministic and probabilistic skill against the
+operational ECMWF extended-range ensemble. Across both settings, S2S-JEPA becomes increas-
+ingly competitive with ECMWF as lead time increases. For deterministic forecasts, S2S-JEPA is
+significantly worse than the ECMWF ensemble mean at week 3, but by weeks 5 and 6 it matches it
+for MSLP and TP and achieves significantly higher TCC for T2M. A similar transition emerges in
+probabilistic forecasting. Despite a clear disadvantage across all three variables at week 3, S2S-JEPA
+matches or exceeds ECMWF at longer lead times for T2M and TP, with significant improvements
+for T2M at week 6 and TP at weeks 5 and 6, while ECMWF retains an advantage for MSLP.
+This lead-time dependence is further supported by the ablation against supervised learning, where
+the relative benefit of latent prediction likewise becomes more pronounced at longer rollout hori-
+zons. Together, these observations are consistent with our hypothesis. We expect the benefits of
+latent prediction to emerge only as the detailed evolution of the weather loses predictability while
+large-scale structure persists.
+Despite its competitive performance at longer lead times, S2S-JEPA remains substantially less
+skillful than ECMWF at weeks 1–3, constituting an important limitation of the current framework.
+It is therefore also expected to be less competitive at shorter lead times than daily-resolution
+models such as FuXi-S2S [19], whose short-lead skill is comparable to the ECMWF ensemble.
+This short-lead deficit may reflect a trade-off inherent in our formulation, where by emphasizing
+predictable information in latent space, together with the weekly temporal aggregation of both
+inputs and targets, the model may discard fine-grained information that remains valuable when
+the evolution of individual weather systems is still relatively predictable. Understanding whether
+this trade-off is intrinsic to our latent prediction formulation, and whether short-lead skill can be
+improved through alternative task formulations without sacrificing longer-lead performance, is an
+important direction for future work. We also acknowledge that S2S-JEPA does not outperform
+ECMWF across all variables and metrics even at longer lead times. One possible explanation is that
+the latent prediction objective selectively preserves predictable information, but the information
+retained in the learned representation may not align equally well with every variable. This issue
+may be less pronounced in video, where the input channels typically represent RGB values and are
+jointly interpreted as visual content. At S2S timescales, by contrast, different physical variables
+15
+
+
+can have substantially different levels and sources of predictability, potentially biasing the learned
+representation toward a certain subset of variables.
+More broadly, as the first exploration of JEPA for S2S prediction, S2S-JEPA demonstrates the
+feasibility of this direction while leaving substantial room for further development. One natural
+extension is to scale pretraining to larger and more diverse Earth-system datasets, following the
+scaling trend already established in Earth-system foundation models [12, 13]. Another promising
+direction is to incorporate masking strategies commonly used in JEPA pretraining. In particular,
+decades of S2S research have provided substantial prior knowledge about sources of subseasonal
+predictability, opening the possibility of physics-aware masking that selectively exposes or masks
+known sources of predictability. Such a strategy could encourage the model to learn physically
+meaningful predictive relationships while preventing reliance on simple shortcuts. Meanwhile,
+explainability is increasingly important in data-driven weather and climate prediction, not only
+for building trust in forecasts but also for advancing scientific understanding [43, 44]. Interpreting
+the learned representations with emerging XAI tools could reveal the physical drivers behind S2S-
+JEPA’s predictions and offer new insights into the intrinsic predictability of the Earth system [45].
+Finally, rapidly evolving JEPA formulations, such as LeWorldModel [31], together with growing
+applications of JEPA across scientific domains, offer alternative approaches to learning latent
+dynamics and could provide useful building blocks for future S2S-JEPA models. Together, these
+directions highlight representation-space prediction as a promising new avenue for extended-range
+Earth-system forecasting [46].
+16
+
+
+References
+[1] White, C.J., Carlsen, H., Robertson, A.W., Klein, R.J., Lazo, J.K., Kumar, A., Vitart, F.,
+Perez, E., Ray, A.J., Murray, V., et al.: Potential applications of subseasonal-to-seasonal (S2S)
+predictions. Meteorological applications 24(3), 315–325 (2017)
+[2] Brunet, G., Shapiro, M., Hoskins, B., Moncrieff, M., Dole, R., Kiladis, G.N., Kirtman, B.,
+Lorenc, A., Mills, B., Morss, R., et al.: Collaboration of the weather and climate communities
+to advance subseasonal-to-seasonal prediction. Bulletin of the American Meteorological Society
+91(10), 1397–1406 (2010)
+[3] Mariotti, A., Ruti, P.M., Rixen, M.: Progress in subseasonal to seasonal prediction through a
+joint weather and climate community effort. Npj Climate and Atmospheric Science 1(1), 4
+(2018)
+[4] Merryfield, W.J., Baehr, J., Batt´e, L., Becker, E.J., Butler, A.H., Coelho, C.A., Danabasoglu, G.,
+Dirmeyer, P.A., Doblas-Reyes, F.J., Domeisen, D.I., et al.: Current and emerging developments
+in subseasonal to decadal prediction. Bulletin of the American Meteorological Society 101(6),
+869–896 (2020)
+[5] Vitart, F., Ardilouze, C., Bonet, A., Brookshaw, A., Chen, M., Codorean, C., D´equ´e, M.,
+Ferranti, L., Fucile, E., Fuentes, M., et al.: The subseasonal to seasonal (S2S) prediction project
+database. Bulletin of the American Meteorological Society 98(1), 163–173 (2017)
+[6] Camps-Valls, G., Fern´andez-Torres, M.-´A., Cohrs, K.-H., H¨ohl, A., Castelletti, A., Pacal, A.,
+Robin, C., Martinuzzi, F., Papoutsis, I., Prapas, I., et al.: Artificial intelligence for modeling
+and understanding extreme weather and climate events. Nature communications 16(1), 1919
+(2025)
+[7] Pathak, J., Subramanian, S., Harrington, P., Raja, S., Chattopadhyay, A., Mardani, M., Kurth,
+T., Hall, D., Li, Z., Azizzadenesheli, K., et al.: Fourcastnet: A global data-driven high-resolution
+weather model using adaptive fourier neural operators. arXiv preprint arXiv:2202.11214 (2022)
+[8] Bi, K., Xie, L., Zhang, H., Chen, X., Gu, X., Tian, Q.: Accurate medium-range global weather
+forecasting with 3D neural networks. Nature 619(7970), 533–538 (2023)
+[9] Chen, L., Zhong, X., Zhang, F., Cheng, Y., Xu, Y., Qi, Y., Li, H.: FuXi: A cascade machine
+17
+
+
+learning forecasting system for 15-day global weather forecast. npj climate and atmospheric
+science 6(1), 190 (2023)
+[10] Lam, R., Sanchez-Gonzalez, A., Willson, M., Wirnsberger, P., Fortunato, M., Alet, F., Ravuri,
+S., Ewalds, T., Eaton-Rosen, Z., Hu, W., et al.: Learning skillful medium-range global weather
+forecasting. Science 382(6677), 1416–1421 (2023)
+[11] Price, I., Sanchez-Gonzalez, A., Alet, F., Andersson, T.R., El-Kadi, A., Masters, D., Ewalds,
+T., Stott, J., Mohamed, S., Battaglia, P., et al.: Probabilistic weather forecasting with machine
+learning. Nature 637(8044), 84–90 (2025)
+[12] Nguyen, T., Brandstetter, J., Kapoor, A., Gupta, J.K., Grover, A.: Climax: A foundation
+model for weather and climate. arXiv preprint arXiv:2301.10343 (2023)
+[13] Bodnar, C., Bruinsma, W.P., Lucic, A., Stanley, M., Allen, A., Brandstetter, J., Garvan, P.,
+Riechert, M., Weyn, J.A., Dong, H., et al.: A foundation model for the Earth system. Nature
+641(8065), 1180–1187 (2025)
+[14] Schmude, J., Roy, S., Trojak, W., Jakubik, J., Civitarese, D.S., Singh, S., Kuehnert, J., Ankur,
+K., Gupta, A., Phillips, C.E., et al.: Prithvi wxc: Foundation model for weather and climate.
+arXiv preprint arXiv:2409.13598 (2024)
+[15] Lehmann, F., Ozdemir, F., Cheng, Y., Hoefler, T., Schemm, S., Soja, B., Mishra, S.: Can AI
+Weather Models Predict Beyond Two Weeks? A Quantitative Benchmark and Analysis of Long
+Rollouts. arXiv preprint arXiv:2605.30184 (2026)
+[16] Nathaniel, J., Qu, Y., Nguyen, T., Yu, S., Busecke, J., Grover, A., Gentine, P.: Chaosbench:
+A multi-channel, physics-based benchmark for subseasonal-to-seasonal climate prediction.
+Advances in Neural Information Processing Systems 37, 43715–43729 (2024)
+[17] Weyn, J.A., Durran, D.R., Caruana, R., Cresswell-Clay, N.: Sub-seasonal forecasting with a
+large ensemble of deep-learning weather prediction models. Journal of Advances in Modeling
+Earth Systems 13(7), 2021–002502 (2021)
+[18] Cohen, J., Coumou, D., Hwang, J., Mackey, L., Orenstein, P., Totz, S., Tziperman, E.: S2S
+reboot: An argument for greater inclusion of machine learning in subseasonal to seasonal
+forecasts. Wiley Interdisciplinary Reviews: Climate Change 10(2), 00567 (2019)
+18
+
+
+[19] Chen, L., Zhong, X., Li, H., Wu, J., Lu, B., Chen, D., Xie, S.-P., Wu, L., Chao, Q., Lin, C.,
+et al.: A machine learning model that outperforms conventional global subseasonal forecast
+models. Nature Communications 15(1), 6425 (2024)
+[20] Mouatadid, S., Orenstein, P., Flaspohler, G., Cohen, J., Oprescu, M., Fraenkel, E., Mackey, L.:
+Adaptive bias correction for improved subseasonal forecasting. Nature Communications 14(1),
+3482 (2023)
+[21] Li, G., Liu, X., Liu, Y., Chen, M., Cao, S., Wang, X., Zheng, J., Zhang, J., Liang, H., Zhang,
+L., et al.: Tianquan-s2s: A subseasonal-to-seasonal global weather model via incorporate
+climatology state. In: International Conference on Learning Representations, vol. 2026, pp.
+106063–106088 (2026)
+[22] Niu, P., Ma, Z., Zhou, T., Chen, W., Shen, L., Jin, R., Sun, L.: Utilizing strategic pre-training
+to reduce overfitting: Baguan-a pre-trained weather forecasting model. In: Proceedings of the
+31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2, pp. 2186–2197
+(2025)
+[23] Nguyen, T., Pham, T., Arcomano, T., Kotamarthi, V., Foster, I., Madireddy, S., Grover, A.:
+Omnicast: A masked latent diffusion model for weather forecasting across time scales (2025)
+[24] Devlin, J., Chang, M.-W., Lee, K., Toutanova, K.: Bert: Pre-training of deep bidirectional
+transformers for language understanding. In: Proceedings of the 2019 Conference of the
+North American Chapter of the Association for Computational Linguistics: Human Language
+Technologies, Volume 1 (long and Short Papers), pp. 4171–4186 (2019)
+[25] He, K., Chen, X., Xie, S., Li, Y., Doll´ar, P., Girshick, R.: Masked autoencoders are scalable
+vision learners. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern
+Recognition, pp. 16000–16009 (2022)
+[26] LeCun, Y., et al.: A path towards autonomous machine intelligence version 0.9. 2, 2022-06-27.
+Open Review 62(1), 1–62 (2022)
+[27] Assran, M., Duval, Q., Misra, I., Bojanowski, P., Vincent, P., Rabbat, M., LeCun, Y., Ballas,
+N.: Self-supervised learning from images with a joint-embedding predictive architecture. In:
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp.
+19
+
+
+15619–15629 (2023)
+[28] Bardes, A., Garrido, Q., Ponce, J., Chen, X., Rabbat, M., LeCun, Y., Assran, M., Ballas, N.:
+V-jepa: Latent video prediction for visual representation learning (2024)
+[29] Assran, M., Bardes, A., Fan, D., Garrido, Q., Howes, R., Muckley, M., Rizvi, A., Roberts, C.,
+Sinha, K., Zholus, A., et al.: V-jepa 2: Self-supervised video models enable understanding,
+prediction and planning. arXiv preprint arXiv:2506.09985 (2025)
+[30] Zhang, W., Terver, B., Zholus, A., Chitnis, S., Sutaria, H., Assran, M., Balestriero, R., Bar, A.,
+Bardes, A., LeCun, Y., et al.: Hierarchical planning with latent world models. arXiv preprint
+arXiv:2604.03208 (2026)
+[31] Maes, L., Lidec, Q.L., Scieur, D., LeCun, Y., Balestriero, R.: Leworldmodel: Stable end-to-end
+joint-embedding predictive architecture from pixels. arXiv preprint arXiv:2603.19312 (2026)
+[32] Sun, J., Zhang, W., Qi, Z., Ren, S., Liu, Z., Zhu, H., Sun, G., Jin, X., Chen, Z.: Vla-jepa:
+Enhancing vision-language-action model with latent world model. In: European Conference on
+Computer Vision, pp. 478–497 (2026). Springer
+[33] Anirudh, K., Sandeep, S., Kodamana, H.: Tracing the Unlabeled Storm: Cross-Variable Transfer
+in a Lagrangian Atmospheric JEPA Framework. arXiv preprint arXiv:2608.22358 (2026)
+[34] Nguyen, T., Shah, R., Bansal, H., Arcomano, T., Maulik, R., Kotamarthi, V., Foster, I.,
+Madireddy, S., Grover, A.: Scaling transformer neural networks for skillful and reliable medium-
+range weather forecasting. Advances in Neural Information Processing Systems 37, 68740–68771
+(2024)
+[35] Loegel, O., Talib, J., Vitart, F., Hoffmann, J., Chantry, M.: The AI Weather Quest: an
+international competition for sub-seasonal forecasting with AI. Machine Learning: Earth 1(1),
+010701 (2025)
+[36] Hersbach, H., Bell, B., Berrisford, P., Hirahara, S., Hor´anyi, A., Mu˜noz-Sabater, J., Nicolas, J.,
+Peubey, C., Radu, R., Schepers, D., et al.: The ERA5 global reanalysis. Quarterly journal of
+the royal meteorological society 146(730), 1999–2049 (2020)
+[37] Brandstetter, J., Worrall, D., Welling, M.: Message passing neural PDE solvers. arXiv preprint
+20
+
+
+arXiv:2202.03376 (2022)
+[38] Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., Guo, B.: Swin transformer:
+Hierarchical vision transformer using shifted windows. In: 2021 IEEE/CVF International
+Conference on Computer Vision (ICCV), pp. 9992–10002 (2021). Ieee
+[39] Perez, E., Strub, F., De Vries, H., Dumoulin, V., Courville, A.: Film: Visual reasoning with a
+general conditioning layer. In: Proceedings of the AAAI Conference on Artificial Intelligence,
+vol. 32 (2018)
+[40] Couairon, G., Singh, R., Charantonis, A., Lessig, C., Monteleoni, C.: ArchesWeatherGen:
+Skillful and compute-efficient probabilistic weather forecasting with machine learning. Science
+Advances 12(17), 2372 (2026)
+[41] Karras, T., Aittala, M., Aila, T., Laine, S.: Elucidating the design space of diffusion-based
+generative models. Advances in neural information processing systems 35, 26565–26577 (2022)
+[42] Wang, X., Chen, J., Yang, J., Adie, J., See, S., Furtado, K., Chen, C., Arcomano, T., Maulik,
+R., Xue, W., et al.: CondensNet: enabling stable long-term climate simulations via hybrid deep
+learning models with adaptive physical constraints. npj Climate and Atmospheric Science 9(1),
+7 (2026)
+[43] MacMillan, T., Ouellette, N.T.: Towards mechanistic understanding in a data-driven
+weather model: internal activations reveal interpretable physical features. arXiv preprint
+arXiv:2512.24440 (2025)
+[44] Wei, J., Bora, A., Oommen, V., Dong, C., Yang, J., Adie, J., Chen, C., See, S., Karniadakis, G.,
+Mengaldo, G.: XAI4Extremes: An interpretable machine learning framework for understanding
+extreme-weather precursors under climate change. arXiv preprint arXiv:2503.08163 (2025)
+[45] Dong, C., Faranda, D., Gualandi, A., Lucarini, V., Mengaldo, G.: Time-lagged recurrence: A
+data-driven method to estimate the predictability of dynamical systems. Proceedings of the
+National Academy of Sciences 122(20), 2420252122 (2025)
+[46] Camps-Valls, G., Carrassi, A., Melo Vir´ıssimo, F., Debeire, K., Fern´andez-Torres, M.-´A., Hess,
+P., Heuer, H., Mankovich, N., Montero, D., Rodrigo-Bonet, E., et al.: Bridging the weather
+and climate divide with artificial intelligence. Nature Communications 17(1), 8578 (2026)
+21
+
+
+Appendix
+A Data
+A.1 Variable List
+For S2S-JEPA, we use daily-mean ERA5 fields on a global 1.5◦grid, with 79 time-varying input
+fields in total (Tab. 4). Beyond the atmospheric and surface variables commonly used in medium-
+range weather forecasting, our input state includes additional components relevant to subseasonal
+predictability, including soil temperature and moisture, ocean surface conditions, and an extended
+vertical coverage into the stratosphere up to 10 hPa. These additions are intended to better represent
+the slowly varying components and boundary conditions that can provide sources of predictability
+at S2S timescales.
+Table 4 Variables used by S2S-JEPA. All fields are daily means of ERA5 on the global 1.5◦grid, and short names
+follow the ERA5 convention. Pressure-level variables are taken at 1000, 925, 850, 700, 600, 500, 400, 300, 200, 100,
+50 and 10 hPa. The column Fields gives the number of two-dimensional fields that a variable contributes, which adds
+up to 79 for the time-varying inputs. The static fields enter the encoder and the insolation enters the predictor. The
+forecast targets are t2m, msl and tp.
+Type
+Variable
+Short name
+Fields
+Pressure level
+Geopotential
+z
+12
+Temperature
+t
+12
+U component of wind
+u
+12
+V component of wind
+v
+12
+Specific humidity
+q
+12
+Single level
+2 m temperature
+t2m
+1
+2 m dewpoint temperature
+d2m
+1
+Mean sea level pressure
+msl
+1
+10 m U component of wind
+u10
+1
+10 m V component of wind
+v10
+1
+Total column water vapour
+tcwv
+1
+Total precipitation
+tp
+1
+Top net thermal radiation
+ttr
+1
+Land
+Soil temperature, 4 layers
+stl1 to stl4
+4
+Volumetric soil water, 4 layers
+swvl1 to swvl4
+4
+Snow depth
+sd
+1
+Ocean
+Sea surface temperature
+sst
+1
+Sea ice area fraction
+siconc
+1
+Time-varying inputs in total
+79
+Static
+Orography
+orog
+1
+Land-sea mask
+lsm
+1
+Soil type
+slt
+1
+22
+
+
+A.2 Data Preprocessing
+All inputs are ERA5 [36] daily fields for 1979–2025 on a 1.5◦grid conservatively regridded from
+0.25◦; accumulated quantities (precipitation and top net thermal radiation) as daily totals, all others
+as daily means. To account for the heavy-tailed distribution of precipitation, daily precipitation is
+transformed as log(1 + x/ε), where ε is the 10th percentile of positive daily totals in the training
+years (1.3×10−5 m). S2S-JEPA operates in anomaly space, with anomalies defined relative to a fixed
+day-of-year climatology computed exclusively from the training years 1979–2018. Note that this
+training climatology is distinct from the 2004–2023 verification climatology used to compute TCC.
+For each variable and grid point, the climatological mean and standard deviation are estimated by
+pooling samples at day offsets −4, −2, 0, 2, 4 around each calendar day and smoothing the resulting
+day-of-year statistics using the first four annual harmonics. Anomalies are then computed as
+(x−µdoy)/σdoy and clipped at ±10 as a safeguard against extreme outliers. The −90◦row (zero area
+weight) is dropped, giving a 120 × 240 grid on which all forecasts and verification are carried out.
+B Model Architecture Detail
+B.1 S2S-JEPA
+Encoder.
+The encoder maps the seven context days to a latent state through grouped embedding followed by
+a stack of Swin Transformer blocks. Inspired by the variable-wise embedding of ClimaX [12] and
+the latent-level aggregation of Aurora [13], our grouped embedding partitions the 79 variables into
+16 physically motivated groups, which are further organized into five latent levels (Tab. 5). For each
+group, the seven context days are stacked along the channel dimension, following the treatment of
+consecutive states in GraphCast and FuXi [9, 10], and embedded by a group-specific convolution
+with 6 × 6 patches. Ocean and land variables form a boundary level; near-surface state and column
+variables form a surface level; and pressure-level variables are divided into lower-tropospheric (1000–
+700 hPa), free-tropospheric (600–200 hPa), and stratospheric (100–10 hPa) levels, reflecting the
+distinct physical regimes and the broad physical structure of the Earth system. Within each latent
+level, the resulting group embeddings are concatenated and projected to a single token per patch,
+to which sinusoidal level and positional embeddings are added. This yields N = 5 × 20 × 40 = 4000
+23
+
+
+Table 5 The 79 ERA5 variables are first partitioned into 16 physically motivated groups, which are further
+organized into five latent levels. Static inputs are appended to the groups indicated in the fourth column. Total
+denotes the number of distinct fields in each row, including dynamic variables and static inputs. For each group, the
+seven input days are stacked channel-wise and embedded with a 6 × 6 patch convolution. The resulting group
+embeddings within each latent level are then concatenated and projected to a single token per patch.
+Latent level
+Group
+Variables
+Static Input
+Total
+Boundary
+Ocean
+sst, siconc
+Orography, land–sea
+mask, soil type
+5
+Land
+sd, stl1-4, swvl1-4
+Orography, land–sea
+mask, soil type
+12
+Surface
+Near-surface
+t2m, d2m, msl, u10,
+v10
+Orography, land–sea
+mask, soil type
+8
+Column
+tcwv, tp, ttr
+Orography, land–sea
+mask, soil type
+6
+Lower troposphere
+1000,
+925,
+850,
+700 hPa
+q, t, u, v, z at each
+level
+Orography
+21
+Free troposphere
+600, 500, 400, 300,
+200 hPa
+q, t, u, v, z at each
+level
+–
+25
+Stratosphere
+100, 50, 10 hPa
+q, t, u, v, z at each
+level
+–
+15
+tokens of width d = 512. The tokens are processed by six Swin Transformer blocks [38] with three-
+dimensional windows in the spirit of Aurora [13]. Each window spans all five levels and 4×4 patches,
+so that vertical coupling is resolved in every layer.
+Predictor.
+The predictor maps the encoded state to the latent representation of the following week. It first
+applies two global self-attention blocks to globally contextualize the encoded state, which then
+serves as the memory for prediction. To construct the next latent state, one learned query is assigned
+to each of the N = 4000 positions on the 5 × 20 × 40 latent grid. These queries are processed by
+eight predictor blocks, each consisting of global cross-attention to the encoded memory, windowed
+self-attention among the queries, and an MLP. Global cross-attention allows each predicted token
+to access the entire current state, capturing long-range dependencies such as teleconnections,
+while windowed self-attention enables local information exchange among tokens of the predicted
+state. Unlike predictors conditioned on lead time [34], ours always advances the state by one
+week and is instead conditioned on the input week climatology. The climatological mean and log-
+standard deviation of all variables at the input week, together with top-of-atmosphere insolation,
+are embedded following the same level structure as the encoder and modulate the three branches of
+every query block through FiLM layers [39]. The predictor thus defines a non-autonomous operator
+with explicit seasonal forcing. It predicts all five latent levels, including the boundary level, yielding
+24
+
+
+a complete latent state that can be fed directly into the next prediction step. During training, each
+step is trained against the teacher representation of its corresponding target week.
+B.2 Deterministic readout head
+A lightweight convolutional head decodes the latent state into physical fields and is shared across
+all rollout steps. At each spatial patch, the tokens from the five latent levels are concatenated and
+passed through a 1 × 1 convolution, a 3 × 3 convolution, and a final 1 × 1 convolution with GELU
+activations. The output channels are then rearranged into 6 × 6 pixels by pixel shuffle, recovering
+the 120 × 240 grid. The head predicts standardized weekly-mean anomalies for all 79 variables,
+rather than only the three forecast targets, providing a diagnostic of how much information about
+the full Earth-system state is retained in the latent representation. Precipitation is instead predicted
+as the weekly total in the logarithmic space, since averaging daily values after the log transform
+does not preserve the weekly total.
+The readout head is trained jointly with the backbone but acts only as a probe: its latitude-
+weighted mean-squared-error loss is computed against the ground truth, and gradients are stopped
+at the latent state so that the readout loss does not shape the learned representation. At inference,
+the shared head is applied after each of the six rollout steps, producing deterministic forecasts at
+7–42-day leads for evaluation in Section 2.5.
+B.3 Diffusion-based generative model
+Ensemble members are generated by a conditional diffusion model that learns the residual between
+the verifying truth and the deterministic forecast, with both the backbone and readout head kept
+frozen. A separate model is trained for each of the three target variables.
+The diffusion model is conditioned on the decoded deterministic forecasts of the three target
+variables at the same lead, on the latent state from which they were decoded, on the forecast lead,
+and on the day of year of the target week. The latent state is the predictor output at that lead: one
+vector per 6 × 6 patch, formed by concatenating the five level tokens of the patch (5 × 512 channels),
+which gives 800 latent tokens on the 20 × 40 patch grid. The denoising network is a U-Net on the
+120 × 240 grid whose two coarsest stages work on the same 20 × 40 grid, so that every feature of
+these stages corresponds to exactly one latent token. At these stages each field token attends to all
+800 latent tokens through cross-attention. The diffusion-based generator therefore reads the latent
+state that produced the forecast, not only the decoded fields. Following GenCast [11], we adopt the
+25
+
+
+EDM preconditioning and training objective [41] with unit data scale. Each model is trained on
+1979–2018, and the checkpoint with the lowest fair CRPS on 2019–2021 is selected.
+Ensemble members are sampled using the second-order Heun solver of EDM with 20 steps along
+a power-law noise schedule. The resulting ensemble is calibrated separately for each variable and
+lead on initializations from January 2022 to 6 December 2023, preceding the test period. Members
+are centred on the deterministic forecast and their deviations are scaled, in the standardised frame
+and for precipitation in the logarithmic frame, such that the ensemble spread matches the error
+of the deterministic forecast. Calibration is performed in standardized anomaly space and, for
+precipitation, in logarithmic space, before applying the inverse transformations. The test ensembles
+contain 50 members, while the hindcasts used to construct the model’s own climatology (Sec. 2.5)
+contain 11 members.
+C Training details
+All models were trained on a single NVIDIA H200 GPU with PyTorch 2.7, bfloat16 autocast and
+the AdamW optimiser (β1 = 0.9, β2 = 0.95, weight decay 0.05 for the forecast model and 0.1 for
+the diffusion heads). Gradients are clipped to a global norm of 1. Learning rates follow a warmup–
+stable–decay schedule: a linear warmup, a constant plateau and a linear decay to zero over the final
+iterations given in Table 6. Snapshots are written every 1,000 iterations and the reported model is
+the snapshot with the best validation skill, never the last one.
+Table 6 lists the detailed settings of the two training stages. Stage 1 trains the encoder, the
+predictor and the readout head on (one step) with the joint-embedding objective: the predicted
+latent state is compared with the LayerNorm-standardised, stop-gradient encoding of the target
+week by an exponential-moving-average (EMA) teacher. The loss is the L1 distance per token,
+weighted by the cosine of latitude; each latent dimension is rescaled by the inverse of its running
+standard deviation so that no dimension dominates. The teacher momentum increases linearly from
+0.999 to 1 over the stage. Stage 2 continues from the Stage-1 weights at iteration 10,000 with a
+fresh optimiser and rolls the predictor for all K = 6 steps. Every step is trained against the teacher
+encoding of its own target week with the same objective, the latent state is detached between steps,
+and the teacher is frozen. The learning rate of the backbone is 25 times smaller than in Stage 1; the
+readout head keeps its learning rate. Stage 2 also switches the precipitation target of the readout
+head to the weekly total in the logarithmic frame. The validation set is a fixed subset of 1,048
+initialisations from 2019–2021 on which the model is rolled out to 42 days every 500 iterations; the
+26
+
+
+Stage-2 snapshot at iteration 2,000 had the best validation skill at weeks 3–6 and is the model used
+throughout the paper.
+Table 6 Training settings of the forecast model. Both stages use the same architecture (91.0M trainable parameters
+including the readout head), the same data and the same optimiser.
+Stage 1: pre-training
+Stage 2: rollout fine-tuning
+Initialisation
+random
+Stage 1, iteration 10,000
+Rollout steps per sample
+1
+6 (leads 7–42 days)
+Objective
+JEPA (L1 in latent space)
+JEPA
+at
+every
+step,
+detached hand-offs
+Teacher
+EMA, momentum 0.999 →1
+frozen
+Context / target length
+7 / 7 days
+7 / 7 days
+Batch size
+32
+32
+Learning rate (backbone / readout head)
+5 × 10−5 / 10−4
+2 × 10−6 / 10−4
+Schedule (warmup / total / decay)
+1,000 / 20,000 / 2,000
+300 / 4,000 / 400
+Table 7 lists the training settings of the diffusion model, which are shared by the three heads
+except for the noise distribution, whose mean and spread were chosen per variable on the validation
+years. Each head is trained on rollouts of the frozen S2S-JEPA model with the residual normalised
+per lead and variable, and the snapshot with the lowest fair CRPS on the validation years is kept.
+Members are drawn with the Heun sampler of EDM and calibrated as described in Appendix B.
+Table 7 Training settings of the diffusion model (one head per variable, 9.3M parameters each).
+Setting
+Value
+Noise distribution (Pmean, Pstd)
+T2M (−0.6, 1.4); MSLP (0.5, 1.7); TP (−1.8, 1.0)
+Data scale σdata
+1 (residual normalised per lead and variable)
+Training years / validation years
+1979–2018 / 2019–2021
+Batch size
+32
+Learning rate
+2 × 10−4, warmup 200, decay over the last 600 of 3,000 iterations
+Weight decay
+0.1
+EMA of weights
+0.999
+Validation
+every 250 iterations, 32 initialisations, 8 members, 10 sampling steps
+Selection criterion
+lowest fair CRPS
+Sampling
+Heun, 20 steps, σ from 80 to 0.002, ρ = 7
+Members
+50 (test), 11 (hindcasts)
+D Significance Test
+Differences between two systems are assessed with a paired moving-block bootstrap over the
+102 initialisation dates. Weekly initialisations are not independent, because target weeks overlap
+and consecutive initialisations share the same slowly varying background, so resampling single
+dates would overstate the effective sample size. We therefore resample blocks of eight consecutive
+27
+
+
+initialisations with replacement until 102 dates are reached, and use the same resampled dates
+for both systems, so that the difference is evaluated on identical weather. For the TCC the per-
+grid-point correlation is recomputed on each resample before the area-weighted mean is taken; for
+the RPSS the per-initialisation area-mean RPS of both systems and of the uniform forecast are
+resampled and the skill scores recomputed, with climatologies, trends and calibration kept fixed.
+Each test uses 1,000 resamples; a difference is called significant when the 2.5–97.5 percentile interval
+of its bootstrap distribution excludes zero. Blocks of eight weeks absorb sub-seasonal autocorrelation
+but not interannual variability; with two test years the intervals should be read as optimistic.
+E Trend removal in the probabilistic evaluation
+Following the protocol of FuXi-S2S, a linear trend can be removed from forecasts and observations
+before the quintile categories are formed, so that no skill is awarded for reproducing the warming
+of the reference period. The main text applies this step to T2M only, because its trend is large and
+well estimated, whereas the MSLP trend is negligible and the per-grid-point precipitation trend
+is dominated by sampling noise. Figure 4 shows the same evaluation with the trend removed for
+MSLP and TP as well. Here, the scores shift in favour of S2S-JEPA, mainly because the ECMWF
+scores decrease markedly; we attribute this to the noise of the extrapolated precipitation trend
+rather than to forecast skill and therefore do not use it in the main text.
+-0.20
+-0.10
+0.00
+0.10
+0.20
+-0.12
+-0.06
+0.00
+0.06
+0.12
+ECMWF IFS (101-member ensemble)
+(a)
+RPSS = 0.025
+S2S-JEPA (EDM ensemble)
+(b)
+RPSS = 0.025
+MSLP
+(c)
+RPSS = -0.062
+(d)
+RPSS = 0.004
+TP
+Ranked probability skill score, detrended (weeks 5-6)
+Fig. 4 As in Fig. 3, but with system-specific linear trends removed for MSLP and TP.
+28

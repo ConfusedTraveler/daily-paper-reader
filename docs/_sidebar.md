@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-10-06 <!--dpr-date:20261006-->
+    * 精读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/06/2610.03106v1-s2s-jepa-predicting-the-predictable-at-subseasonal-to-seasonal-timescales" data-sidebar-item="{&quot;title&quot;: &quot;S2S-JEPA: Predicting the Predictable at Subseasonal-to-Seasonal Timescales&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2610.03106v1-s2s-jepa-predicting-the-predictable-at-subseasonal-to-seasonal-timescales&quot;, &quot;score&quot;: &quot;9.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;可预测性荒漠与只预测可预测分量&quot;}">S2S-JEPA: Predicting the Predictable at Subseasonal-to-Seasonal Timescales</a>
   * 2026-10-03 <!--dpr-date:20261003-->
     * 速读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202610/03/2610.00637v1-learning-linear-systems-under-heavy-tailed-noise-a-non-asymptotic-analysis-from-a-single-trajectory" data-sidebar-item="{&quot;title&quot;: &quot;Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2610.00637v1-learning-linear-systems-under-heavy-tailed-noise-a-non-asymptotic-analysis-from-a-single-trajectory&quot;, &quot;score&quot;: &quot;6.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;pred-limit&quot;}], &quot;evidence&quot;: &quot;向量自回归估计的非渐近样本复杂度界&quot;}">Learning Linear Systems under Heavy-Tailed Noise: A Non-Asymptotic Analysis from A Single Trajectory</a>
