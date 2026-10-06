@@ -1,15 +1,15 @@
 {
   "mode": "standard",
-  "generated_at": "2026-10-06T00:47:48.025953+00:00",
+  "generated_at": "2026-10-06T22:59:55.992413+00:00",
   "stats": {
     "mode": "standard",
     "tag_count": 1,
     "deep_divecandidates": 1,
     "deep_cap": 6,
     "deep_selected": 1,
-    "quick_candidates": 0,
+    "quick_candidates": 8,
     "quick_skim_target": 11,
-    "quick_selected": 0
+    "quick_selected": 8
   },
   "deep_dive": [
     {
@@ -34,13 +34,13 @@
         "query:pred-limit"
       ],
       "llm_score": 9.0,
-      "llm_evidence_en": "predictability desert and predicting only the predictable components",
-      "llm_evidence_cn": "可预测性荒漠与只预测可预测分量",
-      "llm_evidence": "可预测性荒漠与只预测可预测分量",
-      "canonical_evidence": "可预测性荒漠与只预测可预测分量",
-      "llm_tldr_en": "Argues AI weather models fail beyond two weeks because they predict unpredictable fine-scale details, and proposes predicting only slowly varying predictable components in latent space for subseasonal-to-seasonal forecasting.",
-      "llm_tldr_cn": "次季节到季节时间尺度被称为可预测性荒漠，现有AI天气模型两周后迅速退化，因为它们被训练去预测既不可预测也不重要的细尺度细节。作者借鉴联合嵌入预测架构，提出只在潜空间预测缓慢变化且真正可预测的分量。在S2S预报任务上，该方法在两周到两月的窗口内改善了可预测分量的预测。这为面向可预测性的物理化预报目标提供了新范式。",
-      "llm_tldr": "次季节到季节时间尺度被称为可预测性荒漠，现有AI天气模型两周后迅速退化，因为它们被训练去预测既不可预测也不重要的细尺度细节。作者借鉴联合嵌入预测架构，提出只在潜空间预测缓慢变化且真正可预测的分量。在S2S预报任务上，该方法在两周到两月的窗口内改善了可预测分量的预测。这为面向可预测性的物理化预报目标提供了新范式。",
+      "llm_evidence_en": "forecast only predictable components, predictability desert",
+      "llm_evidence_cn": "只预测可预测成分，可预测性荒漠",
+      "llm_evidence": "只预测可预测成分，可预测性荒漠",
+      "canonical_evidence": "只预测可预测成分，可预测性荒漠",
+      "llm_tldr_en": "Argues AI weather models fail beyond two weeks by fitting unpredictable fine-scale details; proposes S2S-JEPA to forecast only slowly-varying predictable components in latent space, improving subseasonal-to-seasonal forecasts.",
+      "llm_tldr_cn": "针对次季节到季节预报这一可预测性荒漠，现有AI天气模型在两周后性能迅速退化，因其过度拟合既不可预测也不重要的细节。作者借鉴视觉领域的联合嵌入预测架构JEPA，提出在潜在空间中只预测缓慢变化的可预测分量，从而丢弃不可预测细节。实验表明该方法在S2S尺度上优于逐点精细预测。该工作强调识别可预测性边界、只预测可预测部分对中长期预报具有重要价值。",
+      "llm_tldr": "针对次季节到季节预报这一可预测性荒漠，现有AI天气模型在两周后性能迅速退化，因其过度拟合既不可预测也不重要的细节。作者借鉴视觉领域的联合嵌入预测架构JEPA，提出在潜在空间中只预测缓慢变化的可预测分量，从而丢弃不可预测细节。实验表明该方法在S2S尺度上优于逐点精细预测。该工作强调识别可预测性边界、只预测可预测部分对中长期预报具有重要价值。",
       "llm_tags": [
         "query:pred-limit"
       ],
@@ -50,5 +50,321 @@
       "selection_source": "fresh_fetch"
     }
   ],
-  "quick_skim": []
+  "quick_skim": [
+    {
+      "id": "2609.34847v1",
+      "source": "arxiv",
+      "title": "Context-dependent time-series prediction via HyperReservoirs",
+      "abstract": "Time series prediction is a common application of reservoir computing. When the training and testing time series data contains multiple dynamical regimes, because an underlying parameter is changing, or the data in fact consists of multiple distinct systems, simple application of the reservoir computing principle produces high prediction errors. Here, we propose a HyperReservoir as an extended model of reservoir computing especially designed for such cases. The HyperReservoir combines a main reservoir with a smaller context reservoir, where the latter modulates the output weights of the former. This structure resembles the hypernetworks from deep neural network literature. However, in contrast, HyperReservoirs retain the simple training via linear regression of standard reservoir computing. We compare the proposed architecture with a conventional ESN, in which context acts at the input, and a full-matrix Conceptor, in which context modulates the reservoir state space. We evaluate all three models on time-series prediction tasks based on Lorenz and Rössler systems, including for varying bifurcation parameters and time sampling scales. We find that the HyperReservoir achieves the lowest mean test error in all three tasks, and particularly outperforms conceptors on data that is sampled from the same attractor but at different time scales.",
+      "authors": [
+        "Kohei Tsuchiyama",
+        "Takatomo Mihana",
+        "Ryoichi Horisaki",
+        "André Röhm"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "nlin.AO",
+        "nlin.CD"
+      ],
+      "published": "2026-09-28T10:42:25+00:00",
+      "link": "https://arxiv.org/pdf/2609.34847v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "time-series prediction under multiple dynamical regimes",
+      "llm_evidence_cn": "多动态机制下的时间序列预测",
+      "llm_evidence": "多动态机制下的时间序列预测",
+      "canonical_evidence": "多动态机制下的时间序列预测",
+      "llm_tldr_en": "Reservoir computing fails when time series contain multiple dynamical regimes; the paper proposes HyperReservoirs combining a main reservoir with a context reservoir that modulates output weights, retaining simple linear-regression training while reducing prediction errors.",
+      "llm_tldr_cn": "储备池计算在训练与测试数据包含多个动态机制时预测误差较高，限制了其应用。本文提出超储备池模型，通过较小的上下文储备池调制主储备池的输出权重，同时保留线性回归的简单训练方式。实验表明该方法能有效降低多机制数据下的预测误差。其贡献在于为上下文相关的时间序列预测提供了简洁而有效的扩展框架。",
+      "llm_tldr": "储备池计算在训练与测试数据包含多个动态机制时预测误差较高，限制了其应用。本文提出超储备池模型，通过较小的上下文储备池调制主储备池的输出权重，同时保留线性回归的简单训练方式。实验表明该方法能有效降低多机制数据下的预测误差。其贡献在于为上下文相关的时间序列预测提供了简洁而有效的扩展框架。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.35217v1",
+      "source": "arxiv",
+      "title": "A Hierarchy of Entropy-Shapley Games for Multivariate Predictive Uncertainty",
+      "abstract": "Modern probabilistic machine learning models increasingly produce multivariate outputs with complex dependence structure, from multi-step time-series forecasts to sample path predictions. Understanding which input features drive the predictive uncertainty is important for risk-aware decisions, model diagnostics, and deciding whether the uncertainty should be mitigated or hedged against. This attribution problem requires a choice of how dependencies between output components are treated. Existing approaches reduce the output to a scalar through aggregation or projection before attribution, thereby obscuring whether features affect marginal uncertainty, dependence structure, or both, while component-wise analyses can miss dependence effects entirely. We close this gap by introducing a hierarchy of three entropy-based Shapley games that make this output-side choice explicit for any ordered multivariate outcome, ranging from per-component marginal entropy to fully joint entropy. The hierarchy isolates a cross-component attribution term that captures how each feature shifts the dependence between output components, a quantity invisible to component-wise methods. We establish a chain-rule decomposition of the joint attribution and characterize the cross-component term through conditional total correlation, providing both closed-form and sample-based estimators. Finally, we demonstrate how the framework captures differences in learned joint structure across probabilistic models from distributional regression to a zero-shot time series foundation model.",
+      "authors": [
+        "Niklas Koenen",
+        "Claudia Battistin",
+        "Jeriek Van den Abeele",
+        "Martin Jullum"
+      ],
+      "primary_category": "stat.ML",
+      "categories": [
+        "stat.ML",
+        "cs.LG"
+      ],
+      "published": "2026-09-28T14:04:38+00:00",
+      "link": "https://arxiv.org/pdf/2609.35217v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "entropy-based attribution of multivariate predictive uncertainty in time-series forecasts",
+      "llm_evidence_cn": "对时间序列预测的多变量不确定性进行熵归因分析",
+      "llm_evidence": "对时间序列预测的多变量不确定性进行熵归因分析",
+      "canonical_evidence": "对时间序列预测的多变量不确定性进行熵归因分析",
+      "llm_tldr_en": "Probabilistic models produce multivariate outputs with complex dependence; existing attribution collapses outputs to scalars, hiding marginal versus dependence effects. The paper proposes a hierarchy of Entropy-Shapley games to attribute predictive uncertainty without aggregation.",
+      "llm_tldr_cn": "概率模型的多变量输出（如多步时间序列预测）具有复杂的依赖结构，现有不确定性归因方法将输出聚合为标量，掩盖了特征对边缘不确定性与依赖结构的差异化影响。本文提出熵-沙普利博弈层级框架，在不聚合输出的前提下分解预测不确定性来源。实验表明该框架能区分特征对边缘与依赖不确定性的贡献。其贡献在于为风险感知决策与模型诊断提供了更细粒度的不确定性归因工具。",
+      "llm_tldr": "概率模型的多变量输出（如多步时间序列预测）具有复杂的依赖结构，现有不确定性归因方法将输出聚合为标量，掩盖了特征对边缘不确定性与依赖结构的差异化影响。本文提出熵-沙普利博弈层级框架，在不聚合输出的前提下分解预测不确定性来源。实验表明该框架能区分特征对边缘与依赖不确定性的贡献。其贡献在于为风险感知决策与模型诊断提供了更细粒度的不确定性归因工具。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical predictability analysis",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2609.37971v1",
+      "source": "arxiv",
+      "title": "Comparing Utility of Inertial, Occupancy, Semantic, and Intent Information in Human Motion Prediction During Daily Tasks",
+      "abstract": "Accurate human motion prediction is crucial for robotic systems operating around people, particularly in complex indoor spaces. In this study, we assess the relative importance of different sources of information in indoor motion prediction with a human motion diffusion model. We collected a dataset of nine naive human subjects conducting simulated indoor daily activities while wearing a pair of Meta Aria glasses. This dataset includes ten buildings from a university campus, and encompasses 238 minutes of navigation between daily tasks. Overall, we demonstrate a 42% improvement beyond a constant velocity baseline. Including body motion, scene representation, and eye gaze fixation data significantly reduced prediction error. Semantic information was found to be useful for indoor motion prediction, but to a lesser degree than in outdoor navigation. Providing explicit intent information reduced error beyond any other addition, suggesting that incorporating explicit intent estimation or user input are fundamental for finer prediction of indoor motion. One of the few indicators of intent, eye gaze fixation, was found to be especially useful in predicting deceleration, and provided basic spatial information to the model in the absence of an occupancy map. These results are a first step towards predicting human motion in highly ambiguous indoor scenarios. Code will be made public upon acceptance. Project page: https://human-motion-diffusion.github.io/",
+      "authors": [
+        "Max Burns",
+        "Maisha Khanum",
+        "Monroe Kennedy",
+        "Steven H. Collins"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-09-29T16:38:13+00:00",
+      "link": "https://arxiv.org/pdf/2609.37971v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "human motion prediction, information sources utility",
+      "llm_evidence_cn": "人体运动预测与信息源效用",
+      "llm_evidence": "人体运动预测与信息源效用",
+      "canonical_evidence": "人体运动预测与信息源效用",
+      "llm_tldr_en": "Assesses which information sources matter for indoor human motion prediction with a diffusion model on an Aria-glasses dataset; adding body motion, scene, and gaze data yields 42% improvement over a constant velocity baseline.",
+      "llm_tldr_cn": "针对室内环境中机器人需准确预测人体运动的问题，作者采集九名受试者佩戴Meta Aria眼镜完成日常任务的导航数据，并用人体运动扩散模型评估惯性、占用、语义与意图等信息的相对重要性。结果显示相比恒速基线预测提升42%，加入身体运动、场景表征与眼动注视数据能显著改善性能。该工作揭示了多源信息融合对室内人体运动预测的价值，为服务机器人导航提供依据。",
+      "llm_tldr": "针对室内环境中机器人需准确预测人体运动的问题，作者采集九名受试者佩戴Meta Aria眼镜完成日常任务的导航数据，并用人体运动扩散模型评估惯性、占用、语义与意图等信息的相对重要性。结果显示相比恒速基线预测提升42%，加入身体运动、场景表征与眼动注视数据能显著改善性能。该工作揭示了多源信息融合对室内人体运动预测的价值，为服务机器人导航提供依据。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.00976v2",
+      "source": "arxiv",
+      "title": "Variational Streaming Flow: Probabilistic Forecasting in Physical Time",
+      "abstract": "Probabilistic forecasting is important for predicting complex dynamical systems because intrinsic randomness and incomplete observations can cause the same observed state to evolve into multiple plausible futures. While flow matching is a flexible approach for probabilistic forecasting, it is computationally expensive. Streaming flow (SF) reformulates this approach to model temporal evolution efficiently by learning a continuous velocity field directly in physical time. However, SF learns a deterministic velocity field. Thus, it provides only a single future trajectory for a given fixed initial state and observation history. To overcome this limitation, we introduce Variational Streaming Flow (VSF). Our approach learns a latent distribution that is conditioned on the dynamics of interest. In turn, this enables probabilistic forecasting. Importantly, we retain the computational efficiency of SF by generating in physical time. Across deterministic and stochastic dynamical systems, VSF demonstrates superior predictive accuracy and distributional fidelity. We demonstrate the advantage for both long-horizon rollouts exceeding 1,000 steps, and settings with bifurcating dynamics. Moreover, VSF can be integrated into existing Joint-Embedding Predictive Architecture (JEPA)-based world models as a plug-and-play predictor to improve temporal dynamics and goal-directed success rate in navigation, motion planning, and manipulation.",
+      "authors": [
+        "Hans Hao-Hsun Hsu",
+        "Minseon Gwak",
+        "Soon Hoe Lim",
+        "Pan Li",
+        "N. Benjamin Erichson"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-01T03:10:43+00:00",
+      "link": "https://arxiv.org/pdf/2610.00976v2",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "probabilistic forecasting with multiple plausible futures captures uncertainty of time series",
+      "llm_evidence_cn": "概率预测刻画时间序列的多种可能未来与不确定性",
+      "llm_evidence": "概率预测刻画时间序列的多种可能未来与不确定性",
+      "canonical_evidence": "概率预测刻画时间序列的多种可能未来与不确定性",
+      "llm_tldr_en": "Variational Streaming Flow addresses that deterministic streaming flow yields only one future trajectory. It learns a latent distribution to generate diverse probabilistic forecasts in physical time, improving expressive time-series forecasting.",
+      "llm_tldr_cn": "概率预测对复杂动力系统很重要，因为内在随机性与观测不完整会使同一状态演化出多种未来。流匹配灵活但计算昂贵，流式流虽高效却只学习确定性速度场，仅给出单一未来轨迹。为此作者提出变分流式流，学习潜变量分布以在物理时间上刻画随机演化，从而生成多样的概率预测。该工作提升了高效概率预测的表达能力。",
+      "llm_tldr": "概率预测对复杂动力系统很重要，因为内在随机性与观测不完整会使同一状态演化出多种未来。流匹配灵活但计算昂贵，流式流虽高效却只学习确定性速度场，仅给出单一未来轨迹。为此作者提出变分流式流，学习潜变量分布以在物理时间上刻画随机演化，从而生成多样的概率预测。该工作提升了高效概率预测的表达能力。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.01320v1",
+      "source": "arxiv",
+      "title": "ProtoFlow: Prototype-Guided Flow Matching for Multivariate Time Series Forecasting",
+      "abstract": "Generative modeling has shown strong promise for multivariate time mseries (MTS) forecasting, especially scale to high-dimensional settings. Diffusion-based methods achieve competitive performance but typically require many sampling steps at inference. VAE-based non-iterative forecasting frameworks have therefore emerged as an efficient alternative. Within this line of work, vector quantization (VQ) enables controllable latent space modeling by mapping multivariate series into compact discrete representations. Existing VQ-based forecasting methods, however, typically rely on autoregressive (AR) token generation, which suffers from exposure bias and training-inference mismatch. Flow matching provides an efficient non-autoregressive alternative for latent forecasting, but existing formulations usually initialize transport from a generic Gaussian prior. We instead observe that the trained VQ codebook already captures representative latent prototypes and can thus serve as a more informative prior for flow matching. Based on this insight, we propose ProtoFlow, a forecasting framework that combines vector-quantized autoencoding with Prototype-prior Flow matching. Our method first maps multivariate sequences into a discrete latent space, then constructs a structured prior from the learned codebook, and finally learns a DiT-based rectified flow to transport samples from this prior to future latent representations conditioned on historical observations. By replacing generic noise initialization with a learned prototype prior, ProtoFlow avoids the rollout mismatch of AR token prediction and promotes faster training convergence. Extensive experiments on benchmark datasets show that it consistently achieves superior forecasting performance with efficient inference.",
+      "authors": [
+        "Shibo Feng",
+        "Wanjin Feng",
+        "Yang Qiu",
+        "Deheng Ye",
+        "Peilin Zhao",
+        "Chunyan Miao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-10-01T08:48:18+00:00",
+      "link": "https://arxiv.org/pdf/2610.01320v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multivariate time-series forecasting with generative flow matching",
+      "llm_evidence_cn": "基于生成式流匹配的多变量时间序列预测",
+      "llm_evidence": "基于生成式流匹配的多变量时间序列预测",
+      "canonical_evidence": "基于生成式流匹配的多变量时间序列预测",
+      "llm_tldr_en": "Diffusion forecasters need many sampling steps while VQ-based non-iterative methods rely on autoregressive token generation with exposure bias; ProtoFlow uses prototype-guided flow matching for efficient non-autoregressive multivariate forecasting.",
+      "llm_tldr_cn": "多变量时间序列预测中，扩散模型采样步数多，而基于矢量量化的非迭代方法依赖自回归生成，存在曝光偏差与训练-推理不一致问题。本文提出ProtoFlow，利用原型引导的流匹配实现高效的非自回归预测。实验表明该方法在保持高效的同时提升了多变量预测精度。其贡献在于为生成式时间序列预测提供了更稳定高效的建模范式。",
+      "llm_tldr": "多变量时间序列预测中，扩散模型采样步数多，而基于矢量量化的非迭代方法依赖自回归生成，存在曝光偏差与训练-推理不一致问题。本文提出ProtoFlow，利用原型引导的流匹配实现高效的非自回归预测。实验表明该方法在保持高效的同时提升了多变量预测精度。其贡献在于为生成式时间序列预测提供了更稳定高效的建模范式。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.02777v1",
+      "source": "arxiv",
+      "title": "Efficient conformal prediction intervals for time series: Online PID-Expert aggregation",
+      "abstract": "For a given point forecaster, proportional-integral-derivative (PID) calibration configurations can attain similar overall coverage yet produce different interval widths. We introduce PID-Expert, an online aggregation method for improving the efficiency of conformal prediction intervals for time series. PID-Expert combines thresholds from a fixed library of PID calibrators, each evolving under its own coverage feedback. Aggregation weights depend on normalized interval width and miscoverage, while a shared multiplier adapts the miscoverage penalty using feedback from the reported interval. We establish local regret bounds for weighted expert losses under the realized multiplier sequence and, separately, a pathwise upper bound on time-averaged aggregate miscoverage, with control in expectation and almost surely under a stability condition. Across four simulation settings and two real-data applications, PID-Expert produces narrower mean intervals than a prespecified Conformal PID benchmark while keeping overall empirical coverage close to the nominal level. Compared with expert selection and equal averaging, aggregation generally provides a more balanced coverage--width trade-off across forecasting settings. Rolling analyses further reveal local coverage--efficiency trade-offs, particularly following abrupt distributional shifts. Overall, PID-Expert reduces reliance on a single PID configuration while improving interval efficiency.",
+      "authors": [
+        "Guodong Liu",
+        "Yanfei Kang",
+        "Ren Miao",
+        "Xiaoqian Wang"
+      ],
+      "primary_category": "stat.ME",
+      "categories": [
+        "stat.ME"
+      ],
+      "published": "2026-10-02T04:07:51+00:00",
+      "link": "https://arxiv.org/pdf/2610.02777v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "theoretical bounds on time series prediction intervals",
+      "llm_evidence_cn": "时间序列预测区间的理论界",
+      "llm_evidence": "时间序列预测区间的理论界",
+      "canonical_evidence": "时间序列预测区间的理论界",
+      "llm_tldr_en": "Conformal prediction intervals for time series vary in width across PID calibrations. PID-Expert aggregates calibrators online, with regret and pathwise coverage bounds, improving interval efficiency.",
+      "llm_tldr_cn": "针对给定点预测器时不同PID校准配置虽覆盖相近却产生不同区间宽度的问题，本文提出PID-Expert在线聚合方法以提升时间序列共形预测区间效率。该方法结合固定PID校准器库的阈值，权重依赖归一化区间宽度与失覆盖率。研究给出加权专家损失的局部遗憾界及时间平均覆盖的逐路径上界。其贡献在于为时序预测不确定性量化提供具理论保证的高效区间方法。",
+      "llm_tldr": "针对给定点预测器时不同PID校准配置虽覆盖相近却产生不同区间宽度的问题，本文提出PID-Expert在线聚合方法以提升时间序列共形预测区间效率。该方法结合固定PID校准器库的阈值，权重依赖归一化区间宽度与失覆盖率。研究给出加权专家损失的局部遗憾界及时间平均覆盖的逐路径上界。其贡献在于为时序预测不确定性量化提供具理论保证的高效区间方法。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "theoretical bounds on prediction accuracy in time series",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.04827v1",
+      "source": "arxiv",
+      "title": "GRAM: Correcting Frozen Time-Series Foundation Models via Graph-Retrieved Amplitude Memory",
+      "abstract": "Time-series foundation models (TSFMs) enable zero-shot forecasting through large-scale cross-domain pretraining, while retrieval augmentation further improves their performance by leveraging historical information. However, existing methods typically correct TSFM forecasts using the ground-truth futures of similar historical windows, which contain both predictive components already captured by the foundation model and sample-specific random fluctuation that is difficult to transfer. In contrast, recurring systematic model bias within prediction errors more directly characterizes the failure modes of a frozen TSFM and therefore provides more valuable correction signals. Effectively exploiting such model bias, however, poses two challenges: prediction errors at different numerical levels are difficult to compare due to scale differences, and the recurring bias must be extracted from prediction errors contaminated by random fluctuation. To address these challenges, we propose GRAM, a general retrieval-augmented framework for frozen TSFMs. GRAM first introduces an Amplitude Memory Module (AMM) that scales prediction errors by amplitude and aggregates them into retrievable prototypes. It then employs a Prototype Graph Module (PGM) to model relations among prototypes to aggregate consistent bias information while suppressing random fluctuation. During online forecasting, GRAM retrieves and expands prototypes relevant to the current query and generates per-horizon corrections to refine the original TSFM forecast. Experiments across multiple datasets and foundation models demonstrate consistent forecasting improvements.",
+      "authors": [
+        "Xiaoyun Yu",
+        "Xiangfei Qiu",
+        "Yonggui Huang",
+        "Shixiang Tang",
+        "Nanqing Dong",
+        "Wanli Ouyang",
+        "Geguang Pu",
+        "Honggang Qi",
+        "Jilin Hu",
+        "Xi Chen"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-10-04T00:20:36+00:00",
+      "link": "https://arxiv.org/pdf/2610.04827v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "correcting time-series forecasts, analyzing prediction error bias",
+      "llm_evidence_cn": "校正时间序列预测并分析预测误差偏差",
+      "llm_evidence": "校正时间序列预测并分析预测误差偏差",
+      "canonical_evidence": "校正时间序列预测并分析预测误差偏差",
+      "llm_tldr_en": "Time-series foundation models retain systematic bias in zero-shot forecasting; GRAM exploits recurring model bias in prediction errors via graph-retrieved amplitude memory as a more transferable correction signal than similar-window ground truths.",
+      "llm_tldr_cn": "时间序列基础模型在零样本预测中仍存在系统性偏差，现有检索增强方法用相似历史窗口的真实未来进行校正，易引入难以迁移的随机波动。本文提出GRAM，通过图检索的幅度记忆捕捉预测误差中反复出现的系统性模型偏差，作为更有效的校正信号。实验表明该方法能更准确校正冻结基础模型的预测。其贡献在于揭示了利用模型偏差而非样本波动进行检索增强的新思路。",
+      "llm_tldr": "时间序列基础模型在零样本预测中仍存在系统性偏差，现有检索增强方法用相似历史窗口的真实未来进行校正，易引入难以迁移的随机波动。本文提出GRAM，通过图检索的幅度记忆捕捉预测误差中反复出现的系统性模型偏差，作为更有效的校正信号。实验表明该方法能更准确校正冻结基础模型的预测。其贡献在于揭示了利用模型偏差而非样本波动进行检索增强的新思路。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predictability of time series",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2610.06210v1",
+      "source": "arxiv",
+      "title": "MoCAR: Motion-code Coordinate-aware AutoRegression for Continuous Trajectory Forecasting",
+      "abstract": "Autoregressive generation is natural for language, where predicted tokens can be directly reused as the next prediction state, but trajectory forecasting lacks such a clean token: motion is continuous, multimodal, and expressed in local coordinate frames that evolve with the predicted trajectory. We present MoCAR (Motion-code Coordinate-aware AutoRegression), a decoder-only framework that casts trajectory forecasting as next-code prediction in a coordinate-aware continuous latent space. MoCAR learns a continuous motion-code space from endpoint-normalized trajectory segments, where each code jointly captures local trajectory geometry and the reference-frame transition induced by that segment. Historical motion codes are used as a teacher-forced prefix, future codes are generated autoregressively under temporal, map, agent, and mode interactions, and predicted codes persist in latent memory while decoded endpoints update the local scene context. This enables rollout without trajectory-space re-tokenization, trajectory queries, goal candidates, or proposal-and-refinement pipelines. On Argoverse (AV) benchmarks, MoCAR achieves top-tier performance with a simple single-stage architecture, transfers strongly from AV2 to AV1 in zero-shot evaluation, and improves on turn-heavy scenarios. Ablations confirm that the learned continuous motion-code space, latent alignment, weak KL regularization, and joint tokenizer-predictor optimization are essential for stable latent autoregression.",
+      "authors": [
+        "Yiming Xu",
+        "Hao Cheng",
+        "Monika Sester"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-10-05T12:22:04+00:00",
+      "link": "https://arxiv.org/pdf/2610.06210v1",
+      "tags": [
+        "keyword:pred-limit",
+        "query:pred-limit"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "continuous trajectory forecasting as next-code prediction in a coordinate-aware latent space",
+      "llm_evidence_cn": "在坐标感知隐空间把连续轨迹预测转化为下一运动码预测",
+      "llm_evidence": "在坐标感知隐空间把连续轨迹预测转化为下一运动码预测",
+      "canonical_evidence": "在坐标感知隐空间把连续轨迹预测转化为下一运动码预测",
+      "llm_tldr_en": "Trajectory forecasting lacks reusable discrete tokens; MoCAR casts it as next-code prediction in a coordinate-aware continuous latent space learned from endpoint-normalized segments.",
+      "llm_tldr_cn": "轨迹预测不像语言那样拥有可直接复用的离散token，运动连续、多模态且处于随预测变化的局部坐标系中。本文提出MoCAR，在坐标感知的连续隐空间中将轨迹预测转化为下一运动码预测，并从端点归一化的轨迹片段学习运动码。方法以历史运动码作为教师信号进行自回归建模，实现坐标一致的连续轨迹预测。该框架为人类移动性预测提供了新的自回归思路。",
+      "llm_tldr": "轨迹预测不像语言那样拥有可直接复用的离散token，运动连续、多模态且处于随预测变化的局部坐标系中。本文提出MoCAR，在坐标感知的连续隐空间中将轨迹预测转化为下一运动码预测，并从端点归一化的轨迹片段学习运动码。方法以历史运动码作为教师信号进行自回归建模，实现坐标一致的连续轨迹预测。该框架为人类移动性预测提供了新的自回归思路。",
+      "llm_tags": [
+        "query:pred-limit"
+      ],
+      "matched_query_tag": "query:pred-limit",
+      "matched_query_text": "predicting human mobility patterns",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
 }
