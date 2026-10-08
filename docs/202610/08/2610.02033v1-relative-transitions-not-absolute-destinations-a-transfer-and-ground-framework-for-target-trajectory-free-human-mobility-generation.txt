@@ -1,0 +1,910 @@
+Title: Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation
+
+URL Source: https://arxiv.org/pdf/2610.02033v1
+
+Published Time: Fri, 02 Oct 2026 02:06:09 GMT
+
+Number of Pages: 16
+
+Markdown Content:
+# Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation 
+
+## Yidi Wang 
+
+wang.yidi@connect.um.edu.mo SKL-IOTSC, Department of CIS, University of Macau Macau SAR, China 
+
+## Yunhe Zhang 
+
+SKL-IOTSC, Department of CIS, University of Macau Macau SAR, China zhangyhannie@gmail.com 
+
+## Bangchao Deng 
+
+SKL-IOTSC, Department of CIS, University of Macau Macau SAR, China yc37980@um.edu.mo 
+
+## Dingqi Yang 
+
+SKL-IOTSC, Department of CIS, University of Macau Macau SAR, China dingqiyang@um.edu.mo 
+
+## Pengyang Wang ✉
+
+SKL-IOTSC, Department of CIS, University of Macau Macau SAR, China pywang@um.edu.mo 
+
+Abstract 
+
+Individual mobility trajectories support urban analysis and location-based services, yet most trajectory generators require observations from their deployment city. This assumption excludes precisely the cities where trajectories are unavailable even though points of interest (POIs) and their attributes can be obtained from pub-lic maps. We study target-trajectory-free generation : learning from POIs and trajectories in source cities while utilizing only POI coor-dinates and categories in a target city, with no target trajectory or trajectory-derived statistic available for training, model selection, or generation. Existing trajectory generators typically predict ab-solute destinations, entangling reusable movement behavior with city-specific POI identities and spatial layouts. Our core insight is to replace this city-bound output with context-conditioned relative transitions. We propose Nomad , a transfer-and-ground framework that separates learning how people move from determining where those movements are realized. Specifically, a history-conditioned flow-matching model learns from source trajectories a transition prior over semantic displacement between POI contexts, geographic displacement, and elapsed time; at inference, a behavior graph and an exploration–return walk ground sampled transitions onto the target POI map. This factorization enables a direct test of represen-tation level transferability without assuming invariance of the full mobility distribution. Extensive experiments across ten cities and 14 transfers show that Nomad outperforms adaptation baselines in tra-jectory fidelity and downstream utility, lowering the average error over the best baseline of each metric by about 15% in distributional fidelity and about 3% in downstream utility. Mechanism-level anal-yses further show that, under matched contexts, relative transitions 
+
+> Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than the author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+> Conference acronym ’XX, Woodstock, NY
+> © 2018 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 978-1-4503-XXXX-X/2018/06 https://doi.org/XXXXX.XXXXX
+
+contain less city-specific information and transition generation suffers less cross-city degradation than its absolute destination counterpart. Together, these findings suggest that separating move-ment relations from city-specific place identities provides a more transferable basis for mobility synthesis in unseen cities without target-city trajectories. 
+
+CCS Concepts 
+
+• Computing methodologies → Modeling and simulation .
+
+Keywords 
+
+Human Mobility; Transfer Learning; Simulation; Flow Matching 
+
+ACM Reference Format: 
+
+Yidi Wang, Yunhe Zhang, Bangchao Deng, Dingqi Yang, and Pengyang Wang. 2018. Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Gener-ation. In Proceedings of Make sure to enter the correct conference title from your rights confirmation email (Conference acronym ’XX). ACM, New York, NY, USA, 16 pages. https://doi.org/XXXXX.XXXXX 
+
+1 Introduction 
+
+Individual mobility trajectories support transportation and travel-demand analysis [55], epidemic simulation [7, 13], location-based services [9, 64, 65], and the study of urban function [33, 66]. How-ever, most trajectory generators assume that the deployment city already provides enough trajectories for training or adaptation. A newly deployed location-based service can only obtain the city’s map before it has accumulated local check-in histories. Alterna-tively, target trajectories may be held by another platform or insti-tution but remain inaccessible because of data privacy concerns [3]. By contrast, public mapping platforms provide POI coordinates and categories without exposing individual movements [19]. This asymmetry motivates a different question from conventional in-city generation: can a source-trained model generate target-city trajecto-ries given only the target POI map at deployment? 
+
+We formalize these deployment conditions as a strict setting, namely target-trajectory-free . Here, target-trajectory-free does not mean that no trajectories exist in the city, but that none are available arXiv:2610.02033v1 [cs.LG] 1 Oct 2026 Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Figure 1: NYC vs. TKY: same transitions, different POIs. 
+
+to the model developer. A model may leverage POIs and trajectories from one or more source cities. For the target city, it is restricted to POI-relevant information such as coordinates and categories, but it may not access any target trajectories or trajectory-derived statis-tics. The benchmark reserves target trajectories exclusively for final diagnosis and evaluation. This information boundary distinguishes the problem from domain adaptation and few-shot transfer: the target city is visible as a set of places, but its mobility behavior is unavailable. Existing methods do not naturally satisfy this boundary because they generate a city-specific object. In-city adversarial, imitation, and diffusion models learn directly from trajectories in the de-ployment city [10, 12, 14, 42, 71, 72]. Cross-city and meta-learning methods reduce the amount of target supervision, but typically re-tain target observations, a shared spatial grid, city-specific location embeddings, or a target output layer [22, 36, 56–58]. Their common prediction target is the next absolute destination 𝑝 𝑘 , whose identity and empirical frequency are defined only within one city’s POI vocabulary. When target trajectories are absent, the problem is not merely that this distribution is estimated from fewer samples: the target-specific output probabilities have never been observed. Human mobility nevertheless exhibits recurring statistics across cities, including heavy-tailed travel distances, exploration–return patterns, and repeated activity motifs [5, 17, 38, 47, 50]. These obser-vations motivate transfer, but they do not establish that complete mobility distributions are invariant across cities. Fig. 1 compares absolute destinations and relative transitions on NewYork (NYC) and Tokyo (TKY). The spatial layout and the popularity of POIs dif-fer between the two cities. In contrast, the transition distribution is highly consistent across the two cities at the level of the functional semantics of places. It demonstrates that relative transitions carry less city-specific information than absolute destinations. Motivated by this hypothesized difference, we reformulate cross-city generation around relative transitions rather than absolute destinations. We transfer a source-learned prior over context con-ditioned relative transitions to capture how people move , and then ground its samples on target-city POIs to determine where those movements are realized . Unlike an absolute destination, such a tran-sition is defined by relations between place contexts rather than by a city-private POI identity. We realize this separation with No-mad , a transfer-and-ground framework. Because POIs in different cities share neither identities nor comparable coordinates, a multi-relational graph encoder represents each POI through its category, coordinates, and spatial-semantic neighborhood, while a cross-city objective maps functionally similar contexts into a comparable rep-resentation space. A history-conditioned flow-matching model then learns from source trajectories a prior over semantic displacement, geographic displacement, and elapsed time in this space. Modeling relations rather than POI identities allows the prior to incorporate temporal and trajectory history without treating source-specific locations as prediction targets. The sampled transitions are contin-uous, whereas a target trajectory consists of discrete POIs. Nomad 
+
+therefore snaps each sample to a target POI and aggregates these assignments into a behavior graph without accessing target trajec-tories. Walking this graph accounts for exploration, but a relative displacement cannot specify a return to a particular previously visited place. An exploration–return pointer walk handles this dis-tinction by either following a graph edge or revisiting a POI from the generated history. Thus, source trajectories determine how peo-ple move, while the target map determines where those movements can be realized. The main contributions are: 
+
+• We formulate target-trajectory-free mobility generation and spec-ify an evaluation protocol in which the target contributes a POI map but no trajectory-derived training or generation signal. 
+
+• We introduce a transfer-and-ground factorization that represents movement through context-conditioned semantic displacement, geographic displacement, and elapsed time, then realizes sam-pled transitions on the target POI map through behavior-graph grounding and exploration–return modeling. 
+
+• Across 10 cities and 14 source-to-target transfers, Nomad im-proves trajectory fidelity by about 15% and downstream train-on-synthetic–test-on-real utility by about 3% over six baselines. Controlled analyses further show that relative transitions contain less city-specific information under matched contexts and incur less cross-city degradation than absolute-destination generation, directly supporting the proposed mechanism. 
+
+2 Preliminary 2.1 Problem Formulation 
+
+Definition 2.1 (POI) . A point of interest (POI) is a place 𝑖 associated with geographic coordinates ℓ𝑖 = (lat 𝑖 , lon 𝑖 ) and a category 𝑐 𝑖 ∈ K ,where K is the category vocabulary. The POIs of a city form a set P = {𝑝 1, . . . , 𝑝 𝑁 } of size 𝑁 , which we connect into a graph 
+
+G = (P , E) whose edges E link spatially or semantically related POIs. Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Behavior Graph     
+
+> Graph Encoder
+> 𝜹𝜹
+> …
+> …
+> POIs Alignment
+> STAGE 1: Cross-city Alignment
+> 𝓛𝓛𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂𝒂
+> 𝑊𝑊 𝑟𝑟
+> Inducing
+> …
+> 𝐾𝐾
+> Target City
+> Transition
+> Source City
+> STAGE 2: Flow Matching in Transition Space STAGE 3: Grounding to the target city
+> �𝜹𝜹
+> Transition
+> Pointer Network
+> walk
+> selecting
+> 𝓛𝓛𝒇𝒇𝒇𝒇
+> 𝑐𝑐𝑘𝑘
+> Transformer
+> Initial POI
+> 𝑣𝑣𝜃𝜃 𝜹𝜹 𝒕𝒕 ,𝑡𝑡 ,𝐜𝐜
+> 𝜹𝜹1 𝜹𝜹0
+> 𝒕𝒕 ∼ 𝑼𝑼 (0, 1), 𝜹𝜹𝑡𝑡
+> interpolation
+> Time Time
+
+Figure 2: Architecture overview of Nomad. Definition 2.2 (Trajectory) . A check-in (𝑝, 𝑡 ) records a user’s visit to POI 𝑝 at timestamp 𝑡 . A trajectory is a discrete, time-ordered sequence 𝜏 =  (𝑝 1, 𝑡 1), . . . , (𝑝 𝐿 , 𝑡 𝐿 ) of 𝐿 check-ins, with 𝑡 1 ≤ 𝑡 𝐿 .
+
+Definition 2.3 (Target-trajectory-free Generation) . Let S index the source cities. For each source city 𝑠 ∈ S we observe its POI set P𝑠 and a set of real trajectories T 𝑠 over P𝑠 , whereas for the target city we observe only its POI set Ptgt . The task is to learn a generator 𝑓 (·) :
+
+bT tgt = 𝑓 
+
+
+
+{(P 𝑠 , T 𝑠 )} 𝑠 ∈ S , Ptgt 
+
+, (1) whose output bT tgt is a set of check-in trajectories over Ptgt that is distributionally close to the real trajectories of the target city. The defining constraint is that the target trajectory set T tgt , and any statistic derived from it. This information boundary separates the problem from domain adaptation and few-shot transfer learning, where target observations remain available. 
+
+2.2 Transferability of Transitions 
+
+Definition 2.3 forbids any target trajectory, so 𝑓 can rely only on structure that is shared across cities. We argue that this shared structure lies in the transitions between places rather than in the absolute places visited. and we accordingly read a trajectory as a chain of transitions. 
+
+Definition 2.4 (Transition) . A transition is the move between two consecutive check-ins (𝑝 𝑘 −1, 𝑡 𝑘 −1) and (𝑝 𝑘 , 𝑡 𝑘 ). We describe it by three quantities that do not name an absolute destination, namely a representation of the change of place context, the ground displacement between the two POIs, and the elapsed time Δ𝑡 =
+
+𝑡 𝑘 − 𝑡 𝑘 −1. A trajectory is then a chain of such transitions. The task above transfer what is learned from source trajectories to a city that has none. Whether the transition view supports such transfer needs justification. Based on the classical invariance the-ory [2, 25], we now characterize which transition representations transfer across cities, and show that the displacement between POI embeddings is the canonical one. To begin, we establish a transla-tion alignment assumption for this problem, Let h be any map that embeds every POI of every city into a shared space H .
+
+Assumption 2.5 (Translation Alignment) . For two cities 𝐴 and 
+
+𝐵 , let 𝜑 be a functional correspondence that maps a POI of 𝐴 to a POI of 𝐵 playing the same functional role. There exists an offset 
+
+t𝐴𝐵 ∈ H such that h𝜑 (𝑝 ) = h𝑝 + t𝐴𝐵 for all 𝑝 ∈ P 𝐴 .That is, the cities populate the shared space as copies of one functional layout that differ only by a shift, in the spirit of relations as embedding differences [2, 4]. This is a requirement on the learned representation rather than on raw data. To satisfy this assumption, we introduced a cross-city shared encoder in Sec. 3.1. With the space aligned up to a shift, we next define what it means for a transition representation to transfer across cities. 
+
+Definition 2.6 (Transferable Transition Representation) . A transi-tion representation 𝐹 assigns a vector 𝐹 (h𝑎 , h𝑏 ) to the move from POI 𝑎 to 𝑏 . It is transferable if functionally equivalent moves receive the same value in every city: 
+
+𝐹  h𝜑 (𝑎 ) , h𝜑 (𝑏 )
+
+ = 𝐹  h𝑎 , h𝑏 
+
+. (2) Under Assumption 2.5 this is exactly invariance to a common shift of both arguments, and the classical factorization of invariant functions [25] yields the following: Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Theorem 2.7. Under Assumption 2.5, the displacement 𝜹 (𝑎, 𝑏 ) =
+
+h𝑏 − h𝑎 is transferable, and it is complete in that every transferable transition representation is a function of 𝜹 . Hence, whenever the as-sumption holds, a transition distribution fitted on source cities applies to the functionally same moves of any other city without target data. 
+
+The proof is deferred to Appendix A.1. We stress that the guar-antee is conditional. It does not assert that real cities admit such a representation, but that once the encoder aligns them up to a shift, modeling 𝜹 preserves all transferable information. The theorem also delimits what 𝜹 alone cannot carry. 
+
+3 Methodology 
+
+In this section, we present a three-stage framework Nomad for target-trajectory-free generation, as illustrated in Fig. 2. 
+
+3.1 Cross-City POI Alignment 
+
+The goal of this stage is to approximate Assumption 2.5, which embeds the POIs of every city into one shared semantic space. What defines the role of a POI is not its identity but its attributes and the places around it. We therefore build the POIs of each city into a multi-relational graph, which edges are induced by spatial location, and node features are derived from the category semantics and geographic coordinates. Finally, we encode this graph with a Relation-aware Graph Attention Network to capture the shared representation underlying functionally similar POIs across cities. 
+
+Multi-relational POIs Graph. Specifically, We connect the POIs of each city with three relations. We first partition the city into hexagonal cells, following the standard way in spatial analysis [60]. Each cell covers a compact local area of roughly one square kilometer. Within a cell, we link each POI to its nearest neighbors, so that places close to each other are connected. Across neighboring cells, we link each POI to its nearest neighbors, so that its wider spatial surroundings are connected. For each POI, we also link the nearest POIs of the same category, so that places of similar role are connected. All three kinds of edges are built by nearest-neighbor search over geographic distance. The input feature of a POI is made of its coordinates and category semantics. We obtain the semantics by encoding the category name with Sentence-BERT [44]. We write the feature of POI 𝑖 as x𝑖 =
+
+[ ¯ℓ𝑖 ∥ s𝑐 𝑖 ], where ¯ ℓ𝑖 is the normalized coordinates and s𝑐 𝑖 is the category embedding. For each relation 𝑟 , a GATv2 [6] turns the neighbors of a POI into a per-relation representation h𝑟 . It takes the attention-weighted sum of the neighbor features as follows: 
+
+𝑒 𝑟 𝑖 𝑗 = a⊤ 
+
+> 𝑟
+
+𝜎  W𝑟 [x𝑖 ∥ x𝑗 ],𝛼 𝑟 𝑖 𝑗 = exp (𝑒 𝑟 𝑖 𝑗 )
+
+Í𝑘 ∈ N 𝑟 (𝑖 ) exp (𝑒 𝑟 𝑖𝑘 ) ,
+
+h𝑟 𝑖 = 𝜎 
+
+∑︁     
+
+> 𝑗 ∈ N 𝑟 (𝑖 )
+
+𝛼 𝑟 𝑖 𝑗 W𝑟 x𝑗 
+
+
+
+,
+
+(3) where W𝑟 and a𝑟 are the projection and attention vector of relation 
+
+𝑟 , 𝜎 is a nonlinearity. An aggregation layer then merges the per-relation representations h𝑟 into the updated POI embedding, 
+
+h𝑖 =∑︁ 𝑟 (𝛽 𝑟 h𝑟 𝑖 ), (4) where 𝛽 is the learnable weight. We train the encoder jointly on the graphs of multiple source cities, so that it learns to align functionally similar POIs across cities. 
+
+Multi-task Alignment Objective. To drive the POI represen-tations toward cross-city alignment, we optimize the encoder with three tasks at different levels. At the node level, a classification head 
+
+W𝑐𝑎𝑡 predicts the category of each POI from its embedding. On a masked subset M of nodes, whose category features are hidden, we minimize the cross-entropy: 
+
+Lcat = 1
+
+|M| ∑︁ 𝑖 ∈ M 
+
+C  𝑐 𝑖 , Wcat h𝑖 
+
+, (5) where C(·) is the cross-entropy function, 𝑐 𝑖 is the true category of node 𝑖 . At the link level, a link prediction loss recovers masked edges and keeps the embedding geometry consistent with the graph. For each masked edge (𝑢, 𝑣 ) and a sampled non-edge (𝑢, 𝑣 − ), we minimize the cross-entropy: 
+
+Llink = 1
+
+|E 𝑚 |∑︁ (𝑢,𝑣 ) ∈ E 𝑚 
+
+h
+
+C  1, 𝜎 (h⊤ 
+
+> 𝑢
+
+h𝑣 ) + C  0, 𝜎 (h⊤ 
+
+> 𝑢
+
+h𝑣 − )i
+
+, (6) where E𝑚 is the set of masked edges, the label is 1 for a true edge 
+
+(𝑢, 𝑣 ) and 0 for a sampled non-edge (𝑢, 𝑣 − ). 𝜎 (·) is the activation function. At the cross-city level, a contrastive loss pulls each POI toward a place of a similar category in another city while pushing it away from POIs of distinct categories:                   
+
+> Lcon =−1
+> | A | ∑︁ 𝑎 ∈A
+> log exp  sim (h𝑎 ,h+)/ 𝜏 
+> exp  sim (h𝑎 ,h+)/ 𝜏 +Í𝑗 exp  sim (h𝑎 ,h−
+> 𝑗 )/ 𝜏 ,
+> (7)
+
+where h+ and {h− 
+
+> 𝑗
+
+} are the positive and negatives drawn from pre-built sets. The sim (·) is cosine similarity, and 𝜏 is a temperature. Consequently, the overall loss function for the cross-city encoder is formulated as follows: 
+
+Lalign = Lcon + 𝜆 cat Lcat + 𝜆 link Llink , (8) where 𝜆 𝑐𝑎𝑡 and 𝜆 𝑙𝑖𝑛𝑘 are the balanced parameters. The aggregated GAT describes a POI by its spatial and categorical neighborhood, so functionally similar places acquire similar embeddings in cities that share no POI. The multi-task objective supplies the training signal that shapes this space. The category and link tasks make an embedding encode what a POI is and how it sits among its neighbors. The contrastive task then draws the same function from different cities into one region, so that the per-city embeddings become a single city-agnostic space. This is the precondition for extracting human movement knowledge across cities. 
+
+3.2 Flow Matching in the Transition Space 
+
+With all POIs placed in one shared space, this stage now model how people move within it. We construct the transition vector, and learn its distribution with a flow-matching-based generator from which new transitions can be sampled. 
+
+Transition Vector. The object we model is the transition vector, which describes a single move between two consecutive check-ins. For two consecutive check-ins (𝑝 𝑘 −1, 𝑝 𝑘 ) we form it by subtracting the two POI embeddings in the shared space and appending a temporal and a geographic channel: 
+
+𝜹 𝑘 =  (h𝑝 𝑘 − h𝑝 𝑘 −1 ) 𝜙 time (Δ𝑡 𝑘 ) 𝜙 geo (Δℓ𝑘 ) , (9) Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+where Δ𝑡 𝑘 is the time gap. Δℓ𝑘 is the ground displacement. 𝜙 time , 𝜙 geo 
+
+encode them separately. Because every channel is a difference rather than an absolute value, 𝜹 𝑘 records what kind of move was made, not where it happened, and is therefore transferable across cities. By Theorem 2.7, this choice is canonical rather than heuristic. The difference is transferable, so modeling 𝜹 loses nothing. 
+
+History-conditioned Training. Another crucial design of this stage is how a source trajectory becomes training samples. Each sample can be a single transition 𝜹 𝑘 . Yet according to Corol-lary A.1, 𝜹 is anti-symmetric and blind to its anchor, so it cannot express where a move starts, which direction it prefers, or whether it returns to a familiar place. We therefore further condition the model on the trajectory history. Concretely, we supply the sequence of past POI embeddings as a context c𝑘 = (h𝑝 1 , . . . , h𝑝 𝑘 −1 ) and ap-ply a mask that hides every later check-in, so the model predicts the 𝑘 -th move from the first 𝑘 −1 steps. In this way one trajectory yields a transition sample at every step, while at generation the same network draws a transition from a single conditioning POI. 
+
+Flow-matching Generator. Given these samples we introduce a standard flow-matching generator [31, 52]. It draws noise 𝜹 0 ∼N ( 0, I), interpolates it with the real transition 𝜹 1 = 𝜹 𝑘 along the straight path 𝜹 𝑡 = (1 − 𝑡 )𝜹 0 + 𝑡 𝜹 1, and trains a velocity network 
+
+𝑣 𝜃 conditioned on c𝑘 to regress the transport velocity: 
+
+Lfm = E𝑡, 𝜹 0,𝜹 1 𝑣 𝜃 (𝜹 𝑡 , 𝑡, c𝑘 ) − ( 𝜹 1 − 𝜹 0) 22. (10) We instantiate this velocity network 𝑣 𝜃 as a Transformer that runs over the whole trajectory in one pass following [35, 40]. The input is the noised transitions, all of POI embeddings and the flow time 𝑡 . Its output is the predicted velocity 𝑣 𝜃 (𝜹 𝑡 , 𝑡, c𝑘 ). Each token carries only the step 𝑘 , formed by projecting its noised transition 
+
+𝜹 𝑡 𝑘 and the 𝑘 -th POI embedding into a latent space. A learnable positional embedding PE 𝑘 marks the step’s order: 
+
+u𝑘 = [𝜹 𝑡 𝑘 ∥ h𝑝 𝑘 −1 ] + PE 𝑘 . (11) The complete history of each trajectory is incorporated into the training process by a standard self-attention mechanism with an auto-regressive mask. Step 𝑘 attends only to the tokens at positions 
+
+𝑘 ′ ≤ 𝑘 , which lets it read the whole context c𝑘 while never seeing a later step. The flow time 𝑡 is injected by modulating every block with adaptive layer normalization, following the time conditioning of DiT [40] and the feature-wise affine modulation of FiLM [41]. During the generation, a transition is drawn by integrating the learned velocity from noise. Starting from 𝜹 0 with a conditioning context c, we solve the flow ODE from 𝑡 =0 to 𝑡 =1 with 𝑁 forward-Euler steps of size Δ𝑡 = 1/𝑁 ,
+
+𝜹 𝑡 +Δ𝑡 = 𝜹 𝑡 + Δ𝑡 𝑣 𝜃 (𝜹 𝑡 , 𝑡, c), 𝑡 = 0, 1 
+
+> 𝑁
+
+, . . . , 𝑁 −1 
+
+> 𝑁
+
+. (12) The endpoint ˆ𝜹 = 𝜹 1 is the generated transition. Setting the context c to a target-city POI yields the sampler that the next stage grounds into trajectories. By generating in the transition space rather than over absolute locations, this stage decouples the pattern of movement from the specific places a city contains. The generator learns only how moves unfold and carries none of the source city’s POIs, so it can transfer to an unseen city without retraining. 
+
+3.3 Grounding in Unseen Cities 
+
+Here the generator produces continuous transitions, but a trajectory generally is a sequence of discrete POIs of the target city. We bridge this gap in two steps: an induction step that turns the generated samples into a behavior graph over the target POIs, and a grounding step that walks this graph into trajectories. 
+
+Behavior Graph Induction. For the first step, we build a static behavior graph before grounding. For every target POI 𝑖 , we condi-tion the frozen generator on h𝑖 and draw 𝐾 transitions { ˆ𝜹 (𝑠 ) }𝐾 𝑠 =1.Each sampled transition is snapped to the target POI whose own displacement from 𝑖 best matches it in both the semantic and the geographic channel: 
+
+𝑗 ★ ( ˆ𝜹 ) = arg max  
+
+> 𝑗
+
+cos   ˆ𝜹 sem , (h𝑗 − h𝑖 ) + cos   ˆ𝜹 geo , 𝜙 geo (Δℓ𝑖 𝑗 ),
+
+(13) where ˆ𝜹 sem and ˆ𝜹 geo are the semantic and geographic part of ˆ𝜹 . The candidates are restricted to POIs of the target city. Counting how often each successor is chosen over the 𝐾 draws gives a transition probability 𝑃 (𝑖 → 𝑗 ):
+
+𝑃 (𝑖 → 𝑗 ) = 1
+
+𝐾 
+
+> 𝐾
+
+∑︁ 
+
+> 𝑠 =1
+
+ 𝑗 ★ ( ˆ𝜹 (𝑠 ) ) = 𝑗  . (14) By retaining the high-probability successors of each POI, we can obtain a directed weighted behavior graph G𝐵 over the target POIs. 
+
+Pointer Network Grounding. For the second step, we will walk G𝐵 into a trajectory. Exploring the graph alone would only ever move to new places, but real mobility also returns to familiar ones [50]. Therefore, at each step the walk should decide whether to return and where to return. By Corollary A.1, such a return preference is history dependent and cannot live in 𝜹 itself, so it may be decided by a module conditioned on the walk history. We introduce a lightweight Pointer Network [48, 53], pre-trained on the source city trajectories in which every step is labeled as a return or a new move. At a step 𝑘 we form a contextual feature vector: 
+
+𝝃 𝑘 =
+
+h
+
+sin 2𝜋 hod 𝑘  
+
+> 24
+
+, cos 2𝜋 hod 𝑘  
+
+> 24
+
+, 𝑘 𝐿 , dist (ℓ𝑝 𝑘 , ℓ𝑝 1 )
+
+i
+
+, (15) where hod 𝑘 ∈ [0, 24 ) is the hour of day encoded cyclically by the first two entries, 𝑘 /𝐿 is the normalized step index, and the last entry is the haversine distance from the current POI to the start POI 𝑝 1. Concatenating these features with the current POI embedding, a two-layer MLP encodes them into a walk state st 𝑘 =
+
+MLP ([ h𝑝 𝑘 ∥ 𝝃 𝑘 ]) . From this state we use two heads to read the decisions. A gate decides whether to return and an attention score decides where to return: prob 𝑘 = 𝜎  w⊤ 
+
+> 𝑔
+
+st 𝑘 
+
+,
+
+score 𝑘 ( 𝑗 ) = softmax 𝑗 <𝑘 
+
+ st ⊤ 
+
+> 𝑘
+
+w𝑎 h𝑝 𝑗 
+
+, (16) where prob 𝑘 is the probability of returning at step 𝑘 , score 𝑘 is the resulting distribution over which past POI to revisit. w𝑔 and w𝑎 are the learnable weights, 𝜎 is the activation function. Finally, We draw a return with probability prob 𝑘 , and on a return we sample the revisited POI from score 𝑘 . Otherwise the walk explores, sampling the next POI from the out-edges 𝑃 (𝑝 𝑘 → ·) of G𝐵 . The network is trained on the source trajectories, jointly by a binary loss on the gate against the return label and a cross-entropy on the attention head against the revisited POI on the return steps. Additionally, we Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+introduce a trade-off coefficient 𝜆 𝑔𝑎𝑡𝑒 to combine the two losses and jointly train the Pointer Network. Because the balance between returning and exploring is a mobility regularity that holds across cities [38, 50], the return rate the gate learns on the source transfers as a prior rather than requiring any target data. Together these two steps, we can assemble a full trajectory. We first sample a random timestamp and a start POI from the target city. At each step the Pointer Network follows the decisions and the behavior graph to the next place. The coordinate of the step is the coordinate of the visited POI. The time gap comes from the inverse of transition. We repeat until the sampled length. Finally, we can obtain a full synthetic trajectory of the target city’s own POIs, with coordinates and times. Please refer to Appendix D for detailed pro-cedures of the proposed algorithm, corresponding computational analysis and running time comparison. 
+
+4 Experiments 4.1 Experimental Settings 
+
+4.1.1 Baselines. We compare our method with six adaptation base-lines. Markov [16] is a category-level Markov chain that is es-timated on the source and grounded to the nearest target POIs. 
+
+DITRAS [37] is a diary-based generator with category-level tran-sitions and a gravity-style grounding that places each step by tar-get POI density and distance. Gravity [1] is the classic spatial-interaction model whose distance-decay exponents are fit on the source and applied to the target. MIRAGE [12] is a graph-enhanced discrete diffusion model that we adapt to the target city by map-ping the output representations to the nearest POIs in the target city. COLA [58] is a cross-city Mobility Transformer whose output vocabulary is extended to the target POIs, and GTG [56] is a graph Transformer with domain adaptation capability. Here the statistics from source cities are as its input to adapt our zero-shot setting. 
+
+4.1.2 Evaluation Metrics. Following standard practice [11, 12], we evaluate the generation results in two aspects. One aspect is the 
+
+downstream task utility based on “training on synthetic data, testing on real data”. We train prediction and recommendation models using the generated trajectories, test them on a real target set, and report the gap between these models and those trained on real data. The prediction models include FPMC [46], BERT4Rec [51], SRGNN [61], and SASRec [23]. Their gaps are averaged into Pred-MAPE 
+
+and Pred-MSPE . The recommendation models include DMF [62], MultiVAE [30], NeuMF [20], and BPR [45]. Their gaps are averaged into Rec-MAPE and Rec-MSPE . The other aspect is distributional similarity between generated and real trajectories. OD-Sim is the similarity of the origin-destination flow. It reflects where trips start and end. Three metrics are Jensen-Shannon divergences between the generated and the real distributions. Distance compares the lengths of moves. Speed compares how fast people move. Time-Cat compares which category of place is visited at which hour. 
+
+4.2 Main Results 
+
+The comparisons of different methods on the four transfer settings are shown in Table 1. Nomad achieves the best results on both downstream utility and distributional fidelity in all four settings. Across all 14 transfer settings, ten of which are reported in Appen-dix E.1, Nomad lowers the average error over the best baseline of each metric by about 15% on distributional fidelity and about 3% on downstream utility. Specifically, the average gain over the eight metrics reaches more than 33% on the {KYO+NGO →OSA} trans-fer. Among the baselines, the neural methods including MIRAGE ,
+
+GTG and COLA tend to perform better on the utility metrics, while the classical models Markov , DITRAS and Gravity are stronger on the distributional metrics. The former can model complex spa-tiotemporal distributions and learn sequence-level semantics, which benefits downstream tasks. The latter are built directly on trajectory statistics, so they capture the overall trends more easily. Nomad 
+
+contains both ingredients, pairing a neural generator that models transitions at the sequence level with a behavior graph that aggre-gates their statistics over the target POIs. In addition, comparing the two Japanese transfers in Table 1 and the Turkish settings in Appendix E.1, moving from a single source city to more source cities changes the results only marginally. More source trajectories bring limited gains to target-trajectory-free generation. This sug-gests that the knowledge Nomad models is shared across cities, and a small set of source cities is enough to learn it. 
+
+4.3 Ablation Study 
+
+4.3.1 Ablation of Different Modules. To evaluate the efficacy of 
+
+Nomad ’s components, we conduct an ablation study comparing five variants (details in Appendix C.2). Table 2 reports results on four transfers, demonstrating that deleting any module leads to performance declines, underscoring their critical contributions. Re-moving flow-matching hurts distributional metrics most, because the basic regressor keeps only mean movement and inflates Dis-tance divergence. Conversely, removing the copy-gate barely moves distributions but raises Recommendation error, since walks without revisits lose the repeat structure recommenders learn. Removing the auto-regressive mask breaks step order and blows up predic-tion error. The graph encoder and history-condition underpin both aspects. Dropping either raises error across the board. 
+
+4.3.2 Ablation of Data Efficiency. We test how the error changes as an increasing fraction of the target trajectories is used for adap-tation. We concatenate the source-city trajectories with a growing fraction of the target-city trajectories and train Nomad on the mixture. This moves the model from the target-trajectory-free set-ting to cross-city generation as more target trajectories are added. Figure 3 reports the eight metrics on four transfers. First, the dis-tributional errors decrease steadily as more target trajectories are used, because the statistics of the real trajectories can be collected and learned directly. Downstream utility errors fluctuate, yet the overall trend remains downward. Second, across these transfer set-tings, only a small fraction of the target data brings the error close to the in-domain lower bound. This shows the transferred move-ment pattern covers most knowledge these tasks need. Third, the Metropolis setting behaves differently. Its POI vocabulary is larger, so its utility error keeps decreasing as more target data is added. This shows in-domain trajectories still help at larger data scales. Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+Table 1: Main results on four zero-shot transfer settings. Each value is the mean ±std over five generation seeds. Bold and underline mean the best and the second-best results. Markov’s outputs do not include timestamps, so ‘–’ is used as a placeholder. The last column reports Nomad’s average relative gain over the second-best method across the eight metrics. 
+
+Methods Downstream Utility Distributional Fidelity Pred-MAPE ↓ Pred-MSPE ↓ Rec-MAPE ↓ Rec-MSPE ↓ OD-Sim ↓ Distance ↓ Speed ↓ Time-Cat ↓
+
+> NYC →TKY
+
+Markov [16] 0.390 ±0.040 0.165 ±0.036 0.180 ±0.049 0.054 ±0.037 0.616 ±0.005 0.227 ±0.001 – –+24.76% DITRAS [37] 0.396 ±0.030 0.181 ±0.030 0.276 ±0.068 0.111 ±0.043 0.516 ±0.007 0.181 ±0.001 0.077 ±0.006 0.295 ±0.002 Gravity [1] 0.419 ±0.049 0.193 ±0.045 0.251 ±0.132 0.119 ±0.112 0.460 ±0.003 0.126 ±0.001 0.117 ±0.004 0.265 ±0.001 MIRAGE [12] 0.390 ±0.015 0.188 ±0.010 0.197 ±0.004 0.110 ±0.001 0.925 ±0.068 0.137 ±0.001 0.055 ±0.001 0.273 ±0.002 GTG [56] 0.392 ±0.015 0.191 ±0.010 0.168 ±0.025 0.020 ±0.010 0.593 ±0.018 0.236 ±0.001 0.186 ±0.001 0.341 ±0.001 COLA [58] 0.342 ±0.023 0.127 ±0.023 0.152 ±0.032 0.035 ±0.016 0.656 ±0.004 0.275 ±0.002 0.193 ±0.001 0.335 ±0.001 
+
+Nomad 0.318 ±0.006 0.107 ±0.002 0.130 ±0.003 0.019 ±0.003 0.393 ±0.007 0.036 ±0.005 0.023 ±0.007 0.234 ±0.011 
+
+> KYO+NGO →OSA
+
+Markov [16] 0.394 ±0.038 0.193 ±0.031 0.333 ±0.037 0.173 ±0.036 0.441 ±0.009 0.210 ±0.003 – –+33.55% DITRAS [37] 0.490 ±0.092 0.274 ±0.093 0.420 ±0.112 0.251 ±0.122 0.321 ±0.008 0.169 ±0.002 0.055 ±0.001 0.398 ±0.002 Gravity [1] 0.419 ±0.031 0.224 ±0.015 0.378 ±0.123 0.240 ±0.120 0.328 ±0.006 0.141 ±0.002 0.041 ±0.001 0.310 ±0.002 MIRAGE [12] 0.381 ±0.045 0.171 ±0.028 0.290 ±0.079 0.161 ±0.078 0.856 ±0.036 0.110 ±0.002 0.050 ±0.001 0.329 ±0.003 GTG [56] 0.423 ±0.027 0.222 ±0.020 0.237 ±0.033 0.126 ±0.010 0.638 ±0.015 0.174 ±0.002 0.186 ±0.001 0.258 ±0.004 COLA [58] 0.434 ±0.021 0.206 ±0.013 0.259 ±0.032 0.108 ±0.016 0.498 ±0.012 0.254 ±0.001 0.126 ±0.002 0.271 ±0.001 
+
+Nomad 0.372 ±0.004 0.148 ±0.026 0.149 ±0.018 0.036 ±0.013 0.232 ±0.009 0.046 ±0.012 0.023 ±0.003 0.209 ±0.002 
+
+> FUK+KYO+NGO →OSA
+
+Markov [16] 0.372 ±0.038 0.157 ±0.019 0.262 ±0.099 0.103 ±0.077 0.436 ±0.014 0.206 ±0.001 – –+16.44% DITRAS [37] 0.419 ±0.069 0.233 ±0.075 0.322 ±0.124 0.166 ±0.114 0.306 ±0.016 0.164 ±0.002 0.053 ±0.001 0.296 ±0.002 Gravity [1] 0.421 ±0.031 0.200 ±0.043 0.246 ±0.091 0.117 ±0.092 0.275 ±0.006 0.142 ±0.004 0.030 ±0.001 0.306 ±0.002 MIRAGE [12] 0.384 ±0.024 0.210 ±0.017 0.286 ±0.070 0.157 ±0.072 0.847 ±0.146 0.135 ±0.001 0.044 ±0.001 0.345 ±0.003 GTG [56] 0.429 ±0.030 0.228 ±0.023 0.194 ±0.043 0.059 ±0.026 0.645 ±0.022 0.175 ±0.001 0.186 ±0.001 0.263 ±0.004 COLA [58] 0.393 ±0.041 0.178 ±0.026 0.222 ±0.104 0.090 ±0.083 0.502 ±0.016 0.256 ±0.001 0.130 ±0.001 0.274 ±0.002 
+
+Nomad 0.367 ±0.026 0.150 ±0.017 0.192 ±0.054 0.053 ±0.035 0.259 ±0.006 0.050 ±0.002 0.023 ±0.001 0.204 ±0.002 
+
+> ANK+BUR+IZM →IST
+
+Markov [16] 0.348 ±0.102 0.165 ±0.087 0.332 ±0.057 0.205 ±0.085 0.657 ±0.009 0.166 ±0.002 – –+20.76% DITRAS [37] 0.321 ±0.033 0.159 ±0.043 0.333 ±0.172 0.197 ±0.151 0.551 ±0.016 0.133 ±0.002 0.048 ±0.004 0.210 ±0.001 Gravity [1] 0.279 ±0.102 0.123 ±0.071 0.243 ±0.116 0.115 ±0.089 0.408 ±0.007 0.088 ±0.002 0.027 ±0.001 0.238 ±0.001 MIRAGE [12] 0.209 ±0.063 0.076 ±0.063 0.335 ±0.109 0.259 ±0.126 0.963 ±0.015 0.158 ±0.003 0.044 ±0.002 0.323 ±0.003 GTG [56] 0.218 ±0.012 0.070 ±0.006 0.118 ±0.040 0.026 ±0.015 0.679 ±0.018 0.316 ±0.003 0.164 ±0.001 0.228 ±0.003 COLA [58] 0.230 ±0.050 0.071 ±0.039 0.164 ±0.086 0.063 ±0.075 0.824 ±0.012 0.265 ±0.002 0.206 ±0.002 0.226 ±0.001 
+
+Nomad 0.195 ±0.047 0.056 ±0.023 0.117 ±0.007 0.023 ±0.005 0.399 ±0.005 0.034 ±0.001 0.010 ±0.013 0.209 ±0.001 0 5 25 50 75 100 
+
+> Target Trajectory Ratio (%)
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Metrics
+> Pred-MAPE Pred-MSPE Rec-MAPE Rec-MSPE OD-Sim Distance Speed Time-Cat
+
+(a) NYC → TKY 0 5 25 50 75 100  
+
+> Target Trajectory Ratio (%)
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Metrics
+> Pred-MAPE Pred-MSPE Rec-MAPE Rec-MSPE OD-Sim Distance Speed Time-Cat
+
+(b) KYO+NGO → OSA 0 5 25 50 75 100  
+
+> Target Trajectory Ratio (%)
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Metrics
+> Pred-MAPE Pred-MSPE Rec-MAPE Rec-MSPE OD-Sim Distance Speed Time-Cat
+
+(c) FUK+KYO+NGO → OSA 0 5 25 50 75 100  
+
+> Target Trajectory Ratio (%)
+> 0.0 0.1 0.2 0.3 0.4 0.5
+> Metrics
+> Pred-MAPE Pred-MSPE Rec-MAPE Rec-MSPE OD-Sim Distance Speed Time-Cat
+
+(d) ANK+BUR+IZM → IST 
+
+Figure 3: Impact of the target trajectory ratio for few-shot adapting on four transfers. 
+
+4.4 Analysis and Visualization 
+
+4.4.1 Visualization of Cross-city Transitions and Destinations. We visually examine the premise behind our design, that a relative transition is more comparable across cities than an absolute des-tination. Using the frozen shared encoder we embed the POIs of NYC and TKY. Then we read each check-in transition 𝑎 →𝑏 and obtain the destination ℎ𝑏 and the transition 𝜹 = ℎ𝑏 − ℎ𝑎 . We com-pare only like-for-like movements under a matched context. Each transition is grouped by its time-of-day bin and by the category of its destination, only groups populated by both cities are kept, and the larger city is subsampled so the two cities contribute equally. Figure 4 shows the matched samples of the two cities for each representation. For the absolute destinations, the two cities form clearly separated clusters, so they still reveals which city a move-ment belongs to. For the relative transitions, the two cities overlap almost entirely, demonstrating that it is nearly indistinguishable across cities. Because functionally equivalent POIs in the two cities differ by an approximately constant translation, this translation is Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Table 2: Ablation study on the four transfers. Each value is the mean ±std over five generation seeds. Bold mean the best results. 
+
+Variants Downstream Utility Distributional Fidelity Pred-MAPE ↓ Pred-MSPE ↓ Rec-MAPE ↓ Rec-MSPE ↓ OD-Sim ↓ Distance ↓ Speed ↓ Time-Cat ↓
+
+> NYC →TKY
+
+w/o graph encoder 0.419 ±0.004 0.247 ±0.003 0.224 ±0.010 0.117 ±0.001 0.501 ±0.002 0.060 ±0.001 0.025 ±0.000 0.254 ±0.001 w/o flow-matching 0.484 ±0.016 0.224 ±0.014 0.141 ±0.015 0.053 ±0.004 0.513 ±0.004 0.148 ±0.000 0.037 ±0.000 0.249 ±0.000 w/o copy-gate 0.431 ±0.005 0.178 ±0.001 0.160 ±0.000 0.042 ±0.003 0.400 ±0.002 0.049 ±0.000 0.025 ±0.000 0.235 ±0.000 w/o AR-mask 0.427 ±0.016 0.148 ±0.015 0.156 ±0.011 0.076 ±0.002 0.437 ±0.002 0.070 ±0.001 0.026 ±0.001 0.265 ±0.001 w/o condition 0.409 ±0.007 0.161 ±0.005 0.150 ±0.002 0.084 ±0.001 0.465 ±0.005 0.133 ±0.000 0.026 ±0.000 0.255 ±0.001 
+
+Nomad 0.318 ±0.006 0.107 ±0.002 0.130 ±0.003 0.019 ±0.003 0.393 ±0.007 0.036 ±0.005 0.023 ±0.007 0.234 ±0.011 
+
+> KYO+NGO →OSA
+
+w/o graph encoder 0.518 ±0.021 0.303 ±0.014 0.225 ±0.013 0.123 ±0.004 0.290 ±0.008 0.075 ±0.002 0.034 ±0.001 0.216 ±0.001 w/o flow-matching 0.410 ±0.035 0.230 ±0.022 0.245 ±0.011 0.088 ±0.012 0.312 ±0.005 0.109 ±0.001 0.043 ±0.001 0.219 ±0.001 w/o copy-gate 0.489 ±0.038 0.254 ±0.025 0.309 ±0.068 0.161 ±0.086 0.261 ±0.004 0.054 ±0.001 0.024 ±0.000 0.210 ±0.001 w/o AR-mask 0.452 ±0.017 0.246 ±0.011 0.196 ±0.060 0.062 ±0.030 0.238 ±0.016 0.061 ±0.001 0.029 ±0.001 0.255 ±0.001 w/o condition 0.440 ±0.021 0.245 ±0.009 0.223 ±0.132 0.079 ±0.069 0.260 ±0.011 0.065 ±0.000 0.033 ±0.001 0.251 ±0.001 
+
+Nomad 0.372 ±0.004 0.148 ±0.026 0.149 ±0.018 0.036 ±0.013 0.232 ±0.009 0.046 ±0.012 0.023 ±0.003 0.209 ±0.002 
+
+> FUK+KYO+NGO →OSA
+
+w/o graph encoder 0.398 ±0.025 0.245 ±0.015 0.255 ±0.051 0.134 ±0.018 0.284 ±0.018 0.064 ±0.002 0.030 ±0.001 0.222 ±0.001 w/o flow-matching 0.379 ±0.032 0.242 ±0.014 0.232 ±0.029 0.127 ±0.015 0.264 ±0.006 0.092 ±0.001 0.037 ±0.001 0.228 ±0.001 w/o copy-gate 0.483 ±0.013 0.257 ±0.006 0.306 ±0.079 0.140 ±0.072 0.267 ±0.007 0.054 ±0.002 0.025 ±0.000 0.205 ±0.002 w/o AR-mask 0.422 ±0.019 0.249 ±0.012 0.214 ±0.037 0.117 ±0.010 0.291 ±0.002 0.102 ±0.000 0.044 ±0.000 0.262 ±0.003 w/o condition 0.456 ±0.067 0.270 ±0.063 0.197 ±0.012 0.114 ±0.005 0.270 ±0.004 0.060 ±0.001 0.030 ±0.001 0.249 ±0.002 
+
+Nomad 0.367 ±0.026 0.150 ±0.017 0.192 ±0.054 0.053 ±0.035 0.259 ±0.006 0.050 ±0.002 0.023 ±0.001 0.204 ±0.002 
+
+> ANK+BUR+IZM →IST
+
+w/o graph encoder 0.302 ±0.048 0.160 ±0.022 0.187 ±0.038 0.050 ±0.018 0.613 ±0.004 0.055 ±0.000 0.015 ±0.001 0.264 ±0.001 w/o flow-matching 0.275 ±0.019 0.098 ±0.009 0.129 ±0.037 0.127 ±0.013 0.653 ±0.018 0.108 ±0.002 0.029 ±0.000 0.226 ±0.001 w/o copy-gate 0.332 ±0.028 0.195 ±0.024 0.252 ±0.123 0.121 ±0.091 0.463 ±0.002 0.046 ±0.001 0.012 ±0.000 0.217 ±0.002 w/o AR-mask 0.536 ±0.059 0.268 ±0.073 0.595 ±0.092 0.446 ±0.104 0.514 ±0.001 0.083 ±0.001 0.019 ±0.000 0.446 ±0.001 w/o condition 0.275 ±0.009 0.091 ±0.010 0.159 ±0.027 0.106 ±0.005 0.424 ±0.006 0.062 ±0.002 0.011 ±0.000 0.229 ±0.002 
+
+Nomad 0.195 ±0.047 0.056 ±0.023 0.117 ±0.007 0.023 ±0.005 0.399 ±0.005 0.034 ±0.001 0.010 ±0.013 0.209 ±0.001 NYC TKY  
+
+> (a) Absolute Destinations NYC TKY (b) Relative Transitions
+
+Figure 4: The embedding visualization of destinations and transitions on NYC and TKY. 
+
+apparent in the absolute destination but cancels in the displacement 
+
+𝜹 , consistent with Assumption 2.5 and Theorem 2.7. 
+
+4.4.2 Analysis of Sampling Budgets. We vary the two sampling budgets of Nomad, the number of flow steps 𝑁 in the generator and the number of transition samples 𝐾 that build the behavior graph, and read their effect on one utility metric and two distribu-tional metrics. Figure 5 reports the curves. As shown in Figure 5, distributional fidelity is significantly affected by 𝑁 and 𝐾 . On the one hand, more flow steps integrate the transition dynamics more accurately, so the Distance divergence drops sharply at 𝑁 =5 to 
+
+𝑁 =20 and stays flat afterward, and OD-Sim reaches its lowest value near 𝑁 =40. The utility metric barely moves with 𝑁 . A small num-ber of steps is therefore enough for good fidelity. On the other 4 8 16 32 48 64 0.28 0.30 0.32                          
+
+> Pred-MAPE
+> 510 20 30 40 50 0.30 0.32
+> 4816 32 48 64 0.38 0.40 0.42
+> OD-Sim
+> 510 20 30 40 50 0.38 0.39 0.40
+> 4816 32 48 64
+> K
+> 0.025 0.030 0.035
+> Distance
+> 510 20 30 40 50
+> N
+> 0.035 0.040 0.045 0.050
+
+Figure 5: Impact of 𝐾 and 𝑁 for grounding on NYC → TKY. 
+
+hand, an increase in 𝐾 results in a denser behavior graph, leading to more accurate downstream prediction tasks. At the same time, however, the origin-destination structure becomes more diverse, causing a slight degradation in the OD-Sim metric. Larger 𝐾 thus helps prediction and fine distance at a small cost to the OD match. Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+5 Conclusion 
+
+This paper investigates the problem of target-trajectory-free gener-ation for those cities without accessible trajectories. The primary challenge lies in transferring movement knowledge across cities that share no POIs. To tackle this challenge, we propose Nomad, a transfer-and-ground framework. Our approach models relative tran-sitions rather than absolute destinations with a flow-matching prior, and grounds them onto the target POIs with a behavior-graph and a pointer network. Extensive experiments across fourteen transfers confirm that Nomad outperforms adaptation baselines in distribu-tional fidelity and downstream utility. Controlled analyses further show that relative transitions contain less city-specific information under matched contexts. 
+
+References 
+
+[1] Hugo Barbosa, Marc Barthelemy, Gourab Ghoshal, Charlotte R James, Maxime Lenormand, Thomas Louail, Ronaldo Menezes, José J Ramasco, Filippo Simini, and Marcello Tomasini. 2018. Human mobility: Models and applications. Physics Reports 734 (2018), 1–74. [2] Shai Ben-David, John Blitzer, Koby Crammer, Alex Kulesza, Fernando Pereira, and Jennifer Wortman Vaughan. 2010. A theory of learning from different domains. 
+
+Machine learning 79, 1 (2010), 151–175. [3] Vincent Bindschaedler and Reza Shokri. 2016. Synthesizing plausible privacy-preserving location traces. In 2016 IEEE symposium on security and privacy (SP) .IEEE, 546–563. [4] Antoine Bordes, Nicolas Usunier, Alberto Garcia-Duran, Jason Weston, and Ok-sana Yakhnenko. 2013. Translating embeddings for modeling multi-relational data. Advances in neural information processing systems 26 (2013). [5] Dirk Brockmann, Lars Hufnagel, and Theo Geisel. 2006. The scaling laws of human travel. Nature 439, 7075 (2006), 462–465. [6] Shaked Brody, Uri Alon, and Eran Yahav. 2021. How attentive are graph attention networks? arXiv preprint arXiv:2105.14491 (2021). [7] Serina Chang, Emma Pierson, Pang Wei Koh, Jaline Gerardin, Beth Redbird, David Grusky, and Jure Leskovec. 2021. Mobility network models of COVID-19 explain inequities and inform reopening. Nature 589, 7840 (2021), 82–87. [8] Meng Chen, Hongwei Jia, Zechen Li, Wenzhen Jia, Kai Zhao, Hongjun Dai, and Weiming Huang. 2025. Cross-City Latent Space Alignment for Consistency Region Embedding. In 42nd International Conference on Machine Learning, ICML 2025 , Vol. 267. ML Research Press, 8261–8274. [9] Eunjoon Cho, Seth A Myers, and Jure Leskovec. 2011. Friendship and mobility: user movement in location-based social networks. In Proceedings of the 17th ACM SIGKDD international conference on Knowledge discovery and data mining .1082–1090. [10] Seongjin Choi, Jiwon Kim, and Hwasoo Yeo. 2021. TrajGAIL: Generating urban vehicle trajectories using generative adversarial imitation learning. Transporta-tion Research Part C: Emerging Technologies 128 (2021), 103091. [11] Bangchao Deng, Ling Ding, Lianhua Ji, Chunhua Chen, Xin Jing, Bingqing Qu, and Dingqi Yang. 2025. Marionette: Fine-grained conditional generative modeling of spatiotemporal human trajectory data beyond imitation. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2 .463–473. [12] Bangchao Deng, Xin Jing, Tianyue Yang, Bingqing Qu, Dingqi Yang, and Philippe Cudre-Mauroux. 2025. Revisiting synthetic human trajectories: Imitative genera-tion and benchmarks beyond datasaurus. In Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 201–212. [13] Stephen Eubank, Hasan Guclu, VS Anil Kumar, Madhav V Marathe, Aravind Srinivasan, Zoltan Toroczkai, and Nan Wang. 2004. Modelling disease outbreaks in realistic urban social networks. Nature 429, 6988 (2004), 180–184. [14] Jie Feng, Zeyu Yang, Fengli Xu, Haisu Yu, Mudan Wang, and Yong Li. 2020. Learning to simulate human mobility. In Proceedings of the 26th ACM SIGKDD international conference on knowledge discovery & data mining . 3426–3433. [15] Chelsea Finn, Pieter Abbeel, and Sergey Levine. 2017. Model-agnostic meta-learning for fast adaptation of deep networks. In International conference on machine learning . PMLR, 1126–1135. [16] Sébastien Gambs, Marc-Olivier Killijian, and Miguel Núñez del Prado Cortez. 2012. Next place prediction using mobility markov chains. In Proceedings of the first workshop on measurement, privacy, and mobility . 1–6. [17] Marta C Gonzalez, Cesar A Hidalgo, and Albert-Laszlo Barabasi. 2008. Under-standing individual human mobility patterns. nature 453, 7196 (2008), 779–782. [18] Baoshen Guo, Zhiqing Hong, Junyi Li, Shenhao Wang, and Jinhua Zhao. 2026. Leveraging the Spatial Hierarchy: Coarse-to-fine Trajectory Generation via Cas-caded Hybrid Diffusion. In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 359–370. [19] Mordechai Haklay and Patrick Weber. 2008. Openstreetmap: User-generated street maps. IEEE Pervasive computing 7, 4 (2008), 12–18. [20] Xiangnan He, Lizi Liao, Hanwang Zhang, Liqiang Nie, Xia Hu, and Tat-Seng Chua. 2017. Neural collaborative filtering. In Proceedings of the 26th international conference on world wide web . 173–182. [21] Wenjun Jiang, Wayne Xin Zhao, Jingyuan Wang, and Jiawei Jiang. 2023. Contin-uous trajectory generation based on two-stage GAN. In Proceedings of the AAAI conference on artificial intelligence , Vol. 37. 4374–4382. [22] Yilun Jin, Kai Chen, and Qiang Yang. 2022. Selective cross-city transfer learning for traffic prediction via source city region re-weighting. In Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining . 731–741. [23] Wang-Cheng Kang and Julian McAuley. 2018. Self-attentive sequential recom-mendation. In 2018 IEEE international conference on data mining (ICDM) . IEEE, 197–206. [24] Alexandra Kapp, Julia Hansmeyer, and Helena Mihaljević. 2023. Generative models for synthetic urban mobility data: A systematic literature review. Comput. Surveys 56, 4 (2023), 1–37. [25] Erich Leo Lehmann and Joseph P Romano. 2005. Testing statistical hypotheses .Springer. [26] Peibo Li, Maarten de Rijke, Hao Xue, Shuang Ao, Yang Song, and Flora D Salim. 2024. Large language models for next point-of-interest recommendation. In 
+
+Proceedings of the 47th International ACM SIGIR Conference on Research and Development in Information Retrieval . 1463–1472. [27] Siyu Li, Toan Tran, Haowen Lin, John Krumm, Cyrus Shahabi, Lingyi Zhao, Khurram Shafique, and Li Xiong. 2024. Geo-llama: Leveraging llms for human mobility trajectory generation with spatiotemporal constraints. arXiv preprint arXiv:2408.13918 (2024). [28] X Li, F Huang, J Lv, Z Xiao, G Li, and Y Yue. 2024. Be more real: Travel diary generation using LLM agents and individual profiles. arXiv. [29] Yudong Li, Jingyuan Wang, Xie Yu, Peiyu Wang, and Qian Huang. 2026. Cross city traffic flow generation via retrieval augmented diffusion model. Advances in Neural Information Processing Systems 38 (2026), 70025–70055. [30] Dawen Liang, Rahul G Krishnan, Matthew D Hoffman, and Tony Jebara. 2018. Variational autoencoders for collaborative filtering. In Proceedings of the 2018 world wide web conference . 689–698. [31] Yaron Lipman, Ricky TQ Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le. 2022. Flow matching for generative modeling. arXiv preprint arXiv:2210.02747 
+
+(2022). [32] Shuo Liu, Di Yao, Yan Lin, Gao Cong, and Jingping Bi. 2026. Traj-MLLM: Can Multimodal Large Language Models Reform Trajectory Data Mining?. In Pro-ceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 903–914. [33] Yu Liu, Jingtao Ding, and Yong Li. 2022. Developing knowledge graph based sys-tem for urban computing. In Proceedings of the 1st ACM SIGSPATIAL International Workshop on Geospatial Knowledge Graphs . 3–7. [34] Qingyue Long, Huandong Wang, Tong Li, Lisi Huang, Kun Wang, Qiong Wu, Guangyu Li, Yanping Liang, Li Yu, and Yong Li. 2023. Practical synthetic human trajectories generation based on variational point processes. In Proceedings of the 29th ACM SIGKDD conference on knowledge discovery and data mining . 4561–4571. [35] Nanye Ma, Mark Goldstein, Michael S Albergo, Nicholas M Boffi, Eric Vanden-Eijnden, and Saining Xie. 2024. Sit: Exploring flow and diffusion-based generative models with scalable interpolant transformers. In European Conference on Com-puter Vision . Springer, 23–40. [36] Zheyi Pan, Yuxuan Liang, Weifeng Wang, Yong Yu, Yu Zheng, and Junbo Zhang. 2019. Urban traffic prediction from spatio-temporal data using deep meta learning. In Proceedings of the 25th ACM SIGKDD international conference on knowledge discovery & data mining . 1720–1730. [37] Luca Pappalardo and Filippo Simini. 2018. Data-driven generation of spatio-temporal routines in human mobility. Data Mining and Knowledge Discovery 32, 3 (2018), 787–829. [38] Luca Pappalardo, Filippo Simini, Salvatore Rinzivillo, Dino Pedreschi, Fosca Giannotti, and Albert-László Barabási. 2015. Returners and explorers dichotomy in human mobility. Nature communications 6, 1 (2015), 8166. [39] Joon Sung Park, Joseph O’Brien, Carrie Jun Cai, Meredith Ringel Morris, Percy Liang, and Michael S Bernstein. 2023. Generative agents: Interactive simulacra of human behavior. In Proceedings of the 36th annual acm symposium on user interface software and technology . 1–22. [40] William Peebles and Saining Xie. 2023. Scalable diffusion models with transform-ers. In Proceedings of the IEEE/CVF international conference on computer vision .4195–4205. [41] Ethan Perez, Florian Strub, Harm De Vries, Vincent Dumoulin, and Aaron Courville. 2018. Film: Visual reasoning with a general conditioning layer. In 
+
+Proceedings of the AAAI conference on artificial intelligence , Vol. 32. [42] Jinmeng Rao, Song Gao, Yuhao Kang, and Qunying Huang. 2020. LSTM-TrajGAN: A deep learning approach to trajectory privacy protection. arXiv preprint arXiv:2006.10521 (2020). Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+[43] Xuan Rao, Shuo Shang, Renhe Jiang, Peng Han, and Lisi Chen. 2025. Seed: Bridg-ing sequence and diffusion models for road trajectory generation. In Proceedings of the ACM on Web Conference 2025 . 2007–2017. [44] N Reimers. 2019. Sentence-bert: Sentence embeddings using siamese bert-networks. arXiv preprint arXiv:1908.10084 (2019). [45] Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, and Lars Schmidt-Thieme. 2012. BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618 (2012). [46] Steffen Rendle, Christoph Freudenthaler, and Lars Schmidt-Thieme. 2010. Factor-izing personalized markov chains for next-basket recommendation. In Proceedings of the 19th international conference on World wide web . 811–820. [47] Christian M Schneider, Vitaly Belik, Thomas Couronné, Zbigniew Smoreda, and Marta C González. 2013. Unravelling daily human mobility motifs. Journal of The Royal Society Interface 10, 84 (2013), 20130246. [48] Abigail See, Peter J Liu, and Christopher D Manning. 2017. Get to the point: Sum-marization with pointer-generator networks. In Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) .1073–1083. [49] Chenyang Shao, Bingbing Fan, Jingtao Ding, Yuan Yuan, Meng Wang, and Fengli Xu. 2026. Generating Realistic Human Mobility Data with Hybrid Large Language Model Agent. In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 2758–2769. [50] Chaoming Song, Tal Koren, Pu Wang, and Albert-László Barabási. 2010. Modelling the scaling properties of human mobility. Nature physics 6, 10 (2010), 818–823. [51] Fei Sun, Jun Liu, Jian Wu, Changhua Pei, Xiao Lin, Wenwu Ou, and Peng Jiang. 2019. BERT4Rec: Sequential recommendation with bidirectional encoder rep-resentations from transformer. In Proceedings of the 28th ACM international conference on information and knowledge management . 1441–1450. [52] Alexander Tong, Kilian Fatras, Nikolay Malkin, Guillaume Huguet, Yanlei Zhang, Jarrid Rector-Brooks, Guy Wolf, and Yoshua Bengio. 2023. Improving and gener-alizing flow-based generative models with minibatch optimal transport. arXiv preprint arXiv:2302.00482 (2023). [53] Oriol Vinyals, Meire Fortunato, and Navdeep Jaitly. 2015. Pointer networks. 
+
+Advances in neural information processing systems 28 (2015). [54] Huandong Wang, Changzheng Gao, Yuchen Wu, Depeng Jin, Lina Yao, and Yong Li. 2023. Pategail: a privacy-preserving mobility trajectory generator with imitation learning. In Proceedings of the AAAI conference on artificial intelligence ,Vol. 37. 14539–14547. [55] Jinzhong Wang, Xiangjie Kong, Feng Xia, and Lijun Sun. 2019. Urban human mo-bility: Data-driven modeling and prediction. ACM SIGKDD explorations newsletter 
+
+21, 1 (2019), 1–19. [56] Jingyuan Wang, Yujing Lin, and Yudong Li. 2025. Gtg: Generalizable trajectory generation model for urban mobility. In Proceedings of the AAAI Conference on Artificial Intelligence , Vol. 39. 834–842. [57] Leye Wang, Xu Geng, Xiaojuan Ma, Feng Liu, and Qiang Yang. 2018. Cross-city transfer learning for deep spatio-temporal prediction. arXiv preprint arXiv:1802.00386 (2018). [58] Yu Wang, Tongya Zheng, Yuxuan Liang, Shunyu Liu, and Mingli Song. 2024. Cola: Cross-city mobility transformer for human trajectory simulation. In Proceedings of the ACM Web Conference 2024 . 3509–3520. [59] Tonglong Wei, Youfang Lin, Shengnan Guo, Yan Lin, Yiheng Huang, Chenyang Xiang, Yuqing Bai, and Huaiyu Wan. 2024. Diff-rntraj: A structure-aware diffusion model for road network-constrained trajectory generation. IEEE Transactions on Knowledge and Data Engineering 36, 12 (2024), 7940–7953. [60] Szymon Woźniak and Piotr Szymański. 2021. Hex2vec: Context-aware embedding h3 hexagons with openstreetmap tags. In Proceedings of the 4th ACM SIGSPATIAL International Workshop on AI for Geographic Knowledge Discovery . 61–71. [61] Shu Wu, Yuyuan Tang, Yanqiao Zhu, Liang Wang, Xing Xie, and Tieniu Tan. 2019. Session-based recommendation with graph neural networks. In Proceedings of the AAAI conference on artificial intelligence , Vol. 33. 346–353. [62] Hong-Jian Xue, Xinyu Dai, Jianbing Zhang, Shujian Huang, and Jiajun Chen. 2017. Deep matrix factorization models for recommender systems.. In Ijcai , Vol. 17. Melbourne, Australia, 3203–3209. [63] Dingqi Yang, Daqing Zhang, and Bingqing Qu. 2016. Participatory cultural mapping based on collective behavior data in location-based social networks. 
+
+ACM Transactions on Intelligent Systems and Technology (TIST) 7, 3 (2016), 1–23. [64] Dingqi Yang, Daqing Zhang, Vincent W Zheng, and Zhiyong Yu. 2014. Modeling user activity preference by leveraging user spatial temporal characteristics in LBSNs. IEEE Transactions on Systems, Man, and Cybernetics: Systems 45, 1 (2014), 129–142. [65] Hongzhi Yin, Bin Cui, Ling Chen, Zhiting Hu, and Zi Huang. 2014. A temporal context-aware model for user behavior modeling in social media systems. In 
+
+Proceedings of the 2014 ACM SIGMOD international conference on Management of data . 1543–1554. [66] Jing Yuan, Yu Zheng, and Xing Xie. 2012. Discovering regions of different functions in a city using human mobility and POIs. In Proceedings of the 18th ACM SIGKDD international conference on Knowledge discovery and data mining .186–194. [67] Yuan Yuan, Jingtao Ding, Huandong Wang, Depeng Jin, and Yong Li. 2022. Activ-ity trajectory generation via modeling spatiotemporal dynamics. In Proceedings of the 28th ACM SIGKDD conference on knowledge discovery and data mining .4752–4762. [68] Yuan Yuan, Huandong Wang, Jingtao Ding, Depeng Jin, and Yong Li. 2023. Learn-ing to simulate daily activities via modeling dynamic human needs. In Proceedings of the ACM Web Conference 2023 . 906–916. [69] Shiyuan Zhang, Tong Li, Shuodi Hui, Guangyu Li, Yanping Liang, Li Yu, Depeng Jin, and Yong Li. 2023. Deep transfer learning for city-scale cellular traffic generation through urban knowledge graph. In Proceedings of the 29th ACM SIGKDD conference on knowledge discovery and data mining . 4842–4851. [70] Yuanshao Zhu, Yongchao Ye, Ying Wu, Xiangyu Zhao, and James Yu. 2023. Syn-mob: Creating high-fidelity synthetic gps trajectory dataset for urban mobility analysis. Advances in Neural Information Processing Systems 36 (2023), 22961– 22977. [71] Yuanshao Zhu, Yongchao Ye, Shiyao Zhang, Xiangyu Zhao, and James Yu. 2023. Difftraj: Generating gps trajectory with diffusion probabilistic model. Advances in Neural Information Processing Systems 36 (2023), 65168–65188. [72] Yuanshao Zhu, James Jianqiao Yu, Xiangyu Zhao, Qidong Liu, Yongchao Ye, Wei Chen, Zijian Zhang, Xuetao Wei, and Yuxuan Liang. 2024. Controltraj: Controllable trajectory generation with topology-constrained diffusion model. In Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining . 4676–4687. [73] Zhuang Zhuang, Shanshan Feng, Hangwei Qian, Mingqi Yang, Heng Qi, Yanming Shen, and Baocai Yin. 2026. Think2Go: Generative Next POI Recommendation with LLM Reasoning. In Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 1 . 2112–2123. Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+A Proof A.1 Proof of Theorem 2.7 
+
+Proof. For transferability, Assumption 2.5 gives: h𝜑 (𝑎 ) = h𝑎 +
+
+t𝐴𝐵 and h𝜑 (𝑏 ) = h𝑏 + t𝐴𝐵 , hence 𝜹 (𝜑 (𝑎 ), 𝜑 (𝑏 )) = (h𝑏 + t𝐴𝐵 ) − ( h𝑎 +
+
+t𝐴𝐵 ) = 𝜹 (𝑎, 𝑏 ), so the offset cancels and Eq. (2) holds. For complete-ness, let 𝐹 be transferable. Since the offset between two cities is arbitrary, transferability amounts to 𝐹 (h𝑎 + t, h𝑏 + t) = 𝐹 (h𝑎 , h𝑏 ) for every t ∈ R𝑑 . Choosing t = −h𝑎 yields 𝐹 (h𝑎 , h𝑏 ) = 𝐹 (0, h𝑏 − h𝑎 ), so 
+
+𝐹 = ˜𝐹 (𝜹 ) with ˜ 𝐹 (u) = 𝐹 (0, u), which is the classical factorization of an invariant function through a maximal invariant [25]. Finally, functionally corresponding moves take identical values of 𝜹 , so a distribution fitted on source moves describes the corresponding moves of any city satisfying the assumption. The same argument applies verbatim to the time gap and the ground displacement, which are differences as well. □
+
+A.2 Corollary and the Proof 
+
+Corollary A.1 (Context Conditioning) . The displacement is an-tisymmetric, 𝜹 (𝑏, 𝑎 ) = −𝜹 (𝑎, 𝑏 ), and telescopes to zero along any closed chain of moves. Hence a distribution over 𝜹 alone carries no preference about where a move starts, which direction it takes, or whether it returns to an earlier place. Let c be a context variable that is itself transferable in the sense of Definition 2.6. Then the condi-tional distribution 𝑝 (𝜹 | c) remains transferable while expressing such anchor and history dependent preferences. 
+
+Theorem 2.7 and Corollary A.1 dictate the design of our method. The encoder should earn the Assumption by aligning functionally equivalent POIs up to a shift Sec. 3.1. The generator should be placed on 𝜹 and, by the Corollary, conditioned on the trajectory context Sec. 3.2. Returning to familiar places is likewise a history dependent preference that 𝜹 alone cannot carry, so revisiting is decided by a dedicated module conditioned on the walk history. Then, trajectories are rebuilt by anchoring at a target POI and composing generated displacements, which is described in Sec. 3.3. Proof. Antisymmetry is immediate, and for any chain 𝑝 1, . . . , 𝑝 𝐾 
+
+the sum Í𝐾 −1 
+
+> 𝑘 =1
+
+𝜹 (𝑝 𝑘 , 𝑝 𝑘 +1) = h𝑝 𝐾 − h𝑝 1 vanishes when 𝑝 𝐾 = 𝑝 1. A distribution over 𝜹 alone assigns equal likelihood to moves with equal difference regardless of their anchor, and determines the re-verse move up to sign, so no start, direction, or return preference can be encoded. For the conditional law, if c is transferable then the pair (𝜹 , c) takes identical values on functionally corresponding moves of two cities satisfying Assumption 2.5, hence the condi-tional distribution 𝑝 (𝜹 | c) estimated on source cities coincides with that of the corresponding target moves, while depending on the anchor and the history through c. □
+
+B Related Work B.1 Human Trajectory Generation 
+
+Most trajectory generators are trained and deployed within a single city [24]. Classical methods synthesize movement with activity models [67, 68], adversarial or imitation learning [10, 14, 21, 42], and privacy-preserving generators [34, 54]. More recent work turns to diffusion models. Some denoise GPS-level trajectories, optionally conditioned on the road network [43, 59, 71, 72]. Others generate 
+
+Table 3: Per-city statistics of the ten Foursquare cities.                                                          
+
+> Region City #POI #Cat. #Traj. #Check-in Avg. len. Metropolis NYC 38,333 250 27,662 135,717 4.9 TKY 61,858 247 73,999 397,416 5.4 Japan FUK 3,673 256 2,577 22,294 8.7 KYO 5,124 265 3,546 30,967 8.7 NGO 5,796 286 4,321 36,147 8.4 OSA 11,974 344 10,038 87,257 8.7 Turkey ANK 10,853 374 5,782 43,503 7.5 BUR 3,862 303 1,962 14,654 7.5 IST 19,996 388 9,705 73,040 7.5 IZM 10,826 366 6,513 48,702 7.5
+
+check-in sequences or refine them from coarse to fine [12, 18]. Be-yond direct generation, high-fidelity synthetic-data pipelines scale these methods up [70]. A parallel line uses large language models and agents [39] to simulate mobility [27, 28, 49], mine trajectories [32], and recommend next POIs by reasoning [26, 73]. Whether statistical, diffusion, or LLM-based, these methods are trained and generate within a single city, relying on its historical trajectories, thus hard to generalize to cities without trajectories. 
+
+B.2 Cross-City Transfer for Mobility 
+
+Cross-city transfer methods reuse mobility knowledge from data-rich cities. Most effort targets spatiotemporal prediction. Meta learn-ing and region re-weighting adapt a source model to a target city [15, 22, 36, 57]. Cross-city representation learning aligns regions or knowledge-graph embeddings for downstream reuse [8, 69]. These methods act over a shared spatial grid rather than a discrete POI vo-cabulary, and still fit part of the model on target-city observations. Cross-city trajectory generation has been attempted recently, but the closest methods such as COLA, GTG, and CRAFT [29, 56, 58] remain bound to a target-specific location space and still require trajectories from the target city. Generating individual check-in trajectories for a city without trajectories remains challenging. 
+
+C Implementation Details C.1 Datasets Details 
+
+We evaluate cross-city zero-shot generation on public Foursquare check-in data [63, 64] covering ten cities in three regions. New York City (NYC) and Tokyo (TKY) are large metropolises. The other eight cities come in two clusters: a Japanese cluster of Fukuoka (FUK), Kyoto (KYO), Nagoya (NGO), and Osaka (OSA); a Turkish cluster of Ankara (ANK), Bursa (BUR), Istanbul (IST), and Izmir (IZM). In every city a trajectory is the time-ordered sequence of one user’s check-ins within one local day, truncated at fifteen steps. For NYC and TKY we keep days with at least three check-ins, whereas for the two clusters we keep denser days with at least six. Table 3 reports the per-city statistics. From these cities we construct 14 source-to-target transfers. Sec. 4.2 presents four pairs, covering both single-source and multi-source settings. Due to space limitations, the results on the remaining ten pairs are reported in Appendix E.1. Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+C.2 Ablation Variants 
+
+We design five variants to analyze the contribution of components: 
+
+• w/o graph encoder replaces the relation-aware GATv2 of Eq. (3) and the aggregation of Eq. (4) with a single linear projection of the raw features, h𝑖 = W[ ¯ℓ𝑖 ∥ s𝑐 𝑖 ], dropping all message passing. It tests whether cross-city transfer needs graph propagation which can aggregate the geographic information. 
+
+• w/o flow-matching replaces the flow-matching objective of Eq. (10) with a deterministic MSE regressor that predicts 𝜹 𝑘 in one forward pass, and drops the Euler sampler of Eq. (12). It predicts only the conditional mean of transition distribution. 
+
+• w/o copy-gate fixes prob 𝑘 = 0 in Eq. (16), removing the revisit branch so grounding becomes a pure behavior-graph walk. It tests the contribution of the revisit mechanism to our model. 
+
+• w/o AR-mask removes the auto-regressive mask from the self-attention over the tokens u𝑘 of Eq. (11) and uses bidirectional attention. A future token carries h𝑝 𝑘 , the ground-truth that step 
+
+𝑘 should predict, so the mask blocks this leakage. It tests the role of the auto-regressive constraint in preventing next-step-leakage. 
+
+• w/o condition zeros the conditioning in the velocity network of Eq. (10), replacing 𝑣 𝜃 (𝜹 𝑡 , 𝑡, c𝑘 ) with 𝑣𝜃 (𝜹 𝑡 , 𝑡, 0), so the flow samples the marginal 𝑝 (𝜹 ) instead of 𝑝 (𝜹 | c𝑘 ). The current POI anchor is still injected at the snapping step of Eq. (13), so the walk stays anchored. The variant is used to validating history conditioning’s effect on sequence modeling. 
+
+D Algorithm Analysis 
+
+We analyze the computational complexity of Nomad stage by stage. Let |P | be the number of POIs of a city and |E| the number of edges of its POI graph, 𝑑 the shared embedding dimension, 𝐿 and 𝑅 the number of encoder layers and relations, 𝐷 and 𝐵 the width and depth of the flow-matching velocity network, 𝑆 its number of inte-gration steps, 𝐾 the number of transitions sampled per POI to build the behavior graph, Δ the out-degree of a graph node, and 𝑀 and ℓ
+
+the number and the maximum length of the generated trajectories. 
+
+(i) Cross-city encoding. The relation-aware GATv2 passes messages along the edges and transforms the node features, which costs 
+
+𝑂  𝐿𝑅 (|E| 𝑑 + |P | 𝑑 2). It is run once per city and is linear in the city size. (ii) Behavior-graph construction. For each POI we condition the frozen generator on its embedding and draw 𝐾 transitions, and each draw integrates the velocity network for 𝑆 steps, which costs 
+
+𝑂  |P | 𝐾 𝑆 𝐵 𝐷 2 ; snapping every sample to its best-matching target POI adds 𝑂  |P | 𝐾 𝑑 , with no long denoising chain because 𝑆 is a small constant. (iii) Grounding walk. The copy-gate walk generates each step with one gate evaluation and one transition lookup, so producing 𝑀 trajectories of length up to ℓ costs 𝑂  𝑀ℓ (𝑑 + Δ).Summing the three stages, the overall complexity is 
+
+𝑂   𝐿𝑅 (|E| 𝑑 + |P | 𝑑 2) + |P | 𝐾 𝑆 𝐵 𝐷 2 + |P | 𝐾 𝑑 + 𝑀ℓ (𝑑 + Δ) .
+
+Every architecture term ( 𝐿, 𝑅, 𝑑, 𝐵, 𝐷, 𝑆, 𝐾, 𝐶, Δ, ℓ ) is a fixed hyper-parameter that does not grow with the data, so Nomad scales lin-early with the number of POIs |P | and the number of generated trajectories 𝑀 , and it avoids the iterative denoising required by diffusion-based generators. All three stages are linear in the city size |P | and the number of generated trajectories 𝑀 . The cost is dominated by the behavior-graph construction, which draws |P | 𝐾 
+
+Table 4: Training time per epoch (summed over all training stages) and generation time for 10k trajectories.                                                                  
+
+> Transfer MIRAGE (s) GTG (s) COLA (s) Nomad (s) TKY →NYC 27.3 446.0 68.0 9.6 NYC →TKY 8.9 277.0 25.8 5.4 OSA →NGO 3.2 86.0 9.1 3.9 OSA →KYO 3.2 86.0 9.1 3.9 OSA →FUK 3.2 86.0 9.1 3.9 NGO →OSA 1.6 41.8 4.5 3.4 KYO+NGO →OSA 2.9 79.0 11.7 3.7 FUK+KYO+NGO →OSA 2.7 105.0 10.3 3.9 IST →IZM 3.2 144.0 8.9 3.8 IST →ANK 3.2 144.0 8.9 3.8 IST →BUR 3.2 144.0 8.9 3.8 IZM →IST 2.8 78.0 6.2 3.6 ANK+IZM →IST 4.2 156.0 11.8 4.1 ANK+BUR+IZM →IST 4.9 184.0 12.1 4.2 Gen. 10k trajs 241.7 17.0 53.0 13.3
+
+transitions of 𝑆 integration steps each, while 𝑆 and 𝐾 are small constants. Because Nomad needs only a few integration steps and a single-pass grounding walk, it avoids the long iterative denoising of diffusion-based generators. The algorithm is shown in Algorithm 1. During the whole ex-periments, we use an Intel(R) Xeon(R) Gold 5318Y CPU and four NVIDIA GeForce RTX 4090 GPU with 24GB memory to train and perform inference. Besides, we further provide the running time comparison be-tween Nomad and SOTA baselines in training and generating phases in Tables 4 to verify effectiveness of the proposed method. From Ta-ble 4, MIRAGE is one to two seconds faster than our model On the small-scale datasets like Japanese and Turkish clusters. However, on the larger-scale NYC and TKY datasets, Nomad still completes a training epoch in under 10 seconds, whereas MIRAGE’s speed drops significantly. GTG incurs substantially higher computational cost due to its complex sequence generation process, while MIRAGE and COLA remain slower despite their simpler architectures. The efficiency advantage becomes even more evident during inference. Generating 10k trajectories takes only 13.3 seconds for Nomad ,compared with 17.0 seconds for GTG, 53.0 seconds for COLA, and 241.7 seconds for MIRAGE. This improvement mainly comes from flow matching module, which enables one-pass generation without the iterative denoising process required by diffusion-based gener-ators. Moreover, grounding sampled transitions through the be-havior graph involves only lightweight nearest-neighbor matching and probability lookup, introducing negligible additional overhead. These results demonstrate that Nomad is not only more accurate but also computationally efficient for large-scale trajectory synthe-sis. 
+
+E Supplementary Experiments E.1 Full Results on All Transfers 
+
+Tables 5, 6, and 7 report the results on the ten transfer pairs not shown in the main text, under the same protocol and conventions as Table 1. The complete results further reveal that the advantage of Nomad is not driven by a small number of favorable trans-fer settings. It achieves a positive average gain over the strongest metric-wise baselines on seven of the ten additional pairs, includ-ing the geographically and structurally distinct TKY →NYC setting, Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+Algorithm 1 Detailed Procedures of Nomad 
+
+Input: Source city trajectories {T 𝑠 }𝑆 𝑠 =1, Source city POIs V𝑠 . and target city POIs V𝑡 .
+
+Output: Generated trajectories ˆ T𝑡 in the target city. 
+
+// First Stage: Cross-City POI Alignment  
+
+> 1:
+
+Construct multi-relational POI graphs from source and target cities;  
+
+> 2:
+
+Initialize the Relation-aware GATv2;  
+
+> 3:
+
+while not converged do  
+
+> 4:
+
+Compute relation-specific node representations {h𝑟 𝑖 } by GATv2 aggregation (Eq. (3));  
+
+> 5:
+
+Aggregate multiple relation representations into POI embed-dings h𝑖 (Eq. (4));  
+
+> 6:
+
+Update encoder parameters by minimizing alignment objec-tive Lalign (Eq. (8));  
+
+> 7:
+
+end while // Second Stage: Flow Matching in Transition Space  
+
+> 8:
+
+Construct transition vectors 𝜹 𝑘 from source trajectories (Eq. (9));  
+
+> 9:
+
+Initialize the velocity network 𝑣 𝜃 ; 
+
+> 10:
+
+while not converged do  
+
+> 11:
+
+Sample noise transition 𝜹 0 ∼ N ( 0, I) and real transition 𝜹 1; 
+
+> 12:
+
+Interpolate transition samples 𝜹 𝑡 along the flow path;  
+
+> 13:
+
+Construct trajectory tokens u𝑘 (Eq. (11));  
+
+> 14:
+
+Predict transport velocity 𝑣 𝜃 (𝜹 𝑡 , 𝑡, c𝑘 ); 
+
+> 15:
+
+Update 𝑣 𝜃 by minimizing flow matching loss Lfm (Eq. (10));  
+
+> 16:
+
+end while // Third Stage: Target-City Grounding  
+
+> 17:
+
+for each target POI 𝑖 ∈ V 𝑡 do  
+
+> 18:
+
+Generate transition samples { ˆ𝜹 (𝑠 ) }𝐾 𝑠 =1 conditioned on h𝑖 ; 
+
+> 19:
+
+Ground generated transitions to target POIs using the match-ing function (Eq. (13));  
+
+> 20:
+
+Calculate transition probability 𝑃 (𝑖 → 𝑗 ) (Eq. (14));  
+
+> 21:
+
+end for  
+
+> 22:
+
+Construct target behavior graph G𝐵 ; 
+
+> 23:
+
+Initialize Pointer Network with source trajectories;  
+
+> 24:
+
+while not converged do  
+
+> 25:
+
+Encode current POI and contextual features 𝝃 𝑘 (Eq. (15));  
+
+> 26:
+
+Predict return probability and revisit distribution using Pointer Network heads (Eq. (16));  
+
+> 27:
+
+Update Pointer Network parameters using return gate loss and revisit prediction loss;  
+
+> 28:
+
+end while // Trajectory Generation  
+
+> 29:
+
+Sample initial POI and timestamp from target city;  
+
+> 30:
+
+while trajectory length is not reached do  
+
+> 31:
+
+Generate transition by solving flow ODE with Euler sampling (Eq. (12));  
+
+> 32:
+
+Decide return or exploration using Pointer Network;  
+
+> 33:
+
+Sample next POI from revisit distribution or behavior graph 
+
+G𝐵 ; 
+
+> 34:
+
+end while  
+
+> 35:
+
+return Obtain generated target-city trajectories ˆ T𝑡 .where the gain reaches 24.43%. Its performance is particularly stable on the fidelity metrics: among these ten pairs, Nomad obtains the lowest Distance error in nine settings, the lowest Speed error in eight settings, and the lowest Time-Cat error in nine settings. These results show that the generated trajectories consistently preserve realistic travel ranges, movement speeds, and temporal-category patterns after being grounded to previously unseen POIs. The gains are not limited to distribution matching. Regarding TKY →NYC and NGO →OSA, Nomad ranks first across all four downstream metrics, yet on OSA →NGO, OSA →KYO, IST →IZM, and IZM →IST, it achieves the best or second-best result on most utility measures. Markov is competitive on prediction in several Japanese and Turkish pairs, COLA and GTG perform well on recommendation, and Gravity often provides a strong OD or Speed match. In con-trast, Nomad more frequently maintains competitive utility and fidelity simultaneously rather than optimizing one aspect at the expense of the other. The three negative average gains, namely OSA →FUK, IST →IZM, and IST →BUR, also clarify the remaining difficulty. In these settings, Nomad continues to achieve the best Distance, Speed, and Time-Cat results, but loses ground on one or more downstream or OD-based measures. Similarly, on IST →BUR, MIRAGE performs best for prediction and Gravity for recommenda-tion and OD-Sim, although Nomad still gives the closest distance, speed, and temporal-category distributions. Therefore, the negative aggregate values do not indicate uniformly poor transfer; rather, they arise from a mismatch between accurate marginal mobility statistics and the pair-specific transition or recommendation pat-terns required by certain downstream tasks. Finally, the comparison between trace IZM →IST and trace ANK+IZM →IST supports the observation in the main text: adding Ankara as an additional source changes most errors only slightly and does not alter the overall ranking pattern. Taken together, the full pairwise results show that Nomad transfers reliably across metropolitan, Japanese, and Turkish city groups, with its most consistent advantage lying in preserving the physical and temporal characteristics of mobility while remaining competitive for downstream use. 
+
+E.2 Parameter Analysis 
+
+The supplemented sensitivity analysis further provides the impacts of three coefficients in Nomad regulate complementary compo-nents of the framework. Specifically, 𝜆 cat weights the category pre-diction loss for cross-city semantic alignment, 𝜆 link controls the link reconstruction loss that preserves the structural relationships among POIs, and 𝜆 gate balances the return gate and revisit pre-diction objectives in the Pointer Network. Across both transfer settings, competitive performance is maintained over a broad range of parameter combinations rather than being confined to a single sharp optimum, indicating that Nomad is not highly sensitive to fine-grained tuning. Noticeable degradation mainly occurs when either 𝜆 cat or 𝜆 link becomes overly dominant, as excessive emphasis on category semantics or graph structure can weaken the balance re-quired for learning transferable POI representations. In comparison, varying 𝜆 gate causes only moderate changes in the error landscape, suggesting that the return-and-exploration mechanism remains sta-ble under different relative weights. The similar response patterns on ANK+BUR+IZM →IST and KYO+NGO →OSA further confirm Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 
+
+Table 5: Full results on Metropolis transfer pair. Conventions as in Table 1. 
+
+Method Downstream Utility Distributional Fidelity Pred-MAPE ↓ Pred-MSPE ↓ Rec-MAPE ↓ Rec-MSPE ↓ OD-Sim ↓ Distance ↓ Speed ↓ Time-Cat ↓
+
+> TKY →NYC
+
+Markov [16] 0.619 ±0.071 0.400 ±0.094 0.449 ±0.076 0.229 ±0.071 0.585 ±0.005 0.181 ±0.001 – –+24.43% DITRAS [37] 0.776 ±0.083 0.641 ±0.122 0.696 ±0.092 0.547 ±0.121 0.473 ±0.008 0.143 ±0.000 0.040 ±0.000 0.284 ±0.002 Gravity [1] 0.647 ±0.068 0.462 ±0.103 0.391 ±0.062 0.183 ±0.067 0.312 ±0.002 0.128 ±0.002 0.029 ±0.000 0.236 ±0.001 MIRAGE [12] 0.608 ±0.033 0.418 ±0.042 0.445 ±0.054 0.290 ±0.058 0.946 ±0.038 0.083 ±0.001 0.063 ±0.001 0.270 ±0.002 GTG [56] 0.575 ±0.004 0.328 ±0.004 0.285 ±0.037 0.088 ±0.024 0.710 ±0.025 0.235 ±0.002 0.121 ±0.001 0.223 ±0.002 COLA [58] 0.762 ±0.053 0.634 ±0.082 0.406 ±0.033 0.184 ±0.033 0.522 ±0.006 0.254 ±0.002 0.212 ±0.001 0.161 ±0.001 
+
+Nomad 0.501 ±0.005 0.254 ±0.005 0.258 ±0.011 0.080 ±0.015 0.287 ±0.003 0.013 ±0.001 0.018 ±0.002 0.143 ±0.001 
+
+Table 6: Full results on Japanese-cluster transfer pairs. Conventions as in Table 1. 
+
+Method Downstream Utility Distributional Fidelity Pred-MAPE ↓ Pred-MSPE ↓ Rec-MAPE ↓ Rec-MSPE ↓ OD-Sim ↓ Distance ↓ Speed ↓ Time-Cat ↓
+
+> OSA →NGO
+
+Markov [16] 0.365 ±0.028 0.172 ±0.020 0.233 ±0.091 0.103 ±0.069 0.399 ±0.024 0.199 ±0.003 – –+6.24% DITRAS [37] 0.382 ±0.039 0.180 ±0.032 0.287 ±0.108 0.155 ±0.114 0.312 ±0.013 0.159 ±0.003 0.058 ±0.003 0.344 ±0.002 Gravity [1] 0.463 ±0.113 0.253 ±0.113 0.449 ±0.135 0.398 ±0.160 0.350 ±0.013 0.182 ±0.002 0.024 ±0.001 0.367 ±0.001 MIRAGE [12] 0.455 ±0.030 0.233 ±0.021 0.335 ±0.094 0.224 ±0.153 0.837 ±0.145 0.056 ±0.003 0.034 ±0.003 0.405 ±0.008 GTG [56] 0.398 ±0.039 0.171 ±0.029 0.365 ±0.020 0.395 ±0.010 0.736 ±0.030 0.153 ±0.003 0.165 ±0.002 0.317 ±0.007 COLA [58] 0.401 ±0.040 0.186 ±0.034 0.241 ±0.137 0.203 ±0.205 0.477 ±0.019 0.243 ±0.005 0.145 ±0.004 0.332 ±0.001 
+
+Nomad 0.382 ±0.031 0.167 ±0.022 0.170 ±0.123 0.103 ±0.171 0.292 ±0.015 0.059 ±0.002 0.021 ±0.000 0.280 ±0.003 
+
+> OSA →KYO
+
+Markov [16] 0.401 ±0.063 0.219 ±0.063 0.372 ±0.030 0.264 ±0.030 0.473 ±0.012 0.206 ±0.003 – –+8.71% DITRAS [37] 0.444 ±0.038 0.248 ±0.054 0.444 ±0.096 0.274 ±0.111 0.401 ±0.024 0.175 ±0.002 0.035 ±0.002 0.280 ±0.003 Gravity [1] 0.390 ±0.046 0.177 ±0.040 0.456 ±0.086 0.377 ±0.125 0.420 ±0.013 0.151 ±0.001 0.116 ±0.001 0.352 ±0.002 MIRAGE [12] 0.386 ±0.049 0.178 ±0.048 0.462 ±0.113 0.308 ±0.164 0.660 ±0.275 0.080 ±0.005 0.044 ±0.003 0.408 ±0.010 GTG [56] 0.431 ±0.015 0.232 ±0.015 0.432 ±0.016 0.380 ±0.037 0.462 ±0.052 0.158 ±0.003 0.175 ±0.002 0.290 ±0.005 COLA [58] 0.505 ±0.089 0.308 ±0.099 0.355 ±0.097 0.247 ±0.157 0.597 ±0.024 0.260 ±0.004 0.105 ±0.004 0.324 ±0.004 
+
+Nomad 0.374 ±0.036 0.172 ±0.029 0.358 ±0.112 0.247 ±0.164 0.336 ±0.017 0.063 ±0.004 0.026 ±0.001 0.276 ±0.003 
+
+> OSA →FUK
+
+Markov [16] 0.358 ±0.093 0.178 ±0.101 0.558 ±0.445 1.533 ±1.832 0.252 ±0.005 0.182 ±0.004 – –-28.39% DITRAS [37] 0.504 ±0.059 0.343 ±0.042 0.748 ±0.263 1.585 ±0.815 0.210 ±0.006 0.161 ±0.002 0.039 ±0.001 0.311 ±0.008 Gravity [1] 0.370 ±0.086 0.204 ±0.067 0.615 ±0.404 1.747 ±1.983 0.273 ±0.017 0.184 ±0.004 0.031 ±0.001 0.362 ±0.005 MIRAGE [12] 0.424 ±0.078 0.228 ±0.084 0.834 ±0.474 2.220 ±2.287 0.832 ±0.322 0.095 ±0.004 0.047 ±0.002 0.474 ±0.011 GTG [56] 0.434 ±0.119 0.396 ±0.241 1.043 ±0.130 4.053 ±0.950 0.768 ±0.025 0.134 ±0.002 0.141 ±0.002 0.331 ±0.011 COLA [58] 0.564 ±0.067 0.430 ±0.080 0.734 ±0.387 2.204 ±1.755 0.270 ±0.006 0.221 ±0.005 0.100 ±0.003 0.337 ±0.004 
+
+Nomad 0.339 ±0.081 0.169 ±0.088 0.794 ±0.455 2.643 ±2.076 0.541 ±0.012 0.080 ±0.004 0.027 ±0.002 0.292 ±0.003 
+
+> NGO →OSA
+
+Markov [16] 0.500 ±0.070 0.281 ±0.071 0.261 ±0.085 0.116 ±0.072 0.465 ±0.009 0.215 ±0.002 – –+15.23% DITRAS [37] 0.477 ±0.064 0.262 ±0.074 0.369 ±0.196 0.233 ±0.206 0.340 ±0.013 0.172 ±0.001 0.059 ±0.002 0.215 ±0.003 Gravity [1] 0.469 ±0.037 0.288 ±0.061 0.400 ±0.059 0.243 ±0.053 0.338 ±0.011 0.148 ±0.003 0.024 ±0.001 0.306 ±0.001 MIRAGE [12] 0.379 ±0.046 0.175 ±0.035 0.418 ±0.080 0.301 ±0.075 0.589 ±0.198 0.160 ±0.001 0.034 ±0.002 0.271 ±0.005 GTG [56] 0.422 ±0.005 0.225 ±0.003 0.257 ±0.023 0.137 ±0.011 0.662 ±0.014 0.176 ±0.001 0.187 ±0.001 0.256 ±0.004 COLA [58] 0.374 ±0.028 0.167 ±0.014 0.269 ±0.026 0.135 ±0.007 0.484 ±0.015 0.257 ±0.002 0.131 ±0.001 0.267 ±0.001 
+
+Nomad 0.372 ±0.037 0.161 ±0.039 0.201 ±0.052 0.072 ±0.055 0.285 ±0.007 0.071 ±0.001 0.027 ±0.001 0.209 ±0.002 
+
+that the selected hyper-parameters generalize across different city groups rather than being tailored to a particular transfer setting. 
+
+Received 20 February 2007; revised 12 March 2009; accepted 5 June 2009 Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation Conference acronym ’XX, June 03–05, 2018, Woodstock, NY 
+
+Table 7: Full results on Turkish-cluster transfer pairs. Conventions as in Table 1. 
+
+Method Downstream Utility Distributional Fidelity Pred-MAPE ↓ Pred-MSPE ↓ Rec-MAPE ↓ Rec-MSPE ↓ OD-Sim ↓ Distance ↓ Speed ↓ Time-Cat ↓
+
+> IST →IZM
+
+Markov [16] 0.242 ±0.055 0.081 ±0.041 0.316 ±0.177 0.216 ±0.147 0.502 ±0.010 0.162 ±0.002 – –-10.84% DITRAS [37] 0.319 ±0.066 0.138 ±0.032 0.375 ±0.046 0.238 ±0.043 0.408 ±0.012 0.127 ±0.002 0.062 ±0.003 0.257 ±0.002 Gravity [1] 0.291 ±0.088 0.123 ±0.067 0.242 ±0.166 0.123 ±0.129 0.334 ±0.003 0.114 ±0.003 0.004 ±0.000 0.274 ±0.002 MIRAGE [12] 0.434 ±0.029 0.229 ±0.028 0.322 ±0.133 0.224 ±0.122 0.976 ±0.033 0.146 ±0.003 0.063 ±0.003 0.380 ±0.009 GTG [56] 0.329 ±0.030 0.151 ±0.033 0.178 ±0.030 0.112 ±0.009 0.633 ±0.031 0.311 ±0.003 0.149 ±0.003 0.282 ±0.003 COLA [58] 0.277 ±0.033 0.091 ±0.018 0.151 ±0.076 0.043 ±0.041 0.618 ±0.009 0.214 ±0.003 0.194 ±0.003 0.268 ±0.004 
+
+Nomad 0.246 ±0.030 0.074 ±0.021 0.105 ±0.043 0.023 ±0.019 0.365 ±0.010 0.049 ±0.001 0.013 ±0.001 0.240 ±0.002 
+
+> IST →ANK
+
+Markov [16] 0.352 ±0.043 0.176 ±0.032 0.362 ±0.110 0.226 ±0.106 0.623 ±0.011 0.161 ±0.002 – –+7.60% DITRAS [37] 0.367 ±0.056 0.191 ±0.067 0.413 ±0.063 0.268 ±0.059 0.531 ±0.010 0.133 ±0.003 0.052 ±0.001 0.261 ±0.005 Gravity [1] 0.245 ±0.062 0.097 ±0.045 0.235 ±0.106 0.139 ±0.070 0.472 ±0.015 0.111 ±0.002 0.015 ±0.004 0.263 ±0.005 MIRAGE [12] 0.370 ±0.116 0.226 ±0.117 0.408 ±0.126 0.301 ±0.115 0.658 ±0.056 0.124 ±0.003 0.057 ±0.002 0.381 ±0.006 GTG [56] 0.308 ±0.016 0.119 ±0.006 0.287 ±0.007 0.125 ±0.009 0.712 ±0.022 0.297 ±0.005 0.146 ±0.002 0.283 ±0.007 COLA [58] 0.244 ±0.046 0.080 ±0.037 0.224 ±0.054 0.146 ±0.039 0.692 ±0.013 0.196 ±0.001 0.185 ±0.002 0.259 ±0.002 
+
+Nomad 0.235 ±0.029 0.079 ±0.018 0.251 ±0.065 0.140 ±0.061 0.408 ±0.018 0.052 ±0.002 0.014 ±0.001 0.242 ±0.002 
+
+> IST →BUR
+
+Markov [16] 0.384 ±0.111 0.143 ±0.107 0.499 ±0.141 0.366 ±0.139 0.524 ±0.011 0.128 ±0.002 – –-16.10% DITRAS [37] 0.386 ±0.091 0.141 ±0.098 0.564 ±0.236 0.710 ±0.442 0.420 ±0.016 0.103 ±0.004 0.046 ±0.001 0.342 ±0.006 Gravity [1] 0.329 ±0.080 0.196 ±0.079 0.389 ±0.130 0.328 ±0.199 0.387 ±0.007 0.108 ±0.003 0.019 ±0.000 0.352 ±0.006 MIRAGE [12] 0.298 ±0.060 0.134 ±0.044 0.626 ±0.120 0.827 ±0.273 0.987 ±0.043 0.137 ±0.002 0.064 ±0.004 0.509 ±0.004 GTG [56] 0.305 ±0.025 0.157 ±0.016 0.542 ±0.083 0.713 ±0.224 0.776 ±0.025 0.291 ±0.008 0.146 ±0.003 0.369 ±0.005 COLA [58] 0.400 ±0.149 0.224 ±0.146 0.432 ±0.224 0.526 ±0.408 0.639 ±0.013 0.179 ±0.002 0.154 ±0.004 0.336 ±0.005 
+
+Nomad 0.321 ±0.035 0.148 ±0.038 0.527 ±0.238 0.749 ±0.421 0.406 ±0.011 0.051 ±0.004 0.018 ±0.002 0.328 ±0.004 
+
+> IZM →IST
+
+Markov [16] 0.226 ±0.089 0.097 ±0.060 0.205 ±0.101 0.097 ±0.084 0.628 ±0.014 0.158 ±0.002 – –+10.00% DITRAS [37] 0.259 ±0.051 0.099 ±0.033 0.258 ±0.122 0.131 ±0.109 0.557 ±0.019 0.133 ±0.001 0.046 ±0.001 0.225 ±0.001 Gravity [1] 0.310 ±0.077 0.134 ±0.044 0.353 ±0.200 0.220 ±0.201 0.514 ±0.008 0.091 ±0.002 0.020 ±0.000 0.238 ±0.002 MIRAGE [12] 0.335 ±0.094 0.205 ±0.100 0.411 ±0.101 0.341 ±0.113 0.740 ±0.144 0.071 ±0.001 0.027 ±0.001 0.320 ±0.008 GTG [56] 0.217 ±0.011 0.079 ±0.004 0.135 ±0.036 0.034 ±0.015 0.681 ±0.018 0.316 ±0.002 0.163 ±0.002 0.234 ±0.004 COLA [58] 0.255 ±0.060 0.089 ±0.038 0.118 ±0.047 0.027 ±0.020 0.838 ±0.006 0.266 ±0.002 0.207 ±0.002 0.228 ±0.002 
+
+Nomad 0.196 ±0.032 0.058 ±0.018 0.134 ±0.062 0.031 ±0.022 0.451 ±0.014 0.051 ±0.001 0.015 ±0.001 0.210 ±0.001 
+
+> ANK+IZM →IST
+
+Markov [16] 0.292 ±0.087 0.137 ±0.057 0.315 ±0.120 0.186 ±0.084 0.658 ±0.015 0.166 ±0.001 – –+16.97% DITRAS [37] 0.338 ±0.086 0.164 ±0.065 0.278 ±0.182 0.156 ±0.156 0.565 ±0.011 0.135 ±0.001 0.048 ±0.001 0.213 ±0.002 
+
+Gravity [1] 0.346 ±0.058 0.157 ±0.053 0.207 ±0.112 0.103 ±0.089 0.507 ±0.008 0.089 ±0.002 0.026 ±0.000 0.238 ±0.003 MIRAGE [12] 0.277 ±0.113 0.116 ±0.057 0.290 ±0.110 0.201 ±0.105 0.784 ±0.094 0.120 ±0.001 0.036 ±0.001 0.299 ±0.002 GTG [56] 0.207 ±0.020 0.077 ±0.005 0.200 ±0.044 0.050 ±0.016 0.674 ±0.014 0.317 ±0.003 0.163 ±0.002 0.237 ±0.008 COLA [58] 0.240 ±0.035 0.082 ±0.025 0.183 ±0.108 0.072 ±0.080 0.830 ±0.017 0.266 ±0.003 0.207 ±0.002 0.226 ±0.003 
+
+Nomad 0.205 ±0.018 0.064 ±0.010 0.172 ±0.063 0.049 ±0.032 0.459 ±0.010 0.045 ±0.001 0.012 ±0.001 0.219 ±0.002 0.25 0.5 0.75 11.5 2
+
+> cat
+> 0.05 0.1 0.2 0.4 0.8 1.6
+> contrast
+> 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300
+> Pred-MAPE
+> 0.14 0.17 0.15 0.20 0.13 0.16 0.17 0.20 0.20 0.17 0.18 0.18 0.21 0.22 0.21 0.18 0.14 0.16 0.20 0.21 0.14 0.19 0.25 0.25 0.12 0.16 0.23 0.17 0.14 0.20 0.19 0.17 0.16 0.14 0.18 0.19
+
+(a) 𝜆 𝑔𝑎𝑡𝑒 = 0.25 0.25 0.5 0.75 11.5 2  
+
+> cat
+> 0.05 0.1 0.2 0.4 0.8 1.6
+> contrast
+> 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300
+> Pred-MAPE
+> 0.16 0.22 0.22 0.21 0.18 0.15 0.18 0.17 0.21 0.19 0.17 0.24 0.16 0.18 0.15 0.19 0.23 0.24 0.19 0.15 0.25 0.17 0.12 0.22 0.19 0.16 0.18 0.18 0.19 0.19 0.16 0.17 0.21 0.18 0.17 0.14
+
+(b) 𝜆 𝑔𝑎𝑡𝑒 = 10.25 0.5 0.75 11.5 2 
+
+> cat
+> 0.05 0.1 0.2 0.4 0.8 1.6
+> contrast
+> 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300
+> Pred-MAPE
+> 0.23 0.19 0.21 0.18 0.20 0.19 0.16 0.23 0.17 0.22 0.17 0.17 0.21 0.21 0.13 0.15 0.22 0.16 0.16 0.14 0.20 0.19 0.14 0.19 0.25 0.14 0.23 0.22 0.17 0.20 0.22 0.22 0.20 0.18 0.19 0.18
+
+(c) 𝜆 𝑔𝑎𝑡𝑒 = 40.25 0.5 0.75 11.5 2 
+
+> cat
+> 0.05 0.1 0.2 0.4 0.8 1.6
+> contrast
+> 0.100 0.125 0.150 0.175 0.200 0.225 0.250 0.275 0.300
+> Pred-MAPE
+> 0.16 0.15 0.16 0.20 0.21 0.19 0.19 0.24 0.17 0.21 0.24 0.17 0.16 0.21 0.13 0.24 0.20 0.19 0.24 0.23 0.23 0.17 0.22 0.19 0.22 0.22 0.16 0.27 0.18 0.19 0.19 0.15 0.23 0.18 0.22 0.18
+
+(d) 𝜆 𝑔𝑎𝑡𝑒 = 8
+
+Figure 6: Hyper-parameter sensitivity on {ANK+BUR+IZM →IST}. Conference acronym ’XX, June 03–05, 2018, Woodstock, NY Trovato et al. 0.25 0.5 0.75 11.5 2
+
+cat 
+
+0.05 0.1 0.2 0.4 0.8 1.6 
+
+> contrast
+
+0.28 0.30 0.32 0.34 0.36 0.38 0.40 0.42 0.44 
+
+> Pred-MAPE
+
+0.42 0.39 0.38 0.33 0.33 0.33 0.34 0.33 0.34 0.33 0.42 0.37 0.41 0.38 0.34 0.38 0.32 0.33 0.34 0.33 0.36 0.33 0.34 0.37 0.43 0.34 0.38 0.36 0.34 0.35 0.34 0.35 0.39 0.37 0.39 0.42 
+
+(a) 𝜆 𝑔𝑎𝑡𝑒 = 0.25 0.25 0.5 0.75 11.5 2
+
+cat 
+
+0.05 0.1 0.2 0.4 0.8 1.6 
+
+> contrast
+
+0.28 0.30 0.32 0.34 0.36 0.38 0.40 0.42 0.44 
+
+> Pred-MAPE
+
+0.33 0.40 0.37 0.34 0.33 0.35 0.33 0.42 0.36 0.34 0.34 0.36 0.42 0.35 0.37 0.35 0.36 0.32 0.37 0.35 0.38 0.33 0.40 0.38 0.36 0.33 0.37 0.35 0.32 0.38 0.34 0.34 0.36 0.38 0.40 0.34 (b) 𝜆 𝑔𝑎𝑡𝑒 = 10.25 0.5 0.75 11.5 2
+
+cat 
+
+0.05 0.1 0.2 0.4 0.8 1.6 
+
+> contrast
+
+0.28 0.30 0.32 0.34 0.36 0.38 0.40 0.42 0.44 
+
+> Pred-MAPE
+
+0.39 0.34 0.35 0.35 0.37 0.37 0.41 0.32 0.42 0.36 0.34 0.33 0.37 0.34 0.32 0.34 0.38 0.36 0.34 0.39 0.34 0.38 0.32 0.32 0.35 0.41 0.33 0.36 0.35 0.39 0.35 0.35 0.30 0.34 0.36 0.37 (c) 𝜆 𝑔𝑎𝑡𝑒 = 40.25 0.5 0.75 11.5 2
+
+cat 
+
+0.05 0.1 0.2 0.4 0.8 1.6 
+
+> contrast
+
+0.28 0.30 0.32 0.34 0.36 0.38 0.40 0.42 0.44 
+
+> Pred-MAPE
+
+0.32 0.32 0.33 0.40 0.33 0.36 0.34 0.37 0.33 0.33 0.43 0.32 0.34 0.41 0.35 0.37 0.34 0.38 0.34 0.31 0.43 0.35 0.36 0.32 0.32 0.34 0.35 0.34 0.40 0.37 0.36 0.43 0.37 0.37 0.35 0.38 (d) 𝜆 𝑔𝑎𝑡𝑒 = 8
+
+Figure 7: Hyper-parameter sensitivity on {KYO+NGO →OSA}.
