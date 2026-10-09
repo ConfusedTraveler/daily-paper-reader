@@ -7,30 +7,34 @@
 
 ## 每次日报
 - 最新运行日期：2026-10-08
-- 运行时间：2026-10-08 00:18:31 UTC
+- 运行时间：2026-10-09 00:05:27 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：0
-- 速读区：2
+- 本次总论文数：5
+- 精读区：1
+- 速读区：4
 
 ### 今日简报（AI）
-今日速读两篇均分6.0的论文，无人精读，聚焦人类移动生成与共形预测理论。
-
-值得一看：一是用"相对转移"替代"绝对目的地"、免目标轨迹的人类移动生成框架，二是从理论角度说明共形预测集可量化信息增益。
-
-普通读者可先浏览这两篇摘要判断是否与自身场景相关，若感兴趣再安排精读并追踪其引用与后续工作。
+今日完成5篇论文筛选，精读1篇、速读4篇，聚焦知识追踪评测与时间序列预测。最值得看的是精读8.0分的《An Information-Theoretic Evaluation Framework for Benchmark and Model Diagnosis in Knowledge Tracing》，以及速读7.0分关于时间序列模型“同等准确却预测轨迹不同”的研究。普通读者可优先读知识追踪的信息论评测框架，并留意评估模型时不能只看精度，还要看预测路径是否稳定。
 - 详情：[/202610/08/README](/202610/08/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [An Information-Theoretic Evaluation Framework for Benchmark and Model Diagnosis in Knowledge Tracing](/202610/08/2610.06988v1-an-information-theoretic-evaluation-framework-for-benchmark-and-model-diagnosis-in-knowledge-tracing)  
+   标签：评分：8.0/10、query:pred-limit
+   evidence：信息论框架量化局部可预测性并区分不可约不确定性
 
 ### 速读区论文标签
-1. [Relative Transitions, Not Absolute Destinations: A Transfer-and-Ground Framework for Target-Trajectory-Free Human Mobility Generation](/202610/08/2610.02033v1-relative-transitions-not-absolute-destinations-a-transfer-and-ground-framework-for-target-trajectory-free-human-mobility-generation)  
+1. [Temporal Predictive Multiplicity: Equally Accurate Time Series Models Yield Different Forecast Trajectories](/202610/08/2610.09994v1-temporal-predictive-multiplicity-equally-accurate-time-series-models-yield-different-forecast-trajectories)  
+   标签：评分：7.0/10、query:pred-limit
+   evidence：时间序列预测轨迹的预测多重性
+2. [A Unified Scaling Law for Time Series Foundation Models](/202610/08/2610.05269v1-a-unified-scaling-law-for-time-series-foundation-models)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：无目标轨迹的人类移动性生成
-2. [Conformal Prediction Sets Quantify Information Gain: A Theoretical Perspective](/202610/08/2610.08785v1-conformal-prediction-sets-quantify-information-gain-a-theoretical-perspective)  
+   evidence：时间序列学习理论与预测能力上限分析
+3. [Complementary Feature Domains: Information Preservation Does Not Imply Predictive-Contribution Preservation](/202610/08/2610.07565v1-complementary-feature-domains-information-preservation-does-not-imply-predictive-contribution-preservation)  
    标签：评分：6.0/10、query:pred-limit
-   evidence：用信息论量化不确定性与信息增益
+   evidence：预测价值的理论分析与界
+4. [Isotropic Yet Undecodable: The Sequential Content-Sufficiency Gap in Latent-Predictive Text Representations](/202610/08/2610.07906v1-isotropic-yet-undecodable-the-sequential-content-sufficiency-gap-in-latent-predictive-text-representations)  
+   标签：评分：6.0/10、query:pred-limit
+   evidence：序列表示的信息论极限与预测风险界
 
 
 <div class="dpr-home-promo-card">
